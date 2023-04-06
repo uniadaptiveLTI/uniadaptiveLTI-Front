@@ -17,11 +17,21 @@ function BlockTable({ blocksData }, ref) {
 		setDynamicTable(doTable(blocksData));
 	}, [blocksData]);
 
+	/**
+	 * Creates and populates a table with the given blocks data.
+	 * @param {Array} blocksData - An array of all blocks data.
+	 * @returns {JSX.Element} A JSX element representing the populated table.
+	 */
 	function doTable(blocksData) {
 		let tDimensions = getTableDimensions(blocksData);
 		return <>{createAndPopulateTable(blocksData, tDimensions)}</>;
 	}
 
+	/**
+	 * Calculates the dimensions of the table based on the given blocks data.
+	 * @param {Array} blocksData - An array of all blocks data.
+	 * @returns {Object} An object containing the x and y dimensions of the table.
+	 */
 	function getTableDimensions(blocksData) {
 		let maxX = 0;
 		let maxY = 0;
@@ -34,6 +44,12 @@ function BlockTable({ blocksData }, ref) {
 		return dimensions; //+1 for the end block
 	}
 
+	/**
+	 * Creates and populates a table with the given blocks data and dimensions.
+	 * @param {Array} blocksData - An array of all blocks data.
+	 * @param {Object} tDimensions - The dimensions of the table.
+	 * @returns {Array} An array of JSX elements representing the populated table rows.
+	 */
 	function createAndPopulateTable(blocksData, tDimensions) {
 		//Update start and end positions
 		let centerPos = blocksData.find((e) => e.id == 0).y;
@@ -54,9 +70,9 @@ function BlockTable({ blocksData }, ref) {
 				let currentBlock = newBlocksData.find((e) => e.x == x && e.y == y);
 				if (currentBlock != undefined) {
 					if (currentBlock.type != "start" && currentBlock.type != "end") {
-						//TODO: Añadir todos los tipos
+						//TODO: Add all types
 						let details = getDetails(currentBlock, newBlocksData);
-						//FIXME EVITAR ACCIONES
+						//FIXME DODGE ACTIONS
 						xElements.push(
 							<td key={x} style={{ height: 0 }}>
 								<BlockContainer
@@ -82,6 +98,12 @@ function BlockTable({ blocksData }, ref) {
 		return yElements;
 	}
 
+	/**
+	 * Calculates the unit and order of a selected block.
+	 * @param {Object} selectedBlock - The selected block.
+	 * @param {Array} blocksData - An array of all blocks data.
+	 * @returns {Object} An object containing the unit and order of the selected block.
+	 */
 	function getDetails(selectedBlock, blocksData) {
 		let headings = 0;
 		let order = 0;
@@ -101,16 +123,27 @@ function BlockTable({ blocksData }, ref) {
 		return { unit: headings, order: order };
 	}
 
+	/**
+	 * Returns an ordered array of blocks based on the given blocks data.
+	 * @param {Array} blocksData - An array of all blocks data.
+	 * @returns {Array} An ordered array of blocks.
+	 */
 	function getBlocksOrdered(blocksData) {
-		let orderedBlocks = [];
 		let firstBlock = blocksData.find((e) => e.id == 0); //FIXME Esto no permite que se haga bifurcación al inicio
 		return findNext(blocksData, firstBlock, []);
 	}
 
+	/**
+	 * Recursively finds the next block in a branch.
+	 * @param {Array} blocksData - An array of all blocks data.
+	 * @param {Object} currentBlock - The current block being processed.
+	 * @param {Array} orderedBlocks - An array of ordered blocks (default: []).
+	 * @returns {Array} An array of ordered blocks.
+	 */
 	function findNext(blocksData, currentBlock, orderedBlocks = []) {
-		//FIXME NO FUNCIONA se pone a 0
+		//FIXME 0 ON BADGES
 		if (currentBlock.type != "badge") {
-			//TODO Incluir todos los tipos que no desenvocan en nada
+			//TODO ADD ALL ACTIONS
 			if (blocksData && currentBlock) {
 				orderedBlocks.push(currentBlock);
 				if (currentBlock.children) {

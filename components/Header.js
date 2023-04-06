@@ -110,16 +110,28 @@ function Header({ closeBtn }, ref) {
 		});
 	}
 
+	/**
+	 * Returns a map object with the specified id.
+	 * @param {number} id - The id of the map to find.
+	 * @returns {Object} The map object with the specified id.
+	 */
 	function getMapById(id) {
 		return mapas.find((m) => m.id == id);
 	}
 
+	/**
+	 * Resets the edit state.
+	 */
 	function resetEdit() {
 		setBlockSelected("");
 		setSelectedEditVersion("");
 		setItinerarySelected("");
 	}
 
+	/**
+	 * Handles a change in the selected map.
+	 * @param {Event} e - The change event.
+	 */
 	function handleMapChange(e) {
 		resetEdit();
 		let id = Number(e.target.value);
@@ -128,6 +140,9 @@ function Header({ closeBtn }, ref) {
 		id > -1 ? setMap(mapaAsociado) : setMap("");
 	}
 
+	/**
+	 * Handles the creation of a new itinerary.
+	 */
 	const handleNewItinerary = () => {
 		const newMapa = [
 			...mapas,
@@ -142,6 +157,9 @@ function Header({ closeBtn }, ref) {
 		});
 	};
 
+	/**
+	 * Handles the creation of a new version.
+	 */
 	const handleNewVersion = () => {
 		const newVersion = [
 			...versiones,
@@ -161,6 +179,9 @@ function Header({ closeBtn }, ref) {
 		});
 	};
 
+	/**
+	 * Handles the editing of an itinerary.
+	 */
 	const editItinerary = () => {
 		if (expanded != true) {
 			setExpanded(true);
@@ -171,6 +192,9 @@ function Header({ closeBtn }, ref) {
 		setItinerarySelected(getMapById(itineraryId));
 	};
 
+	/**
+	 * Handles the editing of a version.
+	 */
 	const editVersion = () => {
 		if (expanded != true) {
 			setExpanded(true);
@@ -180,6 +204,9 @@ function Header({ closeBtn }, ref) {
 		setSelectedEditVersion(selectedVersion);
 	};
 
+	/**
+	 * Handles the deletion of an itinerary.
+	 */
 	const deleteItinerary = () => {
 		const itineraryId = selectItineraryDOM.current.value;
 		setMapas((mapas) =>
@@ -187,6 +214,9 @@ function Header({ closeBtn }, ref) {
 		);
 	};
 
+	/**
+	 * Handles the deletion of a version.
+	 */
 	const deleteVersion = () => {
 		const versionId = selectedVersion.id;
 		setVersiones((versiones) =>
@@ -222,6 +252,10 @@ function Header({ closeBtn }, ref) {
 		}
 	}, [versionJson]);
 
+	/**
+	 * A React component that renders a logo.
+	 * @returns {JSX.Element} A JSX element representing the logo.
+	 */
 	function CreateLogo() {
 		return (
 			<div className="mx-auto d-flex align-items-center" role="button">
@@ -240,6 +274,9 @@ function Header({ closeBtn }, ref) {
 		);
 	}
 
+	/**
+	 * A JSX element representing a popover with information.
+	 */
 	const PopoverInfo = (
 		<Popover id="popover-basic">
 			<Popover.Header as="h3"></Popover.Header>
@@ -250,6 +287,14 @@ function Header({ closeBtn }, ref) {
 		</Popover>
 	);
 
+	/**
+	 * A React component that renders a user toggle.
+	 * @param {Object} props - The component's props.
+	 * @param {JSX.Element} props.children - The component's children.
+	 * @param {function} props.onClick - The onClick event handler.
+	 * @param {Object} ref - A React ref to access the DOM element of the component.
+	 * @returns {JSX.Element} A JSX element representing the user toggle.
+	 */
 	const UserToggle = forwardRef(({ children, onClick }, ref) => (
 		<a
 			href=""
@@ -264,8 +309,16 @@ function Header({ closeBtn }, ref) {
 	));
 	UserToggle.displayName = "UserToggle";
 
-	// forwardRef again here!
-	// Dropdown needs access to the DOM of the Menu to measure it
+	/**
+	 * A React component that renders a user menu.
+	 * @param {Object} props - The component's props.
+	 * @param {JSX.Element} props.children - The component's children.
+	 * @param {Object} props.style - The style of the component.
+	 * @param {string} props.className - The className of the component.
+	 * @param {string} props.aria-labelledby - The aria-labelledby attribute of the component.
+	 * @param {Object} ref - A React ref to access the DOM element of the component.
+	 * @returns {JSX.Element} A JSX element representing the user menu.
+	 */
 	const UserMenu = forwardRef(
 		({ children, style, className, "aria-labelledby": labeledBy }, ref) => {
 			const [value, setValue] = useState("");

@@ -69,17 +69,17 @@ export default function BlockCanvas() {
 
 	const [showContextualMenu, setShowContextualMenu] = useState(false);
 
-	//Context Menu coordenadas
+	//Context Menu
 	const [cMX, setCMX] = useState(0);
 	const [cMY, setCMY] = useState(0);
 	const [cMBlockData, setCMBlockData] = useState({});
 
-	//Referencias
+	//Refs
 	const contextMenuDOM = useRef(null);
 	const blockTableDOM = useRef(null);
 	const blockCanvasArrowsDOM = useRef(null);
 
-	//La unidad se añadiría dínamicamente calculandolo de la identación
+	//This will be given by the back
 	const [blocksData, setBlocksData] = useState([
 		startBlock,
 		endBlock,
@@ -170,6 +170,8 @@ export default function BlockCanvas() {
 	const blocksDataRef = useRef(blocksData);
 
 	/** Client-side */
+	const [dimensions, setDimensions] = useState();
+	const [blockPositions, setBlockPositions] = useState([]);
 
 	useEffect(() => {
 		let newBlocksData = [...blocksData];
@@ -197,9 +199,6 @@ export default function BlockCanvas() {
 		);
 		setBlocksData(filteredBlocksData);
 	}, [deletedBlock]);
-
-	const [dimensions, setDimensions] = useState();
-	const [blockPositions, setBlockPositions] = useState([]);
 
 	useLayoutEffect(() => {
 		handleResize();

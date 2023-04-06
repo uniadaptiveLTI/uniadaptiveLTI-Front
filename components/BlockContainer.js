@@ -167,7 +167,7 @@ export default function BlockContainer({ blockData, inline, unit, order }) {
 				return <Link45deg size={32} />;
 			//Moodle
 			case "workshop":
-				return <Wechat size={32} />; //FIXME: Cambiar, tiene copyright
+				return <Wechat size={32} />; //FIXME: This need to be changed by other icon
 			case "choice":
 				return <Question size={32} />;
 			case "generic":
@@ -204,6 +204,7 @@ export default function BlockContainer({ blockData, inline, unit, order }) {
 	}
 
 	function getTypeColor() {
+		//TODO: Add the rest
 		switch (blockData.type) {
 			//Moodle + Sakai
 			case "questionnaire":

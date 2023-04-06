@@ -210,6 +210,9 @@ export default function Aside({ className, closeBtn }) {
 		}
 	}, [selectedEditVersion]);
 
+	/**
+	 * Updates the selected block with the values from the specified DOM elements.
+	 */
 	const updateBlock = () => {
 		setBlockJson({
 			id: blockSelected.id,
@@ -223,6 +226,9 @@ export default function Aside({ className, closeBtn }) {
 		});
 	};
 
+	/**
+	 * Updates the selected itinerary with the value from the specified DOM element.
+	 */
 	const updateItinerary = () => {
 		setMap({
 			id: itinerarySelected.id,
@@ -230,6 +236,9 @@ export default function Aside({ className, closeBtn }) {
 		});
 	};
 
+	/**
+	 * Updates the selected version with the value from the specified DOM element.
+	 */
 	const updateVersion = () => {
 		setVersionJson({
 			id: selectedEditVersion.id,
@@ -239,14 +248,9 @@ export default function Aside({ className, closeBtn }) {
 		});
 	};
 
-	/*function BasicExample() {
-		return (
-			<Spinner animation="border" role="status">
-				<span className="visually-hidden">Cargando...</span>
-			</Spinner>
-		);
-	}*/
-
+	/**
+	 * Collapses the side panel.
+	 */
 	function collapseAside() {
 		setExpanded(false);
 	}

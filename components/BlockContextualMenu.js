@@ -13,6 +13,9 @@ import {
 import { CreateBlockContext, DeleteBlockContext } from "@components/pages/_app";
 import { toast } from "react-toastify";
 
+/**
+ * Displays a toast message indicating that the function has not been implemented.
+ */
 const notImplemented = () => {
 	toast("Esta función no ha sido implementada.", {
 		hideProgressBar: false,
@@ -23,6 +26,17 @@ const notImplemented = () => {
 	});
 };
 
+/**
+ * Renders a contextual menu for a block.
+ * @param {number} x - The x position of the block.
+ * @param {number} y - The y position of the block.
+ * @param {Object} dimensions - The dimensions of the block canvas and contextual menu.
+ * @param {Object} blockData - The data of the selected block.
+ * @param {Array} blocksData - An array of all blocks data.
+ * @param {function} setBlocksData - A function to update the blocks data.
+ * @param {function} setShowContextualMenu - A function to show/hide the contextual menu.
+ * @param {Object} ref - A React ref to access the DOM element of the component.
+ */
 function BlockContextualMenu(
 	{
 		x,
@@ -129,6 +143,13 @@ function BlockContextualMenu(
 		setDeletedBlock(blockData);
 	};
 
+	/**
+	 * Recursively moves all blocks in a branch up by a specified difference.
+	 * @param {Array} blocksData - An array of all blocks data.
+	 * @param {Object} currentBlock - The current block being processed.
+	 * @param {Array} orderedBlocks - An array of ordered blocks (default: []).
+	 * @param {number} difference - The difference to move the blocks up by.
+	 */
 	function moveAllBranchUp(
 		blocksData,
 		currentBlock,
@@ -148,6 +169,12 @@ function BlockContextualMenu(
 		}
 	}
 
+	/**
+	 * Recursively searches for the first child block in a branch.
+	 * @param {Array} blocksData - An array of all blocks data.
+	 * @param {Object} currentBlock - The current block being processed.
+	 * @returns {Object} The first child block found.
+	 */
 	function searchFirstChild(blocksData, currentBlock) {
 		console.log(currentBlock);
 		for (let block of blocksData) {
@@ -161,6 +188,12 @@ function BlockContextualMenu(
 		}
 	}
 
+	/**
+	 * Recursively searches for the first father block in a branch.
+	 * @param {Array} blocksData - An array of all blocks data.
+	 * @param {Object} currentBlock - The current block being processed.
+	 * @returns {Object} The first father block found.
+	 */
 	function searchFirstFather(blocksData, currentBlock) {
 		console.log("First Father: " + currentBlock.title);
 		for (let block of blocksData) {
@@ -174,6 +207,13 @@ function BlockContextualMenu(
 		}
 	}
 
+	/**
+	 * Recursively moves all blocks in a branch to the right.
+	 * @param {Array} blocksData - An array of all blocks data.
+	 * @param {Object} currentBlock - The current block being processed.
+	 * @param {Array} orderedBlocks - An array of ordered blocks (default: []).
+	 * @returns {Array} An array of ordered blocks.
+	 */
 	function moveRight(blocksData, currentBlock, orderedBlocks = []) {
 		if (currentBlock.type != "badge") {
 			if (blocksData && currentBlock) {
@@ -196,6 +236,13 @@ function BlockContextualMenu(
 		return orderedBlocks;
 	}
 
+	/**
+	 * Recursively moves all blocks in a branch to the left.
+	 * @param {Array} blocksData - An array of all blocks data.
+	 * @param {Object} currentBlock - The current block being processed.
+	 * @param {Array} orderedBlocks - An array of ordered blocks (default: []).
+	 * @returns {Array} An array of ordered blocks.
+	 */
 	function moveLeft(blocksData, currentBlock, orderedBlocks = []) {
 		if (currentBlock.type != "badge") {
 			if (blocksData && currentBlock) {
@@ -218,6 +265,14 @@ function BlockContextualMenu(
 		return orderedBlocks;
 	}
 
+	/**
+	 * Recursively moves all blocks in a branch up by a specified difference.
+	 * @param {Array} blocksData - An array of all blocks data.
+	 * @param {Object} currentBlock - The current block being processed.
+	 * @param {Array} orderedBlocks - An array of ordered blocks (default: []).
+	 * @param {number} difference - The difference to move the blocks up by.
+	 * @returns {Array} An array of ordered blocks.
+	 */
 	function moveUp(blocksData, currentBlock, orderedBlocks = [], difference) {
 		if (currentBlock.type != "badge") {
 			if (blocksData && currentBlock) {
@@ -238,7 +293,7 @@ function BlockContextualMenu(
 		return orderedBlocks;
 	}
 
-	//Por render
+	//First render
 	useEffect(() => {
 		const mainElement = document.getElementById("main");
 		mainElement.addEventListener("scroll", handleScroll);
@@ -253,7 +308,7 @@ function BlockContextualMenu(
 		};
 	}, []);
 
-	//Cuando las dimensiones o el scroll cambian
+	//When scrolling
 	useEffect(() => {
 		setLocalDimensions((prevState) => ({
 			...prevState,
@@ -262,7 +317,7 @@ function BlockContextualMenu(
 		}));
 	}, [x, y, dimensions]);
 
-	//Cuando el bloque cambia
+	//When the (selected) block changes
 	useEffect(() => {
 		setInitialValues({
 			scrollX: localDimensions.blockCanvasScrollX,
