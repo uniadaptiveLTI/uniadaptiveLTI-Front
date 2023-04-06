@@ -1,0 +1,57 @@
+.cM::before {
+	content: ' ';
+	width: 8px;
+	height: 8px;
+	position: absolute;
+	top: 5em;
+	left: -9px;
+	border-top: 10px solid transparent;
+	border-right: 10px solid white;
+	border-bottom: 10px solid transparent;
+}
+
+.cM.reversed::before{
+	left: auto;
+	right: -9px;
+	border-right: 0;
+	border-left: 10px solid white;
+}
+
+.cM {
+	position: fixed;
+	border-radius: 4px;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	background: white;
+	filter: drop-shadow(0 5px 5px rgba(0, 0, 0, 0.5));
+	z-index: 1;
+}
+
+.cM li {
+	border-bottom: 1px solid #ccc;
+	width: 15em;
+	max-width: 15em;
+	padding: 0 .15em;
+}
+
+
+
+.cM button {
+	width: 100%;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	border-radius: 0;
+	background-color: white;
+	border: none;
+}
+
+.cM button div {
+	text-align: left;
+	display:flex;
+	align-items: center;
+}
+.cM button div svg {
+	margin-right: 0.5em;
+}

@@ -1,0 +1,92 @@
+.mapContainer {
+    display: flex;
+    position: absolute;
+    bottom: -3em;
+    height: 3em;
+    animation: slide 0.5s ease-out;
+    background:transparent;
+    z-index: 2;
+}
+
+.dropdown-item:active{
+    background-color: #198754!important;
+}
+
+.toggleButton::after {
+    display: none !important;
+}
+
+.actionsBorder, .actionsBorder:hover{
+    border-radius: 100%;
+    border: 0;
+}
+
+.mapContainer.noAnimation, .mapContainer.noAnimation {
+	animation: none;
+}
+
+@media screen and (prefers-reduced-motion: reduce) {
+	.mapContainer, .mapContainer {
+		animation: 0s;
+	}
+ }
+
+.icon:hover{
+    -webkit-filter: brightness(70%);
+}
+
+@keyframes slide {
+    from {left:-10em}
+    to {left:0}
+  }
+
+.mapText {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    padding: 0 0.5em;
+    box-shadow: 0 8px 6px -6px #ccc;
+    border-bottom: 1px solid #ccc;
+    background: white;
+}
+
+.mapText p{ margin:0}
+
+.mapTriangle {
+    height: 3em;
+    width: 3em;
+    overflow:hidden;
+    position: relative;
+}
+
+.mapTriangle::after {
+    content: '';
+    background: white;
+    box-shadow: 8px 0px 6px -6px #ccc;
+    border: 1px solid #ccc;
+    width: 142%;
+    height: 142%;
+    position:absolute;
+    transform: rotate(45deg) translate(-71%,0);
+}
+
+.caret{
+    display: flex;
+    align-items: center;
+}
+
+.header {
+    z-index: 5;
+    position:relative;
+    background-color: white;
+}
+
+.userSettings a{
+    color: #282529;
+    text-decoration: none;
+}
+
+.userSettings a:hover{
+    text-decoration: underline;
+}
