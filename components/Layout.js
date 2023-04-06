@@ -65,6 +65,10 @@ export default function Layout({ children }) {
 		setMainHeightOffset(footerHeight + headerHeight);
 	}, [zoomLevel]);
 
+	/**
+	 * Calculates the height of the footer.
+	 * @returns {number} The height of the footer.
+	 */
 	function getFooterHeight() {
 		if (typeof window != "undefined") {
 			const footer = document.getElementById("footerHeader");
@@ -75,6 +79,10 @@ export default function Layout({ children }) {
 		}
 	}
 
+	/**
+	 * Calculates the height of the header.
+	 * @returns {number} The height of the header.
+	 */
 	function getHeaderHeight() {
 		if (typeof window != "undefined") {
 			const header = headerDOM.current;

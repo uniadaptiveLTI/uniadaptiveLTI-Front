@@ -10,6 +10,10 @@ function UserSettings({}, ref) {
 	const parsedSettings = JSON.parse(settings);
 	let { compact, animations } = parsedSettings;
 
+	/**
+	 * Handles a change in the settings.
+	 * @param {Event} e - The change event.
+	 */
 	function handleSettingChange(e) {
 		switch (e.target.id) {
 			case "switch-compact":
