@@ -1,7 +1,7 @@
-import { useState, useContext, useLayoutEffect, forwardRef } from "react";
+import { useState, useContext, useEffect, forwardRef } from "react";
 import { DimensionsContext } from "../pages/_app.js";
 
-function BlockDiagram({ className, blockPositions, blocksDataRef }, ref) {
+function BlockDiagram({ className, blockPositions, blocksData }, ref) {
 	const arrowMargin = 8; //Margen universal para las flechas
 	const markerHeight = 8; //markerHeight
 	const markerWidth = 6; //markerWidth
@@ -11,13 +11,9 @@ function BlockDiagram({ className, blockPositions, blocksDataRef }, ref) {
 	const [innerSVG, setInnerSVG] = useState();
 	const { dimensions, setDimensions } = useContext(DimensionsContext);
 
-	useLayoutEffect(() => {
+	useEffect(() => {
 		setInnerSVG(CreateDiagram(blockPositions));
-	}, [dimensions]);
-
-	useLayoutEffect(() => {
-		setInnerSVG(CreateDiagram(blockPositions));
-	}, [blockPositions]);
+	}, [dimensions, blockPositions, blocksData]);
 
 	/**
 	 * Creates an SVG arrow from a start position to an end position with style options.
@@ -137,15 +133,20 @@ function BlockDiagram({ className, blockPositions, blocksDataRef }, ref) {
 		for (const [i, blockPosition] of blockPositions.entries()) {
 			const bpos = blockPosition.bpos;
 
+			// Si es un bloque de inicio o fin
 			if (bpos.id < 0) {
-				// Si es un bloque de inicio o fin
+				//Si es un bloque de fin
 				if (bpos.id == -1) {
-					//Si es un bloque de fin
 				} else {
-					//Si el bloque es de inicio
-					if (blockPositions.find((e) => e.bpos.id == 0))
-						diagram.push(ArrowBetweenBlocks(-2, 0));
-					else diagram.push(ArrowBetweenBlocks(-1, 0));
+					//Comprobación de tamaño del mapa
+					if (blocksData.length > 2) {
+						//Si el bloque es de inicio
+						if (blockPositions.find((e) => e.bpos.id == 0))
+							diagram.push(ArrowBetweenBlocks(-2, 0));
+						else diagram.push(ArrowBetweenBlocks(-1, 0));
+					} else {
+						diagram.push(ArrowBetweenBlocks(-2, -1));
+					}
 				}
 			} else {
 				if (bpos.children) {

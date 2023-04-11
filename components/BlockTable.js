@@ -9,12 +9,12 @@ const { forwardRef } = require("react");
 function BlockTable({ blocksData }, ref) {
 	const { settings, setSettings } = useContext(SettingsContext);
 	const parsedSettings = JSON.parse(settings);
-	const { compact, animations } = parsedSettings;
+	const { compact } = parsedSettings;
 
-	const [dynamicTable, setDynamicTable] = useState(doTable(blocksData));
+	const [dynamicTable, setDynamicTable] = useState();
 
 	useLayoutEffect(() => {
-		setDynamicTable(doTable(blocksData));
+		if (blocksData) setDynamicTable(doTable());
 	}, [blocksData]);
 
 	/**
@@ -22,7 +22,7 @@ function BlockTable({ blocksData }, ref) {
 	 * @param {Array} blocksData - An array of all blocks data.
 	 * @returns {JSX.Element} A JSX element representing the populated table.
 	 */
-	function doTable(blocksData) {
+	function doTable() {
 		let tDimensions = getTableDimensions(blocksData);
 		return <>{createAndPopulateTable(blocksData, tDimensions)}</>;
 	}
@@ -35,13 +35,13 @@ function BlockTable({ blocksData }, ref) {
 	function getTableDimensions(blocksData) {
 		let maxX = 0;
 		let maxY = 0;
-
 		for (let block of blocksData) {
+			if (block.id == -1) continue;
 			block.x > maxX ? (maxX = block.x) : null;
 			block.y > maxY ? (maxY = block.y) : null;
 		}
 		let dimensions = { x: maxX + 1, y: maxY };
-		return dimensions; //+1 for the end block
+		return dimensions;
 	}
 
 	/**
@@ -52,15 +52,23 @@ function BlockTable({ blocksData }, ref) {
 	 */
 	function createAndPopulateTable(blocksData, tDimensions) {
 		//Update start and end positions
-		let centerPos = blocksData.find((e) => e.id == 0).y;
-		let startBlock = blocksData.find((e) => e.id == -2);
-		let endBlock = blocksData.find((e) => e.id == -1);
+		const firstBlock = blocksData.find((e) => e.id == 0);
+		let centerPos = 0;
+		if (firstBlock) centerPos = blocksData.find((e) => e.id == 0).y;
+		const startBlock = blocksData.find((e) => e.id == -2);
+		const endBlock = blocksData.find((e) => e.id == -1);
 
-		let newBlocksData = [...blocksData];
+		const newBlocksData = [...blocksData];
 		startBlock.y = centerPos;
 		endBlock.y = centerPos;
 		endBlock.x = tDimensions.x;
-		newBlocksData[0] = startBlock;
+		if (blocksData.length != 2) {
+			newBlocksData[0] = startBlock;
+		} else {
+			let startToEnd = startBlock;
+			startToEnd.children = [-1];
+			newBlocksData[0] = startToEnd;
+		}
 		newBlocksData[1] = endBlock;
 		//Create and populate the table
 		let yElements = [];
@@ -80,17 +88,17 @@ function BlockTable({ blocksData }, ref) {
 									unit={"" + details.unit}
 									order={"" + details.order}
 								/>
-							</td>
+							</td> //Blocks with attatched resources
 						);
 					} else {
 						xElements.push(
 							<td key={x}>
 								<BlockContainer blockData={currentBlock} />
-							</td>
+							</td> //Action blocks
 						);
 					}
 				} else {
-					xElements.push(<td key={x}></td>);
+					xElements.push(<td key={x}></td>); //Empty blocks
 				}
 			}
 			yElements.push(<tr key={y}>{xElements}</tr>);
@@ -130,7 +138,8 @@ function BlockTable({ blocksData }, ref) {
 	 */
 	function getBlocksOrdered(blocksData) {
 		let firstBlock = blocksData.find((e) => e.id == 0); //FIXME Esto no permite que se haga bifurcación al inicio
-		return findNext(blocksData, firstBlock, []);
+		if (firstBlock) return findNext(blocksData, firstBlock, []);
+		else return [-2, -1];
 	}
 
 	/**

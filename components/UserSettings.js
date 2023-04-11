@@ -5,10 +5,8 @@ import { Form, Dropdown } from "react-bootstrap";
 function UserSettings({}, ref) {
 	const { settings, setSettings } = useContext(SettingsContext);
 
-	console.log(settings);
-
 	const parsedSettings = JSON.parse(settings);
-	let { compact, animations } = parsedSettings;
+	let { compact, reducedAnimations } = parsedSettings;
 
 	/**
 	 * Handles a change in the settings.
@@ -20,12 +18,12 @@ function UserSettings({}, ref) {
 				compact = !compact;
 				break;
 			case "switch-animation":
-				animations = !animations;
+				reducedAnimations = !reducedAnimations;
 				break;
 		}
 		let newSettings = parsedSettings;
 		newSettings.compact = compact;
-		newSettings.animations = animations;
+		newSettings.reducedAnimations = reducedAnimations;
 		let json = JSON.stringify(newSettings);
 		sessionStorage.setItem("settings", json);
 		setSettings(json);
@@ -45,8 +43,8 @@ function UserSettings({}, ref) {
 				<Form.Check
 					type="switch"
 					id="switch-animation"
-					label="Animaciones"
-					defaultChecked={animations}
+					label="Animaciones reducidas"
+					defaultChecked={reducedAnimations}
 					onClick={handleSettingChange}
 				/>
 			</Form>
