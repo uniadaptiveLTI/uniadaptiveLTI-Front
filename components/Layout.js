@@ -21,6 +21,8 @@ import {
 	VersionJsonContext,
 	ExpandedContext,
 	VersionInfoContext,
+	BlocksDataContext,
+	MainDOMContext,
 } from "../pages/_app.js";
 
 export default function Layout({ children }) {
@@ -34,14 +36,18 @@ export default function Layout({ children }) {
 	const [blockJson, setBlockJson] = useState("");
 	const [versionJson, setVersionJson] = useState("");
 	const [map, setMap] = useState("");
+	const [currentBlocksData, setCurrentBlocksData] = useState();
 
 	const [headerHeight, setHeaderHeight] = useState(0);
 	const [footerHeight, setFooterHeight] = useState(0);
 	const [mainHeightOffset, setMainHeightOffset] = useState(0);
 	const [zoomLevel, setZoomLevel] = useState(100);
 
+	const [mainDOM, setMainDOM] = useState(null);
+
 	//Referencias
 	const headerDOM = useRef(null);
+	const mainDOMRef = useRef(null);
 
 	useLayoutEffect(() => {
 		let footerHeight = getFooterHeight();
@@ -64,6 +70,10 @@ export default function Layout({ children }) {
 		setHeaderHeight(headerHeight);
 		setMainHeightOffset(footerHeight + headerHeight);
 	}, [zoomLevel]);
+
+	useLayoutEffect(() => {
+		setMainDOM(mainDOMRef);
+	}, [mainDOMRef]);
 
 	/**
 	 * Calculates the height of the footer.
@@ -108,58 +118,71 @@ export default function Layout({ children }) {
 									value={{ versionJson, setVersionJson }}
 								>
 									<ExpandedContext.Provider value={{ expanded, setExpanded }}>
-										<Container
-											className="g-0"
-											fluid
-											style={{ minHeight: 100 + "vh" }}
+										<BlocksDataContext.Provider
+											value={{ currentBlocksData, setCurrentBlocksData }}
 										>
-											<div className="row g-0" style={{ height: 100 + "vh" }}>
-												<Aside
-													className={
-														expanded
-															? "col-12 col-sm-4 col-md-3 col-xl-2"
-															: "d-none"
-													}
-												/>
+											<MainDOMContext.Provider value={{ mainDOM, setMainDOM }}>
 												<Container
+													className="g-0"
 													fluid
-													className={
-														expanded
-															? "col-12 col-sm-8 col-md-9 col-xl-10 g-0"
-															: "g-0"
-													}
-													style={{ display: "flex", flexDirection: "column" }}
+													style={{ minHeight: 100 + "vh" }}
 												>
-													<Container
-														className="g-0"
-														fluid
-														style={{ flex: "1 0 auto" }}
+													<div
+														className="row g-0"
+														style={{ height: 100 + "vh" }}
 													>
-														<Header ref={headerDOM} />
-
-														<main
-															id="main"
-															style={{
-																height: `calc(100vh - ${mainHeightOffset}px)`, //calc(100vh - 2.5em - 16px)
-																overflow: "overlay",
-																scrollBehavior: "smooth",
-																position: "relative",
-																boxShadow: "inset 0 0 10px #ccc",
-															}}
-														>
-															{children}
-														</main>
-														<Footer
+														<Aside
+															className={
+																expanded
+																	? "col-12 col-sm-4 col-md-3 col-xl-2"
+																	: "d-none"
+															}
+														/>
+														<Container
+															fluid
 															className={
 																expanded
 																	? "col-12 col-sm-8 col-md-9 col-xl-10 g-0"
-																	: "col-12 g-0"
+																	: "g-0"
 															}
-														/>
-													</Container>
+															style={{
+																display: "flex",
+																flexDirection: "column",
+															}}
+														>
+															<Container
+																className="g-0"
+																fluid
+																style={{ flex: "1 0 auto" }}
+															>
+																<Header ref={headerDOM} />
+
+																<main
+																	id="main"
+																	ref={mainDOMRef}
+																	style={{
+																		height: `calc(100vh - ${mainHeightOffset}px)`,
+																		overflow: "overlay",
+																		scrollBehavior: "smooth",
+																		position: "relative",
+																		boxShadow: "inset 0 0 10px #ccc",
+																	}}
+																>
+																	{children}
+																</main>
+																<Footer
+																	className={
+																		expanded
+																			? "col-12 col-sm-8 col-md-9 col-xl-10 g-0"
+																			: "col-12 g-0"
+																	}
+																/>
+															</Container>
+														</Container>
+													</div>
 												</Container>
-											</div>
-										</Container>
+											</MainDOMContext.Provider>
+										</BlocksDataContext.Provider>
 									</ExpandedContext.Provider>
 								</VersionJsonContext.Provider>
 							</BlockJsonContext.Provider>

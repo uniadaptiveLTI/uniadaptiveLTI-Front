@@ -1,5 +1,6 @@
 import styles from "@components/styles/Header.module.css";
 import { useState, useContext, useEffect, forwardRef, useRef } from "react";
+import SimpleActionDialog from "./dialogs/SimpleActionDialog";
 import UserSettings from "./UserSettings";
 import Image from "next/image";
 import {
@@ -29,14 +30,34 @@ import {
 	VersionJsonContext,
 	VersionInfoContext,
 	PlatformContext,
+	BlocksDataContext,
 } from "@components/pages/_app";
 import { toast } from "react-toastify";
 
-function Header({ closeBtn }, ref) {
-	const [showModalVersiones, setShowModalVersiones] = useState(false);
+const defaultToastSuccess = {
+	hideProgressBar: false,
+	autoClose: 2000,
+	type: "success",
+	position: "bottom-center",
+};
 
-	const closeModalVersiones = () => setShowModalVersiones(false);
-	const openModalVersiones = () => setShowModalVersiones(true);
+const defaultToastError = {
+	hideProgressBar: false,
+	autoClose: 2000,
+	type: "error",
+	position: "bottom-center",
+};
+
+function Header({ closeBtn }, ref) {
+	const [showModalVersions, setShowModalVersions] = useState(false);
+	const [showModal, setShowModal] = useState(false);
+	const [modalTitle, setModalTitle] = useState();
+	const [modalBody, setModalBody] = useState();
+	const [modalCallback, setModalCallback] = useState();
+	const toggleModal = () => setShowModal(!showModal);
+
+	const closeModalVersiones = () => setShowModalVersions(false);
+	const openModalVersiones = () => setShowModalVersions(true);
 
 	const { platform, setPlatform } = useContext(PlatformContext);
 	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
@@ -49,60 +70,168 @@ function Header({ closeBtn }, ref) {
 
 	const { expanded, setExpanded } = useContext(ExpandedContext);
 
+	const { currentBlocksData, setCurrentBlocksData } =
+		useContext(BlocksDataContext);
+
 	const selectItineraryDOM = useRef(null);
 	const selectVersionDOM = useRef(null);
 
-	const [versiones, setVersiones] = useState([
-		{
-			id: 0,
-			name: "Última versión",
-			lastUpdate: "20/05/2023",
-			default: "true",
-		},
-		{ id: 1, name: "Prueba 1", lastUpdate: "08/04/2023", default: "false" },
-		{ id: 2, name: "Versión 1", lastUpdate: "15/04/2023", default: "false" },
-		{
-			id: 3,
-			name: "Versión final",
-			lastUpdate: "19/04/2023",
-			default: "false",
-		},
-		{
-			id: 4,
-			name: "Versión final final de verdad, en serio esta vez DEFINITIVO",
-			lastUpdate: "18/05/2023",
-			default: "false",
-		},
-	]);
+	const [versions, setVersions] = useState([]);
 
-	const ningunMapa = { id: -1, name: "Seleccionar un itinerario" };
-	const [mapas, setMapas] = useState([
-		ningunMapa,
+	const emptyMap = { id: -1, name: "Seleccionar un itinerario" };
+	const [maps, setMaps] = useState([
+		emptyMap,
 		{
 			id: 1,
 			name: "Matemáticas 4ºESO",
+			versions: [
+				{
+					id: 0,
+					name: "Última versión",
+					lastUpdate: "20/05/2023",
+					default: "true",
+					blocksData: [
+						{
+							id: 0,
+							x: 1,
+							y: 1,
+							type: "file",
+							title: "Ecuaciones",
+							children: [1],
+							identation: 1,
+						},
+						{
+							id: 1,
+							x: 2,
+							y: 1,
+							type: "questionnaire",
+							title: "Examen Tema 1",
+							conditions: [
+								{
+									type: "qualification",
+									operand: ">",
+									objective: 8,
+									unlocks: 2,
+								},
+							],
+							children: [2, 3],
+							identation: 2,
+						},
+						{
+							id: 2,
+							x: 3,
+							y: 0,
+							type: "folder",
+							title: "Insignia Ecuaciones",
+							identation: 2,
+						},
+						{
+							id: 3,
+							x: 3,
+							y: 3,
+							type: "url",
+							title: "Web raices cuadradas",
+							children: [4],
+							identation: 1,
+						},
+						{
+							id: 4,
+							x: 4,
+							y: 3,
+							type: "forum",
+							title: "Foro de discusión",
+							children: [5],
+							identation: 2,
+						},
+						{
+							id: 5,
+							x: 5,
+							y: 3,
+							type: "questionnaire",
+							title: "Cuestionario de raices",
+							children: [6, 7],
+							identation: 1,
+						},
+						{
+							id: 6,
+							x: 6,
+							y: 2,
+							type: "assignment",
+							title: "Ejercicio de raices",
+							identation: 1,
+						},
+						{
+							id: 7,
+							x: 6,
+							y: 4,
+							type: "fragment",
+							title: "Tema 2 Matemáticas",
+							children: [8],
+							identation: 1,
+						},
+						{
+							id: 8,
+							x: 7,
+							y: 4,
+							type: "page",
+							title: "Web informativa",
+							children: [-1],
+							identation: 2,
+						},
+					],
+				},
+				{
+					id: 1,
+					name: "Prueba 1",
+					lastUpdate: "08/04/2023",
+					default: "false",
+				},
+				{ id: 2, name: "Prueba 2", lastUpdate: "08/04/2023", default: "false" },
+			],
 		},
 		{
 			id: 2,
 			name: "Lengua 3ºESO",
+			versions: [
+				{
+					id: 0,
+					name: "Última versión",
+					lastUpdate: "20/05/2023",
+					default: "true",
+				},
+			],
 		},
 		{
 			id: 3,
-			name: "Informática 1ºBachillerato",
+			name: "Inglés 2ºESO",
+			versions: [
+				{
+					id: 0,
+					name: "Última versión",
+					lastUpdate: "20/05/2023",
+					default: "true",
+				},
+				{
+					id: 0,
+					name: "Sin Speaking",
+					lastUpdate: "05/03/2023",
+					default: "false",
+				},
+			],
 		},
 	]);
 
-	const [selectedMapa, setSelectedMapa] = useState(getMapById(-1));
+	const [selectedMap, setSelectedMap] = useState(getMapById(-1));
 
-	const [selectedVersion, setSelectedVersion] = useState(versiones[0]);
+	const [selectedVersion, setSelectedVersion] = useState();
 
 	const { map, setMap } = useContext(MapContext);
 
-	function updateVersion(nuevaVersion) {
-		setVersiones((prevVersiones) => {
-			return prevVersiones.map((version) => {
-				if (version.id === nuevaVersion.id) {
-					return { ...version, ...nuevaVersion };
+	function updateVersion(newVersion) {
+		setVersions((prevVersions) => {
+			return prevVersions.map((version) => {
+				if (version.id === newVersion.id) {
+					return { ...version, ...newVersion };
 				} else {
 					return version;
 				}
@@ -116,7 +245,7 @@ function Header({ closeBtn }, ref) {
 	 * @returns {Object} The map object with the specified id.
 	 */
 	function getMapById(id) {
-		return mapas.find((m) => m.id == id);
+		return maps.find((m) => m.id == id);
 	}
 
 	/**
@@ -135,48 +264,78 @@ function Header({ closeBtn }, ref) {
 	function handleMapChange(e) {
 		resetEdit();
 		let id = Number(e.target.value);
-		let mapaAsociado = [...mapas].find((e) => e.id == id);
-		setSelectedMapa(mapaAsociado);
-		id > -1 ? setMap(mapaAsociado) : setMap("");
+		let selectedMap = [...maps].find((e) => e.id == id);
+		setSelectedMap(selectedMap);
+		id > -1 ? setMap(selectedMap) : setMap("");
+		setVersions(selectedMap.versions);
+		if (selectedMap.versions) {
+			setSelectedVersion(selectedMap.versions[0]);
+			setCurrentBlocksData(selectedMap.versions[0].blocksData);
+		}
+	}
+
+	/**
+	 * Changes the selected map to the "you need to select a itinerary" message.
+	 */
+	function changeToMapSelection() {
+		resetEdit();
+		setSelectedMap(getMapById(-1));
+		setMap("");
 	}
 
 	/**
 	 * Handles the creation of a new itinerary.
 	 */
 	const handleNewItinerary = () => {
-		const newMapa = [
-			...mapas,
-			{ id: mapas.length, name: "Nuevo Itinerario " + mapas.length },
+		//TODO: GET CURRENT DATE
+		const newMap = [
+			...maps,
+			{
+				id: maps.length,
+				name: "Nuevo Itinerario " + maps.length,
+				versions: [
+					{
+						id: 0,
+						name: "Última versión",
+						lastUpdate: "20/05/2023",
+						default: "true",
+					},
+				],
+			},
 		];
-		setMapas(newMapa);
-		toast(`Itinerario: "Nuevo Itinerario ${mapas.length}" creado`, {
-			hideProgressBar: false,
-			autoClose: 2000,
-			type: "success",
-			position: "bottom-center",
-		});
+		setMaps(newMap);
+		toast(
+			`Itinerario: "Nuevo Itinerario ${maps.length}" creado`,
+			defaultToastSuccess
+		);
 	};
 
 	/**
 	 * Handles the creation of a new version.
 	 */
 	const handleNewVersion = () => {
-		const newVersion = [
-			...versiones,
+		//TODO: GET CURRENT DATE
+		const newMapVersions = [
+			...selectedMap.versions,
 			{
-				id: versiones.length,
-				name: "Nueva Versión " + versiones.length,
+				id: selectedMap.versions.length,
+				name: "Nueva Versión " + selectedMap.versions.length,
 				lastUpdate: "10/11/2024",
 				default: "true",
+				blocksData: [],
 			},
 		];
-		setVersiones(newVersion);
-		toast(`Versión: "Nueva Versión ${mapas.length}" creada`, {
-			hideProgressBar: false,
-			autoClose: 2000,
-			type: "success",
-			position: "bottom-center",
-		});
+		let modifiedMap = selectedMap;
+		modifiedMap.versions = newMapVersions;
+		const mapIndex = maps.findIndex((m) => m.id == selectedMap.id);
+		const newMaps = [...maps];
+		newMaps[mapIndex] = selectedMap;
+		setMaps(newMaps);
+		setVersions(modifiedMap.versions);
+		toast(
+			`Versión: "Nueva Versión ${modifiedMap.versions.length - 1}" creada`,
+			defaultToastSuccess
+		);
 	};
 
 	/**
@@ -204,14 +363,34 @@ function Header({ closeBtn }, ref) {
 		setSelectedEditVersion(selectedVersion);
 	};
 
+	const showDeleteItineraryModal = () => {
+		setModalTitle(`¿Eliminar "${selectedMap.name}"?`);
+		setModalBody(`¿Desea eliminar "${selectedMap.name}"?`);
+		setModalCallback(() => deleteItinerary);
+		setShowModal(true);
+	};
+
 	/**
 	 * Handles the deletion of an itinerary.
 	 */
 	const deleteItinerary = () => {
 		const itineraryId = selectItineraryDOM.current.value;
-		setMapas((mapas) =>
-			mapas.filter((mapa) => mapa.id !== parseInt(itineraryId))
-		);
+		if (itineraryId != -1) {
+			setMaps((mapas) =>
+				mapas.filter((mapa) => mapa.id !== parseInt(itineraryId))
+			);
+			toast(`Itinerario eliminado con éxito.`, defaultToastSuccess);
+			changeToMapSelection();
+		} else {
+			toast(`No puedes eliminar este itinerario.`, defaultToastError);
+		}
+	};
+
+	const showDeleteVersionModal = () => {
+		setModalTitle(`¿Eliminar "${selectedVersion.name}"?`);
+		setModalBody(`¿Desea eliminar "${selectedVersion.name}"?`);
+		setModalCallback(() => deleteVersion);
+		setShowModal(true);
 	};
 
 	/**
@@ -219,36 +398,58 @@ function Header({ closeBtn }, ref) {
 	 */
 	const deleteVersion = () => {
 		const versionId = selectedVersion.id;
-		setVersiones((versiones) =>
-			versiones.filter((version) => version.id !== parseInt(versionId))
-		);
+		if (versionId != 0) {
+			setVersions((versions) =>
+				versions.filter((version) => version.id !== parseInt(versionId))
+			);
 
-		const firstVersion = versiones.find(
-			(version) => version.id !== parseInt(versionId)
-		);
-		setSelectedVersion(firstVersion || versiones[0] || null);
+			const firstVersion = versions.find(
+				(version) => version.id !== parseInt(versionId)
+			);
+			setSelectedVersion(firstVersion || versions[0] || null);
+
+			const newMapVersions = selectedMap.versions.filter(
+				(version) => version.id !== parseInt(versionId)
+			);
+			const modifiedMap = { ...selectedMap, versions: newMapVersions };
+			const mapIndex = maps.findIndex((m) => m.id === selectedMap.id);
+			const newMaps = [...maps];
+			newMaps[mapIndex] = modifiedMap;
+			setMaps(newMaps);
+			setVersions(modifiedMap.versions);
+			toast(`Versión eliminada con éxito.`, defaultToastSuccess);
+		} else {
+			toast(`No puedes eliminar esta versión.`, defaultToastError);
+		}
 	};
 
 	useEffect(() => {
-		let newMap = [...mapas];
-		newMap[mapas.findIndex((b) => b.id == map.id)] = map;
-		setMapas(newMap);
+		let newMap = [...maps];
+		newMap[maps.findIndex((b) => b.id == map.id)] = map;
+		setMaps(newMap);
 	}, [map]);
 
 	useEffect(() => {
-		if (selectedVersion.id != versionJson.id) {
-			resetEdit();
+		if (selectedVersion) {
+			if (selectedVersion.id != versionJson.id) {
+				resetEdit();
+				setCurrentBlocksData(selectedVersion.blocksData);
+			}
 		}
 	}, [selectedVersion]);
 
 	useEffect(() => {
-		let newVersion = [...versiones];
-		newVersion[versiones.findIndex((b) => b.id == versionJson.id)] =
-			versionJson;
-		setVersiones(newVersion);
+		if (versions) {
+			let newVersion = [...versions];
+			newVersion[versions.findIndex((b) => b.id == versionJson.id)] =
+				versionJson;
+			setVersions(newVersion);
 
-		if (selectedVersion.id == versionJson.id) {
-			setSelectedVersion(versionJson);
+			if (selectedVersion) {
+				if (selectedVersion.id == versionJson.id) {
+					setSelectedVersion(versionJson);
+				}
+			}
 		}
 	}, [versionJson]);
 
@@ -350,10 +551,10 @@ function Header({ closeBtn }, ref) {
 						{!expanded && <CreateLogo />}
 						<Form.Select
 							ref={selectItineraryDOM}
-							value={selectedMapa.id}
+							value={selectedMap.id}
 							onChange={handleMapChange}
 						>
-							{mapas.map((mapa) => (
+							{maps.map((mapa) => (
 								<option id={mapa.id} key={mapa.id} value={mapa.id}>
 									{mapa.name}
 								</option>
@@ -380,7 +581,7 @@ function Header({ closeBtn }, ref) {
 									<Dropdown.Item onClick={handleNewItinerary}>
 										Crear nuevo itinerario
 									</Dropdown.Item>
-									{selectedMapa.id != -1 ? (
+									{selectedMap.id != -1 ? (
 										<Dropdown.Item onClick={handleNewVersion}>
 											Crear nueva versión
 										</Dropdown.Item>
@@ -389,45 +590,42 @@ function Header({ closeBtn }, ref) {
 									)}
 								</Dropdown.Menu>
 							</Dropdown>
+							{selectedMap.id != -1 ? (
+								<>
+									<Dropdown className={`btn-light d-flex align-items-center`}>
+										<Dropdown.Toggle
+											variant="light"
+											className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder} ${styles.toggleButton}`}
+										>
+											<Trash width="20" height="20" />
+										</Dropdown.Toggle>
+										<Dropdown.Menu>
+											<Dropdown.Item onClick={showDeleteItineraryModal}>
+												Borrar itinerario actual
+											</Dropdown.Item>
 
-							<Dropdown className={`btn-light d-flex align-items-center`}>
-								<Dropdown.Toggle
-									variant="light"
-									className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder} ${styles.toggleButton}`}
-								>
-									<Trash width="20" height="20" />
-								</Dropdown.Toggle>
-								<Dropdown.Menu>
-									<Dropdown.Item onClick={deleteItinerary}>
-										Borrar itinerario actual
-									</Dropdown.Item>
-									{selectedMapa.id != -1 ? (
-										<Dropdown.Item onClick={deleteVersion}>
-											Borrar versión actual
-										</Dropdown.Item>
-									) : (
-										<></>
-									)}
-								</Dropdown.Menu>
-							</Dropdown>
-
-							{selectedMapa.id != -1 ? (
-								<Dropdown className={`btn-light d-flex align-items-center `}>
-									<Dropdown.Toggle
-										variant="light"
-										className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder} ${styles.toggleButton}`}
-									>
-										<Pencil width="20" height="20" />
-									</Dropdown.Toggle>
-									<Dropdown.Menu>
-										<Dropdown.Item onClick={editItinerary}>
-											Editar itinerario actual
-										</Dropdown.Item>
-										<Dropdown.Item onClick={editVersion}>
-											Editar versión actual
-										</Dropdown.Item>
-									</Dropdown.Menu>
-								</Dropdown>
+											<Dropdown.Item onClick={showDeleteVersionModal}>
+												Borrar versión actual
+											</Dropdown.Item>
+										</Dropdown.Menu>
+									</Dropdown>
+									<Dropdown className={`btn-light d-flex align-items-center `}>
+										<Dropdown.Toggle
+											variant="light"
+											className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder} ${styles.toggleButton}`}
+										>
+											<Pencil width="20" height="20" />
+										</Dropdown.Toggle>
+										<Dropdown.Menu>
+											<Dropdown.Item onClick={editItinerary}>
+												Editar itinerario actual
+											</Dropdown.Item>
+											<Dropdown.Item onClick={editVersion}>
+												Editar versión actual
+											</Dropdown.Item>
+										</Dropdown.Menu>
+									</Dropdown>
+								</>
 							) : (
 								<></>
 							)}
@@ -497,17 +695,17 @@ function Header({ closeBtn }, ref) {
 						</Container>
 					</Nav>
 				</Container>
-				{selectedMapa.id > -1 && (
+				{selectedMap.id > -1 && (
 					<div className={styles.mapContainer}>
 						<div className={styles.mapText}>
 							<SplitButton
 								ref={selectVersionDOM}
 								value={selectedVersion.id}
-								title={versiones.length > 0 ? selectedVersion.name : ""}
+								title={versions.length > 0 ? selectedVersion.name : ""}
 								onClick={openModalVersiones}
 								variant="none"
 							>
-								{versiones.map((version) => (
+								{versions.map((version) => (
 									<Dropdown.Item
 										key={version.id}
 										onClick={() => setSelectedVersion(version)}
@@ -522,43 +720,57 @@ function Header({ closeBtn }, ref) {
 					</div>
 				)}
 			</Navbar>
-			<Modal show={showModalVersiones} onHide={closeModalVersiones}>
-				<Modal.Header closeButton>
-					<Modal.Title>
-						Detalles de &quot;{selectedVersion.name}&quot;
-					</Modal.Title>
-				</Modal.Header>
-				<Modal.Body>
-					Actualmente la versión seleccionada es &quot;
-					<strong>{selectedVersion.name}</strong>&quot;, modificada por última
-					vez <b>{selectedVersion.lastUpdate}</b>.
-				</Modal.Body>
-				<Modal.Footer>
-					<Button variant="secondary" onClick={closeModalVersiones}>
-						Cerrar
-					</Button>
-					<Button
-						variant="success"
-						onClick={() => {
-							let nuevaVersion = selectedVersion;
-							let p = prompt();
-							if (p) {
-								nuevaVersion.name = p.trim();
-								updateVersion(nuevaVersion);
-							}
-							closeModalVersiones();
-						}}
-					>
-						Editar nombre
-					</Button>
-					<Button variant="danger" onClick={closeModalVersiones}>
-						Borrar
-					</Button>
-					<Button variant="primary" onClick={closeModalVersiones}>
-						Crear desde existente
-					</Button>
-				</Modal.Footer>
-			</Modal>
+			{selectedVersion ? (
+				<Modal show={showModalVersions} onHide={closeModalVersiones}>
+					<Modal.Header closeButton>
+						<Modal.Title>
+							Detalles de &quot;{selectedVersion.name}&quot;
+						</Modal.Title>
+					</Modal.Header>
+					<Modal.Body>
+						Actualmente la versión seleccionada es &quot;
+						<strong>{selectedVersion.name}</strong>&quot;, modificada por última
+						vez <b>{selectedVersion.lastUpdate}</b>.
+					</Modal.Body>
+					<Modal.Footer>
+						<Button variant="secondary" onClick={closeModalVersiones}>
+							Cerrar
+						</Button>
+						<Button
+							variant="success"
+							onClick={() => {
+								let nuevaVersion = selectedVersion;
+								let p = prompt();
+								if (p) {
+									nuevaVersion.name = p.trim();
+									updateVersion(nuevaVersion);
+								}
+								closeModalVersiones();
+							}}
+						>
+							Editar nombre
+						</Button>
+						<Button variant="danger" onClick={closeModalVersiones}>
+							Borrar
+						</Button>
+						<Button variant="primary" onClick={closeModalVersiones}>
+							Crear desde existente
+						</Button>
+					</Modal.Footer>
+				</Modal>
+			) : (
+				<></>
+			)}
+			<SimpleActionDialog
+				showDialog={showModal}
+				toggleDialog={toggleModal}
+				title={modalTitle}
+				body={modalBody}
+				action=""
+				cancel=""
+				type="delete"
+				callback={modalCallback}
+			/>
 		</header>
 	);
 }

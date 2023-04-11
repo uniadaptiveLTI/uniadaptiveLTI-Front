@@ -230,22 +230,23 @@ export default function Aside({ className, closeBtn }) {
 	 * Updates the selected itinerary with the value from the specified DOM element.
 	 */
 	const updateItinerary = () => {
-		setMap({
+		setMap((prevMap) => ({
+			...prevMap,
 			id: itinerarySelected.id,
 			name: document.getElementById("itinerary-title").value,
-		});
+		}));
 	};
 
 	/**
 	 * Updates the selected version with the value from the specified DOM element.
 	 */
 	const updateVersion = () => {
-		setVersionJson({
-			id: selectedEditVersion.id,
+		setVersionJson((prevVersionJson) => ({
+			...prevVersionJson,
 			name: document.getElementById("version-title").value,
 			lastUpdate: selectedEditVersion.lastUpdate,
 			default: selectedEditVersion.default,
-		});
+		}));
 	};
 
 	/**

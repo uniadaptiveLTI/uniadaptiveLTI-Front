@@ -19,13 +19,15 @@ export const DeleteBlockContext = createContext();
 export const SettingsContext = createContext();
 export const PlatformContext = createContext("moodle");
 export const DimensionsContext = createContext();
+export const BlocksDataContext = createContext();
+export const MainDOMContext = createContext();
 
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 
 export default function App({ Component, pageProps }) {
 	const [settings, setSettings] = useState(
-		JSON.stringify({ compact: false, animations: true })
+		JSON.stringify({ compact: false, reducedAnimations: false })
 	);
 
 	useEffect(() => {
