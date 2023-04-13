@@ -6,8 +6,13 @@ function UserSettings({}, ref) {
 	const { settings, setSettings } = useContext(SettingsContext);
 
 	const parsedSettings = JSON.parse(settings);
-	let { compact, reducedAnimations, autoExpandMSGBox, autoHideMSGBox } =
-		parsedSettings;
+	let {
+		compact,
+		showDetails,
+		reducedAnimations,
+		autoExpandMSGBox,
+		autoHideMSGBox,
+	} = parsedSettings;
 
 	/**
 	 * Handles a change in the settings.
@@ -17,6 +22,9 @@ function UserSettings({}, ref) {
 		switch (e.target.id) {
 			case "switch-compact":
 				compact = !compact;
+				break;
+			case "switch-showDetails":
+				showDetails = !showDetails;
 				break;
 			case "switch-animation":
 				reducedAnimations = !reducedAnimations;
@@ -30,6 +38,7 @@ function UserSettings({}, ref) {
 		}
 		let newSettings = parsedSettings;
 		newSettings.compact = compact;
+		newSettings.showDetails = showDetails;
 		newSettings.reducedAnimations = reducedAnimations;
 		newSettings.autoExpandMSGBox = autoExpandMSGBox;
 		newSettings.autoHideMSGBox = autoHideMSGBox;
@@ -47,6 +56,13 @@ function UserSettings({}, ref) {
 					id="switch-compact"
 					label="Condensar diagrama de bloques"
 					defaultChecked={compact}
+					onClick={handleSettingChange}
+				/>
+				<Form.Check
+					type="switch"
+					id="switch-showDetails"
+					label="Mostrar los detalles de forma estática"
+					defaultChecked={showDetails}
 					onClick={handleSettingChange}
 				/>
 				<Form.Check

@@ -118,9 +118,21 @@ function BlockDiagram({ className, blockPositions, blocksData }, ref) {
 			fromOffsetX += horizontalOffset;
 			toOffsetX += horizontalOffset;
 
-			return MakeArrow(
+			let pos = pointInArea(
 				{ x: bfrom.x + fromOffsetX, y: bfrom.y + fromOffsetY },
 				{ x: bto.x + toOffsetX, y: bto.y + toOffsetY },
+				{
+					x: bto.x + toOffsetX,
+					y: bto.y + toOffsetY,
+				},
+				arrowMargin
+			);
+
+			if (pos == null) pos = { x: 0, y: 0 };
+
+			return MakeArrow(
+				{ x: bfrom.x + fromOffsetX, y: bfrom.y + fromOffsetY },
+				{ ...pos, x: pos.x + arrowMargin },
 				arrowOptions
 			);
 		}
@@ -149,7 +161,7 @@ function BlockDiagram({ className, blockPositions, blocksData }, ref) {
 						setMSG([]);
 					} else {
 						diagram.push(ArrowBetweenBlocks(-2, -1));
-						//FIXME: NO SOBREESCRIBIR
+						//FIXME: NO OVERWRITTING
 						setMSG([
 							<p>
 								Ha de introducir un bloque de tipo elemento previamente a la
@@ -177,6 +189,54 @@ function BlockDiagram({ className, blockPositions, blocksData }, ref) {
 	 */
 	function aproxEqual(num1, num2, difference) {
 		return Math.abs(num1 - num2) < difference;
+	}
+
+	/**
+	 * This function takes two points in space that form a line and a point and a radius that define an area
+	 * Returns the first point where the line enters the area, or null if it does not
+	 * @param {Object} p1 - The first point of the line
+	 * @param {Object} p2 - The second point of the line
+	 * @param {Object} c - The center point of the area
+	 * @param {number} r - The radius of the area
+	 * @returns {Object|null} The intersection point or null
+	 */
+	function pointInArea(p1, p2, c, r) {
+		// Calculate the slope of the line
+		let m = (p2.y - p1.y) / (p2.x - p1.x);
+		// Calculate the independent term of the line
+		let b = p1.y - m * p1.x;
+		// Calculate the coordinates of the center of the area
+		let cx = c.x;
+		let cy = c.y;
+		// Calculate the coefficients of the quadratic equation that represents the intersection between the line and the area
+		let a = m * m + 1;
+		let d = b - cy;
+		let e = cx - m * d;
+		let f = r * r - cx * cx - d * d;
+		let delta = e * e + a * f;
+		// Check if there is a real solution for the quadratic equation
+		if (delta < 0) {
+			// There is no real solution, therefore there is no intersection
+			return null;
+		} else {
+			// There is a real solution, therefore there is one or two intersections
+			// Calculate the possible intersections
+			let ix1 = (e + Math.sqrt(delta)) / a; // Intersection with the right side of the area
+			let iy1 = m * ix1 + b;
+			let ix2 = (e - Math.sqrt(delta)) / a; // Intersection with the left side of the area
+			let iy2 = m * ix2 + b;
+			// Check if any of the intersections is after the initial point of the line
+			if (ix1 >= p1.x && ix1 <= p2.x) {
+				// Return the intersection with the right side of the area
+				return { x: ix1, y: iy1 };
+			} else if (ix2 >= p1.x && ix2 <= p2.x) {
+				// Return the intersection with the left side of the area
+				return { x: ix2, y: iy2 };
+			} else {
+				// There is no intersection after the initial point of the line
+				return null;
+			}
+		}
 	}
 
 	return (

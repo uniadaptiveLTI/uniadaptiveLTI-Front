@@ -137,7 +137,7 @@ function BlockTable({ blocksData }, ref) {
 	 * @returns {Array} An ordered array of blocks.
 	 */
 	function getBlocksOrdered(blocksData) {
-		let firstBlock = blocksData.find((e) => e.id == 0); //FIXME Esto no permite que se haga bifurcación al inicio
+		let firstBlock = blocksData.find((e) => e.id == 0); //FIXME This solution doesn't allow to make bifurcations at the start block
 		if (firstBlock) return findNext(blocksData, firstBlock, []);
 		else return [-2, -1];
 	}

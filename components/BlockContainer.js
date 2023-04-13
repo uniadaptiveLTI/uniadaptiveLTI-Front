@@ -45,7 +45,7 @@ export default function BlockContainer({ blockData, inline, unit, order }) {
 		useContext(VersionInfoContext);
 	const { settings, setSettings } = useContext(SettingsContext);
 	const parsedSettings = JSON.parse(settings);
-	const { compact, reducedAnimations } = parsedSettings;
+	const { compact, showDetails, reducedAnimations } = parsedSettings;
 
 	const { expanded, setExpanded } = useContext(ExpandedContext);
 	const { blockPositions, setBlockPositions } =
@@ -92,14 +92,8 @@ export default function BlockContainer({ blockData, inline, unit, order }) {
 				case "inquery":
 					humanType = "Consulta";
 					break;
-				case "generic":
-					humanType = "Genérico";
-					break;
 				case "tag":
 					humanType = "Etiqueta";
-					break;
-				case "consultation":
-					humanType = "Consulta";
 					break;
 				case "page":
 					humanType = "Página";
@@ -177,10 +171,8 @@ export default function BlockContainer({ blockData, inline, unit, order }) {
 			//Moodle
 			case "workshop":
 				return <Shuffle size={32} />;
-			case "consultation":
+			case "inquery":
 				return <Question size={32} />;
-			case "generic":
-				return <PatchQuestionFill size={32} />;
 			case "tag":
 				return <Tag size={32} />;
 			case "page":
@@ -231,10 +223,8 @@ export default function BlockContainer({ blockData, inline, unit, order }) {
 			//Moodle
 			case "workshop":
 				return styles.btnWorkshop + " ";
-			case "consultation":
+			case "inquery":
 				return "btn-danger ";
-			case "generic":
-				return "btn-warning ";
 			case "tag":
 				return styles.btnTag + " ";
 			case "page":
@@ -289,7 +279,7 @@ export default function BlockContainer({ blockData, inline, unit, order }) {
 			if (blockData.id == -2) {
 				blockDOM.current.scrollIntoView({
 					behavior: "smooth",
-					block: "end",
+					block: "center",
 					inline: "start",
 				});
 			}
@@ -333,7 +323,11 @@ export default function BlockContainer({ blockData, inline, unit, order }) {
 							<Badge
 								bg="light"
 								className={
-									styles.badge + " " + (reducedAnimations && styles.noAnimation)
+									styles.badge +
+									" " +
+									(reducedAnimations && styles.noAnimation) +
+									" " +
+									(showDetails && styles.showBadges)
 								}
 								title="Unidad"
 							>
@@ -346,7 +340,9 @@ export default function BlockContainer({ blockData, inline, unit, order }) {
 								className={
 									styles.badgeTwo +
 									" " +
-									(reducedAnimations && styles.noAnimation)
+									(reducedAnimations && styles.noAnimation) +
+									" " +
+									(showDetails && styles.showBadges)
 								}
 								title="Posición en Moodle"
 							>

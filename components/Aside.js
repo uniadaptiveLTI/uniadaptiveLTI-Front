@@ -59,7 +59,7 @@ export default function Aside({ className, closeBtn }) {
 		{ id: 0, value: "questionnaire", name: "Cuestionario", default: "true" },
 		{ id: 1, value: "assignment", name: "Tarea", default: "true" },
 		{ id: 3, value: "workshop", name: "Taller", default: "true" },
-		{ id: 4, value: "consultation", name: "Consulta", default: "true" },
+		{ id: 4, value: "inquery", name: "Consulta", default: "true" },
 		{ id: 5, value: "forum", name: "Foro", default: "true" },
 		{ id: 6, value: "file", name: "Archivo", default: "true" },
 		{ id: 7, value: "folder", name: "Carpeta", default: "true" },
@@ -67,7 +67,7 @@ export default function Aside({ className, closeBtn }) {
 		{ id: 9, value: "page", name: "Página", default: "true" },
 		{ id: 10, value: "url", name: "URL", default: "true" },
 		{ id: 11, value: "badge", name: "Medalla", default: "true" },
-		{ id: 12, value: "fragment", name: "Fragmento", default: "true" },
+		//{ id: 12, value: "fragment", name: "Fragmento", default: "true" },
 	]);
 
 	const [sakaiResource, setSakaiResource] = useState([
@@ -86,7 +86,7 @@ export default function Aside({ className, closeBtn }) {
 			default: "true",
 		},
 		{ id: 10, value: "html-page", name: "Página HTML", default: "true" },
-		{ id: 11, value: "fragment", name: "Fragmento", default: "true" },
+		//{ id: 11, value: "fragment", name: "Fragmento", default: "true" },
 	]);
 
 	useEffect(() => {

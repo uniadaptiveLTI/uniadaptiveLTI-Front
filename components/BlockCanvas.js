@@ -47,7 +47,6 @@ const startBlock = {
 	y: 0,
 	type: "start",
 	title: "Inicio",
-	childs: [0],
 	identation: 0,
 };
 const endBlock = {
