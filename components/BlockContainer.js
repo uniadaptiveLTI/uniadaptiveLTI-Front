@@ -301,6 +301,11 @@ export default function BlockContainer({ blockData, inline, unit, order }) {
 					<div>{process.env.NEXT_PUBLIC_DEV_MODE && `id:${blockData.id}`}</div>
 					<div>
 						{process.env.NEXT_PUBLIC_DEV_MODE &&
+							blockData.children &&
+							`children:${blockData.children}`}
+					</div>
+					<div>
+						{process.env.NEXT_PUBLIC_DEV_MODE &&
 							`x:${blockData.x},y:${blockData.y}`}
 					</div>
 					<div>
