@@ -1,5 +1,6 @@
 import { useState, useContext, useEffect, forwardRef } from "react";
 import { DimensionsContext } from "../pages/_app.js";
+import { MSGContext } from "../pages/_app.js";
 
 function BlockDiagram({ className, blockPositions, blocksData }, ref) {
 	const arrowMargin = 8; //Margen universal para las flechas
@@ -10,6 +11,7 @@ function BlockDiagram({ className, blockPositions, blocksData }, ref) {
 
 	const [innerSVG, setInnerSVG] = useState();
 	const { dimensions, setDimensions } = useContext(DimensionsContext);
+	const { msg, setMSG } = useContext(MSGContext);
 
 	useEffect(() => {
 		setInnerSVG(CreateDiagram(blockPositions));
@@ -144,8 +146,16 @@ function BlockDiagram({ className, blockPositions, blocksData }, ref) {
 						if (blockPositions.find((e) => e.bpos.id == 0))
 							diagram.push(ArrowBetweenBlocks(-2, 0));
 						else diagram.push(ArrowBetweenBlocks(-1, 0));
+						setMSG([]);
 					} else {
 						diagram.push(ArrowBetweenBlocks(-2, -1));
+						//FIXME: NO SOBREESCRIBIR
+						setMSG([
+							<p>
+								Ha de introducir un bloque de tipo elemento previamente a la
+								exportación del itinerario
+							</p>,
+						]);
 					}
 				}
 			} else {

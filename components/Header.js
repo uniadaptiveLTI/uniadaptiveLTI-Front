@@ -31,6 +31,8 @@ import {
 	VersionInfoContext,
 	PlatformContext,
 	BlocksDataContext,
+	MSGContext,
+	SettingsContext,
 } from "@components/pages/_app";
 import { toast } from "react-toastify";
 
@@ -65,6 +67,7 @@ function Header({ closeBtn }, ref) {
 		useContext(ItineraryInfoContext);
 	const { selectedEditVersion, setSelectedEditVersion } =
 		useContext(VersionInfoContext);
+	const { msg, setMSG } = useContext(MSGContext);
 
 	const { versionJson, setVersionJson } = useContext(VersionJsonContext);
 
@@ -72,6 +75,10 @@ function Header({ closeBtn }, ref) {
 
 	const { currentBlocksData, setCurrentBlocksData } =
 		useContext(BlocksDataContext);
+	const { settings, setSettings } = useContext(SettingsContext);
+
+	const parsedSettings = JSON.parse(settings);
+	let { reducedAnimations } = parsedSettings;
 
 	const selectItineraryDOM = useRef(null);
 	const selectVersionDOM = useRef(null);
@@ -272,6 +279,12 @@ function Header({ closeBtn }, ref) {
 			setSelectedVersion(selectedMap.versions[0]);
 			setCurrentBlocksData(selectedMap.versions[0].blocksData);
 		}
+		resetMapSesion();
+	}
+
+	function resetMapSesion() {
+		//Empty msgbox
+		setMSG([]);
 	}
 
 	/**
@@ -281,6 +294,7 @@ function Header({ closeBtn }, ref) {
 		resetEdit();
 		setSelectedMap(getMapById(-1));
 		setMap("");
+		setMSG([]);
 	}
 
 	/**
@@ -434,6 +448,7 @@ function Header({ closeBtn }, ref) {
 			if (selectedVersion.id != versionJson.id) {
 				resetEdit();
 				setCurrentBlocksData(selectedVersion.blocksData);
+				resetMapSesion();
 			}
 		}
 	}, [selectedVersion]);
@@ -527,7 +542,7 @@ function Header({ closeBtn }, ref) {
 			return (
 				<div
 					ref={ref}
-					style={{ position: "absolute", right: "0px" }}
+					style={{ position: "absolute", right: "0px", width: "20em" }}
 					className={className}
 					aria-labelledby={labeledBy}
 				>
@@ -696,7 +711,13 @@ function Header({ closeBtn }, ref) {
 					</Nav>
 				</Container>
 				{selectedMap.id > -1 && (
-					<div className={styles.mapContainer}>
+					<div
+						className={
+							styles.mapContainer +
+							" " +
+							(reducedAnimations && styles.noAnimation)
+						}
+					>
 						<div className={styles.mapText}>
 							<SplitButton
 								ref={selectVersionDOM}

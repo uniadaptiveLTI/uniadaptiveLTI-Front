@@ -16,6 +16,7 @@ import {
 	VersionInfoContext,
 	MapContext,
 	VersionJsonContext,
+	SettingsContext,
 } from "../pages/_app.js";
 
 export default function Aside({ className, closeBtn }) {
@@ -34,6 +35,10 @@ export default function Aside({ className, closeBtn }) {
 		useContext(ItineraryInfoContext);
 	const { selectedEditVersion, setSelectedEditVersion } =
 		useContext(VersionInfoContext);
+	const { settings, setSettings } = useContext(SettingsContext);
+
+	const parsedSettings = JSON.parse(settings);
+	let { reducedAnimations } = parsedSettings;
 
 	//Referencias
 	const titleDOM = useRef(null);
@@ -262,7 +267,9 @@ export default function Aside({ className, closeBtn }) {
 				<div
 					role="button"
 					onClick={() => setExpanded(false)}
-					className={styles.uniadaptive}
+					className={
+						styles.uniadaptive + " " + (reducedAnimations && styles.noAnimation)
+					}
 					style={{ transition: "all 0.5s ease" }}
 					tabIndex={0}
 				>

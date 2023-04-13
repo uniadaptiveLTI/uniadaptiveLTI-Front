@@ -138,6 +138,25 @@
 }
 }
 
+.borderAnim.noAnimation {
+	background-image: none;
+	animation: none;
+}
+
+.borderAnim.noAnimation::after{
+	z-index: -1;
+	content: " ";
+	position: absolute;
+	margin: auto;
+	right: -50%;
+	top: -50%;
+	min-width: 8em;
+	min-height: 8em;
+	background-color: rgba(29, 29, 169,0.5);
+	border: 4px solid rgba(255, 165, 0,0.5);
+	border-radius: 100%;
+}
+
 @media screen and (prefers-reduced-motion: reduce) {
 	.borderAnim {
 		background-image: none;
@@ -159,16 +178,20 @@
 	}
  }
 
-/* Custom buttons */
+/* 
+-- Custom buttons --
+*/
 
-.btnURL {
-	background-color: cadetblue;
-	border: 1px solid cadetblue;
+/* Moodle+Sakai */
+
+.btnQuestionnaire {
+	background-color: #eb9408;
+	border: 1px solid #eb9408;
 }
 
-.btnURL:hover, .btnURL:focus-visible, .btnURL:active {
-	background-color: #419093 !important;
-	border: 1px solid #419093 !important;
+.btnQuestionnaire:hover, .btnQuestionnaire:focus-visible, .btnQuestionnaire:active {
+	background-color: #db8a08 !important;
+	border: 1px solid #db8a08 !important;
 }
 
 .btnForum {
@@ -181,24 +204,48 @@
 	border: 1px solid #990e99 !important;
 }
 
-.btnFragment {
-	background-color:darkblue;
-	border: 1px solid darkblue;
+
+.btnURL {
+	background-color: cadetblue;
+	border: 1px solid cadetblue;
 }
 
-.btnFragment:hover, .btnFragment:focus-visible, .btnFragment:active {
-	background-color: #1d1da9 !important;
-	border: 1px solid #1d1da9 !important;
+.btnURL:hover, .btnURL:focus-visible, .btnURL:active {
+	background-color: #419093 !important;
+	border: 1px solid #419093 !important;
 }
 
-.btnQuestionnaire {
-	background-color: #eb9408;
-	border: 1px solid #eb9408;
+/* Moodle */
+
+.btnWorkshop {
+	background-color: #15a935;
+	border: 1px solid #15a935;
 }
 
-.btnQuestionnaire:hover, .btnQuestionnaire:focus-visible, .btnQuestionnaire:active {
-	background-color: #db8a08 !important;
-	border: 1px solid #db8a08 !important;
+.btnWorkshop:hover, .btnWorkshop:focus-visible, .btnWorkshop:active {
+	background-color: #0f992d;
+	border: 1px solid #0f992d;
+}
+
+.btnTag {
+	background-color: #a91568;
+	border: 1px solid #a91568;
+}
+
+.btnTag:hover, .btnTag:focus-visible, .btnTag:active {
+	background-color: #bf1a78 !important;
+	border: 1px solid #bf1a78 !important;
+}
+
+/* Sakai */
+.btnContents {
+	background-color: #15a935;
+	border: 1px solid #15a935;
+}
+
+.btnContents:hover, .btnContents:focus-visible, .btnContents:active {
+	background-color: #0f992d;
+	border: 1px solid #0f992d;
 }
 
 .btnHTML {
@@ -209,4 +256,16 @@
 .btnHTML:hover, .btnHTML:focus-visible, .btnHTML:active {
 	background-color: #bf1a78 !important;
 	border: 1px solid #bf1a78 !important;
+}
+
+/* LTI */
+
+.btnFragment {
+	background-color:darkblue;
+	border: 1px solid darkblue;
+}
+
+.btnFragment:hover, .btnFragment:focus-visible, .btnFragment:active {
+	background-color: #1d1da9 !important;
+	border: 1px solid #1d1da9 !important;
 }

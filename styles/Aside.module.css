@@ -38,6 +38,16 @@
     opacity: 1;
 }
 
+.uniadaptive.noAnimation {
+    padding-top: 2.5em;
+    transition: none;
+}
+.uniadaptive.noAnimation span{
+    transition: none;
+    visibility: visible;
+    opacity: 1;
+}
+
 @media screen and (prefers-reduced-motion: reduce) {
 	.uniadaptive {
 		padding-top: 2.5em;
@@ -45,6 +55,8 @@
 	}
     .uniadaptive span{
 		transition: none;
+        visibility: visible;
+        opacity: 1;
 	}
  }
 

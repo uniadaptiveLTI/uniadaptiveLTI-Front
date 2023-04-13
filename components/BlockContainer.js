@@ -1,6 +1,12 @@
 import styles from "@components/styles/BlockContainer.module.css";
 
-import { useContext, useLayoutEffect, useCallback, useRef } from "react";
+import {
+	useContext,
+	useLayoutEffect,
+	useCallback,
+	useRef,
+	useEffect,
+} from "react";
 import {
 	BlockInfoContext,
 	BlockPositionContext,
@@ -17,7 +23,6 @@ import {
 	CaretDownFill,
 	Link45deg,
 	PencilSquare,
-	Wechat,
 	Question,
 	ChatLeftText,
 	FileEarmark,
@@ -25,7 +30,8 @@ import {
 	Tag,
 	FileEarmarkText,
 	StarFill,
-	PlusSquareFill,
+	Diagram2,
+	Shuffle,
 } from "react-bootstrap-icons";
 
 export default function BlockContainer({ blockData, inline, unit, order }) {
@@ -39,7 +45,7 @@ export default function BlockContainer({ blockData, inline, unit, order }) {
 		useContext(VersionInfoContext);
 	const { settings, setSettings } = useContext(SettingsContext);
 	const parsedSettings = JSON.parse(settings);
-	const { compact, animations } = parsedSettings;
+	const { compact, reducedAnimations } = parsedSettings;
 
 	const { expanded, setExpanded } = useContext(ExpandedContext);
 	const { blockPositions, setBlockPositions } =
@@ -91,6 +97,9 @@ export default function BlockContainer({ blockData, inline, unit, order }) {
 					break;
 				case "tag":
 					humanType = "Etiqueta";
+					break;
+				case "consultation":
+					humanType = "Consulta";
 					break;
 				case "page":
 					humanType = "Página";
@@ -167,8 +176,8 @@ export default function BlockContainer({ blockData, inline, unit, order }) {
 				return <Link45deg size={32} />;
 			//Moodle
 			case "workshop":
-				return <Wechat size={32} />; //FIXME: This need to be changed by other icon
-			case "choice":
+				return <Shuffle size={32} />;
+			case "consultation":
 				return <Question size={32} />;
 			case "generic":
 				return <PatchQuestionFill size={32} />;
@@ -197,7 +206,7 @@ export default function BlockContainer({ blockData, inline, unit, order }) {
 					<CaretDownFill style={{ transform: "rotate(90deg)" }} size={32} />
 				);
 			case "fragment":
-				return <PlusSquareFill size={32} />;
+				return <Diagram2 size={32} />;
 			default:
 				return <PatchQuestionFill size={32} />;
 		}
@@ -216,29 +225,29 @@ export default function BlockContainer({ blockData, inline, unit, order }) {
 			case "file":
 				return "btn-primary ";
 			case "folder":
-				return " ";
+				return "btn-warning ";
 			case "url":
 				return styles.btnURL + " ";
 			//Moodle
 			case "workshop":
-				return " ";
-			case "choice":
-				return " ";
+				return styles.btnWorkshop + " ";
+			case "consultation":
+				return "btn-danger ";
 			case "generic":
-				return " ";
+				return "btn-warning ";
 			case "tag":
-				return " ";
+				return styles.btnTag + " ";
 			case "page":
-				return " ";
+				return "btn-secondary ";
 			case "badge":
 				return "btn-success ";
 			//Sakai
 			case "exam":
 				return "btn-danger ";
 			case "contents":
-				return null;
+				return styles.btnContents + " ";
 			case "text":
-				return null;
+				return "btn-secondary ";
 			case "html":
 				return styles.btnHTML + " ";
 			//LTI
@@ -275,6 +284,18 @@ export default function BlockContainer({ blockData, inline, unit, order }) {
 		sendDimensions();
 	}, []);
 
+	useEffect(() => {
+		if (blockData) {
+			if (blockData.id == -2) {
+				blockDOM.current.scrollIntoView({
+					behavior: "smooth",
+					block: "end",
+					inline: "start",
+				});
+			}
+		}
+	}, [blockData]);
+
 	return (
 		<>
 			{blockData ? (
@@ -300,21 +321,33 @@ export default function BlockContainer({ blockData, inline, unit, order }) {
 									? styles.importantOutline
 									: blockSelected.id == blockData.id
 									? styles.borderAnim
-									: "")
+									: "") +
+								" " +
+								(reducedAnimations && styles.noAnimation)
 							}
 						>
 							{getTypeIcon()}
 						</Button>
 
 						{!inline && unit && (
-							<Badge bg="light" className={styles.badge} title="Unidad">
+							<Badge
+								bg="light"
+								className={
+									styles.badge + " " + (reducedAnimations && styles.noAnimation)
+								}
+								title="Unidad"
+							>
 								{unit}
 							</Badge>
 						)}
 						{!inline && order && (
 							<Badge
 								bg="warning"
-								className={styles.badgeTwo}
+								className={
+									styles.badgeTwo +
+									" " +
+									(reducedAnimations && styles.noAnimation)
+								}
 								title="Posición en Moodle"
 							>
 								{order}

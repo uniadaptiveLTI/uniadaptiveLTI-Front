@@ -6,7 +6,8 @@ function UserSettings({}, ref) {
 	const { settings, setSettings } = useContext(SettingsContext);
 
 	const parsedSettings = JSON.parse(settings);
-	let { compact, reducedAnimations } = parsedSettings;
+	let { compact, reducedAnimations, autoExpandMSGBox, autoHideMSGBox } =
+		parsedSettings;
 
 	/**
 	 * Handles a change in the settings.
@@ -20,10 +21,18 @@ function UserSettings({}, ref) {
 			case "switch-animation":
 				reducedAnimations = !reducedAnimations;
 				break;
+			case "switch-autoExpandMSGBox":
+				autoExpandMSGBox = !autoExpandMSGBox;
+				break;
+			case "switch-autoHideMSGBox":
+				autoHideMSGBox = !autoHideMSGBox;
+				break;
 		}
 		let newSettings = parsedSettings;
 		newSettings.compact = compact;
 		newSettings.reducedAnimations = reducedAnimations;
+		newSettings.autoExpandMSGBox = autoExpandMSGBox;
+		newSettings.autoHideMSGBox = autoHideMSGBox;
 		let json = JSON.stringify(newSettings);
 		sessionStorage.setItem("settings", json);
 		setSettings(json);
@@ -36,7 +45,7 @@ function UserSettings({}, ref) {
 				<Form.Check
 					type="switch"
 					id="switch-compact"
-					label="Condensar interfaz"
+					label="Condensar diagrama de bloques"
 					defaultChecked={compact}
 					onClick={handleSettingChange}
 				/>
@@ -45,6 +54,20 @@ function UserSettings({}, ref) {
 					id="switch-animation"
 					label="Animaciones reducidas"
 					defaultChecked={reducedAnimations}
+					onClick={handleSettingChange}
+				/>
+				<Form.Check
+					type="switch"
+					id="switch-autoExpandMSGBox"
+					label="Expandir la caja de mensajes automáticamente"
+					defaultChecked={autoExpandMSGBox}
+					onClick={handleSettingChange}
+				/>
+				<Form.Check
+					type="switch"
+					id="switch-autoHideMSGBox"
+					label="Contraer la caja de mensajes automáticamente"
+					defaultChecked={autoHideMSGBox}
 					onClick={handleSettingChange}
 				/>
 			</Form>

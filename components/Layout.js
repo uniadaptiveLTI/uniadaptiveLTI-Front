@@ -23,10 +23,11 @@ import {
 	VersionInfoContext,
 	BlocksDataContext,
 	MainDOMContext,
+	MSGContext,
 } from "../pages/_app.js";
 
 export default function Layout({ children }) {
-	const [platform, setPlatform] = useState("");
+	const [platform, setPlatform] = useState("moodle"); //default to moodle in testing phase
 
 	const [blockSelected, setBlockSelected] = useState("");
 	const [itinerarySelected, setItinerarySelected] = useState("");
@@ -44,6 +45,7 @@ export default function Layout({ children }) {
 	const [zoomLevel, setZoomLevel] = useState(100);
 
 	const [mainDOM, setMainDOM] = useState(null);
+	const [msg, setMSG] = useState([]);
 
 	//Referencias
 	const headerDOM = useRef(null);
@@ -122,65 +124,68 @@ export default function Layout({ children }) {
 											value={{ currentBlocksData, setCurrentBlocksData }}
 										>
 											<MainDOMContext.Provider value={{ mainDOM, setMainDOM }}>
-												<Container
-													className="g-0"
-													fluid
-													style={{ minHeight: 100 + "vh" }}
-												>
-													<div
-														className="row g-0"
-														style={{ height: 100 + "vh" }}
+												<MSGContext.Provider value={{ msg, setMSG }}>
+													<Container
+														className="g-0"
+														fluid
+														style={{ minHeight: 100 + "vh" }}
 													>
-														<Aside
-															className={
-																expanded
-																	? "col-12 col-sm-4 col-md-3 col-xl-2"
-																	: "d-none"
-															}
-														/>
-														<Container
-															fluid
-															className={
-																expanded
-																	? "col-12 col-sm-8 col-md-9 col-xl-10 g-0"
-																	: "g-0"
-															}
-															style={{
-																display: "flex",
-																flexDirection: "column",
-															}}
+														<div
+															className="row g-0"
+															style={{ height: 100 + "vh" }}
 														>
+															<Aside
+																className={
+																	expanded
+																		? "col-12 col-sm-4 col-md-3 col-xl-2"
+																		: "d-none"
+																}
+															/>
 															<Container
-																className="g-0"
 																fluid
-																style={{ flex: "1 0 auto" }}
+																className={
+																	expanded
+																		? "col-12 col-sm-8 col-md-9 col-xl-10 g-0"
+																		: "g-0"
+																}
+																style={{
+																	display: "flex",
+																	flexDirection: "column",
+																}}
 															>
-																<Header ref={headerDOM} />
-
-																<main
-																	id="main"
-																	ref={mainDOMRef}
-																	style={{
-																		height: `calc(100vh - ${mainHeightOffset}px)`,
-																		overflow: "overlay",
-																		scrollBehavior: "smooth",
-																		position: "relative",
-																		boxShadow: "inset 0 0 10px #ccc",
-																	}}
+																<Container
+																	className="g-0"
+																	fluid
+																	style={{ flex: "1 0 auto" }}
 																>
-																	{children}
-																</main>
-																<Footer
-																	className={
-																		expanded
-																			? "col-12 col-sm-8 col-md-9 col-xl-10 g-0"
-																			: "col-12 g-0"
-																	}
-																/>
+																	<Header ref={headerDOM} />
+
+																	<main
+																		id="main"
+																		ref={mainDOMRef}
+																		style={{
+																			height: `calc(100vh - ${mainHeightOffset}px)`,
+																			overflow: "overlay",
+																			scrollBehavior: "smooth",
+																			position: "relative",
+																			boxShadow: "inset 0 0 10px #ccc",
+																		}}
+																	>
+																		{children}
+																	</main>
+																	<Footer
+																		msg={msg}
+																		className={
+																			expanded
+																				? "col-12 col-sm-8 col-md-9 col-xl-10 g-0"
+																				: "col-12 g-0"
+																		}
+																	/>
+																</Container>
 															</Container>
-														</Container>
-													</div>
-												</Container>
+														</div>
+													</Container>
+												</MSGContext.Provider>
 											</MainDOMContext.Provider>
 										</BlocksDataContext.Provider>
 									</ExpandedContext.Provider>

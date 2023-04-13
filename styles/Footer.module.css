@@ -12,12 +12,17 @@
     visibility: hidden;
     max-height: 0;
     transition: all .2s;
+    font-family: SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
 }
 
 .messageBox.expanded{
     opacity: 1;
     visibility: visible;
     max-height: 8em;
+}
+
+.messageBox.noAnimation {
+    transition:none;
 }
 
 @media screen and (prefers-reduced-motion: reduce) {
