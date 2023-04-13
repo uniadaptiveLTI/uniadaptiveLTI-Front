@@ -86,106 +86,167 @@ function BlockContextualMenu(
 	};
 
 	const deleteBlock = () => {
-		// Found the father block which children includes the id of the selected block
+		// Find the father block which children includes the id of the selected block
+
 		const fatherBlock = blocksData.find(
 			(b) => b.children && b.children.includes(blockData.id)
 		);
 
-		// Set the maximum y
-		const maxY = fatherBlock.y - 1;
-
-		// If to check if the selected block has children
-		if (blockData.children != undefined) {
-			if (fatherBlock.children.length > 1) {
-				const indexToRemove2 = fatherBlock.children.findIndex(
-					(child) => child === blockData.id
-				);
-
-				if (indexToRemove2 !== -1) {
-					const updatedChildren = [...fatherBlock.children];
-					updatedChildren.splice(indexToRemove2, 1);
-
-					const newChildren = [...updatedChildren, ...blockData.children];
-					fatherBlock.children = newChildren;
-				}
-			} else {
-				fatherBlock.children = blockData.children;
-			}
-			moveLeft(blocksData, blockData, []);
+		const children = blockData.children;
+		let childrenNumber = 0;
+		if (children) {
+			childrenNumber = children.length;
 		}
-		// Else to check the selected block has no children
-		else {
-			/* Remove the id of the selected block from the father block children prop
-			   (Destroy the relation ship of the parent and child) */
-			const indexToRemove = fatherBlock.children.indexOf(blockData.id);
-			const newChildren = [
-				...fatherBlock.children.slice(0, indexToRemove),
-				...fatherBlock.children.slice(indexToRemove + 1),
-			];
 
-			// If to check if the father block is a bifurcation using the length of the newChildren
-			if (newChildren.length > 0) {
-				fatherBlock.children = newChildren;
+		//If not a bifurcation
+		if (childrenNumber < 2) {
+			// Set the maximum y
+			const maxY = fatherBlock.y - 1;
 
-				/* Search the first block within the branch using the father block and the maxY
+			// If to check if the selected block has children
+			if (blockData.children != undefined) {
+				if (fatherBlock.children.length > 1) {
+					const indexToRemove2 = fatherBlock.children.findIndex(
+						(child) => child === blockData.id
+					);
+
+					if (indexToRemove2 !== -1) {
+						const updatedChildren = [...fatherBlock.children];
+						updatedChildren.splice(indexToRemove2, 1);
+
+						const newChildren = [...updatedChildren, ...blockData.children];
+						fatherBlock.children = newChildren;
+					}
+				} else {
+					fatherBlock.children = blockData.children;
+				}
+				moveLeft(blocksData, blockData, []);
+			}
+			// Else to check the selected block has no children
+			else {
+				/* Remove the id of the selected block from the father block children prop
+			   (Destroy the relation ship between the parent and its child) */
+				const indexToRemove = fatherBlock.children.indexOf(blockData.id);
+				const newChildren = [
+					...fatherBlock.children.slice(0, indexToRemove),
+					...fatherBlock.children.slice(indexToRemove + 1),
+				];
+
+				// If to check if the father block is a bifurcation using the length of the newChildren
+				if (newChildren.length > 0) {
+					fatherBlock.children = newChildren;
+
+					/* Search the first block within the branch using the father block and the maxY
 				to avoid merge with other branches */
-				const childNumber = fatherBlock.children[0];
-				const childBlock = blocksData.find((obj) => obj.id === childNumber);
-				const firstChild = searchFirstChild(blocksData, fatherBlock, maxY);
+					const childNumber = fatherBlock.children[0];
+					const childBlock = blocksData.find((obj) => obj.id === childNumber);
+					const firstChild = searchFirstChild(blocksData, fatherBlock, maxY);
 
-				// If to check that the remaining child is the lower bifuraction
-				if (childBlock.y > fatherBlock.y) {
-					// Calculate difference of "y" of the child block and the parent block
-					var difference = childBlock.y - fatherBlock.y;
+					// If to check that the remaining child is the lower bifuraction
+					if (childBlock.y > fatherBlock.y) {
+						// Calculate difference of "y" of the child block and the parent block
+						var difference = childBlock.y - fatherBlock.y;
 
-					// Move up the child block and its children with the difference
-					const orderedBlocks = moveUp(blocksData, fatherBlock, [], difference);
+						// Move up the child block and its children with the difference
+						const orderedBlocks = moveUp(
+							blocksData,
+							fatherBlock,
+							[],
+							difference
+						);
 
-					// Search in the same row as the father and add it to the orderedBlocks array
-					searchRowBlocks(blocksData, orderedBlocks);
+						// Search in the same row as the father and add it to the orderedBlocks array
+						searchRowBlocks(blocksData, orderedBlocks);
 
-					// Search if the remaining bifurcation is bifurcated
-					const bifurcation = searchBifurcation(blocksData, childBlock, []);
+						// Search if the remaining bifurcation is bifurcated
+						const bifurcation = searchBifurcation(blocksData, childBlock, []);
 
-					// If to check that the remaning bifurcation is bifurcated
-					if (bifurcation) {
-						// Check after the branch is moved if there is a block which y is lower than the selected block
-						const found = orderedBlocks.some((obj) => obj.y < blockData.y);
+						// If to check that the remaning bifurcation is bifurcated
+						if (bifurcation) {
+							// Check after the branch is moved if there is a block which y is lower than the selected block
+							const found = orderedBlocks.some((obj) => obj.y < blockData.y);
 
-						// If a block is found
-						if (found) {
-							// Search the block
-							const lowestYJson = orderedBlocks.reduce((acc, obj) => {
-								return obj.y < acc.y ? obj : acc;
-							});
+							// If a block is found
+							if (found) {
+								// Search the block
+								const lowestYJson = orderedBlocks.reduce((acc, obj) => {
+									return obj.y < acc.y ? obj : acc;
+								});
 
-							/* Calculate the difference between the first block and the lowest block
+								/* Calculate the difference between the first block and the lowest block
 							   minus 1 */
-							const lowestJsonDifference = firstChild.y - lowestYJson.y - 1;
+								const lowestJsonDifference = firstChild.y - lowestYJson.y - 1;
 
-							// Move all the branch down to fit the lowest block to be at the top
-							firstChild.y += lowestJsonDifference;
+								// Move all the branch down to fit the lowest block to be at the top
+								firstChild.y += lowestJsonDifference;
 
-							moveAllBranchDown(
+								moveAllBranchDown(
+									blocksData,
+									firstChild,
+									[],
+									lowestJsonDifference
+								);
+								lowestYJson.y = blockData.y;
+							}
+						}
+						// Else to check that the remaining bifurcation is not bifurcated
+						else {
+							var maxed = false;
+
+							// Condition to check if the first block "y" does not surpass maxY
+							if (firstChild.y - (difference + 1) <= maxY) {
+								firstChild.y -= difference;
+							} else {
+								firstChild.y -= difference + 1;
+								difference += 1;
+								maxed = true;
+							}
+
+							moveAllBranchUp(
 								blocksData,
 								firstChild,
 								[],
-								lowestJsonDifference
+								difference,
+								orderedBlocks,
+								bifurcation,
+								maxY,
+								maxed
 							);
-							lowestYJson.y = blockData.y;
 						}
 					}
-					// Else to check that the remaining bifurcation is not bifurcated
+					// Else to check that the remaining child is the upper bifuraction
 					else {
+						// Calculate difference of "y" of the child block and the parent block
+						var difference = fatherBlock.y - childBlock.y;
+
+						// Move down the child block and its children with the difference
+						const orderedBlocks = moveDown(
+							blocksData,
+							fatherBlock,
+							[],
+							difference
+						);
+
+						// Search in the same row as the father and add it to the orderedBlocks array
+						searchRowBlocks(blocksData, orderedBlocks);
+
+						// Search if the remaining bifurcation is bifurcated
+						const bifurcation = searchBifurcation(blocksData, childBlock, []);
+
 						var maxed = false;
 
-						// Condition to check if the first block "y" does not surpass maxY
-						if (firstChild.y - (difference + 1) <= maxY) {
-							firstChild.y -= difference;
+						// If to check that the remaning bifurcation is not bifurcated
+						if (!bifurcation) {
+							// Condition to check if the first block "y" does not surpass maxY
+							if (firstChild.y - (difference + 1) <= maxY) {
+								firstChild.y -= difference;
+							} else {
+								firstChild.y -= difference + 1;
+								difference += 1;
+								maxed = true;
+							}
 						} else {
-							firstChild.y -= difference + 1;
-							difference += 1;
-							maxed = true;
+							firstChild.y -= difference;
 						}
 
 						moveAllBranchUp(
@@ -199,60 +260,26 @@ function BlockContextualMenu(
 							maxed
 						);
 					}
+				} else {
+					fatherBlock.children = undefined;
 				}
-				// Else to check that the remaining child is the upper bifuraction
-				else {
-					// Calculate difference of "y" of the child block and the parent block
-					var difference = fatherBlock.y - childBlock.y;
-
-					// Move down the child block and its children with the difference
-					const orderedBlocks = moveDown(
-						blocksData,
-						fatherBlock,
-						[],
-						difference
-					);
-
-					// Search in the same row as the father and add it to the orderedBlocks array
-					searchRowBlocks(blocksData, orderedBlocks);
-
-					// Search if the remaining bifurcation is bifurcated
-					const bifurcation = searchBifurcation(blocksData, childBlock, []);
-
-					var maxed = false;
-
-					// If to check that the remaning bifurcation is not bifurcated
-					if (!bifurcation) {
-						// Condition to check if the first block "y" does not surpass maxY
-						if (firstChild.y - (difference + 1) <= maxY) {
-							firstChild.y -= difference;
-						} else {
-							firstChild.y -= difference + 1;
-							difference += 1;
-							maxed = true;
-						}
-					} else {
-						firstChild.y -= difference;
-					}
-
-					moveAllBranchUp(
-						blocksData,
-						firstChild,
-						[],
-						difference,
-						orderedBlocks,
-						bifurcation,
-						maxY,
-						maxed
-					);
-				}
-			} else {
-				fatherBlock.children = undefined;
 			}
-		}
 
-		setShowContextualMenu(false);
-		setDeletedBlock(blockData);
+			setShowContextualMenu(false);
+			setDeletedBlock(blockData);
+		} else {
+			toast(
+				"El borrado de bifurcaciones no está implementado, elimine una rama manualmente.",
+				{
+					hideProgressBar: false,
+					autoClose: 4000,
+					type: "error",
+					position: "bottom-center",
+					theme: "colored",
+				}
+			);
+			setShowContextualMenu(false);
+		}
 	};
 
 	function moveAllBranchUp(
