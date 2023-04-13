@@ -13,9 +13,6 @@ import {
 import { CreateBlockContext, DeleteBlockContext } from "@components/pages/_app";
 import { toast } from "react-toastify";
 
-/**
- * Displays a toast message indicating that the function has not been implemented.
- */
 const notImplemented = () => {
 	toast("Esta función no ha sido implementada.", {
 		hideProgressBar: false,
@@ -26,17 +23,6 @@ const notImplemented = () => {
 	});
 };
 
-/**
- * Renders a contextual menu for a block.
- * @param {number} x - The x position of the block.
- * @param {number} y - The y position of the block.
- * @param {Object} dimensions - The dimensions of the block canvas and contextual menu.
- * @param {Object} blockData - The data of the selected block.
- * @param {Array} blocksData - An array of all blocks data.
- * @param {function} setBlocksData - A function to update the blocks data.
- * @param {function} setShowContextualMenu - A function to show/hide the contextual menu.
- * @param {Object} ref - A React ref to access the DOM element of the component.
- */
 function BlockContextualMenu(
 	{
 		x,
@@ -91,51 +77,177 @@ function BlockContextualMenu(
 			y: blockData.y,
 			type: "forum",
 			title: "Nuevo Bloque",
-			children: blockData.children ? blockData.children : [],
+			children: blockData.children && blockData.children,
 		};
+		console.log(newBlockCreated);
 		moveRight(blocksData, newBlockCreated, []);
 		setShowContextualMenu(false);
 		setCreatedBlock(newBlockCreated);
 	};
 
 	const deleteBlock = () => {
-		const lastId = blocksData[blocksData.length - 1].id;
-		const newId = lastId + 1;
-
+		// Found the father block which children includes the id of the selected block
 		const fatherBlock = blocksData.find(
 			(b) => b.children && b.children.includes(blockData.id)
 		);
 
-		console.log(blockData.children);
+		// Set the maximum y
+		const maxY = fatherBlock.y - 1;
 
+		// If to check if the selected block has children
 		if (blockData.children != undefined) {
-			fatherBlock.children = blockData.children;
-			moveLeft(blocksData, fatherBlock, []);
-		} else {
+			if (fatherBlock.children.length > 1) {
+				const indexToRemove2 = fatherBlock.children.findIndex(
+					(child) => child === blockData.id
+				);
+
+				if (indexToRemove2 !== -1) {
+					const updatedChildren = [...fatherBlock.children];
+					updatedChildren.splice(indexToRemove2, 1);
+
+					const newChildren = [...updatedChildren, ...blockData.children];
+					fatherBlock.children = newChildren;
+				}
+			} else {
+				fatherBlock.children = blockData.children;
+			}
+			moveLeft(blocksData, blockData, []);
+		}
+		// Else to check the selected block has no children
+		else {
+			/* Remove the id of the selected block from the father block children prop
+			   (Destroy the relation ship of the parent and child) */
 			const indexToRemove = fatherBlock.children.indexOf(blockData.id);
 			const newChildren = [
 				...fatherBlock.children.slice(0, indexToRemove),
 				...fatherBlock.children.slice(indexToRemove + 1),
 			];
 
-			console.log(newChildren);
+			// If to check if the father block is a bifurcation using the length of the newChildren
+			if (newChildren.length > 0) {
+				fatherBlock.children = newChildren;
 
-			fatherBlock.children = newChildren;
+				/* Search the first block within the branch using the father block and the maxY
+				to avoid merge with other branches */
+				const childNumber = fatherBlock.children[0];
+				const childBlock = blocksData.find((obj) => obj.id === childNumber);
+				const firstChild = searchFirstChild(blocksData, fatherBlock, maxY);
 
-			const childNumber = fatherBlock.children[0];
-			const childObject = blocksData.find((obj) => obj.id === childNumber);
+				// If to check that the remaining child is the lower bifuraction
+				if (childBlock.y > fatherBlock.y) {
+					// Calculate difference of "y" of the child block and the parent block
+					var difference = childBlock.y - fatherBlock.y;
 
-			if (childObject.y != fatherBlock.y) {
-				const difference = childObject.y - fatherBlock.y;
-				moveUp(blocksData, fatherBlock, [], difference);
+					// Move up the child block and its children with the difference
+					const orderedBlocks = moveUp(blocksData, fatherBlock, [], difference);
 
-				const firstChild = searchFirstChild(blocksData, fatherBlock);
-				const firstFather = searchFirstFather(blocksData, fatherBlock);
+					// Search in the same row as the father and add it to the orderedBlocks array
+					searchRowBlocks(blocksData, orderedBlocks);
 
-				if (firstFather.children[1] === firstChild.id) {
-					firstChild.y -= difference;
-					moveAllBranchUp(blocksData, firstChild, [], difference);
+					// Search if the remaining bifurcation is bifurcated
+					const bifurcation = searchBifurcation(blocksData, childBlock, []);
+
+					// If to check that the remaning bifurcation is bifurcated
+					if (bifurcation) {
+						// Check after the branch is moved if there is a block which y is lower than the selected block
+						const found = orderedBlocks.some((obj) => obj.y < blockData.y);
+
+						// If a block is found
+						if (found) {
+							// Search the block
+							const lowestYJson = orderedBlocks.reduce((acc, obj) => {
+								return obj.y < acc.y ? obj : acc;
+							});
+
+							/* Calculate the difference between the first block and the lowest block
+							   minus 1 */
+							const lowestJsonDifference = firstChild.y - lowestYJson.y - 1;
+
+							// Move all the branch down to fit the lowest block to be at the top
+							firstChild.y += lowestJsonDifference;
+
+							moveAllBranchDown(
+								blocksData,
+								firstChild,
+								[],
+								lowestJsonDifference
+							);
+							lowestYJson.y = blockData.y;
+						}
+					}
+					// Else to check that the remaining bifurcation is not bifurcated
+					else {
+						var maxed = false;
+
+						// Condition to check if the first block "y" does not surpass maxY
+						if (firstChild.y - (difference + 1) <= maxY) {
+							firstChild.y -= difference;
+						} else {
+							firstChild.y -= difference + 1;
+							difference += 1;
+							maxed = true;
+						}
+
+						moveAllBranchUp(
+							blocksData,
+							firstChild,
+							[],
+							difference,
+							orderedBlocks,
+							bifurcation,
+							maxY,
+							maxed
+						);
+					}
 				}
+				// Else to check that the remaining child is the upper bifuraction
+				else {
+					// Calculate difference of "y" of the child block and the parent block
+					var difference = fatherBlock.y - childBlock.y;
+
+					// Move down the child block and its children with the difference
+					const orderedBlocks = moveDown(
+						blocksData,
+						fatherBlock,
+						[],
+						difference
+					);
+
+					// Search in the same row as the father and add it to the orderedBlocks array
+					searchRowBlocks(blocksData, orderedBlocks);
+
+					// Search if the remaining bifurcation is bifurcated
+					const bifurcation = searchBifurcation(blocksData, childBlock, []);
+
+					var maxed = false;
+
+					// If to check that the remaning bifurcation is not bifurcated
+					if (!bifurcation) {
+						// Condition to check if the first block "y" does not surpass maxY
+						if (firstChild.y - (difference + 1) <= maxY) {
+							firstChild.y -= difference;
+						} else {
+							firstChild.y -= difference + 1;
+							difference += 1;
+							maxed = true;
+						}
+					} else {
+						firstChild.y -= difference;
+					}
+
+					moveAllBranchUp(
+						blocksData,
+						firstChild,
+						[],
+						difference,
+						orderedBlocks,
+						bifurcation,
+						maxY,
+						maxed
+					);
+				}
+			} else {
+				fatherBlock.children = undefined;
 			}
 		}
 
@@ -143,14 +255,56 @@ function BlockContextualMenu(
 		setDeletedBlock(blockData);
 	};
 
-	/**
-	 * Recursively moves all blocks in a branch up by a specified difference.
-	 * @param {Array} blocksData - An array of all blocks data.
-	 * @param {Object} currentBlock - The current block being processed.
-	 * @param {Array} orderedBlocks - An array of ordered blocks (default: []).
-	 * @param {number} difference - The difference to move the blocks up by.
-	 */
 	function moveAllBranchUp(
+		blocksData,
+		currentBlock,
+		orderedBlocks = [],
+		difference,
+		mainBranch,
+		bifurcation,
+		maxY,
+		maxed
+	) {
+		if (currentBlock.children) {
+			for (let childrenBlockId of currentBlock.children) {
+				if (childrenBlockId > 0) {
+					let childrenBlock = blocksData.find((e) => e.id === childrenBlockId);
+					const isChildrenBlockStored = mainBranch.some(
+						(b) => b.id === childrenBlock.id
+					);
+
+					if (!isChildrenBlockStored) {
+						childrenBlock.y -= difference;
+					} else {
+						if (!bifurcation) {
+							childrenBlock.y -= difference;
+							if (maxed) {
+								childrenBlock.y += 1;
+								if (childrenBlock.y > maxY) {
+									childrenBlock.y -= difference + 1;
+								}
+							}
+						} else {
+							childrenBlock.y -= difference;
+						}
+					}
+
+					moveAllBranchUp(
+						blocksData,
+						childrenBlock,
+						orderedBlocks,
+						difference,
+						mainBranch,
+						bifurcation,
+						maxY,
+						maxed
+					);
+				}
+			}
+		}
+	}
+
+	function moveAllBranchDown(
 		blocksData,
 		currentBlock,
 		orderedBlocks = [],
@@ -161,59 +315,67 @@ function BlockContextualMenu(
 				if (childrenBlockId > 0) {
 					let childrenBlock = blocksData.find((e) => e.id === childrenBlockId);
 
-					childrenBlock.y -= difference;
+					console.log(
+						"Difference between: " + childrenBlock.title + " : " + difference
+					);
 
-					moveAllBranchUp(blocksData, childrenBlock, orderedBlocks, difference);
+					childrenBlock.y += difference;
+
+					moveAllBranchDown(
+						blocksData,
+						childrenBlock,
+						orderedBlocks,
+						difference
+					);
 				}
 			}
 		}
 	}
 
-	/**
-	 * Recursively searches for the first child block in a branch.
-	 * @param {Array} blocksData - An array of all blocks data.
-	 * @param {Object} currentBlock - The current block being processed.
-	 * @returns {Object} The first child block found.
-	 */
-	function searchFirstChild(blocksData, currentBlock) {
-		console.log(currentBlock);
+	function searchBifurcation(blocksData, currentBlock, orderedBlocks = []) {
+		if (blocksData && currentBlock) {
+			orderedBlocks.push(currentBlock);
+			if (currentBlock.children) {
+				if (currentBlock.children.length <= 1) {
+					for (let childrenBlockId of currentBlock.children) {
+						if (childrenBlockId > 0) {
+							let childrenBlock = blocksData.find(
+								(e) => e.id === childrenBlockId
+							);
+
+							return searchBifurcation(
+								blocksData,
+								childrenBlock,
+								orderedBlocks
+							);
+						}
+					}
+				} else {
+					return true;
+				}
+			} else {
+				return false;
+			}
+		}
+	}
+
+	function searchFirstChild(blocksData, currentBlock, maxY) {
 		for (let block of blocksData) {
 			if (block.children && block.children.includes(currentBlock.id)) {
-				if (block.children.length == 1) {
-					return searchFirstChild(blocksData, block);
+				console.log(block);
+				if (block.children.length > 0 && block.y > maxY && block.id > -1) {
+					return searchFirstChild(blocksData, block, maxY);
 				} else {
-					return currentBlock;
+					if (block.id > -1) {
+						return currentBlock;
+					} else {
+						return blocksData.find((e) => e.id === block.children[0]);
+					}
 				}
 			}
 		}
 	}
 
-	/**
-	 * Recursively searches for the first father block in a branch.
-	 * @param {Array} blocksData - An array of all blocks data.
-	 * @param {Object} currentBlock - The current block being processed.
-	 * @returns {Object} The first father block found.
-	 */
-	function searchFirstFather(blocksData, currentBlock) {
-		console.log("First Father: " + currentBlock.title);
-		for (let block of blocksData) {
-			if (block.children && block.children.includes(currentBlock.id)) {
-				if (block.children.length == 1) {
-					return searchFirstFather(blocksData, block);
-				} else {
-					return block;
-				}
-			}
-		}
-	}
-
-	/**
-	 * Recursively moves all blocks in a branch to the right.
-	 * @param {Array} blocksData - An array of all blocks data.
-	 * @param {Object} currentBlock - The current block being processed.
-	 * @param {Array} orderedBlocks - An array of ordered blocks (default: []).
-	 * @returns {Array} An array of ordered blocks.
-	 */
 	function moveRight(blocksData, currentBlock, orderedBlocks = []) {
 		if (currentBlock.type != "badge") {
 			if (blocksData && currentBlock) {
@@ -236,13 +398,6 @@ function BlockContextualMenu(
 		return orderedBlocks;
 	}
 
-	/**
-	 * Recursively moves all blocks in a branch to the left.
-	 * @param {Array} blocksData - An array of all blocks data.
-	 * @param {Object} currentBlock - The current block being processed.
-	 * @param {Array} orderedBlocks - An array of ordered blocks (default: []).
-	 * @returns {Array} An array of ordered blocks.
-	 */
 	function moveLeft(blocksData, currentBlock, orderedBlocks = []) {
 		if (currentBlock.type != "badge") {
 			if (blocksData && currentBlock) {
@@ -265,14 +420,6 @@ function BlockContextualMenu(
 		return orderedBlocks;
 	}
 
-	/**
-	 * Recursively moves all blocks in a branch up by a specified difference.
-	 * @param {Array} blocksData - An array of all blocks data.
-	 * @param {Object} currentBlock - The current block being processed.
-	 * @param {Array} orderedBlocks - An array of ordered blocks (default: []).
-	 * @param {number} difference - The difference to move the blocks up by.
-	 * @returns {Array} An array of ordered blocks.
-	 */
 	function moveUp(blocksData, currentBlock, orderedBlocks = [], difference) {
 		if (currentBlock.type != "badge") {
 			if (blocksData && currentBlock) {
@@ -293,7 +440,39 @@ function BlockContextualMenu(
 		return orderedBlocks;
 	}
 
-	//First render
+	function moveDown(blocksData, currentBlock, orderedBlocks = [], difference) {
+		if (currentBlock.type != "badge") {
+			if (blocksData && currentBlock) {
+				orderedBlocks.push(currentBlock);
+				if (currentBlock.children) {
+					for (let childrenBlockId of currentBlock.children) {
+						if (childrenBlockId > 0) {
+							let childrenBlock = blocksData.find(
+								(e) => e.id === childrenBlockId
+							);
+							childrenBlock.y += difference;
+							moveDown(blocksData, childrenBlock, orderedBlocks, difference);
+						}
+					}
+				}
+			}
+		}
+		return orderedBlocks;
+	}
+
+	function searchRowBlocks(blocksData, orderedBlocks) {
+		const filteredArrayJson = blocksData.filter(
+			(item) => item.y === orderedBlocks[0].y
+		);
+
+		filteredArrayJson.forEach((item) => {
+			if (!orderedBlocks.some((block) => block.id === item.id)) {
+				orderedBlocks.push(item);
+			}
+		});
+	}
+
+	//Por render
 	useEffect(() => {
 		const mainElement = document.getElementById("main");
 		mainElement.addEventListener("scroll", handleScroll);
@@ -308,7 +487,7 @@ function BlockContextualMenu(
 		};
 	}, []);
 
-	//When scrolling
+	//Cuando las dimensiones o el scroll cambian
 	useEffect(() => {
 		setLocalDimensions((prevState) => ({
 			...prevState,
@@ -317,7 +496,7 @@ function BlockContextualMenu(
 		}));
 	}, [x, y, dimensions]);
 
-	//When the (selected) block changes
+	//Cuando el bloque cambia
 	useEffect(() => {
 		setInitialValues({
 			scrollX: localDimensions.blockCanvasScrollX,

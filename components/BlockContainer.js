@@ -297,6 +297,7 @@ export default function BlockContainer({ blockData, inline, unit, order }) {
 					}
 				>
 					<span className={styles.blockInfo}>{blockData.title}</span>
+					<div>{blockData.y}</div>
 					<div>
 						<Button
 							ref={blockDOM}
