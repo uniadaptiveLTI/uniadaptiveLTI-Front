@@ -297,7 +297,12 @@ export default function BlockContainer({ blockData, inline, unit, order }) {
 					}
 				>
 					<span className={styles.blockInfo}>{blockData.title}</span>
-					<div>{blockData.y}</div>
+
+					<div>{process.env.NEXT_PUBLIC_DEV_MODE && `id:${blockData.id}`}</div>
+					<div>
+						{process.env.NEXT_PUBLIC_DEV_MODE &&
+							`x:${blockData.x},y:${blockData.y}`}
+					</div>
 					<div>
 						<Button
 							ref={blockDOM}
