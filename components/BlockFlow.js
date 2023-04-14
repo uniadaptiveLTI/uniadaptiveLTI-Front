@@ -7,7 +7,7 @@ import ReactFlow, {
 	useNodesState,
 	useEdgesState,
 } from "reactflow";
-import "reactflow/dist/style.css";
+import "reactflow/dist/base.css";
 import ActionNode from "./nodes/ActionNode.js";
 import ElementNode from "./nodes/ElementNode.js";
 import { BlocksDataContext } from "@components/pages/_app.js";
@@ -28,44 +28,44 @@ const nodeColor = (node) => {
 		case "questionnaire":
 			return "#eb9408";
 		case "assignment":
-			return "btn-info ";
+			return "#0dcaf0 ";
 		case "forum":
-			return "purple";
+			return "#800080";
 		case "file":
-			return "btn-primary ";
+			return "#0d6efd ";
 		case "folder":
-			return "btn-warning ";
+			return "#ffc107 ";
 		case "url":
-			return "cadetblue";
+			return "#5f9ea0";
 		//Moodle
 		case "workshop":
 			return "#15a935";
 		case "inquery":
-			return "btn-danger ";
+			return "#dc3545 ";
 		case "tag":
 			return "#a91568";
 		case "page":
-			return "btn-secondary ";
+			return "#6c757d ";
 		case "badge":
-			return "btn-success ";
+			return "#198754 ";
 		//Sakai
 		case "exam":
-			return "btn-danger ";
+			return "#dc3545 ";
 		case "contents":
 			return "#15a935";
 		case "text":
-			return "btn-secondary ";
+			return "#6c757d ";
 		case "html":
 			return "#a91568";
 		//LTI
 		case "start":
-			return "btn-danger ";
+			return "#000";
 		case "end":
-			return "btn-danger ";
+			return "#000";
 		case "fragment":
-			return "darkblue";
+			return "#00008b";
 		default:
-			return "btn-warning ";
+			return "#ffc107 ";
 	}
 };
 
