@@ -1,5 +1,7 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "@components/styles/globals.css";
+import "reactflow/dist/base.css";
+import "styles/BlockFlow.css";
 
 import React, { createContext, useState, useEffect } from "react";
 

@@ -1,0 +1,11 @@
+
+
+.react-flow__node-questionnaire{
+    background-color: #eb9408;
+	border: 1px solid #eb9408;
+}
+
+.react-flow__node-questionnaire:hover{
+    background-color: #db8a08 !important;
+	border: 1px solid #db8a08 !important;
+}

@@ -153,9 +153,9 @@ export default function BlockCanvas() {
 	function handleContextMenu(e) {
 		setShowContextualMenu(false);
 		const selectedBlock = e.target;
-		const bT = blockTableDOM.current;
-		if (bT) {
-			if (bT.contains(e.target) && e.target.tagName == "BUTTON") {
+		const bF = blockFlowDOM.current;
+		if (bF) {
+			if (bF.contains(e.target) && e.target.tagName == "BUTTON") {
 				if (selectedBlock) {
 					e.preventDefault();
 					setCMX(e.clientX);
