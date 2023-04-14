@@ -297,17 +297,15 @@ export default function BlockContainer({ blockData, inline, unit, order }) {
 					}
 				>
 					<span className={styles.blockInfo}>{blockData.title}</span>
-
-					<div>{process.env.NEXT_PUBLIC_DEV_MODE && `id:${blockData.id}`}</div>
-					<div>
-						{process.env.NEXT_PUBLIC_DEV_MODE &&
-							blockData.children &&
-							`children:${blockData.children}`}
-					</div>
-					<div>
-						{process.env.NEXT_PUBLIC_DEV_MODE &&
-							`x:${blockData.x},y:${blockData.y}`}
-					</div>
+					{process.env.DEV_MODE && (
+						<>
+							<div>{`id:${blockData.id}`}</div>
+							<div>
+								{blockData.children && `children:${blockData.children}`}
+							</div>
+							<div>{`x:${blockData.x},y:${blockData.y}`}</div>
+						</>
+					)}
 					<div>
 						<Button
 							ref={blockDOM}

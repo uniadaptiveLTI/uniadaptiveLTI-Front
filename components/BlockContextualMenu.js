@@ -68,15 +68,16 @@ function BlockContextualMenu(
 	};
 
 	const createBlock = () => {
+		//FIXME: It doesn't push the block at start
 		const lastId = blocksData[blocksData.length - 1].id;
 		const newId = lastId + 1;
-
+		//TODO: Block selector
 		const newBlockCreated = {
 			id: newId,
 			x: blockData.x + 1,
 			y: blockData.y,
 			type: "forum",
-			title: "Nuevo Bloque",
+			title: "Nuevo Foro",
 			children: blockData.children && blockData.children,
 		};
 		console.log(newBlockCreated);
