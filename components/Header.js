@@ -90,7 +90,7 @@ function Header({ closeBtn }, ref) {
 		emptyMap,
 		{
 			id: 1,
-			name: "Matemáticas 4ºESO",
+			name: "Matemáticas 4ºESO-A",
 			versions: [
 				{
 					id: 0,
@@ -465,7 +465,7 @@ function Header({ closeBtn }, ref) {
 							y: 6,
 							type: "page",
 							title: "Web informativa 10",
-							children: [-1],
+
 							identation: 2,
 						},
 						{
@@ -483,7 +483,7 @@ function Header({ closeBtn }, ref) {
 		},
 		{
 			id: 2,
-			name: "Lengua 3ºESO",
+			name: "Matemáticas 4ºESO-B",
 			versions: [
 				{
 					id: 0,
@@ -495,7 +495,7 @@ function Header({ closeBtn }, ref) {
 		},
 		{
 			id: 3,
-			name: "Inglés 2ºESO",
+			name: "Matemáticas 4ºESO-C",
 			versions: [
 				{
 					id: 0,
@@ -969,7 +969,7 @@ function Header({ closeBtn }, ref) {
 								>
 									<div className="d-flex flex-row">
 										<Container className="d-flex flex-column">
-											<div>Ana López</div>
+											<div>María García</div>
 											<div>Moodle</div>
 										</Container>
 										<div className="mx-auto d-flex align-items-center">
