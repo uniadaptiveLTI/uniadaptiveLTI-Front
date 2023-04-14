@@ -7,40 +7,9 @@ import ReactFlow, {
 	useNodesState,
 	useEdgesState,
 } from "reactflow";
-import "reactflow/dist/style.css";
+import "reactflow/dist/base.css";
 import ActionNode from "./nodes/ActionNode.js";
 import ElementNode from "./nodes/ElementNode.js";
-
-const initialNodes = [
-	{
-		id: "1",
-		type: "questionnaire",
-		data: {
-			label: "Inicio",
-		},
-		position: { x: 0, y: 0 },
-	},
-	{
-		id: "2",
-		data: {
-			label: "Ejercicio",
-		},
-		position: { x: 100, y: -100 },
-	},
-	{
-		id: "3",
-		type: "badge",
-		data: {
-			label: "No Ejercicio",
-		},
-		position: { x: 100, y: 100 },
-	},
-];
-
-const initialEdges = [
-	{ id: "e1-2", source: "2", target: "1", label: "Equisde" },
-	{ id: "e1-3", source: "1", target: "3", animated: true },
-];
 
 const minimapStyle = {
 	height: 120,
@@ -56,44 +25,44 @@ const nodeColor = (node) => {
 		case "questionnaire":
 			return "#eb9408";
 		case "assignment":
-			return "btn-info ";
+			return "#0dcaf0 ";
 		case "forum":
-			return "purple";
+			return "#800080";
 		case "file":
-			return "btn-primary ";
+			return "#0d6efd ";
 		case "folder":
-			return "btn-warning ";
+			return "#ffc107 ";
 		case "url":
-			return "cadetblue";
+			return "#5f9ea0";
 		//Moodle
 		case "workshop":
 			return "#15a935";
 		case "inquery":
-			return "btn-danger ";
+			return "#dc3545 ";
 		case "tag":
 			return "#a91568";
 		case "page":
-			return "btn-secondary ";
+			return "#6c757d ";
 		case "badge":
-			return "btn-success ";
+			return "#198754 ";
 		//Sakai
 		case "exam":
-			return "btn-danger ";
+			return "#dc3545 ";
 		case "contents":
 			return "#15a935";
 		case "text":
-			return "btn-secondary ";
+			return "#6c757d ";
 		case "html":
 			return "#a91568";
 		//LTI
 		case "start":
-			return "btn-danger ";
+			return "#000";
 		case "end":
-			return "btn-danger ";
+			return "#000";
 		case "fragment":
-			return "darkblue";
+			return "#00008b";
 		default:
-			return "btn-warning ";
+			return "#ffc107 ";
 	}
 };
 
@@ -103,6 +72,37 @@ const nodeTypes = {
 };
 
 const OverviewFlow = () => {
+	const initialNodes = [
+		{
+			id: "1",
+			type: "questionnaire",
+			data: {
+				label: "Inicio",
+			},
+			position: { x: 0, y: 0 },
+		},
+		{
+			id: "2",
+			data: {
+				label: "Ejercicio",
+			},
+			position: { x: 100, y: -100 },
+		},
+		{
+			id: "3",
+			type: "badge",
+			data: {
+				label: "No Ejercicio",
+			},
+			position: { x: 100, y: 100 },
+		},
+	];
+
+	const initialEdges = [
+		{ id: "e1-2", source: "2", target: "1", label: "Equisde" },
+		{ id: "e1-3", source: "1", target: "3", animated: true },
+	];
+
 	const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
 	const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 	const onConnect = useCallback(

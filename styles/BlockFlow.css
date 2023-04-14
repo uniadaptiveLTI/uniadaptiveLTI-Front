@@ -1,11 +1,32 @@
+/** Handles **/
 
+.react-flow__handle-left {
+    clip-path: polygon(100% 50%, 0 0, 0 100%);
+    transform: scale(2) translateY(-75%);
+}
+
+.react-flow__handle-right {
+    clip-path: polygon(100% 50%, 0 0, 0 100%);
+    transform: scale(2) translateY(-75%);
+}
+
+/** Nodes **/
+
+.react-flow__node {
+    border: 1px solid;
+}
+
+.react-flow__node > div {
+    padding: 1em;
+}
 
 .react-flow__node-questionnaire{
+    color: white;
     background-color: #eb9408;
-	border: 1px solid #eb9408;
+	border: 1px solid #8b5b0d;
+    border-radius: 4px;
 }
 
 .react-flow__node-questionnaire:hover{
     background-color: #db8a08 !important;
-	border: 1px solid #db8a08 !important;
 }
