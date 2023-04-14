@@ -99,6 +99,23 @@ function Header({ closeBtn }, ref) {
 					default: "true",
 					blocksData: [
 						{
+							id: -2,
+							x: 0,
+							y: 100,
+							type: "start",
+							title: "Inicio",
+							children: [0],
+							identation: 1,
+						},
+						{
+							id: -1,
+							x: 800,
+							y: 400,
+							type: "end",
+							title: "Final",
+							identation: 1,
+						},
+						{
 							id: 0,
 							x: 100,
 							y: 100,

@@ -81,12 +81,10 @@ export default function BlockCanvas() {
 	const blockFlowDOM = useRef(null);
 
 	//This will be given by the back
-	const [blocksData, setBlocksData] = useState(
-		[startBlock, endBlock].concat(currentBlocksData || [])
-	);
+	const [blocksData, setBlocksData] = useState(currentBlocksData);
 
 	useLayoutEffect(() => {
-		setBlocksData([startBlock, endBlock].concat(currentBlocksData || []));
+		setBlocksData(currentBlocksData);
 	}, [currentBlocksData]);
 
 	const blocksDataRef = useRef(blocksData);

@@ -1,4 +1,4 @@
-import React, { useCallback, useContext } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import ReactFlow, {
 	addEdge,
 	MiniMap,
@@ -7,10 +7,13 @@ import ReactFlow, {
 	useNodesState,
 	useEdgesState,
 } from "reactflow";
-import "reactflow/dist/base.css";
+import "reactflow/dist/style.css";
 import ActionNode from "./nodes/ActionNode.js";
 import ElementNode from "./nodes/ElementNode.js";
-import { BlocksDataContext } from "@components/pages/_app.js";
+import {
+	BlocksDataContext,
+	VersionInfoContext,
+} from "@components/pages/_app.js";
 import FinalNode from "./nodes/FinalNode.js";
 import InitialNode from "./nodes/InitialNode.js";
 
@@ -28,44 +31,44 @@ const nodeColor = (node) => {
 		case "questionnaire":
 			return "#eb9408";
 		case "assignment":
-			return "#0dcaf0 ";
+			return "btn-info ";
 		case "forum":
-			return "#800080";
+			return "purple";
 		case "file":
-			return "#0d6efd ";
+			return "btn-primary ";
 		case "folder":
-			return "#ffc107 ";
+			return "btn-warning ";
 		case "url":
-			return "#5f9ea0";
+			return "cadetblue";
 		//Moodle
 		case "workshop":
 			return "#15a935";
 		case "inquery":
-			return "#dc3545 ";
+			return "btn-danger ";
 		case "tag":
 			return "#a91568";
 		case "page":
-			return "#6c757d ";
+			return "btn-secondary ";
 		case "badge":
-			return "#198754 ";
+			return "btn-success ";
 		//Sakai
 		case "exam":
-			return "#dc3545 ";
+			return "btn-danger ";
 		case "contents":
 			return "#15a935";
 		case "text":
-			return "#6c757d ";
+			return "btn-secondary ";
 		case "html":
 			return "#a91568";
 		//LTI
 		case "start":
-			return "#000";
+			return "btn-danger ";
 		case "end":
-			return "#000";
+			return "btn-danger ";
 		case "fragment":
-			return "#00008b";
+			return "darkblue";
 		default:
-			return "#ffc107 ";
+			return "btn-warning ";
 	}
 };
 
@@ -92,33 +95,48 @@ const nodeTypes = {
 };
 
 const OverviewFlow = (map) => {
-	const newNodes = map.blocksData.map((block) => ({
-		id: block.id.toString(),
-		type: block.type,
-		data: {
-			label: block.title,
-			identation: block.identation,
-		},
-		position: { x: block.x, y: block.y },
-		children: block.children,
-	}));
+	const [newInitialNodes, setNewInitialNodes] = useState([]);
+	const [newInitialEdges, setNewInitialEdges] = useState([]);
 
-	const newInitialEdges = map.blocksData.flatMap((parent) => {
-		if (parent.children) {
-			return parent.children.map((child) => {
-				return {
-					id: `e${parent.id}-${child}`,
-					source: parent.id.toString(),
-					target: child.toString(),
-				};
-			});
-		} else {
-			return [];
-		}
-	});
-
-	const [nodes, setNodes, onNodesChange] = useNodesState(newNodes);
+	const [nodes, setNodes, onNodesChange] = useNodesState(newInitialNodes);
 	const [edges, setEdges, onEdgesChange] = useEdgesState(newInitialEdges);
+
+	useEffect(() => {
+		setNewInitialNodes(
+			map.blocksData.map((block) => ({
+				id: block.id.toString(),
+				type: block.type,
+				data: {
+					label: block.title,
+					identation: block.identation,
+				},
+				position: { x: block.x, y: block.y },
+				children: block.children,
+			}))
+		);
+
+		setNewInitialEdges(
+			map.blocksData.flatMap((parent) => {
+				if (parent.children) {
+					return parent.children.map((child) => {
+						return {
+							id: `e${parent.id}-${child}`,
+							source: parent.id.toString(),
+							target: child.toString(),
+						};
+					});
+				} else {
+					return [];
+				}
+			})
+		);
+	}, [map]);
+
+	useEffect(() => {
+		setNodes(newInitialNodes);
+		setEdges(newInitialEdges);
+	}, [newInitialNodes, newInitialEdges]);
+
 	const onConnect = useCallback(
 		(params) => setEdges((eds) => addEdge(params, eds)),
 		[]
