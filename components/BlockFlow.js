@@ -7,6 +7,9 @@ import ReactFlow, {
 	useNodesState,
 	useEdgesState,
 } from "reactflow";
+import "reactflow/dist/style.css";
+import ActionNode from "./nodes/ActionNode.js";
+import ElementNode from "./nodes/ElementNode.js";
 
 const initialNodes = [
 	{
@@ -26,7 +29,7 @@ const initialNodes = [
 	},
 	{
 		id: "3",
-		type: "output",
+		type: "badge",
 		data: {
 			label: "No Ejercicio",
 		},
@@ -94,6 +97,11 @@ const nodeColor = (node) => {
 	}
 };
 
+const nodeTypes = {
+	badge: ActionNode,
+	questionnaire: ElementNode,
+};
+
 const OverviewFlow = () => {
 	const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
 	const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
@@ -124,8 +132,7 @@ const OverviewFlow = () => {
 			onInit={onInit}
 			fitView
 			proOptions={{ hideAttribution: true }}
-			attributionPosition="top-right"
-			//nodeTypes={nodeTypes}
+			nodeTypes={nodeTypes}
 		>
 			<MiniMap nodeColor={nodeColor} style={minimapStyle} zoomable pannable />
 			<Controls />

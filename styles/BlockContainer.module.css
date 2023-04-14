@@ -1,3 +1,22 @@
+.textUpdaterNode {
+	border: 1px solid #eee;
+	padding: 5px;
+	border-radius: 5px;
+	background: white;
+  }
+  
+  .textUpdaterNode label {
+	display: block;
+	color: #777;
+	font-size: 12px;
+  }
+
+
+
+
+
+
+
 .container {
 	display: flex;
 	flex-direction: column;
