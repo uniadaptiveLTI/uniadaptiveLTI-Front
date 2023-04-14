@@ -9,7 +9,6 @@ export const MSGContext = createContext();
 export const BlockInfoContext = createContext();
 export const ItineraryInfoContext = createContext();
 export const VersionInfoContext = createContext();
-export const BlockPositionContext = createContext();
 export const MapContext = createContext();
 export const ExpandedContext = createContext();
 export const VersionJsonContext = createContext();
@@ -18,7 +17,6 @@ export const CreateBlockContext = createContext();
 export const DeleteBlockContext = createContext();
 export const SettingsContext = createContext();
 export const PlatformContext = createContext("moodle");
-export const DimensionsContext = createContext();
 export const BlocksDataContext = createContext();
 export const MainDOMContext = createContext();
 

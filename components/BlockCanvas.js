@@ -2,11 +2,9 @@ import styles from "@components/styles/BlockCanvas.module.css";
 
 import {
 	BlockJsonContext,
-	BlockPositionContext,
 	BlocksDataContext,
 	CreateBlockContext,
 	DeleteBlockContext,
-	DimensionsContext,
 	ItineraryInfoContext,
 	VersionInfoContext,
 } from "@components/pages/_app";
@@ -18,7 +16,6 @@ import {
 	useLayoutEffect,
 	useRef,
 } from "react";
-import { Table, Modal, Button } from "react-bootstrap";
 import {
 	BlockInfoContext,
 	ExpandedContext,
@@ -27,8 +24,7 @@ import {
 } from "../pages/_app.js";
 
 import BlockContextualMenu from "./BlockContextualMenu.js";
-import BlockDiagram from "./BlockDiagram.js";
-import BlockTable from "./BlockTable.js";
+import BlockFlow from "./BlockFlow.js";
 
 /**
  * Adds multiple event listeners to an element.
@@ -82,8 +78,7 @@ export default function BlockCanvas() {
 	//Refs
 	const canvasRef = useRef();
 	const contextMenuDOM = useRef(null);
-	const blockTableDOM = useRef(null);
-	const blockCanvasArrowsDOM = useRef(null);
+	const blockFlowDOM = useRef(null);
 
 	//This will be given by the back
 	const [blocksData, setBlocksData] = useState(
@@ -97,8 +92,6 @@ export default function BlockCanvas() {
 	const blocksDataRef = useRef(blocksData);
 
 	/** Client-side */
-	const [dimensions, setDimensions] = useState();
-	const [blockPositions, setBlockPositions] = useState([]);
 
 	useEffect(() => {
 		let newBlocksData = [...blocksData];
@@ -115,7 +108,6 @@ export default function BlockCanvas() {
 			let newBlocksData = [...blocksData];
 			newBlocksData.push(createdBlock);
 			setBlocksData(newBlocksData);
-			handleResize();
 		}
 		cMBlockData.children = [createdBlock.id];
 	}, [createdBlock]);
@@ -128,11 +120,6 @@ export default function BlockCanvas() {
 	}, [deletedBlock]);
 
 	useEffect(() => {
-		handleResize();
-		addEventListeners(window, [
-			{ type: "resize", listener: handleResize },
-			{ type: "zoom", listener: handleResize },
-		]);
 		addEventListeners(document.body, [
 			{ type: "contextmenu", listener: handleContextMenu },
 			{
@@ -153,55 +140,11 @@ export default function BlockCanvas() {
 				},
 			},
 		]);
-		document
-			.getElementById("main")
-			.addEventListener("scroll", handleResize, false);
-	}, []);
+	});
 
 	useLayoutEffect(() => {
 		blocksDataRef.current = blocksData;
 	}, [expanded, settings, blocksData]);
-
-	useEffect(() => {
-		handleResize();
-	}, [expanded, settings, blocksData]);
-
-	const verticalOffset = 80; //Margin-top of BlockTable.
-	const horizontalOffset = 25; //Margin-left of BlockTable.
-
-	useEffect(() => {
-		const blockCanvasArrows = blockCanvasArrowsDOM.current;
-		Object.assign(blockCanvasArrows.style, {
-			width: blockTableDOM.current.clientWidth + horizontalOffset + "px",
-			height: blockTableDOM.current.clientHeight + verticalOffset + "px",
-		});
-	}, [blockTableDOM.current, handleResize]);
-
-	/**
-	 * Handles the resize event and updates the dimensions of the block canvas and arrows.
-	 */
-	function handleResize() {
-		const bT = blockTableDOM.current;
-		const blockCanvasArrows = blockCanvasArrowsDOM.current;
-
-		if (bT && mainDOM && blockCanvasArrows) {
-			let { width, height, left, top } = bT.getBoundingClientRect();
-			width += horizontalOffset;
-			height += verticalOffset;
-
-			setBlockPositions([]);
-			setDimensions(
-				JSON.stringify({
-					width: window.innerWidth,
-					height: window.innerHeight,
-					blockCanvasOffsetX: left,
-					blockCanvasOffsetY: top,
-					blockCanvasScrollX: mainDOM.current.scrollLeft,
-					blockCanvasScrollY: mainDOM.current.scrollTop,
-				})
-			);
-		}
-	}
 
 	/**
 	 * Handles the context menu position, positioning it.
@@ -251,31 +194,19 @@ export default function BlockCanvas() {
 	return (
 		<CreateBlockContext.Provider value={{ createdBlock, setCreatedBlock }}>
 			<DeleteBlockContext.Provider value={{ deletedBlock, setDeletedBlock }}>
-				<DimensionsContext.Provider value={{ dimensions, setDimensions }}>
-					<BlockPositionContext.Provider
-						value={{ blockPositions, setBlockPositions }}
-					>
-						<BlockTable blocksData={blocksData} ref={blockTableDOM} />
-						<BlockDiagram
-							ref={blockCanvasArrowsDOM}
-							blockPositions={blockPositions}
-							blocksData={blocksDataRef.current}
-							className={styles.svg}
-						></BlockDiagram>
-						{showContextualMenu && (
-							<BlockContextualMenu
-								ref={contextMenuDOM}
-								blockData={cMBlockData}
-								blocksData={blocksData}
-								setBlocksData={setBlocksData}
-								setShowContextualMenu={setShowContextualMenu}
-								x={cMX}
-								y={cMY}
-								dimensions={dimensions}
-							/>
-						)}
-					</BlockPositionContext.Provider>
-				</DimensionsContext.Provider>
+				<BlockFlow></BlockFlow>
+				{showContextualMenu && (
+					<BlockContextualMenu
+						ref={contextMenuDOM}
+						blockData={cMBlockData}
+						blocksData={blocksData}
+						setBlocksData={setBlocksData}
+						setShowContextualMenu={setShowContextualMenu}
+						x={cMX}
+						y={cMY}
+						dimensions={dimensions}
+					/>
+				)}
 			</DeleteBlockContext.Provider>
 		</CreateBlockContext.Provider>
 	);
