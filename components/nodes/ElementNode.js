@@ -17,11 +17,10 @@ function ElementNode({ data, isConnectable }) {
 				isConnectable={isConnectable}
 			/>
 			<div>
-				<label htmlFor="text">Text:</label>
-				<input id="text" name="text" onChange={onChange} className="nodrag" />
+				<div>{data.label}</div>
 			</div>
 			<Handle
-				type="target"
+				type="source"
 				position={Position.Right}
 				isConnectable={isConnectable}
 			/>

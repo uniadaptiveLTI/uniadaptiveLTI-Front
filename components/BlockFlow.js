@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useContext } from "react";
 import ReactFlow, {
 	addEdge,
 	MiniMap,
@@ -10,37 +10,9 @@ import ReactFlow, {
 import "reactflow/dist/style.css";
 import ActionNode from "./nodes/ActionNode.js";
 import ElementNode from "./nodes/ElementNode.js";
-
-const initialNodes = [
-	{
-		id: "1",
-		type: "questionnaire",
-		data: {
-			label: "Inicio",
-		},
-		position: { x: 0, y: 0 },
-	},
-	{
-		id: "2",
-		data: {
-			label: "Ejercicio",
-		},
-		position: { x: 100, y: -100 },
-	},
-	{
-		id: "3",
-		type: "badge",
-		data: {
-			label: "No Ejercicio",
-		},
-		position: { x: 100, y: 100 },
-	},
-];
-
-const initialEdges = [
-	{ id: "e1-2", source: "2", target: "1", label: "Equisde" },
-	{ id: "e1-3", source: "1", target: "3", animated: true },
-];
+import { BlocksDataContext } from "@components/pages/_app.js";
+import FinalNode from "./nodes/FinalNode.js";
+import InitialNode from "./nodes/InitialNode.js";
 
 const minimapStyle = {
 	height: 120,
@@ -98,13 +70,55 @@ const nodeColor = (node) => {
 };
 
 const nodeTypes = {
+	start: InitialNode,
+	end: FinalNode,
 	badge: ActionNode,
 	questionnaire: ElementNode,
+	assignment: ElementNode,
+	forum: ElementNode,
+	file: ElementNode,
+	folder: ElementNode,
+	url: ElementNode,
+	// Moodle
+	workshop: ElementNode,
+	inquery: ElementNode,
+	tag: ElementNode,
+	page: ElementNode,
+	// Sakai
+	exam: ElementNode,
+	contents: ElementNode,
+	text: ElementNode,
+	html: ElementNode,
 };
 
-const OverviewFlow = () => {
-	const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-	const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+const OverviewFlow = (map) => {
+	const newNodes = map.blocksData.map((block) => ({
+		id: block.id.toString(),
+		type: block.type,
+		data: {
+			label: block.title,
+			identation: block.identation,
+		},
+		position: { x: block.x, y: block.y },
+		children: block.children,
+	}));
+
+	const newInitialEdges = map.blocksData.flatMap((parent) => {
+		if (parent.children) {
+			return parent.children.map((child) => {
+				return {
+					id: `e${parent.id}-${child}`,
+					source: parent.id.toString(),
+					target: child.toString(),
+				};
+			});
+		} else {
+			return [];
+		}
+	});
+
+	const [nodes, setNodes, onNodesChange] = useNodesState(newNodes);
+	const [edges, setEdges, onEdgesChange] = useEdgesState(newInitialEdges);
 	const onConnect = useCallback(
 		(params) => setEdges((eds) => addEdge(params, eds)),
 		[]

@@ -194,7 +194,7 @@ export default function BlockCanvas() {
 	return (
 		<CreateBlockContext.Provider value={{ createdBlock, setCreatedBlock }}>
 			<DeleteBlockContext.Provider value={{ deletedBlock, setDeletedBlock }}>
-				<BlockFlow></BlockFlow>
+				<BlockFlow blocksData={blocksData}></BlockFlow>
 				{showContextualMenu && (
 					<BlockContextualMenu
 						ref={contextMenuDOM}
