@@ -73,6 +73,7 @@ export default function BlockCanvas() {
 	//Context Menu
 	const [cMX, setCMX] = useState(0);
 	const [cMY, setCMY] = useState(0);
+	const [nodeSelected, setNodeSelected] = useState(0);
 	const [cMBlockData, setCMBlockData] = useState({});
 
 	//Refs
@@ -107,7 +108,6 @@ export default function BlockCanvas() {
 			newBlocksData.push(createdBlock);
 			setBlocksData(newBlocksData);
 		}
-		cMBlockData.children = [createdBlock.id];
 	}, [createdBlock]);
 
 	useEffect(() => {
@@ -153,16 +153,33 @@ export default function BlockCanvas() {
 		const selectedBlock = e.target;
 		const bF = blockFlowDOM.current;
 		if (bF) {
-			if (bF.contains(e.target) && e.target.classList.contains("block")) {
-				if (selectedBlock) {
-					e.preventDefault();
-					setCMX(e.clientX);
-					setCMY(e.clientY);
-					let block = blocksDataRef.current.find(
-						(e) => e.id == selectedBlock.id
-					);
-					setCMBlockData(block);
-					setShowContextualMenu(true);
+			if (bF.contains(e.target)) {
+				if (e.target.classList.contains("block")) {
+					const reactFlowBounds = bF.getBoundingClientRect();
+					if (selectedBlock) {
+						e.preventDefault();
+						setCMX(e.clientX);
+						setCMY(e.clientY);
+						setNodeSelected(true);
+						let block = blocksDataRef.current.find(
+							(e) => e.id == selectedBlock.id
+						);
+						console.log(block);
+						setCMBlockData(block);
+						setShowContextualMenu(true);
+					}
+				} else if (e.target.classList.contains("react-flow__pane")) {
+					if (selectedBlock) {
+						e.preventDefault();
+						setCMX(e.clientX);
+						setCMY(e.clientY);
+						setNodeSelected(false);
+						let block = blocksDataRef.current.find(
+							(e) => e.id == selectedBlock.id
+						);
+						setCMBlockData(block);
+						setShowContextualMenu(true);
+					}
 				}
 			}
 		}
@@ -201,6 +218,7 @@ export default function BlockCanvas() {
 						setShowContextualMenu={setShowContextualMenu}
 						x={cMX}
 						y={cMY}
+						nodeSelected={nodeSelected}
 					/>
 				)}
 			</DeleteBlockContext.Provider>

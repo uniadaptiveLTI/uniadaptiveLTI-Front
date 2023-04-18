@@ -24,7 +24,15 @@ const notImplemented = () => {
 };
 
 function BlockContextualMenu(
-	{ x, y, blockData, blocksData, setBlocksData, setShowContextualMenu },
+	{
+		x,
+		y,
+		blockData,
+		blocksData,
+		setBlocksData,
+		setShowContextualMenu,
+		nodeSelected,
+	},
 	ref
 ) {
 	const { createdBlock, setCreatedBlock } = useContext(CreateBlockContext);
@@ -35,215 +43,24 @@ function BlockContextualMenu(
 		const lastId = blocksData[blocksData.length - 1].id;
 		const newId = lastId + 1;
 		//TODO: Block selector
+		console.log(x + " " + y);
 		const newBlockCreated = {
 			id: newId,
-			x: blockData.x + 1,
-			y: blockData.y,
+			x: x,
+			y: y,
 			type: "forum",
 			title: "Nuevo Foro",
-			children: blockData.children && blockData.children,
+			children: undefined,
 		};
 		console.log(newBlockCreated);
-		moveRight(blocksData, newBlockCreated, []);
 		setShowContextualMenu(false);
 		setCreatedBlock(newBlockCreated);
 	};
 
 	const deleteBlock = () => {
-		// Find the father block which children includes the id of the selected block
-
-		const fatherBlock = blocksData.find(
-			(b) => b.children && b.children.includes(blockData.id)
-		);
-
-		const children = blockData.children;
-		let childrenNumber = 0;
-		if (children) {
-			childrenNumber = children.length;
-		}
-
-		//If not a bifurcation
-		if (childrenNumber < 2) {
-			// Set the maximum y
-			const maxY = fatherBlock.y - 1;
-
-			// If to check if the selected block has children
-			if (blockData.children != undefined) {
-				if (fatherBlock.children.length > 1) {
-					const indexToRemove2 = fatherBlock.children.findIndex(
-						(child) => child === blockData.id
-					);
-
-					if (indexToRemove2 !== -1) {
-						const updatedChildren = [...fatherBlock.children];
-						updatedChildren.splice(indexToRemove2, 1);
-
-						const newChildren = [...updatedChildren, ...blockData.children];
-						fatherBlock.children = newChildren;
-					}
-				} else {
-					fatherBlock.children = blockData.children;
-				}
-				moveLeft(blocksData, blockData, []);
-			}
-			// Else to check the selected block has no children
-			else {
-				/* Remove the id of the selected block from the father block children prop
-			   (Destroy the relation ship between the parent and its child) */
-				const indexToRemove = fatherBlock.children.indexOf(blockData.id);
-				const newChildren = [
-					...fatherBlock.children.slice(0, indexToRemove),
-					...fatherBlock.children.slice(indexToRemove + 1),
-				];
-
-				// If to check if the father block is a bifurcation using the length of the newChildren
-				if (newChildren.length > 0) {
-					fatherBlock.children = newChildren;
-
-					/* Search the first block within the branch using the father block and the maxY
-				to avoid merge with other branches */
-					const childNumber = fatherBlock.children[0];
-					const childBlock = blocksData.find((obj) => obj.id === childNumber);
-					const firstChild = searchFirstChild(blocksData, fatherBlock, maxY);
-
-					// If to check that the remaining child is the lower bifuraction
-					if (childBlock.y > fatherBlock.y) {
-						// Calculate difference of "y" of the child block and the parent block
-						var difference = childBlock.y - fatherBlock.y;
-
-						// Move up the child block and its children with the difference
-						const orderedBlocks = moveUp(
-							blocksData,
-							fatherBlock,
-							[],
-							difference
-						);
-
-						// Search in the same row as the father and add it to the orderedBlocks array
-						searchRowBlocks(blocksData, orderedBlocks);
-
-						// Search if the remaining bifurcation is bifurcated
-						const bifurcation = searchBifurcation(blocksData, childBlock, []);
-
-						// If to check that the remaning bifurcation is bifurcated
-						if (bifurcation) {
-							// Check after the branch is moved if there is a block which y is lower than the selected block
-							const found = orderedBlocks.some((obj) => obj.y < blockData.y);
-
-							// If a block is found
-							if (found) {
-								// Search the block
-								const lowestYJson = orderedBlocks.reduce((acc, obj) => {
-									return obj.y < acc.y ? obj : acc;
-								});
-
-								/* Calculate the difference between the first block and the lowest block
-							   minus 1 */
-								const lowestJsonDifference = firstChild.y - lowestYJson.y - 1;
-
-								// Move all the branch down to fit the lowest block to be at the top
-								firstChild.y += lowestJsonDifference;
-
-								moveAllBranchDown(
-									blocksData,
-									firstChild,
-									[],
-									lowestJsonDifference
-								);
-								lowestYJson.y = blockData.y;
-							}
-						}
-						// Else to check that the remaining bifurcation is not bifurcated
-						else {
-							var maxed = false;
-
-							// Condition to check if the first block "y" does not surpass maxY
-							if (firstChild.y - (difference + 1) <= maxY) {
-								firstChild.y -= difference;
-							} else {
-								firstChild.y -= difference + 1;
-								difference += 1;
-								maxed = true;
-							}
-
-							moveAllBranchUp(
-								blocksData,
-								firstChild,
-								[],
-								difference,
-								orderedBlocks,
-								bifurcation,
-								maxY,
-								maxed
-							);
-						}
-					}
-					// Else to check that the remaining child is the upper bifuraction
-					else {
-						// Calculate difference of "y" of the child block and the parent block
-						var difference = fatherBlock.y - childBlock.y;
-
-						// Move down the child block and its children with the difference
-						const orderedBlocks = moveDown(
-							blocksData,
-							fatherBlock,
-							[],
-							difference
-						);
-
-						// Search in the same row as the father and add it to the orderedBlocks array
-						searchRowBlocks(blocksData, orderedBlocks);
-
-						// Search if the remaining bifurcation is bifurcated
-						const bifurcation = searchBifurcation(blocksData, childBlock, []);
-
-						var maxed = false;
-
-						// If to check that the remaning bifurcation is not bifurcated
-						if (!bifurcation) {
-							// Condition to check if the first block "y" does not surpass maxY
-							if (firstChild.y - (difference + 1) <= maxY) {
-								firstChild.y -= difference;
-							} else {
-								firstChild.y -= difference + 1;
-								difference += 1;
-								maxed = true;
-							}
-						} else {
-							firstChild.y -= difference;
-						}
-
-						moveAllBranchUp(
-							blocksData,
-							firstChild,
-							[],
-							difference,
-							orderedBlocks,
-							bifurcation,
-							maxY,
-							maxed
-						);
-					}
-				} else {
-					fatherBlock.children = undefined;
-				}
-			}
-
-			setShowContextualMenu(false);
-			setDeletedBlock(blockData);
-		} else {
-			toast(
-				"El borrado de bifurcaciones no está implementado, elimine una rama manualmente.",
-				{
-					hideProgressBar: false,
-					autoClose: 4000,
-					type: "error",
-					position: "bottom-center",
-					theme: "colored",
-				}
-			);
-			setShowContextualMenu(false);
-		}
+		console.log(blockData);
+		setShowContextualMenu(false);
+		setDeletedBlock(blockData);
 	};
 
 	function moveAllBranchUp(
@@ -463,6 +280,8 @@ function BlockContextualMenu(
 		});
 	}
 
+	console.log(x + " " + y);
+
 	return (
 		<FocusTrap
 			focusTrapOptions={{
@@ -470,55 +289,70 @@ function BlockContextualMenu(
 				returnFocusOnDeactivate: true,
 			}}
 		>
-			<ul ref={ref} className={styles.cM + " "}>
-				<li>
-					<Button variant="light" onClick={createBlock}>
-						<div role="button">
-							<PlusSquareFill />
-							Crear nuevo bloque...
-						</div>
-					</Button>
-				</li>
-				<li>
-					<Button variant="light" onClick={notImplemented}>
-						<div>
-							<Diagram2Fill />
-							Crear bifurcación...
-						</div>
-					</Button>
-				</li>
-				<li>
-					<Button variant="light" onClick={notImplemented}>
-						<div>
-							<Scissors />
-							Cortar bloque
-						</div>
-					</Button>
-				</li>
-				<li>
-					<Button variant="light" onClick={notImplemented}>
-						<div>
-							<Clipboard2Fill />
-							Copiar bloque
-						</div>
-					</Button>
-				</li>
-				<li>
-					<Button variant="light" disabled onClick={notImplemented}>
-						<div>
-							<Clipboard2PlusFill />
-							Pegar bloque
-						</div>
-					</Button>
-				</li>
-				<li>
-					<Button variant="light" onClick={deleteBlock}>
-						<div>
-							<Trash3Fill />
-							Eliminar bloque...
-						</div>
-					</Button>
-				</li>
+			<ul
+				ref={ref}
+				style={{
+					top: `${y}px`,
+					left: `${x}px`,
+				}}
+				className={styles.cM + " "}
+			>
+				{!nodeSelected && (
+					<ul ref={ref} className={styles.cM + " "}>
+						<li>
+							<Button variant="light" onClick={createBlock}>
+								<div role="button">
+									<PlusSquareFill />
+									Crear nuevo bloque...
+								</div>
+							</Button>
+						</li>
+						<li>
+							<Button variant="light" disabled onClick={notImplemented}>
+								<div>
+									<Clipboard2PlusFill />
+									Pegar bloque
+								</div>
+							</Button>
+						</li>
+					</ul>
+				)}
+				{nodeSelected && (
+					<ul ref={ref} className={styles.cM + " "}>
+						<li>
+							<Button variant="light" onClick={notImplemented}>
+								<div>
+									<Diagram2Fill />
+									Crear relación
+								</div>
+							</Button>
+						</li>
+						<li>
+							<Button variant="light" onClick={notImplemented}>
+								<div>
+									<Clipboard2Fill />
+									Copiar bloque
+								</div>
+							</Button>
+						</li>
+						<li>
+							<Button variant="light" onClick={notImplemented}>
+								<div>
+									<Scissors />
+									Cortar bloque
+								</div>
+							</Button>
+						</li>
+						<li>
+							<Button variant="light" onClick={deleteBlock}>
+								<div>
+									<Trash3Fill />
+									Eliminar bloque...
+								</div>
+							</Button>
+						</li>
+					</ul>
+				)}
 			</ul>
 		</FocusTrap>
 	);
