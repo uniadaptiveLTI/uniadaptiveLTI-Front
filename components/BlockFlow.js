@@ -1,4 +1,10 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, {
+	forwardRef,
+	useCallback,
+	useContext,
+	useEffect,
+	useState,
+} from "react";
 import ReactFlow, {
 	addEdge,
 	MiniMap,
@@ -31,44 +37,44 @@ const nodeColor = (node) => {
 		case "questionnaire":
 			return "#eb9408";
 		case "assignment":
-			return "btn-info ";
+			return "#0dcaf0";
 		case "forum":
-			return "purple";
+			return "#800080";
 		case "file":
-			return "btn-primary ";
+			return "#0d6efd";
 		case "folder":
-			return "btn-warning ";
+			return "#ffc107";
 		case "url":
-			return "cadetblue";
+			return "#5f9ea0";
 		//Moodle
 		case "workshop":
 			return "#15a935";
 		case "inquery":
-			return "btn-danger ";
+			return "#dc3545";
 		case "tag":
 			return "#a91568";
 		case "page":
-			return "btn-secondary ";
+			return "#6c757d";
 		case "badge":
-			return "btn-success ";
+			return "#198754";
 		//Sakai
 		case "exam":
-			return "btn-danger ";
+			return "#dc3545";
 		case "contents":
 			return "#15a935";
 		case "text":
-			return "btn-secondary ";
+			return "#6c757d";
 		case "html":
 			return "#a91568";
 		//LTI
 		case "start":
-			return "btn-danger ";
+			return "#363638";
 		case "end":
-			return "btn-danger ";
+			return "#363638";
 		case "fragment":
-			return "darkblue";
+			return "#00008b";
 		default:
-			return "btn-warning ";
+			return "#ffc107";
 	}
 };
 
@@ -94,7 +100,7 @@ const nodeTypes = {
 	html: ElementNode,
 };
 
-const OverviewFlow = (map) => {
+const OverviewFlow = ({ map }, ref) => {
 	const [newInitialNodes, setNewInitialNodes] = useState([]);
 	const [newInitialEdges, setNewInitialEdges] = useState([]);
 
@@ -103,7 +109,7 @@ const OverviewFlow = (map) => {
 
 	useEffect(() => {
 		setNewInitialNodes(
-			map.blocksData.map((block) => ({
+			map.map((block) => ({
 				id: block.id.toString(),
 				type: block.type,
 				data: {
@@ -116,7 +122,7 @@ const OverviewFlow = (map) => {
 		);
 
 		setNewInitialEdges(
-			map.blocksData.flatMap((parent) => {
+			map.flatMap((parent) => {
 				if (parent.children) {
 					return parent.children.map((child) => {
 						return {
@@ -157,6 +163,7 @@ const OverviewFlow = (map) => {
 
 	return (
 		<ReactFlow
+			ref={ref}
 			nodes={nodes}
 			edges={edgesWithUpdatedTypes}
 			onNodesChange={onNodesChange}
@@ -175,5 +182,6 @@ const OverviewFlow = (map) => {
 		</ReactFlow>
 	);
 };
-
-export default OverviewFlow;
+const OverviewFlowWithRef = forwardRef(OverviewFlow);
+OverviewFlowWithRef.displayName = "OverviewFlow";
+export default OverviewFlowWithRef;

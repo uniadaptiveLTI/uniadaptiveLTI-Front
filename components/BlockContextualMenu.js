@@ -24,48 +24,11 @@ const notImplemented = () => {
 };
 
 function BlockContextualMenu(
-	{
-		x,
-		y,
-		dimensions,
-		blockData,
-		blocksData,
-		setBlocksData,
-		setShowContextualMenu,
-	},
+	{ x, y, blockData, blocksData, setBlocksData, setShowContextualMenu },
 	ref
 ) {
-	let [localDimensions, setLocalDimensions] = useState(
-		dimensions
-			? JSON.parse(dimensions)
-			: {
-					blockCanvasOffsetX: 0,
-					blockCanvasOffsetY: 0,
-					blockCanvasScrollX: 0,
-					blockCanvasScrollY: 0,
-					contextMenuOffsetX: 0,
-					contextMenuOffsetY: 0,
-			  }
-	);
-	const [reversed, setReversed] = useState(
-		blockData.type == "end" ? true : false
-	);
-
-	const [initialValues, setInitialValues] = useState({
-		scrollX: localDimensions.blockCanvasScrollX,
-		scrollY: localDimensions.blockCanvasScrollY,
-	});
-
 	const { createdBlock, setCreatedBlock } = useContext(CreateBlockContext);
 	const { deletedBlock, setDeletedBlock } = useContext(DeleteBlockContext);
-
-	const handleScroll = (e) => {
-		setLocalDimensions((prevState) => ({
-			...prevState,
-			blockCanvasScrollX: e.target.scrollLeft,
-			blockCanvasScrollY: e.target.scrollTop,
-		}));
-	};
 
 	const createBlock = () => {
 		//FIXME: It doesn't push the block at start
@@ -500,39 +463,6 @@ function BlockContextualMenu(
 		});
 	}
 
-	//Por render
-	useEffect(() => {
-		const mainElement = document.getElementById("main");
-		mainElement.addEventListener("scroll", handleScroll);
-
-		setInitialValues({
-			scrollX: localDimensions.blockCanvasScrollX,
-			scrollY: localDimensions.blockCanvasScrollY,
-		});
-
-		return () => {
-			mainElement.removeEventListener("scroll", handleScroll);
-		};
-	}, []);
-
-	//Cuando las dimensiones o el scroll cambian
-	useEffect(() => {
-		setLocalDimensions((prevState) => ({
-			...prevState,
-			contextMenuOffsetX: x - prevState.blockCanvasScrollX,
-			contextMenuOffsetY: y - prevState.blockCanvasScrollY,
-		}));
-	}, [x, y, dimensions]);
-
-	//Cuando el bloque cambia
-	useEffect(() => {
-		setInitialValues({
-			scrollX: localDimensions.blockCanvasScrollX,
-			scrollY: localDimensions.blockCanvasScrollY,
-		});
-		setReversed(blockData.type == "end" ? true : false);
-	}, [x, y]);
-
 	return (
 		<FocusTrap
 			focusTrapOptions={{
@@ -540,33 +470,7 @@ function BlockContextualMenu(
 				returnFocusOnDeactivate: true,
 			}}
 		>
-			<ul
-				ref={ref}
-				className={styles.cM + " " + (reversed ? styles.reversed : "")}
-				style={
-					reversed
-						? {
-								top: `calc(${
-									y +
-									(+initialValues.scrollY - localDimensions.blockCanvasScrollY)
-								}px - 6em)`,
-								left: `calc(${
-									x +
-									(+initialValues.scrollX - localDimensions.blockCanvasScrollX)
-								}px - 16em)`,
-						  }
-						: {
-								top: `calc(${
-									y +
-									(+initialValues.scrollY - localDimensions.blockCanvasScrollY)
-								}px - 6em)`,
-								left: `calc(${
-									x +
-									(+initialValues.scrollX - localDimensions.blockCanvasScrollX)
-								}px + 1em)`,
-						  }
-				}
-			>
+			<ul ref={ref} className={styles.cM + " "}>
 				<li>
 					<Button variant="light" onClick={createBlock}>
 						<div role="button">

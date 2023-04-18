@@ -1,5 +1,6 @@
-import { useCallback } from "react";
+import { useCallback, useContext } from "react";
 import { Handle, Position } from "reactflow";
+import { Badge } from "react-bootstrap";
 import styles from "@components/styles/BlockContainer.module.css";
 
 import {
@@ -18,6 +19,7 @@ import {
 	Diagram2,
 	Shuffle,
 } from "react-bootstrap-icons";
+import { SettingsContext } from "@components/pages/_app";
 
 function getTypeIcon(type) {
 	switch (type) {
@@ -159,15 +161,17 @@ const getAriaLabel = () => {
 
 const handleStyle = { left: 10 };
 
-function ElementNode({ data, isConnectable, type }) {
+function ElementNode({ data, isConnectable, type, order = 1, unit = 1 }) {
 	const onChange = useCallback((evt) => {
 		console.log(evt.target.value);
 	}, []);
 
-	console.log(type);
+	const { settings, setSettings } = useContext(SettingsContext);
+	const parsedSettings = JSON.parse(settings);
+	const { showDetails, reducedAnimations } = parsedSettings;
 
 	return (
-		<div className={styles.container}>
+		<div className={"block " + styles.container}>
 			<span className={styles.blockInfo + " " + styles.top}>{data.label}</span>
 			<Handle
 				type="target"
@@ -183,6 +187,36 @@ function ElementNode({ data, isConnectable, type }) {
 			<span className={styles.blockInfo + " " + styles.bottom}>
 				{getHumanDesc(type)}
 			</span>
+			{unit && (
+				<Badge
+					bg="light"
+					className={
+						styles.badge +
+						" " +
+						(reducedAnimations && styles.noAnimation) +
+						" " +
+						(showDetails && styles.showBadges)
+					}
+					title="Unidad"
+				>
+					{unit}
+				</Badge>
+			)}
+			{order && (
+				<Badge
+					bg="warning"
+					className={
+						styles.badgeTwo +
+						" " +
+						(reducedAnimations && styles.noAnimation) +
+						" " +
+						(showDetails && styles.showBadges)
+					}
+					title="Posición en Moodle"
+				>
+					{order}
+				</Badge>
+			)}
 		</div>
 	);
 }

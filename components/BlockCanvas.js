@@ -153,12 +153,11 @@ export default function BlockCanvas() {
 		const selectedBlock = e.target;
 		const bF = blockFlowDOM.current;
 		if (bF) {
-			if (bF.contains(e.target) && e.target.tagName == "BUTTON") {
+			if (bF.contains(e.target) && e.target.classList.contains("block")) {
 				if (selectedBlock) {
 					e.preventDefault();
 					setCMX(e.clientX);
 					setCMY(e.clientY);
-
 					let block = blocksDataRef.current.find(
 						(e) => e.id == selectedBlock.id
 					);
@@ -192,7 +191,7 @@ export default function BlockCanvas() {
 	return (
 		<CreateBlockContext.Provider value={{ createdBlock, setCreatedBlock }}>
 			<DeleteBlockContext.Provider value={{ deletedBlock, setDeletedBlock }}>
-				<BlockFlow blocksData={blocksData}></BlockFlow>
+				<BlockFlow ref={blockFlowDOM} map={blocksData}></BlockFlow>
 				{showContextualMenu && (
 					<BlockContextualMenu
 						ref={contextMenuDOM}
@@ -202,7 +201,6 @@ export default function BlockCanvas() {
 						setShowContextualMenu={setShowContextualMenu}
 						x={cMX}
 						y={cMY}
-						dimensions={dimensions}
 					/>
 				)}
 			</DeleteBlockContext.Provider>

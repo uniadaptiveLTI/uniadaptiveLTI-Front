@@ -2,26 +2,27 @@
 
 .react-flow__handle-left {
     border-radius: 100%;
-    background-color: #198754;
-    border: 2px solid #333;
-    padding: 5px;
-    left: -8px;
+    background-color: #198754 !important;
+    border: 2px solid #333 !important;
+    padding: 5px  !important;
+    left: -8px  !important;
 }
 
 .react-flow__handle-right {
     border-radius: 100%;
-    background-color: #dc3545;
-    border: 2px solid #333;
-    padding: 5px;
-    right: -8px;
+    background-color: #dc3545 !important;
+    border: 2px solid #333 !important;
+    padding: 5px  !important;
+    right: -8px  !important;
 }
 
 /** Nodes **/
 
 .react-flow__node {
-    border: 1px solid;
+    border: 2px solid #101011;
     color: white;
     border-radius: 4px;
+	transition: 0.2s;
 }
 
 .react-flow__node > div {
@@ -34,7 +35,6 @@
 /* Questionnaire */
 .react-flow__node-questionnaire{
     background-color: #eb9408;
-	border: 1px solid #8b5b0d;
 }
 
 .react-flow__node-questionnaire:hover, .react-flow__node-questionnaire:focus-visible, .react-flow__node-questionnaire:active{
@@ -44,7 +44,6 @@
 /* Assignment */
 .react-flow__node-assignment{
     background-color: #0dcaf0;
-	border: 1px solid #05748b;
 }
 
 .react-flow__node-assignment:hover,  .react-flow__node-assignment:focus-visible, .react-flow__node-assignment:active{
@@ -54,7 +53,6 @@
 /* File */
 .react-flow__node-file{
     background-color: #0d6efd;
-	border: 1px solid #04265a;
 }
 
 .react-flow__node-file:hover,  .react-flow__node-file:focus-visible, .react-flow__node-file:active{
@@ -64,8 +62,7 @@
 /* Forum */
 .react-flow__node-forum {
     
-	background-color: purple;
-	border: 1px solid #a40ca4;
+	background-color: #800080;
 }
 
 .react-flow__node-forum:hover, .react-flow__node-forum:focus-visible, .react-flow__node-forum:active {
@@ -75,7 +72,6 @@
 /* Folder */
 .react-flow__node-folder{
     background-color: #ffc107;
-	border: 1px solid #745804;
 }
 
 .react-flow__node-folder:hover,  .react-flow__node-folder:focus-visible, .react-flow__node-folder:active{
@@ -85,8 +81,7 @@
 
 /* URL */
 .react-flow__node-url {
-	background-color: cadetblue;
-	border: 1px solid #306162;
+	background-color: #5f9ea0;
 }
 
 .react-flow__node-url:hover, .react-flow__node-url:focus-visible, .react-flow__node-url:active {
@@ -99,7 +94,6 @@
 /* Workshop */
 .react-flow__node-workshop {
 	background-color: #15a935;
-	border: 1px solid #0a611d;
 }
 
 .react-flow__node-workshop:hover, .react-flow__node-workshop:focus-visible, .react-flow__node-workshop:active {
@@ -109,7 +103,6 @@
 /* Inquery */
 .react-flow__node-inquery {
 	background-color: #dc3545;
-	border: 1px solid #690d16;
 }
 
 .react-flow__node-inquery:hover, .react-flow__node-inquery:focus-visible, .react-flow__node-inquery:active {
@@ -120,7 +113,6 @@
 /* Tag */
 .react-flow__node-tag {
 	background-color: #a91568;
-	border: 1px solid #68073e;
 }
 
 .react-flow__node-tag:hover, .react-flow__node-tag:focus-visible, .react-flow__node-tag:active {
@@ -130,7 +122,6 @@
 /* Page */
 .react-flow__node-page {
 	background-color: #6c757d;
-	border: 1px solid #2f3337;
 }
 
 .react-flow__node-page:hover, .react-flow__node-page:focus-visible, .react-flow__node-page:active {
@@ -140,7 +131,6 @@
 /* Badge */
 .react-flow__node-badge {
 	background-color: #198754;
-	border: 1px solid #064226;
 }
 
 .react-flow__node-badge:hover, .react-flow__node-badge:focus-visible, .react-flow__node-badge:active {
@@ -154,7 +144,6 @@
 /* Contents */
 .react-flow__node-contents {
 	background-color: #15a935;
-	border: 1px solid #0a611d;
 }
 
 .react-flow__node-contents:hover, .react-flow__node-contents:focus-visible, .react-flow__node-contents:active {
@@ -164,7 +153,6 @@
 /* HTML */
 .react-flow__node-html {
 	background-color: #a91568;
-	border: 1px solid #68073e;
 }
 
 .react-flow__node-html:hover, .react-flow__node-html:focus-visible, .react-flow__node-html:active {
@@ -177,7 +165,6 @@
 /* Start */
 .react-flow__node-start {
 	background-color:#363638;
-	border: 1px solid #101011;
 }
 
 .react-flow__node-start:hover, .react-flow__node-start:focus-visible, .react-flow__node-start:active {
@@ -187,7 +174,6 @@
 /* End */
 .react-flow__node-end {
 	background-color:#363638;
-	border: 1px solid #101011;
 }
 
 .react-flow__node-end:hover, .react-flow__node-end:focus-visible, .react-flow__node-end:active {
@@ -196,10 +182,78 @@
 
 /* Fragment */
 .react-flow__node-fragment {
-	background-color:darkblue;
-	border: 1px solid #01014f;
+	background-color:#00008b;
 }
 
 .react-flow__node-fragment:hover, .react-flow__node-fragment:focus-visible, .react-flow__node-fragment:active {
 	background-color: #1d1da9 !important;
+}
+
+.react-flow__node.selected {
+    width: max-content;
+	background-image: linear-gradient(90deg, white 50%, transparent 50%), linear-gradient(90deg, white 50%, transparent 50%), linear-gradient(0deg, white 50%, transparent 50%), linear-gradient(0deg, white 50%, transparent 50%);
+    background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+    background-size: 15px 4px, 15px 4px, 4px 15px, 4px 15px;
+    animation: border-dance 0.25s infinite linear;
+}
+
+@keyframes border-dance {
+0% {
+    background-position: left top, right bottom, left bottom, right   top;
+}
+100% {
+    background-position: left 15px top, right 15px bottom , left bottom 15px , right   top 15px;
+}
+}
+
+
+/* Accesibility */
+.react-flow__node.selected.noAnimation {
+	background-image: none;
+	animation: none;
+}
+
+.react-flow__node.selected.noAnimation::after{
+	z-index: -1;
+	content: " ";
+	position: absolute;
+	margin: auto;
+	right: -50%;
+	top: -50%;
+	min-width: 8em;
+	min-height: 8em;
+	background-color: rgba(29, 29, 169,0.5);
+	border: 4px solid rgba(255, 165, 0,0.5);
+	border-radius: 100%;
+}
+
+@media screen and (prefers-reduced-motion: reduce) {
+	.react-flow__node.selected {
+		background-image: none;
+		animation: none;
+	}
+
+	.react-flow__node.selected::after{
+		z-index: -1;
+		content: " ";
+		position: absolute;
+		margin: auto;
+		right: -50%;
+		top: -50%;
+		min-width: 8em;
+		min-height: 8em;
+		background-color: rgba(29, 29, 169,0.5);
+		border: 4px solid rgba(255, 165, 0,0.5);
+		border-radius: 100%;
+	}
+ }
+
+.react-flow__node.highContrast{
+	color: #101010 !important;
+	background-color: white !important;
+}
+
+.react-flow__node.highContrast:hover, .react-flow__node.highContrast:focus-visible, .react-flow__node.highContrast:active{
+	color: white !important;
+	background-color: #101010 !important;
 }

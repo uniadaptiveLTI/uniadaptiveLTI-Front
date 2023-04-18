@@ -101,7 +101,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: -2,
 							x: 0,
-							y: 100,
+							y: 125,
 							type: "start",
 							title: "Inicio",
 							children: [0],
@@ -117,8 +117,8 @@ function Header({ closeBtn }, ref) {
 						},
 						{
 							id: 0,
-							x: 100,
-							y: 100,
+							x: 125,
+							y: 125,
 							type: "file",
 							title: "Ecuaciones",
 							children: [1],
@@ -126,8 +126,8 @@ function Header({ closeBtn }, ref) {
 						},
 						{
 							id: 1,
-							x: 200,
-							y: 100,
+							x: 250,
+							y: 125,
 							type: "questionnaire",
 							title: "Examen Tema 1",
 							conditions: [
@@ -143,7 +143,7 @@ function Header({ closeBtn }, ref) {
 						},
 						{
 							id: 2,
-							x: 300,
+							x: 375,
 							y: 0,
 							type: "folder",
 							title: "Ecuaciones",
@@ -152,7 +152,7 @@ function Header({ closeBtn }, ref) {
 						},
 						{
 							id: 3,
-							x: 400,
+							x: 500,
 							y: 0,
 							type: "badge",
 							title: "Insignia Ecuaciones",
@@ -160,8 +160,8 @@ function Header({ closeBtn }, ref) {
 						},
 						{
 							id: 4,
-							x: 300,
-							y: 300,
+							x: 375,
+							y: 375,
 							type: "url",
 							title: "Web raices cuadradas",
 							children: [5],
@@ -169,8 +169,8 @@ function Header({ closeBtn }, ref) {
 						},
 						{
 							id: 5,
-							x: 400,
-							y: 300,
+							x: 500,
+							y: 375,
 							type: "forum",
 							title: "Foro de discusión",
 							children: [6],
@@ -178,8 +178,8 @@ function Header({ closeBtn }, ref) {
 						},
 						{
 							id: 6,
-							x: 500,
-							y: 300,
+							x: 625,
+							y: 375,
 							type: "questionnaire",
 							title: "Cuestionario de raices",
 							children: [7, 8],
@@ -187,16 +187,16 @@ function Header({ closeBtn }, ref) {
 						},
 						{
 							id: 7,
-							x: 600,
-							y: 200,
+							x: 750,
+							y: 250,
 							type: "assignment",
 							title: "Ejercicio de raices",
 							identation: 1,
 						},
 						{
 							id: 8,
-							x: 600,
-							y: 400,
+							x: 750,
+							y: 500,
 							type: "inquery",
 							title: "Preguntas sobre raices",
 							children: [9],
@@ -204,8 +204,8 @@ function Header({ closeBtn }, ref) {
 						},
 						{
 							id: 9,
-							x: 700,
-							y: 400,
+							x: 875,
+							y: 500,
 							type: "page",
 							title: "Web informativa",
 							children: [-1],
