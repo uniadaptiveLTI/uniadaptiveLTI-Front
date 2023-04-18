@@ -11,6 +11,7 @@ import "reactflow/dist/base.css";
 import ActionNode from "./nodes/ActionNode.js";
 import ElementNode from "./nodes/ElementNode.js";
 import { BlocksDataContext } from "@components/pages/_app.js";
+
 import FinalNode from "./nodes/FinalNode.js";
 import InitialNode from "./nodes/InitialNode.js";
 
@@ -110,6 +111,7 @@ const OverviewFlow = (map) => {
 					id: `e${parent.id}-${child}`,
 					source: parent.id.toString(),
 					target: child.toString(),
+					type: "smoothstep",
 				};
 			});
 		} else {
@@ -147,6 +149,8 @@ const OverviewFlow = (map) => {
 			fitView
 			proOptions={{ hideAttribution: true }}
 			nodeTypes={nodeTypes}
+			snapGrid={[125, 125]}
+			snapToGrid={true}
 		>
 			<MiniMap nodeColor={nodeColor} style={minimapStyle} zoomable pannable />
 			<Controls />

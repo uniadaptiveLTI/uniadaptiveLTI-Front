@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import { Handle, Position } from "reactflow";
 import styles from "@components/styles/BlockContainer.module.css";
+import { CaretDownFill } from "react-bootstrap-icons";
 
 const handleStyle = { left: 10 };
 
@@ -17,7 +18,7 @@ function FinalNode({ data, isConnectable }) {
 				isConnectable={isConnectable}
 			/>
 			<div>
-				<div>{data.label}</div>
+				<CaretDownFill style={{ transform: "rotate(90deg)" }} size={32} />
 			</div>
 		</div>
 	);

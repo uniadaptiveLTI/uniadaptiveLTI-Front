@@ -164,6 +164,8 @@ function ElementNode({ data, isConnectable, type }) {
 		console.log(evt.target.value);
 	}, []);
 
+	console.log(type);
+
 	return (
 		<div className={styles.container}>
 			<span className={styles.blockInfo + " " + styles.top}>{data.label}</span>

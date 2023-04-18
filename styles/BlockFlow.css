@@ -1,32 +1,205 @@
 /** Handles **/
 
 .react-flow__handle-left {
-    clip-path: polygon(100% 50%, 0 0, 0 100%);
-    transform: scale(2) translateY(-75%);
+    border-radius: 100%;
+    background-color: #198754;
+    border: 2px solid #333;
+    padding: 5px;
+    left: -8px;
 }
 
 .react-flow__handle-right {
-    clip-path: polygon(100% 50%, 0 0, 0 100%);
-    transform: scale(2) translateY(-75%);
+    border-radius: 100%;
+    background-color: #dc3545;
+    border: 2px solid #333;
+    padding: 5px;
+    right: -8px;
 }
 
 /** Nodes **/
 
 .react-flow__node {
     border: 1px solid;
+    color: white;
+    border-radius: 4px;
 }
 
 .react-flow__node > div {
     padding: 1em;
 }
 
+/* Moodle+Sakai */
+
+
+/* Questionnaire */
 .react-flow__node-questionnaire{
-    color: white;
     background-color: #eb9408;
 	border: 1px solid #8b5b0d;
-    border-radius: 4px;
 }
 
-.react-flow__node-questionnaire:hover{
-    background-color: #db8a08 !important;
+.react-flow__node-questionnaire:hover, .react-flow__node-questionnaire:focus-visible, .react-flow__node-questionnaire:active{
+    background-color: #c9810e !important;
+}
+
+/* Assignment */
+.react-flow__node-assignment{
+    background-color: #0dcaf0;
+	border: 1px solid #05748b;
+}
+
+.react-flow__node-assignment:hover,  .react-flow__node-assignment:focus-visible, .react-flow__node-assignment:active{
+    background-color: #1bafcd !important;
+}
+
+/* File */
+.react-flow__node-file{
+    background-color: #0d6efd;
+	border: 1px solid #04265a;
+}
+
+.react-flow__node-file:hover,  .react-flow__node-file:focus-visible, .react-flow__node-file:active{
+    background-color: #125ed0 !important;
+}
+
+/* Forum */
+.react-flow__node-forum {
+    
+	background-color: purple;
+	border: 1px solid #a40ca4;
+}
+
+.react-flow__node-forum:hover, .react-flow__node-forum:focus-visible, .react-flow__node-forum:active {
+	background-color: #9e0d9e !important;
+}
+
+/* Folder */
+.react-flow__node-folder{
+    background-color: #ffc107;
+	border: 1px solid #745804;
+}
+
+.react-flow__node-folder:hover,  .react-flow__node-folder:focus-visible, .react-flow__node-folder:active{
+    background-color: #d3a008 !important;
+}
+
+
+/* URL */
+.react-flow__node-url {
+	background-color: cadetblue;
+	border: 1px solid #306162;
+}
+
+.react-flow__node-url:hover, .react-flow__node-url:focus-visible, .react-flow__node-url:active {
+	background-color: #419093 !important;
+}
+
+/* Moodle */
+
+
+/* Workshop */
+.react-flow__node-workshop {
+	background-color: #15a935;
+	border: 1px solid #0a611d;
+}
+
+.react-flow__node-workshop:hover, .react-flow__node-workshop:focus-visible, .react-flow__node-workshop:active {
+	background-color: #0f992d;
+}
+
+/* Inquery */
+.react-flow__node-inquery {
+	background-color: #dc3545;
+	border: 1px solid #690d16;
+}
+
+.react-flow__node-inquery:hover, .react-flow__node-inquery:focus-visible, .react-flow__node-inquery:active {
+	background-color: #bf2534;
+}
+
+
+/* Tag */
+.react-flow__node-tag {
+	background-color: #a91568;
+	border: 1px solid #68073e;
+}
+
+.react-flow__node-tag:hover, .react-flow__node-tag:focus-visible, .react-flow__node-tag:active {
+	background-color: #bf1a78 !important;
+}
+
+/* Page */
+.react-flow__node-page {
+	background-color: #6c757d;
+	border: 1px solid #2f3337;
+}
+
+.react-flow__node-page:hover, .react-flow__node-page:focus-visible, .react-flow__node-page:active {
+	background-color: #525a61;
+}
+
+/* Badge */
+.react-flow__node-badge {
+	background-color: #198754;
+	border: 1px solid #064226;
+}
+
+.react-flow__node-badge:hover, .react-flow__node-badge:focus-visible, .react-flow__node-badge:active {
+	background-color: #0e683e;
+}
+
+/* Sakai */
+
+/*FIXME: HACER LOS DE SAKAI*/
+
+/* Contents */
+.react-flow__node-contents {
+	background-color: #15a935;
+	border: 1px solid #0a611d;
+}
+
+.react-flow__node-contents:hover, .react-flow__node-contents:focus-visible, .react-flow__node-contents:active {
+	background-color: #0f992d;
+}
+
+/* HTML */
+.react-flow__node-html {
+	background-color: #a91568;
+	border: 1px solid #68073e;
+}
+
+.react-flow__node-html:hover, .react-flow__node-html:focus-visible, .react-flow__node-html:active {
+	background-color: #bf1a78 !important;
+}
+
+/* LTI */
+
+
+/* Start */
+.react-flow__node-start {
+	background-color:#363638;
+	border: 1px solid #101011;
+}
+
+.react-flow__node-start:hover, .react-flow__node-start:focus-visible, .react-flow__node-start:active {
+	background-color: #666668 !important;
+}
+
+/* End */
+.react-flow__node-end {
+	background-color:#363638;
+	border: 1px solid #101011;
+}
+
+.react-flow__node-end:hover, .react-flow__node-end:focus-visible, .react-flow__node-end:active {
+	background-color: #666668 !important;
+}
+
+/* Fragment */
+.react-flow__node-fragment {
+	background-color:darkblue;
+	border: 1px solid #01014f;
+}
+
+.react-flow__node-fragment:hover, .react-flow__node-fragment:focus-visible, .react-flow__node-fragment:active {
+	background-color: #1d1da9 !important;
 }
