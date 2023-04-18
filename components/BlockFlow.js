@@ -118,6 +118,7 @@ function CustomControls() {
 }
 
 const OverviewFlow = ({ map }, ref) => {
+	console.log(map);
 	const { blockJson, setBlockJson } = useContext(BlockJsonContext);
 
 	const [newInitialNodes, setNewInitialNodes] = useState([]);
@@ -159,11 +160,6 @@ const OverviewFlow = ({ map }, ref) => {
 
 	const draggedNodePosition = useRef(null);
 
-	const handleNodeClick = (event, node) => {
-		console.log("Node with ID " + node.id + " was clicked");
-		// Call any other necessary functions or update state here
-	};
-
 	const handleNodeDragStart = (event, node) => {
 		draggedNodePosition.current = node.position;
 	};
@@ -175,7 +171,7 @@ const OverviewFlow = ({ map }, ref) => {
 				draggedNodePosition.current.y !== node.position.y)
 		) {
 			setBlockJson({
-				id: node.id,
+				id: parseInt(node.id),
 				x: node.position.x,
 				y: node.position.y,
 				type: node.type,
@@ -186,15 +182,45 @@ const OverviewFlow = ({ map }, ref) => {
 		}
 	};
 
+	const onConnect = (event) => {
+		const sourceNodeId = parseInt(event.source.split("__")[0]);
+		const targetNodeId = parseInt(event.target.split("__")[0]);
+
+		console.log(map);
+		console.log(sourceNodeId);
+
+		const sourceNode = map.find((node) => node.id === sourceNodeId);
+
+		console.log(sourceNode);
+
+		if (sourceNode) {
+			if (Array.isArray(sourceNode.children)) {
+				sourceNode.children.push(targetNodeId);
+			} else {
+				sourceNode.children = [targetNodeId];
+			}
+		}
+
+		setBlockJson({
+			id: sourceNode.id,
+			x: sourceNode.x,
+			y: sourceNode.y,
+			type: sourceNode.type,
+			title: sourceNode.title,
+			children: sourceNode.children,
+			identation: sourceNode.identation,
+		});
+	};
+
 	useEffect(() => {
 		setNodes(newInitialNodes);
 		setEdges(newInitialEdges);
 	}, [newInitialNodes, newInitialEdges]);
 
-	const onConnect = useCallback(
+	/*const onConnect = useCallback(
 		(params) => setEdges((eds) => addEdge(params, eds)),
 		[]
-	);
+	);*/
 
 	// we are using a bit of a shortcut here to adjust the edge type
 	// this could also be done with a custom edge for example
@@ -215,7 +241,6 @@ const OverviewFlow = ({ map }, ref) => {
 			edges={edgesWithUpdatedTypes}
 			onNodeDragStart={handleNodeDragStart}
 			onNodeDragStop={onNodeDragStop}
-			onNodeClick={handleNodeClick}
 			onNodesChange={onNodesChange}
 			onEdgesChange={onEdgesChange}
 			onConnect={onConnect}

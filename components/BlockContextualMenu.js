@@ -45,7 +45,7 @@ function BlockContextualMenu(
 		//TODO: Block selector
 		console.log(x + " " + y);
 		const newBlockCreated = {
-			id: newId,
+			id: parseInt(newId),
 			x: x,
 			y: y,
 			type: "forum",
