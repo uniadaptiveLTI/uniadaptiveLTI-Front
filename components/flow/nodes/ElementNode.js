@@ -158,7 +158,15 @@ const getAriaLabel = () => {
 	);
 };
 
-function ElementNode({ data, isConnectable, type, order = 1, unit = 1 }) {
+function ElementNode({
+	id,
+	data,
+	isConnectable,
+	type,
+	position,
+	order = 1,
+	unit = 1,
+}) {
 	const onChange = useCallback((evt) => {
 		console.log(evt.target.value);
 	}, []);
@@ -168,13 +176,13 @@ function ElementNode({ data, isConnectable, type, order = 1, unit = 1 }) {
 	const { showDetails, reducedAnimations } = parsedSettings;
 
 	return (
-		<div className={"block " + styles.container}>
+		<div id={id} className={"block " + styles.container}>
 			<span className={styles.blockInfo + " " + styles.top}>{data.label}</span>
 			{process.env.DEV_MODE && (
 				<>
-					<div>{`id:${blockData.id}`}</div>
-					<div>{blockData.children && `children:${blockData.children}`}</div>
-					<div>{`x:${blockData.x},y:${blockData.y}`}</div>
+					<div>{`id:${id}`}</div>
+					<div>{data.children && `children:${data.children}`}</div>
+					<div>{`x:${position.x},y:${position.y}`}</div>
 				</>
 			)}
 			<Handle

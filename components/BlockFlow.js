@@ -13,7 +13,6 @@ import ReactFlow, {
 	useNodesState,
 	useEdgesState,
 	MarkerType,
-	SmoothStepEdge,
 } from "reactflow";
 import { useHotkeys } from "react-hotkeys";
 import "reactflow/dist/style.css";
@@ -178,7 +177,6 @@ const OverviewFlow = ({ map }, ref) => {
 			snapGrid={[125, 125]}
 			//connectionLineComponent={}
 			snapToGrid={true}
-			edgeTypes={{ default: SmoothStepEdge }}
 			deleteKeyCode={"Delete"}
 		>
 			<MiniMap nodeColor={nodeColor} style={minimapStyle} zoomable pannable />
