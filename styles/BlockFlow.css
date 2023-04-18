@@ -1,9 +1,5 @@
 /** Handles **/
 
-.block svg, .block div{
-	pointer-events: none; /* So the right click to the SVG doesn't stop the propagation */
-}
-
 .react-flow__handle-left {
     border-radius: 100%;
     background-color: #198754 !important;
@@ -193,6 +189,7 @@
 	background-color: #1d1da9 !important;
 }
 
+
 .react-flow__node.selected {
     width: max-content;
 	background-image: linear-gradient(90deg, white 50%, transparent 50%), linear-gradient(90deg, white 50%, transparent 50%), linear-gradient(0deg, white 50%, transparent 50%), linear-gradient(0deg, white 50%, transparent 50%);
@@ -212,12 +209,14 @@
 
 
 /* Accesibility */
-.react-flow__node.selected.noAnimation {
+
+
+.react-flow__node.selected:has(.noAnimation) {
 	background-image: none;
 	animation: none;
 }
 
-.react-flow__node.selected.noAnimation::after{
+.react-flow__node.selected:has(.noAnimation)::after{
 	z-index: -1;
 	content: " ";
 	position: absolute;
@@ -252,7 +251,7 @@
 	}
  }
 
-.react-flow__node.highContrast{
+.react-flow__node:has(.highContrast){
 	color: #101010 !important;
 	background-color: white !important;
 }
@@ -260,4 +259,29 @@
 .react-flow__node.highContrast:hover, .react-flow__node.highContrast:focus-visible, .react-flow__node.highContrast:active{
 	color: white !important;
 	background-color: #101010 !important;
+}
+
+.react-flow__node.selected:has(.highContrast){
+	background-image: linear-gradient(90deg, #101010 50%, transparent 50%), linear-gradient(90deg, #101010 50%, transparent 50%), linear-gradient(0deg, #101010 50%, transparent 50%), linear-gradient(0deg, #101010 50%, transparent 50%);
+}
+
+/* Special case, highContrast && noAnimation */
+.react-flow__node.selected:has(.noAnimation.highContrast){
+	background-image: none;
+}
+
+
+.react-flow__node.selected:has(.noAnimation.highContrast)::after{
+	background-color: transparent;
+	border: 4px solid #101010;
+
+}
+
+@media screen and (prefers-reduced-motion: reduce) {
+	.react-flow__node:has(.highContrast){
+		background-image: none;
+		background-color: transparent;
+		border: 4px solid #101010;
+	}
+
 }

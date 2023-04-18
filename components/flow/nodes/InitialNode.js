@@ -2,6 +2,8 @@ import { useCallback } from "react";
 import { Handle, Position } from "reactflow";
 import styles from "@components/styles/BlockContainer.module.css";
 import { CaretDownFill } from "react-bootstrap-icons";
+import { useContext } from "react";
+import { SettingsContext } from "@components/pages/_app";
 
 const handleStyle = { left: 10 };
 
@@ -10,8 +12,18 @@ function InitialNode({ data, isConnectable }) {
 		console.log(evt.target.value);
 	}, []);
 
+	const { settings } = useContext(SettingsContext);
+	const parsedSettings = JSON.parse(settings);
+	const { highContrast } = parsedSettings;
+
 	return (
-		<div className={styles.textUpdaterNode}>
+		<div
+			className={
+				styles.container +
+				" " +
+				(highContrast && styles.highContrast + " highContrast ")
+			}
+		>
 			<Handle
 				type="source"
 				position={Position.Right}

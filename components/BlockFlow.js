@@ -182,6 +182,7 @@ const OverviewFlow = ({ map }, ref) => {
 				title: node.data.label,
 				children: node.children,
 				identation: node.data.identation,
+				conditions: node.data.conditions,
 			});
 		}
 	};
@@ -203,6 +204,12 @@ const OverviewFlow = ({ map }, ref) => {
 			const edgeType = nodes.find((node) => node.type === "custom").data
 				.selects[edge.sourceHandle];
 			edge.type = edgeType;
+		}
+
+		if (edge.conditions != undefined) {
+			for (let condition of cedge.conditions) {
+				edge.label = "" + condition.operand + condition.objective;
+			}
 		}
 
 		return edge;

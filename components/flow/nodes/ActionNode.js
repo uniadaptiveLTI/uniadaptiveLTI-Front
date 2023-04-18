@@ -18,6 +18,8 @@ import {
 	Diagram2,
 	Shuffle,
 } from "react-bootstrap-icons";
+import { SettingsContext } from "@components/pages/_app";
+import { useContext } from "react";
 
 const handleStyle = { left: 10 };
 
@@ -164,8 +166,20 @@ function ActionNode({ data, isConnectable, type }) {
 		console.log(evt.target.value);
 	}, []);
 
+	const { settings } = useContext(SettingsContext);
+	const parsedSettings = JSON.parse(settings);
+	const { highContrast, reducedAnimations } = parsedSettings;
+
 	return (
-		<div className={styles.container}>
+		<div
+			className={
+				styles.container +
+				" " +
+				(highContrast && styles.highContrast + " highContrast ") +
+				" " +
+				(reducedAnimations && styles.noAnimation + " noAnimation")
+			}
+		>
 			<span className={styles.blockInfo + " " + styles.top}>{data.label}</span>
 			<Handle
 				type="target"

@@ -2,7 +2,7 @@
 	user-select: none;
 }
 
-.block {
+.container svg {
 	pointer-events: none; /* So the right click to the SVG doesn't stop the propagation */
 }
 
@@ -40,37 +40,46 @@
 	opacity: 0;
 	color:black;
 	transition: all 0.2s;
-	transform: rotate(90deg);
+	transform: scaleY(0);
 }
 
 .badge {
-	top: 0px;
-	right: -24px;
+	bottom: -8px;
+	left: 4px;
 }
 
 .badgeTwo {
-	bottom: 8px;
-	right: -24px;
+	bottom: -8px;
+	right: 4px;
 }
 
 .container:hover .badge, .block:focus-visible~.badge, .block.borderAnim ~ .badge, .container:hover .badgeTwo, .block:focus-visible~.badgeTwo, .block.borderAnim ~ .badgeTwo {
 	position: absolute;
-	transform: translate(-12px, 4px);
+	transform: scaleY(1);
 	visibility: visible;
 	opacity: 100%;
-	filter: drop-shadow(0 5px 5px rgba(0, 0, 0, 0.65));
+	filter: drop-shadow(0 0px 5px rgba(0, 0, 0, 0.65));
 }
+
+
+
+.badge.showBadges, .badgeTwo.showBadges {
+	position: absolute;
+	transform: scaleY(1);
+	visibility: visible;
+	opacity: 100%;
+	filter: drop-shadow(0 0px 5px rgba(0, 0, 0, 0.65));
+}
+
+ /* Accesibility */
 
 .badge.noAnimation, .badgeTwo.noAnimation  {
 	transition: none;
 }
 
-.badge.showBadges, .badgeTwo.showBadges {
-	position: absolute;
-	transform: translate(-12px, 4px);
-	visibility: visible;
-	opacity: 100%;
-	filter: drop-shadow(0 5px 5px rgba(0, 0, 0, 0.65));
+.badge.highContrast, .badgeTwo.highContrast {
+	background-color: #101010 !important;
+	color: white  !important;
 }
 
 @media screen and (prefers-reduced-motion: reduce) {
@@ -78,97 +87,3 @@
 		transition: none;
 	}
  }
-
-
-
-/* 
--- Custom buttons --
-*/
-
-/* Moodle+Sakai */
-
-.btnQuestionnaire {
-	background-color: #eb9408;
-	border: 1px solid #eb9408;
-}
-
-.btnQuestionnaire:hover, .btnQuestionnaire:focus-visible, .btnQuestionnaire:active {
-	background-color: #db8a08 !important;
-	border: 1px solid #db8a08 !important;
-}
-
-.btnForum {
-	background-color: purple;
-	border: 1px solid purple;
-}
-
-.btnForum:hover, .btnForum:focus-visible, .btnForum:active {
-	background-color: #990e99 !important;
-	border: 1px solid #990e99 !important;
-}
-
-
-.btnURL {
-	background-color: cadetblue;
-	border: 1px solid cadetblue;
-}
-
-.btnURL:hover, .btnURL:focus-visible, .btnURL:active {
-	background-color: #419093 !important;
-	border: 1px solid #419093 !important;
-}
-
-/* Moodle */
-
-.btnWorkshop {
-	background-color: #15a935;
-	border: 1px solid #15a935;
-}
-
-.btnWorkshop:hover, .btnWorkshop:focus-visible, .btnWorkshop:active {
-	background-color: #0f992d;
-	border: 1px solid #0f992d;
-}
-
-.btnTag {
-	background-color: #a91568;
-	border: 1px solid #a91568;
-}
-
-.btnTag:hover, .btnTag:focus-visible, .btnTag:active {
-	background-color: #bf1a78 !important;
-	border: 1px solid #bf1a78 !important;
-}
-
-/* Sakai */
-.btnContents {
-	background-color: #15a935;
-	border: 1px solid #15a935;
-}
-
-.btnContents:hover, .btnContents:focus-visible, .btnContents:active {
-	background-color: #0f992d;
-	border: 1px solid #0f992d;
-}
-
-.btnHTML {
-	background-color: #a91568;
-	border: 1px solid #a91568;
-}
-
-.btnHTML:hover, .btnHTML:focus-visible, .btnHTML:active {
-	background-color: #bf1a78 !important;
-	border: 1px solid #bf1a78 !important;
-}
-
-/* LTI */
-
-.btnFragment {
-	background-color:darkblue;
-	border: 1px solid darkblue;
-}
-
-.btnFragment:hover, .btnFragment:focus-visible, .btnFragment:active {
-	background-color: #1d1da9 !important;
-	border: 1px solid #1d1da9 !important;
-}

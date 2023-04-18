@@ -3,7 +3,7 @@ const nextConfig = {
 	reactStrictMode: true,
 	env: {
 		// Displays additional information on the interface for debugging purposes
-		DEV_MODE: true,
+		DEV_MODE: false,
 	},
 };
 

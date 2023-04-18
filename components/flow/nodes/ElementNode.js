@@ -158,31 +158,30 @@ const getAriaLabel = () => {
 	);
 };
 
-function ElementNode({
-	id,
-	data,
-	isConnectable,
-	type,
-	position,
-	order = 1,
-	unit = 1,
-}) {
+function ElementNode({ id, data, isConnectable, type, order = 1, unit = 1 }) {
 	const onChange = useCallback((evt) => {
 		console.log(evt.target.value);
 	}, []);
 
 	const { settings, setSettings } = useContext(SettingsContext);
 	const parsedSettings = JSON.parse(settings);
-	const { showDetails, reducedAnimations } = parsedSettings;
+	const { highContrast, showDetails, reducedAnimations } = parsedSettings;
 
 	return (
-		<div id={id} className={"block " + styles.container}>
+		<div
+			id={id}
+			className={
+				styles.container +
+				" " +
+				(highContrast && styles.highContrast + " highContrast ") +
+				" " +
+				(reducedAnimations && styles.noAnimation + " noAnimation")
+			}
+		>
 			<span className={styles.blockInfo + " " + styles.top}>{data.label}</span>
-			{process.env.DEV_MODE && (
+			{process.env.DEV_MODE == true && (
 				<>
 					<div>{`id:${id}`}</div>
-					<div>{data.children && `children:${data.children}`}</div>
-					<div>{`x:${position.x},y:${position.y}`}</div>
 				</>
 			)}
 			<Handle
@@ -209,7 +208,9 @@ function ElementNode({
 						" " +
 						(reducedAnimations && styles.noAnimation) +
 						" " +
-						(showDetails && styles.showBadges)
+						(showDetails && styles.showBadges) +
+						" " +
+						(highContrast && styles.highContrast)
 					}
 					title="Unidad"
 				>
@@ -224,7 +225,9 @@ function ElementNode({
 						" " +
 						(reducedAnimations && styles.noAnimation) +
 						" " +
-						(showDetails && styles.showBadges)
+						(showDetails && styles.showBadges) +
+						" " +
+						(highContrast && styles.highContrast)
 					}
 					title="Posición en Moodle"
 				>
