@@ -3,6 +3,7 @@ import React, {
 	useCallback,
 	useContext,
 	useEffect,
+	useRef,
 	useState,
 } from "react";
 import ReactFlow, {
@@ -14,17 +15,20 @@ import ReactFlow, {
 	useEdgesState,
 	MarkerType,
 	SmoothStepEdge,
+	ControlButton,
 } from "reactflow";
 import { useHotkeys } from "react-hotkeys";
 import "reactflow/dist/style.css";
 import ActionNode from "./flow/nodes/ActionNode.js";
 import ElementNode from "./flow/nodes/ElementNode.js";
 import {
+	BlockJsonContext,
 	BlocksDataContext,
 	VersionInfoContext,
 } from "@components/pages/_app.js";
 import FinalNode from "./flow/nodes/FinalNode.js";
 import InitialNode from "./flow/nodes/InitialNode.js";
+import { Save, Save2Fill, SaveFill } from "react-bootstrap-icons";
 
 const minimapStyle = {
 	height: 120,
@@ -103,7 +107,19 @@ const nodeTypes = {
 	html: ElementNode,
 };
 
+function CustomControls() {
+	return (
+		<Controls>
+			<ControlButton title="Save">
+				<SaveFill />
+			</ControlButton>
+		</Controls>
+	);
+}
+
 const OverviewFlow = ({ map }, ref) => {
+	const { blockJson, setBlockJson } = useContext(BlockJsonContext);
+
 	const [newInitialNodes, setNewInitialNodes] = useState([]);
 	const [newInitialEdges, setNewInitialEdges] = useState([]);
 
@@ -141,6 +157,35 @@ const OverviewFlow = ({ map }, ref) => {
 		);
 	}, [map]);
 
+	const draggedNodePosition = useRef(null);
+
+	const handleNodeClick = (event, node) => {
+		console.log("Node with ID " + node.id + " was clicked");
+		// Call any other necessary functions or update state here
+	};
+
+	const handleNodeDragStart = (event, node) => {
+		draggedNodePosition.current = node.position;
+	};
+
+	const onNodeDragStop = (event, node) => {
+		if (
+			draggedNodePosition.current &&
+			(draggedNodePosition.current.x !== node.position.x ||
+				draggedNodePosition.current.y !== node.position.y)
+		) {
+			setBlockJson({
+				id: node.id,
+				x: node.position.x,
+				y: node.position.y,
+				type: node.type,
+				title: node.data.label,
+				children: node.children,
+				identation: node.data.identation,
+			});
+		}
+	};
+
 	useEffect(() => {
 		setNodes(newInitialNodes);
 		setEdges(newInitialEdges);
@@ -168,6 +213,9 @@ const OverviewFlow = ({ map }, ref) => {
 			ref={ref}
 			nodes={nodes}
 			edges={edgesWithUpdatedTypes}
+			onNodeDragStart={handleNodeDragStart}
+			onNodeDragStop={onNodeDragStop}
+			onNodeClick={handleNodeClick}
 			onNodesChange={onNodesChange}
 			onEdgesChange={onEdgesChange}
 			onConnect={onConnect}
@@ -182,7 +230,7 @@ const OverviewFlow = ({ map }, ref) => {
 			deleteKeyCode={"Delete"}
 		>
 			<MiniMap nodeColor={nodeColor} style={minimapStyle} zoomable pannable />
-			<Controls />
+			<CustomControls />
 			<Background color="#aaa" gap={16} />
 		</ReactFlow>
 	);
