@@ -93,6 +93,7 @@ export default function BlockCanvas() {
 	/** Client-side */
 
 	useEffect(() => {
+		console.log(blockJson);
 		let newBlocksData = [...blocksData];
 		newBlocksData[blocksData.findIndex((b) => b.id == blockJson.id)] =
 			blockJson;
