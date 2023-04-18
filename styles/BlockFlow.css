@@ -1,5 +1,9 @@
 /** Handles **/
 
+.block svg, .block div{
+	pointer-events: none; /* So the right click to the SVG doesn't stop the propagation */
+}
+
 .react-flow__handle-left {
     border-radius: 100%;
     background-color: #198754 !important;
