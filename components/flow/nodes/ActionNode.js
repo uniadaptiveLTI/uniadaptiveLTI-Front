@@ -171,6 +171,7 @@ function ActionNode({ data, isConnectable, type }) {
 				type="target"
 				position={Position.Left}
 				isConnectable={isConnectable}
+				isConnectableStart="false"
 			/>
 			<div>{getTypeIcon(type)}</div>
 			<span className={styles.blockInfo + " " + styles.bottom}>

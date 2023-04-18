@@ -16,6 +16,7 @@ function InitialNode({ data, isConnectable }) {
 				type="source"
 				position={Position.Right}
 				isConnectable={isConnectable}
+				isConnectableEnd="false"
 			/>
 			<div>
 				<CaretDownFill style={{ transform: "rotate(-90deg)" }} size={32} />

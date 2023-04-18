@@ -12,16 +12,19 @@ import ReactFlow, {
 	Background,
 	useNodesState,
 	useEdgesState,
+	MarkerType,
+	SmoothStepEdge,
 } from "reactflow";
+import { useHotkeys } from "react-hotkeys";
 import "reactflow/dist/style.css";
-import ActionNode from "./nodes/ActionNode.js";
-import ElementNode from "./nodes/ElementNode.js";
+import ActionNode from "./flow/nodes/ActionNode.js";
+import ElementNode from "./flow/nodes/ElementNode.js";
 import {
 	BlocksDataContext,
 	VersionInfoContext,
 } from "@components/pages/_app.js";
-import FinalNode from "./nodes/FinalNode.js";
-import InitialNode from "./nodes/InitialNode.js";
+import FinalNode from "./flow/nodes/FinalNode.js";
+import InitialNode from "./flow/nodes/InitialNode.js";
 
 const minimapStyle = {
 	height: 120,
@@ -129,7 +132,6 @@ const OverviewFlow = ({ map }, ref) => {
 							id: `e${parent.id}-${child}`,
 							source: parent.id.toString(),
 							target: child.toString(),
-							type: "smoothstep",
 						};
 					});
 				} else {
@@ -174,7 +176,10 @@ const OverviewFlow = ({ map }, ref) => {
 			proOptions={{ hideAttribution: true }}
 			nodeTypes={nodeTypes}
 			snapGrid={[125, 125]}
+			//connectionLineComponent={}
 			snapToGrid={true}
+			edgeTypes={{ default: SmoothStepEdge }}
+			deleteKeyCode={"Delete"}
 		>
 			<MiniMap nodeColor={nodeColor} style={minimapStyle} zoomable pannable />
 			<Controls />

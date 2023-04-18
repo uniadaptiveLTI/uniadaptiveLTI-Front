@@ -7,7 +7,7 @@ function UserSettings({}, ref) {
 
 	const parsedSettings = JSON.parse(settings);
 	let {
-		compact,
+		highContrast,
 		showDetails,
 		reducedAnimations,
 		autoExpandMSGBox,
@@ -20,8 +20,8 @@ function UserSettings({}, ref) {
 	 */
 	function handleSettingChange(e) {
 		switch (e.target.id) {
-			case "switch-compact":
-				compact = !compact;
+			case "switch-highContrast":
+				highContrast = !highContrast;
 				break;
 			case "switch-showDetails":
 				showDetails = !showDetails;
@@ -37,7 +37,7 @@ function UserSettings({}, ref) {
 				break;
 		}
 		let newSettings = parsedSettings;
-		newSettings.compact = compact;
+		newSettings.highContrast = highContrast;
 		newSettings.showDetails = showDetails;
 		newSettings.reducedAnimations = reducedAnimations;
 		newSettings.autoExpandMSGBox = autoExpandMSGBox;
@@ -53,9 +53,9 @@ function UserSettings({}, ref) {
 			<Form className="ms-2">
 				<Form.Check
 					type="switch"
-					id="switch-compact"
-					label="Condensar diagrama de bloques"
-					defaultChecked={compact}
+					id="switch-highContrast"
+					label="Modo de alto contraste"
+					defaultChecked={highContrast}
 					onClick={handleSettingChange}
 				/>
 				<Form.Check

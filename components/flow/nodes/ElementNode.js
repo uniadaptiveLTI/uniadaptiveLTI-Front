@@ -87,7 +87,7 @@ const getHumanDesc = (type) => {
 			humanType = "Archivo";
 			break;
 		case "folder":
-			humanType = "Folder";
+			humanType = "Carpeta";
 			break;
 		case "url":
 			humanType = "URL";
@@ -141,12 +141,11 @@ const getHumanDesc = (type) => {
 };
 
 const getAriaLabel = () => {
-	/*
 	let end = blockData.unit
 		? ", forma parte de la unidad " +
 		  blockData.unit +
 		  ", calculado desde su identación."
-		: ".";*/
+		: ".";
 	return (
 		getHumanDesc() +
 		", " +
@@ -158,8 +157,6 @@ const getAriaLabel = () => {
 		end
 	);
 };
-
-const handleStyle = { left: 10 };
 
 function ElementNode({ data, isConnectable, type, order = 1, unit = 1 }) {
 	const onChange = useCallback((evt) => {
@@ -173,16 +170,25 @@ function ElementNode({ data, isConnectable, type, order = 1, unit = 1 }) {
 	return (
 		<div className={"block " + styles.container}>
 			<span className={styles.blockInfo + " " + styles.top}>{data.label}</span>
+			{process.env.DEV_MODE && (
+				<>
+					<div>{`id:${blockData.id}`}</div>
+					<div>{blockData.children && `children:${blockData.children}`}</div>
+					<div>{`x:${blockData.x},y:${blockData.y}`}</div>
+				</>
+			)}
 			<Handle
 				type="target"
 				position={Position.Left}
 				isConnectable={isConnectable}
+				isConnectableStart="false"
 			/>
 			<div>{getTypeIcon(type)}</div>
 			<Handle
-				type="origin"
+				type="source"
 				position={Position.Right}
 				isConnectable={isConnectable}
+				isConnectableEnd="false"
 			/>
 			<span className={styles.blockInfo + " " + styles.bottom}>
 				{getHumanDesc(type)}

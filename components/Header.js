@@ -109,8 +109,8 @@ function Header({ closeBtn }, ref) {
 						},
 						{
 							id: -1,
-							x: 800,
-							y: 400,
+							x: 1000,
+							y: 500,
 							type: "end",
 							title: "Final",
 							identation: 1,
