@@ -198,6 +198,10 @@ const OverviewFlow = ({ map }, ref) => {
 		setEdges(newInitialEdges);
 	}, [newInitialNodes, newInitialEdges]);
 
+	const onNodesDelete = (nodes) => {
+		console.log(nodes);
+	};
+
 	useEffect(() => {
 		setNewInitialNodes(
 			map.map((block) => ({
@@ -261,6 +265,7 @@ const OverviewFlow = ({ map }, ref) => {
 			onNodeDragStop={onNodeDragStop}
 			onNodesChange={onNodesChange}
 			onEdgesChange={onEdgesChange}
+			onNodesDelete={onNodesDelete}
 			onConnect={onConnect}
 			onInit={onInit}
 			fitView

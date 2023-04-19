@@ -51,7 +51,6 @@ function BlockContextualMenu(
 	};
 
 	const deleteBlock = () => {
-		console.log(blockData);
 		setShowContextualMenu(false);
 		setDeletedBlock(blockData);
 	};

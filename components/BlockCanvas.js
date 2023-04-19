@@ -93,7 +93,6 @@ export default function BlockCanvas() {
 	/** Client-side */
 
 	useEffect(() => {
-		console.log(blockJson);
 		let newBlocksData = [...blocksData];
 		newBlocksData[blocksData.findIndex((b) => b.id == blockJson.id)] =
 			blockJson;
@@ -112,11 +111,62 @@ export default function BlockCanvas() {
 	}, [createdBlock]);
 
 	useEffect(() => {
-		const filteredBlocksData = blocksData.filter(
-			(b) => b.id !== cMBlockData.id
-		);
-		setBlocksData(filteredBlocksData);
+		if (cMBlockData.id) {
+			const deletedBlockArray = blocksData.filter(
+				(b) => b.id !== cMBlockData.id
+			);
+			console.log(deletedBlockArray);
+			const deletedRelatedChildrenArray = deleteRelatedChildrenById(
+				cMBlockData.id,
+				deletedBlockArray
+			);
+
+			const deleteRelatedConditionsArray = deleteRelatedConditionsById(
+				cMBlockData.id,
+				deletedRelatedChildrenArray
+			);
+
+			console.log(deleteRelatedConditionsArray);
+			setBlocksData(deleteRelatedConditionsArray);
+		}
 	}, [deletedBlock]);
+
+	const deleteRelatedChildrenById = (id, arr) => {
+		return arr.map((b) => {
+			if (b.children?.includes(id)) {
+				const updatedChildren = b.children.filter((childId) => childId !== id);
+				return {
+					...b,
+					children: updatedChildren.length ? updatedChildren : undefined,
+				};
+			} else if (b.children?.length) {
+				return { ...b, children: deleteRelatedChildrenById(id, b.children) };
+			} else {
+				return b;
+			}
+		});
+	};
+
+	const deleteRelatedConditionsById = (unlockId, arr) => {
+		return arr.map((b) => {
+			if (b.conditions?.length) {
+				const updatedConditions = b.conditions.filter(
+					(condition) => condition.unlockId !== unlockId
+				);
+				return {
+					...b,
+					conditions: updatedConditions.length ? updatedConditions : undefined,
+				};
+			} else if (b.children?.length) {
+				return {
+					...b,
+					children: deleteRelatedConditionsById(unlockId, b.children),
+				};
+			} else {
+				return b;
+			}
+		});
+	};
 
 	useEffect(() => {
 		addEventListeners(document.body, [
@@ -165,7 +215,6 @@ export default function BlockCanvas() {
 						let block = blocksDataRef.current.find(
 							(e) => e.id == selectedBlock.id
 						);
-						console.log(block);
 						setCMBlockData(block);
 						setShowContextualMenu(true);
 					}
