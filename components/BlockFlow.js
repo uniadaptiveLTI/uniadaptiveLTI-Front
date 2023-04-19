@@ -24,6 +24,7 @@ import ElementNode from "./flow/nodes/ElementNode.js";
 import {
 	BlockJsonContext,
 	BlocksDataContext,
+	DeleteBlockContext,
 	VersionInfoContext,
 } from "@components/pages/_app.js";
 import FinalNode from "./flow/nodes/FinalNode.js";
@@ -109,6 +110,7 @@ const nodeTypes = {
 
 const OverviewFlow = ({ map }, ref) => {
 	const { blockJson, setBlockJson } = useContext(BlockJsonContext);
+	const { deletedBlock, setDeletedBlock } = useContext(DeleteBlockContext);
 
 	const [newInitialNodes, setNewInitialNodes] = useState([]);
 	const [newInitialEdges, setNewInitialEdges] = useState([]);
@@ -200,6 +202,7 @@ const OverviewFlow = ({ map }, ref) => {
 
 	const onNodesDelete = (nodes) => {
 		console.log(nodes);
+		setDeletedBlock(nodes);
 	};
 
 	useEffect(() => {
