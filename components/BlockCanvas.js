@@ -181,6 +181,15 @@ export default function BlockCanvas() {
 				},
 			},
 			{
+				type: "click",
+				listener: (e) => {
+					let cM = contextMenuDOM.current;
+					if (cM && !cM.contains(e.target)) {
+						setShowContextualMenu(false);
+					}
+				},
+			},
+			{
 				type: "keydown",
 				listener: (e) => {
 					if (e.key == "Escape") {
