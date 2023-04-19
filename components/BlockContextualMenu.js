@@ -36,7 +36,6 @@ function BlockContextualMenu(
 		const lastId = blocksData[blocksData.length - 1].id;
 		const newId = lastId + 1;
 		//TODO: Block selector
-		console.log(x + " " + y);
 		const newBlockCreated = {
 			id: parseInt(newId),
 			x: x,
@@ -45,7 +44,6 @@ function BlockContextualMenu(
 			title: "Nuevo Foro",
 			children: undefined,
 		};
-		console.log(newBlockCreated);
 		setShowContextualMenu(false);
 		setCreatedBlock(newBlockCreated);
 	};

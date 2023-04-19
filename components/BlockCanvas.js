@@ -102,6 +102,8 @@ export default function BlockCanvas() {
 	const [createdBlock, setCreatedBlock] = useState([]);
 	const [deletedBlock, setDeletedBlock] = useState([]);
 
+	const [deletedBlocksArray, setDeletedBlocksArray] = useState([]);
+
 	useEffect(() => {
 		if (Object.keys(createdBlock).length !== 0) {
 			let newBlocksData = [...blocksData];
@@ -111,23 +113,45 @@ export default function BlockCanvas() {
 	}, [createdBlock]);
 
 	useEffect(() => {
-		if (cMBlockData.id) {
+		console.log(deletedBlock);
+		if (!Array.isArray(deletedBlock)) {
 			const deletedBlockArray = blocksData.filter(
-				(b) => b.id !== cMBlockData.id
+				(b) => b.id !== deletedBlock.id
 			);
-			console.log(deletedBlockArray);
 			const deletedRelatedChildrenArray = deleteRelatedChildrenById(
-				cMBlockData.id,
+				deletedBlock.id,
 				deletedBlockArray
 			);
 
 			const deleteRelatedConditionsArray = deleteRelatedConditionsById(
-				cMBlockData.id,
+				deletedBlock.id,
 				deletedRelatedChildrenArray
 			);
 
-			console.log(deleteRelatedConditionsArray);
 			setBlocksData(deleteRelatedConditionsArray);
+		} else {
+			if (deletedBlock.length > 0) {
+				let updatedBlocksArray = blocksData.slice();
+
+				deletedBlock.forEach((b) => {
+					debugger;
+					const id = parseInt(b.id);
+
+					updatedBlocksArray = updatedBlocksArray.filter((b) => b.id !== id);
+					updatedBlocksArray = deleteRelatedChildrenById(
+						id,
+						updatedBlocksArray
+					);
+					updatedBlocksArray = deleteRelatedConditionsById(
+						id,
+						updatedBlocksArray
+					);
+				});
+
+				console.log(updatedBlocksArray);
+
+				setBlocksData(updatedBlocksArray);
+			}
 		}
 	}, [deletedBlock]);
 
@@ -201,6 +225,7 @@ export default function BlockCanvas() {
 	});
 
 	useLayoutEffect(() => {
+		console.log(blocksData);
 		blocksDataRef.current = blocksData;
 	}, [expanded, settings, blocksData]);
 
