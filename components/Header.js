@@ -77,7 +77,7 @@ function Header({ closeBtn }, ref) {
 
 	const { currentBlocksData, setCurrentBlocksData } =
 		useContext(BlocksDataContext);
-	const { isOnline } = useContext(OnlineContext);
+	const { isOffline } = useContext(OnlineContext);
 	const { settings, setSettings } = useContext(SettingsContext);
 
 	const parsedSettings = JSON.parse(settings);
@@ -1116,7 +1116,7 @@ function Header({ closeBtn }, ref) {
 							ref={selectItineraryDOM}
 							value={selectedMap.id}
 							onChange={handleMapChange}
-							disabled={!isOnline}
+							disabled={isOffline}
 						>
 							{maps.map((mapa) => (
 								<option id={mapa.id} key={mapa.id} value={mapa.id}>
@@ -1138,7 +1138,7 @@ function Header({ closeBtn }, ref) {
 								<Dropdown.Toggle
 									variant="light"
 									className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder} ${styles.toggleButton}`}
-									disabled={!isOnline}
+									disabled={isOffline}
 								>
 									<PlusCircle width="20" height="20" />
 								</Dropdown.Toggle>
@@ -1161,7 +1161,7 @@ function Header({ closeBtn }, ref) {
 										<Dropdown.Toggle
 											variant="light"
 											className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder} ${styles.toggleButton}`}
-											disabled={!isOnline}
+											disabled={isOffline}
 										>
 											<Trash width="20" height="20" />
 										</Dropdown.Toggle>
@@ -1179,7 +1179,7 @@ function Header({ closeBtn }, ref) {
 										<Dropdown.Toggle
 											variant="light"
 											className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder} ${styles.toggleButton}`}
-											disabled={!isOnline}
+											disabled={isOffline}
 										>
 											<Pencil width="20" height="20" />
 										</Dropdown.Toggle>
@@ -1194,7 +1194,7 @@ function Header({ closeBtn }, ref) {
 									</Dropdown>
 									<Button
 										className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder}`}
-										disabled={!isOnline}
+										disabled={isOffline}
 									>
 										<Image
 											src={"/icons/save.svg"}
@@ -1290,7 +1290,7 @@ function Header({ closeBtn }, ref) {
 								title={versions.length > 0 ? selectedVersion.name : ""}
 								onClick={openModalVersiones}
 								variant="none"
-								disabled={!isOnline}
+								disabled={isOffline}
 							>
 								{versions.map((version) => (
 									<Dropdown.Item

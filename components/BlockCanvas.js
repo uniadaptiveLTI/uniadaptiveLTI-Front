@@ -134,7 +134,6 @@ export default function BlockCanvas() {
 				let updatedBlocksArray = blocksData.slice();
 
 				deletedBlock.forEach((b) => {
-					debugger;
 					const id = parseInt(b.id);
 
 					updatedBlocksArray = updatedBlocksArray.filter((b) => b.id !== id);

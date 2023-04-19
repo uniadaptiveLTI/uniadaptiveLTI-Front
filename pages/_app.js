@@ -40,7 +40,7 @@ export default function App({ Component, pageProps }) {
 			autoHideMSGBox: true,
 		})
 	);
-	const { isOnline } = useIsOnline();
+	const { isOnline, isOffline } = useIsOnline();
 
 	useEffect(() => {
 		let localSettings = sessionStorage.getItem("settings");
@@ -61,7 +61,7 @@ export default function App({ Component, pageProps }) {
 	}, [isOnline]);
 
 	return (
-		<OnlineContext.Provider value={{ isOnline }}>
+		<OnlineContext.Provider value={{ isOnline, isOffline }}>
 			<SettingsContext.Provider value={{ settings, setSettings }}>
 				<Layout>
 					<ToastContainer />
