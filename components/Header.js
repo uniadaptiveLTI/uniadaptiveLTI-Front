@@ -33,6 +33,7 @@ import {
 	BlocksDataContext,
 	MSGContext,
 	SettingsContext,
+	OnlineContext,
 } from "@components/pages/_app";
 import { toast } from "react-toastify";
 import { notImplemented } from "@components/pages/_app";
@@ -76,6 +77,7 @@ function Header({ closeBtn }, ref) {
 
 	const { currentBlocksData, setCurrentBlocksData } =
 		useContext(BlocksDataContext);
+	const { isOnline } = useContext(OnlineContext);
 	const { settings, setSettings } = useContext(SettingsContext);
 
 	const parsedSettings = JSON.parse(settings);
@@ -1058,6 +1060,8 @@ function Header({ closeBtn }, ref) {
 	const UserToggle = forwardRef(({ children, onClick }, ref) => (
 		<a
 			href=""
+			role="button"
+			tabIndex={0}
 			ref={ref}
 			onClick={(e) => {
 				e.preventDefault();
@@ -1112,6 +1116,7 @@ function Header({ closeBtn }, ref) {
 							ref={selectItineraryDOM}
 							value={selectedMap.id}
 							onChange={handleMapChange}
+							disabled={!isOnline}
 						>
 							{maps.map((mapa) => (
 								<option id={mapa.id} key={mapa.id} value={mapa.id}>
@@ -1133,6 +1138,7 @@ function Header({ closeBtn }, ref) {
 								<Dropdown.Toggle
 									variant="light"
 									className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder} ${styles.toggleButton}`}
+									disabled={!isOnline}
 								>
 									<PlusCircle width="20" height="20" />
 								</Dropdown.Toggle>
@@ -1155,6 +1161,7 @@ function Header({ closeBtn }, ref) {
 										<Dropdown.Toggle
 											variant="light"
 											className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder} ${styles.toggleButton}`}
+											disabled={!isOnline}
 										>
 											<Trash width="20" height="20" />
 										</Dropdown.Toggle>
@@ -1172,6 +1179,7 @@ function Header({ closeBtn }, ref) {
 										<Dropdown.Toggle
 											variant="light"
 											className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder} ${styles.toggleButton}`}
+											disabled={!isOnline}
 										>
 											<Pencil width="20" height="20" />
 										</Dropdown.Toggle>
@@ -1186,6 +1194,7 @@ function Header({ closeBtn }, ref) {
 									</Dropdown>
 									<Button
 										className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder}`}
+										disabled={!isOnline}
 									>
 										<Image
 											src={"/icons/save.svg"}
@@ -1281,6 +1290,7 @@ function Header({ closeBtn }, ref) {
 								title={versions.length > 0 ? selectedVersion.name : ""}
 								onClick={openModalVersiones}
 								variant="none"
+								disabled={!isOnline}
 							>
 								{versions.map((version) => (
 									<Dropdown.Item
