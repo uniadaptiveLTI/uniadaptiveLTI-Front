@@ -55,7 +55,7 @@ export default function App({ Component, pageProps }) {
 }
 
 export const notImplemented = () => {
-	toast("Esta función no ha sido implementada.", {
+	toast("Esta función aún no ha sido implementada.", {
 		hideProgressBar: false,
 		autoClose: 2000,
 		type: "error",

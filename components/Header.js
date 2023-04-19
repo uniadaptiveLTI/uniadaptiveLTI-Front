@@ -1201,15 +1201,21 @@ function Header({ closeBtn }, ref) {
 								<></>
 							)}
 
-							<Button
-								className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder}`}
-								data-bs-container="body"
-								data-bs-toggle="popover"
-								data-bs-placement="top"
-								data-bs-content="Top popover"
+							<OverlayTrigger
+								placement="bottom"
+								overlay={PopoverInfo}
+								trigger="focus"
 							>
-								<InfoCircle width="20" height="20"></InfoCircle>
-							</Button>
+								<Button
+									className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder}`}
+									data-bs-container="body"
+									data-bs-toggle="popover"
+									data-bs-placement="top"
+									data-bs-content="Top popover"
+								>
+									<InfoCircle width="20" height="20"></InfoCircle>
+								</Button>
+							</OverlayTrigger>
 
 							<Button
 								className={`d-flex align-items-center p-2 ${styles.actionsBorder}`}
