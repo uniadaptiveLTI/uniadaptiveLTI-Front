@@ -124,9 +124,6 @@ const OverviewFlow = ({ map }, ref) => {
 	function CustomControls() {
 		return (
 			<Controls>
-				<ControlButton title="Save">
-					<SaveFill />
-				</ControlButton>
 				<ControlButton title="Toggle Minimap" onClick={toggleMinimap}>
 					{!minimap && <MapFill />}
 					{minimap && (

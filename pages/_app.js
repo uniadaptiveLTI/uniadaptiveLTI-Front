@@ -24,6 +24,7 @@ export const MainDOMContext = createContext();
 
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 
 export default function App({ Component, pageProps }) {
 	const [settings, setSettings] = useState(
@@ -52,3 +53,13 @@ export default function App({ Component, pageProps }) {
 		</SettingsContext.Provider>
 	);
 }
+
+export const notImplemented = () => {
+	toast("Esta función no ha sido implementada.", {
+		hideProgressBar: false,
+		autoClose: 2000,
+		type: "error",
+		position: "bottom-center",
+		theme: "colored",
+	});
+};
