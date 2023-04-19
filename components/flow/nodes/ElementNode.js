@@ -19,7 +19,13 @@ import {
 	Diagram2,
 	Shuffle,
 } from "react-bootstrap-icons";
-import { SettingsContext } from "@components/pages/_app";
+import {
+	BlockInfoContext,
+	ExpandedContext,
+	ItineraryInfoContext,
+	SettingsContext,
+	VersionInfoContext,
+} from "@components/pages/_app";
 
 function getTypeIcon(type) {
 	switch (type) {
@@ -158,14 +164,53 @@ const getAriaLabel = () => {
 	);
 };
 
-function ElementNode({ id, data, isConnectable, type, order = 1, unit = 1 }) {
+function ElementNode({
+	id,
+	xPos,
+	yPos,
+	type,
+	data,
+	children,
+	isConnectable,
+	order = 1,
+	unit = 1,
+}) {
 	const onChange = useCallback((evt) => {
 		console.log(evt.target.value);
 	}, []);
 
+	const { expanded, setExpanded } = useContext(ExpandedContext);
+	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
+	const { itinerarySelected, setItinerarySelected } =
+		useContext(ItineraryInfoContext);
+	const { selectedEditVersion, setSelectedEditVersion } =
+		useContext(VersionInfoContext);
+
 	const { settings, setSettings } = useContext(SettingsContext);
 	const parsedSettings = JSON.parse(settings);
 	const { highContrast, showDetails, reducedAnimations } = parsedSettings;
+
+	const handleClick = () => {
+		console.log(data);
+		const blockData = {
+			id: parseInt(id),
+			x: xPos,
+			y: yPos,
+			type: type,
+			title: data.label,
+			children: data.children,
+			identation: data.identation,
+			conditions: data.conditions,
+		};
+
+		if (expanded != true) {
+			if (type != "start" && type != "end") setExpanded(true);
+		}
+
+		setItinerarySelected("");
+		setSelectedEditVersion("");
+		setBlockSelected(blockData);
+	};
 
 	return (
 		<div
@@ -178,6 +223,7 @@ function ElementNode({ id, data, isConnectable, type, order = 1, unit = 1 }) {
 				" " +
 				(reducedAnimations && styles.noAnimation + " noAnimation")
 			}
+			onClick={handleClick}
 		>
 			<span className={styles.blockInfo + " " + styles.top}>{data.label}</span>
 			{process.env.DEV_MODE == true && (

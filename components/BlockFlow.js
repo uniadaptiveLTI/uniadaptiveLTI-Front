@@ -25,6 +25,7 @@ import {
 	BlockJsonContext,
 	BlocksDataContext,
 	DeleteBlockContext,
+	ExpandedContext,
 	VersionInfoContext,
 } from "@components/pages/_app.js";
 import FinalNode from "./flow/nodes/FinalNode.js";
@@ -111,6 +112,7 @@ const nodeTypes = {
 const OverviewFlow = ({ map }, ref) => {
 	const { blockJson, setBlockJson } = useContext(BlockJsonContext);
 	const { deletedBlock, setDeletedBlock } = useContext(DeleteBlockContext);
+	const { expanded, setExpanded } = useContext(ExpandedContext);
 
 	const [newInitialNodes, setNewInitialNodes] = useState([]);
 	const [newInitialEdges, setNewInitialEdges] = useState([]);
@@ -170,6 +172,10 @@ const OverviewFlow = ({ map }, ref) => {
 		}
 	};
 
+	const onPaneClick = () => {
+		setExpanded(false);
+	};
+
 	const onConnect = (event) => {
 		const sourceNodeId = parseInt(event.source.split("__")[0]);
 		const targetNodeId = parseInt(event.target.split("__")[0]);
@@ -213,9 +219,10 @@ const OverviewFlow = ({ map }, ref) => {
 				data: {
 					label: block.title,
 					identation: block.identation,
+					children: block.children,
+					conditions: block.conditions,
 				},
 				position: { x: block.x, y: block.y },
-				children: block.children,
 			}))
 		);
 
@@ -269,6 +276,7 @@ const OverviewFlow = ({ map }, ref) => {
 			onNodesChange={onNodesChange}
 			onEdgesChange={onEdgesChange}
 			onNodesDelete={onNodesDelete}
+			onPaneClick={onPaneClick}
 			onConnect={onConnect}
 			onInit={onInit}
 			fitView

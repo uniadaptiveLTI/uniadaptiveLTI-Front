@@ -229,6 +229,7 @@ export default function Aside({ className, closeBtn }) {
 			children: blockSelected.children,
 			identation: blockSelected.identation,
 		});
+		setExpanded(false);
 	};
 
 	/**
