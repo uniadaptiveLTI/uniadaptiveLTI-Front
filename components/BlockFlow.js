@@ -28,7 +28,7 @@ import {
 } from "@components/pages/_app.js";
 import FinalNode from "./flow/nodes/FinalNode.js";
 import InitialNode from "./flow/nodes/InitialNode.js";
-import { Save, Save2Fill, SaveFill } from "react-bootstrap-icons";
+import { SaveFill, MapFill, XLg } from "react-bootstrap-icons";
 
 const minimapStyle = {
 	height: 120,
@@ -107,57 +107,46 @@ const nodeTypes = {
 	html: ElementNode,
 };
 
-function CustomControls() {
-	return (
-		<Controls>
-			<ControlButton title="Save">
-				<SaveFill />
-			</ControlButton>
-		</Controls>
-	);
-}
-
 const OverviewFlow = ({ map }, ref) => {
 	const { blockJson, setBlockJson } = useContext(BlockJsonContext);
 
 	const [newInitialNodes, setNewInitialNodes] = useState([]);
 	const [newInitialEdges, setNewInitialEdges] = useState([]);
+	const [minimap, setMinimap] = useState(true);
 
 	const [nodes, setNodes, onNodesChange] = useNodesState(newInitialNodes);
 	const [edges, setEdges, onEdgesChange] = useEdgesState(newInitialEdges);
 
-	useEffect(() => {
-		setNewInitialNodes(
-			map.map((block) => ({
-				id: block.id.toString(),
-				type: block.type,
-				data: {
-					label: block.title,
-					identation: block.identation,
-				},
-				position: { x: block.x, y: block.y },
-				children: block.children,
-			}))
-		);
-
-		setNewInitialEdges(
-			map.flatMap((parent) => {
-				if (parent.children) {
-					return parent.children.map((child) => {
-						return {
-							id: `e${parent.id}-${child}`,
-							source: parent.id.toString(),
-							target: child.toString(),
-						};
-					});
-				} else {
-					return [];
-				}
-			})
-		);
-	}, [map]);
-
 	const draggedNodePosition = useRef(null);
+
+	const toggleMinimap = () => setMinimap(!minimap);
+
+	function CustomControls() {
+		return (
+			<Controls>
+				<ControlButton title="Save">
+					<SaveFill />
+				</ControlButton>
+				<ControlButton title="Toggle Minimap" onClick={toggleMinimap}>
+					{!minimap && <MapFill />}
+					{minimap && (
+						<div
+							style={{
+								position: "relative",
+								padding: "none",
+								display: "flex",
+								justifyContent: "center",
+								alignItems: "center",
+							}}
+						>
+							<XLg style={{ position: "absolute", top: "0", color: "white" }} />
+							<MapFill />
+						</div>
+					)}
+				</ControlButton>
+			</Controls>
+		);
+	}
 
 	const handleNodeDragStart = (event, node) => {
 		draggedNodePosition.current = node.position;
@@ -212,6 +201,37 @@ const OverviewFlow = ({ map }, ref) => {
 		setEdges(newInitialEdges);
 	}, [newInitialNodes, newInitialEdges]);
 
+	useEffect(() => {
+		setNewInitialNodes(
+			map.map((block) => ({
+				id: block.id.toString(),
+				type: block.type,
+				data: {
+					label: block.title,
+					identation: block.identation,
+				},
+				position: { x: block.x, y: block.y },
+				children: block.children,
+			}))
+		);
+
+		setNewInitialEdges(
+			map.flatMap((parent) => {
+				if (parent.children) {
+					return parent.children.map((child) => {
+						return {
+							id: `e${parent.id}-${child}`,
+							source: parent.id.toString(),
+							target: child.toString(),
+						};
+					});
+				} else {
+					return [];
+				}
+			})
+		);
+	}, [map]);
+
 	/*const onConnect = useCallback(
 		(params) => setEdges((eds) => addEdge(params, eds)),
 		[]
@@ -254,7 +274,9 @@ const OverviewFlow = ({ map }, ref) => {
 			snapToGrid={true}
 			deleteKeyCode={"Delete"}
 		>
-			<MiniMap nodeColor={nodeColor} style={minimapStyle} zoomable pannable />
+			{minimap && (
+				<MiniMap nodeColor={nodeColor} style={minimapStyle} zoomable pannable />
+			)}
 			<CustomControls />
 			<Background color="#aaa" gap={16} />
 		</ReactFlow>
