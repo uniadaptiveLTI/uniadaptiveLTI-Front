@@ -2,7 +2,7 @@
 	user-select: none;
 }
 
-.container svg {
+.container svg, .container div {
 	pointer-events: none; /* So the right click to the SVG doesn't stop the propagation */
 }
 

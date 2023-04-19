@@ -118,7 +118,6 @@ function CustomControls() {
 }
 
 const OverviewFlow = ({ map }, ref) => {
-	console.log(map);
 	const { blockJson, setBlockJson } = useContext(BlockJsonContext);
 
 	const [newInitialNodes, setNewInitialNodes] = useState([]);
@@ -187,12 +186,7 @@ const OverviewFlow = ({ map }, ref) => {
 		const sourceNodeId = parseInt(event.source.split("__")[0]);
 		const targetNodeId = parseInt(event.target.split("__")[0]);
 
-		console.log(map);
-		console.log(sourceNodeId);
-
 		const sourceNode = map.find((node) => node.id === sourceNodeId);
-
-		console.log(sourceNode);
 
 		if (sourceNode) {
 			if (Array.isArray(sourceNode.children)) {
