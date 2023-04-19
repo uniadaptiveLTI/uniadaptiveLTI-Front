@@ -10,18 +10,11 @@ import {
 	Clipboard2PlusFill,
 	Trash3Fill,
 } from "react-bootstrap-icons";
-import { CreateBlockContext, DeleteBlockContext } from "@components/pages/_app";
-import { toast } from "react-toastify";
-
-const notImplemented = () => {
-	toast("Esta función no ha sido implementada.", {
-		hideProgressBar: false,
-		autoClose: 2000,
-		type: "error",
-		position: "bottom-center",
-		theme: "colored",
-	});
-};
+import {
+	CreateBlockContext,
+	DeleteBlockContext,
+	notImplemented,
+} from "@components/pages/_app";
 
 function BlockContextualMenu(
 	{

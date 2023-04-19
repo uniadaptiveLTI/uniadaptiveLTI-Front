@@ -35,6 +35,7 @@ import {
 	SettingsContext,
 } from "@components/pages/_app";
 import { toast } from "react-toastify";
+import { notImplemented } from "@components/pages/_app";
 
 const defaultToastSuccess = {
 	hideProgressBar: false,
@@ -1183,26 +1184,32 @@ function Header({ closeBtn }, ref) {
 											</Dropdown.Item>
 										</Dropdown.Menu>
 									</Dropdown>
+									<Button
+										className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder}`}
+									>
+										<Image
+											src={"/icons/save.svg"}
+											width="20"
+											height="20"
+											style={{ transform: "scale(1.15)" }}
+											onClick={notImplemented}
+											//TODO: onClick
+										></Image>
+									</Button>
 								</>
 							) : (
 								<></>
 							)}
 
-							<OverlayTrigger
-								placement="bottom"
-								overlay={PopoverInfo}
-								trigger="focus"
+							<Button
+								className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder}`}
+								data-bs-container="body"
+								data-bs-toggle="popover"
+								data-bs-placement="top"
+								data-bs-content="Top popover"
 							>
-								<Button
-									className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder}`}
-									data-bs-container="body"
-									data-bs-toggle="popover"
-									data-bs-placement="top"
-									data-bs-content="Top popover"
-								>
-									<InfoCircle width="20" height="20"></InfoCircle>
-								</Button>
-							</OverlayTrigger>
+								<InfoCircle width="20" height="20"></InfoCircle>
+							</Button>
 
 							<Button
 								className={`d-flex align-items-center p-2 ${styles.actionsBorder}`}
