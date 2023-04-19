@@ -14,14 +14,17 @@ function FinalNode({ data, isConnectable }) {
 
 	const { settings } = useContext(SettingsContext);
 	const parsedSettings = JSON.parse(settings);
-	const { highContrast } = parsedSettings;
+	const { reducedAnimations, highContrast } = parsedSettings;
 
 	return (
 		<div
 			className={
+				"block " +
 				styles.container +
 				" " +
-				(highContrast && styles.highContrast + " highContrast ")
+				(highContrast && styles.highContrast + " highContrast ") +
+				" " +
+				(reducedAnimations && styles.noAnimation + " noAnimation")
 			}
 		>
 			<Handle

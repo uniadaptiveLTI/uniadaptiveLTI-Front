@@ -171,6 +171,7 @@ function ElementNode({ id, data, isConnectable, type, order = 1, unit = 1 }) {
 		<div
 			id={id}
 			className={
+				"block " +
 				styles.container +
 				" " +
 				(highContrast && styles.highContrast + " highContrast ") +

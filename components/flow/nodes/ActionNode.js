@@ -173,6 +173,7 @@ function ActionNode({ data, isConnectable, type }) {
 	return (
 		<div
 			className={
+				"block " +
 				styles.container +
 				" " +
 				(highContrast && styles.highContrast + " highContrast ") +

@@ -60,16 +60,16 @@ function UserSettings({}, ref) {
 				/>
 				<Form.Check
 					type="switch"
-					id="switch-showDetails"
-					label="Mostrar los detalles de forma estática"
-					defaultChecked={showDetails}
+					id="switch-animation"
+					label="Animaciones reducidas"
+					defaultChecked={reducedAnimations}
 					onClick={handleSettingChange}
 				/>
 				<Form.Check
 					type="switch"
-					id="switch-animation"
-					label="Animaciones reducidas"
-					defaultChecked={reducedAnimations}
+					id="switch-showDetails"
+					label="Mostrar los detalles de forma estática"
+					defaultChecked={showDetails}
 					onClick={handleSettingChange}
 				/>
 				<Form.Check
