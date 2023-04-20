@@ -165,7 +165,7 @@ const OverviewFlow = ({ map }, ref) => {
 				y: node.position.y,
 				type: node.type,
 				title: node.data.label,
-				children: node.children,
+				children: node.data.children,
 				identation: node.data.identation,
 				conditions: node.data.conditions,
 			});
