@@ -945,6 +945,8 @@ function Header({ closeBtn }, ref) {
 	 * Handles the creation of a new itinerary.
 	 */
 	const handleNewItinerary = () => {
+		const uniqueId = () => parseInt(Date.now() * Math.random()).toString();
+		const endId = uniqueId();
 		const newMap = [
 			...maps,
 			{
@@ -956,6 +958,25 @@ function Header({ closeBtn }, ref) {
 						name: "Última versión",
 						lastUpdate: new Date().toLocaleDateString(),
 						default: "true",
+						blocksData: [
+							{
+								id: uniqueId(),
+								x: 0,
+								y: 0,
+								type: "start",
+								title: "Inicio",
+								children: [endId],
+								identation: 1,
+							},
+							{
+								id: endId,
+								x: 125,
+								y: 0,
+								type: "end",
+								title: "Final",
+								identation: 1,
+							},
+						],
 					},
 				],
 			},
@@ -971,6 +992,8 @@ function Header({ closeBtn }, ref) {
 	 * Handles the creation of a new version.
 	 */
 	const handleNewVersion = () => {
+		const uniqueId = () => parseInt(Date.now() * Math.random()).toString();
+		const endId = uniqueId();
 		const newMapVersions = [
 			...selectedMap.versions,
 			{
@@ -980,16 +1003,16 @@ function Header({ closeBtn }, ref) {
 				default: "true",
 				blocksData: [
 					{
-						id: -2,
+						id: uniqueId(),
 						x: 0,
 						y: 0,
 						type: "start",
 						title: "Inicio",
-						children: [-1],
+						children: [endId],
 						identation: 1,
 					},
 					{
-						id: -1,
+						id: endId,
 						x: 125,
 						y: 0,
 						type: "end",
