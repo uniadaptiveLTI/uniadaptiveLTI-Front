@@ -27,7 +27,7 @@ import {
 } from "@components/pages/_app";
 import { useContext } from "react";
 
-const handleStyle = { left: 10 };
+export const ActionBlocks = ["badge"];
 
 function getTypeIcon(type) {
 	switch (type) {
@@ -216,6 +216,7 @@ function ActionNode({
 
 	return (
 		<div
+			id={id}
 			className={
 				"block " +
 				styles.container +

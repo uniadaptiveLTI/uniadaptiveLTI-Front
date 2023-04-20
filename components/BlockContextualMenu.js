@@ -16,6 +16,8 @@ import {
 	notImplemented,
 } from "@components/pages/_app";
 import { BlockOriginContext } from "./BlockCanvas";
+import { ActionBlocks } from "./flow/nodes/ActionNode";
+import { toast } from "react-toastify";
 
 function BlockContextualMenu(
 	{
@@ -57,10 +59,25 @@ function BlockContextualMenu(
 
 	const handleNewRelation = (origin, end) => {
 		setShowContextualMenu(false);
-		let newBlocksData = [...blocksData];
-		let bI = newBlocksData.findIndex((block) => block.id == origin.id);
+		const newBlocksData = [...blocksData];
+		const bI = newBlocksData.findIndex((block) => block.id == origin.id);
 		if (newBlocksData[bI].children) {
-			newBlocksData[bI].children.push(end.id);
+			const alreadyAChildren = newBlocksData[bI].children.includes(end.id);
+			if (!alreadyAChildren) {
+				if (newBlocksData[bI].children) {
+					newBlocksData[bI].children.push(end.id);
+				} else {
+					newBlocksData[bI].children = [end.id];
+				}
+			} else {
+				toast("Esta relación ya existe", {
+					hideProgressBar: false,
+					autoClose: 2000,
+					type: "info",
+					position: "bottom-center",
+					theme: "light",
+				});
+			}
 		} else {
 			newBlocksData[bI].children = [end.id];
 		}
@@ -108,7 +125,13 @@ function BlockContextualMenu(
 						{blockOrigin ? (
 							blockOrigin.id == blockData.id ? (
 								<li>
-									<Button variant="light" onClick={() => setBlockOrigin()}>
+									<Button
+										variant="light"
+										onClick={() => {
+											setBlockOrigin();
+											setShowContextualMenu(false);
+										}}
+									>
 										<div>
 											<Diagram2Fill />
 											Cancelar relación
@@ -140,19 +163,22 @@ function BlockContextualMenu(
 								</li>
 							)
 						) : (
-							<>
+							ActionBlocks.includes(blockData.type) == false && (
 								<li>
 									<Button
 										variant="light"
-										onClick={() => setBlockOrigin(blockData)}
+										onClick={() => {
+											setBlockOrigin(blockData);
+											setShowContextualMenu(false);
+										}}
 									>
 										<div>
-											<Diagram2Fill />
-											Crear relación
+											{" "}
+											<Diagram2Fill /> Crear relación
 										</div>
 									</Button>
 								</li>
-							</>
+							)
 						)}
 
 						<li>

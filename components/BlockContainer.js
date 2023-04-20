@@ -17,22 +17,6 @@ import {
 	SettingsContext,
 } from "../pages/_app.js";
 import { Button, Badge } from "react-bootstrap";
-import {
-	FileEarmarkCheck,
-	PatchQuestionFill,
-	CaretDownFill,
-	Link45deg,
-	PencilSquare,
-	Question,
-	ChatLeftText,
-	FileEarmark,
-	Folder,
-	Tag,
-	FileEarmarkText,
-	StarFill,
-	Diagram2,
-	Shuffle,
-} from "react-bootstrap-icons";
 
 export default function BlockContainer({ blockData, inline, unit, order }) {
 	const id = blockData ? blockData.id : "no-id";
@@ -61,54 +45,6 @@ export default function BlockContainer({ blockData, inline, unit, order }) {
 		setSelectedEditVersion("");
 		setBlockSelected(blockData);
 	};
-
-	function getTypeColor() {
-		//TODO: Add the rest
-		switch (blockData.type) {
-			//Moodle + Sakai
-			case "questionnaire":
-				return styles.btnQuestionnaire + " ";
-			case "assignment":
-				return "btn-info ";
-			case "forum":
-				return styles.btnForum + " ";
-			case "file":
-				return "btn-primary ";
-			case "folder":
-				return "btn-warning ";
-			case "url":
-				return styles.btnURL + " ";
-			//Moodle
-			case "workshop":
-				return styles.btnWorkshop + " ";
-			case "inquery":
-				return "btn-danger ";
-			case "tag":
-				return styles.btnTag + " ";
-			case "page":
-				return "btn-secondary ";
-			case "badge":
-				return "btn-success ";
-			//Sakai
-			case "exam":
-				return "btn-danger ";
-			case "contents":
-				return styles.btnContents + " ";
-			case "text":
-				return "btn-secondary ";
-			case "html":
-				return styles.btnHTML + " ";
-			//LTI
-			case "start":
-				return "btn-danger ";
-			case "end":
-				return "btn-danger ";
-			case "fragment":
-				return styles.btnFragment + " ";
-			default:
-				return "btn-warning ";
-		}
-	}
 
 	const sendDimensions = useCallback(() => {
 		const block = blockDOM.current;

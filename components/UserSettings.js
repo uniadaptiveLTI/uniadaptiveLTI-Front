@@ -80,7 +80,7 @@ function UserSettings({}, ref) {
 				<Form.Check
 					type="switch"
 					id="switch-autoHideAside"
-					label="Autocontraer el panel de edición al guardar"
+					label="Autocontraer el panel de edición al pulsar guardar"
 					defaultChecked={autoHideAside}
 					onClick={handleSettingChange}
 				/>

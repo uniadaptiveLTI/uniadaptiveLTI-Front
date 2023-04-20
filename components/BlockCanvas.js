@@ -117,7 +117,6 @@ export default function BlockCanvas() {
 	}, [createdBlock]);
 
 	useEffect(() => {
-		console.log(deletedBlock);
 		if (!Array.isArray(deletedBlock)) {
 			const deletedBlockArray = blocksData.filter(
 				(b) => b.id !== deletedBlock.id
@@ -150,8 +149,6 @@ export default function BlockCanvas() {
 						updatedBlocksArray
 					);
 				});
-
-				console.log(updatedBlocksArray);
 
 				setBlocksData(updatedBlocksArray);
 			}
@@ -228,7 +225,6 @@ export default function BlockCanvas() {
 	});
 
 	useLayoutEffect(() => {
-		console.log(blocksData);
 		blocksDataRef.current = blocksData;
 	}, [expanded, settings, blocksData]);
 
