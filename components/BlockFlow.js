@@ -58,7 +58,7 @@ const nodeColor = (node) => {
 		//Moodle
 		case "workshop":
 			return "#15a935";
-		case "inquery":
+		case "choice":
 			return "#dc3545";
 		case "tag":
 			return "#a91568";
@@ -99,7 +99,7 @@ const nodeTypes = {
 	url: ElementNode,
 	// Moodle
 	workshop: ElementNode,
-	inquery: ElementNode,
+	choice: ElementNode,
 	tag: ElementNode,
 	page: ElementNode,
 	// Sakai

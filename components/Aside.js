@@ -59,7 +59,7 @@ export default function Aside({ className, closeBtn }) {
 		{ id: 0, value: "questionnaire", name: "Cuestionario", default: "true" },
 		{ id: 1, value: "assignment", name: "Tarea", default: "true" },
 		{ id: 3, value: "workshop", name: "Taller", default: "true" },
-		{ id: 4, value: "inquery", name: "Consulta", default: "true" },
+		{ id: 4, value: "choice", name: "Consulta", default: "true" },
 		{ id: 5, value: "forum", name: "Foro", default: "true" },
 		{ id: 6, value: "file", name: "Archivo", default: "true" },
 		{ id: 7, value: "folder", name: "Carpeta", default: "true" },
@@ -112,7 +112,7 @@ export default function Aside({ className, closeBtn }) {
 					{ id: 2, name: "Taller 3" },
 				]);
 				break;
-			case "consultation":
+			case "choice":
 				setSecondOptions([
 					{ id: 0, name: "Consulta 1" },
 					{ id: 1, name: "Consulta 2" },

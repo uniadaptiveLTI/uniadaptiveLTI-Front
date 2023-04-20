@@ -100,12 +100,12 @@
 	background-color: #0f992d;
 }
 
-/* Inquery */
-.react-flow__node-inquery {
+/* choice */
+.react-flow__node-choice {
 	background-color: #dc3545;
 }
 
-.react-flow__node-inquery:hover, .react-flow__node-inquery:focus-visible, .react-flow__node-inquery:active {
+.react-flow__node-choice:hover, .react-flow__node-choice:focus-visible, .react-flow__node-choice:active {
 	background-color: #bf2534;
 }
 

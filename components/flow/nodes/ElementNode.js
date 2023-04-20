@@ -45,7 +45,7 @@ function getTypeIcon(type) {
 		//Moodle
 		case "workshop":
 			return <Shuffle size={32} />;
-		case "inquery":
+		case "choice":
 			return <Question size={32} />;
 		case "tag":
 			return <Tag size={32} />;
@@ -102,7 +102,7 @@ const getHumanDesc = (type) => {
 		case "workshop":
 			humanType = "Taller";
 			break;
-		case "inquery":
+		case "choice":
 			humanType = "Consulta";
 			break;
 		case "tag":
