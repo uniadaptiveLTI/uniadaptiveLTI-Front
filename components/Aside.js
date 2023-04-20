@@ -6,7 +6,7 @@ import {
 	ArrowBarLeft,
 } from "react-bootstrap-icons";
 import { Container, Button, Form, Spinner } from "react-bootstrap";
-import { useState, useContext, useEffect, useRef } from "react";
+import { useState, useContext, useEffect, useRef, useId } from "react";
 import {
 	PlatformContext,
 	BlockInfoContext,
@@ -47,6 +47,15 @@ export default function Aside({ className, closeBtn }) {
 	const itineraryTitleDOM = useRef(null);
 	const versionTitleDOM = useRef(null);
 	const refreshIconDOM = useRef(null);
+	//IDs
+	const titleID = useId();
+	const optionsID = useId();
+	const contentID = useId();
+	//TODO: Add the rest
+	/*
+	const itineraryId = useId();
+	const versionId = useId();
+	*/
 
 	const [secondOptions, setSecondOptions] = useState([]);
 	const { blockJson, setBlockJson } = useContext(BlockJsonContext);
@@ -239,7 +248,7 @@ export default function Aside({ className, closeBtn }) {
 		setMap((prevMap) => ({
 			...prevMap,
 			id: itinerarySelected.id,
-			name: document.getElementById("itinerary-title").value,
+			name: itineraryTitleDOM.current.value,
 		}));
 	};
 
@@ -249,7 +258,7 @@ export default function Aside({ className, closeBtn }) {
 	const updateVersion = () => {
 		setVersionJson((prevVersionJson) => ({
 			...prevVersionJson,
-			name: document.getElementById("version-title").value,
+			name: versionTitleDOM.current.value,
 			lastUpdate: selectedEditVersion.lastUpdate,
 			default: selectedEditVersion.default,
 		}));
@@ -310,21 +319,23 @@ export default function Aside({ className, closeBtn }) {
 								}}
 							>
 								<Form.Group className="mb-3">
-									<Form.Label className="mb-1">Nombre del contenido</Form.Label>
+									<Form.Label htmlFor={titleID} className="mb-1">
+										Nombre del contenido
+									</Form.Label>
 									<Form.Control
 										ref={titleDOM}
-										id="title"
+										id={titleID}
 										type="text"
 										className="w-100"
 									></Form.Control>
 								</Form.Group>
 								<Form.Group className="mb-3">
-									<Form.Label htmlFor="content" className="mb-1">
+									<Form.Label htmlFor={contentID} className="mb-1">
 										Tipo de contenido
 									</Form.Label>
 									<Form.Select
 										ref={contentDOM}
-										id="content"
+										id={contentID}
 										className="w-100"
 										value={selectedOption}
 										onChange={handleSelect}
@@ -346,7 +357,9 @@ export default function Aside({ className, closeBtn }) {
 								{blockSelected.type != "fragment" ? (
 									<div className="mb-3">
 										<div className="d-flex gap-2">
-											<div className="mb-1">Recurso en el LMS</div>
+											<Form.Label htmlFor={optionsID} className="mb-1">
+												Recurso en el LMS
+											</Form.Label>
 											<div className="d-flex">
 												<div ref={refreshIconDOM} id="refresh-icon">
 													<ArrowClockwise></ArrowClockwise>
@@ -364,7 +377,7 @@ export default function Aside({ className, closeBtn }) {
 										</div>
 										<Form.Select
 											ref={optionsDOM}
-											id="options"
+											id={optionsID}
 											className="w-100"
 										>
 											{allowResourceSelection &&

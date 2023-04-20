@@ -1,10 +1,10 @@
 import React, {
 	forwardRef,
-	useCallback,
 	useContext,
 	useEffect,
 	useRef,
 	useState,
+	useCallback,
 } from "react";
 import ReactFlow, {
 	addEdge,
@@ -32,6 +32,7 @@ import {
 import FinalNode from "./flow/nodes/FinalNode.js";
 import InitialNode from "./flow/nodes/InitialNode.js";
 import { SaveFill, MapFill, XLg } from "react-bootstrap-icons";
+import { PaneContextMenuPositionContext } from "./BlockCanvas.js";
 
 const minimapStyle = {
 	height: 120,
@@ -115,6 +116,9 @@ const OverviewFlow = ({ map }, ref) => {
 	const { deletedBlock, setDeletedBlock } = useContext(DeleteBlockContext);
 	const { deletedEdge, setDeletedEdge } = useContext(DeleteEdgeContext);
 	const { expanded, setExpanded } = useContext(ExpandedContext);
+	const { paneContextMenuPosition, setPaneContextMenuPosition } = useContext(
+		PaneContextMenuPositionContext
+	);
 
 	const [newInitialNodes, setNewInitialNodes] = useState([]);
 	const [newInitialEdges, setNewInitialEdges] = useState([]);
@@ -124,6 +128,7 @@ const OverviewFlow = ({ map }, ref) => {
 	const [edges, setEdges, onEdgesChange] = useEdgesState(newInitialEdges);
 
 	const draggedNodePosition = useRef(null);
+	const reactFlowWrapper = useRef(null);
 
 	const toggleMinimap = () => setMinimap(!minimap);
 
@@ -217,6 +222,14 @@ const OverviewFlow = ({ map }, ref) => {
 		setDeletedEdge(nodes[0]);
 	};
 
+	const onPaneContextMenu = useCallback((e) => {
+		const { top, left } = reactFlowWrapper.current.getBoundingClientRect();
+		//console.log(project({ x: e.clientX - left - 75, y: e.clientY - top }));
+		//setPaneContextMenuPosition({x: ,y:})
+	});
+
+	const onLoad = () => {};
+
 	useEffect(() => {
 		setNewInitialNodes(
 			map.map((block) => ({
@@ -273,33 +286,42 @@ const OverviewFlow = ({ map }, ref) => {
 	});
 
 	return (
-		<ReactFlow
-			ref={ref}
-			nodes={nodes}
-			edges={edgesWithUpdatedTypes}
-			onNodeDragStart={handleNodeDragStart}
-			onNodeDragStop={onNodeDragStop}
-			onNodesChange={onNodesChange}
-			onEdgesChange={onEdgesChange}
-			onNodesDelete={onNodesDelete}
-			onEdgesDelete={onEdgesDelete}
-			onPaneClick={onPaneClick}
-			onConnect={onConnect}
-			onInit={onInit}
-			fitView
-			proOptions={{ hideAttribution: true }}
-			nodeTypes={nodeTypes}
-			snapGrid={[125, 125]}
-			//connectionLineComponent={}
-			snapToGrid={true}
-			deleteKeyCode={"Delete"}
-		>
-			{minimap && (
-				<MiniMap nodeColor={nodeColor} style={minimapStyle} zoomable pannable />
-			)}
-			<CustomControls />
-			<Background color="#aaa" gap={16} />
-		</ReactFlow>
+		<div ref={reactFlowWrapper} style={{ height: "100%", width: "100%" }}>
+			<ReactFlow
+				ref={ref}
+				nodes={nodes}
+				edges={edgesWithUpdatedTypes}
+				onNodeDragStart={handleNodeDragStart}
+				onNodeDragStop={onNodeDragStop}
+				onNodesChange={onNodesChange}
+				onEdgesChange={onEdgesChange}
+				onNodesDelete={onNodesDelete}
+				onEdgesDelete={onEdgesDelete}
+				onPaneClick={onPaneClick}
+				onConnect={onConnect}
+				onInit={onInit}
+				onLoad={onLoad}
+				onPaneContextMenu={onPaneContextMenu}
+				fitView
+				proOptions={{ hideAttribution: true }}
+				nodeTypes={nodeTypes}
+				snapGrid={[125, 125]}
+				//connectionLineComponent={}
+				snapToGrid={true}
+				deleteKeyCode={"Delete"}
+			>
+				{minimap && (
+					<MiniMap
+						nodeColor={nodeColor}
+						style={minimapStyle}
+						zoomable
+						pannable
+					/>
+				)}
+				<CustomControls />
+				<Background color="#aaa" gap={16} />
+			</ReactFlow>
+		</div>
 	);
 };
 const OverviewFlowWithRef = forwardRef(OverviewFlow);

@@ -29,6 +29,7 @@ import BlockContextualMenu from "./BlockContextualMenu.js";
 import BlockFlow from "./BlockFlow.js";
 
 export const BlockOriginContext = createContext();
+export const PaneContextMenuPositionContext = createContext();
 
 /**
  * Adds multiple event listeners to an element.
@@ -56,6 +57,10 @@ export default function BlockCanvas() {
 		useContext(VersionInfoContext);
 
 	const [showContextualMenu, setShowContextualMenu] = useState(false);
+	const [paneContextMenuPosition, setPaneContextMenuPosition] = useState({
+		x: 0,
+		y: 0,
+	});
 
 	//Context Menu
 	const [cMX, setCMX] = useState(0);
@@ -81,7 +86,6 @@ export default function BlockCanvas() {
 	/** Client-side */
 
 	useEffect(() => {
-		console.log(blockJson);
 		let newBlocksData = [...blocksData];
 		newBlocksData[blocksData.findIndex((b) => b.id == blockJson.id)] =
 			blockJson;
@@ -136,7 +140,6 @@ export default function BlockCanvas() {
 	}, [deletedEdge]);
 
 	useEffect(() => {
-		console.log(deletedBlock);
 		if (!Array.isArray(deletedBlock)) {
 			const deletedBlockArray = blocksData.filter(
 				(b) => b.id !== deletedBlock.id
@@ -175,21 +178,16 @@ export default function BlockCanvas() {
 		}
 	}, [deletedBlock]);
 
-	const deleteRelatedChildrenById = (target, arr) => {
+	const deleteRelatedChildrenById = (id, arr) => {
 		return arr.map((b) => {
-			if (b.children?.includes(target)) {
-				const updatedChildren = b.children.filter(
-					(childId) => childId !== target
-				);
+			if (b.children?.includes(id)) {
+				const updatedChildren = b.children.filter((childId) => childId !== id);
 				return {
 					...b,
 					children: updatedChildren.length ? updatedChildren : undefined,
 				};
 			} else if (b.children?.length) {
-				return {
-					...b,
-					children: deleteRelatedChildrenById(target, b.children),
-				};
+				return { ...b, children: deleteRelatedChildrenById(id, b.children) };
 			} else {
 				return b;
 			}
@@ -287,14 +285,14 @@ export default function BlockCanvas() {
 		setShowContextualMenu(false);
 		const selectedBlock = e.target;
 		const bF = blockFlowDOM.current;
+		const bounds = bF.getBoundingClientRect();
 		if (bF) {
 			if (bF.contains(e.target)) {
 				if (e.target.classList.contains("block")) {
-					const reactFlowBounds = bF.getBoundingClientRect();
 					if (selectedBlock) {
 						e.preventDefault();
-						setCMX(e.clientX);
-						setCMY(e.clientY);
+						setCMX(e.clientX - bounds.left);
+						setCMY(e.clientY - bounds.top);
 						setNodeSelected(true);
 						let block = blocksDataRef.current.find(
 							(e) => e.id == selectedBlock.id
@@ -305,8 +303,8 @@ export default function BlockCanvas() {
 				} else if (e.target.classList.contains("react-flow__pane")) {
 					if (selectedBlock) {
 						e.preventDefault();
-						setCMX(e.clientX);
-						setCMY(e.clientY);
+						setCMX(e.clientX - bounds.left);
+						setCMY(e.clientY - bounds.top);
 						setNodeSelected(false);
 						let block = blocksDataRef.current.find(
 							(e) => e.id == selectedBlock.id
@@ -344,19 +342,23 @@ export default function BlockCanvas() {
 			<DeleteBlockContext.Provider value={{ deletedBlock, setDeletedBlock }}>
 				<DeleteEdgeContext.Provider value={{ deletedEdge, setDeletedEdge }}>
 					<BlockOriginContext.Provider value={{ blockOrigin, setBlockOrigin }}>
-						<BlockFlow ref={blockFlowDOM} map={blocksData}></BlockFlow>
-						{showContextualMenu && (
-							<BlockContextualMenu
-								ref={contextMenuDOM}
-								blockData={cMBlockData}
-								blocksData={blocksData}
-								setBlocksData={setBlocksData}
-								setShowContextualMenu={setShowContextualMenu}
-								x={cMX}
-								y={cMY}
-								nodeSelected={nodeSelected}
-							/>
-						)}
+						<PaneContextMenuPositionContext.Provider
+							value={{ paneContextMenuPosition, setPaneContextMenuPosition }}
+						>
+							<BlockFlow ref={blockFlowDOM} map={blocksData}></BlockFlow>
+							{showContextualMenu && (
+								<BlockContextualMenu
+									ref={contextMenuDOM}
+									blockData={cMBlockData}
+									blocksData={blocksData}
+									setBlocksData={setBlocksData}
+									setShowContextualMenu={setShowContextualMenu}
+									x={cMX}
+									y={cMY}
+									nodeSelected={nodeSelected}
+								/>
+							)}
+						</PaneContextMenuPositionContext.Provider>
 					</BlockOriginContext.Provider>
 				</DeleteEdgeContext.Provider>
 			</DeleteBlockContext.Provider>
