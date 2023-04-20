@@ -35,6 +35,7 @@ function InitialNode({ id, data, isConnectable }) {
 			<div>
 				<CaretDownFill style={{ transform: "rotate(-90deg)" }} size={32} />
 			</div>
+			<span className={styles.blockInfo + " " + styles.bottom}>Inicio</span>
 		</div>
 	);
 }
