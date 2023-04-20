@@ -14,6 +14,7 @@ import {
 	useContext,
 	useEffect,
 	useLayoutEffect,
+	createContext,
 	useRef,
 } from "react";
 import {
@@ -25,6 +26,8 @@ import {
 
 import BlockContextualMenu from "./BlockContextualMenu.js";
 import BlockFlow from "./BlockFlow.js";
+
+export const BlockOriginContext = createContext();
 
 /**
  * Adds multiple event listeners to an element.
@@ -75,6 +78,7 @@ export default function BlockCanvas() {
 	const [cMY, setCMY] = useState(0);
 	const [nodeSelected, setNodeSelected] = useState(0);
 	const [cMBlockData, setCMBlockData] = useState({});
+	const [blockOrigin, setBlockOrigin] = useState();
 
 	//Refs
 	const canvasRef = useRef();
@@ -291,19 +295,21 @@ export default function BlockCanvas() {
 	return (
 		<CreateBlockContext.Provider value={{ createdBlock, setCreatedBlock }}>
 			<DeleteBlockContext.Provider value={{ deletedBlock, setDeletedBlock }}>
-				<BlockFlow ref={blockFlowDOM} map={blocksData}></BlockFlow>
-				{showContextualMenu && (
-					<BlockContextualMenu
-						ref={contextMenuDOM}
-						blockData={cMBlockData}
-						blocksData={blocksData}
-						setBlocksData={setBlocksData}
-						setShowContextualMenu={setShowContextualMenu}
-						x={cMX}
-						y={cMY}
-						nodeSelected={nodeSelected}
-					/>
-				)}
+				<BlockOriginContext.Provider value={{ blockOrigin, setBlockOrigin }}>
+					<BlockFlow ref={blockFlowDOM} map={blocksData}></BlockFlow>
+					{showContextualMenu && (
+						<BlockContextualMenu
+							ref={contextMenuDOM}
+							blockData={cMBlockData}
+							blocksData={blocksData}
+							setBlocksData={setBlocksData}
+							setShowContextualMenu={setShowContextualMenu}
+							x={cMX}
+							y={cMY}
+							nodeSelected={nodeSelected}
+						/>
+					)}
+				</BlockOriginContext.Provider>
 			</DeleteBlockContext.Provider>
 		</CreateBlockContext.Provider>
 	);

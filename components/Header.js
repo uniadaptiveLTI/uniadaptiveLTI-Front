@@ -1195,6 +1195,7 @@ function Header({ closeBtn }, ref) {
 									<Button
 										className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder}`}
 										disabled={isOffline}
+										aria-label="Guardar versión actual"
 									>
 										<Image
 											src={"/icons/save.svg"}
@@ -1202,6 +1203,7 @@ function Header({ closeBtn }, ref) {
 											height="20"
 											style={{ transform: "scale(1.15)" }}
 											onClick={notImplemented}
+											alt=""
 											//TODO: onClick
 										></Image>
 									</Button>

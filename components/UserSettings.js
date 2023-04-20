@@ -10,6 +10,7 @@ function UserSettings({}, ref) {
 		highContrast,
 		showDetails,
 		reducedAnimations,
+		autoHideAside,
 		autoExpandMSGBox,
 		autoHideMSGBox,
 	} = parsedSettings;
@@ -29,6 +30,9 @@ function UserSettings({}, ref) {
 			case "switch-animation":
 				reducedAnimations = !reducedAnimations;
 				break;
+			case "switch-autoHideAside":
+				autoHideAside = !autoHideAside;
+				break;
 			case "switch-autoExpandMSGBox":
 				autoExpandMSGBox = !autoExpandMSGBox;
 				break;
@@ -42,6 +46,7 @@ function UserSettings({}, ref) {
 		newSettings.reducedAnimations = reducedAnimations;
 		newSettings.autoExpandMSGBox = autoExpandMSGBox;
 		newSettings.autoHideMSGBox = autoHideMSGBox;
+		newSettings.autoHideAside = autoHideAside;
 		let json = JSON.stringify(newSettings);
 		sessionStorage.setItem("settings", json);
 		setSettings(json);
@@ -70,6 +75,13 @@ function UserSettings({}, ref) {
 					id="switch-showDetails"
 					label="Mostrar los detalles de forma estática"
 					defaultChecked={showDetails}
+					onClick={handleSettingChange}
+				/>
+				<Form.Check
+					type="switch"
+					id="switch-autoHideAside"
+					label="Autocontraer el panel de edición al guardar"
+					defaultChecked={autoHideAside}
 					onClick={handleSettingChange}
 				/>
 				<Form.Check
