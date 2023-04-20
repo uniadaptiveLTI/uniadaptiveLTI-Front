@@ -191,9 +191,8 @@ function ElementNode({
 	const { highContrast, showDetails, reducedAnimations } = parsedSettings;
 
 	const handleClick = () => {
-		console.log(data);
 		const blockData = {
-			id: parseInt(id),
+			id: id,
 			x: xPos,
 			y: yPos,
 			type: type,

@@ -5,6 +5,7 @@ import {
 	BlocksDataContext,
 	CreateBlockContext,
 	DeleteBlockContext,
+	DeleteEdgeContext,
 	ItineraryInfoContext,
 	VersionInfoContext,
 } from "@components/pages/_app";
@@ -80,6 +81,7 @@ export default function BlockCanvas() {
 	/** Client-side */
 
 	useEffect(() => {
+		console.log(blockJson);
 		let newBlocksData = [...blocksData];
 		newBlocksData[blocksData.findIndex((b) => b.id == blockJson.id)] =
 			blockJson;
@@ -88,6 +90,7 @@ export default function BlockCanvas() {
 
 	const [createdBlock, setCreatedBlock] = useState([]);
 	const [deletedBlock, setDeletedBlock] = useState([]);
+	const [deletedEdge, setDeletedEdge] = useState([]);
 
 	const [deletedBlocksArray, setDeletedBlocksArray] = useState([]);
 
@@ -100,6 +103,40 @@ export default function BlockCanvas() {
 	}, [createdBlock]);
 
 	useEffect(() => {
+		if (deletedEdge.id) {
+			let updatedBlocksArray = blocksData.slice();
+
+			const blockNodeDelete = updatedBlocksArray.find(
+				(obj) => obj.id === deletedEdge.source
+			);
+
+			if (blockNodeDelete) {
+				blockNodeDelete.children = blockNodeDelete.children.filter(
+					(child) => child !== deletedEdge.target
+				);
+
+				if (blockNodeDelete.children.length === 0)
+					blockNodeDelete.children = undefined;
+
+				if (blockNodeDelete.conditions) {
+					blockNodeDelete.conditions = blockNodeDelete.conditions.filter(
+						(condition) => condition.unlockId !== deletedEdge.target
+					);
+					if (blockNodeDelete.conditions.length === 0)
+						blockNodeDelete.conditions = undefined;
+				}
+			}
+
+			updatedBlocksArray = updatedBlocksArray.map((obj) =>
+				obj.id === blockNodeDelete.id ? blockNodeDelete : obj
+			);
+
+			setBlocksData(updatedBlocksArray);
+		}
+	}, [deletedEdge]);
+
+	useEffect(() => {
+		console.log(deletedBlock);
 		if (!Array.isArray(deletedBlock)) {
 			const deletedBlockArray = blocksData.filter(
 				(b) => b.id !== deletedBlock.id
@@ -120,7 +157,7 @@ export default function BlockCanvas() {
 				let updatedBlocksArray = blocksData.slice();
 
 				deletedBlock.forEach((b) => {
-					const id = parseInt(b.id);
+					const id = b.id;
 
 					updatedBlocksArray = updatedBlocksArray.filter((b) => b.id !== id);
 					updatedBlocksArray = deleteRelatedChildrenById(
@@ -138,16 +175,21 @@ export default function BlockCanvas() {
 		}
 	}, [deletedBlock]);
 
-	const deleteRelatedChildrenById = (id, arr) => {
+	const deleteRelatedChildrenById = (target, arr) => {
 		return arr.map((b) => {
-			if (b.children?.includes(id)) {
-				const updatedChildren = b.children.filter((childId) => childId !== id);
+			if (b.children?.includes(target)) {
+				const updatedChildren = b.children.filter(
+					(childId) => childId !== target
+				);
 				return {
 					...b,
 					children: updatedChildren.length ? updatedChildren : undefined,
 				};
 			} else if (b.children?.length) {
-				return { ...b, children: deleteRelatedChildrenById(id, b.children) };
+				return {
+					...b,
+					children: deleteRelatedChildrenById(target, b.children),
+				};
 			} else {
 				return b;
 			}
@@ -168,6 +210,32 @@ export default function BlockCanvas() {
 				return {
 					...b,
 					children: deleteRelatedConditionsById(unlockId, b.children),
+				};
+			} else {
+				return b;
+			}
+		});
+	};
+
+	const deleteRelatedConditionsBySourceAndTarget = (source, target, arr) => {
+		const match = arr.find((obj) => obj.id === source);
+
+		return arr.map((b) => {
+			if (b.conditions?.length) {
+				const updatedConditions = b.conditions.filter(
+					(condition) => condition.unlockId !== unlockId
+				);
+				return {
+					...b,
+					conditions: updatedConditions.length ? updatedConditions : undefined,
+				};
+			} else if (b.children?.length) {
+				return {
+					...b,
+					children: deleteRelatedConditionsBySourceAndTarget(
+						unlockId,
+						b.children
+					),
 				};
 			} else {
 				return b;
@@ -274,21 +342,23 @@ export default function BlockCanvas() {
 	return (
 		<CreateBlockContext.Provider value={{ createdBlock, setCreatedBlock }}>
 			<DeleteBlockContext.Provider value={{ deletedBlock, setDeletedBlock }}>
-				<BlockOriginContext.Provider value={{ blockOrigin, setBlockOrigin }}>
-					<BlockFlow ref={blockFlowDOM} map={blocksData}></BlockFlow>
-					{showContextualMenu && (
-						<BlockContextualMenu
-							ref={contextMenuDOM}
-							blockData={cMBlockData}
-							blocksData={blocksData}
-							setBlocksData={setBlocksData}
-							setShowContextualMenu={setShowContextualMenu}
-							x={cMX}
-							y={cMY}
-							nodeSelected={nodeSelected}
-						/>
-					)}
-				</BlockOriginContext.Provider>
+				<DeleteEdgeContext.Provider value={{ deletedEdge, setDeletedEdge }}>
+					<BlockOriginContext.Provider value={{ blockOrigin, setBlockOrigin }}>
+						<BlockFlow ref={blockFlowDOM} map={blocksData}></BlockFlow>
+						{showContextualMenu && (
+							<BlockContextualMenu
+								ref={contextMenuDOM}
+								blockData={cMBlockData}
+								blocksData={blocksData}
+								setBlocksData={setBlocksData}
+								setShowContextualMenu={setShowContextualMenu}
+								x={cMX}
+								y={cMY}
+								nodeSelected={nodeSelected}
+							/>
+						)}
+					</BlockOriginContext.Provider>
+				</DeleteEdgeContext.Provider>
 			</DeleteBlockContext.Provider>
 		</CreateBlockContext.Provider>
 	);

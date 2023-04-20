@@ -483,6 +483,25 @@ export default function Aside({ className, closeBtn }) {
 								</Form.Group>
 							</div>
 						</div>
+						<div
+							style={{
+								opacity: expandedCondition ? "1" : "0",
+								visibility: expandedCondition ? "visible" : "hidden",
+								maxHeight: expandedCondition ? "" : "0",
+								transition: "all .2s",
+							}}
+							className="mb-3"
+						>
+							<Form.Group>
+								<Form.Label htmlFor="actions" className="mb-1">
+									Acciones
+								</Form.Label>
+								<Form.Select id="actions">
+									<option>Si</option>
+									<option>No</option>
+								</Form.Select>
+							</Form.Group>
+						</div>
 						<Button onClick={updateBlock} disabled={!allowResourceSelection}>
 							Guardar
 						</Button>

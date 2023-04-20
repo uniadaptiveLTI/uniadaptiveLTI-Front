@@ -195,7 +195,7 @@ function ActionNode({
 
 	const handleClick = () => {
 		const blockData = {
-			id: parseInt(id),
+			id: id,
 			x: xPos,
 			y: yPos,
 			type: type,

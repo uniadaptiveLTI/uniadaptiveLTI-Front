@@ -25,6 +25,7 @@ import {
 	BlockJsonContext,
 	BlocksDataContext,
 	DeleteBlockContext,
+	DeleteEdgeContext,
 	ExpandedContext,
 	VersionInfoContext,
 } from "@components/pages/_app.js";
@@ -112,6 +113,7 @@ const nodeTypes = {
 const OverviewFlow = ({ map }, ref) => {
 	const { blockJson, setBlockJson } = useContext(BlockJsonContext);
 	const { deletedBlock, setDeletedBlock } = useContext(DeleteBlockContext);
+	const { deletedEdge, setDeletedEdge } = useContext(DeleteEdgeContext);
 	const { expanded, setExpanded } = useContext(ExpandedContext);
 
 	const [newInitialNodes, setNewInitialNodes] = useState([]);
@@ -211,6 +213,10 @@ const OverviewFlow = ({ map }, ref) => {
 		setDeletedBlock(nodes);
 	};
 
+	const onEdgesDelete = (nodes) => {
+		setDeletedEdge(nodes[0]);
+	};
+
 	useEffect(() => {
 		setNewInitialNodes(
 			map.map((block) => ({
@@ -276,6 +282,7 @@ const OverviewFlow = ({ map }, ref) => {
 			onNodesChange={onNodesChange}
 			onEdgesChange={onEdgesChange}
 			onNodesDelete={onNodesDelete}
+			onEdgesDelete={onEdgesDelete}
 			onPaneClick={onPaneClick}
 			onConnect={onConnect}
 			onInit={onInit}
