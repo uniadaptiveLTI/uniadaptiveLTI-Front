@@ -160,7 +160,7 @@ const OverviewFlow = ({ map }, ref) => {
 				draggedNodePosition.current.y !== node.position.y)
 		) {
 			setBlockJson({
-				id: parseInt(node.id),
+				id: node.id,
 				x: node.position.x,
 				y: node.position.y,
 				type: node.type,
@@ -214,7 +214,7 @@ const OverviewFlow = ({ map }, ref) => {
 	useEffect(() => {
 		setNewInitialNodes(
 			map.map((block) => ({
-				id: block.id.toString(),
+				id: block.id,
 				type: block.type,
 				data: {
 					label: block.title,
@@ -232,8 +232,8 @@ const OverviewFlow = ({ map }, ref) => {
 					return parent.children.map((child) => {
 						return {
 							id: `e${parent.id}-${child}`,
-							source: parent.id.toString(),
-							target: child.toString(),
+							source: parent.id,
+							target: child,
 						};
 					});
 				} else {

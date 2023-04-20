@@ -40,23 +40,6 @@ function addEventListeners(element, events) {
 	});
 }
 
-const startBlock = {
-	id: -2,
-	x: 0,
-	y: 0,
-	type: "start",
-	children: [0],
-	title: "Inicio",
-	identation: 0,
-};
-const endBlock = {
-	id: -1,
-	x: 0,
-	y: 0,
-	type: "end",
-	title: "Fin",
-};
-
 export default function BlockCanvas() {
 	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
 	const { blockJson, setBlockJson } = useContext(BlockJsonContext);

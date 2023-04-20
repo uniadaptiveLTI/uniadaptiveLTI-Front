@@ -1,5 +1,12 @@
 import styles from "@components/styles/BlockContextualMenu.module.css";
-import { useState, useEffect, forwardRef, useRef, useContext } from "react";
+import {
+	useState,
+	useEffect,
+	forwardRef,
+	useRef,
+	useContext,
+	useId,
+} from "react";
 import { Button } from "react-bootstrap";
 import FocusTrap from "focus-trap-react";
 import {
@@ -35,19 +42,20 @@ function BlockContextualMenu(
 	const { deletedBlock, setDeletedBlock } = useContext(DeleteBlockContext);
 	const { blockOrigin, setBlockOrigin } = useContext(BlockOriginContext);
 
+	const newId = useId();
+
 	const createBlock = () => {
 		//FIXME: It doesn't push the block at start
-		const lastId = blocksData[blocksData.length - 1].id;
-		const newId = lastId + 1;
 		//TODO: Block selector
 		const newBlockCreated = {
-			id: parseInt(newId),
+			id: newId,
 			x: x,
 			y: y,
 			type: "forum",
 			title: "Nuevo Foro",
 			children: undefined,
 		};
+
 		setShowContextualMenu(false);
 		setCreatedBlock(newBlockCreated);
 	};
@@ -163,7 +171,7 @@ function BlockContextualMenu(
 								</li>
 							)
 						) : (
-							ActionBlocks.includes(blockData.type) == false && (
+							[...ActionBlocks, "end"].includes(blockData.type) == false && (
 								<li>
 									<Button
 										variant="light"
@@ -173,7 +181,6 @@ function BlockContextualMenu(
 										}}
 									>
 										<div>
-											{" "}
 											<Diagram2Fill /> Crear relación
 										</div>
 									</Button>

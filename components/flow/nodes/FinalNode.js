@@ -5,9 +5,7 @@ import { CaretDownFill } from "react-bootstrap-icons";
 import { useContext } from "react";
 import { SettingsContext } from "@components/pages/_app";
 
-const handleStyle = { left: 10 };
-
-function FinalNode({ data, isConnectable }) {
+function FinalNode({ id, data, isConnectable }) {
 	const onChange = useCallback((evt) => {
 		console.log(evt.target.value);
 	}, []);
@@ -18,6 +16,7 @@ function FinalNode({ data, isConnectable }) {
 
 	return (
 		<div
+			id={id}
 			className={
 				"block " +
 				styles.container +
