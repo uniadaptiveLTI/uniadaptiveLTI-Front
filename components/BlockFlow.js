@@ -177,8 +177,8 @@ const OverviewFlow = ({ map }, ref) => {
 	};
 
 	const onConnect = (event) => {
-		const sourceNodeId = parseInt(event.source.split("__")[0]);
-		const targetNodeId = parseInt(event.target.split("__")[0]);
+		const sourceNodeId = event.source.split("__")[0];
+		const targetNodeId = event.target.split("__")[0];
 
 		const sourceNode = map.find((node) => node.id === sourceNodeId);
 
