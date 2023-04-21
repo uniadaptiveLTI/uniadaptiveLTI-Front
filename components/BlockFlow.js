@@ -128,6 +128,8 @@ const OverviewFlow = ({ map }, ref) => {
 	const [edges, setEdges, onEdgesChange] = useEdgesState(newInitialEdges);
 
 	const draggedNodePosition = useRef(null);
+	const draggedNodesPosition = useRef(null);
+
 	const reactFlowWrapper = useRef(null);
 
 	const toggleMinimap = () => setMinimap(!minimap);
@@ -158,6 +160,30 @@ const OverviewFlow = ({ map }, ref) => {
 
 	const handleNodeDragStart = (event, node) => {
 		draggedNodePosition.current = node.position;
+	};
+
+	const onSelectionDragStart = (event, nodes) => {
+		draggedNodesPosition.current = nodes[0].position;
+	};
+
+	const onSelectionDragStop = (event, nodes) => {
+		if (
+			draggedNodesPosition.current &&
+			(draggedNodesPosition.current.x !== nodes[0].position.x ||
+				draggedNodesPosition.current.y !== nodes[0].position.y)
+		) {
+			const selectionBlockJson = nodes.map((b) => ({
+				id: b.id,
+				x: b.position.x,
+				y: b.position.y,
+				type: b.type,
+				title: b.data.label,
+				children: b.data.children,
+				identation: b.data.identation,
+				conditions: b.data.conditions,
+			}));
+			setBlockJson(selectionBlockJson);
+		}
 	};
 
 	const onNodeDragStop = (event, node) => {
@@ -214,7 +240,6 @@ const OverviewFlow = ({ map }, ref) => {
 	}, [newInitialNodes, newInitialEdges]);
 
 	const onNodesDelete = (nodes) => {
-		console.log(nodes);
 		setDeletedBlock(nodes);
 	};
 
@@ -293,6 +318,8 @@ const OverviewFlow = ({ map }, ref) => {
 				edges={edgesWithUpdatedTypes}
 				onNodeDragStart={handleNodeDragStart}
 				onNodeDragStop={onNodeDragStop}
+				onSelectionDragStart={onSelectionDragStart}
+				onSelectionDragStop={onSelectionDragStop}
 				onNodesChange={onNodesChange}
 				onEdgesChange={onEdgesChange}
 				onNodesDelete={onNodesDelete}
