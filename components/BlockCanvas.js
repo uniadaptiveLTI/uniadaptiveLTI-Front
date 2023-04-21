@@ -86,10 +86,18 @@ export default function BlockCanvas() {
 	/** Client-side */
 
 	useEffect(() => {
-		let newBlocksData = [...blocksData];
-		newBlocksData[blocksData.findIndex((b) => b.id == blockJson.id)] =
-			blockJson;
-		setBlocksData(newBlocksData);
+		if (!Array.isArray(blockJson)) {
+			let newBlocksData = [...blocksData];
+			newBlocksData[blocksData.findIndex((b) => b.id == blockJson.id)] =
+				blockJson;
+			setBlocksData(newBlocksData);
+		} else {
+			const newBlocksData = blocksData.map((block) => {
+				const newBlock = blockJson.find((b) => b.id === block.id);
+				return newBlock ? { ...block, ...newBlock } : block;
+			});
+			setBlocksData(newBlocksData);
+		}
 	}, [blockJson]);
 
 	const [createdBlock, setCreatedBlock] = useState([]);
@@ -210,7 +218,7 @@ export default function BlockCanvas() {
 		});
 	};
 
-	const deleteRelatedConditionsBySourceAndTarget = (source, target, arr) => {
+	/*const deleteRelatedConditionsBySourceAndTarget = (source, target, arr) => {
 		const match = arr.find((obj) => obj.id === source);
 
 		return arr.map((b) => {
@@ -234,7 +242,7 @@ export default function BlockCanvas() {
 				return b;
 			}
 		});
-	};
+	};*/
 
 	useEffect(() => {
 		addEventListeners(document.body, [
