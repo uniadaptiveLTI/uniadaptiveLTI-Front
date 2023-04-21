@@ -17,6 +17,7 @@ import {
 	MapContext,
 	VersionJsonContext,
 	SettingsContext,
+	BlocksDataContext,
 } from "../pages/_app.js";
 
 export default function Aside({ className, closeBtn }) {
@@ -60,9 +61,23 @@ export default function Aside({ className, closeBtn }) {
 	const [secondOptions, setSecondOptions] = useState([]);
 	const { blockJson, setBlockJson } = useContext(BlockJsonContext);
 	const { versionJson, setVersionJson } = useContext(VersionJsonContext);
+	const { currentBlocksData, setCurrentBlocksData } =
+		useContext(BlocksDataContext);
 	const { map, setMap } = useContext(MapContext);
 
 	const { expanded, setExpanded } = useContext(ExpandedContext);
+
+	const conditionTypes = [
+		{ id: 0, value: "qualification", name: "Calificación", default: "true" },
+		{ id: 1, value: "finalization", name: "Finalización", default: "true" },
+		{ id: 2, value: "userProfile", name: "Perfil de usuario", default: "true" },
+	];
+
+	const qualificationOperand = [
+		{ id: 0, value: ">=", name: "Mayor o igual", default: "true" },
+		{ id: 1, value: "<", name: "Menor", default: "true" },
+		{ id: 2, value: "between", name: "Entre", default: "true" },
+	];
 
 	const [moodleResource, setMoodleResource] = useState([
 		{ id: 0, value: "questionnaire", name: "Cuestionario", default: "true" },
@@ -271,6 +286,29 @@ export default function Aside({ className, closeBtn }) {
 		setExpanded(false);
 	}
 
+	const [showConditions, setShowConditions] = useState(false);
+	const [matchingConditions, setMatchingConditions] = useState();
+
+	const handleBlockSelect = (event) => {
+		const blockId = event.target.value;
+		if (blockId === "") {
+			setShowChildSelect(false);
+			setSelectedChild(null);
+			setConditions([]);
+		} else {
+			const matchingConditions = blockSelected.conditions.filter(
+				(condition) => condition.unlockId === blockId
+			);
+			setShowConditions(true);
+			setMatchingConditions(matchingConditions);
+		}
+	};
+
+	const handleChildSelect = (event) => {
+		const childId = event.target.value;
+		setSelectedChild(childId);
+	};
+
 	return (
 		<aside className={`${className} ${styles.aside}`}>
 			<div className={"text-center p-2"}>
@@ -468,7 +506,7 @@ export default function Aside({ className, closeBtn }) {
 								role="button"
 								onClick={() => setExpandedCondition(!expandedCondition)}
 							>
-								<div className="fw-bold">Precondiciones</div>
+								<div className="fw-bold">Relaciones</div>
 								<div>
 									<div role="button">
 										{!expandedCondition ? <CaretUpFill /> : <CaretDownFill />}
@@ -484,17 +522,7 @@ export default function Aside({ className, closeBtn }) {
 									transition: "all .2s",
 								}}
 								className="mb-3"
-							>
-								<Form.Group>
-									<Form.Label htmlFor="actions" className="mb-1">
-										Acciones
-									</Form.Label>
-									<Form.Select id="actions">
-										<option>Si</option>
-										<option>No</option>
-									</Form.Select>
-								</Form.Group>
-							</div>
+							></div>
 						</div>
 						<div
 							style={{
@@ -505,15 +533,94 @@ export default function Aside({ className, closeBtn }) {
 							}}
 							className="mb-3"
 						>
-							<Form.Group>
-								<Form.Label htmlFor="actions" className="mb-1">
-									Acciones
-								</Form.Label>
-								<Form.Select id="actions">
-									<option>Si</option>
-									<option>No</option>
-								</Form.Select>
-							</Form.Group>
+							<Form.Select onChange={handleBlockSelect}>
+								<option value="" selected disabled>
+									Escoge una relación
+								</option>
+								{blockSelected.children.map((childId) => {
+									const selectedChild = currentBlocksData.find(
+										(child) => child.id === childId
+									);
+									return (
+										<option key={selectedChild.id} value={selectedChild.id}>
+											{selectedChild.title}
+										</option>
+									);
+								})}
+							</Form.Select>
+						</div>
+
+						<div className="mb-2">
+							<div
+								className="d-flex gap-2"
+								role="button"
+								onClick={() => setExpandedCondition(!expandedCondition)}
+							>
+								<div className="fw-bold">Condiciones</div>
+								<div>
+									<div role="button">
+										{!expandedCondition ? <CaretUpFill /> : <CaretDownFill />}
+									</div>
+								</div>
+							</div>
+							{showConditions &&
+								matchingConditions.map((condition) => {
+									return (
+										<div
+											style={{
+												opacity: expandedCondition ? "1" : "0",
+												visibility: expandedCondition ? "visible" : "hidden",
+												maxHeight: expandedCondition ? "" : "0",
+												transition: "all .2s",
+											}}
+											className="mb-3"
+										>
+											<Form.Group className="mb-3">
+												<Form.Label htmlFor={titleID} className="mb-1">
+													Tipo de relación
+												</Form.Label>
+												<Form.Select value={condition.type}>
+													{conditionTypes.map((conditionType) => {
+														return (
+															<option
+																value={conditionType.value}
+																key={conditionType.value}
+															>
+																{conditionType.name}
+															</option>
+														);
+													})}
+												</Form.Select>
+											</Form.Group>
+											<Form.Group className="mb-3">
+												<Form.Label htmlFor={titleID} className="mb-1">
+													Operante
+												</Form.Label>
+												<Form.Select value={condition.operand}>
+													{qualificationOperand.map((operand) => {
+														return (
+															<option value={operand.value} key={operand.value}>
+																{operand.name}
+															</option>
+														);
+													})}
+												</Form.Select>
+											</Form.Group>
+											<Form.Group className="mb-3">
+												<Form.Label htmlFor={titleID} className="mb-1">
+													Objetivo
+												</Form.Label>
+												<Form.Control
+													ref={titleDOM}
+													id={titleID}
+													type="number"
+													className="w-100"
+													value={condition.objective}
+												></Form.Control>
+											</Form.Group>
+										</div>
+									);
+								})}
 						</div>
 						<Button onClick={updateBlock} disabled={!allowResourceSelection}>
 							Guardar

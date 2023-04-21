@@ -193,6 +193,7 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 			order: data.order,
 			unit: data.unit,
 		};
+		console.log(blockData);
 
 		if (expanded != true) {
 			if (type != "start" && type != "end") setExpanded(true);
