@@ -93,7 +93,7 @@ function Header({ closeBtn }, ref) {
 		emptyMap,
 		{
 			id: 1,
-			name: "Matemáticas 4ºESO-A",
+			name: "Física Grupo-A",
 			versions: [
 				{
 					id: 0,
@@ -132,7 +132,7 @@ function Header({ closeBtn }, ref) {
 							x: 250,
 							y: 0,
 							type: "questionnaire",
-							title: "Examen del Tema 1",
+							title: "Aerodinámica",
 							conditions: [
 								{
 									type: "qualification",
@@ -169,7 +169,7 @@ function Header({ closeBtn }, ref) {
 							x: 500,
 							y: 0,
 							type: "url",
-							title: "Web de Ecuaciones",
+							title: "Web de Aerodinámica Avanzada",
 							children: ["dev4A1"],
 							identation: 2,
 						},
@@ -201,7 +201,7 @@ function Header({ closeBtn }, ref) {
 							x: 1000,
 							y: 0,
 							type: "questionnaire",
-							title: "Cuestionario de raices",
+							title: "Física de fluidos",
 							children: ["dev7A1", "dev8A1", "dev13A1"],
 							identation: 1,
 						},
@@ -219,7 +219,7 @@ function Header({ closeBtn }, ref) {
 							x: 1750,
 							y: -125,
 							type: "badge",
-							title: "Tema 2",
+							title: "Mecánica de fluidos",
 							identation: 1,
 						},
 						{
@@ -227,7 +227,7 @@ function Header({ closeBtn }, ref) {
 							x: 1875,
 							y: 0,
 							type: "page",
-							title: "Tema 3 resumido",
+							title: "Física cuantica",
 							children: ["dev-1A1"],
 							identation: 1,
 						},
@@ -236,7 +236,7 @@ function Header({ closeBtn }, ref) {
 							x: 375,
 							y: 375,
 							type: "folder",
-							title: "Ecuaciones",
+							title: "Aerodínamica, refuerzo",
 							children: ["dev10A1"],
 							identation: 2,
 						},
@@ -245,7 +245,7 @@ function Header({ closeBtn }, ref) {
 							x: 500,
 							y: 375,
 							type: "questionnaire",
-							title: "Ecuaciones",
+							title: "Aerodínamica, refuerzo",
 							children: ["dev11A1", "dev12A1", "dev5A1"],
 							conditions: [
 								{
@@ -291,7 +291,7 @@ function Header({ closeBtn }, ref) {
 							x: 1125,
 							y: 125,
 							type: "page",
-							title: "Ayuda del Tema 2",
+							title: "Ayuda física de fluidos",
 							children: ["dev14A1"],
 							identation: 3,
 						},
@@ -300,7 +300,7 @@ function Header({ closeBtn }, ref) {
 							x: 1250,
 							y: 125,
 							type: "forum",
-							title: "Preguntas del Tema 2",
+							title: "Preguntas fluidos",
 							children: ["dev15A1"],
 							identation: 3,
 						},
@@ -309,7 +309,7 @@ function Header({ closeBtn }, ref) {
 							x: 1375,
 							y: 125,
 							type: "questionnaire",
-							title: "Recuperación del Tema 2",
+							title: "Recuperación fluidos",
 							children: ["dev7A1", "dev8A1", "dev16A1"],
 							conditions: [
 								{
@@ -338,7 +338,7 @@ function Header({ closeBtn }, ref) {
 							x: 1500,
 							y: 250,
 							type: "assignment",
-							title: "Trabajo de recuperación T2",
+							title: "Trabajo de recuperación",
 							children: ["dev7A1", "dev8A1"],
 							identation: 4,
 						},
@@ -373,7 +373,7 @@ function Header({ closeBtn }, ref) {
 		},
 		{
 			id: 2,
-			name: "Matemáticas 4ºESO-B",
+			name: "Ejemplos de UNIAdaptive",
 			versions: [
 				{
 					id: 0,
@@ -816,7 +816,7 @@ function Header({ closeBtn }, ref) {
 		},
 		{
 			id: 3,
-			name: "Matemáticas 4ºESO-C",
+			name: "Itinerario vacío",
 			versions: [
 				{
 					id: 0,
@@ -845,7 +845,7 @@ function Header({ closeBtn }, ref) {
 				},
 				{
 					id: 0,
-					name: "Sin Speaking",
+					name: "Versión vacía",
 					lastUpdate: "05/03/2023",
 					default: "false",
 					blocksData: [
