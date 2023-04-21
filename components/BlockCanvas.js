@@ -65,7 +65,7 @@ export default function BlockCanvas() {
 	//Context Menu
 	const [cMX, setCMX] = useState(0);
 	const [cMY, setCMY] = useState(0);
-	const [nodeSelected, setNodeSelected] = useState(0);
+	const [contextMenuOrigin, setContextMenuOrigin] = useState("");
 	const [cMBlockData, setCMBlockData] = useState({});
 	const [blockOrigin, setBlockOrigin] = useState();
 
@@ -93,10 +93,7 @@ export default function BlockCanvas() {
 	}, [blockJson]);
 
 	const [createdBlock, setCreatedBlock] = useState([]);
-	const [deletedBlock, setDeletedBlock] = useState([]);
 	const [deletedEdge, setDeletedEdge] = useState([]);
-
-	const [deletedBlocksArray, setDeletedBlocksArray] = useState([]);
 
 	useEffect(() => {
 		if (Object.keys(createdBlock).length !== 0) {
@@ -139,27 +136,25 @@ export default function BlockCanvas() {
 		}
 	}, [deletedEdge]);
 
-	useEffect(() => {
-		if (!Array.isArray(deletedBlock)) {
-			const deletedBlockArray = blocksData.filter(
-				(b) => b.id !== deletedBlock.id
-			);
+	const deleteBlocks = (blocks) => {
+		if (!Array.isArray(blocks)) {
+			const deletedBlockArray = blocksData.filter((b) => b.id !== blocks.id);
 			const deletedRelatedChildrenArray = deleteRelatedChildrenById(
-				deletedBlock.id,
+				blocks.id,
 				deletedBlockArray
 			);
 
 			const deleteRelatedConditionsArray = deleteRelatedConditionsById(
-				deletedBlock.id,
+				blocks.id,
 				deletedRelatedChildrenArray
 			);
 
 			setBlocksData(deleteRelatedConditionsArray);
 		} else {
-			if (deletedBlock.length > 0) {
+			if (blocks.length > 0) {
 				let updatedBlocksArray = blocksData.slice();
 
-				deletedBlock.forEach((b) => {
+				blocks.forEach((b) => {
 					const id = b.id;
 
 					updatedBlocksArray = updatedBlocksArray.filter((b) => b.id !== id);
@@ -176,7 +171,7 @@ export default function BlockCanvas() {
 				setBlocksData(updatedBlocksArray);
 			}
 		}
-	}, [deletedBlock]);
+	};
 
 	const deleteRelatedChildrenById = (id, arr) => {
 		return arr.map((b) => {
@@ -293,11 +288,11 @@ export default function BlockCanvas() {
 						e.preventDefault();
 						setCMX(e.clientX - bounds.left);
 						setCMY(e.clientY - bounds.top);
-						setNodeSelected(true);
 						let block = blocksDataRef.current.find(
 							(e) => e.id == selectedBlock.id
 						);
 						setCMBlockData(block);
+						setContextMenuOrigin("block");
 						setShowContextualMenu(true);
 					}
 				} else if (e.target.classList.contains("react-flow__pane")) {
@@ -305,13 +300,21 @@ export default function BlockCanvas() {
 						e.preventDefault();
 						setCMX(e.clientX - bounds.left);
 						setCMY(e.clientY - bounds.top);
-						setNodeSelected(false);
 						let block = blocksDataRef.current.find(
 							(e) => e.id == selectedBlock.id
 						);
 						setCMBlockData(block);
+						setContextMenuOrigin("pane");
 						setShowContextualMenu(true);
 					}
+				} else if (
+					e.target.classList.contains("react-flow__nodesselection-rect")
+				) {
+					e.preventDefault();
+					setCMX(e.clientX - bounds.left);
+					setCMY(e.clientY - bounds.top);
+					setContextMenuOrigin("nodesselection");
+					setShowContextualMenu(true);
 				}
 			}
 		}
@@ -339,29 +342,32 @@ export default function BlockCanvas() {
 
 	return (
 		<CreateBlockContext.Provider value={{ createdBlock, setCreatedBlock }}>
-			<DeleteBlockContext.Provider value={{ deletedBlock, setDeletedBlock }}>
-				<DeleteEdgeContext.Provider value={{ deletedEdge, setDeletedEdge }}>
-					<BlockOriginContext.Provider value={{ blockOrigin, setBlockOrigin }}>
-						<PaneContextMenuPositionContext.Provider
-							value={{ paneContextMenuPosition, setPaneContextMenuPosition }}
-						>
-							<BlockFlow ref={blockFlowDOM} map={blocksData}></BlockFlow>
-							{showContextualMenu && (
-								<BlockContextualMenu
-									ref={contextMenuDOM}
-									blockData={cMBlockData}
-									blocksData={blocksData}
-									setBlocksData={setBlocksData}
-									setShowContextualMenu={setShowContextualMenu}
-									x={cMX}
-									y={cMY}
-									nodeSelected={nodeSelected}
-								/>
-							)}
-						</PaneContextMenuPositionContext.Provider>
-					</BlockOriginContext.Provider>
-				</DeleteEdgeContext.Provider>
-			</DeleteBlockContext.Provider>
+			<DeleteEdgeContext.Provider value={{ deletedEdge, setDeletedEdge }}>
+				<BlockOriginContext.Provider value={{ blockOrigin, setBlockOrigin }}>
+					<PaneContextMenuPositionContext.Provider
+						value={{ paneContextMenuPosition, setPaneContextMenuPosition }}
+					>
+						<BlockFlow
+							ref={blockFlowDOM}
+							map={blocksData}
+							deleteBlocks={deleteBlocks}
+						></BlockFlow>
+						{showContextualMenu && (
+							<BlockContextualMenu
+								ref={contextMenuDOM}
+								blockData={cMBlockData}
+								blocksData={blocksData}
+								setBlocksData={setBlocksData}
+								setShowContextualMenu={setShowContextualMenu}
+								x={cMX}
+								y={cMY}
+								contextMenuOrigin={contextMenuOrigin}
+								deleteBlocks={deleteBlocks}
+							/>
+						)}
+					</PaneContextMenuPositionContext.Provider>
+				</BlockOriginContext.Provider>
+			</DeleteEdgeContext.Provider>
 		</CreateBlockContext.Provider>
 	);
 }

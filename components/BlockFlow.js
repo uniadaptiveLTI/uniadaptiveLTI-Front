@@ -24,7 +24,6 @@ import ElementNode from "./flow/nodes/ElementNode.js";
 import {
 	BlockJsonContext,
 	BlocksDataContext,
-	DeleteBlockContext,
 	DeleteEdgeContext,
 	ExpandedContext,
 	VersionInfoContext,
@@ -111,9 +110,8 @@ const nodeTypes = {
 	html: ElementNode,
 };
 
-const OverviewFlow = ({ map }, ref) => {
+const OverviewFlow = ({ map, deleteBlocks }, ref) => {
 	const { blockJson, setBlockJson } = useContext(BlockJsonContext);
-	const { deletedBlock, setDeletedBlock } = useContext(DeleteBlockContext);
 	const { deletedEdge, setDeletedEdge } = useContext(DeleteEdgeContext);
 	const { expanded, setExpanded } = useContext(ExpandedContext);
 	const { paneContextMenuPosition, setPaneContextMenuPosition } = useContext(
@@ -215,7 +213,7 @@ const OverviewFlow = ({ map }, ref) => {
 
 	const onNodesDelete = (nodes) => {
 		console.log(nodes);
-		setDeletedBlock(nodes);
+		deleteBlocks(nodes);
 	};
 
 	const onEdgesDelete = (nodes) => {

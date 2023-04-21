@@ -22,7 +22,7 @@ import {
 	DeleteBlockContext,
 	notImplemented,
 } from "@components/pages/_app";
-import { BlockOriginContext } from "./BlockCanvas";
+import { BlockOriginContext, deleteblocks } from "./BlockCanvas";
 import { ActionBlocks } from "./flow/nodes/ActionNode";
 import { toast } from "react-toastify";
 
@@ -34,12 +34,12 @@ function BlockContextualMenu(
 		blocksData,
 		setBlocksData,
 		setShowContextualMenu,
-		nodeSelected,
+		contextMenuOrigin,
+		deleteBlocks,
 	},
 	ref
 ) {
 	const { createdBlock, setCreatedBlock } = useContext(CreateBlockContext);
-	const { deletedBlock, setDeletedBlock } = useContext(DeleteBlockContext);
 	const { blockOrigin, setBlockOrigin } = useContext(BlockOriginContext);
 
 	const newId = useId();
@@ -60,9 +60,25 @@ function BlockContextualMenu(
 		setCreatedBlock(newBlockCreated);
 	};
 
-	const deleteBlock = () => {
+	const handleDeleteBlock = () => {
 		setShowContextualMenu(false);
-		setDeletedBlock(blockData);
+		deleteBlocks(blockData);
+	};
+
+	const handleDeleteBlockSelection = () => {
+		setShowContextualMenu(false);
+		const selectedNodes = document.querySelectorAll(
+			".react-flow__node.selected"
+		);
+		const blockDataArray = [];
+		for (let node of selectedNodes) {
+			let SingularBlockData = blocksData.find(
+				(block) => block.id == node.dataset.id
+			);
+			blockDataArray.push(SingularBlockData);
+		}
+
+		deleteBlocks(blockDataArray);
 	};
 
 	const handleNewRelation = (origin, end) => {
@@ -100,7 +116,7 @@ function BlockContextualMenu(
 				returnFocusOnDeactivate: true,
 			}}
 		>
-			<ul
+			<div
 				ref={ref}
 				style={{
 					top: `${y}px`,
@@ -108,8 +124,8 @@ function BlockContextualMenu(
 				}}
 				className={styles.cM + " "}
 			>
-				{!nodeSelected && (
-					<ul ref={ref} className={styles.cM + " "}>
+				{contextMenuOrigin == "pane" && (
+					<div ref={ref} className={styles.cM + " "}>
 						<li>
 							<Button variant="light" onClick={createBlock}>
 								<div role="button">
@@ -122,14 +138,14 @@ function BlockContextualMenu(
 							<Button variant="light" disabled onClick={notImplemented}>
 								<div>
 									<Clipboard2PlusFill />
-									Pegar bloque
+									Pegar bloque/s
 								</div>
 							</Button>
 						</li>
-					</ul>
+					</div>
 				)}
-				{nodeSelected && (
-					<ul ref={ref} className={styles.cM + " "}>
+				{contextMenuOrigin == "block" && (
+					<div ref={ref} className={styles.cM + " "}>
 						{blockOrigin ? (
 							blockOrigin.id == blockData.id ? (
 								<li>
@@ -187,7 +203,6 @@ function BlockContextualMenu(
 								</li>
 							)
 						)}
-
 						<li>
 							<Button variant="light" onClick={notImplemented}>
 								<div>
@@ -205,16 +220,44 @@ function BlockContextualMenu(
 							</Button>
 						</li>
 						<li>
-							<Button variant="light" onClick={deleteBlock}>
+							<Button variant="light" onClick={handleDeleteBlock}>
 								<div>
 									<Trash3Fill />
 									Eliminar bloque...
 								</div>
 							</Button>
 						</li>
-					</ul>
+					</div>
 				)}
-			</ul>
+				{contextMenuOrigin == "nodesselection" && (
+					<div ref={ref} className={styles.cM + " "}>
+						<li>
+							<Button variant="light" onClick={notImplemented}>
+								<div>
+									<Clipboard2Fill />
+									Copiar bloques
+								</div>
+							</Button>
+						</li>
+						<li>
+							<Button variant="light" onClick={notImplemented}>
+								<div>
+									<Scissors />
+									Cortar bloques
+								</div>
+							</Button>
+						</li>
+						<li>
+							<Button variant="light" onClick={handleDeleteBlockSelection}>
+								<div>
+									<Trash3Fill />
+									Eliminar bloques...
+								</div>
+							</Button>
+						</li>
+					</div>
+				)}
+			</div>
 		</FocusTrap>
 	);
 }
