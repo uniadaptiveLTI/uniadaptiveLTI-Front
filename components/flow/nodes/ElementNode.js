@@ -164,17 +164,7 @@ const getAriaLabel = () => {
 	);
 };
 
-function ElementNode({
-	id,
-	xPos,
-	yPos,
-	type,
-	data,
-	children,
-	isConnectable,
-	order = 1,
-	unit = 1,
-}) {
+function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 	const onChange = useCallback((evt) => {
 		console.log(evt.target.value);
 	}, []);
@@ -200,6 +190,8 @@ function ElementNode({
 			children: data.children,
 			identation: data.identation,
 			conditions: data.conditions,
+			order: data.order,
+			unit: data.unit,
 		};
 
 		if (expanded != true) {
@@ -228,6 +220,7 @@ function ElementNode({
 			{process.env.DEV_MODE == true && (
 				<>
 					<div>{`id:${id}`}</div>
+					<div>{`children:${data.children}`}</div>
 				</>
 			)}
 			<Handle
@@ -246,7 +239,7 @@ function ElementNode({
 			<span className={styles.blockInfo + " " + styles.bottom}>
 				{getHumanDesc(type)}
 			</span>
-			{unit && (
+			{data.unit && (
 				<Badge
 					bg="light"
 					className={
@@ -260,10 +253,10 @@ function ElementNode({
 					}
 					title="Unidad"
 				>
-					{unit}
+					{data.unit}
 				</Badge>
 			)}
-			{order && (
+			{data.order && (
 				<Badge
 					bg="warning"
 					className={
@@ -277,7 +270,7 @@ function ElementNode({
 					}
 					title="Posición en Moodle"
 				>
-					{order}
+					{data.order}
 				</Badge>
 			)}
 		</div>

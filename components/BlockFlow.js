@@ -179,6 +179,8 @@ const OverviewFlow = ({ map, deleteBlocks }, ref) => {
 				children: b.data.children,
 				identation: b.data.identation,
 				conditions: b.data.conditions,
+				order: b.data.order,
+				unit: b.data.unit,
 			}));
 			setBlockJson(selectionBlockJson);
 		}
@@ -199,6 +201,8 @@ const OverviewFlow = ({ map, deleteBlocks }, ref) => {
 				children: node.data.children,
 				identation: node.data.identation,
 				conditions: node.data.conditions,
+				order: b.data.order,
+				unit: b.data.unit,
 			});
 		}
 	};
@@ -229,6 +233,8 @@ const OverviewFlow = ({ map, deleteBlocks }, ref) => {
 			title: sourceNode.title,
 			children: sourceNode.children,
 			identation: sourceNode.identation,
+			order: sourceNode.order,
+			unit: sourceNode.unit,
 		});
 	};
 
@@ -264,6 +270,8 @@ const OverviewFlow = ({ map, deleteBlocks }, ref) => {
 					identation: block.identation,
 					children: block.children,
 					conditions: block.conditions,
+					order: block.order,
+					unit: block.unit,
 				},
 				position: { x: block.x, y: block.y },
 			}))
