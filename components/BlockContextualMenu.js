@@ -54,6 +54,8 @@ function BlockContextualMenu(
 			type: "forum",
 			title: "Nuevo Foro",
 			children: undefined,
+			order: 100,
+			unit: 1,
 		};
 
 		setShowContextualMenu(false);

@@ -201,8 +201,8 @@ const OverviewFlow = ({ map, deleteBlocks }, ref) => {
 				children: node.data.children,
 				identation: node.data.identation,
 				conditions: node.data.conditions,
-				order: b.data.order,
-				unit: b.data.unit,
+				order: node.data.order,
+				unit: node.data.unit,
 			});
 		}
 	};
