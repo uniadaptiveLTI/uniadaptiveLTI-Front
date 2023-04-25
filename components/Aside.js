@@ -6,7 +6,8 @@ import {
 	ArrowBarLeft,
 } from "react-bootstrap-icons";
 import { Container, Button, Form, Spinner } from "react-bootstrap";
-import { useState, useContext, useEffect, useRef, useId } from "react";
+import Qualification from "./flow/conditions/Qualification.js";
+import { useState, useContext, useEffect, useRef, useId, version } from "react";
 import {
 	PlatformContext,
 	BlockInfoContext,
@@ -45,6 +46,7 @@ export default function Aside({ className, closeBtn }) {
 	//Referencias
 	const titleDOM = useRef(null);
 	const optionsDOM = useRef(null);
+	const conditionsDOM = useRef(null);
 	const contentDOM = useRef(null);
 	const itineraryTitleDOM = useRef(null);
 	const versionTitleDOM = useRef(null);
@@ -231,10 +233,25 @@ export default function Aside({ className, closeBtn }) {
 
 	useEffect(() => {
 		if (blockSelected) {
+			const selectElement = document.querySelector("#relationSelect");
+			const optionToSelect = selectElement.querySelector('option[value=""]');
+
+			optionToSelect.selected = true;
+			setMatchingConditions();
+			setExpandedCondition(false);
+			setShowConditions(false);
 			setSelectedOption(blockSelected.type);
+
 			const title = titleDOM.current;
+			const condition = conditionsDOM.current;
+
 			if (title) {
 				title.value = blockSelected.title;
+			}
+
+			if (condition) {
+				console.log(condition);
+				condition.value = blockSelected.conditions;
 			}
 		}
 	}, [blockSelected]);
@@ -289,6 +306,7 @@ export default function Aside({ className, closeBtn }) {
 	const updateVersion = () => {
 		setVersionJson((prevVersionJson) => ({
 			...prevVersionJson,
+			id: selectedEditVersion.id,
 			name: versionTitleDOM.current.value,
 			lastUpdate: selectedEditVersion.lastUpdate,
 			default: selectedEditVersion.default,
@@ -316,9 +334,11 @@ export default function Aside({ className, closeBtn }) {
 				const matchingConditions = blockSelected.conditions.filter(
 					(condition) => condition.unlockId === blockId
 				);
+				setExpandedCondition(true);
 				setShowConditions(true);
 				setMatchingConditions(matchingConditions);
 			} else {
+				setExpandedCondition(true);
 				setShowConditions(true);
 				setMatchingConditions();
 			}
@@ -565,8 +585,12 @@ export default function Aside({ className, closeBtn }) {
 										}}
 										className="mb-3"
 									>
-										<Form.Select onChange={handleBlockSelect}>
-											<option value="" selected disabled>
+										<Form.Select
+											id="relationSelect"
+											className="mb-3"
+											onChange={handleBlockSelect}
+										>
+											<option value="" disabled selected>
 												Escoge una relación
 											</option>
 
@@ -586,88 +610,43 @@ export default function Aside({ className, closeBtn }) {
 													);
 												})}
 										</Form.Select>
-										<div className="mb-2">
-											<div
-												className="d-flex gap-2"
-												role="button"
-												onClick={() => setExpandedCondition(!expandedCondition)}
-											>
-												<div className="fw-bold">Condición</div>
-												<div>
-													<div role="button">
-														{!expandedCondition ? (
-															<CaretUpFill />
-														) : (
-															<CaretDownFill />
-														)}
+										{showConditions && (
+											<div className="mb-2">
+												<div
+													className="d-flex gap-2"
+													role="button"
+													onClick={() =>
+														setExpandedCondition(!expandedCondition)
+													}
+												>
+													<div className="fw-bold">Condición</div>
+													<div>
+														<div role="button">
+															{!expandedCondition ? (
+																<CaretUpFill />
+															) : (
+																<CaretDownFill />
+															)}
+														</div>
 													</div>
 												</div>
+												{matchingConditions &&
+													matchingConditions.map((condition) => {
+														if (condition.type === "qualification") {
+															return (
+																<Qualification
+																	condition={condition}
+																	conditionTypes={conditionTypes}
+																	qualificationOperand={qualificationOperand}
+																	titleID={titleID}
+																	titleDOM={titleDOM}
+																	expandedCondition={expandedCondition}
+																/>
+															);
+														}
+													})}
 											</div>
-											{showConditions &&
-												matchingConditions &&
-												matchingConditions.map((condition) => {
-													return (
-														<div
-															style={{
-																opacity: expandedCondition ? "1" : "0",
-																visibility: expandedCondition
-																	? "visible"
-																	: "hidden",
-																maxHeight: expandedCondition ? "" : "0",
-																transition: "all .2s",
-															}}
-															className="mb-3"
-														>
-															<Form.Group className="mb-3">
-																<Form.Label htmlFor={titleID} className="mb-1">
-																	Tipo de relación
-																</Form.Label>
-																<Form.Select value={condition.type}>
-																	{conditionTypes.map((conditionType) => {
-																		return (
-																			<option
-																				value={conditionType.value}
-																				key={conditionType.value}
-																			>
-																				{conditionType.name}
-																			</option>
-																		);
-																	})}
-																</Form.Select>
-															</Form.Group>
-															<Form.Group className="mb-3">
-																<Form.Label htmlFor={titleID} className="mb-1">
-																	Operante
-																</Form.Label>
-																<Form.Select value={condition.operand}>
-																	{qualificationOperand.map((operand) => {
-																		return (
-																			<option
-																				value={operand.value}
-																				key={operand.value}
-																			>
-																				{operand.name}
-																			</option>
-																		);
-																	})}
-																</Form.Select>
-															</Form.Group>
-															<Form.Group className="mb-3">
-																<Form.Label htmlFor={titleID} className="mb-1">
-																	Objetivo
-																</Form.Label>
-																<Form.Control
-																	ref={titleDOM}
-																	id={titleID}
-																	type="number"
-																	className="w-100"
-																	value={condition.objective}
-																></Form.Control>
-															</Form.Group>
-														</div>
-													);
-												})}
-										</div>
+										)}
 									</div>
 								</div>
 							</div>
@@ -754,6 +733,7 @@ export default function Aside({ className, closeBtn }) {
 									<Form.Label className="mb-1">Nombre de la versión</Form.Label>
 									<Form.Control
 										id="version-title"
+										ref={versionTitleDOM}
 										type="text"
 										className="w-100"
 									></Form.Control>
