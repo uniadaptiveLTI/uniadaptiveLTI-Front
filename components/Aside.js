@@ -195,6 +195,9 @@ export default function Aside({ className, closeBtn }) {
 					{ id: 2, name: "Medalla 3" },
 				]);
 				break;
+			case "generic":
+				setSecondOptions([{ id: 0, name: "Genérico" }]);
+				break;
 			default:
 				setSecondOptions([]);
 				break;

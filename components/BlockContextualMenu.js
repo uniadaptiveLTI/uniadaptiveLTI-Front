@@ -46,6 +46,10 @@ function BlockContextualMenu(
 	const { expanded, setExpanded } = useContext(ExpandedContext);
 	const { platform, setPlatform } = useContext(PlatformContext);
 
+	const asideBounds = expanded
+		? document.getElementsByTagName("aside")[0]?.getBoundingClientRect()
+		: 0;
+
 	const createBlock = (blockData) => {
 		//TODO: Block selector
 		const reactFlowBounds = blockFlowDOM.current?.getBoundingClientRect();
@@ -55,9 +59,6 @@ function BlockContextualMenu(
 		});
 
 		if (expanded) {
-			const asideBounds = document
-				.getElementsByTagName("aside")[0]
-				.getBoundingClientRect();
 			flowPos.x += Math.floor(asideBounds.width / 125) * 125;
 		}
 
@@ -68,7 +69,7 @@ function BlockContextualMenu(
 			newBlockCreated = {
 				id: uniqueId(),
 				x: flowPos.x,
-				y: flowPos.y + 175,
+				y: flowPos.y,
 				type: "file",
 				title: "Nuevo bloque",
 				children: undefined,
@@ -80,7 +81,7 @@ function BlockContextualMenu(
 				newBlockCreated = {
 					id: uniqueId(),
 					x: flowPos.x,
-					y: flowPos.y + 175,
+					y: flowPos.y,
 					type: "generic",
 					title: "Nuevo bloque",
 					children: undefined,
@@ -91,7 +92,7 @@ function BlockContextualMenu(
 				newBlockCreated = {
 					id: uniqueId(),
 					x: flowPos.x,
-					y: flowPos.y + 175,
+					y: flowPos.y,
 					type: "file",
 					title: "Nuevo bloque",
 					children: undefined,
@@ -166,7 +167,7 @@ function BlockContextualMenu(
 				ref={ref}
 				style={{
 					top: `${y}px`,
-					left: `${x}px`,
+					left: `${x + (asideBounds && asideBounds.width)}px`,
 				}}
 				className={styles.cM + " "}
 			>
