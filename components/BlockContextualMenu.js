@@ -69,7 +69,7 @@ function BlockContextualMenu(
 			newBlockCreated = {
 				id: uniqueId(),
 				x: flowPos.x,
-				y: flowPos.y + 175,
+				y: flowPos.y,
 				type: "file",
 				title: "Nuevo bloque",
 				children: undefined,
@@ -81,7 +81,7 @@ function BlockContextualMenu(
 				newBlockCreated = {
 					id: uniqueId(),
 					x: flowPos.x,
-					y: flowPos.y + 175,
+					y: flowPos.y,
 					type: "generic",
 					title: "Nuevo bloque",
 					children: undefined,
@@ -92,7 +92,7 @@ function BlockContextualMenu(
 				newBlockCreated = {
 					id: uniqueId(),
 					x: flowPos.x,
-					y: flowPos.y + 175,
+					y: flowPos.y,
 					type: "file",
 					title: "Nuevo bloque",
 					children: undefined,
