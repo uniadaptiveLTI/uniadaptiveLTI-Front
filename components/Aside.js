@@ -51,6 +51,7 @@ export default function Aside({ className, closeBtn }) {
 	const itineraryTitleDOM = useRef(null);
 	const versionTitleDOM = useRef(null);
 	const refreshIconDOM = useRef(null);
+	const relationSelectDOM = useRef(null);
 	//IDs
 	const titleID = useId();
 	const optionsID = useId();
@@ -236,25 +237,27 @@ export default function Aside({ className, closeBtn }) {
 
 	useEffect(() => {
 		if (blockSelected) {
-			const selectElement = document.querySelector("#relationSelect");
-			const optionToSelect = selectElement.querySelector('option[value=""]');
+			const selectElement = relationSelectDOM.current;
+			const optionToSelect = selectElement?.querySelector('option[value=""]');
 
-			optionToSelect.selected = true;
-			setMatchingConditions();
-			setExpandedCondition(false);
-			setShowConditions(false);
-			setSelectedOption(blockSelected.type);
+			if (optionToSelect) {
+				optionToSelect.selected = true;
+				setMatchingConditions();
+				setExpandedCondition(false);
+				setShowConditions(false);
+				setSelectedOption(blockSelected.type);
 
-			const title = titleDOM.current;
-			const condition = conditionsDOM.current;
+				const title = titleDOM.current;
+				const condition = conditionsDOM.current;
 
-			if (title) {
-				title.value = blockSelected.title;
-			}
+				if (title) {
+					title.value = blockSelected.title;
+				}
 
-			if (condition) {
-				console.log(condition);
-				condition.value = blockSelected.conditions;
+				if (condition) {
+					console.log(condition);
+					condition.value = blockSelected.conditions;
+				}
 			}
 		}
 	}, [blockSelected]);
@@ -589,7 +592,7 @@ export default function Aside({ className, closeBtn }) {
 										className="mb-3"
 									>
 										<Form.Select
-											id="relationSelect"
+											ref={relationSelectDOM}
 											className="mb-3"
 											onChange={handleBlockSelect}
 										>
