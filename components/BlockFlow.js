@@ -27,6 +27,7 @@ import {
 	DeleteEdgeContext,
 	ExpandedContext,
 	ReactFlowInstanceContext,
+	SettingsContext,
 } from "@components/pages/_app.js";
 import FinalNode from "./flow/nodes/FinalNode.js";
 import InitialNode from "./flow/nodes/InitialNode.js";
@@ -124,6 +125,10 @@ const OverviewFlow = ({ map, deleteBlocks }, ref) => {
 	const { reactFlowInstance, setReactFlowInstance } = useContext(
 		ReactFlowInstanceContext
 	);
+	const { settings, setSettings } = useContext(SettingsContext);
+
+	const parsedSettings = JSON.parse(settings);
+	let { autoHideAside } = parsedSettings;
 
 	const [newInitialNodes, setNewInitialNodes] = useState([]);
 	const [newInitialEdges, setNewInitialEdges] = useState([]);
@@ -221,7 +226,9 @@ const OverviewFlow = ({ map, deleteBlocks }, ref) => {
 	};
 
 	const onPaneClick = () => {
-		setExpanded(false);
+		if (autoHideAside) {
+			setExpanded(false);
+		}
 	};
 
 	const onConnect = (event) => {
