@@ -23,14 +23,13 @@ import ActionNode from "./flow/nodes/ActionNode.js";
 import ElementNode from "./flow/nodes/ElementNode.js";
 import {
 	BlockJsonContext,
-	BlocksDataContext,
 	DeleteEdgeContext,
 	ExpandedContext,
-	VersionInfoContext,
 } from "@components/pages/_app.js";
 import FinalNode from "./flow/nodes/FinalNode.js";
 import InitialNode from "./flow/nodes/InitialNode.js";
-import { SaveFill, MapFill, XLg } from "react-bootstrap-icons";
+import FragmentNode from "./flow/nodes/InitialNode.js";
+import { MapFill, XLg } from "react-bootstrap-icons";
 import { PaneContextMenuPositionContext } from "./BlockCanvas.js";
 
 const minimapStyle = {
@@ -89,8 +88,6 @@ const nodeColor = (node) => {
 };
 
 const nodeTypes = {
-	start: InitialNode,
-	end: FinalNode,
 	badge: ActionNode,
 	questionnaire: ElementNode,
 	assignment: ElementNode,
@@ -108,6 +105,10 @@ const nodeTypes = {
 	contents: ElementNode,
 	text: ElementNode,
 	html: ElementNode,
+	//LTI
+	start: InitialNode,
+	end: FinalNode,
+	fragment: FragmentNode,
 };
 
 const OverviewFlow = ({ map, deleteBlocks }, ref) => {
@@ -187,23 +188,24 @@ const OverviewFlow = ({ map, deleteBlocks }, ref) => {
 	};
 
 	const onNodeDragStop = (event, node) => {
-		if (
-			draggedNodePosition.current &&
-			(draggedNodePosition.current.x !== node.position.x ||
-				draggedNodePosition.current.y !== node.position.y)
-		) {
-			setBlockJson({
-				id: node.id,
-				x: node.position.x,
-				y: node.position.y,
-				type: node.type,
-				title: node.data.label,
-				children: node.data.children,
-				identation: node.data.identation,
-				conditions: node.data.conditions,
-				order: node.data.order,
-				unit: node.data.unit,
-			});
+		if (node) {
+			if (
+				draggedNodePosition.current.x !== node.position.x ||
+				draggedNodePosition.current.y !== node.position.y
+			) {
+				setBlockJson({
+					id: node.id,
+					x: node.position.x,
+					y: node.position.y,
+					type: node.type,
+					title: node.data.label,
+					children: node.data.children,
+					identation: node.data.identation,
+					conditions: node.data.conditions,
+					order: node.data.order,
+					unit: node.data.unit,
+				});
+			}
 		}
 	};
 
@@ -339,7 +341,7 @@ const OverviewFlow = ({ map, deleteBlocks }, ref) => {
 				fitView
 				proOptions={{ hideAttribution: true }}
 				nodeTypes={nodeTypes}
-				snapGrid={[125, 125]}
+				snapGrid={[125, 175]}
 				//connectionLineComponent={}
 				snapToGrid={true}
 				deleteKeyCode={"Delete"}

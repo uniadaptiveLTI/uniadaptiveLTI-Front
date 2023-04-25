@@ -120,25 +120,26 @@ export default function BlockCanvas() {
 			);
 
 			if (blockNodeDelete) {
-				blockNodeDelete.children = blockNodeDelete.children.filter(
-					(child) => child !== deletedEdge.target
-				);
-
-				if (blockNodeDelete.children.length === 0)
-					blockNodeDelete.children = undefined;
-
-				if (blockNodeDelete.conditions) {
-					blockNodeDelete.conditions = blockNodeDelete.conditions.filter(
-						(condition) => condition.unlockId !== deletedEdge.target
+				if (blockNodeDelete.children) {
+					blockNodeDelete.children = blockNodeDelete.children.filter(
+						(child) => child !== deletedEdge.target
 					);
-					if (blockNodeDelete.conditions.length === 0)
-						blockNodeDelete.conditions = undefined;
+
+					if (blockNodeDelete.children.length === 0)
+						blockNodeDelete.children = undefined;
+
+					if (blockNodeDelete.conditions) {
+						blockNodeDelete.conditions = blockNodeDelete.conditions.filter(
+							(condition) => condition.unlockId !== deletedEdge.target
+						);
+						if (blockNodeDelete.conditions.length === 0)
+							blockNodeDelete.conditions = undefined;
+					}
+					updatedBlocksArray = updatedBlocksArray.map((obj) =>
+						obj.id === blockNodeDelete.id ? blockNodeDelete : obj
+					);
 				}
 			}
-
-			updatedBlocksArray = updatedBlocksArray.map((obj) =>
-				obj.id === blockNodeDelete.id ? blockNodeDelete : obj
-			);
 
 			setBlocksData(updatedBlocksArray);
 		}

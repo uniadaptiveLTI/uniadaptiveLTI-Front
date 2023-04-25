@@ -2,22 +2,7 @@ import { useCallback } from "react";
 import { Handle, Position } from "reactflow";
 import styles from "@components/styles/BlockContainer.module.css";
 
-import {
-	FileEarmarkCheck,
-	PatchQuestionFill,
-	CaretDownFill,
-	Link45deg,
-	PencilSquare,
-	Question,
-	ChatLeftText,
-	FileEarmark,
-	Folder,
-	Tag,
-	FileEarmarkText,
-	StarFill,
-	Diagram2,
-	Shuffle,
-} from "react-bootstrap-icons";
+import { PatchQuestionFill, StarFill } from "react-bootstrap-icons";
 import {
 	BlockInfoContext,
 	ExpandedContext,
@@ -32,47 +17,13 @@ export const ActionBlocks = ["badge"];
 function getTypeIcon(type) {
 	switch (type) {
 		//Moodle + Sakai
-		case "questionnaire":
-			return <FileEarmarkCheck size={32} />;
-		case "assignment":
-			return <PencilSquare size={32} />;
-		case "forum":
-			return <ChatLeftText size={32} />;
-		case "file":
-			return <FileEarmark size={32} />;
-		case "folder":
-			return <Folder size={32} />;
-		case "url":
-			return <Link45deg size={32} />;
+
 		//Moodle
-		case "workshop":
-			return <Shuffle size={32} />;
-		case "choice":
-			return <Question size={32} />;
-		case "tag":
-			return <Tag size={32} />;
-		case "page":
-			return <FileEarmarkText size={32} />;
 		case "badge":
 			return <StarFill size={32} />;
 		//Sakai
-		case "exam":
-			return null;
-		case "contents":
-			return null;
-		case "text":
-			return null;
-		case "html":
-			return null;
+
 		//LTI
-		case "start":
-			return (
-				<CaretDownFill style={{ transform: "rotate(-90deg)" }} size={32} />
-			);
-		case "end":
-			return <CaretDownFill style={{ transform: "rotate(90deg)" }} size={32} />;
-		case "fragment":
-			return <Diagram2 size={32} />;
 		default:
 			return <PatchQuestionFill size={32} />;
 	}

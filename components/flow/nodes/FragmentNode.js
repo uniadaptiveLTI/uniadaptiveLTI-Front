@@ -3,19 +3,7 @@ import { Handle, Position } from "reactflow";
 import { Badge } from "react-bootstrap";
 import styles from "@components/styles/BlockContainer.module.css";
 
-import {
-	FileEarmarkCheck,
-	PatchQuestionFill,
-	Link45deg,
-	PencilSquare,
-	Question,
-	ChatLeftText,
-	FileEarmark,
-	Folder,
-	Tag,
-	FileEarmarkText,
-	Shuffle,
-} from "react-bootstrap-icons";
+import { Diagram2 } from "react-bootstrap-icons";
 import {
 	BlockInfoContext,
 	ExpandedContext,
@@ -24,46 +12,7 @@ import {
 	VersionInfoContext,
 } from "@components/pages/_app";
 
-function getTypeIcon(type) {
-	switch (type) {
-		//Moodle + Sakai
-		case "questionnaire":
-			return <FileEarmarkCheck size={32} />;
-		case "assignment":
-			return <PencilSquare size={32} />;
-		case "forum":
-			return <ChatLeftText size={32} />;
-		case "file":
-			return <FileEarmark size={32} />;
-		case "folder":
-			return <Folder size={32} />;
-		case "url":
-			return <Link45deg size={32} />;
-		//Moodle
-		case "workshop":
-			return <Shuffle size={32} />;
-		case "choice":
-			return <Question size={32} />;
-		case "tag":
-			return <Tag size={32} />;
-		case "page":
-			return <FileEarmarkText size={32} />;
-		//Sakai
-		case "exam":
-			return null;
-		case "contents":
-			return null;
-		case "text":
-			return null;
-		case "html":
-			return null;
-		//LTI
-		default:
-			return <PatchQuestionFill size={32} />;
-	}
-}
-
-function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
+function FragmentNode({ id, xPos, yPos, type, data, isConnectable }) {
 	const onChange = useCallback((evt) => {
 		console.log(evt.target.value);
 	}, []);
@@ -87,6 +36,7 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 			type: type,
 			title: data.label,
 			children: data.children,
+			innerBlocks: data.innerBlocks,
 			identation: data.identation,
 			conditions: data.conditions,
 			order: data.order,
@@ -115,8 +65,7 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 				: ".";
 		}
 		return (
-			getHumanDesc() +
-			", " +
+			"Fragmento, " +
 			data.title +
 			", posición en el eje X: " +
 			xPos +
@@ -124,64 +73,6 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 			yPos +
 			end
 		);
-	};
-
-	const getHumanDesc = (type) => {
-		let humanType = "";
-		switch (type) {
-			//Moodle + Sakai
-			case "questionnaire":
-				humanType = "Cuestionario";
-				break;
-			case "assignment":
-				humanType = "Tarea";
-				break;
-			case "forum":
-				humanType = "Foro";
-				break;
-			case "file":
-				humanType = "Archivo";
-				break;
-			case "folder":
-				humanType = "Carpeta";
-				break;
-			case "url":
-				humanType = "URL";
-				break;
-			//Moodle
-			case "workshop":
-				humanType = "Taller";
-				break;
-			case "choice":
-				humanType = "Consulta";
-				break;
-			case "tag":
-				humanType = "Etiqueta";
-				break;
-			case "page":
-				humanType = "Página";
-				break;
-			//Sakai
-			case "exam":
-				humanType = "Examen";
-				break;
-			case "contents":
-				humanType = "Contenidos";
-				break;
-			case "text":
-				humanType = "Texto";
-				break;
-			case "html":
-				humanType = "HTML";
-				break;
-			//LTI
-			default:
-				humanType = "Elemento";
-				break;
-		}
-
-		if (type == "start" || type == "end") return humanType + " del Mapa";
-		return humanType;
 	};
 
 	return (
@@ -211,16 +102,16 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 				isConnectable={isConnectable}
 				isConnectableStart="false"
 			/>
-			<div>{getTypeIcon(type)}</div>
+			<div>
+				return <Diagram2 size={32} />;
+			</div>
 			<Handle
 				type="source"
 				position={Position.Right}
 				isConnectable={isConnectable}
 				isConnectableEnd="false"
 			/>
-			<span className={styles.blockInfo + " " + styles.bottom}>
-				{getHumanDesc(type)}
-			</span>
+			<span className={styles.blockInfo + " " + styles.bottom}>Fragmento</span>
 			{data.unit && (
 				<Badge
 					bg="light"
@@ -252,11 +143,13 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 					}
 					title="Posición en Moodle"
 				>
-					{data.order}
+					{data.innerBlocks
+						? `${data.order}-${data.order + data.innerBlocks.length}`
+						: data.order}
 				</Badge>
 			)}
 		</div>
 	);
 }
 
-export default ElementNode;
+export default FragmentNode;

@@ -37,6 +37,7 @@ import {
 } from "@components/pages/_app";
 import { toast } from "react-toastify";
 import { notImplemented } from "@components/pages/_app";
+import { uniqueId } from "./Utils";
 
 const defaultToastSuccess = {
 	hideProgressBar: false,
@@ -163,7 +164,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev2A1",
 							x: 375,
-							y: -125,
+							y: -175,
 							type: "badge",
 							title: "Conocimiento",
 							identation: 2,
@@ -218,7 +219,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev6A1",
 							x: 875,
-							y: 125,
+							y: 175,
 							type: "assignment",
 							title: "Ejercicios de ampliación",
 							children: ["dev5A1"],
@@ -229,7 +230,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev7A1",
 							x: 1750,
-							y: -125,
+							y: -175,
 							type: "badge",
 							title: "Mecánica de fluidos",
 							identation: 1,
@@ -248,7 +249,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev9A1",
 							x: 375,
-							y: 375,
+							y: 350,
 							type: "folder",
 							title: "Aerodínamica, refuerzo",
 							children: ["dev10A1"],
@@ -259,7 +260,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev10A1",
 							x: 500,
-							y: 375,
+							y: 350,
 							type: "questionnaire",
 							title: "Aerodínamica, refuerzo",
 							children: ["dev11A1", "dev12A1", "dev5A1"],
@@ -290,7 +291,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev11A1",
 							x: 625,
-							y: 250,
+							y: 175,
 							type: "badge",
 							title: "Recuperación",
 							identation: 3,
@@ -298,7 +299,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev12A1",
 							x: 625,
-							y: 500,
+							y: 525,
 							type: "assignment",
 							title: "Trabajo de recuperación",
 							children: ["dev6A1"],
@@ -309,7 +310,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev13A1",
 							x: 1125,
-							y: 125,
+							y: 175,
 							type: "page",
 							title: "Ayuda física de fluidos",
 							children: ["dev14A1"],
@@ -320,7 +321,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev14A1",
 							x: 1250,
-							y: 125,
+							y: 175,
 							type: "forum",
 							title: "Preguntas fluidos",
 							children: ["dev15A1"],
@@ -331,7 +332,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev15A1",
 							x: 1375,
-							y: 125,
+							y: 175,
 							type: "questionnaire",
 							title: "Recuperación fluidos",
 							children: ["dev7A1", "dev8A1", "dev16A1"],
@@ -362,7 +363,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev16A1",
 							x: 1500,
-							y: 250,
+							y: 350,
 							type: "assignment",
 							title: "Trabajo de recuperación",
 							children: ["dev7A1", "dev8A1"],
@@ -1096,7 +1097,6 @@ function Header({ closeBtn }, ref) {
 	 * Handles the creation of a new version.
 	 */
 	const handleNewVersion = () => {
-		const uniqueId = () => parseInt(Date.now() * Math.random()).toString();
 		const endId = uniqueId();
 		const newMapVersions = [
 			...selectedMap.versions,

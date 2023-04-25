@@ -39,7 +39,7 @@ export default function Aside({ className, closeBtn }) {
 	const { settings, setSettings } = useContext(SettingsContext);
 
 	const parsedSettings = JSON.parse(settings);
-	let { reducedAnimations } = parsedSettings;
+	let { reducedAnimations, autoHideAside } = parsedSettings;
 
 	//Referencias
 	const titleDOM = useRef(null);
@@ -253,7 +253,9 @@ export default function Aside({ className, closeBtn }) {
 			children: blockSelected.children,
 			identation: blockSelected.identation,
 		});
-		setExpanded(false);
+		if (autoHideAside) {
+			setExpanded(false);
+		}
 	};
 
 	/**
@@ -309,6 +311,20 @@ export default function Aside({ className, closeBtn }) {
 		setSelectedChild(childId);
 	};
 
+	const listRelations = () => {
+		if (blockSelected.children) {
+			blockSelected.children.map((childId) => {
+				const selectedChild = currentBlocksData.find(
+					(child) => child.id === childId
+				);
+				return (
+					<option key={selectedChild.id} value={selectedChild.id}>
+						{selectedChild.title}
+					</option>
+				);
+			});
+		}
+	};
 	return (
 		<aside className={`${className} ${styles.aside}`}>
 			<div className={"text-center p-2"}>
@@ -537,16 +553,7 @@ export default function Aside({ className, closeBtn }) {
 								<option value="" selected disabled>
 									Escoge una relación
 								</option>
-								{blockSelected.children.map((childId) => {
-									const selectedChild = currentBlocksData.find(
-										(child) => child.id === childId
-									);
-									return (
-										<option key={selectedChild.id} value={selectedChild.id}>
-											{selectedChild.title}
-										</option>
-									);
-								})}
+								{listRelations}
 							</Form.Select>
 						</div>
 

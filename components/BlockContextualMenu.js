@@ -1,12 +1,5 @@
 import styles from "@components/styles/BlockContextualMenu.module.css";
-import {
-	useState,
-	useEffect,
-	forwardRef,
-	useRef,
-	useContext,
-	useId,
-} from "react";
+import { useState, useEffect, forwardRef, useRef, useContext } from "react";
 import { Button } from "react-bootstrap";
 import FocusTrap from "focus-trap-react";
 import {
@@ -25,6 +18,7 @@ import {
 import { BlockOriginContext, deleteblocks } from "./BlockCanvas";
 import { ActionBlocks } from "./flow/nodes/ActionNode";
 import { toast } from "react-toastify";
+import { uniqueId } from "./Utils";
 
 function BlockContextualMenu(
 	{
@@ -42,13 +36,11 @@ function BlockContextualMenu(
 	const { createdBlock, setCreatedBlock } = useContext(CreateBlockContext);
 	const { blockOrigin, setBlockOrigin } = useContext(BlockOriginContext);
 
-	const newId = useId();
-
 	const createBlock = () => {
 		//FIXME: It doesn't push the block at start
 		//TODO: Block selector
 		const newBlockCreated = {
-			id: newId,
+			id: uniqueId(),
 			x: x,
 			y: y,
 			type: "forum",
