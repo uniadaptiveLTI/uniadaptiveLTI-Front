@@ -75,28 +75,28 @@ export default function BlockCanvas() {
 	const blockFlowDOM = useRef(null);
 
 	//This will be given by the back
-	const [blocksData, setBlocksData] = useState(currentBlocksData);
 
 	useLayoutEffect(() => {
-		setBlocksData(currentBlocksData);
+		setCurrentBlocksData(currentBlocksData);
 	}, [currentBlocksData]);
 
-	const blocksDataRef = useRef(blocksData);
+	const currentBlocksDataRef = useRef(currentBlocksData);
 
 	/** Client-side */
 
 	useEffect(() => {
 		if (!Array.isArray(blockJson)) {
-			let newBlocksData = [...blocksData];
-			newBlocksData[blocksData.findIndex((b) => b.id == blockJson.id)] =
-				blockJson;
-			setBlocksData(newBlocksData);
+			let newcurrentBlocksData = [...currentBlocksData];
+			newcurrentBlocksData[
+				currentBlocksData.findIndex((b) => b.id == blockJson.id)
+			] = blockJson;
+			setCurrentBlocksData(newcurrentBlocksData);
 		} else {
-			const newBlocksData = blocksData.map((block) => {
+			const newcurrentBlocksData = currentBlocksData.map((block) => {
 				const newBlock = blockJson.find((b) => b.id === block.id);
 				return newBlock ? { ...block, ...newBlock } : block;
 			});
-			setBlocksData(newBlocksData);
+			setCurrentBlocksData(newcurrentBlocksData);
 		}
 	}, [blockJson]);
 
@@ -105,15 +105,15 @@ export default function BlockCanvas() {
 
 	useEffect(() => {
 		if (Object.keys(createdBlock).length !== 0) {
-			let newBlocksData = [...blocksData];
-			newBlocksData.push(createdBlock);
-			setBlocksData(newBlocksData);
+			let newcurrentBlocksData = [...currentBlocksData];
+			newcurrentBlocksData.push(createdBlock);
+			setCurrentBlocksData(newcurrentBlocksData);
 		}
 	}, [createdBlock]);
 
 	useEffect(() => {
 		if (deletedEdge.id) {
-			let updatedBlocksArray = blocksData.slice();
+			let updatedBlocksArray = currentBlocksData.slice();
 
 			const blockNodeDelete = updatedBlocksArray.find(
 				(obj) => obj.id === deletedEdge.source
@@ -141,13 +141,15 @@ export default function BlockCanvas() {
 				}
 			}
 
-			setBlocksData(updatedBlocksArray);
+			setCurrentBlocksData(updatedBlocksArray);
 		}
 	}, [deletedEdge]);
 
 	const deleteBlocks = (blocks) => {
 		if (!Array.isArray(blocks)) {
-			const deletedBlockArray = blocksData.filter((b) => b.id !== blocks.id);
+			const deletedBlockArray = currentBlocksData.filter(
+				(b) => b.id !== blocks.id
+			);
 			const deletedRelatedChildrenArray = deleteRelatedChildrenById(
 				blocks.id,
 				deletedBlockArray
@@ -158,10 +160,10 @@ export default function BlockCanvas() {
 				deletedRelatedChildrenArray
 			);
 
-			setBlocksData(deleteRelatedConditionsArray);
+			setCurrentBlocksData(deleteRelatedConditionsArray);
 		} else {
 			if (blocks.length > 0) {
-				let updatedBlocksArray = blocksData.slice();
+				let updatedBlocksArray = currentBlocksData.slice();
 
 				blocks.forEach((b) => {
 					const id = b.id;
@@ -177,7 +179,7 @@ export default function BlockCanvas() {
 					);
 				});
 
-				setBlocksData(updatedBlocksArray);
+				setCurrentBlocksData(updatedBlocksArray);
 			}
 		}
 	};
@@ -278,8 +280,8 @@ export default function BlockCanvas() {
 	});
 
 	useLayoutEffect(() => {
-		blocksDataRef.current = blocksData;
-	}, [expanded, settings, blocksData]);
+		currentBlocksDataRef.current = currentBlocksData;
+	}, [expanded, settings, currentBlocksData]);
 
 	/**
 	 * Handles the context menu position, positioning it.
@@ -297,7 +299,7 @@ export default function BlockCanvas() {
 						e.preventDefault();
 						setCMX(e.clientX - bounds.left);
 						setCMY(e.clientY - bounds.top);
-						let block = blocksDataRef.current.find(
+						let block = currentBlocksDataRef.current.find(
 							(e) => e.id == selectedBlock.id
 						);
 						setCMBlockData(block);
@@ -309,7 +311,7 @@ export default function BlockCanvas() {
 						e.preventDefault();
 						setCMX(e.clientX - bounds.left);
 						setCMY(e.clientY - bounds.top);
-						let block = blocksDataRef.current.find(
+						let block = currentBlocksDataRef.current.find(
 							(e) => e.id == selectedBlock.id
 						);
 						setCMBlockData(block);
@@ -343,9 +345,9 @@ export default function BlockCanvas() {
 	}
 
 	function blockAdd(block) {
-		let newBlocksData = [...blocksData];
-		newBlocksData.push(block);
-		setBlocksData(newBlocksData);
+		let newcurrentBlocksData = [...currentBlocksData];
+		newcurrentBlocksData.push(block);
+		setCurrentBlocksData(newcurrentBlocksData);
 	}
 	**/
 
@@ -358,15 +360,15 @@ export default function BlockCanvas() {
 					>
 						<BlockFlow
 							ref={blockFlowDOM}
-							map={blocksData}
+							map={currentBlocksData}
 							deleteBlocks={deleteBlocks}
 						></BlockFlow>
 						{showContextualMenu && (
 							<BlockContextualMenu
 								ref={contextMenuDOM}
 								blockData={cMBlockData}
-								blocksData={blocksData}
-								setBlocksData={setBlocksData}
+								currentBlocksData={currentBlocksData}
+								setCurrentBlocksData={setCurrentBlocksData}
 								setShowContextualMenu={setShowContextualMenu}
 								x={cMX}
 								y={cMY}

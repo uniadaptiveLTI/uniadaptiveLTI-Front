@@ -12,7 +12,7 @@ import {
 } from "react-bootstrap-icons";
 import {
 	CreateBlockContext,
-	DeleteBlockContext,
+	BlockInfoContext,
 	notImplemented,
 } from "@components/pages/_app";
 import { BlockOriginContext, deleteblocks } from "./BlockCanvas";
@@ -35,6 +35,7 @@ function BlockContextualMenu(
 ) {
 	const { createdBlock, setCreatedBlock } = useContext(CreateBlockContext);
 	const { blockOrigin, setBlockOrigin } = useContext(BlockOriginContext);
+	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
 
 	const createBlock = () => {
 		//FIXME: It doesn't push the block at start
@@ -56,6 +57,7 @@ function BlockContextualMenu(
 
 	const handleDeleteBlock = () => {
 		setShowContextualMenu(false);
+		setBlockSelected();
 		deleteBlocks(blockData);
 	};
 

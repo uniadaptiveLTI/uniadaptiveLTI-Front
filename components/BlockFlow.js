@@ -22,6 +22,7 @@ import "reactflow/dist/style.css";
 import ActionNode from "./flow/nodes/ActionNode.js";
 import ElementNode from "./flow/nodes/ElementNode.js";
 import {
+	BlockInfoContext,
 	BlockJsonContext,
 	DeleteEdgeContext,
 	ExpandedContext,
@@ -118,6 +119,7 @@ const OverviewFlow = ({ map, deleteBlocks }, ref) => {
 	const { paneContextMenuPosition, setPaneContextMenuPosition } = useContext(
 		PaneContextMenuPositionContext
 	);
+	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
 
 	const [newInitialNodes, setNewInitialNodes] = useState([]);
 	const [newInitialEdges, setNewInitialEdges] = useState([]);
@@ -246,7 +248,7 @@ const OverviewFlow = ({ map, deleteBlocks }, ref) => {
 	}, [newInitialNodes, newInitialEdges]);
 
 	const onNodesDelete = (nodes) => {
-		console.log(nodes);
+		setBlockSelected();
 		deleteBlocks(nodes);
 	};
 
