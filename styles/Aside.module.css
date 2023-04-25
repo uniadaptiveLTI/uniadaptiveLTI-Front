@@ -48,6 +48,23 @@
     opacity: 1;
 }
 
+.uniadaptiveDetails{
+    opacity: 0;
+    visibility: "hidden";
+    max-height:  0;
+    transition: "all .2s"
+}
+
+.uniadaptiveDetails.active{
+    opacity: 1;
+	visibility: "visible";
+    max-height: inherit ;
+}
+
+.uniadaptiveDetails.noAnimation{
+    transition:none;
+}
+
 @media screen and (prefers-reduced-motion: reduce) {
 	.uniadaptive {
 		padding-top: 2.5em;
@@ -58,12 +75,15 @@
         visibility: visible;
         opacity: 1;
 	}
+
+    .uniadaptiveDetails.noAnimation{
+        transition:none;
+    }
  }
 
 .uniadaptive:hover h1{
     text-decoration: underline;
 }
-
 
 
 .uniadaptive p{

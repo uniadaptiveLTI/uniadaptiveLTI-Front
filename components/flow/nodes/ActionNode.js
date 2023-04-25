@@ -155,7 +155,6 @@ function ActionNode({
 			identation: data.identation,
 			conditions: data.conditions,
 		};
-
 		if (expanded != true) {
 			if (type != "start" && type != "end") setExpanded(true);
 		}

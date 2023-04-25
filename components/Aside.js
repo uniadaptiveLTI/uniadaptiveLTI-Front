@@ -233,8 +233,13 @@ export default function Aside({ className, closeBtn }) {
 
 	useEffect(() => {
 		if (blockSelected) {
+			const title = titleDOM.current;
 			const selectElement = relationSelectDOM.current;
 			const optionToSelect = selectElement?.querySelector('option[value=""]');
+
+			if (title) {
+				title.value = blockSelected.title;
+			}
 
 			if (optionToSelect) {
 				optionToSelect.selected = true;
@@ -243,12 +248,7 @@ export default function Aside({ className, closeBtn }) {
 				setShowConditions(false);
 				setSelectedOption(blockSelected.type);
 
-				const title = titleDOM.current;
 				const condition = conditionsDOM.current;
-
-				if (title) {
-					title.value = blockSelected.title;
-				}
 
 				if (condition) {
 					console.log(condition);
@@ -375,11 +375,7 @@ export default function Aside({ className, closeBtn }) {
 
 			{blockSelected &&
 			!(blockSelected.type == "start" || blockSelected.type == "end") ? (
-				<Form
-					method="post"
-					action="javascript:;"
-					onSubmit={allowResourceSelection && updateBlock}
-				>
+				<Form onSubmit={allowResourceSelection ? updateBlock : undefined}>
 					<div className="container-fluid">
 						<Form.Group className="mb-3">
 							<div
@@ -395,12 +391,11 @@ export default function Aside({ className, closeBtn }) {
 								</div>
 							</div>
 							<div
-								style={{
-									opacity: expandedContent ? "1" : "0",
-									visibility: expandedContent ? "visible" : "hidden",
-									maxHeight: expandedContent ? "" : "0",
-									transition: "all .2s",
-								}}
+								className={[
+									styles.uniadaptiveDetails,
+									expandedContent ? styles.active : null,
+									reducedAnimations && styles.noAnimation,
+								].join(" ")}
 							>
 								<Form.Group className="mb-3">
 									<Form.Label htmlFor={titleID} className="mb-1">
@@ -421,7 +416,7 @@ export default function Aside({ className, closeBtn }) {
 										ref={contentDOM}
 										id={contentID}
 										className="w-100"
-										value={selectedOption}
+										defaultValue={selectedOption}
 										onChange={handleSelect}
 									>
 										{platform == "moodle"
@@ -493,13 +488,11 @@ export default function Aside({ className, closeBtn }) {
 							</div>
 
 							<div
-								style={{
-									opacity: expandedAttr ? "1" : "0",
-									visibility: expandedAttr ? "visible" : "hidden",
-									maxHeight: expandedAttr ? "" : "0",
-									transition: "all .2s",
-								}}
-								className="mb-3"
+								className={[
+									styles.uniadaptiveDetails,
+									expandedAttr ? styles.active : null,
+									reducedAnimations && styles.noAnimation,
+								].join(" ")}
 							>
 								<Form.Group>
 									<Form.Label htmlFor="mandatory" className="mb-1">
@@ -528,13 +521,13 @@ export default function Aside({ className, closeBtn }) {
 							</div>
 
 							<div
-								style={{
-									opacity: expandedInteract ? "1" : "0",
-									visibility: expandedInteract ? "visible" : "hidden",
-									maxHeight: expandedInteract ? "" : "0",
-									transition: "all .2s",
-								}}
-								className="mb-3"
+								className={
+									[
+										styles.uniadaptiveDetails,
+										expandedInteract ? styles.active : null,
+										reducedAnimations && styles.noAnimation,
+									].join(" ") + " mb-3"
+								}
 							>
 								<Form.Group>
 									<Form.Label className="mb-1">Visibilidad</Form.Label>
@@ -569,30 +562,31 @@ export default function Aside({ className, closeBtn }) {
 									</div>
 
 									<div
-										style={{
-											opacity: expandedRelations ? "1" : "0",
-											visibility: expandedRelations ? "visible" : "hidden",
-											maxHeight: expandedRelations ? "" : "0",
-											transition: "all .2s",
-										}}
-										className="mb-3"
+										className={
+											[
+												styles.uniadaptiveDetails,
+												expandedRelations ? styles.active : null,
+												reducedAnimations && styles.noAnimation,
+											].join(" ") + "mb-3"
+										}
 									></div>
 
 									<div
-										style={{
-											opacity: expandedRelations ? "1" : "0",
-											visibility: expandedRelations ? "visible" : "hidden",
-											maxHeight: expandedRelations ? "" : "0",
-											transition: "all .2s",
-										}}
-										className="mb-3"
+										className={
+											[
+												styles.uniadaptiveDetails,
+												expandedRelations ? styles.active : null,
+												reducedAnimations && styles.noAnimation,
+											].join(" ") + "mb-3"
+										}
 									>
 										<Form.Select
 											ref={relationSelectDOM}
 											className="mb-3"
 											onChange={handleBlockSelect}
+											defaultValue={""}
 										>
-											<option value="" disabled selected>
+											<option value="" disabled>
 												Escoge una relación
 											</option>
 
@@ -605,7 +599,7 @@ export default function Aside({ className, closeBtn }) {
 													return (
 														<option
 															key={selectedChild.id}
-															value={selectedChild.id}
+															defaultValue={selectedChild.id}
 														>
 															{selectedChild.title}
 														</option>
@@ -663,93 +657,83 @@ export default function Aside({ className, closeBtn }) {
 			)}
 
 			{itinerarySelected ? (
-				<Form method="post" action="/test">
-					<div className="container-fluid">
-						<Form.Group className="mb-3">
-							<div
-								className="d-flex gap-2"
-								role="button"
-								onClick={() => setExpanded(!expanded)}
-							>
-								<div className="fw-bold">Contenido</div>
-								<div>
-									<div>{!expanded ? <CaretUpFill /> : <CaretDownFill />}</div>
-								</div>
+				<div className="container-fluid">
+					<Form.Group className="mb-3">
+						<div
+							className="d-flex gap-2"
+							role="button"
+							onClick={() => setExpanded(!expanded)}
+						>
+							<div className="fw-bold">Contenido</div>
+							<div>
+								<div>{!expanded ? <CaretUpFill /> : <CaretDownFill />}</div>
 							</div>
-							<div
-								style={{
-									opacity: expanded ? "1" : "0",
-									visibility: expanded ? "visible" : "hidden",
-									maxHeight: expanded ? "" : "0",
-									transition: "all .2s",
-								}}
-							>
-								<Form.Group className="mb-3">
-									<Form.Label className="mb-1">
-										Nombre del itinerario
-									</Form.Label>
-									<Form.Control
-										id="itinerary-title"
-										ref={itineraryTitleDOM}
-										type="text"
-										className="w-100"
-									></Form.Control>
-								</Form.Group>
-							</div>
-							<Button
-								onClick={updateItinerary}
-								disabled={!allowResourceSelection}
-							>
-								Guardar
-							</Button>
-						</Form.Group>
-					</div>
-				</Form>
+						</div>
+						<div
+							className={[
+								styles.uniadaptiveDetails,
+								expanded && styles.active,
+								reducedAnimations && styles.noAnimation,
+							]}
+						>
+							<Form.Group className="mb-3">
+								<Form.Label className="mb-1">Nombre del itinerario</Form.Label>
+								<Form.Control
+									id="itinerary-title"
+									ref={itineraryTitleDOM}
+									type="text"
+									className="w-100"
+								></Form.Control>
+							</Form.Group>
+						</div>
+						<Button
+							onClick={updateItinerary}
+							disabled={!allowResourceSelection}
+						>
+							Guardar
+						</Button>
+					</Form.Group>
+				</div>
 			) : (
 				<></>
 			)}
 
 			{selectedEditVersion ? (
-				<Form method="post" action="/test">
-					<div className="container-fluid">
-						<Form.Group className="mb-3">
-							<div
-								className="d-flex gap-2"
-								role="button"
-								onClick={() => setExpanded(!expanded)}
-							>
-								<div className="fw-bold">Contenido</div>
-								<div>
-									<div>{!expanded ? <CaretUpFill /> : <CaretDownFill />}</div>
-								</div>
+				<div className="container-fluid">
+					<Form.Group className="mb-3">
+						<div
+							className="d-flex gap-2"
+							role="button"
+							onClick={() => setExpanded(!expanded)}
+						>
+							<div className="fw-bold">Contenido</div>
+							<div>
+								<div>{!expanded ? <CaretUpFill /> : <CaretDownFill />}</div>
 							</div>
-							<div
-								style={{
-									opacity: expanded ? "1" : "0",
-									visibility: expanded ? "visible" : "hidden",
-									maxHeight: expanded ? "" : "0",
-									transition: "all .2s",
-								}}
-							>
-								<Form.Group className="mb-3">
-									<Form.Label className="mb-1">Nombre de la versión</Form.Label>
-									<Form.Control
-										id="version-title"
-										ref={versionTitleDOM}
-										type="text"
-										className="w-100"
-									></Form.Control>
-								</Form.Group>
-							</div>
-							<Button
-								onClick={updateVersion}
-								disabled={!allowResourceSelection}
-							>
-								Guardar
-							</Button>
-						</Form.Group>
-					</div>
-				</Form>
+						</div>
+						<div
+							style={{
+								opacity: expanded ? "1" : "0",
+								visibility: expanded ? "visible" : "hidden",
+								maxHeight: expanded ? "" : "0",
+								transition: "all .2s",
+							}}
+						>
+							<Form.Group className="mb-3">
+								<Form.Label className="mb-1">Nombre de la versión</Form.Label>
+								<Form.Control
+									id="version-title"
+									ref={versionTitleDOM}
+									type="text"
+									className="w-100"
+								></Form.Control>
+							</Form.Group>
+						</div>
+						<Button onClick={updateVersion} disabled={!allowResourceSelection}>
+							Guardar
+						</Button>
+					</Form.Group>
+				</div>
 			) : (
 				<></>
 			)}

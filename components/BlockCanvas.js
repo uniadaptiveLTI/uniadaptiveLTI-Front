@@ -43,7 +43,6 @@ function addEventListeners(element, events) {
 }
 
 export default function BlockCanvas() {
-	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
 	const { blockJson, setBlockJson } = useContext(BlockJsonContext);
 	const { expanded, setExpanded } = useContext(ExpandedContext);
 	const { settings, setSettings } = useContext(SettingsContext);
