@@ -310,21 +310,6 @@ export default function Aside({ className, closeBtn }) {
 		const childId = event.target.value;
 		setSelectedChild(childId);
 	};
-
-	const listRelations = () => {
-		if (blockSelected.children) {
-			blockSelected.children.map((childId) => {
-				const selectedChild = currentBlocksData.find(
-					(child) => child.id === childId
-				);
-				return (
-					<option key={selectedChild.id} value={selectedChild.id}>
-						{selectedChild.title}
-					</option>
-				);
-			});
-		}
-	};
 	return (
 		<aside className={`${className} ${styles.aside}`}>
 			<div className={"text-center p-2"}>
@@ -553,7 +538,18 @@ export default function Aside({ className, closeBtn }) {
 								<option value="" selected disabled>
 									Escoge una relación
 								</option>
-								{listRelations}
+								{blockSelected.children &&
+									blockSelected.children.map((childId) => {
+										const selectedChild = currentBlocksData.find(
+											(child) => child.id === childId
+										);
+
+										return (
+											<option key={selectedChild.id} value={selectedChild.id}>
+												{selectedChild.title}
+											</option>
+										);
+									})}
 							</Form.Select>
 						</div>
 
