@@ -52,7 +52,8 @@
     opacity: 0;
     visibility: hidden;
     max-height:  0;
-    transition: all .2s
+    transition: all .2s;
+    margin-bottom: 1.5em;
 }
 
 .uniadaptiveDetails.active{
@@ -64,6 +65,7 @@
 .uniadaptiveDetails.noAnimation{
     transition:none;
 }
+
 
 @media screen and (prefers-reduced-motion: reduce) {
 	.uniadaptive {

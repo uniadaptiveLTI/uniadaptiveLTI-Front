@@ -521,13 +521,11 @@ export default function Aside({ className, closeBtn }) {
 							</div>
 
 							<div
-								className={
-									[
-										styles.uniadaptiveDetails,
-										expandedInteract ? styles.active : null,
-										reducedAnimations && styles.noAnimation,
-									].join(" ") + " mb-3"
-								}
+								className={[
+									styles.uniadaptiveDetails,
+									expandedInteract ? styles.active : null,
+									reducedAnimations && styles.noAnimation,
+								].join(" ")}
 							>
 								<Form.Group>
 									<Form.Label className="mb-1">Visibilidad</Form.Label>
@@ -562,23 +560,11 @@ export default function Aside({ className, closeBtn }) {
 									</div>
 
 									<div
-										className={
-											[
-												styles.uniadaptiveDetails,
-												expandedRelations ? styles.active : null,
-												reducedAnimations && styles.noAnimation,
-											].join(" ") + "mb-3"
-										}
-									></div>
-
-									<div
-										className={
-											[
-												styles.uniadaptiveDetails,
-												expandedRelations ? styles.active : null,
-												reducedAnimations && styles.noAnimation,
-											].join(" ") + "mb-3"
-										}
+										className={[
+											styles.uniadaptiveDetails,
+											expandedRelations ? styles.active : null,
+											reducedAnimations && styles.noAnimation,
+										].join(" ")}
 									>
 										<Form.Select
 											ref={relationSelectDOM}
