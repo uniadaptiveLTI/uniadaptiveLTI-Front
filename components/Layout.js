@@ -1,17 +1,9 @@
 import Header from "./Header";
 import Aside from "./Aside";
 import Footer from "./Footer";
-import Image from "next/image";
 
-import { Container, Button } from "react-bootstrap";
-import {
-	useState,
-	useEffect,
-	createContext,
-	useRef,
-	useLayoutEffect,
-} from "react";
-import { CaretDownFill, CaretUpFill } from "react-bootstrap-icons";
+import { Container } from "react-bootstrap";
+import { useState, useRef, useLayoutEffect } from "react";
 import {
 	PlatformContext,
 	BlockInfoContext,

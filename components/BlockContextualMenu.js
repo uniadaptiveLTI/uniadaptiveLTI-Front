@@ -9,6 +9,7 @@ import {
 	Clipboard2Fill,
 	Clipboard2PlusFill,
 	Trash3Fill,
+	Diagram3Fill,
 } from "react-bootstrap-icons";
 import {
 	CreateBlockContext,
@@ -153,7 +154,7 @@ function BlockContextualMenu(
 			newBlocksData[bI].children = [end.id];
 		}
 		setBlockOrigin();
-		setBlocksData(newBlocksData); //FIXME: Los cambios no se mantienen, apuntar a una medalla apunta a 0
+		setBlocksData(newBlocksData); //FIXME: The changes doesn't stay, a badge gives 0
 	};
 
 	return (
@@ -278,6 +279,14 @@ function BlockContextualMenu(
 				)}
 				{contextMenuOrigin == "nodesselection" && (
 					<div ref={ref} className={styles.cM + " "}>
+						<li>
+							<Button variant="light" onClick={notImplemented}>
+								<div>
+									<Diagram3Fill />
+									Crear fragmento
+								</div>
+							</Button>
+						</li>
 						<li>
 							<Button variant="light" onClick={notImplemented}>
 								<div>

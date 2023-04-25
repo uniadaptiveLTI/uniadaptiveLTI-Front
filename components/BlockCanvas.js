@@ -184,6 +184,12 @@ export default function BlockCanvas() {
 		}
 	};
 
+	/**
+	 * Deletes children with the given id from an array of objects.
+	 * @param {string} id - The id of the child to delete.
+	 * @param {Object[]} arr - The array of objects to search for children.
+	 * @returns {Object[]} - The updated array of objects with the specified child removed.
+	 */
 	const deleteRelatedChildrenById = (id, arr) => {
 		return arr.map((b) => {
 			if (b.children?.includes(id)) {
@@ -200,6 +206,12 @@ export default function BlockCanvas() {
 		});
 	};
 
+	/**
+	 * Deletes conditions with the given unlockId from an array of objects.
+	 * @param {string} unlockId - The unlockId of the condition to delete.
+	 * @param {Object[]} arr - The array of objects to search for conditions.
+	 * @returns {Object[]} - The updated array of objects with the specified condition removed.
+	 */
 	const deleteRelatedConditionsById = (unlockId, arr) => {
 		return arr.map((b) => {
 			if (b.conditions?.length) {
@@ -220,32 +232,6 @@ export default function BlockCanvas() {
 			}
 		});
 	};
-
-	/*const deleteRelatedConditionsBySourceAndTarget = (source, target, arr) => {
-		const match = arr.find((obj) => obj.id === source);
-
-		return arr.map((b) => {
-			if (b.conditions?.length) {
-				const updatedConditions = b.conditions.filter(
-					(condition) => condition.unlockId !== unlockId
-				);
-				return {
-					...b,
-					conditions: updatedConditions.length ? updatedConditions : undefined,
-				};
-			} else if (b.children?.length) {
-				return {
-					...b,
-					children: deleteRelatedConditionsBySourceAndTarget(
-						unlockId,
-						b.children
-					),
-				};
-			} else {
-				return b;
-			}
-		});
-	};*/
 
 	useEffect(() => {
 		addEventListeners(document.body, [
@@ -294,7 +280,10 @@ export default function BlockCanvas() {
 		const bounds = bF.getBoundingClientRect();
 		if (bF) {
 			if (bF.contains(e.target)) {
-				if (e.target.classList.contains("block")) {
+				if (
+					e.target.classList.contains("block") &&
+					document.getElementsByClassName("selected").length == 1
+				) {
 					if (selectedBlock) {
 						e.preventDefault();
 						setCMX(e.clientX - bounds.left);
@@ -319,7 +308,9 @@ export default function BlockCanvas() {
 						setShowContextualMenu(true);
 					}
 				} else if (
-					e.target.classList.contains("react-flow__nodesselection-rect")
+					e.target.classList.contains("react-flow__nodesselection-rect") ||
+					(e.target.classList.contains("block") &&
+						document.getElementsByClassName("selected").length > 1)
 				) {
 					e.preventDefault();
 					setCMX(e.clientX - bounds.left);
@@ -330,26 +321,6 @@ export default function BlockCanvas() {
 			}
 		}
 	}
-
-	/*
-	function updateBlockData(nuevoBloque) {
-		setVersiones((prevVersiones) => {
-			return prevVersiones.map((version) => {
-				if (version.id === nuevaVersion.id) {
-					return { ...version, ...nuevaVersion };
-				} else {
-					return version;
-				}
-			});
-		});
-	}
-
-	function blockAdd(block) {
-		let newcurrentBlocksData = [...currentBlocksData];
-		newcurrentBlocksData.push(block);
-		setCurrentBlocksData(newcurrentBlocksData);
-	}
-	**/
 
 	return (
 		<CreateBlockContext.Provider value={{ createdBlock, setCreatedBlock }}>
@@ -367,8 +338,8 @@ export default function BlockCanvas() {
 							<BlockContextualMenu
 								ref={contextMenuDOM}
 								blockData={cMBlockData}
-								currentBlocksData={currentBlocksData}
-								setCurrentBlocksData={setCurrentBlocksData}
+								blocksData={currentBlocksData}
+								setBlocksData={setCurrentBlocksData}
 								setShowContextualMenu={setShowContextualMenu}
 								x={cMX}
 								y={cMY}

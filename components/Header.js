@@ -983,6 +983,10 @@ function Header({ closeBtn }, ref) {
 
 	const { map, setMap } = useContext(MapContext);
 
+	/**
+	 * Updates the version of an object in an array of versions.
+	 * @param {Object} newVersion - The new version object to update.
+	 */
 	function updateVersion(newVersion) {
 		setVersions((prevVersions) => {
 			return prevVersions.map((version) => {
@@ -1164,6 +1168,9 @@ function Header({ closeBtn }, ref) {
 		setSelectedEditVersion(selectedVersion);
 	};
 
+	/**
+	 * Shows a modal to confirm deletion of an itinerary.
+	 */
 	const showDeleteItineraryModal = () => {
 		setModalTitle(`¿Eliminar "${selectedMap.name}"?`);
 		setModalBody(`¿Desea eliminar "${selectedMap.name}"?`);
@@ -1187,6 +1194,9 @@ function Header({ closeBtn }, ref) {
 		}
 	};
 
+	/**
+	 * Shows a modal to confirm deletion of a version.
+	 */
 	const showDeleteVersionModal = () => {
 		setModalTitle(`¿Eliminar "${selectedVersion.name}"?`);
 		setModalBody(`¿Desea eliminar "${selectedVersion.name}"?`);
@@ -1284,8 +1294,7 @@ function Header({ closeBtn }, ref) {
 		<Popover id="popover-basic">
 			<Popover.Header as="h3"></Popover.Header>
 			<Popover.Body>
-				And here&apos;s some <strong>amazing</strong> content. It&apos;s very
-				engaging. right?
+				Utilizaremos este botón para mostrar un tutorial de la herramienta LTI.
 			</Popover.Body>
 		</Popover>
 	);
@@ -1375,6 +1384,7 @@ function Header({ closeBtn }, ref) {
 									: "d-flex align-items-center justify-content-evenly col-sm-7"
 							}
 						>
+							{/*FIXME: For any reason this Dropdown triggers an hydration error*/}
 							<Dropdown className={`btn-light d-flex align-items-center`}>
 								<Dropdown.Toggle
 									variant="light"
@@ -1387,16 +1397,14 @@ function Header({ closeBtn }, ref) {
 									<Dropdown.Item onClick={handleNewItinerary}>
 										Crear nuevo itinerario
 									</Dropdown.Item>
-									{selectedMap.id != -1 ? (
+									{selectedMap.id >= 0 && (
 										<Dropdown.Item onClick={handleNewVersion}>
 											Crear nueva versión
 										</Dropdown.Item>
-									) : (
-										<></>
 									)}
 								</Dropdown.Menu>
 							</Dropdown>
-							{selectedMap.id != -1 ? (
+							{selectedMap.id >= 0 && (
 								<>
 									<Dropdown className={`btn-light d-flex align-items-center`}>
 										<Dropdown.Toggle
@@ -1449,8 +1457,6 @@ function Header({ closeBtn }, ref) {
 										></Image>
 									</Button>
 								</>
-							) : (
-								<></>
 							)}
 
 							<OverlayTrigger
@@ -1565,26 +1571,6 @@ function Header({ closeBtn }, ref) {
 					<Modal.Footer>
 						<Button variant="secondary" onClick={closeModalVersiones}>
 							Cerrar
-						</Button>
-						<Button
-							variant="success"
-							onClick={() => {
-								let nuevaVersion = selectedVersion;
-								let p = prompt();
-								if (p) {
-									nuevaVersion.name = p.trim();
-									updateVersion(nuevaVersion);
-								}
-								closeModalVersiones();
-							}}
-						>
-							Editar nombre
-						</Button>
-						<Button variant="danger" onClick={closeModalVersiones}>
-							Borrar
-						</Button>
-						<Button variant="primary" onClick={closeModalVersiones}>
-							Crear desde existente
 						</Button>
 					</Modal.Footer>
 				</Modal>

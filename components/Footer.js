@@ -1,7 +1,7 @@
 import { SettingsContext } from "@components/pages/_app";
 import styles from "@components/styles/Footer.module.css";
 import { useEffect, useState, useContext } from "react";
-import { Button, Container } from "react-bootstrap";
+import { Container } from "react-bootstrap";
 import { CaretDownFill, CaretUpFill } from "react-bootstrap-icons";
 
 export default function Footer({ msg, className }) {

@@ -7,14 +7,11 @@ import React, {
 	useCallback,
 } from "react";
 import ReactFlow, {
-	addEdge,
 	MiniMap,
 	Controls,
 	Background,
 	useNodesState,
 	useEdgesState,
-	MarkerType,
-	SmoothStepEdge,
 	ControlButton,
 } from "reactflow";
 import { useHotkeys } from "react-hotkeys";
@@ -272,12 +269,6 @@ const OverviewFlow = ({ map, deleteBlocks }, ref) => {
 		setDeletedEdge(nodes[0]);
 	};
 
-	const onPaneContextMenu = useCallback((e) => {
-		const { top, left } = reactFlowWrapper.current.getBoundingClientRect();
-		//console.log(project({ x: e.clientX - left - 75, y: e.clientY - top }));
-		//setPaneContextMenuPosition({x: ,y:})
-	});
-
 	const onLoad = () => {};
 
 	useEffect(() => {
@@ -355,7 +346,6 @@ const OverviewFlow = ({ map, deleteBlocks }, ref) => {
 				onConnect={onConnect}
 				onInit={onInit}
 				onLoad={onLoad}
-				onPaneContextMenu={onPaneContextMenu}
 				fitView
 				proOptions={{ hideAttribution: true }}
 				nodeTypes={nodeTypes}

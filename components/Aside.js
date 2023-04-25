@@ -43,7 +43,7 @@ export default function Aside({ className, closeBtn }) {
 	const parsedSettings = JSON.parse(settings);
 	let { reducedAnimations, autoHideAside } = parsedSettings;
 
-	//Referencias
+	//References
 	const titleDOM = useRef(null);
 	const optionsDOM = useRef(null);
 	const conditionsDOM = useRef(null);
@@ -57,10 +57,6 @@ export default function Aside({ className, closeBtn }) {
 	const optionsID = useId();
 	const contentID = useId();
 	//TODO: Add the rest
-	/*
-	const itineraryId = useId();
-	const versionId = useId();
-	*/
 
 	const [secondOptions, setSecondOptions] = useState([]);
 	const { blockJson, setBlockJson } = useContext(BlockJsonContext);
