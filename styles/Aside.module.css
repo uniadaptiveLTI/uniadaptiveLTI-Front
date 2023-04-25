@@ -50,14 +50,14 @@
 
 .uniadaptiveDetails{
     opacity: 0;
-    visibility: "hidden";
+    visibility: hidden;
     max-height:  0;
-    transition: "all .2s"
+    transition: all .2s
 }
 
 .uniadaptiveDetails.active{
     opacity: 1;
-	visibility: "visible";
+	visibility: visible;
     max-height: inherit ;
 }
 
@@ -76,7 +76,7 @@
         opacity: 1;
 	}
 
-    .uniadaptiveDetails.noAnimation{
+    .uniadaptiveDetails{
         transition:none;
     }
  }
