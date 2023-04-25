@@ -949,7 +949,7 @@ function Header({ closeBtn }, ref) {
 					],
 				},
 				{
-					id: 0,
+					id: 1,
 					name: "Versión vacía",
 					lastUpdate: "05/03/2023",
 					default: "false",

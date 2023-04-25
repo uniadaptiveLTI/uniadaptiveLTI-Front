@@ -373,6 +373,7 @@ export default function BlockCanvas() {
 								x={cMX}
 								y={cMY}
 								contextMenuOrigin={contextMenuOrigin}
+								blockFlowDOM={blockFlowDOM}
 								deleteBlocks={deleteBlocks}
 							/>
 						)}

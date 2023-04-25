@@ -81,37 +81,37 @@ export default function Aside({ className, closeBtn }) {
 	];
 
 	const [moodleResource, setMoodleResource] = useState([
-		{ id: 0, value: "questionnaire", name: "Cuestionario", default: "true" },
-		{ id: 1, value: "assignment", name: "Tarea", default: "true" },
-		{ id: 3, value: "workshop", name: "Taller", default: "true" },
-		{ id: 4, value: "choice", name: "Consulta", default: "true" },
-		{ id: 5, value: "forum", name: "Foro", default: "true" },
-		{ id: 6, value: "file", name: "Archivo", default: "true" },
-		{ id: 7, value: "folder", name: "Carpeta", default: "true" },
-		{ id: 8, value: "tag", name: "Etiqueta", default: "true" },
-		{ id: 9, value: "page", name: "Página", default: "true" },
-		{ id: 10, value: "url", name: "URL", default: "true" },
-		{ id: 11, value: "badge", name: "Medalla", default: "true" },
-		//{ id: 12, value: "fragment", name: "Fragmento", default: "true" },
+		{ id: 0, value: "questionnaire", name: "Cuestionario" },
+		{ id: 1, value: "assignment", name: "Tarea" },
+		{ id: 3, value: "workshop", name: "Taller" },
+		{ id: 4, value: "choice", name: "Consulta" },
+		{ id: 5, value: "forum", name: "Foro" },
+		{ id: 6, value: "file", name: "Archivo" },
+		{ id: 7, value: "folder", name: "Carpeta" },
+		{ id: 8, value: "tag", name: "Etiqueta" },
+		{ id: 9, value: "page", name: "Página" },
+		{ id: 10, value: "url", name: "URL" },
+		{ id: 11, value: "badge", name: "Medalla" },
+		{ id: 13, value: "generic", name: "Genérico" },
+		//{ id: 12, value: "fragment", name: "Fragmento"}
 	]);
 
 	const [sakaiResource, setSakaiResource] = useState([
-		{ id: 0, value: "questionnaire", name: "Exámenes", default: "true" },
-		{ id: 1, value: "assignment", name: "Tareas", default: "true" },
-		{ id: 3, value: "forum", name: "Foro", default: "true" },
-		{ id: 4, value: "resources", name: "Recursos", default: "true" },
-		{ id: 5, value: "file", name: "Archivo", default: "true" },
-		{ id: 6, value: "folder", name: "Carpeta", default: "true" },
-		{ id: 7, value: "url", name: "URL", default: "true" },
-		{ id: 8, value: "page", name: "Página", default: "true" },
+		{ id: 0, value: "questionnaire", name: "Exámenes" },
+		{ id: 1, value: "assignment", name: "Tareas" },
+		{ id: 3, value: "forum", name: "Foro" },
+		{ id: 4, value: "resources", name: "Recursos" },
+		{ id: 5, value: "file", name: "Archivo" },
+		{ id: 6, value: "folder", name: "Carpeta" },
+		{ id: 7, value: "url", name: "URL" },
+		{ id: 8, value: "page", name: "Página" },
 		{
 			id: 9,
 			value: "file",
 			name: "Documento de texto simple",
-			default: "true",
 		},
-		{ id: 10, value: "html-page", name: "Página HTML", default: "true" },
-		//{ id: 11, value: "fragment", name: "Fragmento", default: "true" },
+		{ id: 10, value: "html-page", name: "Página HTML" },
+		//{ id: 11, value: "fragment", name: "Fragmento}
 	]);
 
 	useEffect(() => {
@@ -353,7 +353,11 @@ export default function Aside({ className, closeBtn }) {
 
 			{blockSelected &&
 			!(blockSelected.type == "start" || blockSelected.type == "end") ? (
-				<Form method="post" action="/test">
+				<Form
+					method="post"
+					action="javascript:;"
+					onSubmit={allowResourceSelection && updateBlock}
+				>
 					<div className="container-fluid">
 						<Form.Group className="mb-3">
 							<div

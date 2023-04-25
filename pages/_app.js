@@ -22,6 +22,7 @@ export const PlatformContext = createContext("moodle");
 export const BlocksDataContext = createContext();
 export const MainDOMContext = createContext();
 export const OnlineContext = createContext();
+export const ReactFlowInstanceContext = createContext();
 
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
@@ -41,6 +42,7 @@ export default function App({ Component, pageProps }) {
 			autoHideMSGBox: true,
 		})
 	);
+	const [reactFlowInstance, setReactFlowInstance] = useState();
 	const { isOnline, isOffline } = useIsOnline();
 
 	useEffect(() => {
@@ -64,10 +66,14 @@ export default function App({ Component, pageProps }) {
 	return (
 		<OnlineContext.Provider value={{ isOnline, isOffline }}>
 			<SettingsContext.Provider value={{ settings, setSettings }}>
-				<Layout>
-					<ToastContainer />
-					<Component {...pageProps} />
-				</Layout>
+				<ReactFlowInstanceContext.Provider
+					value={{ reactFlowInstance, setReactFlowInstance }}
+				>
+					<Layout>
+						<ToastContainer />
+						<Component {...pageProps} />
+					</Layout>
+				</ReactFlowInstanceContext.Provider>
 			</SettingsContext.Provider>
 		</OnlineContext.Provider>
 	);

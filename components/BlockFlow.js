@@ -26,6 +26,7 @@ import {
 	BlockJsonContext,
 	DeleteEdgeContext,
 	ExpandedContext,
+	ReactFlowInstanceContext,
 } from "@components/pages/_app.js";
 import FinalNode from "./flow/nodes/FinalNode.js";
 import InitialNode from "./flow/nodes/InitialNode.js";
@@ -36,9 +37,6 @@ import { PaneContextMenuPositionContext } from "./BlockCanvas.js";
 const minimapStyle = {
 	height: 120,
 };
-
-const onInit = (reactFlowInstance) =>
-	console.log("flow loaded:", reactFlowInstance);
 
 const nodeColor = (node) => {
 	//TODO: Add the rest
@@ -67,6 +65,8 @@ const nodeColor = (node) => {
 			return "#6c757d";
 		case "badge":
 			return "#198754";
+		case "generic":
+			return "#1f1e42";
 		//Sakai
 		case "exam":
 			return "#dc3545";
@@ -101,6 +101,7 @@ const nodeTypes = {
 	choice: ElementNode,
 	tag: ElementNode,
 	page: ElementNode,
+	generic: ElementNode,
 	// Sakai
 	exam: ElementNode,
 	contents: ElementNode,
@@ -120,6 +121,9 @@ const OverviewFlow = ({ map, deleteBlocks }, ref) => {
 		PaneContextMenuPositionContext
 	);
 	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
+	const { reactFlowInstance, setReactFlowInstance } = useContext(
+		ReactFlowInstanceContext
+	);
 
 	const [newInitialNodes, setNewInitialNodes] = useState([]);
 	const [newInitialEdges, setNewInitialEdges] = useState([]);
@@ -158,6 +162,11 @@ const OverviewFlow = ({ map, deleteBlocks }, ref) => {
 			</Controls>
 		);
 	}
+
+	const onInit = (reactFlowInstance) => {
+		console.log("flow loaded:", reactFlowInstance);
+		setReactFlowInstance(reactFlowInstance);
+	};
 
 	const handleNodeDragStart = (event, node) => {
 		draggedNodePosition.current = node.position;
@@ -346,7 +355,9 @@ const OverviewFlow = ({ map, deleteBlocks }, ref) => {
 				snapGrid={[125, 175]}
 				//connectionLineComponent={}
 				snapToGrid={true}
-				deleteKeyCode={"Delete"}
+				deleteKeyCode={["Backspace", "Delete", "d"]}
+				multiSelectionKeyCode={["Shift"]}
+				selectionKeyCode={["Shift"]}
 			>
 				{minimap && (
 					<MiniMap

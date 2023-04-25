@@ -13,7 +13,10 @@ import {
 import {
 	CreateBlockContext,
 	BlockInfoContext,
+	ExpandedContext,
 	notImplemented,
+	ReactFlowInstanceContext,
+	PlatformContext,
 } from "@components/pages/_app";
 import { BlockOriginContext, deleteblocks } from "./BlockCanvas";
 import { ActionBlocks } from "./flow/nodes/ActionNode";
@@ -29,6 +32,7 @@ function BlockContextualMenu(
 		setBlocksData,
 		setShowContextualMenu,
 		contextMenuOrigin,
+		blockFlowDOM,
 		deleteBlocks,
 	},
 	ref
@@ -36,20 +40,66 @@ function BlockContextualMenu(
 	const { createdBlock, setCreatedBlock } = useContext(CreateBlockContext);
 	const { blockOrigin, setBlockOrigin } = useContext(BlockOriginContext);
 	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
+	const { reactFlowInstance, setReactFlowInstance } = useContext(
+		ReactFlowInstanceContext
+	);
+	const { expanded, setExpanded } = useContext(ExpandedContext);
+	const { platform, setPlatform } = useContext(PlatformContext);
 
-	const createBlock = () => {
-		//FIXME: It doesn't push the block at start
+	const createBlock = (blockData) => {
 		//TODO: Block selector
-		const newBlockCreated = {
-			id: uniqueId(),
-			x: x,
-			y: y,
-			type: "forum",
-			title: "Nuevo Foro",
-			children: undefined,
-			order: 100,
-			unit: 1,
-		};
+		const reactFlowBounds = blockFlowDOM.current?.getBoundingClientRect();
+		let flowPos = reactFlowInstance.project({
+			x: x - reactFlowBounds.left,
+			y: y - reactFlowBounds.top,
+		});
+
+		if (expanded) {
+			const asideBounds = document
+				.getElementsByTagName("aside")[0]
+				.getBoundingClientRect();
+			flowPos.x += Math.floor(asideBounds.width / 125) * 125;
+		}
+
+		let newBlockCreated;
+
+		if (blockData) {
+			//TODO: Make it variable
+			newBlockCreated = {
+				id: uniqueId(),
+				x: flowPos.x,
+				y: flowPos.y + 175,
+				type: "file",
+				title: "Nuevo bloque",
+				children: undefined,
+				order: 100,
+				unit: 1,
+			};
+		} else {
+			if (platform == "moodle") {
+				newBlockCreated = {
+					id: uniqueId(),
+					x: flowPos.x,
+					y: flowPos.y + 175,
+					type: "generic",
+					title: "Nuevo bloque",
+					children: undefined,
+					order: 100,
+					unit: 1,
+				};
+			} else {
+				newBlockCreated = {
+					id: uniqueId(),
+					x: flowPos.x,
+					y: flowPos.y + 175,
+					type: "file",
+					title: "Nuevo bloque",
+					children: undefined,
+					order: 100,
+					unit: 1,
+				};
+			}
+		}
 
 		setShowContextualMenu(false);
 		setCreatedBlock(newBlockCreated);
@@ -123,7 +173,7 @@ function BlockContextualMenu(
 				{contextMenuOrigin == "pane" && (
 					<div ref={ref} className={styles.cM + " "}>
 						<li>
-							<Button variant="light" onClick={createBlock}>
+							<Button variant="light" onClick={() => createBlock()}>
 								<div role="button">
 									<PlusSquareFill />
 									Crear nuevo bloque...

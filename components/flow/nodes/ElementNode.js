@@ -160,6 +160,9 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 			case "page":
 				humanType = "Página";
 				break;
+			case "generic":
+				humanType = "Genérico";
+				break;
 			//Sakai
 			case "exam":
 				humanType = "Examen";

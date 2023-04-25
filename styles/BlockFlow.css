@@ -137,6 +137,15 @@
 	background-color: #0e683e;
 }
 
+/* Generic */
+.react-flow__node-generic {
+	background: #1f1e42;
+}
+
+.react-flow__node-generic:hover, .react-flow__node-generic:focus-visible, .react-flow__node-generic:active {
+	background: #383753;
+}
+
 /* Sakai */
 
 /*FIXME: HACER LOS DE SAKAI*/
