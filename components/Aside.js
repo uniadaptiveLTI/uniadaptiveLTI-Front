@@ -24,7 +24,8 @@ export default function Aside({ className, closeBtn }) {
 	const [expandedContent, setExpandedContent] = useState(true);
 	const [expandedAttr, setExpandedAttr] = useState(true);
 	const [expandedInteract, setExpandedInteract] = useState(true);
-	const [expandedCondition, setExpandedCondition] = useState(true);
+	const [expandedRelations, setExpandedRelations] = useState(true);
+	const [expandedCondition, setExpandedCondition] = useState(false);
 
 	const [selectedOption, setSelectedOption] = useState("");
 	const [showSpinner, setShowSpinner] = useState(false);
@@ -500,131 +501,153 @@ export default function Aside({ className, closeBtn }) {
 								</Form.Group>
 							</div>
 						</div>
-
-						<div className="mb-2">
-							<div
-								className="d-flex gap-2"
-								role="button"
-								onClick={() => setExpandedCondition(!expandedCondition)}
-							>
-								<div className="fw-bold">Relaciones</div>
-								<div>
-									<div role="button">
-										{!expandedCondition ? <CaretUpFill /> : <CaretDownFill />}
-									</div>
-								</div>
-							</div>
-
-							<div
-								style={{
-									opacity: expandedCondition ? "1" : "0",
-									visibility: expandedCondition ? "visible" : "hidden",
-									maxHeight: expandedCondition ? "" : "0",
-									transition: "all .2s",
-								}}
-								className="mb-3"
-							></div>
-						</div>
-						<div
-							style={{
-								opacity: expandedCondition ? "1" : "0",
-								visibility: expandedCondition ? "visible" : "hidden",
-								maxHeight: expandedCondition ? "" : "0",
-								transition: "all .2s",
-							}}
-							className="mb-3"
-						>
-							<Form.Select onChange={handleBlockSelect}>
-								<option value="" selected disabled>
-									Escoge una relación
-								</option>
-								{blockSelected.children &&
-									blockSelected.children.map((childId) => {
-										const selectedChild = currentBlocksData.find(
-											(child) => child.id === childId
-										);
-
-										return (
-											<option key={selectedChild.id} value={selectedChild.id}>
-												{selectedChild.title}
-											</option>
-										);
-									})}
-							</Form.Select>
-						</div>
-
-						<div className="mb-2">
-							<div
-								className="d-flex gap-2"
-								role="button"
-								onClick={() => setExpandedCondition(!expandedCondition)}
-							>
-								<div className="fw-bold">Condiciones</div>
-								<div>
-									<div role="button">
-										{!expandedCondition ? <CaretUpFill /> : <CaretDownFill />}
-									</div>
-								</div>
-							</div>
-							{showConditions &&
-								matchingConditions.map((condition) => {
-									return (
-										<div
-											style={{
-												opacity: expandedCondition ? "1" : "0",
-												visibility: expandedCondition ? "visible" : "hidden",
-												maxHeight: expandedCondition ? "" : "0",
-												transition: "all .2s",
-											}}
-											className="mb-3"
-										>
-											<Form.Group className="mb-3">
-												<Form.Label htmlFor={titleID} className="mb-1">
-													Tipo de relación
-												</Form.Label>
-												<Form.Select value={condition.type}>
-													{conditionTypes.map((conditionType) => {
-														return (
-															<option
-																value={conditionType.value}
-																key={conditionType.value}
-															>
-																{conditionType.name}
-															</option>
-														);
-													})}
-												</Form.Select>
-											</Form.Group>
-											<Form.Group className="mb-3">
-												<Form.Label htmlFor={titleID} className="mb-1">
-													Operante
-												</Form.Label>
-												<Form.Select value={condition.operand}>
-													{qualificationOperand.map((operand) => {
-														return (
-															<option value={operand.value} key={operand.value}>
-																{operand.name}
-															</option>
-														);
-													})}
-												</Form.Select>
-											</Form.Group>
-											<Form.Group className="mb-3">
-												<Form.Label htmlFor={titleID} className="mb-1">
-													Objetivo
-												</Form.Label>
-												<Form.Control
-													ref={titleDOM}
-													id={titleID}
-													type="number"
-													className="w-100"
-													value={condition.objective}
-												></Form.Control>
-											</Form.Group>
+						{blockSelected.children && (
+							<div>
+								<div className="mb-2">
+									<div
+										className="d-flex gap-2"
+										role="button"
+										onClick={() => {
+											setExpandedRelations(!expandedRelations);
+											setExpandedCondition(false);
+										}}
+									>
+										<div className="fw-bold">Relaciones</div>
+										<div>
+											<div role="button">
+												{!expandedRelations ? (
+													<CaretUpFill />
+												) : (
+													<CaretDownFill />
+												)}
+											</div>
 										</div>
-									);
-								})}
-						</div>
+									</div>
+
+									<div
+										style={{
+											opacity: expandedRelations ? "1" : "0",
+											visibility: expandedRelations ? "visible" : "hidden",
+											maxHeight: expandedRelations ? "" : "0",
+											transition: "all .2s",
+										}}
+										className="mb-3"
+									></div>
+
+									<div
+										style={{
+											opacity: expandedRelations ? "1" : "0",
+											visibility: expandedRelations ? "visible" : "hidden",
+											maxHeight: expandedRelations ? "" : "0",
+											transition: "all .2s",
+										}}
+										className="mb-3"
+									>
+										<Form.Select onChange={handleBlockSelect}>
+											<option value="" selected disabled>
+												Escoge una relación
+											</option>
+											{blockSelected.children &&
+												blockSelected.children.map((childId) => {
+													const selectedChild = currentBlocksData.find(
+														(child) => child.id === childId
+													);
+
+													return (
+														<option
+															key={selectedChild.id}
+															value={selectedChild.id}
+														>
+															{selectedChild.title}
+														</option>
+													);
+												})}
+										</Form.Select>
+									</div>
+								</div>
+								<div className="mb-2">
+									<div
+										className="d-flex gap-2"
+										role="button"
+										onClick={() => setExpandedCondition(!expandedCondition)}
+									>
+										<div className="fw-bold">Condición</div>
+										<div>
+											<div role="button">
+												{!expandedCondition ? (
+													<CaretUpFill />
+												) : (
+													<CaretDownFill />
+												)}
+											</div>
+										</div>
+									</div>
+									{showConditions &&
+										matchingConditions.map((condition) => {
+											return (
+												<div
+													style={{
+														opacity: expandedCondition ? "1" : "0",
+														visibility: expandedCondition
+															? "visible"
+															: "hidden",
+														maxHeight: expandedCondition ? "" : "0",
+														transition: "all .2s",
+													}}
+													className="mb-3"
+												>
+													<Form.Group className="mb-3">
+														<Form.Label htmlFor={titleID} className="mb-1">
+															Tipo de relación
+														</Form.Label>
+														<Form.Select value={condition.type}>
+															{conditionTypes.map((conditionType) => {
+																return (
+																	<option
+																		value={conditionType.value}
+																		key={conditionType.value}
+																	>
+																		{conditionType.name}
+																	</option>
+																);
+															})}
+														</Form.Select>
+													</Form.Group>
+													<Form.Group className="mb-3">
+														<Form.Label htmlFor={titleID} className="mb-1">
+															Operante
+														</Form.Label>
+														<Form.Select value={condition.operand}>
+															{qualificationOperand.map((operand) => {
+																return (
+																	<option
+																		value={operand.value}
+																		key={operand.value}
+																	>
+																		{operand.name}
+																	</option>
+																);
+															})}
+														</Form.Select>
+													</Form.Group>
+													<Form.Group className="mb-3">
+														<Form.Label htmlFor={titleID} className="mb-1">
+															Objetivo
+														</Form.Label>
+														<Form.Control
+															ref={titleDOM}
+															id={titleID}
+															type="number"
+															className="w-100"
+															value={condition.objective}
+														></Form.Control>
+													</Form.Group>
+												</div>
+											);
+										})}
+								</div>
+							</div>
+						)}
 						<Button onClick={updateBlock} disabled={!allowResourceSelection}>
 							Guardar
 						</Button>
