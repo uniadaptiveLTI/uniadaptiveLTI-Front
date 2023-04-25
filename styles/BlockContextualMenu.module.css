@@ -1,22 +1,3 @@
-.cM::before {
-	content: ' ';
-	width: 8px;
-	height: 8px;
-	position: absolute;
-	top: 5em;
-	left: -9px;
-	border-top: 10px solid transparent;
-	border-right: 10px solid white;
-	border-bottom: 10px solid transparent;
-}
-
-.cM.reversed::before{
-	left: auto;
-	right: -9px;
-	border-right: 0;
-	border-left: 10px solid white;
-}
-
 .cM {
 	position: fixed;
 	border-radius: 4px;
@@ -24,8 +5,9 @@
 	margin: 0;
 	padding: 0;
 	background: white;
-	filter: drop-shadow(0 5px 5px rgba(0, 0, 0, 0.5));
-	z-index: 1;
+	filter: drop-shadow(2.5px 5px 5px rgba(0, 0, 0, 0.4));
+	z-index: 999999999999999999999999999999999999999999999999999999999;
+	padding: 5px 0;
 }
 
 .cM li {
@@ -35,8 +17,6 @@
 	padding: 0 .15em;
 }
 
-
-
 .cM button {
 	width: 100%;
 	white-space: nowrap;
@@ -45,6 +25,13 @@
 	border-radius: 0;
 	background-color: white;
 	border: none;
+	height: 2.5em;
+	display:flex;
+	align-items: center;
+}
+
+.cM li:last-of-type {
+	border-bottom: none;
 }
 
 .cM button div {

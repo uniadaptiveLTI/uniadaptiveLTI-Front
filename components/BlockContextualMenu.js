@@ -9,322 +9,153 @@ import {
 	Clipboard2Fill,
 	Clipboard2PlusFill,
 	Trash3Fill,
+	Diagram3Fill,
 } from "react-bootstrap-icons";
-import { CreateBlockContext, DeleteBlockContext } from "@components/pages/_app";
+import {
+	CreateBlockContext,
+	BlockInfoContext,
+	ExpandedContext,
+	notImplemented,
+	ReactFlowInstanceContext,
+	PlatformContext,
+} from "@components/pages/_app";
+import { BlockOriginContext, deleteblocks } from "./BlockCanvas";
+import { ActionBlocks } from "./flow/nodes/ActionNode";
 import { toast } from "react-toastify";
+import { uniqueId } from "./Utils";
 
-/**
- * Displays a toast message indicating that the function has not been implemented.
- */
-const notImplemented = () => {
-	toast("Esta función no ha sido implementada.", {
-		hideProgressBar: false,
-		autoClose: 2000,
-		type: "error",
-		position: "bottom-center",
-		theme: "colored",
-	});
-};
-
-/**
- * Renders a contextual menu for a block.
- * @param {number} x - The x position of the block.
- * @param {number} y - The y position of the block.
- * @param {Object} dimensions - The dimensions of the block canvas and contextual menu.
- * @param {Object} blockData - The data of the selected block.
- * @param {Array} blocksData - An array of all blocks data.
- * @param {function} setBlocksData - A function to update the blocks data.
- * @param {function} setShowContextualMenu - A function to show/hide the contextual menu.
- * @param {Object} ref - A React ref to access the DOM element of the component.
- */
 function BlockContextualMenu(
 	{
 		x,
 		y,
-		dimensions,
 		blockData,
 		blocksData,
 		setBlocksData,
 		setShowContextualMenu,
+		contextMenuOrigin,
+		blockFlowDOM,
+		deleteBlocks,
 	},
 	ref
 ) {
-	let [localDimensions, setLocalDimensions] = useState(
-		dimensions
-			? JSON.parse(dimensions)
-			: {
-					blockCanvasOffsetX: 0,
-					blockCanvasOffsetY: 0,
-					blockCanvasScrollX: 0,
-					blockCanvasScrollY: 0,
-					contextMenuOffsetX: 0,
-					contextMenuOffsetY: 0,
-			  }
-	);
-	const [reversed, setReversed] = useState(
-		blockData.type == "end" ? true : false
-	);
-
-	const [initialValues, setInitialValues] = useState({
-		scrollX: localDimensions.blockCanvasScrollX,
-		scrollY: localDimensions.blockCanvasScrollY,
-	});
-
 	const { createdBlock, setCreatedBlock } = useContext(CreateBlockContext);
-	const { deletedBlock, setDeletedBlock } = useContext(DeleteBlockContext);
+	const { blockOrigin, setBlockOrigin } = useContext(BlockOriginContext);
+	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
+	const { reactFlowInstance, setReactFlowInstance } = useContext(
+		ReactFlowInstanceContext
+	);
+	const { expanded, setExpanded } = useContext(ExpandedContext);
+	const { platform, setPlatform } = useContext(PlatformContext);
 
-	const handleScroll = (e) => {
-		setLocalDimensions((prevState) => ({
-			...prevState,
-			blockCanvasScrollX: e.target.scrollLeft,
-			blockCanvasScrollY: e.target.scrollTop,
-		}));
-	};
+	const asideBounds = expanded
+		? document.getElementsByTagName("aside")[0]?.getBoundingClientRect()
+		: 0;
 
-	const createBlock = () => {
-		const lastId = blocksData[blocksData.length - 1].id;
-		const newId = lastId + 1;
+	const createBlock = (blockData) => {
+		//TODO: Block selector
+		const reactFlowBounds = blockFlowDOM.current?.getBoundingClientRect();
+		let flowPos = reactFlowInstance.project({
+			x: x - reactFlowBounds.left,
+			y: y - reactFlowBounds.top,
+		});
 
-		const newBlockCreated = {
-			id: newId,
-			x: blockData.x + 1,
-			y: blockData.y,
-			type: "forum",
-			title: "Nuevo Bloque",
-			children: blockData.children ? blockData.children : [],
-		};
-		moveRight(blocksData, newBlockCreated, []);
+		if (expanded) {
+			flowPos.x += Math.floor(asideBounds.width / 125) * 125;
+		}
+
+		let newBlockCreated;
+
+		if (blockData) {
+			//TODO: Make it variable
+			newBlockCreated = {
+				id: uniqueId(),
+				x: flowPos.x,
+				y: flowPos.y,
+				type: "file",
+				title: "Nuevo bloque",
+				children: undefined,
+				order: 100,
+				unit: 1,
+			};
+		} else {
+			if (platform == "moodle") {
+				newBlockCreated = {
+					id: uniqueId(),
+					x: flowPos.x,
+					y: flowPos.y,
+					type: "generic",
+					title: "Nuevo bloque",
+					children: undefined,
+					order: 100,
+					unit: 1,
+				};
+			} else {
+				newBlockCreated = {
+					id: uniqueId(),
+					x: flowPos.x,
+					y: flowPos.y,
+					type: "file",
+					title: "Nuevo bloque",
+					children: undefined,
+					order: 100,
+					unit: 1,
+				};
+			}
+		}
+
 		setShowContextualMenu(false);
 		setCreatedBlock(newBlockCreated);
 	};
 
-	const deleteBlock = () => {
-		const lastId = blocksData[blocksData.length - 1].id;
-		const newId = lastId + 1;
-
-		const fatherBlock = blocksData.find(
-			(b) => b.children && b.children.includes(blockData.id)
-		);
-
-		console.log(blockData.children);
-
-		if (blockData.children != undefined) {
-			fatherBlock.children = blockData.children;
-			moveLeft(blocksData, fatherBlock, []);
-		} else {
-			const indexToRemove = fatherBlock.children.indexOf(blockData.id);
-			const newChildren = [
-				...fatherBlock.children.slice(0, indexToRemove),
-				...fatherBlock.children.slice(indexToRemove + 1),
-			];
-
-			console.log(newChildren);
-
-			fatherBlock.children = newChildren;
-
-			const childNumber = fatherBlock.children[0];
-			const childObject = blocksData.find((obj) => obj.id === childNumber);
-
-			if (childObject.y != fatherBlock.y) {
-				const difference = childObject.y - fatherBlock.y;
-				moveUp(blocksData, fatherBlock, [], difference);
-
-				const firstChild = searchFirstChild(blocksData, fatherBlock);
-				const firstFather = searchFirstFather(blocksData, fatherBlock);
-
-				if (firstFather.children[1] === firstChild.id) {
-					firstChild.y -= difference;
-					moveAllBranchUp(blocksData, firstChild, [], difference);
-				}
-			}
-		}
-
+	const handleDeleteBlock = () => {
 		setShowContextualMenu(false);
-		setDeletedBlock(blockData);
+		setBlockSelected();
+		deleteBlocks(blockData);
 	};
 
-	/**
-	 * Recursively moves all blocks in a branch up by a specified difference.
-	 * @param {Array} blocksData - An array of all blocks data.
-	 * @param {Object} currentBlock - The current block being processed.
-	 * @param {Array} orderedBlocks - An array of ordered blocks (default: []).
-	 * @param {number} difference - The difference to move the blocks up by.
-	 */
-	function moveAllBranchUp(
-		blocksData,
-		currentBlock,
-		orderedBlocks = [],
-		difference
-	) {
-		if (currentBlock.children) {
-			for (let childrenBlockId of currentBlock.children) {
-				if (childrenBlockId > 0) {
-					let childrenBlock = blocksData.find((e) => e.id === childrenBlockId);
-
-					childrenBlock.y -= difference;
-
-					moveAllBranchUp(blocksData, childrenBlock, orderedBlocks, difference);
-				}
-			}
+	const handleDeleteBlockSelection = () => {
+		setShowContextualMenu(false);
+		const selectedNodes = document.querySelectorAll(
+			".react-flow__node.selected"
+		);
+		const blockDataArray = [];
+		for (let node of selectedNodes) {
+			let SingularBlockData = blocksData.find(
+				(block) => block.id == node.dataset.id
+			);
+			blockDataArray.push(SingularBlockData);
 		}
-	}
 
-	/**
-	 * Recursively searches for the first child block in a branch.
-	 * @param {Array} blocksData - An array of all blocks data.
-	 * @param {Object} currentBlock - The current block being processed.
-	 * @returns {Object} The first child block found.
-	 */
-	function searchFirstChild(blocksData, currentBlock) {
-		console.log(currentBlock);
-		for (let block of blocksData) {
-			if (block.children && block.children.includes(currentBlock.id)) {
-				if (block.children.length == 1) {
-					return searchFirstChild(blocksData, block);
+		deleteBlocks(blockDataArray);
+	};
+
+	const handleNewRelation = (origin, end) => {
+		setShowContextualMenu(false);
+		const newBlocksData = [...blocksData];
+		const bI = newBlocksData.findIndex((block) => block.id == origin.id);
+		if (newBlocksData[bI].children) {
+			const alreadyAChildren = newBlocksData[bI].children.includes(end.id);
+			if (!alreadyAChildren) {
+				if (newBlocksData[bI].children) {
+					newBlocksData[bI].children.push(end.id);
 				} else {
-					return currentBlock;
+					newBlocksData[bI].children = [end.id];
 				}
+			} else {
+				toast("Esta relación ya existe", {
+					hideProgressBar: false,
+					autoClose: 2000,
+					type: "info",
+					position: "bottom-center",
+					theme: "light",
+				});
 			}
+		} else {
+			newBlocksData[bI].children = [end.id];
 		}
-	}
-
-	/**
-	 * Recursively searches for the first father block in a branch.
-	 * @param {Array} blocksData - An array of all blocks data.
-	 * @param {Object} currentBlock - The current block being processed.
-	 * @returns {Object} The first father block found.
-	 */
-	function searchFirstFather(blocksData, currentBlock) {
-		console.log("First Father: " + currentBlock.title);
-		for (let block of blocksData) {
-			if (block.children && block.children.includes(currentBlock.id)) {
-				if (block.children.length == 1) {
-					return searchFirstFather(blocksData, block);
-				} else {
-					return block;
-				}
-			}
-		}
-	}
-
-	/**
-	 * Recursively moves all blocks in a branch to the right.
-	 * @param {Array} blocksData - An array of all blocks data.
-	 * @param {Object} currentBlock - The current block being processed.
-	 * @param {Array} orderedBlocks - An array of ordered blocks (default: []).
-	 * @returns {Array} An array of ordered blocks.
-	 */
-	function moveRight(blocksData, currentBlock, orderedBlocks = []) {
-		if (currentBlock.type != "badge") {
-			if (blocksData && currentBlock) {
-				orderedBlocks.push(currentBlock);
-				if (currentBlock.children) {
-					for (let childrenBlockId of currentBlock.children) {
-						if (childrenBlockId > 0) {
-							let childrenBlock = blocksData.find(
-								(e) => e.id === childrenBlockId
-							);
-
-							childrenBlock.x += 1;
-
-							moveRight(blocksData, childrenBlock, orderedBlocks);
-						}
-					}
-				}
-			}
-		}
-		return orderedBlocks;
-	}
-
-	/**
-	 * Recursively moves all blocks in a branch to the left.
-	 * @param {Array} blocksData - An array of all blocks data.
-	 * @param {Object} currentBlock - The current block being processed.
-	 * @param {Array} orderedBlocks - An array of ordered blocks (default: []).
-	 * @returns {Array} An array of ordered blocks.
-	 */
-	function moveLeft(blocksData, currentBlock, orderedBlocks = []) {
-		if (currentBlock.type != "badge") {
-			if (blocksData && currentBlock) {
-				orderedBlocks.push(currentBlock);
-				if (currentBlock.children) {
-					for (let childrenBlockId of currentBlock.children) {
-						if (childrenBlockId > 0) {
-							let childrenBlock = blocksData.find(
-								(e) => e.id === childrenBlockId
-							);
-
-							childrenBlock.x -= 1;
-
-							moveLeft(blocksData, childrenBlock, orderedBlocks);
-						}
-					}
-				}
-			}
-		}
-		return orderedBlocks;
-	}
-
-	/**
-	 * Recursively moves all blocks in a branch up by a specified difference.
-	 * @param {Array} blocksData - An array of all blocks data.
-	 * @param {Object} currentBlock - The current block being processed.
-	 * @param {Array} orderedBlocks - An array of ordered blocks (default: []).
-	 * @param {number} difference - The difference to move the blocks up by.
-	 * @returns {Array} An array of ordered blocks.
-	 */
-	function moveUp(blocksData, currentBlock, orderedBlocks = [], difference) {
-		if (currentBlock.type != "badge") {
-			if (blocksData && currentBlock) {
-				orderedBlocks.push(currentBlock);
-				if (currentBlock.children) {
-					for (let childrenBlockId of currentBlock.children) {
-						if (childrenBlockId > 0) {
-							let childrenBlock = blocksData.find(
-								(e) => e.id === childrenBlockId
-							);
-							childrenBlock.y -= difference;
-							moveUp(blocksData, childrenBlock, orderedBlocks, difference);
-						}
-					}
-				}
-			}
-		}
-		return orderedBlocks;
-	}
-
-	//First render
-	useEffect(() => {
-		const mainElement = document.getElementById("main");
-		mainElement.addEventListener("scroll", handleScroll);
-
-		setInitialValues({
-			scrollX: localDimensions.blockCanvasScrollX,
-			scrollY: localDimensions.blockCanvasScrollY,
-		});
-
-		return () => {
-			mainElement.removeEventListener("scroll", handleScroll);
-		};
-	}, []);
-
-	//When scrolling
-	useEffect(() => {
-		setLocalDimensions((prevState) => ({
-			...prevState,
-			contextMenuOffsetX: x - prevState.blockCanvasScrollX,
-			contextMenuOffsetY: y - prevState.blockCanvasScrollY,
-		}));
-	}, [x, y, dimensions]);
-
-	//When the (selected) block changes
-	useEffect(() => {
-		setInitialValues({
-			scrollX: localDimensions.blockCanvasScrollX,
-			scrollY: localDimensions.blockCanvasScrollY,
-		});
-		setReversed(blockData.type == "end" ? true : false);
-	}, [x, y]);
+		setBlockOrigin();
+		setBlocksData(newBlocksData); //FIXME: The changes doesn't stay, a badge gives 0
+	};
 
 	return (
 		<FocusTrap
@@ -333,82 +164,156 @@ function BlockContextualMenu(
 				returnFocusOnDeactivate: true,
 			}}
 		>
-			<ul
+			<div
 				ref={ref}
-				className={styles.cM + " " + (reversed ? styles.reversed : "")}
-				style={
-					reversed
-						? {
-								top: `calc(${
-									y +
-									(+initialValues.scrollY - localDimensions.blockCanvasScrollY)
-								}px - 6em)`,
-								left: `calc(${
-									x +
-									(+initialValues.scrollX - localDimensions.blockCanvasScrollX)
-								}px - 16em)`,
-						  }
-						: {
-								top: `calc(${
-									y +
-									(+initialValues.scrollY - localDimensions.blockCanvasScrollY)
-								}px - 6em)`,
-								left: `calc(${
-									x +
-									(+initialValues.scrollX - localDimensions.blockCanvasScrollX)
-								}px + 1em)`,
-						  }
-				}
+				style={{
+					top: `${y}px`,
+					left: `${x + (asideBounds && asideBounds.width)}px`,
+				}}
+				className={styles.cM + " "}
 			>
-				<li>
-					<Button variant="light" onClick={createBlock}>
-						<div role="button">
-							<PlusSquareFill />
-							Crear nuevo bloque...
-						</div>
-					</Button>
-				</li>
-				<li>
-					<Button variant="light" onClick={notImplemented}>
-						<div>
-							<Diagram2Fill />
-							Crear bifurcación...
-						</div>
-					</Button>
-				</li>
-				<li>
-					<Button variant="light" onClick={notImplemented}>
-						<div>
-							<Scissors />
-							Cortar bloque
-						</div>
-					</Button>
-				</li>
-				<li>
-					<Button variant="light" onClick={notImplemented}>
-						<div>
-							<Clipboard2Fill />
-							Copiar bloque
-						</div>
-					</Button>
-				</li>
-				<li>
-					<Button variant="light" disabled onClick={notImplemented}>
-						<div>
-							<Clipboard2PlusFill />
-							Pegar bloque
-						</div>
-					</Button>
-				</li>
-				<li>
-					<Button variant="light" onClick={deleteBlock}>
-						<div>
-							<Trash3Fill />
-							Eliminar bloque...
-						</div>
-					</Button>
-				</li>
-			</ul>
+				{contextMenuOrigin == "pane" && (
+					<div ref={ref} className={styles.cM + " "}>
+						<li>
+							<Button variant="light" onClick={() => createBlock()}>
+								<div role="button">
+									<PlusSquareFill />
+									Crear nuevo bloque...
+								</div>
+							</Button>
+						</li>
+						<li>
+							<Button variant="light" disabled onClick={notImplemented}>
+								<div>
+									<Clipboard2PlusFill />
+									Pegar bloque/s
+								</div>
+							</Button>
+						</li>
+					</div>
+				)}
+				{contextMenuOrigin == "block" && (
+					<div ref={ref} className={styles.cM + " "}>
+						{blockOrigin ? (
+							blockOrigin.id == blockData.id ? (
+								<li>
+									<Button
+										variant="light"
+										onClick={() => {
+											setBlockOrigin();
+											setShowContextualMenu(false);
+										}}
+									>
+										<div>
+											<Diagram2Fill />
+											Cancelar relación
+										</div>
+									</Button>
+								</li>
+							) : (
+								<li>
+									<Button
+										variant="light"
+										onClick={() => handleNewRelation(blockOrigin, blockData)}
+									>
+										<div>
+											<Diagram2Fill />
+											<div
+												style={{
+													display: "flex",
+													flexDirection: "column",
+													alignItems: "flex-start",
+												}}
+											>
+												<span>Terminar relación</span>
+												<span style={{ fontSize: "0.7em" }}>
+													Unir a "{blockOrigin.title}"
+												</span>
+											</div>
+										</div>
+									</Button>
+								</li>
+							)
+						) : (
+							[...ActionBlocks, "end"].includes(blockData.type) == false && (
+								<li>
+									<Button
+										variant="light"
+										onClick={() => {
+											setBlockOrigin(blockData);
+											setShowContextualMenu(false);
+										}}
+									>
+										<div>
+											<Diagram2Fill /> Crear relación
+										</div>
+									</Button>
+								</li>
+							)
+						)}
+						<li>
+							<Button variant="light" onClick={notImplemented}>
+								<div>
+									<Clipboard2Fill />
+									Copiar bloque
+								</div>
+							</Button>
+						</li>
+						<li>
+							<Button variant="light" onClick={notImplemented}>
+								<div>
+									<Scissors />
+									Cortar bloque
+								</div>
+							</Button>
+						</li>
+						<li>
+							<Button variant="light" onClick={handleDeleteBlock}>
+								<div>
+									<Trash3Fill />
+									Eliminar bloque...
+								</div>
+							</Button>
+						</li>
+					</div>
+				)}
+				{contextMenuOrigin == "nodesselection" && (
+					<div ref={ref} className={styles.cM + " "}>
+						<li>
+							<Button variant="light" onClick={notImplemented}>
+								<div>
+									<Diagram3Fill />
+									Crear fragmento
+								</div>
+							</Button>
+						</li>
+						<li>
+							<Button variant="light" onClick={notImplemented}>
+								<div>
+									<Clipboard2Fill />
+									Copiar bloques
+								</div>
+							</Button>
+						</li>
+						<li>
+							<Button variant="light" onClick={notImplemented}>
+								<div>
+									<Scissors />
+									Cortar bloques
+								</div>
+							</Button>
+						</li>
+						<li>
+							<Button variant="light" onClick={handleDeleteBlockSelection}>
+								<div>
+									<Trash3Fill />
+									Eliminar bloques...
+								</div>
+							</Button>
+						</li>
+					</div>
+				)}
+			</div>
 		</FocusTrap>
 	);
 }

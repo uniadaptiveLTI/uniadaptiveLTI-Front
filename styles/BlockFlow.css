@@ -1,0 +1,299 @@
+/** Handles **/
+
+.react-flow__handle-left {
+    border-radius: 100%;
+    background-color: #198754 !important;
+    border: 2px solid #101011 !important;
+    padding: 5px  !important;
+    left: -8px  !important;
+}
+
+.react-flow__handle-right {
+    border-radius: 100%;
+    background-color: #dc3545 !important;
+    border: 2px solid #101011 !important;
+    padding: 5px  !important;
+    right: -8px  !important;
+}
+
+/** Nodes **/
+
+.react-flow__node {
+    border: 2px solid #101011;
+    color: white;
+    border-radius: 4px;
+	transition: 0.2s;
+}
+
+.react-flow__node > div {
+    padding: 1em;
+}
+
+/* Moodle+Sakai */
+
+
+/* Questionnaire */
+.react-flow__node-questionnaire{
+    background-color: #eb9408;
+}
+
+.react-flow__node-questionnaire:hover, .react-flow__node-questionnaire:focus-visible, .react-flow__node-questionnaire:active{
+    background-color: #c9810e !important;
+}
+
+/* Assignment */
+.react-flow__node-assignment{
+    background-color: #0dcaf0;
+}
+
+.react-flow__node-assignment:hover,  .react-flow__node-assignment:focus-visible, .react-flow__node-assignment:active{
+    background-color: #1bafcd !important;
+}
+
+/* File */
+.react-flow__node-file{
+    background-color: #0d6efd;
+}
+
+.react-flow__node-file:hover,  .react-flow__node-file:focus-visible, .react-flow__node-file:active{
+    background-color: #125ed0 !important;
+}
+
+/* Forum */
+.react-flow__node-forum {
+    
+	background-color: #800080;
+}
+
+.react-flow__node-forum:hover, .react-flow__node-forum:focus-visible, .react-flow__node-forum:active {
+	background-color: #9e0d9e !important;
+}
+
+/* Folder */
+.react-flow__node-folder{
+    background-color: #ffc107;
+}
+
+.react-flow__node-folder:hover,  .react-flow__node-folder:focus-visible, .react-flow__node-folder:active{
+    background-color: #d3a008 !important;
+}
+
+
+/* URL */
+.react-flow__node-url {
+	background-color: #5f9ea0;
+}
+
+.react-flow__node-url:hover, .react-flow__node-url:focus-visible, .react-flow__node-url:active {
+	background-color: #419093 !important;
+}
+
+/* Moodle */
+
+
+/* Workshop */
+.react-flow__node-workshop {
+	background-color: #15a935;
+}
+
+.react-flow__node-workshop:hover, .react-flow__node-workshop:focus-visible, .react-flow__node-workshop:active {
+	background-color: #0f992d;
+}
+
+/* choice */
+.react-flow__node-choice {
+	background-color: #dc3545;
+}
+
+.react-flow__node-choice:hover, .react-flow__node-choice:focus-visible, .react-flow__node-choice:active {
+	background-color: #bf2534;
+}
+
+
+/* Tag */
+.react-flow__node-tag {
+	background-color: #a91568;
+}
+
+.react-flow__node-tag:hover, .react-flow__node-tag:focus-visible, .react-flow__node-tag:active {
+	background-color: #bf1a78 !important;
+}
+
+/* Page */
+.react-flow__node-page {
+	background-color: #6c757d;
+}
+
+.react-flow__node-page:hover, .react-flow__node-page:focus-visible, .react-flow__node-page:active {
+	background-color: #525a61;
+}
+
+/* Badge */
+.react-flow__node-badge {
+	background-color: #198754;
+}
+
+.react-flow__node-badge:hover, .react-flow__node-badge:focus-visible, .react-flow__node-badge:active {
+	background-color: #0e683e;
+}
+
+/* Generic */
+.react-flow__node-generic {
+	background: #1f1e42;
+}
+
+.react-flow__node-generic:hover, .react-flow__node-generic:focus-visible, .react-flow__node-generic:active {
+	background: #383753;
+}
+
+/* Sakai */
+
+/*FIXME: HACER LOS DE SAKAI*/
+
+/* Contents */
+.react-flow__node-contents {
+	background-color: #15a935;
+}
+
+.react-flow__node-contents:hover, .react-flow__node-contents:focus-visible, .react-flow__node-contents:active {
+	background-color: #0f992d;
+}
+
+/* HTML */
+.react-flow__node-html {
+	background-color: #a91568;
+}
+
+.react-flow__node-html:hover, .react-flow__node-html:focus-visible, .react-flow__node-html:active {
+	background-color: #bf1a78 !important;
+}
+
+/* LTI */
+
+
+/* Start */
+.react-flow__node-start {
+	background-color:#363638;
+}
+
+.react-flow__node-start:hover, .react-flow__node-start:focus-visible, .react-flow__node-start:active {
+	background-color: #666668 !important;
+}
+
+/* End */
+.react-flow__node-end {
+	background-color:#363638;
+}
+
+.react-flow__node-end:hover, .react-flow__node-end:focus-visible, .react-flow__node-end:active {
+	background-color: #666668 !important;
+}
+
+/* Fragment */
+.react-flow__node-fragment {
+	background-color:#00008b;
+}
+
+.react-flow__node-fragment:hover, .react-flow__node-fragment:focus-visible, .react-flow__node-fragment:active {
+	background-color: #1d1da9 !important;
+}
+
+
+.react-flow__node.selected {
+    width: max-content;
+	background-image: linear-gradient(90deg, white 50%, transparent 50%), linear-gradient(90deg, white 50%, transparent 50%), linear-gradient(0deg, white 50%, transparent 50%), linear-gradient(0deg, white 50%, transparent 50%);
+    background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+    background-size: 15px 4px, 15px 4px, 4px 15px, 4px 15px;
+    animation: border-dance 0.25s infinite linear;
+}
+
+@keyframes border-dance {
+0% {
+    background-position: left top, right bottom, left bottom, right   top;
+}
+100% {
+    background-position: left 15px top, right 15px bottom , left bottom 15px , right   top 15px;
+}
+}
+
+
+/* Accesibility */
+
+.react-flow__node:has(.noAnimation){
+	transition: none;
+}
+
+.react-flow__node.selected:has(.noAnimation) {
+	background-image: none;
+	animation: none;
+}
+
+.react-flow__node.selected:has(.noAnimation)::after{
+	z-index: -1;
+	content: " ";
+	position: absolute;
+	margin: auto;
+	right: -50%;
+	top: -50%;
+	min-width: 8em;
+	min-height: 8em;
+	background-color: rgba(29, 29, 169,0.5);
+	border: 4px solid rgba(255, 165, 0,0.5);
+	border-radius: 100%;
+}
+
+@media screen and (prefers-reduced-motion: reduce) {
+	.react-flow__node.selected {
+		background-image: none;
+		animation: none;
+	}
+
+	.react-flow__node.selected::after{
+		z-index: -1;
+		content: " ";
+		position: absolute;
+		margin: auto;
+		right: -50%;
+		top: -50%;
+		min-width: 8em;
+		min-height: 8em;
+		background-color: rgba(29, 29, 169,0.5);
+		border: 4px solid rgba(255, 165, 0,0.5);
+		border-radius: 100%;
+	}
+ }
+
+.react-flow__node:has(.highContrast){
+	color: #101010 !important;
+	background-color: white !important;
+}
+
+.react-flow__node.highContrast:hover, .react-flow__node.highContrast:focus-visible, .react-flow__node.highContrast:active{
+	color: white !important;
+	background-color: #101010 !important;
+}
+
+.react-flow__node.selected:has(.highContrast){
+	background-image: linear-gradient(90deg, #101010 50%, transparent 50%), linear-gradient(90deg, #101010 50%, transparent 50%), linear-gradient(0deg, #101010 50%, transparent 50%), linear-gradient(0deg, #101010 50%, transparent 50%);
+}
+
+/* Special case, highContrast && noAnimation */
+.react-flow__node.selected:has(.noAnimation.highContrast){
+	background-image: none;
+}
+
+
+.react-flow__node.selected:has(.noAnimation.highContrast)::after{
+	background-color: transparent;
+	border: 4px solid #101010;
+
+}
+
+@media screen and (prefers-reduced-motion: reduce) {
+	.react-flow__node:has(.highContrast){
+		background-image: none;
+		background-color: transparent;
+		border: 4px solid #101010;
+	}
+
+}

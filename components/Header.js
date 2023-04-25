@@ -31,8 +31,13 @@ import {
 	VersionInfoContext,
 	PlatformContext,
 	BlocksDataContext,
+	MSGContext,
+	SettingsContext,
+	OnlineContext,
 } from "@components/pages/_app";
 import { toast } from "react-toastify";
+import { notImplemented } from "@components/pages/_app";
+import { uniqueId } from "./Utils";
 
 const defaultToastSuccess = {
 	hideProgressBar: false,
@@ -65,6 +70,7 @@ function Header({ closeBtn }, ref) {
 		useContext(ItineraryInfoContext);
 	const { selectedEditVersion, setSelectedEditVersion } =
 		useContext(VersionInfoContext);
+	const { msg, setMSG } = useContext(MSGContext);
 
 	const { versionJson, setVersionJson } = useContext(VersionJsonContext);
 
@@ -72,6 +78,11 @@ function Header({ closeBtn }, ref) {
 
 	const { currentBlocksData, setCurrentBlocksData } =
 		useContext(BlocksDataContext);
+	const { isOffline } = useContext(OnlineContext);
+	const { settings, setSettings } = useContext(SettingsContext);
+
+	const parsedSettings = JSON.parse(settings);
+	let { reducedAnimations } = parsedSettings;
 
 	const selectItineraryDOM = useRef(null);
 	const selectVersionDOM = useRef(null);
@@ -83,7 +94,7 @@ function Header({ closeBtn }, ref) {
 		emptyMap,
 		{
 			id: 1,
-			name: "Matemáticas 4ºESO",
+			name: "Física Grupo-A",
 			versions: [
 				{
 					id: 0,
@@ -92,18 +103,345 @@ function Header({ closeBtn }, ref) {
 					default: "true",
 					blocksData: [
 						{
-							id: 0,
-							x: 1,
-							y: 1,
-							type: "file",
-							title: "Ecuaciones",
-							children: [1],
+							id: "dev-2A1",
+							x: 0,
+							y: 0,
+							type: "start",
+							title: "Inicio",
+							children: ["dev0A1"],
 							identation: 1,
 						},
 						{
-							id: 1,
-							x: 2,
-							y: 1,
+							id: "dev-1A1",
+							x: 2000,
+							y: 0,
+							type: "end",
+							title: "Final",
+							identation: 1,
+						},
+						{
+							id: "dev0A1",
+							x: 125,
+							y: 0,
+							type: "file",
+							title: "Objetivos del curso",
+							children: ["dev1A1"],
+							identation: 1,
+							order: 1,
+							unit: 1,
+						},
+						{
+							id: "dev1A1",
+							x: 250,
+							y: 0,
+							type: "questionnaire",
+							title: "Aerodinámica",
+							conditions: [
+								{
+									type: "qualification",
+									operand: ">=",
+									objective: 5,
+									unlockId: "dev2A1",
+								},
+								{
+									type: "qualification",
+									operand: ">=",
+									objective: 5,
+									unlockId: "dev3A1",
+								},
+								{
+									type: "qualification",
+									operand: "<",
+									objective: 5,
+									unlockId: "dev9A1",
+								},
+							],
+							children: ["dev2A1", "dev3A1", "dev9A1"],
+							identation: 2,
+							order: 2,
+							unit: 1,
+						},
+						{
+							id: "dev2A1",
+							x: 375,
+							y: -175,
+							type: "badge",
+							title: "Conocimiento",
+							identation: 2,
+						},
+						{
+							id: "dev3A1",
+							x: 500,
+							y: 0,
+							type: "url",
+							title: "Web de Aerodinámica Avanzada",
+							children: ["dev4A1"],
+							identation: 2,
+							order: 3,
+							unit: 1,
+						},
+						{
+							id: "dev4A1",
+							x: 625,
+							y: 0,
+							type: "assignment",
+							title: "Ejercicios de la Web",
+							children: ["dev5A1", "dev6A1"],
+							conditions: [
+								{
+									type: "qualification",
+									operand: ">=",
+									objective: 5,
+									unlockId: "dev5A1",
+								},
+								{
+									type: "qualification",
+									operand: "<",
+									objective: 5,
+									unlockId: "dev6A1",
+								},
+							],
+							identation: 2,
+							order: 4,
+							unit: 1,
+						},
+						{
+							id: "dev5A1",
+							x: 1000,
+							y: 0,
+							type: "questionnaire",
+							title: "Física de fluidos",
+							children: ["dev7A1", "dev8A1", "dev13A1"],
+							identation: 1,
+							order: 9,
+							unit: 2,
+						},
+						{
+							id: "dev6A1",
+							x: 875,
+							y: 175,
+							type: "assignment",
+							title: "Ejercicios de ampliación",
+							children: ["dev5A1"],
+							identation: 3,
+							order: 8,
+							unit: 1,
+						},
+						{
+							id: "dev7A1",
+							x: 1750,
+							y: -175,
+							type: "badge",
+							title: "Mecánica de fluidos",
+							identation: 1,
+						},
+						{
+							id: "dev8A1",
+							x: 1875,
+							y: 0,
+							type: "page",
+							title: "Física cuantica",
+							children: ["dev-1A1"],
+							identation: 1,
+							order: 14,
+							unit: 3,
+						},
+						{
+							id: "dev9A1",
+							x: 375,
+							y: 350,
+							type: "folder",
+							title: "Aerodínamica, refuerzo",
+							children: ["dev10A1"],
+							identation: 2,
+							order: 5,
+							unit: 1,
+						},
+						{
+							id: "dev10A1",
+							x: 500,
+							y: 350,
+							type: "questionnaire",
+							title: "Aerodínamica, refuerzo",
+							children: ["dev11A1", "dev12A1", "dev5A1"],
+							conditions: [
+								{
+									type: "qualification",
+									operand: ">=",
+									objective: 5,
+									unlockId: "dev5A1",
+								},
+								{
+									type: "qualification",
+									operand: ">=",
+									objective: 5,
+									unlockId: "dev11A1",
+								},
+								{
+									type: "qualification",
+									operand: "<",
+									objective: 5,
+									unlockId: "dev12A1",
+								},
+							],
+							identation: 2,
+							order: 6,
+							unit: 1,
+						},
+						{
+							id: "dev11A1",
+							x: 625,
+							y: 175,
+							type: "badge",
+							title: "Recuperación",
+							identation: 3,
+						},
+						{
+							id: "dev12A1",
+							x: 625,
+							y: 525,
+							type: "assignment",
+							title: "Trabajo de recuperación",
+							children: ["dev6A1"],
+							identation: 3,
+							order: 7,
+							unit: 1,
+						},
+						{
+							id: "dev13A1",
+							x: 1125,
+							y: 175,
+							type: "page",
+							title: "Ayuda física de fluidos",
+							children: ["dev14A1"],
+							identation: 3,
+							order: 10,
+							unit: 2,
+						},
+						{
+							id: "dev14A1",
+							x: 1250,
+							y: 175,
+							type: "forum",
+							title: "Preguntas fluidos",
+							children: ["dev15A1"],
+							identation: 3,
+							order: 11,
+							unit: 2,
+						},
+						{
+							id: "dev15A1",
+							x: 1375,
+							y: 175,
+							type: "questionnaire",
+							title: "Recuperación fluidos",
+							children: ["dev7A1", "dev8A1", "dev16A1"],
+							conditions: [
+								{
+									type: "qualification",
+									operand: ">=",
+									objective: 5,
+									unlockId: "dev7A1",
+								},
+								{
+									type: "qualification",
+									operand: ">=",
+									objective: 5,
+									unlockId: "dev8A1",
+								},
+								{
+									type: "qualification",
+									operand: "<",
+									objective: 5,
+									unlockId: "dev16A1",
+								},
+							],
+							identation: 3,
+							order: 12,
+							unit: 2,
+						},
+						{
+							id: "dev16A1",
+							x: 1500,
+							y: 350,
+							type: "assignment",
+							title: "Trabajo de recuperación",
+							children: ["dev7A1", "dev8A1"],
+							identation: 4,
+							order: 13,
+							unit: 2,
+						},
+					],
+				},
+				{
+					id: 1,
+					name: "Prueba 2",
+					lastUpdate: "08/04/2023",
+					default: "false",
+					blocksData: [
+						{
+							id: "dev-2A2",
+							x: 0,
+							y: 0,
+							type: "start",
+							title: "Inicio",
+							children: ["dev-1A2"],
+							identation: 1,
+						},
+						{
+							id: "dev-1A2",
+							x: 125,
+							y: 0,
+							type: "end",
+							title: "Final",
+							identation: 1,
+						},
+					],
+				},
+			],
+		},
+		{
+			id: 2,
+			name: "Ejemplos de UNIAdaptive",
+			versions: [
+				{
+					id: 0,
+					name: "Última versión",
+					lastUpdate: "20/05/2023",
+					default: "true",
+					blocksData: [
+						{
+							id: "dev-2B1",
+							x: 0,
+							y: 175,
+							type: "start",
+							title: "Inicio",
+							children: ["dev0B1"],
+							identation: 1,
+						},
+						{
+							id: "dev-1B1",
+							x: 1000,
+							y: 525,
+							type: "end",
+							title: "Final",
+							identation: 1,
+						},
+						{
+							id: "dev0B1",
+							x: 125,
+							y: 175,
+							type: "file",
+							title: "Ecuaciones",
+							children: ["dev1B1"],
+							identation: 1,
+							order: 1,
+							unit: 1,
+						},
+						{
+							id: "dev1B1",
+							x: 250,
+							y: 175,
 							type: "questionnaire",
 							title: "Examen Tema 1",
 							conditions: [
@@ -111,72 +449,97 @@ function Header({ closeBtn }, ref) {
 									type: "qualification",
 									operand: ">",
 									objective: 8,
-									unlocks: 2,
+									unlockId: "dev2B1",
 								},
 							],
-							children: [2, 3],
+							children: ["dev2B1", "dev4B1"],
 							identation: 2,
+							order: 2,
+							unit: 1,
 						},
 						{
-							id: 2,
-							x: 3,
+							id: "dev2B1",
+							x: 375,
 							y: 0,
 							type: "folder",
+							title: "Ecuaciones",
+							children: ["dev3B1"],
+							identation: 2,
+							order: 3,
+							unit: 1,
+						},
+						{
+							id: "dev3B1",
+							x: 500,
+							y: 0,
+							type: "badge",
 							title: "Insignia Ecuaciones",
 							identation: 2,
 						},
 						{
-							id: 3,
-							x: 3,
-							y: 3,
+							id: "dev4B1",
+							x: 375,
+							y: 350,
 							type: "url",
 							title: "Web raices cuadradas",
-							children: [4],
+							children: ["dev5B1"],
 							identation: 1,
+							order: 4,
+							unit: 1,
 						},
 						{
-							id: 4,
-							x: 4,
-							y: 3,
+							id: "dev5B1",
+							x: 500,
+							y: 350,
 							type: "forum",
 							title: "Foro de discusión",
-							children: [5],
+							children: ["dev6B1"],
 							identation: 2,
+							order: 5,
+							unit: 1,
 						},
 						{
-							id: 5,
-							x: 5,
-							y: 3,
+							id: "dev6B1",
+							x: 625,
+							y: 350,
 							type: "questionnaire",
 							title: "Cuestionario de raices",
-							children: [6, 7],
+							children: ["dev7B1", "dev8B1"],
 							identation: 1,
+							order: 6,
+							unit: 2,
 						},
 						{
-							id: 6,
-							x: 6,
-							y: 2,
+							id: "dev7B1",
+							x: 750,
+							y: 175,
 							type: "assignment",
 							title: "Ejercicio de raices",
 							identation: 1,
+							order: 7,
+							unit: 2,
 						},
 						{
-							id: 7,
-							x: 6,
-							y: 4,
-							type: "fragment",
-							title: "Tema 2 Matemáticas",
-							children: [8],
+							id: "dev8B1",
+							x: 750,
+							y: 525,
+							type: "choice",
+							title: "Preguntas sobre raices",
+							children: ["dev9B1"],
 							identation: 1,
+							order: 8,
+							unit: 2,
 						},
 						{
-							id: 8,
-							x: 7,
-							y: 4,
+							id: "dev9B1",
+							x: 875,
+							y: 525,
 							type: "page",
 							title: "Web informativa",
-							children: [-1],
+							children: ["dev-1B1"],
 							identation: 2,
+							order: 9,
+							unit: 3,
 						},
 					],
 				},
@@ -185,37 +548,430 @@ function Header({ closeBtn }, ref) {
 					name: "Prueba 1",
 					lastUpdate: "08/04/2023",
 					default: "false",
+					blocksData: [
+						{
+							id: "dev-2B2",
+							x: 0,
+							y: 700,
+							type: "start",
+							title: "Inicio",
+							children: ["dev0B2"],
+							identation: 1,
+						},
+						{
+							id: "dev-1B2",
+							x: 1000,
+							y: 700,
+							type: "end",
+							title: "Final",
+							identation: 1,
+						},
+						{
+							id: "dev0B2",
+							x: 125,
+							y: 700,
+							type: "file",
+							title: "Ecuaciones",
+							children: ["dev1B2"],
+							identation: 1,
+							order: 1,
+							unit: 1,
+						},
+						{
+							id: "dev1B2",
+							x: 250,
+							y: 700,
+							type: "questionnaire",
+							title: "Examen Tema 1",
+							conditions: [
+								{
+									type: "qualification",
+									operand: ">",
+									objective: 8,
+									unlockId: "dev2B2",
+								},
+							],
+							children: ["dev2B2", "dev5B2"],
+							identation: 2,
+							order: 2,
+							unit: 1,
+						},
+						{
+							id: "dev2B2",
+							x: 375,
+							y: 525,
+							type: "folder",
+							title: "Carpeta Ecuaciones",
+							children: ["dev10B2", "dev11B2"],
+							identation: 2,
+							order: 3,
+							unit: 1,
+						},
+						{
+							id: "dev5B2",
+							x: 375,
+							y: 1050,
+							type: "questionnaire",
+							title: "Cuestionario de raices",
+							children: ["dev6B2", "dev7B2"],
+							identation: 1,
+							order: 8,
+							unit: 2,
+						},
+						{
+							id: "dev6B2",
+							x: 625,
+							y: 875,
+							type: "assignment",
+							title: "Ejercicio de raices",
+							children: ["dev-1B2"],
+							identation: 1,
+							order: 9,
+							unit: 2,
+						},
+						{
+							id: "dev7B2",
+							x: 625,
+							y: 1225,
+							type: "choice",
+							title: "Preguntas y respuestas",
+							children: ["dev40B2", "dev41B2"],
+							identation: 1,
+							order: 10,
+							unit: 2,
+						},
+						{
+							id: "dev10B2",
+							x: 500,
+							y: 350,
+							type: "folder",
+							title: "Carpeta Ecuaciones 2",
+							children: ["dev12B2", "dev13B2"],
+							identation: 2,
+							order: 4,
+							unit: 1,
+						},
+						{
+							id: "dev11B2",
+							x: 500,
+							y: 700,
+							type: "folder",
+							title: "Carpeta Ecuaciones 3",
+							identation: 2,
+							order: 5,
+							unit: 1,
+						},
+						{
+							id: "dev12B2",
+							x: 625,
+							y: 175,
+							type: "folder",
+							title: "Insignia Ecuaciones 4",
+							identation: 2,
+							order: 6,
+							unit: 1,
+						},
+						{
+							id: "dev13B2",
+							x: 625,
+							y: 525,
+							type: "folder",
+							title: "Carpeta Ecuaciones 5",
+							identation: 2,
+							order: 7,
+							unit: 1,
+						},
+						{
+							id: "dev40B2",
+							x: 750,
+							y: 1050,
+							type: "page",
+							title: "Web informativa 2",
+							identation: 2,
+							order: 11,
+							unit: 2,
+						},
+						{
+							id: "dev41B2",
+							x: 750,
+							y: 1400,
+							type: "page",
+							title: "Web informativa 3",
+							identation: 2,
+							order: 12,
+							unit: 2,
+						},
+					],
 				},
-				{ id: 2, name: "Prueba 2", lastUpdate: "08/04/2023", default: "false" },
-			],
-		},
-		{
-			id: 2,
-			name: "Lengua 3ºESO",
-			versions: [
 				{
-					id: 0,
-					name: "Última versión",
-					lastUpdate: "20/05/2023",
-					default: "true",
+					id: 2,
+					name: "Prueba 2",
+					lastUpdate: "08/04/2023",
+					default: "false",
+					blocksData: [
+						{
+							id: "dev-2B3",
+							x: 0,
+							y: 175,
+							type: "start",
+							title: "Inicio",
+							children: ["dev0B3"],
+							identation: 1,
+						},
+						{
+							id: "dev-1B3",
+							x: 1500,
+							y: 525,
+							type: "end",
+							title: "Final",
+							identation: 1,
+						},
+						{
+							id: "dev0B3",
+							x: 125,
+							y: 175,
+							type: "file",
+							title: "Ecuaciones",
+							children: ["dev1B3"],
+							identation: 1,
+							order: 1,
+							unit: 1,
+						},
+						{
+							id: "dev1B3",
+							x: 250,
+							y: 175,
+							type: "questionnaire",
+							title: "Examen Tema 1",
+							conditions: [
+								{
+									type: "qualification",
+									operand: ">",
+									objective: 8,
+									unlockId: "dev2B3",
+								},
+							],
+							children: ["dev2B3", "dev3B3"],
+							identation: 2,
+							order: 2,
+							unit: 1,
+						},
+						{
+							id: "dev2B3",
+							x: 375,
+							y: 0,
+							type: "folder",
+							title: "Carpeta Ecuaciones",
+							identation: 2,
+							order: 3,
+							unit: 1,
+						},
+						{
+							id: "dev3B3",
+							x: 375,
+							y: 350,
+							type: "url",
+							title: "Web raices cuadradas",
+							children: ["dev4B3"],
+							identation: 1,
+							order: 4,
+							unit: 1,
+						},
+						{
+							id: "dev4B3",
+							x: 500,
+							y: 350,
+							type: "forum",
+							title: "Foro de discusión",
+							children: ["dev5B3"],
+							identation: 2,
+							order: 5,
+							unit: 1,
+						},
+						{
+							id: "dev5B3",
+							x: 625,
+							y: 350,
+							type: "questionnaire",
+							title: "Cuestionario de raices",
+							children: ["dev6B3", "dev7B3"],
+							identation: 1,
+							order: 6,
+							unit: 1,
+						},
+						{
+							id: "dev6B3",
+							x: 750,
+							y: 0,
+							type: "assignment",
+							title: "Ejercicio de raices",
+							identation: 1,
+							order: 7,
+							unit: 1,
+						},
+						{
+							id: "dev7B3",
+							x: 750,
+							y: 350,
+							type: "choice",
+							title: "Preguntas de Matemáticas",
+							children: ["dev8B3"],
+							identation: 1,
+							order: 8,
+							unit: 1,
+						},
+						{
+							id: "dev8B3",
+							x: 875,
+							y: 525,
+							type: "page",
+							title: "Web informativa",
+							children: ["dev40B3", "dev41B3"],
+							identation: 2,
+							order: 9,
+							unit: 1,
+						},
+						{
+							id: "dev40B3",
+							x: 1000,
+							y: 875,
+							type: "page",
+							title: "Web informativa 2",
+							identation: 2,
+							order: 10,
+							unit: 2,
+						},
+						{
+							id: "dev41B3",
+							x: 1000,
+							y: 525,
+							type: "page",
+							title: "Web informativa 3",
+							children: ["dev44B3", "dev45B3"],
+							identation: 2,
+							order: 11,
+							unit: 2,
+						},
+						{
+							id: "dev44B3",
+							x: 1125,
+							y: 525,
+							type: "page",
+							title: "Web informativa 6",
+							children: ["dev46B3", "dev47B3"],
+							identation: 2,
+							order: 12,
+							unit: 2,
+						},
+						{
+							id: "dev45B3",
+							x: 1125,
+							y: 875,
+							type: "page",
+							title: "Web informativa 7",
+							identation: 2,
+							order: 13,
+							unit: 2,
+						},
+						{
+							id: "dev46B3",
+							x: 1250,
+							y: 525,
+							type: "page",
+							title: "Web informativa 8",
+							children: ["dev48B3", "dev49B3"],
+							identation: 2,
+							order: 14,
+							unit: 2,
+						},
+						{
+							id: "dev47B3",
+							x: 1250,
+							y: 875,
+							type: "page",
+							title: "Web informativa 9",
+							identation: 2,
+							order: 15,
+							unit: 2,
+						},
+						{
+							id: "dev48B3",
+							x: 1375,
+							y: 525,
+							type: "page",
+							title: "Web informativa 10",
+							children: ["dev-1B3"],
+							identation: 2,
+							order: 16,
+							unit: 2,
+						},
+						{
+							id: "dev49B3",
+							x: 1375,
+							y: 875,
+							type: "page",
+							title: "Web informativa 11",
+							identation: 2,
+							order: 17,
+							unit: 2,
+						},
+					],
 				},
 			],
 		},
 		{
 			id: 3,
-			name: "Inglés 2ºESO",
+			name: "Itinerario vacío",
 			versions: [
 				{
 					id: 0,
 					name: "Última versión",
 					lastUpdate: "20/05/2023",
 					default: "true",
+					blocksData: [
+						{
+							id: "dev-2C1",
+							x: 0,
+							y: 0,
+							type: "start",
+							title: "Inicio",
+							children: ["dev-1C1"],
+							identation: 1,
+						},
+						{
+							id: "dev-1C1",
+							x: 125,
+							y: 0,
+							type: "end",
+							title: "Final",
+							identation: 1,
+						},
+					],
 				},
 				{
-					id: 0,
-					name: "Sin Speaking",
+					id: 1,
+					name: "Versión vacía",
 					lastUpdate: "05/03/2023",
 					default: "false",
+					blocksData: [
+						{
+							id: "dev-2C2",
+							x: 0,
+							y: 0,
+							type: "start",
+							title: "Inicio",
+							children: ["dev-1C2"],
+							identation: 1,
+						},
+						{
+							id: "dev-1C2",
+							x: 125,
+							y: 0,
+							type: "end",
+							title: "Final",
+							identation: 1,
+						},
+					],
 				},
 			],
 		},
@@ -227,6 +983,10 @@ function Header({ closeBtn }, ref) {
 
 	const { map, setMap } = useContext(MapContext);
 
+	/**
+	 * Updates the version of an object in an array of versions.
+	 * @param {Object} newVersion - The new version object to update.
+	 */
 	function updateVersion(newVersion) {
 		setVersions((prevVersions) => {
 			return prevVersions.map((version) => {
@@ -272,6 +1032,12 @@ function Header({ closeBtn }, ref) {
 			setSelectedVersion(selectedMap.versions[0]);
 			setCurrentBlocksData(selectedMap.versions[0].blocksData);
 		}
+		resetMapSesion();
+	}
+
+	function resetMapSesion() {
+		//Empty msgbox
+		setMSG([]);
 	}
 
 	/**
@@ -281,13 +1047,15 @@ function Header({ closeBtn }, ref) {
 		resetEdit();
 		setSelectedMap(getMapById(-1));
 		setMap("");
+		setMSG([]);
 	}
 
 	/**
 	 * Handles the creation of a new itinerary.
 	 */
 	const handleNewItinerary = () => {
-		//TODO: GET CURRENT DATE
+		const uniqueId = () => parseInt(Date.now() * Math.random()).toString();
+		const endId = uniqueId();
 		const newMap = [
 			...maps,
 			{
@@ -297,8 +1065,27 @@ function Header({ closeBtn }, ref) {
 					{
 						id: 0,
 						name: "Última versión",
-						lastUpdate: "20/05/2023",
+						lastUpdate: new Date().toLocaleDateString(),
 						default: "true",
+						blocksData: [
+							{
+								id: uniqueId(),
+								x: 0,
+								y: 0,
+								type: "start",
+								title: "Inicio",
+								children: [endId],
+								identation: 1,
+							},
+							{
+								id: endId,
+								x: 125,
+								y: 0,
+								type: "end",
+								title: "Final",
+								identation: 1,
+							},
+						],
 					},
 				],
 			},
@@ -314,15 +1101,33 @@ function Header({ closeBtn }, ref) {
 	 * Handles the creation of a new version.
 	 */
 	const handleNewVersion = () => {
-		//TODO: GET CURRENT DATE
+		const endId = uniqueId();
 		const newMapVersions = [
 			...selectedMap.versions,
 			{
 				id: selectedMap.versions.length,
 				name: "Nueva Versión " + selectedMap.versions.length,
-				lastUpdate: "10/11/2024",
+				lastUpdate: new Date().toLocaleDateString(),
 				default: "true",
-				blocksData: [],
+				blocksData: [
+					{
+						id: uniqueId(),
+						x: 0,
+						y: 0,
+						type: "start",
+						title: "Inicio",
+						children: [endId],
+						identation: 1,
+					},
+					{
+						id: endId,
+						x: 125,
+						y: 0,
+						type: "end",
+						title: "Final",
+						identation: 1,
+					},
+				],
 			},
 		];
 		let modifiedMap = selectedMap;
@@ -363,6 +1168,9 @@ function Header({ closeBtn }, ref) {
 		setSelectedEditVersion(selectedVersion);
 	};
 
+	/**
+	 * Shows a modal to confirm deletion of an itinerary.
+	 */
 	const showDeleteItineraryModal = () => {
 		setModalTitle(`¿Eliminar "${selectedMap.name}"?`);
 		setModalBody(`¿Desea eliminar "${selectedMap.name}"?`);
@@ -386,6 +1194,9 @@ function Header({ closeBtn }, ref) {
 		}
 	};
 
+	/**
+	 * Shows a modal to confirm deletion of a version.
+	 */
 	const showDeleteVersionModal = () => {
 		setModalTitle(`¿Eliminar "${selectedVersion.name}"?`);
 		setModalBody(`¿Desea eliminar "${selectedVersion.name}"?`);
@@ -434,6 +1245,7 @@ function Header({ closeBtn }, ref) {
 			if (selectedVersion.id != versionJson.id) {
 				resetEdit();
 				setCurrentBlocksData(selectedVersion.blocksData);
+				resetMapSesion();
 			}
 		}
 	}, [selectedVersion]);
@@ -482,8 +1294,7 @@ function Header({ closeBtn }, ref) {
 		<Popover id="popover-basic">
 			<Popover.Header as="h3"></Popover.Header>
 			<Popover.Body>
-				And here&apos;s some <strong>amazing</strong> content. It&apos;s very
-				engaging. right?
+				Utilizaremos este botón para mostrar un tutorial de la herramienta LTI.
 			</Popover.Body>
 		</Popover>
 	);
@@ -499,6 +1310,8 @@ function Header({ closeBtn }, ref) {
 	const UserToggle = forwardRef(({ children, onClick }, ref) => (
 		<a
 			href=""
+			role="button"
+			tabIndex={0}
 			ref={ref}
 			onClick={(e) => {
 				e.preventDefault();
@@ -527,7 +1340,7 @@ function Header({ closeBtn }, ref) {
 			return (
 				<div
 					ref={ref}
-					style={{ position: "absolute", right: "0px" }}
+					style={{ position: "absolute", right: "0px", width: "20em" }}
 					className={className}
 					aria-labelledby={labeledBy}
 				>
@@ -553,6 +1366,7 @@ function Header({ closeBtn }, ref) {
 							ref={selectItineraryDOM}
 							value={selectedMap.id}
 							onChange={handleMapChange}
+							disabled={isOffline}
 						>
 							{maps.map((mapa) => (
 								<option id={mapa.id} key={mapa.id} value={mapa.id}>
@@ -570,10 +1384,12 @@ function Header({ closeBtn }, ref) {
 									: "d-flex align-items-center justify-content-evenly col-sm-7"
 							}
 						>
+							{/*FIXME: For any reason this Dropdown triggers an hydration error*/}
 							<Dropdown className={`btn-light d-flex align-items-center`}>
 								<Dropdown.Toggle
 									variant="light"
 									className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder} ${styles.toggleButton}`}
+									disabled={isOffline}
 								>
 									<PlusCircle width="20" height="20" />
 								</Dropdown.Toggle>
@@ -581,21 +1397,20 @@ function Header({ closeBtn }, ref) {
 									<Dropdown.Item onClick={handleNewItinerary}>
 										Crear nuevo itinerario
 									</Dropdown.Item>
-									{selectedMap.id != -1 ? (
+									{selectedMap.id >= 0 && (
 										<Dropdown.Item onClick={handleNewVersion}>
 											Crear nueva versión
 										</Dropdown.Item>
-									) : (
-										<></>
 									)}
 								</Dropdown.Menu>
 							</Dropdown>
-							{selectedMap.id != -1 ? (
+							{selectedMap.id >= 0 && (
 								<>
 									<Dropdown className={`btn-light d-flex align-items-center`}>
 										<Dropdown.Toggle
 											variant="light"
 											className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder} ${styles.toggleButton}`}
+											disabled={isOffline}
 										>
 											<Trash width="20" height="20" />
 										</Dropdown.Toggle>
@@ -613,6 +1428,7 @@ function Header({ closeBtn }, ref) {
 										<Dropdown.Toggle
 											variant="light"
 											className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder} ${styles.toggleButton}`}
+											disabled={isOffline}
 										>
 											<Pencil width="20" height="20" />
 										</Dropdown.Toggle>
@@ -625,9 +1441,22 @@ function Header({ closeBtn }, ref) {
 											</Dropdown.Item>
 										</Dropdown.Menu>
 									</Dropdown>
+									<Button
+										className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder}`}
+										disabled={isOffline}
+										aria-label="Guardar versión actual"
+									>
+										<Image
+											src={"/icons/save.svg"}
+											width="20"
+											height="20"
+											style={{ transform: "scale(1.15)" }}
+											onClick={notImplemented}
+											alt=""
+											//TODO: onClick
+										></Image>
+									</Button>
 								</>
-							) : (
-								<></>
 							)}
 
 							<OverlayTrigger
@@ -671,7 +1500,7 @@ function Header({ closeBtn }, ref) {
 								>
 									<div className="d-flex flex-row">
 										<Container className="d-flex flex-column">
-											<div>Ana López</div>
+											<div>María García</div>
 											<div>Moodle</div>
 										</Container>
 										<div className="mx-auto d-flex align-items-center">
@@ -696,7 +1525,13 @@ function Header({ closeBtn }, ref) {
 					</Nav>
 				</Container>
 				{selectedMap.id > -1 && (
-					<div className={styles.mapContainer}>
+					<div
+						className={
+							styles.mapContainer +
+							" " +
+							(reducedAnimations && styles.noAnimation)
+						}
+					>
 						<div className={styles.mapText}>
 							<SplitButton
 								ref={selectVersionDOM}
@@ -704,6 +1539,7 @@ function Header({ closeBtn }, ref) {
 								title={versions.length > 0 ? selectedVersion.name : ""}
 								onClick={openModalVersiones}
 								variant="none"
+								disabled={isOffline}
 							>
 								{versions.map((version) => (
 									<Dropdown.Item
@@ -735,26 +1571,6 @@ function Header({ closeBtn }, ref) {
 					<Modal.Footer>
 						<Button variant="secondary" onClick={closeModalVersiones}>
 							Cerrar
-						</Button>
-						<Button
-							variant="success"
-							onClick={() => {
-								let nuevaVersion = selectedVersion;
-								let p = prompt();
-								if (p) {
-									nuevaVersion.name = p.trim();
-									updateVersion(nuevaVersion);
-								}
-								closeModalVersiones();
-							}}
-						>
-							Editar nombre
-						</Button>
-						<Button variant="danger" onClick={closeModalVersiones}>
-							Borrar
-						</Button>
-						<Button variant="primary" onClick={closeModalVersiones}>
-							Crear desde existente
 						</Button>
 					</Modal.Footer>
 				</Modal>
