@@ -413,7 +413,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev-2B1",
 							x: 0,
-							y: 125,
+							y: 175,
 							type: "start",
 							title: "Inicio",
 							children: ["dev0B1"],
@@ -422,7 +422,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev-1B1",
 							x: 1000,
-							y: 375,
+							y: 525,
 							type: "end",
 							title: "Final",
 							identation: 1,
@@ -430,7 +430,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev0B1",
 							x: 125,
-							y: 125,
+							y: 175,
 							type: "file",
 							title: "Ecuaciones",
 							children: ["dev1B1"],
@@ -441,7 +441,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev1B1",
 							x: 250,
-							y: 125,
+							y: 175,
 							type: "questionnaire",
 							title: "Examen Tema 1",
 							conditions: [
@@ -479,7 +479,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev4B1",
 							x: 375,
-							y: 250,
+							y: 350,
 							type: "url",
 							title: "Web raices cuadradas",
 							children: ["dev5B1"],
@@ -490,7 +490,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev5B1",
 							x: 500,
-							y: 250,
+							y: 350,
 							type: "forum",
 							title: "Foro de discusión",
 							children: ["dev6B1"],
@@ -501,7 +501,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev6B1",
 							x: 625,
-							y: 250,
+							y: 350,
 							type: "questionnaire",
 							title: "Cuestionario de raices",
 							children: ["dev7B1", "dev8B1"],
@@ -512,7 +512,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev7B1",
 							x: 750,
-							y: 125,
+							y: 175,
 							type: "assignment",
 							title: "Ejercicio de raices",
 							identation: 1,
@@ -522,7 +522,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev8B1",
 							x: 750,
-							y: 375,
+							y: 525,
 							type: "choice",
 							title: "Preguntas sobre raices",
 							children: ["dev9B1"],
@@ -533,7 +533,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev9B1",
 							x: 875,
-							y: 375,
+							y: 525,
 							type: "page",
 							title: "Web informativa",
 							children: ["dev-1B1"],
@@ -552,7 +552,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev-2B2",
 							x: 0,
-							y: 500,
+							y: 700,
 							type: "start",
 							title: "Inicio",
 							children: ["dev0B2"],
@@ -561,7 +561,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev-1B2",
 							x: 1000,
-							y: 500,
+							y: 700,
 							type: "end",
 							title: "Final",
 							identation: 1,
@@ -569,7 +569,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev0B2",
 							x: 125,
-							y: 500,
+							y: 700,
 							type: "file",
 							title: "Ecuaciones",
 							children: ["dev1B2"],
@@ -580,7 +580,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev1B2",
 							x: 250,
-							y: 500,
+							y: 700,
 							type: "questionnaire",
 							title: "Examen Tema 1",
 							conditions: [
@@ -599,7 +599,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev2B2",
 							x: 375,
-							y: 375,
+							y: 525,
 							type: "folder",
 							title: "Carpeta Ecuaciones",
 							children: ["dev10B2", "dev11B2"],
@@ -610,7 +610,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev5B2",
 							x: 375,
-							y: 750,
+							y: 1050,
 							type: "questionnaire",
 							title: "Cuestionario de raices",
 							children: ["dev6B2", "dev7B2"],
@@ -621,7 +621,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev6B2",
 							x: 625,
-							y: 625,
+							y: 875,
 							type: "assignment",
 							title: "Ejercicio de raices",
 							children: ["dev-1B2"],
@@ -632,7 +632,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev7B2",
 							x: 625,
-							y: 875,
+							y: 1225,
 							type: "choice",
 							title: "Preguntas y respuestas",
 							children: ["dev40B2", "dev41B2"],
@@ -643,7 +643,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev10B2",
 							x: 500,
-							y: 250,
+							y: 350,
 							type: "folder",
 							title: "Carpeta Ecuaciones 2",
 							children: ["dev12B2", "dev13B2"],
@@ -654,7 +654,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev11B2",
 							x: 500,
-							y: 500,
+							y: 700,
 							type: "folder",
 							title: "Carpeta Ecuaciones 3",
 							identation: 2,
@@ -664,7 +664,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev12B2",
 							x: 625,
-							y: 125,
+							y: 175,
 							type: "folder",
 							title: "Insignia Ecuaciones 4",
 							identation: 2,
@@ -674,7 +674,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev13B2",
 							x: 625,
-							y: 375,
+							y: 525,
 							type: "folder",
 							title: "Carpeta Ecuaciones 5",
 							identation: 2,
@@ -684,7 +684,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev40B2",
 							x: 750,
-							y: 750,
+							y: 1050,
 							type: "page",
 							title: "Web informativa 2",
 							identation: 2,
@@ -694,7 +694,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev41B2",
 							x: 750,
-							y: 1000,
+							y: 1400,
 							type: "page",
 							title: "Web informativa 3",
 							identation: 2,
@@ -712,7 +712,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev-2B3",
 							x: 0,
-							y: 125,
+							y: 175,
 							type: "start",
 							title: "Inicio",
 							children: ["dev0B3"],
@@ -721,7 +721,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev-1B3",
 							x: 1500,
-							y: 375,
+							y: 525,
 							type: "end",
 							title: "Final",
 							identation: 1,
@@ -729,7 +729,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev0B3",
 							x: 125,
-							y: 125,
+							y: 175,
 							type: "file",
 							title: "Ecuaciones",
 							children: ["dev1B3"],
@@ -740,7 +740,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev1B3",
 							x: 250,
-							y: 125,
+							y: 175,
 							type: "questionnaire",
 							title: "Examen Tema 1",
 							conditions: [
@@ -769,7 +769,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev3B3",
 							x: 375,
-							y: 250,
+							y: 350,
 							type: "url",
 							title: "Web raices cuadradas",
 							children: ["dev4B3"],
@@ -780,7 +780,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev4B3",
 							x: 500,
-							y: 250,
+							y: 350,
 							type: "forum",
 							title: "Foro de discusión",
 							children: ["dev5B3"],
@@ -791,7 +791,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev5B3",
 							x: 625,
-							y: 250,
+							y: 350,
 							type: "questionnaire",
 							title: "Cuestionario de raices",
 							children: ["dev6B3", "dev7B3"],
@@ -812,7 +812,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev7B3",
 							x: 750,
-							y: 250,
+							y: 350,
 							type: "choice",
 							title: "Preguntas de Matemáticas",
 							children: ["dev8B3"],
@@ -823,7 +823,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev8B3",
 							x: 875,
-							y: 375,
+							y: 525,
 							type: "page",
 							title: "Web informativa",
 							children: ["dev40B3", "dev41B3"],
@@ -834,7 +834,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev40B3",
 							x: 1000,
-							y: 625,
+							y: 875,
 							type: "page",
 							title: "Web informativa 2",
 							identation: 2,
@@ -844,7 +844,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev41B3",
 							x: 1000,
-							y: 375,
+							y: 525,
 							type: "page",
 							title: "Web informativa 3",
 							children: ["dev44B3", "dev45B3"],
@@ -855,7 +855,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev44B3",
 							x: 1125,
-							y: 375,
+							y: 525,
 							type: "page",
 							title: "Web informativa 6",
 							children: ["dev46B3", "dev47B3"],
@@ -866,7 +866,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev45B3",
 							x: 1125,
-							y: 625,
+							y: 875,
 							type: "page",
 							title: "Web informativa 7",
 							identation: 2,
@@ -876,7 +876,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev46B3",
 							x: 1250,
-							y: 375,
+							y: 525,
 							type: "page",
 							title: "Web informativa 8",
 							children: ["dev48B3", "dev49B3"],
@@ -887,7 +887,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev47B3",
 							x: 1250,
-							y: 625,
+							y: 875,
 							type: "page",
 							title: "Web informativa 9",
 							identation: 2,
@@ -897,7 +897,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev48B3",
 							x: 1375,
-							y: 375,
+							y: 525,
 							type: "page",
 							title: "Web informativa 10",
 							children: ["dev-1B3"],
@@ -908,7 +908,7 @@ function Header({ closeBtn }, ref) {
 						{
 							id: "dev49B3",
 							x: 1375,
-							y: 625,
+							y: 875,
 							type: "page",
 							title: "Web informativa 11",
 							identation: 2,
