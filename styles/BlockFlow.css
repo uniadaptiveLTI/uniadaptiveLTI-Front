@@ -3,7 +3,7 @@
 .react-flow__handle-left {
     border-radius: 100%;
     background-color: #198754 !important;
-    border: 2px solid #333 !important;
+    border: 2px solid #101011 !important;
     padding: 5px  !important;
     left: -8px  !important;
 }
@@ -11,7 +11,7 @@
 .react-flow__handle-right {
     border-radius: 100%;
     background-color: #dc3545 !important;
-    border: 2px solid #333 !important;
+    border: 2px solid #101011 !important;
     padding: 5px  !important;
     right: -8px  !important;
 }
