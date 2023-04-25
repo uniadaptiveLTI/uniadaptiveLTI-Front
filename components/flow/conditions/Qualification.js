@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Form } from "react-bootstrap";
+import styles from "@components/styles/Aside.module.css";
+import { SettingsContext } from "@components/pages/_app";
 
 const Qualification = ({
 	condition,
@@ -9,15 +11,18 @@ const Qualification = ({
 	titleDOM,
 	expandedCondition,
 }) => {
+	const { settings, setSettings } = useContext(SettingsContext);
+	const parsedSettings = JSON.parse(settings);
+	let { reducedAnimations } = parsedSettings;
 	return (
 		<div
-			style={{
-				opacity: expandedCondition ? "1" : "0",
-				visibility: expandedCondition ? "visible" : "hidden",
-				maxHeight: expandedCondition ? "" : "0",
-				transition: "all .2s",
-			}}
-			className="mb-3"
+			className={
+				[
+					styles.uniadaptiveDetails,
+					expandedCondition ? styles.active : null,
+					reducedAnimations && styles.noAnimation,
+				].join(" ") + "mb-3"
+			}
 		>
 			<Form.Group className="mb-3">
 				<Form.Label htmlFor={titleID} className="mb-1">

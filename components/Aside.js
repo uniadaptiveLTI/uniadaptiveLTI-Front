@@ -599,7 +599,7 @@ export default function Aside({ className, closeBtn }) {
 													return (
 														<option
 															key={selectedChild.id}
-															defaultValue={selectedChild.id}
+															value={selectedChild.id}
 														>
 															{selectedChild.title}
 														</option>
