@@ -6,7 +6,7 @@ import {
 	CreateBlockContext,
 	DeleteBlockContext,
 	DeleteEdgeContext,
-	ItineraryInfoContext,
+	MapInfoContext,
 	VersionInfoContext,
 } from "@components/pages/_app";
 
@@ -50,8 +50,7 @@ export default function BlockCanvas() {
 	const { currentBlocksData, setCurrentBlocksData } =
 		useContext(BlocksDataContext);
 
-	const { itinerarySelected, setItinerarySelected } =
-		useContext(ItineraryInfoContext);
+	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
 	const { selectedEditVersion, setSelectedEditVersion } =
 		useContext(VersionInfoContext);
 

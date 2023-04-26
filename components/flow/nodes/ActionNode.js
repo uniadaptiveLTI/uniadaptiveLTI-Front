@@ -4,7 +4,7 @@ import styles from "@components/styles/BlockContainer.module.css";
 import {
 	BlockInfoContext,
 	ExpandedContext,
-	ItineraryInfoContext,
+	MapInfoContext,
 	SettingsContext,
 	VersionInfoContext,
 } from "@components/pages/_app";
@@ -134,8 +134,7 @@ function ActionNode({
 
 	const { expanded, setExpanded } = useContext(ExpandedContext);
 	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
-	const { itinerarySelected, setItinerarySelected } =
-		useContext(ItineraryInfoContext);
+	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
 	const { selectedEditVersion, setSelectedEditVersion } =
 		useContext(VersionInfoContext);
 
@@ -158,7 +157,7 @@ function ActionNode({
 			if (type != "start" && type != "end") setExpanded(true);
 		}
 
-		setItinerarySelected("");
+		setMapSelected("");
 		setSelectedEditVersion("");
 		setBlockSelected(blockData);
 	};

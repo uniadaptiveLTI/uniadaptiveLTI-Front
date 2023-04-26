@@ -41,7 +41,7 @@ export default function Home() {
 						height: "100%",
 					}}
 				>
-					<h1>No se ha seleccionado ningún itinerario</h1>
+					<h1>No se ha seleccionado ningún mapa</h1>
 				</div>
 			)}
 		</>
