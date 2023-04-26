@@ -47,7 +47,7 @@ export default function Aside({ className, closeBtn }) {
 	const titleDOM = useRef(null);
 	const optionsDOM = useRef(null);
 	const conditionsDOM = useRef(null);
-	const contentDOM = useRef(null);
+	const typeDOM = useRef(null);
 	const itineraryTitleDOM = useRef(null);
 	const versionTitleDOM = useRef(null);
 	const refreshIconDOM = useRef(null);
@@ -91,7 +91,7 @@ export default function Aside({ className, closeBtn }) {
 		{ id: 9, value: "page", name: "Página" },
 		{ id: 10, value: "url", name: "URL" },
 		{ id: 11, value: "badge", name: "Medalla" },
-		{ id: 13, value: "generic", name: "Genérico" },
+		{ id: 12, value: "generic", name: "Genérico" },
 		//{ id: 12, value: "fragment", name: "Fragmento"}
 	]);
 
@@ -234,11 +234,16 @@ export default function Aside({ className, closeBtn }) {
 	useEffect(() => {
 		if (blockSelected) {
 			const title = titleDOM.current;
+			const type = typeDOM.current;
 			const selectElement = relationSelectDOM.current;
 			const optionToSelect = selectElement?.querySelector('option[value=""]');
 
 			if (title) {
 				title.value = blockSelected.title;
+			}
+
+			if (type) {
+				type.value = blockSelected.type;
 			}
 
 			if (optionToSelect) {
@@ -279,7 +284,7 @@ export default function Aside({ className, closeBtn }) {
 			id: blockSelected.id,
 			x: blockSelected.x,
 			y: blockSelected.y,
-			type: contentDOM.current.value,
+			type: typeDOM.current.value,
 			title: titleDOM.current.value,
 			resource: optionsDOM.current.value,
 			children: blockSelected.children,
@@ -412,7 +417,7 @@ export default function Aside({ className, closeBtn }) {
 										Tipo de contenido
 									</Form.Label>
 									<Form.Select
-										ref={contentDOM}
+										ref={typeDOM}
 										id={contentID}
 										className="w-100"
 										defaultValue={selectedOption}
