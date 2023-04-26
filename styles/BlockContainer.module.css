@@ -6,6 +6,11 @@
 	pointer-events: none; /* So the right click to the SVG doesn't stop the propagation */
 }
 
+.container svg {
+	height: 32px;
+	width: 32px;
+}
+
 .container > span.blockInfo {
 
 	width: 8em;

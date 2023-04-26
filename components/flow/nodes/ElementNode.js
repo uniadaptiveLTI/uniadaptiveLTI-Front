@@ -2,20 +2,20 @@ import { useCallback, useContext } from "react";
 import { Handle, Position } from "reactflow";
 import { Badge } from "react-bootstrap";
 import styles from "@components/styles/BlockContainer.module.css";
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-	FileEarmarkCheck,
-	PatchQuestionFill,
-	Link45deg,
-	PencilSquare,
-	Question,
-	ChatLeftText,
-	FileEarmark,
-	Folder,
-	Tag,
-	FileEarmarkText,
-	Shuffle,
-} from "react-bootstrap-icons";
+	faCube,
+	faClipboardQuestion,
+	faPenToSquare,
+	faComments,
+	faFile,
+	faFolderOpen,
+	faLink,
+	faHandshakeAngle,
+	faQuestion,
+	faTag,
+	faFileLines,
+} from "@fortawesome/free-solid-svg-icons";
 import {
 	BlockInfoContext,
 	ExpandedContext,
@@ -28,26 +28,26 @@ function getTypeIcon(type) {
 	switch (type) {
 		//Moodle + Sakai
 		case "questionnaire":
-			return <FileEarmarkCheck size={32} />;
+			return <FontAwesomeIcon icon={faClipboardQuestion} />;
 		case "assignment":
-			return <PencilSquare size={32} />;
+			return <FontAwesomeIcon icon={faPenToSquare} />;
 		case "forum":
-			return <ChatLeftText size={32} />;
+			return <FontAwesomeIcon icon={faComments} />;
 		case "file":
-			return <FileEarmark size={32} />;
+			return <FontAwesomeIcon icon={faFile} />;
 		case "folder":
-			return <Folder size={32} />;
+			return <FontAwesomeIcon icon={faFolderOpen} />;
 		case "url":
-			return <Link45deg size={32} />;
+			return <FontAwesomeIcon icon={faLink} />;
 		//Moodle
 		case "workshop":
-			return <Shuffle size={32} />;
+			return <FontAwesomeIcon icon={faHandshakeAngle} />;
 		case "choice":
-			return <Question size={32} />;
+			return <FontAwesomeIcon icon={faQuestion} />;
 		case "tag":
-			return <Tag size={32} />;
+			return <FontAwesomeIcon icon={faTag} />;
 		case "page":
-			return <FileEarmarkText size={32} />;
+			return <FontAwesomeIcon icon={faFileLines} />;
 		//Sakai
 		case "exam":
 			return null;
@@ -59,7 +59,7 @@ function getTypeIcon(type) {
 			return null;
 		//LTI
 		default:
-			return <PatchQuestionFill size={32} />;
+			return <FontAwesomeIcon icon={faCube} />;
 	}
 }
 

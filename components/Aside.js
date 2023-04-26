@@ -1,10 +1,11 @@
 import styles from "@components/styles/Aside.module.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-	CaretDownFill,
-	CaretUpFill,
-	ArrowClockwise,
-	ArrowBarLeft,
-} from "react-bootstrap-icons";
+	faCaretDown,
+	faCaretUp,
+	faRotateRight,
+	faCompress,
+} from "@fortawesome/free-solid-svg-icons";
 import { Container, Button, Form, Spinner } from "react-bootstrap";
 import Qualification from "./flow/conditions/Qualification.js";
 import { useState, useContext, useEffect, useRef, useId, version } from "react";
@@ -370,7 +371,7 @@ export default function Aside({ className, closeBtn }) {
 					<h1 className="display-5">UNI Adaptive</h1>
 					<p className="display-6">Prototipo de Interfaz</p>
 					<span className={styles.collapse + " display-6"}>
-						<ArrowBarLeft width={38} height={38} />
+						<FontAwesomeIcon width={38} height={38} icon={faCompress} />
 					</span>
 				</div>
 				<hr />
@@ -393,7 +394,11 @@ export default function Aside({ className, closeBtn }) {
 								<div className="fw-bold">Contenido</div>
 								<div>
 									<div>
-										{!expandedContent ? <CaretUpFill /> : <CaretDownFill />}
+										{!expandedContent ? (
+											<FontAwesomeIcon icon={faCaretUp} />
+										) : (
+											<FontAwesomeIcon icon={faCaretDown} />
+										)}
 									</div>
 								</div>
 							</div>
@@ -448,7 +453,7 @@ export default function Aside({ className, closeBtn }) {
 											</Form.Label>
 											<div className="d-flex">
 												<div ref={refreshIconDOM} id="refresh-icon">
-													<ArrowClockwise></ArrowClockwise>
+													<FontAwesomeIcon icon={faRotateRight} />
 												</div>
 												<div>
 													{showSpinner && (
@@ -489,7 +494,11 @@ export default function Aside({ className, closeBtn }) {
 								<div className="fw-bold">Atributos</div>
 								<div>
 									<div role="button">
-										{!expandedAttr ? <CaretUpFill /> : <CaretDownFill />}
+										{!expandedAttr ? (
+											<FontAwesomeIcon icon={faCaretUp} />
+										) : (
+											<FontAwesomeIcon icon={faCaretDown} />
+										)}
 									</div>
 								</div>
 							</div>
@@ -522,7 +531,11 @@ export default function Aside({ className, closeBtn }) {
 								<div className="fw-bold">Interacción</div>
 								<div>
 									<div role="button">
-										{!expandedInteract ? <CaretUpFill /> : <CaretDownFill />}
+										{!expandedInteract ? (
+											<FontAwesomeIcon icon={faCaretUp} />
+										) : (
+											<FontAwesomeIcon icon={faCaretDown} />
+										)}
 									</div>
 								</div>
 							</div>
@@ -558,9 +571,9 @@ export default function Aside({ className, closeBtn }) {
 										<div>
 											<div role="button">
 												{!expandedRelations ? (
-													<CaretUpFill />
+													<FontAwesomeIcon icon={faCaretUp} />
 												) : (
-													<CaretDownFill />
+													<FontAwesomeIcon icon={faCaretDown} />
 												)}
 											</div>
 										</div>
@@ -612,9 +625,9 @@ export default function Aside({ className, closeBtn }) {
 													<div>
 														<div role="button">
 															{!expandedCondition ? (
-																<CaretUpFill />
+																<FontAwesomeIcon icon={faCaretUp} />
 															) : (
-																<CaretDownFill />
+																<FontAwesomeIcon icon={faCaretDown} />
 															)}
 														</div>
 													</div>
@@ -659,7 +672,13 @@ export default function Aside({ className, closeBtn }) {
 						>
 							<div className="fw-bold">Contenido</div>
 							<div>
-								<div>{!expanded ? <CaretUpFill /> : <CaretDownFill />}</div>
+								<div>
+									{!expanded ? (
+										<FontAwesomeIcon icon={faCaretUp} />
+									) : (
+										<FontAwesomeIcon icon={faCaretDown} />
+									)}
+								</div>
 							</div>
 						</div>
 						<div
@@ -701,7 +720,13 @@ export default function Aside({ className, closeBtn }) {
 						>
 							<div className="fw-bold">Contenido</div>
 							<div>
-								<div>{!expanded ? <CaretUpFill /> : <CaretDownFill />}</div>
+								<div>
+									{!expanded ? (
+										<FontAwesomeIcon icon={faCaretUp} />
+									) : (
+										<FontAwesomeIcon icon={faCaretDown} />
+									)}
+								</div>
 							</div>
 						</div>
 						<div

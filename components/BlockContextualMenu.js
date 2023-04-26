@@ -2,15 +2,16 @@ import styles from "@components/styles/BlockContextualMenu.module.css";
 import { useState, useEffect, forwardRef, useRef, useContext } from "react";
 import { Button } from "react-bootstrap";
 import FocusTrap from "focus-trap-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-	PlusSquareFill,
-	Diagram2Fill,
-	Scissors,
-	Clipboard2Fill,
-	Clipboard2PlusFill,
-	Trash3Fill,
-	Diagram3Fill,
-} from "react-bootstrap-icons";
+	faSquarePlus,
+	faDiagramNext,
+	faScissors,
+	faClipboard,
+	faPaste,
+	faTrashCan,
+	faDiagramProject,
+} from "@fortawesome/free-solid-svg-icons";
 import {
 	CreateBlockContext,
 	BlockInfoContext,
@@ -177,7 +178,7 @@ function BlockContextualMenu(
 						<li>
 							<Button variant="light" onClick={() => createBlock()}>
 								<div role="button">
-									<PlusSquareFill />
+									<FontAwesomeIcon icon={faSquarePlus} />
 									Crear nuevo bloque...
 								</div>
 							</Button>
@@ -185,7 +186,7 @@ function BlockContextualMenu(
 						<li>
 							<Button variant="light" disabled onClick={notImplemented}>
 								<div>
-									<Clipboard2PlusFill />
+									<FontAwesomeIcon icon={faPaste} />
 									Pegar bloque/s
 								</div>
 							</Button>
@@ -205,7 +206,7 @@ function BlockContextualMenu(
 										}}
 									>
 										<div>
-											<Diagram2Fill />
+											<FontAwesomeIcon icon={faDiagramNext} />
 											Cancelar relación
 										</div>
 									</Button>
@@ -217,7 +218,7 @@ function BlockContextualMenu(
 										onClick={() => handleNewRelation(blockOrigin, blockData)}
 									>
 										<div>
-											<Diagram2Fill />
+											<FontAwesomeIcon icon={faDiagramNext} />
 											<div
 												style={{
 													display: "flex",
@@ -245,7 +246,7 @@ function BlockContextualMenu(
 										}}
 									>
 										<div>
-											<Diagram2Fill /> Crear relación
+											<FontAwesomeIcon icon={faDiagramNext} /> Crear relación
 										</div>
 									</Button>
 								</li>
@@ -254,7 +255,7 @@ function BlockContextualMenu(
 						<li>
 							<Button variant="light" onClick={notImplemented}>
 								<div>
-									<Clipboard2Fill />
+									<FontAwesomeIcon icon={faClipboard} />
 									Copiar bloque
 								</div>
 							</Button>
@@ -262,7 +263,7 @@ function BlockContextualMenu(
 						<li>
 							<Button variant="light" onClick={notImplemented}>
 								<div>
-									<Scissors />
+									<FontAwesomeIcon icon={faScissors} />
 									Cortar bloque
 								</div>
 							</Button>
@@ -270,7 +271,7 @@ function BlockContextualMenu(
 						<li>
 							<Button variant="light" onClick={handleDeleteBlock}>
 								<div>
-									<Trash3Fill />
+									<FontAwesomeIcon icon={faTrashCan} />
 									Eliminar bloque...
 								</div>
 							</Button>
@@ -282,7 +283,7 @@ function BlockContextualMenu(
 						<li>
 							<Button variant="light" onClick={notImplemented}>
 								<div>
-									<Diagram3Fill />
+									<FontAwesomeIcon icon={faDiagramProject} />
 									Crear fragmento
 								</div>
 							</Button>
@@ -290,7 +291,7 @@ function BlockContextualMenu(
 						<li>
 							<Button variant="light" onClick={notImplemented}>
 								<div>
-									<Clipboard2Fill />
+									<FontAwesomeIcon icon={faClipboard} />
 									Copiar bloques
 								</div>
 							</Button>
@@ -298,7 +299,7 @@ function BlockContextualMenu(
 						<li>
 							<Button variant="light" onClick={notImplemented}>
 								<div>
-									<Scissors />
+									<FontAwesomeIcon icon={faScissors} />
 									Cortar bloques
 								</div>
 							</Button>
@@ -306,7 +307,7 @@ function BlockContextualMenu(
 						<li>
 							<Button variant="light" onClick={handleDeleteBlockSelection}>
 								<div>
-									<Trash3Fill />
+									<FontAwesomeIcon icon={faTrashCan} />
 									Eliminar bloques...
 								</div>
 							</Button>

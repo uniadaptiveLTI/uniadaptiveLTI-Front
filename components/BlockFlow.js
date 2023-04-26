@@ -29,7 +29,8 @@ import {
 import FinalNode from "./flow/nodes/FinalNode.js";
 import InitialNode from "./flow/nodes/InitialNode.js";
 import FragmentNode from "./flow/nodes/InitialNode.js";
-import { MapFill, XLg } from "react-bootstrap-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMap, faX } from "@fortawesome/free-solid-svg-icons";
 import { PaneContextMenuPositionContext } from "./BlockCanvas.js";
 
 const minimapStyle = {
@@ -145,7 +146,7 @@ const OverviewFlow = ({ map, deleteBlocks }, ref) => {
 		return (
 			<Controls>
 				<ControlButton title="Toggle Minimap" onClick={toggleMinimap}>
-					{!minimap && <MapFill />}
+					{!minimap && <FontAwesomeIcon icon={faMap} />}
 					{minimap && (
 						<div
 							style={{
@@ -156,8 +157,11 @@ const OverviewFlow = ({ map, deleteBlocks }, ref) => {
 								alignItems: "center",
 							}}
 						>
-							<XLg style={{ position: "absolute", top: "0", color: "white" }} />
-							<MapFill />
+							<FontAwesomeIcon
+								icon={faX}
+								style={{ position: "absolute", top: "0", color: "white" }}
+							/>
+							<FontAwesomeIcon icon={faMap} />
 						</div>
 					)}
 				</ControlButton>

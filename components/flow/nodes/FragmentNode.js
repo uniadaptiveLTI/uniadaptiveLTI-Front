@@ -2,8 +2,8 @@ import { useCallback, useContext } from "react";
 import { Handle, Position } from "reactflow";
 import { Badge } from "react-bootstrap";
 import styles from "@components/styles/BlockContainer.module.css";
-
-import { Diagram2 } from "react-bootstrap-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCubes } from "@fortawesome/free-solid-svg-icons";
 import {
 	BlockInfoContext,
 	ExpandedContext,
@@ -103,7 +103,7 @@ function FragmentNode({ id, xPos, yPos, type, data, isConnectable }) {
 				isConnectableStart="false"
 			/>
 			<div>
-				return <Diagram2 size={32} />;
+				<FontAwesomeIcon icon={faCubes} />;
 			</div>
 			<Handle
 				type="source"

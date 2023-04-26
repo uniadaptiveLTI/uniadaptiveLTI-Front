@@ -1,8 +1,6 @@
-import { useCallback } from "react";
+import { useCallback, useContext } from "react";
 import { Handle, Position } from "reactflow";
 import styles from "@components/styles/BlockContainer.module.css";
-
-import { PatchQuestionFill, StarFill } from "react-bootstrap-icons";
 import {
 	BlockInfoContext,
 	ExpandedContext,
@@ -10,7 +8,8 @@ import {
 	SettingsContext,
 	VersionInfoContext,
 } from "@components/pages/_app";
-import { useContext } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faStar, faCube } from "@fortawesome/free-solid-svg-icons";
 
 export const ActionBlocks = ["badge"];
 
@@ -20,12 +19,12 @@ function getTypeIcon(type) {
 
 		//Moodle
 		case "badge":
-			return <StarFill size={32} />;
+			return <FontAwesomeIcon icon={faStar} />;
 		//Sakai
 
 		//LTI
 		default:
-			return <PatchQuestionFill size={32} />;
+			return <FontAwesomeIcon icon={faCube} />;
 	}
 }
 

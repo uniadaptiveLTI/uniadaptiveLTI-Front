@@ -15,13 +15,15 @@ import {
 	Popover,
 	OverlayTrigger,
 } from "react-bootstrap";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-	Bell,
-	InfoCircle,
-	PlusCircle,
-	Pencil,
-	Trash,
-} from "react-bootstrap-icons";
+	faBell,
+	faCircleQuestion,
+	faCirclePlus,
+	faPencil,
+	faTrash,
+	faFloppyDisk,
+} from "@fortawesome/free-solid-svg-icons";
 import {
 	MapContext,
 	BlockInfoContext,
@@ -1391,7 +1393,10 @@ function Header({ closeBtn }, ref) {
 									className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder} ${styles.toggleButton}`}
 									disabled={isOffline}
 								>
-									<PlusCircle width="20" height="20" />
+									<FontAwesomeIcon
+										icon={faCirclePlus}
+										style={{ height: "20px", width: "20px" }}
+									/>
 								</Dropdown.Toggle>
 								<Dropdown.Menu>
 									<Dropdown.Item onClick={handleNewItinerary}>
@@ -1412,7 +1417,10 @@ function Header({ closeBtn }, ref) {
 											className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder} ${styles.toggleButton}`}
 											disabled={isOffline}
 										>
-											<Trash width="20" height="20" />
+											<FontAwesomeIcon
+												icon={faTrash}
+												style={{ height: "20px", width: "20px" }}
+											/>
 										</Dropdown.Toggle>
 										<Dropdown.Menu>
 											<Dropdown.Item onClick={showDeleteItineraryModal}>
@@ -1430,7 +1438,10 @@ function Header({ closeBtn }, ref) {
 											className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder} ${styles.toggleButton}`}
 											disabled={isOffline}
 										>
-											<Pencil width="20" height="20" />
+											<FontAwesomeIcon
+												icon={faPencil}
+												style={{ height: "20px", width: "20px" }}
+											/>
 										</Dropdown.Toggle>
 										<Dropdown.Menu>
 											<Dropdown.Item onClick={editItinerary}>
@@ -1445,16 +1456,12 @@ function Header({ closeBtn }, ref) {
 										className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder}`}
 										disabled={isOffline}
 										aria-label="Guardar versión actual"
+										onClick={notImplemented}
 									>
-										<Image
-											src={"/icons/save.svg"}
-											width="20"
-											height="20"
-											style={{ transform: "scale(1.15)" }}
-											onClick={notImplemented}
-											alt=""
-											//TODO: onClick
-										></Image>
+										<FontAwesomeIcon
+											icon={faFloppyDisk}
+											style={{ height: "20px", width: "20px" }}
+										/>
 									</Button>
 								</>
 							)}
@@ -1471,7 +1478,10 @@ function Header({ closeBtn }, ref) {
 									data-bs-placement="top"
 									data-bs-content="Top popover"
 								>
-									<InfoCircle width="20" height="20"></InfoCircle>
+									<FontAwesomeIcon
+										icon={faCircleQuestion}
+										style={{ height: "20px", width: "20px" }}
+									/>
 								</Button>
 							</OverlayTrigger>
 
@@ -1479,7 +1489,10 @@ function Header({ closeBtn }, ref) {
 								className={`d-flex align-items-center p-2 ${styles.actionsBorder}`}
 								variant="danger"
 							>
-								<Bell width="20" height="20"></Bell>
+								<FontAwesomeIcon
+									icon={faBell}
+									style={{ height: "20px", width: "20px" }}
+								/>
 							</Button>
 						</Container>
 						<Container
