@@ -14,7 +14,7 @@ import {
 
 function FragmentNode({ id, xPos, yPos, type, data, isConnectable }) {
 	const onChange = useCallback((evt) => {
-		console.log(evt.target.value);
+		//console.log(evt.target.value);
 	}, []);
 
 	const { expanded, setExpanded } = useContext(ExpandedContext);
@@ -42,7 +42,7 @@ function FragmentNode({ id, xPos, yPos, type, data, isConnectable }) {
 			order: data.order,
 			unit: data.unit,
 		};
-		console.log(blockData);
+		//console.log(blockData);
 
 		if (expanded != true) {
 			if (type != "start" && type != "end") setExpanded(true);

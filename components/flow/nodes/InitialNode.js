@@ -7,7 +7,7 @@ import { SettingsContext } from "@components/pages/_app";
 
 function InitialNode({ id, data, isConnectable }) {
 	const onChange = useCallback((evt) => {
-		console.log(evt.target.value);
+		//console.log(evt.target.value);
 	}, []);
 
 	const { settings } = useContext(SettingsContext);

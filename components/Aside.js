@@ -251,7 +251,6 @@ export default function Aside({ className, closeBtn }) {
 				const condition = conditionsDOM.current;
 
 				if (condition) {
-					console.log(condition);
 					condition.value = blockSelected.conditions;
 				}
 			}

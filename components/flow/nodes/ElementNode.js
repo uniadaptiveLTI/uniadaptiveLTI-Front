@@ -65,7 +65,7 @@ function getTypeIcon(type) {
 
 function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 	const onChange = useCallback((evt) => {
-		console.log(evt.target.value);
+		//console.log(evt.target.value);
 	}, []);
 
 	const { expanded, setExpanded } = useContext(ExpandedContext);

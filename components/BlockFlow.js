@@ -166,7 +166,7 @@ const OverviewFlow = ({ map, deleteBlocks }, ref) => {
 	}
 
 	const onInit = (reactFlowInstance) => {
-		console.log("flow loaded:", reactFlowInstance);
+		console.log("Blockflow loaded:", reactFlowInstance);
 		setReactFlowInstance(reactFlowInstance);
 	};
 

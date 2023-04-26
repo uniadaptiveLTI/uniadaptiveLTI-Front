@@ -279,7 +279,6 @@ export default function BlockCanvas() {
 		const bounds = bF.getBoundingClientRect();
 		if (bF) {
 			if (bF.contains(e.target)) {
-				console.log("A");
 				if (
 					e.target.classList.contains("block") &&
 					document.getElementsByClassName("selected").length <= 1
