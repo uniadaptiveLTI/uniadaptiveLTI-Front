@@ -130,7 +130,7 @@ function ActionNode({
 	unit = 1,
 }) {
 	const onChange = useCallback((evt) => {
-		console.log(evt.target.value);
+		//console.log(evt.target.value);
 	}, []);
 
 	const { expanded, setExpanded } = useContext(ExpandedContext);

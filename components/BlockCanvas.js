@@ -281,7 +281,7 @@ export default function BlockCanvas() {
 			if (bF.contains(e.target)) {
 				if (
 					e.target.classList.contains("block") &&
-					document.getElementsByClassName("selected").length == 1
+					document.getElementsByClassName("selected").length <= 1
 				) {
 					if (selectedBlock) {
 						e.preventDefault();

@@ -37,7 +37,7 @@ export default function App({ Component, pageProps }) {
 			highContrast: false,
 			showDetails: false,
 			reducedAnimations: false,
-			autoHideAside: false,
+			autoHideAside: true,
 			autoExpandMSGBox: false,
 			autoHideMSGBox: true,
 		})
