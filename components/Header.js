@@ -26,7 +26,7 @@ import {
 	MapContext,
 	BlockInfoContext,
 	ExpandedContext,
-	ItineraryInfoContext,
+	MapInfoContext,
 	VersionJsonContext,
 	VersionInfoContext,
 	PlatformContext,
@@ -66,8 +66,7 @@ function Header({ closeBtn }, ref) {
 
 	const { platform, setPlatform } = useContext(PlatformContext);
 	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
-	const { itinerarySelected, setItinerarySelected } =
-		useContext(ItineraryInfoContext);
+	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
 	const { selectedEditVersion, setSelectedEditVersion } =
 		useContext(VersionInfoContext);
 	const { msg, setMSG } = useContext(MSGContext);
@@ -84,12 +83,12 @@ function Header({ closeBtn }, ref) {
 	const parsedSettings = JSON.parse(settings);
 	let { reducedAnimations } = parsedSettings;
 
-	const selectItineraryDOM = useRef(null);
+	const selectMapDOM = useRef(null);
 	const selectVersionDOM = useRef(null);
 
 	const [versions, setVersions] = useState([]);
 
-	const emptyMap = { id: -1, name: "Seleccionar un itinerario" };
+	const emptyMap = { id: -1, name: "Seleccionar un mapa" };
 	const [maps, setMaps] = useState([
 		emptyMap,
 		{
@@ -921,7 +920,7 @@ function Header({ closeBtn }, ref) {
 		},
 		{
 			id: 3,
-			name: "Itinerario vacío",
+			name: "Mapa vacío",
 			versions: [
 				{
 					id: 0,
@@ -1014,7 +1013,7 @@ function Header({ closeBtn }, ref) {
 	function resetEdit() {
 		setBlockSelected("");
 		setSelectedEditVersion("");
-		setItinerarySelected("");
+		setMapSelected("");
 	}
 
 	/**
@@ -1041,7 +1040,7 @@ function Header({ closeBtn }, ref) {
 	}
 
 	/**
-	 * Changes the selected map to the "you need to select a itinerary" message.
+	 * Changes the selected map to the "you need to select a map" message.
 	 */
 	function changeToMapSelection() {
 		resetEdit();
@@ -1051,16 +1050,16 @@ function Header({ closeBtn }, ref) {
 	}
 
 	/**
-	 * Handles the creation of a new itinerary.
+	 * Handles the creation of a new map.
 	 */
-	const handleNewItinerary = () => {
+	const handleNewMap = () => {
 		const uniqueId = () => parseInt(Date.now() * Math.random()).toString();
 		const endId = uniqueId();
 		const newMap = [
 			...maps,
 			{
 				id: maps.length,
-				name: "Nuevo Itinerario " + maps.length,
+				name: "Nuevo Mapa " + maps.length,
 				versions: [
 					{
 						id: 0,
@@ -1091,10 +1090,7 @@ function Header({ closeBtn }, ref) {
 			},
 		];
 		setMaps(newMap);
-		toast(
-			`Itinerario: "Nuevo Itinerario ${maps.length}" creado`,
-			defaultToastSuccess
-		);
+		toast(`Mapa: "Nuevo Mapa ${maps.length}" creado`, defaultToastSuccess);
 	};
 
 	/**
@@ -1144,16 +1140,16 @@ function Header({ closeBtn }, ref) {
 	};
 
 	/**
-	 * Handles the editing of an itinerary.
+	 * Handles the editing of an map.
 	 */
-	const editItinerary = () => {
+	const editMap = () => {
 		if (expanded != true) {
 			setExpanded(true);
 		}
-		const itineraryId = selectItineraryDOM.current.value;
+		const mapId = selectMapDOM.current.value;
 		setBlockSelected("");
 		setSelectedEditVersion("");
-		setItinerarySelected(getMapById(itineraryId));
+		setMapSelected(getMapById(mapId));
 	};
 
 	/**
@@ -1164,33 +1160,31 @@ function Header({ closeBtn }, ref) {
 			setExpanded(true);
 		}
 		setBlockSelected("");
-		setItinerarySelected("");
+		setMapSelected("");
 		setSelectedEditVersion(selectedVersion);
 	};
 
 	/**
-	 * Shows a modal to confirm deletion of an itinerary.
+	 * Shows a modal to confirm deletion of an map.
 	 */
-	const showDeleteItineraryModal = () => {
+	const showDeleteMapModal = () => {
 		setModalTitle(`¿Eliminar "${selectedMap.name}"?`);
 		setModalBody(`¿Desea eliminar "${selectedMap.name}"?`);
-		setModalCallback(() => deleteItinerary);
+		setModalCallback(() => deleteMap);
 		setShowModal(true);
 	};
 
 	/**
-	 * Handles the deletion of an itinerary.
+	 * Handles the deletion of an map.
 	 */
-	const deleteItinerary = () => {
-		const itineraryId = selectItineraryDOM.current.value;
-		if (itineraryId != -1) {
-			setMaps((mapas) =>
-				mapas.filter((mapa) => mapa.id !== parseInt(itineraryId))
-			);
-			toast(`Itinerario eliminado con éxito.`, defaultToastSuccess);
+	const deleteMap = () => {
+		const mapId = selectMapDOM.current.value;
+		if (mapId != -1) {
+			setMaps((mapas) => mapas.filter((mapa) => mapa.id !== parseInt(mapId)));
+			toast(`Mapa eliminado con éxito.`, defaultToastSuccess);
 			changeToMapSelection();
 		} else {
-			toast(`No puedes eliminar este itinerario.`, defaultToastError);
+			toast(`No puedes eliminar este mapa.`, defaultToastError);
 		}
 	};
 
@@ -1363,7 +1357,7 @@ function Header({ closeBtn }, ref) {
 					>
 						{!expanded && <CreateLogo />}
 						<Form.Select
-							ref={selectItineraryDOM}
+							ref={selectMapDOM}
 							value={selectedMap.id}
 							onChange={handleMapChange}
 							disabled={isOffline}
@@ -1394,8 +1388,8 @@ function Header({ closeBtn }, ref) {
 									<PlusCircle width="20" height="20" />
 								</Dropdown.Toggle>
 								<Dropdown.Menu>
-									<Dropdown.Item onClick={handleNewItinerary}>
-										Crear nuevo itinerario
+									<Dropdown.Item onClick={handleNewMap}>
+										Crear nuevo mapa
 									</Dropdown.Item>
 									{selectedMap.id >= 0 && (
 										<Dropdown.Item onClick={handleNewVersion}>
@@ -1415,8 +1409,8 @@ function Header({ closeBtn }, ref) {
 											<Trash width="20" height="20" />
 										</Dropdown.Toggle>
 										<Dropdown.Menu>
-											<Dropdown.Item onClick={showDeleteItineraryModal}>
-												Borrar itinerario actual
+											<Dropdown.Item onClick={showDeleteMapModal}>
+												Borrar mapa actual
 											</Dropdown.Item>
 
 											<Dropdown.Item onClick={showDeleteVersionModal}>
@@ -1433,8 +1427,8 @@ function Header({ closeBtn }, ref) {
 											<Pencil width="20" height="20" />
 										</Dropdown.Toggle>
 										<Dropdown.Menu>
-											<Dropdown.Item onClick={editItinerary}>
-												Editar itinerario actual
+											<Dropdown.Item onClick={editMap}>
+												Editar mapa actual
 											</Dropdown.Item>
 											<Dropdown.Item onClick={editVersion}>
 												Editar versión actual

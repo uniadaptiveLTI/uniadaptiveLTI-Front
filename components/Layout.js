@@ -7,7 +7,7 @@ import { useState, useRef, useLayoutEffect } from "react";
 import {
 	PlatformContext,
 	BlockInfoContext,
-	ItineraryInfoContext,
+	MapInfoContext,
 	MapContext,
 	BlockJsonContext,
 	VersionJsonContext,
@@ -22,7 +22,7 @@ export default function Layout({ children }) {
 	const [platform, setPlatform] = useState("moodle"); //default to moodle in testing phase
 
 	const [blockSelected, setBlockSelected] = useState("");
-	const [itinerarySelected, setItinerarySelected] = useState("");
+	const [mapSelected, setMapSelected] = useState("");
 	const [selectedEditVersion, setSelectedEditVersion] = useState("");
 
 	const [expanded, setExpanded] = useState(false);
@@ -101,9 +101,7 @@ export default function Layout({ children }) {
 		<PlatformContext.Provider value={{ platform, setPlatform }}>
 			<MapContext.Provider value={{ map, setMap }}>
 				<BlockInfoContext.Provider value={{ blockSelected, setBlockSelected }}>
-					<ItineraryInfoContext.Provider
-						value={{ itinerarySelected, setItinerarySelected }}
-					>
+					<MapInfoContext.Provider value={{ mapSelected, setMapSelected }}>
 						<VersionInfoContext.Provider
 							value={{ selectedEditVersion, setSelectedEditVersion }}
 						>
@@ -184,7 +182,7 @@ export default function Layout({ children }) {
 								</VersionJsonContext.Provider>
 							</BlockJsonContext.Provider>
 						</VersionInfoContext.Provider>
-					</ItineraryInfoContext.Provider>
+					</MapInfoContext.Provider>
 				</BlockInfoContext.Provider>
 			</MapContext.Provider>
 		</PlatformContext.Provider>

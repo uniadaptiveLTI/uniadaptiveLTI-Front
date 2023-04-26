@@ -9,7 +9,7 @@ import Layout from "../components/Layout";
 
 export const MSGContext = createContext();
 export const BlockInfoContext = createContext();
-export const ItineraryInfoContext = createContext();
+export const MapInfoContext = createContext();
 export const VersionInfoContext = createContext();
 export const MapContext = createContext();
 export const ExpandedContext = createContext();

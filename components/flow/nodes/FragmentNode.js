@@ -7,7 +7,7 @@ import { Diagram2 } from "react-bootstrap-icons";
 import {
 	BlockInfoContext,
 	ExpandedContext,
-	ItineraryInfoContext,
+	MapInfoContext,
 	SettingsContext,
 	VersionInfoContext,
 } from "@components/pages/_app";
@@ -19,8 +19,7 @@ function FragmentNode({ id, xPos, yPos, type, data, isConnectable }) {
 
 	const { expanded, setExpanded } = useContext(ExpandedContext);
 	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
-	const { itinerarySelected, setItinerarySelected } =
-		useContext(ItineraryInfoContext);
+	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
 	const { selectedEditVersion, setSelectedEditVersion } =
 		useContext(VersionInfoContext);
 
@@ -48,7 +47,7 @@ function FragmentNode({ id, xPos, yPos, type, data, isConnectable }) {
 			if (type != "start" && type != "end") setExpanded(true);
 		}
 
-		setItinerarySelected("");
+		setMapSelected("");
 		setSelectedEditVersion("");
 		setBlockSelected(blockData);
 	};

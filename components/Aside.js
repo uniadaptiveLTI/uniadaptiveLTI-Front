@@ -13,7 +13,7 @@ import {
 	BlockInfoContext,
 	BlockJsonContext,
 	ExpandedContext,
-	ItineraryInfoContext,
+	MapInfoContext,
 	VersionInfoContext,
 	MapContext,
 	VersionJsonContext,
@@ -34,8 +34,7 @@ export default function Aside({ className, closeBtn }) {
 
 	const { platform, setPlatform } = useContext(PlatformContext);
 	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
-	const { itinerarySelected, setItinerarySelected } =
-		useContext(ItineraryInfoContext);
+	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
 	const { selectedEditVersion, setSelectedEditVersion } =
 		useContext(VersionInfoContext);
 	const { settings, setSettings } = useContext(SettingsContext);
@@ -48,7 +47,7 @@ export default function Aside({ className, closeBtn }) {
 	const optionsDOM = useRef(null);
 	const conditionsDOM = useRef(null);
 	const typeDOM = useRef(null);
-	const itineraryTitleDOM = useRef(null);
+	const mapTitleDOM = useRef(null);
 	const versionTitleDOM = useRef(null);
 	const refreshIconDOM = useRef(null);
 	const relationSelectDOM = useRef(null);
@@ -263,11 +262,11 @@ export default function Aside({ className, closeBtn }) {
 	}, [blockSelected]);
 
 	useEffect(() => {
-		const titleItinerary = itineraryTitleDOM.current;
-		if (titleItinerary) {
-			titleItinerary.value = itinerarySelected.name;
+		const titleMap = mapTitleDOM.current;
+		if (titleMap) {
+			titleMap.value = mapSelected.name;
 		}
-	}, [itinerarySelected]);
+	}, [mapSelected]);
 
 	useEffect(() => {
 		const titleVersion = versionTitleDOM.current;
@@ -296,13 +295,13 @@ export default function Aside({ className, closeBtn }) {
 	};
 
 	/**
-	 * Updates the selected itinerary with the value from the specified DOM element.
+	 * Updates the selected map with the value from the specified DOM element.
 	 */
-	const updateItinerary = () => {
+	const updateMap = () => {
 		setMap((prevMap) => ({
 			...prevMap,
-			id: itinerarySelected.id,
-			name: itineraryTitleDOM.current.value,
+			id: mapSelected.id,
+			name: mapTitleDOM.current.value,
 		}));
 	};
 
@@ -374,7 +373,7 @@ export default function Aside({ className, closeBtn }) {
 					</span>
 				</div>
 				<hr />
-				<div id={itinerarySelected.id}></div>
+				<div id={mapSelected.id}></div>
 			</div>
 
 			{blockSelected &&
@@ -649,7 +648,7 @@ export default function Aside({ className, closeBtn }) {
 				<></>
 			)}
 
-			{itinerarySelected ? (
+			{mapSelected ? (
 				<div className="container-fluid">
 					<Form.Group className="mb-3">
 						<div
@@ -670,19 +669,16 @@ export default function Aside({ className, closeBtn }) {
 							]}
 						>
 							<Form.Group className="mb-3">
-								<Form.Label className="mb-1">Nombre del itinerario</Form.Label>
+								<Form.Label className="mb-1">Nombre del mapa</Form.Label>
 								<Form.Control
-									id="itinerary-title"
-									ref={itineraryTitleDOM}
+									id="map-title"
+									ref={mapTitleDOM}
 									type="text"
 									className="w-100"
 								></Form.Control>
 							</Form.Group>
 						</div>
-						<Button
-							onClick={updateItinerary}
-							disabled={!allowResourceSelection}
-						>
+						<Button onClick={updateMap} disabled={!allowResourceSelection}>
 							Guardar
 						</Button>
 					</Form.Group>
