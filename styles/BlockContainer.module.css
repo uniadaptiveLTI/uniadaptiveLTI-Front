@@ -80,6 +80,8 @@
 .badge.highContrast, .badgeTwo.highContrast {
 	background-color: #101010 !important;
 	color: white  !important;
+	border: 1px solid white;
+	filter: none;
 }
 
 @media screen and (prefers-reduced-motion: reduce) {

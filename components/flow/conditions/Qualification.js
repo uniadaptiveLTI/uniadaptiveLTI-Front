@@ -40,7 +40,7 @@ const Qualification = ({
 			</Form.Group>
 			<Form.Group className="mb-3">
 				<Form.Label htmlFor={titleID} className="mb-1">
-					Operante
+					Operador
 				</Form.Label>
 				<Form.Select value={condition.operand}>
 					{qualificationOperand.map((operand) => {

@@ -379,7 +379,10 @@ export default function Aside({ className, closeBtn }) {
 
 			{blockSelected &&
 			!(blockSelected.type == "start" || blockSelected.type == "end") ? (
-				<Form onSubmit={allowResourceSelection ? updateBlock : undefined}>
+				<Form
+					action=""
+					onSubmit={allowResourceSelection ? updateBlock : undefined}
+				>
 					<div className="container-fluid">
 						<Form.Group className="mb-3">
 							<div

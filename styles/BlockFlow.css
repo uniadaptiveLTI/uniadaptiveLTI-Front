@@ -143,7 +143,7 @@
 }
 
 .react-flow__node-generic:hover, .react-flow__node-generic:focus-visible, .react-flow__node-generic:active {
-	background: #383753;
+	background: #515092;
 }
 
 /* Sakai */
@@ -268,7 +268,7 @@
 	background-color: white !important;
 }
 
-.react-flow__node.highContrast:hover, .react-flow__node.highContrast:focus-visible, .react-flow__node.highContrast:active{
+.react-flow__node:has(.highContrast):hover, .react-flow__node:has(.highContrast):focus-visible, .react-flow__node:has(.highContrast):active{
 	color: white !important;
 	background-color: #101010 !important;
 }

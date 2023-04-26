@@ -276,7 +276,7 @@ export default function BlockCanvas() {
 		setShowContextualMenu(false);
 		const selectedBlock = e.target;
 		const bF = blockFlowDOM.current;
-		const bounds = bF.getBoundingClientRect();
+		const bounds = bF?.getBoundingClientRect();
 		if (bF) {
 			if (bF.contains(e.target)) {
 				if (
