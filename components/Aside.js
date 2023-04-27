@@ -488,43 +488,6 @@ export default function Aside({ className, closeBtn }) {
 							<div
 								className="d-flex gap-2"
 								role="button"
-								onClick={() => setExpandedAttr(!expandedAttr)}
-							>
-								<div className="fw-bold">Atributos</div>
-								<div>
-									<div role="button">
-										{!expandedAttr ? (
-											<FontAwesomeIcon icon={faCaretUp} />
-										) : (
-											<FontAwesomeIcon icon={faCaretDown} />
-										)}
-									</div>
-								</div>
-							</div>
-
-							<div
-								className={[
-									styles.uniadaptiveDetails,
-									expandedAttr ? styles.active : null,
-									reducedAnimations && styles.noAnimation,
-								].join(" ")}
-							>
-								<Form.Group>
-									<Form.Label htmlFor="mandatory" className="mb-1">
-										Bloque obligatorio
-									</Form.Label>
-									<Form.Select id="mandatory" className="w-100">
-										<option>Si</option>
-										<option>No</option>
-									</Form.Select>
-								</Form.Group>
-							</div>
-						</div>
-
-						<div className="mb-2">
-							<div
-								className="d-flex gap-2"
-								role="button"
 								onClick={() => setExpandedInteract(!expandedInteract)}
 							>
 								<div className="fw-bold">Interacción</div>
