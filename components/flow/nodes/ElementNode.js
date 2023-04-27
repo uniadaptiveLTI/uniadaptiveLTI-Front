@@ -22,46 +22,9 @@ import {
 	MapInfoContext,
 	SettingsContext,
 	VersionInfoContext,
+	PlatformContext,
 } from "@components/pages/_app";
-
-function getTypeIcon(type) {
-	switch (type) {
-		//Moodle + Sakai
-		case "questionnaire":
-			return <FontAwesomeIcon icon={faClipboardQuestion} />;
-		case "assignment":
-			return <FontAwesomeIcon icon={faPenToSquare} />;
-		case "forum":
-			return <FontAwesomeIcon icon={faComments} />;
-		case "file":
-			return <FontAwesomeIcon icon={faFile} />;
-		case "folder":
-			return <FontAwesomeIcon icon={faFolderOpen} />;
-		case "url":
-			return <FontAwesomeIcon icon={faLink} />;
-		//Moodle
-		case "workshop":
-			return <FontAwesomeIcon icon={faHandshakeAngle} />;
-		case "choice":
-			return <FontAwesomeIcon icon={faQuestion} />;
-		case "tag":
-			return <FontAwesomeIcon icon={faTag} />;
-		case "page":
-			return <FontAwesomeIcon icon={faFileLines} />;
-		//Sakai
-		case "exam":
-			return null;
-		case "contents":
-			return null;
-		case "text":
-			return null;
-		case "html":
-			return null;
-		//LTI
-		default:
-			return <FontAwesomeIcon icon={faCube} />;
-	}
-}
+import Image from "next/image";
 
 function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 	const onChange = useCallback((evt) => {
@@ -73,6 +36,7 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
 	const { selectedEditVersion, setSelectedEditVersion } =
 		useContext(VersionInfoContext);
+	const { platform } = useContext(PlatformContext);
 
 	const { settings, setSettings } = useContext(SettingsContext);
 	const parsedSettings = JSON.parse(settings);
@@ -101,6 +65,144 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 		setBlockSelected(blockData);
 	};
 
+	function getTypeIcon(type) {
+		switch (type) {
+			//Moodle + Sakai
+			case "quiz":
+				return platform == "moodle" ? (
+					<Image
+						src="icons/moodle/new/quiz.svg"
+						height={32}
+						width={32}
+						className={[styles.moodleIcon, "moodleIcon"].join(" ")}
+					/>
+				) : (
+					<FontAwesomeIcon icon={faClipboardQuestion} />
+				);
+			case "assign":
+				return platform == "moodle" ? (
+					<Image
+						src="icons/moodle/new/assign.svg"
+						height={32}
+						width={32}
+						className={[styles.moodleIcon, "moodleIcon"].join(" ")}
+					/>
+				) : (
+					<FontAwesomeIcon icon={faPenToSquare} />
+				);
+			case "forum":
+				return platform == "moodle" ? (
+					<Image
+						src="icons/moodle/new/forum.svg"
+						height={32}
+						width={32}
+						className={[styles.moodleIcon, "moodleIcon"].join(" ")}
+					/>
+				) : (
+					<FontAwesomeIcon icon={faComments} />
+				);
+			case "resource":
+				return platform == "moodle" ? (
+					<Image
+						src="icons/moodle/new/resource.svg"
+						height={32}
+						width={32}
+						className={[styles.moodleIcon, "moodleIcon"].join(" ")}
+					/>
+				) : (
+					<FontAwesomeIcon icon={faFile} />
+				);
+			case "folder":
+				return platform == "moodle" ? (
+					<Image
+						src="icons/moodle/new/folder.svg"
+						height={32}
+						width={32}
+						className={[styles.moodleIcon, "moodleIcon"].join(" ")}
+					/>
+				) : (
+					<FontAwesomeIcon icon={faFolderOpen} />
+				);
+			case "url":
+				return platform == "moodle" ? (
+					<Image
+						src="icons/moodle/new/url.svg"
+						height={32}
+						width={32}
+						className={[styles.moodleIcon, "moodleIcon"].join(" ")}
+					/>
+				) : (
+					<FontAwesomeIcon icon={faLink} />
+				);
+			//Moodle
+			case "workshop":
+				return platform == "moodle" ? (
+					<Image
+						src="icons/moodle/new/workshop.svg"
+						height={32}
+						width={32}
+						className={[styles.moodleIcon, "moodleIcon"].join(" ")}
+					/>
+				) : (
+					<FontAwesomeIcon icon={faHandshakeAngle} />
+				);
+			case "choice":
+				return platform == "moodle" ? (
+					<Image
+						src="icons/moodle/new/choice.svg"
+						height={32}
+						width={32}
+						className={[styles.moodleIcon, "moodleIcon"].join(" ")}
+					/>
+				) : (
+					<FontAwesomeIcon icon={faQuestion} />
+				);
+			case "label":
+				return platform == "moodle" ? (
+					<Image
+						src="icons/moodle/new/label.svg"
+						height={32}
+						width={32}
+						className={[styles.moodleIcon, "moodleIcon"].join(" ")}
+					/>
+				) : (
+					<FontAwesomeIcon icon={faTag} />
+				);
+			case "page":
+				return platform == "moodle" ? (
+					<Image
+						src="icons/moodle/new/page.svg"
+						height={32}
+						width={32}
+						className={[styles.moodleIcon, "moodleIcon"].join(" ")}
+					/>
+				) : (
+					<FontAwesomeIcon icon={faFileLines} />
+				);
+			//Sakai
+			case "exam":
+				return null;
+			case "contents":
+				return null;
+			case "text":
+				return null;
+			case "html":
+				return null;
+			//LTI
+			default:
+				return platform == "moodle" ? (
+					<Image
+						src="icons/moodle/new/lti.svg"
+						height={32}
+						width={32}
+						className={[styles.moodleIcon, "moodleIcon"].join(" ")}
+					/>
+				) : (
+					<FontAwesomeIcon icon={faCube} />
+				);
+		}
+	}
+
 	const getAriaLabel = () => {
 		let end = "";
 		if (data.unit && data.order) {
@@ -128,16 +230,16 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 		let humanType = "";
 		switch (type) {
 			//Moodle + Sakai
-			case "questionnaire":
+			case "quiz":
 				humanType = "Cuestionario";
 				break;
-			case "assignment":
+			case "assign":
 				humanType = "Tarea";
 				break;
 			case "forum":
 				humanType = "Foro";
 				break;
-			case "file":
+			case "resource":
 				humanType = "Archivo";
 				break;
 			case "folder":
@@ -153,7 +255,7 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 			case "choice":
 				humanType = "Consulta";
 				break;
-			case "tag":
+			case "label":
 				humanType = "Etiqueta";
 				break;
 			case "page":

@@ -1,0 +1,111 @@
+/* -- MOODLE SPECIFIC -- */
+
+
+/* Quiz */
+.react-flow__node-quiz:has(.moodleIcon){
+    background-color: #5D63F6;
+}
+
+.react-flow__node-quiz:has(.moodleIcon):hover, .react-flow__node-quiz:has(.moodleIcon):focus-visible, .react-flow__node-quiz:has(.moodleIcon):active{
+    background-color: #7d82f8 !important;
+}
+
+/* Assign */
+.react-flow__node-assign:has(.moodleIcon){
+    background-color: #5D63F6;
+}
+
+.react-flow__node-assign:has(.moodleIcon):hover, .react-flow__node-assign:has(.moodleIcon):focus-visible, .react-flow__node-assign:has(.moodleIcon):active{
+    background-color: #7d82f8 !important;
+}
+
+/* Forum */
+.react-flow__node-forum:has(.moodleIcon) {
+	background-color: #11A676;
+}
+
+.react-flow__node-forum:has(.moodleIcon):hover, .react-flow__node-forum:has(.moodleIcon):focus-visible, .react-flow__node-forum:has(.moodleIcon):active {
+	background-color: #17e1a0 !important;
+}
+
+/* Resource */
+.react-flow__node-resource:has(.moodleIcon){
+    background-color: #A378FF;
+}
+
+.react-flow__node-resource:has(.moodleIcon):hover,  .react-flow__node-resource:has(.moodleIcon):focus-visible, .react-flow__node-resource:has(.moodleIcon):active{
+    background-color: #b593ff !important;
+}
+
+/* Folder */
+.react-flow__node-folder:has(.moodleIcon){
+    background-color: #399BE2;
+}
+
+.react-flow__node-folder:has(.moodleIcon):hover,  .react-flow__node-folder:has(.moodleIcon):focus-visible, .react-flow__node-folder:has(.moodleIcon):active{
+    background-color: #61afe8 !important;
+}
+
+/* URL */
+.react-flow__node-url:has(.moodleIcon){
+    background-color: #EB66A2;
+}
+
+.react-flow__node-url:has(.moodleIcon):hover,  .react-flow__node-url:has(.moodleIcon):focus-visible, .react-flow__node-url:has(.moodleIcon):active{
+    background-color: #ef85b5 !important;
+}
+
+/* Workshop */
+.react-flow__node-workshop:has(.moodleIcon){
+    background-color: #A378FF;
+}
+
+.react-flow__node-workshop:has(.moodleIcon):hover,  .react-flow__node-workshop:has(.moodleIcon):focus-visible, .react-flow__node-workshop:has(.moodleIcon):active{
+    background-color: #b593ff !important;
+}
+
+/* Choice */
+.react-flow__node-choice:has(.moodleIcon){
+    background-color: #F7634D;
+}
+
+.react-flow__node-choice:has(.moodleIcon):hover,  .react-flow__node-choice:has(.moodleIcon):focus-visible, .react-flow__node-choice:has(.moodleIcon):active{
+    background-color: #f98271 !important;
+}
+
+/* Label */
+.react-flow__node-label:has(.moodleIcon){
+    background-color: #F7634D;
+}
+
+.react-flow__node-label:has(.moodleIcon):hover,  .react-flow__node-label:has(.moodleIcon):focus-visible, .react-flow__node-label:has(.moodleIcon):active{
+    background-color: #f98271 !important;
+}
+
+
+/* Page */
+.react-flow__node-page:has(.moodleIcon){
+    background-color: #A378FF;
+}
+
+.react-flow__node-page:has(.moodleIcon):hover,  .react-flow__node-page:has(.moodleIcon):focus-visible, .react-flow__node-page:has(.moodleIcon):active{
+    background-color: #b593ff !important;
+}
+
+/* Badge */
+.react-flow__node-badge:has(.moodleIcon) {
+	background-color: #11A676;
+}
+
+.react-flow__node-badge:has(.moodleIcon):hover, .react-flow__node-badge:has(.moodleIcon):focus-visible, .react-flow__node-badge:has(.moodleIcon):active {
+	background-color: #17e1a0 !important;
+}
+
+/* Generic */
+.react-flow__node-generic:has(.moodleIcon) {
+	background-color: #11A676;
+}
+
+.react-flow__node-generic:has(.moodleIcon):hover, .react-flow__node-generic:has(.moodleIcon):focus-visible, .react-flow__node-generic:has(.moodleIcon):active {
+	background-color: #17e1a0 !important;
+}

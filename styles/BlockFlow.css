@@ -31,39 +31,44 @@
 	max-width: 64px;
 }
 
+/**
+
+FALLBACK
+
+**/
+
 /* Moodle+Sakai */
 
 
-/* Questionnaire */
-.react-flow__node-questionnaire{
+/* Quiz */
+.react-flow__node-quiz{
     background-color: #eb9408;
 }
 
-.react-flow__node-questionnaire:hover, .react-flow__node-questionnaire:focus-visible, .react-flow__node-questionnaire:active{
+.react-flow__node-quiz:hover, .react-flow__node-quiz:focus-visible, .react-flow__node-quiz:active{
     background-color: #c9810e !important;
 }
 
 /* Assignment */
-.react-flow__node-assignment{
+.react-flow__node-assign{
     background-color: #0dcaf0;
 }
 
-.react-flow__node-assignment:hover,  .react-flow__node-assignment:focus-visible, .react-flow__node-assignment:active{
+.react-flow__node-assign:hover,  .react-flow__node-assign:focus-visible, .react-flow__node-assign:active{
     background-color: #1bafcd !important;
 }
 
-/* File */
-.react-flow__node-file{
+/* Resource */
+.react-flow__node-resource{
     background-color: #0d6efd;
 }
 
-.react-flow__node-file:hover,  .react-flow__node-file:focus-visible, .react-flow__node-file:active{
+.react-flow__node-resource:hover,  .react-flow__node-resource:focus-visible, .react-flow__node-resource:active{
     background-color: #125ed0 !important;
 }
 
 /* Forum */
 .react-flow__node-forum {
-    
 	background-color: #800080;
 }
 
@@ -102,7 +107,7 @@
 	background-color: #0f992d;
 }
 
-/* choice */
+/* Choice */
 .react-flow__node-choice {
 	background-color: #dc3545;
 }
@@ -112,12 +117,12 @@
 }
 
 
-/* Tag */
-.react-flow__node-tag {
+/* Label */
+.react-flow__node-label {
 	background-color: #a91568;
 }
 
-.react-flow__node-tag:hover, .react-flow__node-tag:focus-visible, .react-flow__node-tag:active {
+.react-flow__node-label:hover, .react-flow__node-label:focus-visible, .react-flow__node-label:active {
 	background-color: #bf1a78 !important;
 }
 
@@ -270,9 +275,17 @@
 	background-color: white !important;
 }
 
+.react-flow__node:has(.highContrast) img{
+	filter:none
+}
+
 .react-flow__node:has(.highContrast):hover, .react-flow__node:has(.highContrast):focus-visible, .react-flow__node:has(.highContrast):active{
 	color: white !important;
 	background-color: #101010 !important;
+}
+
+.react-flow__node:has(.highContrast):hover img, .react-flow__node:has(.highContrast):focus-visible img, .react-flow__node:has(.highContrast):active img{
+	filter: invert();
 }
 
 .react-flow__node.selected:has(.highContrast){

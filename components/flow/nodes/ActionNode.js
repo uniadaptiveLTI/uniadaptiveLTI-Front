@@ -7,41 +7,27 @@ import {
 	MapInfoContext,
 	SettingsContext,
 	VersionInfoContext,
+	PlatformContext,
 } from "@components/pages/_app";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faStar, faCube } from "@fortawesome/free-solid-svg-icons";
+import { faAward, faCube } from "@fortawesome/free-solid-svg-icons";
 
 export const ActionBlocks = ["badge"];
-
-function getTypeIcon(type) {
-	switch (type) {
-		//Moodle + Sakai
-
-		//Moodle
-		case "badge":
-			return <FontAwesomeIcon icon={faStar} />;
-		//Sakai
-
-		//LTI
-		default:
-			return <FontAwesomeIcon icon={faCube} />;
-	}
-}
 
 const getHumanDesc = (type) => {
 	let humanType = "";
 	switch (type) {
 		//Moodle + Sakai
-		case "questionnaire":
+		case "quiz":
 			humanType = "Cuestionario";
 			break;
-		case "assignment":
+		case "assign":
 			humanType = "Tarea";
 			break;
 		case "forum":
 			humanType = "Foro";
 			break;
-		case "file":
+		case "resource":
 			humanType = "Archivo";
 			break;
 		case "folder":
@@ -57,7 +43,7 @@ const getHumanDesc = (type) => {
 		case "choice":
 			humanType = "Consulta";
 			break;
-		case "tag":
+		case "label":
 			humanType = "Etiqueta";
 			break;
 		case "page":
@@ -141,6 +127,26 @@ function ActionNode({
 	const { settings } = useContext(SettingsContext);
 	const parsedSettings = JSON.parse(settings);
 	const { highContrast, reducedAnimations } = parsedSettings;
+	const { platform } = useContext(PlatformContext);
+
+	function getTypeIcon(type) {
+		switch (type) {
+			//Moodle + Sakai
+
+			//Moodle
+			case "badge":
+				return platform == "moodle" ? (
+					<FontAwesomeIcon icon={faAward} className={"moodleIcon"} />
+				) : (
+					<FontAwesomeIcon icon={faAward} />
+				);
+			//Sakai
+
+			//LTI
+			default:
+				return <FontAwesomeIcon icon={faCube} />;
+		}
+	}
 
 	const handleClick = () => {
 		const blockData = {
