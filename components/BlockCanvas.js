@@ -26,6 +26,7 @@ import {
 } from "../pages/_app.js";
 
 import BlockContextualMenu from "./BlockContextualMenu.js";
+import ConditionModal from "./flow/conditions/ConditionModal.js";
 import BlockFlow from "./BlockFlow.js";
 
 export const BlockOriginContext = createContext();
@@ -55,6 +56,8 @@ export default function BlockCanvas() {
 		useContext(VersionInfoContext);
 
 	const [showContextualMenu, setShowContextualMenu] = useState(false);
+	const [showConditionsModal, setShowConditionsModal] = useState(false);
+
 	const [paneContextMenuPosition, setPaneContextMenuPosition] = useState({
 		x: 0,
 		y: 0,
@@ -320,6 +323,10 @@ export default function BlockCanvas() {
 		}
 	}
 
+	const handleClose = () => {
+		setShowConditionsModal(false);
+	};
+
 	return (
 		<CreateBlockContext.Provider value={{ createdBlock, setCreatedBlock }}>
 			<DeleteEdgeContext.Provider value={{ deletedEdge, setDeletedEdge }}>
@@ -339,11 +346,19 @@ export default function BlockCanvas() {
 								blocksData={currentBlocksData}
 								setBlocksData={setCurrentBlocksData}
 								setShowContextualMenu={setShowContextualMenu}
+								setShowConditionsModal={setShowConditionsModal}
 								x={cMX}
 								y={cMY}
 								contextMenuOrigin={contextMenuOrigin}
 								blockFlowDOM={blockFlowDOM}
 								deleteBlocks={deleteBlocks}
+							/>
+						)}
+						{showConditionsModal && (
+							<ConditionModal
+								showConditionsModal={showConditionsModal}
+								setShowConditionsModal={setShowConditionsModal}
+								setShowContextualMenu={setShowContextualMenu}
 							/>
 						)}
 					</PaneContextMenuPositionContext.Provider>

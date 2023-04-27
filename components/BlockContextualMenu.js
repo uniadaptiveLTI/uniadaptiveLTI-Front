@@ -34,6 +34,7 @@ function BlockContextualMenu(
 		blocksData,
 		setBlocksData,
 		setShowContextualMenu,
+		setShowConditionsModal,
 		contextMenuOrigin,
 		blockFlowDOM,
 		deleteBlocks,
@@ -159,11 +160,9 @@ function BlockContextualMenu(
 		setBlocksData(newBlocksData); //FIXME: The changes doesn't stay, a badge gives 0
 	};
 
-	const [show, setShow] = useState(false);
-
-	const handleClose = () => setShow(false);
 	const handleShow = () => {
-		setShow(true);
+		setShowConditionsModal(true);
+		setShowContextualMenu(false);
 	};
 
 	return (
@@ -210,23 +209,6 @@ function BlockContextualMenu(
 									Editar precondiciones
 								</div>
 							</Button>
-
-							<Modal show={show} onHide={handleClose}>
-								<Modal.Header closeButton>
-									<Modal.Title>Modal heading</Modal.Title>
-								</Modal.Header>
-								<Modal.Body>
-									Woohoo, you're reading this text in a modal!
-								</Modal.Body>
-								<Modal.Footer>
-									<Button variant="secondary" onClick={handleClose}>
-										Close
-									</Button>
-									<Button variant="primary" onClick={handleClose}>
-										Save Changes
-									</Button>
-								</Modal.Footer>
-							</Modal>
 						</li>
 						{blockOrigin ? (
 							blockOrigin.id == blockData.id ? (
