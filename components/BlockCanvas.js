@@ -86,6 +86,7 @@ export default function BlockCanvas() {
 	/** Client-side */
 
 	useEffect(() => {
+		console.log(blockJson);
 		if (!Array.isArray(blockJson)) {
 			let newcurrentBlocksData = [...currentBlocksData];
 			newcurrentBlocksData[
@@ -356,9 +357,11 @@ export default function BlockCanvas() {
 						)}
 						{showConditionsModal && (
 							<ConditionModal
+								blockData={cMBlockData}
+								setCMBlockData={setCMBlockData}
 								showConditionsModal={showConditionsModal}
 								setShowConditionsModal={setShowConditionsModal}
-								setShowContextualMenu={setShowContextualMenu}
+								setBlockJson={setBlockJson}
 							/>
 						)}
 					</PaneContextMenuPositionContext.Provider>
