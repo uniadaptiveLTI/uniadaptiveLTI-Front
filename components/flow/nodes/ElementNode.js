@@ -298,77 +298,81 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 	};
 
 	return (
-		<div
-			id={id}
-			className={
-				"block " +
-				styles.container +
-				" " +
-				(highContrast && styles.highContrast + " highContrast ") +
-				" " +
-				(reducedAnimations && styles.noAnimation + " noAnimation")
-			}
-			onClick={handleClick}
-			aria-label={getAriaLabel} //FIXME: Doesn't work
-		>
-			<span className={styles.blockInfo + " " + styles.top}>{data.label}</span>
-			{process.env.DEV_MODE == true && (
-				<>
-					<div>{`id:${id}`}</div>
-					<div>{`children:${data.children}`}</div>
-				</>
-			)}
+		<>
 			<Handle
 				type="target"
 				position={Position.Left}
 				isConnectable={isConnectable}
 				isConnectableStart="false"
 			/>
-			<div>{getTypeIcon(type)}</div>
 			<Handle
 				type="source"
 				position={Position.Right}
 				isConnectable={isConnectable}
 				isConnectableEnd="false"
 			/>
-			<span className={styles.blockInfo + " " + styles.bottom}>
-				{getHumanDesc(type)}
-			</span>
-			{data.unit && (
-				<Badge
-					bg="light"
-					className={
-						styles.badge +
-						" " +
-						(reducedAnimations && styles.noAnimation) +
-						" " +
-						(showDetails && styles.showBadges) +
-						" " +
-						(highContrast && styles.highContrast)
-					}
-					title="Unidad"
-				>
-					{data.unit}
-				</Badge>
-			)}
-			{data.order && (
-				<Badge
-					bg="warning"
-					className={
-						styles.badgeTwo +
-						" " +
-						(reducedAnimations && styles.noAnimation) +
-						" " +
-						(showDetails && styles.showBadges) +
-						" " +
-						(highContrast && styles.highContrast)
-					}
-					title="Posición en Moodle"
-				>
-					{data.order}
-				</Badge>
-			)}
-		</div>
+			<div
+				id={id}
+				className={
+					"block " +
+					styles.container +
+					" " +
+					(highContrast && styles.highContrast + " highContrast ") +
+					" " +
+					(reducedAnimations && styles.noAnimation + " noAnimation")
+				}
+				onClick={handleClick}
+				aria-label={getAriaLabel} //FIXME: Doesn't work
+			>
+				<span className={styles.blockInfo + " " + styles.top}>
+					{data.label}
+				</span>
+				{process.env.DEV_MODE == true && (
+					<>
+						<div>{`id:${id}`}</div>
+						<div>{`children:${data.children}`}</div>
+					</>
+				)}
+				<div>{getTypeIcon(type)}</div>
+				<span className={styles.blockInfo + " " + styles.bottom}>
+					{getHumanDesc(type)}
+				</span>
+				{data.unit && (
+					<Badge
+						bg="light"
+						className={
+							styles.badge +
+							" " +
+							(reducedAnimations && styles.noAnimation) +
+							" " +
+							(showDetails && styles.showBadges) +
+							" " +
+							(highContrast && styles.highContrast)
+						}
+						title="Unidad"
+					>
+						{data.unit}
+					</Badge>
+				)}
+				{data.order && (
+					<Badge
+						bg="warning"
+						className={
+							styles.badgeTwo +
+							" " +
+							(reducedAnimations && styles.noAnimation) +
+							" " +
+							(showDetails && styles.showBadges) +
+							" " +
+							(highContrast && styles.highContrast)
+						}
+						title="Posición en Moodle"
+					>
+						{data.order}
+					</Badge>
+				)}
+			</div>
+		</>
 	);
 }
 

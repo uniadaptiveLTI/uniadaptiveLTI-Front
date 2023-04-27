@@ -4,7 +4,7 @@
   --main-ui-borders: 1px solid #ccc;
 
   /*
-  Square inputs, you need to uncomment the !important on the respective selectors, below
+    Square inputs, you need to uncomment the !important on the respective selectors, below to make it work
 
   --main-ui-button-border-radius: 0;
   --main-ui-input-border-radius: 0;
@@ -136,6 +136,14 @@
   }
 }
 
+button {
+  border-radius: var(--main-ui-button-border-radius) /*!important*/;
+}
+
+input, select {
+  border-radius: var(--main-ui-input-border-radius) /*!important*/;
+}
+
 * {
   box-sizing: border-box;
   padding: 0;
@@ -149,14 +157,6 @@ body {
   overflow-x: hidden;
   overflow-y: hidden;
   font-family: var(--main-font-family);
-}
-
-button {
-  border-radius: var(--main-ui-button-border-radius) !important;
-}
-
-input, select {
-  border-radius: var(--main-ui-input-border-radius) !important;
 }
 
 @media (prefers-color-scheme: dark) {

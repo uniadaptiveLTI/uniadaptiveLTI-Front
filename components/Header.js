@@ -1268,17 +1268,18 @@ function Header({ closeBtn }, ref) {
 	function CreateLogo() {
 		return (
 			<div className="mx-auto d-flex align-items-center" role="button">
-				<Image
+				<img
 					onClick={() => setExpanded(!expanded)}
-					alt="Uniadaptive"
-					src="/images/logo.png"
+					src="images/branding/small_logo.svg"
+					onError={(e) => (e.target.src = "images/branding/small_logo.png")}
+					alt="Mostrar menú lateral"
+					className={styles.icon}
 					width={40}
 					height={40}
-					className={styles.icon}
 					style={{
 						transition: "all 0.5s ease",
 					}}
-				></Image>
+				/>
 			</div>
 		);
 	}

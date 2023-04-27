@@ -16,31 +16,33 @@ function InitialNode({ id, data, isConnectable }) {
 	const { reducedAnimations, highContrast } = parsedSettings;
 
 	return (
-		<div
-			id={id}
-			className={
-				"block " +
-				styles.container +
-				" " +
-				(highContrast && styles.highContrast + " highContrast ") +
-				" " +
-				(reducedAnimations && styles.noAnimation + " noAnimation")
-			}
-		>
+		<>
 			<Handle
 				type="source"
 				position={Position.Right}
 				isConnectable={isConnectable}
 				isConnectableEnd="false"
 			/>
-			<div>
-				<FontAwesomeIcon
-					icon={faCaretDown}
-					style={{ transform: "rotate(-90deg)" }}
-				/>
+			<div
+				id={id}
+				className={
+					"block " +
+					styles.container +
+					" " +
+					(highContrast && styles.highContrast + " highContrast ") +
+					" " +
+					(reducedAnimations && styles.noAnimation + " noAnimation")
+				}
+			>
+				<div>
+					<FontAwesomeIcon
+						icon={faCaretDown}
+						style={{ transform: "rotate(-90deg)" }}
+					/>
+				</div>
+				<span className={styles.blockInfo + " " + styles.bottom}>Inicio</span>
 			</div>
-			<span className={styles.blockInfo + " " + styles.bottom}>Inicio</span>
-		</div>
+		</>
 	);
 }
 

@@ -135,7 +135,11 @@ function ActionNode({
 
 			//Moodle
 			case "badge":
-				return <FontAwesomeIcon icon={faAward} />;
+				return platform == "moodle" ? (
+					<FontAwesomeIcon icon={faAward} className={"moodleIcon"} />
+				) : (
+					<FontAwesomeIcon icon={faAward} />
+				);
 
 			//Sakai
 
@@ -166,30 +170,35 @@ function ActionNode({
 	};
 
 	return (
-		<div
-			id={id}
-			className={
-				"block " +
-				styles.container +
-				" " +
-				(highContrast && styles.highContrast + " highContrast ") +
-				" " +
-				(reducedAnimations && styles.noAnimation + " noAnimation")
-			}
-			onClick={handleClick}
-		>
-			<span className={styles.blockInfo + " " + styles.top}>{data.label}</span>
+		<>
 			<Handle
 				type="target"
 				position={Position.Left}
 				isConnectable={isConnectable}
 				isConnectableStart="false"
 			/>
-			<div>{getTypeIcon(type)}</div>
-			<span className={styles.blockInfo + " " + styles.bottom}>
-				{getHumanDesc(type)}
-			</span>
-		</div>
+			<div
+				id={id}
+				className={
+					"block " +
+					styles.container +
+					" " +
+					(highContrast && styles.highContrast + " highContrast ") +
+					" " +
+					(reducedAnimations && styles.noAnimation + " noAnimation")
+				}
+				onClick={handleClick}
+			>
+				<span className={styles.blockInfo + " " + styles.top}>
+					{data.label}
+				</span>
+
+				<div>{getTypeIcon(type)}</div>
+				<span className={styles.blockInfo + " " + styles.bottom}>
+					{getHumanDesc(type)}
+				</span>
+			</div>
+		</>
 	);
 }
 

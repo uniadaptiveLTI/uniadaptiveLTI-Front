@@ -50,7 +50,7 @@
  }
 
 .icon:hover{
-    -webkit-filter: brightness(70%);
+    filter: brightness(70%);
 }
 
 @keyframes slide {

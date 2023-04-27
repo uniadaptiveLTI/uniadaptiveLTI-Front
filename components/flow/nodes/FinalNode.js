@@ -16,31 +16,33 @@ function FinalNode({ id, data, isConnectable }) {
 	const { reducedAnimations, highContrast } = parsedSettings;
 
 	return (
-		<div
-			id={id}
-			className={
-				"block " +
-				styles.container +
-				" " +
-				(highContrast && styles.highContrast + " highContrast ") +
-				" " +
-				(reducedAnimations && styles.noAnimation + " noAnimation")
-			}
-		>
+		<>
 			<Handle
 				type="target"
 				position={Position.Left}
 				isConnectable={isConnectable}
 				isConnectableStart="false"
 			/>
-			<div>
-				<FontAwesomeIcon
-					icon={faCaretDown}
-					style={{ transform: "rotate(90deg)" }}
-				/>
+			<div
+				id={id}
+				className={
+					"block " +
+					styles.container +
+					" " +
+					(highContrast && styles.highContrast + " highContrast ") +
+					" " +
+					(reducedAnimations && styles.noAnimation + " noAnimation")
+				}
+			>
+				<div>
+					<FontAwesomeIcon
+						icon={faCaretDown}
+						style={{ transform: "rotate(90deg)" }}
+					/>
+				</div>
+				<span className={styles.blockInfo + " " + styles.bottom}>Fin</span>
 			</div>
-			<span className={styles.blockInfo + " " + styles.bottom}>Fin</span>
-		</div>
+		</>
 	);
 }
 

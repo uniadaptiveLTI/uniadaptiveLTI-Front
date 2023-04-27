@@ -367,14 +367,12 @@ export default function Aside({ className, closeBtn }) {
 					style={{ transition: "all 0.5s ease" }}
 					tabIndex={0}
 				>
-					<picture>
-						<source srcset="images/branding/logo.svg" type="image/svg+xml" />
-						<img
-							src="images/branding/logo.png"
-							alt="Logo"
-							style={{ width: "100%" }}
-						/>
-					</picture>
+					<img
+						alt="Logo"
+						src="images/branding/logo.svg"
+						onError={(e) => (e.target.src = "images/branding/logo.png")}
+						style={{ width: "100%" }}
+					/>
 					<span className={styles.collapse + " display-6"}>
 						<FontAwesomeIcon width={38} height={38} icon={faCompress} />
 					</span>
