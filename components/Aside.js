@@ -367,8 +367,14 @@ export default function Aside({ className, closeBtn }) {
 					style={{ transition: "all 0.5s ease" }}
 					tabIndex={0}
 				>
-					<h1 className="display-5">UNI Adaptive</h1>
-					<p className="display-6">Prototipo de Interfaz</p>
+					<picture>
+						<source srcset="images/branding/logo.svg" type="image/svg+xml" />
+						<img
+							src="images/branding/logo.png"
+							alt="Logo"
+							style={{ width: "100%" }}
+						/>
+					</picture>
 					<span className={styles.collapse + " display-6"}>
 						<FontAwesomeIcon width={38} height={38} icon={faCompress} />
 					</span>

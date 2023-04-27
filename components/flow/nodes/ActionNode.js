@@ -135,11 +135,8 @@ function ActionNode({
 
 			//Moodle
 			case "badge":
-				return platform == "moodle" ? (
-					<FontAwesomeIcon icon={faAward} className={"moodleIcon"} />
-				) : (
-					<FontAwesomeIcon icon={faAward} />
-				);
+				return <FontAwesomeIcon icon={faAward} />;
+
 			//Sakai
 
 			//LTI

@@ -112,7 +112,7 @@ const OverviewFlow = ({ map, deleteBlocks }, ref) => {
 						>
 							<FontAwesomeIcon
 								icon={faX}
-								style={{ position: "absolute", top: "0", color: "white" }}
+								style={{ position: "absolute", top: "0" }}
 							/>
 							<FontAwesomeIcon icon={faMap} />
 						</div>

@@ -34,7 +34,6 @@ export default function Layout({ children }) {
 	const [headerHeight, setHeaderHeight] = useState(0);
 	const [footerHeight, setFooterHeight] = useState(0);
 	const [mainHeightOffset, setMainHeightOffset] = useState(0);
-	const [zoomLevel, setZoomLevel] = useState(100);
 
 	const [mainDOM, setMainDOM] = useState(null);
 	const [msg, setMSG] = useState([]);
@@ -53,17 +52,7 @@ export default function Layout({ children }) {
 			setFooterHeight(getFooterHeight());
 			setHeaderHeight(getHeaderHeight());
 		});
-		let zoom = ((window.outerWidth - 10) / window.innerWidth) * 100;
-		if (zoom != zoomLevel) setZoomLevel(zoom);
-	}, [footerHeight, headerHeight, zoomLevel]);
-
-	useLayoutEffect(() => {
-		let footerHeight = getFooterHeight();
-		let headerHeight = getHeaderHeight();
-		setFooterHeight(footerHeight);
-		setHeaderHeight(headerHeight);
-		setMainHeightOffset(footerHeight + headerHeight);
-	}, [zoomLevel]);
+	}, [footerHeight, headerHeight, expanded]);
 
 	useLayoutEffect(() => {
 		setMainDOM(mainDOMRef);

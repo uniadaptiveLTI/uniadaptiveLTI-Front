@@ -17,8 +17,25 @@
 }
 
 .actionsBorder, .actionsBorder:hover{
-    border-radius: 100%;
-    border: 0;
+    border-radius: var(--header-action-buttons-border-radius);
+    border: var(--header-action-buttons-border);
+    background-color: var(--header-action-buttons-background-color);
+}
+
+.actionsBorder.success, .actionsBorder.success:hover{
+    background-color: var(--success-background-color)
+}
+
+.actionsBorder.warning, .actionsBorder.warning:hover{
+    background-color: var(--warning-background-color)
+}
+
+.actionsBorder.error, .actionsBorder.error:hover{
+    background-color: var(--error-background-color)
+}
+
+.actionsBorder svg {
+    filter: var(--header-action-buttons-svg-filter);
 }
 
 .mapContainer.noAnimation, .mapContainer.noAnimation {
@@ -49,7 +66,14 @@
     padding: 0 0.5em;
     box-shadow: 0 8px 6px -6px #ccc;
     border-bottom: 1px solid #ccc;
-    background: white;
+    background-color: var(--header-version-dropdown-container-background-color);
+    color: var(--header-version-dropdown-container-font-color);
+    font-family: var(--header-version-dropdown-container-font-family);
+}
+
+.mapText button {
+    color: var(--header-version-dropdown-container-font-color);
+    font-family: var(--header-version-dropdown-container-font-family);
 }
 
 .mapText p{ margin:0}
@@ -63,7 +87,7 @@
 
 .mapTriangle::after {
     content: '';
-    background: white;
+    background-color: var(--header-version-dropdown-container-background-color);
     box-shadow: 8px 0px 6px -6px #ccc;
     border: 1px solid #ccc;
     width: 142%;
@@ -80,11 +104,22 @@
 .header {
     z-index: 5;
     position:relative;
-    background-color: white;
+    background-color: var(--header-background-color);
+    color: var(--header-font-color);
+    font-family: var(--header-font-family);
+}
+
+.header>nav {
+    border-bottom: 1px solid #ccc;
+}
+
+.userProfile {
+    border-radius: var(--header-user-image-border-radius);
+	border: var(--header-user-image-border);
 }
 
 .userSettings a{
-    color: #282529;
+    color: var(--header-font-color);
     text-decoration: none;
 }
 

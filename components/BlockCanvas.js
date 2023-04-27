@@ -358,7 +358,6 @@ export default function BlockCanvas() {
 							<ConditionModal
 								showConditionsModal={showConditionsModal}
 								setShowConditionsModal={setShowConditionsModal}
-								setShowContextualMenu={setShowContextualMenu}
 							/>
 						)}
 					</PaneContextMenuPositionContext.Provider>

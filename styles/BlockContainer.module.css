@@ -11,10 +11,6 @@
 	width: 32px;
 }
 
-.moodleIcon {
-	filter:invert();
-}
-
 .container > span.blockInfo {
 
 	width: 8em;
@@ -28,8 +24,11 @@
 	text-overflow: ellipsis;
 	max-height: 4rem;
 	position:absolute;
-	color: black;
 	text-align: center;
+	color: var(--blockflow-font-color);
+	font-family: var(--blockflow-font-family);
+	background-color: var(--blockflow-text-background-color);
+	
 }
 
 .container > span.blockInfo.top {
@@ -87,10 +86,10 @@
 }
 
 .badge.highContrast, .badgeTwo.highContrast {
-	background-color: #101010 !important;
-	color: white  !important;
-	border: 1px solid white;
 	filter: none;
+	background-color: var(--high-contrast-accent-color2) !important;
+	color: var(--high-contrast-accent-color1) !important;
+	border: var(--high-contrast-details-border) !important;
 }
 
 @media screen and (prefers-reduced-motion: reduce) {

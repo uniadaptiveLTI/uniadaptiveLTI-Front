@@ -71,7 +71,8 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 			case "quiz":
 				return platform == "moodle" ? (
 					<Image
-						src="icons/moodle/new/quiz.svg"
+						src="icons/moodle/quiz.svg"
+						alt=""
 						height={32}
 						width={32}
 						className={[styles.moodleIcon, "moodleIcon"].join(" ")}
@@ -82,7 +83,8 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 			case "assign":
 				return platform == "moodle" ? (
 					<Image
-						src="icons/moodle/new/assign.svg"
+						src="icons/moodle/assign.svg"
+						alt=""
 						height={32}
 						width={32}
 						className={[styles.moodleIcon, "moodleIcon"].join(" ")}
@@ -93,7 +95,8 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 			case "forum":
 				return platform == "moodle" ? (
 					<Image
-						src="icons/moodle/new/forum.svg"
+						src="icons/moodle/forum.svg"
+						alt=""
 						height={32}
 						width={32}
 						className={[styles.moodleIcon, "moodleIcon"].join(" ")}
@@ -104,7 +107,8 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 			case "resource":
 				return platform == "moodle" ? (
 					<Image
-						src="icons/moodle/new/resource.svg"
+						src="icons/moodle/resource.svg"
+						alt=""
 						height={32}
 						width={32}
 						className={[styles.moodleIcon, "moodleIcon"].join(" ")}
@@ -115,7 +119,8 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 			case "folder":
 				return platform == "moodle" ? (
 					<Image
-						src="icons/moodle/new/folder.svg"
+						src="icons/moodle/folder.svg"
+						alt=""
 						height={32}
 						width={32}
 						className={[styles.moodleIcon, "moodleIcon"].join(" ")}
@@ -126,7 +131,8 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 			case "url":
 				return platform == "moodle" ? (
 					<Image
-						src="icons/moodle/new/url.svg"
+						src="icons/moodle/url.svg"
+						alt=""
 						height={32}
 						width={32}
 						className={[styles.moodleIcon, "moodleIcon"].join(" ")}
@@ -138,7 +144,8 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 			case "workshop":
 				return platform == "moodle" ? (
 					<Image
-						src="icons/moodle/new/workshop.svg"
+						src="icons/moodle/workshop.svg"
+						alt=""
 						height={32}
 						width={32}
 						className={[styles.moodleIcon, "moodleIcon"].join(" ")}
@@ -149,7 +156,8 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 			case "choice":
 				return platform == "moodle" ? (
 					<Image
-						src="icons/moodle/new/choice.svg"
+						src="icons/moodle/choice.svg"
+						alt=""
 						height={32}
 						width={32}
 						className={[styles.moodleIcon, "moodleIcon"].join(" ")}
@@ -160,7 +168,8 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 			case "label":
 				return platform == "moodle" ? (
 					<Image
-						src="icons/moodle/new/label.svg"
+						src="icons/moodle/label.svg"
+						alt=""
 						height={32}
 						width={32}
 						className={[styles.moodleIcon, "moodleIcon"].join(" ")}
@@ -171,7 +180,8 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 			case "page":
 				return platform == "moodle" ? (
 					<Image
-						src="icons/moodle/new/page.svg"
+						src="icons/moodle/page.svg"
+						alt=""
 						height={32}
 						width={32}
 						className={[styles.moodleIcon, "moodleIcon"].join(" ")}
@@ -192,7 +202,7 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 			default:
 				return platform == "moodle" ? (
 					<Image
-						src="icons/moodle/new/lti.svg"
+						src="icons/moodle/lti.svg"
 						height={32}
 						width={32}
 						className={[styles.moodleIcon, "moodleIcon"].join(" ")}

@@ -1,17 +1,45 @@
+.react-flow__pane {
+	background-color: var(--blockflow-background-color);
+}
+
+.react-flow__controls {
+	border: var(--blockflow-controls-border) !important;
+}
+
+.react-flow__controls-button {
+	background-color: var(--blockflow-controls-button-background-color) !important;
+	color: var(--blockflow-controls-button-font-color) !important;
+	border: var(--blockflow-controls-button-border) !important;
+}
+
+.react-flow__controls-button svg{
+	filter: var(--blockflow-controls-button-svg-filter)
+}
+
+.react-flow__controls-button svg[data-icon="map"]{
+	z-index: 49;
+	filter: var(--icons-black-filter) invert();
+}
+
+.react-flow__controls-button svg[data-icon="x"]{
+	z-index: 50;
+	filter: var(--icons-white-filter) invert();
+}
+
 /** Handles **/
 
 .react-flow__handle-left {
-    border-radius: 100%;
+    border-radius: var(--blockflow-handles-border-radius) !important;
     background-color: #198754 !important;
-    border: 2px solid #101011 !important;
+    border: var(--blockflow-node-border) !important;
     padding: 7px  !important;
     left: -10px  !important;
 }
 
 .react-flow__handle-right {
-    border-radius: 100%;
+    border-radius: var(--blockflow-handles-border-radius) !important;
     background-color: #dc3545 !important;
-    border: 2px solid #101011 !important;
+    border: var(--blockflow-node-border) !important;
     padding: 7px  !important;
     right: -10px  !important;
 }
@@ -19,9 +47,9 @@
 /** Nodes **/
 
 .react-flow__node {
-    border: 2px solid #101011;
+    border: var(--blockflow-node-border);
     color: white;
-    border-radius: 4px;
+    border-radius: var(--blockflow-node-border-radius);
 	transition: 0.2s;
 }
 
@@ -46,7 +74,7 @@ FALLBACK
 }
 
 .react-flow__node-quiz:hover, .react-flow__node-quiz:focus-visible, .react-flow__node-quiz:active{
-    background-color: #c9810e !important;
+    background-color: #c9810e;
 }
 
 /* Assignment */
@@ -55,7 +83,7 @@ FALLBACK
 }
 
 .react-flow__node-assign:hover,  .react-flow__node-assign:focus-visible, .react-flow__node-assign:active{
-    background-color: #1bafcd !important;
+    background-color: #1bafcd;
 }
 
 /* Resource */
@@ -64,7 +92,7 @@ FALLBACK
 }
 
 .react-flow__node-resource:hover,  .react-flow__node-resource:focus-visible, .react-flow__node-resource:active{
-    background-color: #125ed0 !important;
+    background-color: #125ed0;
 }
 
 /* Forum */
@@ -73,7 +101,7 @@ FALLBACK
 }
 
 .react-flow__node-forum:hover, .react-flow__node-forum:focus-visible, .react-flow__node-forum:active {
-	background-color: #9e0d9e !important;
+	background-color: #9e0d9e;
 }
 
 /* Folder */
@@ -82,7 +110,7 @@ FALLBACK
 }
 
 .react-flow__node-folder:hover,  .react-flow__node-folder:focus-visible, .react-flow__node-folder:active{
-    background-color: #d3a008 !important;
+    background-color: #d3a008;
 }
 
 
@@ -92,7 +120,7 @@ FALLBACK
 }
 
 .react-flow__node-url:hover, .react-flow__node-url:focus-visible, .react-flow__node-url:active {
-	background-color: #419093 !important;
+	background-color: #419093;
 }
 
 /* Moodle */
@@ -123,7 +151,7 @@ FALLBACK
 }
 
 .react-flow__node-label:hover, .react-flow__node-label:focus-visible, .react-flow__node-label:active {
-	background-color: #bf1a78 !important;
+	background-color: #bf1a78;
 }
 
 /* Page */
@@ -172,7 +200,7 @@ FALLBACK
 }
 
 .react-flow__node-html:hover, .react-flow__node-html:focus-visible, .react-flow__node-html:active {
-	background-color: #bf1a78 !important;
+	background-color: #bf1a78;
 }
 
 /* LTI */
@@ -184,7 +212,7 @@ FALLBACK
 }
 
 .react-flow__node-start:hover, .react-flow__node-start:focus-visible, .react-flow__node-start:active {
-	background-color: #666668 !important;
+	background-color: #666668;
 }
 
 /* End */
@@ -193,7 +221,7 @@ FALLBACK
 }
 
 .react-flow__node-end:hover, .react-flow__node-end:focus-visible, .react-flow__node-end:active {
-	background-color: #666668 !important;
+	background-color: #666668;
 }
 
 /* Fragment */
@@ -202,7 +230,7 @@ FALLBACK
 }
 
 .react-flow__node-fragment:hover, .react-flow__node-fragment:focus-visible, .react-flow__node-fragment:active {
-	background-color: #1d1da9 !important;
+	background-color: #1d1da9;
 }
 
 
@@ -271,21 +299,22 @@ FALLBACK
  }
 
 .react-flow__node:has(.highContrast){
-	color: #101010 !important;
-	background-color: white !important;
+	background-color: var(--high-contrast-accent-color1) !important;
+	color: var(--high-contrast-accent-color2) !important;
+	
 }
 
 .react-flow__node:has(.highContrast) img{
-	filter:none
+	filter: var(--high-contrast-icons-fa-filter-onhover)
 }
 
 .react-flow__node:has(.highContrast):hover, .react-flow__node:has(.highContrast):focus-visible, .react-flow__node:has(.highContrast):active{
-	color: white !important;
-	background-color: #101010 !important;
+	background-color: var(--high-contrast-accent-color2) !important;
+	color: var(--high-contrast-accent-color1) !important;
 }
 
 .react-flow__node:has(.highContrast):hover img, .react-flow__node:has(.highContrast):focus-visible img, .react-flow__node:has(.highContrast):active img{
-	filter: invert();
+	filter: var(--high-contrast-icons-fa-filter);
 }
 
 .react-flow__node.selected:has(.highContrast){

@@ -1357,7 +1357,7 @@ function Header({ closeBtn }, ref) {
 
 	return (
 		<header ref={ref} className={styles.header}>
-			<Navbar style={{ borderBottom: "1px solid #ccc" }}>
+			<Navbar>
 				<Container fluid>
 					<Form
 						className={
@@ -1488,8 +1488,8 @@ function Header({ closeBtn }, ref) {
 							</OverlayTrigger>
 
 							<Button
-								className={`d-flex align-items-center p-2 ${styles.actionsBorder}`}
-								variant="danger"
+								variant="dark"
+								className={`d-flex align-items-center p-2 ${styles.actionsBorder} ${styles.error}`}
 							>
 								<FontAwesomeIcon
 									icon={faBell}
@@ -1522,12 +1522,9 @@ function Header({ closeBtn }, ref) {
 											<Image
 												alt="Imagen de perfil"
 												src="/images/3373707.jpg"
+												className={styles.userProfile}
 												width={48}
 												height={48}
-												style={{
-													borderRadius: 100 + "%",
-													border: "2px solid white",
-												}}
 												onClick={devPlataformChange}
 											></Image>
 										</div>
