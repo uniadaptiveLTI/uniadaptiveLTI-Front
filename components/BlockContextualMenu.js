@@ -1,6 +1,6 @@
 import styles from "@components/styles/BlockContextualMenu.module.css";
 import { useState, useEffect, forwardRef, useRef, useContext } from "react";
-import { Button } from "react-bootstrap";
+import { Button, Modal } from "react-bootstrap";
 import FocusTrap from "focus-trap-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -11,6 +11,7 @@ import {
 	faPaste,
 	faTrashCan,
 	faDiagramProject,
+	faEdit,
 } from "@fortawesome/free-solid-svg-icons";
 import {
 	CreateBlockContext,
@@ -158,6 +159,13 @@ function BlockContextualMenu(
 		setBlocksData(newBlocksData); //FIXME: The changes doesn't stay, a badge gives 0
 	};
 
+	const [show, setShow] = useState(false);
+
+	const handleClose = () => setShow(false);
+	const handleShow = () => {
+		setShow(true);
+	};
+
 	return (
 		<FocusTrap
 			focusTrapOptions={{
@@ -195,6 +203,31 @@ function BlockContextualMenu(
 				)}
 				{contextMenuOrigin == "block" && (
 					<div ref={ref} className={styles.cM + " "}>
+						<li>
+							<Button variant="light" onClick={handleShow}>
+								<div>
+									<FontAwesomeIcon icon={faEdit} />
+									Editar precondiciones
+								</div>
+							</Button>
+
+							<Modal show={show} onHide={handleClose}>
+								<Modal.Header closeButton>
+									<Modal.Title>Modal heading</Modal.Title>
+								</Modal.Header>
+								<Modal.Body>
+									Woohoo, you're reading this text in a modal!
+								</Modal.Body>
+								<Modal.Footer>
+									<Button variant="secondary" onClick={handleClose}>
+										Close
+									</Button>
+									<Button variant="primary" onClick={handleClose}>
+										Save Changes
+									</Button>
+								</Modal.Footer>
+							</Modal>
+						</li>
 						{blockOrigin ? (
 							blockOrigin.id == blockData.id ? (
 								<li>

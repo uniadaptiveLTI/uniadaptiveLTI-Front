@@ -64,6 +64,21 @@ const Qualification = ({
 					value={condition.objective}
 				></Form.Control>
 			</Form.Group>
+
+			<Form.Group>
+				<Form.Label htmlFor={titleID} className="mb-1">
+					Tipo de relación
+				</Form.Label>
+				<Form.Select value={condition.type}>
+					{conditionTypes.map((conditionType) => {
+						return (
+							<option value={conditionType.value} key={conditionType.value}>
+								{conditionType.name}
+							</option>
+						);
+					})}
+				</Form.Select>
+			</Form.Group>
 		</div>
 	);
 };
