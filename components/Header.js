@@ -39,7 +39,7 @@ import {
 } from "@components/pages/_app";
 import { toast } from "react-toastify";
 import { notImplemented } from "@components/pages/_app";
-import { uniqueId } from "./Utils";
+import { capitalizeFirstLetter, uniqueId } from "./Utils";
 
 const defaultToastSuccess = {
 	hideProgressBar: false,
@@ -124,7 +124,7 @@ function Header({ closeBtn }, ref) {
 							id: "dev0A1",
 							x: 125,
 							y: 0,
-							type: "file",
+							type: "resource",
 							title: "Objetivos del curso",
 							children: ["dev1A1"],
 							identation: 1,
@@ -135,7 +135,7 @@ function Header({ closeBtn }, ref) {
 							id: "dev1A1",
 							x: 250,
 							y: 0,
-							type: "questionnaire",
+							type: "quiz",
 							title: "Aerodinámica",
 							conditions: [
 								{
@@ -185,7 +185,7 @@ function Header({ closeBtn }, ref) {
 							id: "dev4A1",
 							x: 625,
 							y: 0,
-							type: "assignment",
+							type: "assign",
 							title: "Ejercicios de la Web",
 							children: ["dev5A1", "dev6A1"],
 							conditions: [
@@ -210,7 +210,7 @@ function Header({ closeBtn }, ref) {
 							id: "dev5A1",
 							x: 1000,
 							y: 0,
-							type: "questionnaire",
+							type: "quiz",
 							title: "Física de fluidos",
 							children: ["dev7A1", "dev8A1", "dev13A1"],
 							identation: 1,
@@ -221,7 +221,7 @@ function Header({ closeBtn }, ref) {
 							id: "dev6A1",
 							x: 875,
 							y: 175,
-							type: "assignment",
+							type: "assign",
 							title: "Ejercicios de ampliación",
 							children: ["dev5A1"],
 							identation: 3,
@@ -262,7 +262,7 @@ function Header({ closeBtn }, ref) {
 							id: "dev10A1",
 							x: 500,
 							y: 350,
-							type: "questionnaire",
+							type: "quiz",
 							title: "Aerodínamica, refuerzo",
 							children: ["dev11A1", "dev12A1", "dev5A1"],
 							conditions: [
@@ -301,7 +301,7 @@ function Header({ closeBtn }, ref) {
 							id: "dev12A1",
 							x: 625,
 							y: 525,
-							type: "assignment",
+							type: "assign",
 							title: "Trabajo de recuperación",
 							children: ["dev6A1"],
 							identation: 3,
@@ -334,7 +334,7 @@ function Header({ closeBtn }, ref) {
 							id: "dev15A1",
 							x: 1375,
 							y: 175,
-							type: "questionnaire",
+							type: "quiz",
 							title: "Recuperación fluidos",
 							children: ["dev7A1", "dev8A1", "dev16A1"],
 							conditions: [
@@ -365,7 +365,7 @@ function Header({ closeBtn }, ref) {
 							id: "dev16A1",
 							x: 1500,
 							y: 350,
-							type: "assignment",
+							type: "assign",
 							title: "Trabajo de recuperación",
 							children: ["dev7A1", "dev8A1"],
 							identation: 4,
@@ -432,7 +432,7 @@ function Header({ closeBtn }, ref) {
 							id: "dev0B1",
 							x: 125,
 							y: 175,
-							type: "file",
+							type: "resource",
 							title: "Ecuaciones",
 							children: ["dev1B1"],
 							identation: 1,
@@ -443,7 +443,7 @@ function Header({ closeBtn }, ref) {
 							id: "dev1B1",
 							x: 250,
 							y: 175,
-							type: "questionnaire",
+							type: "quiz",
 							title: "Examen Tema 1",
 							conditions: [
 								{
@@ -503,7 +503,7 @@ function Header({ closeBtn }, ref) {
 							id: "dev6B1",
 							x: 625,
 							y: 350,
-							type: "questionnaire",
+							type: "quiz",
 							title: "Cuestionario de raices",
 							children: ["dev7B1", "dev8B1"],
 							identation: 1,
@@ -514,7 +514,7 @@ function Header({ closeBtn }, ref) {
 							id: "dev7B1",
 							x: 750,
 							y: 175,
-							type: "assignment",
+							type: "assign",
 							title: "Ejercicio de raices",
 							identation: 1,
 							order: 7,
@@ -571,7 +571,7 @@ function Header({ closeBtn }, ref) {
 							id: "dev0B2",
 							x: 125,
 							y: 700,
-							type: "file",
+							type: "resource",
 							title: "Ecuaciones",
 							children: ["dev1B2"],
 							identation: 1,
@@ -582,7 +582,7 @@ function Header({ closeBtn }, ref) {
 							id: "dev1B2",
 							x: 250,
 							y: 700,
-							type: "questionnaire",
+							type: "quiz",
 							title: "Examen Tema 1",
 							conditions: [
 								{
@@ -612,7 +612,7 @@ function Header({ closeBtn }, ref) {
 							id: "dev5B2",
 							x: 375,
 							y: 1050,
-							type: "questionnaire",
+							type: "quiz",
 							title: "Cuestionario de raices",
 							children: ["dev6B2", "dev7B2"],
 							identation: 1,
@@ -623,7 +623,7 @@ function Header({ closeBtn }, ref) {
 							id: "dev6B2",
 							x: 625,
 							y: 875,
-							type: "assignment",
+							type: "assign",
 							title: "Ejercicio de raices",
 							children: ["dev-1B2"],
 							identation: 1,
@@ -731,7 +731,7 @@ function Header({ closeBtn }, ref) {
 							id: "dev0B3",
 							x: 125,
 							y: 175,
-							type: "file",
+							type: "resource",
 							title: "Ecuaciones",
 							children: ["dev1B3"],
 							identation: 1,
@@ -742,7 +742,7 @@ function Header({ closeBtn }, ref) {
 							id: "dev1B3",
 							x: 250,
 							y: 175,
-							type: "questionnaire",
+							type: "quiz",
 							title: "Examen Tema 1",
 							conditions: [
 								{
@@ -793,7 +793,7 @@ function Header({ closeBtn }, ref) {
 							id: "dev5B3",
 							x: 625,
 							y: 350,
-							type: "questionnaire",
+							type: "quiz",
 							title: "Cuestionario de raices",
 							children: ["dev6B3", "dev7B3"],
 							identation: 1,
@@ -804,7 +804,7 @@ function Header({ closeBtn }, ref) {
 							id: "dev6B3",
 							x: 750,
 							y: 0,
-							type: "assignment",
+							type: "assign",
 							title: "Ejercicio de raices",
 							identation: 1,
 							order: 7,
@@ -1347,6 +1347,14 @@ function Header({ closeBtn }, ref) {
 	);
 	UserMenu.displayName = "UserMenu";
 
+	const devPlataformChange = () => {
+		if (platform == "moodle") {
+			setPlatform("sakai");
+		} else {
+			setPlatform("moodle");
+		}
+	};
+
 	return (
 		<header ref={ref} className={styles.header}>
 			<Navbar style={{ borderBottom: "1px solid #ccc" }}>
@@ -1508,7 +1516,7 @@ function Header({ closeBtn }, ref) {
 									<div className="d-flex flex-row">
 										<Container className="d-flex flex-column">
 											<div>María García</div>
-											<div>Moodle</div>
+											<div>{capitalizeFirstLetter(platform)}</div>
 										</Container>
 										<div className="mx-auto d-flex align-items-center">
 											<Image
@@ -1520,6 +1528,7 @@ function Header({ closeBtn }, ref) {
 													borderRadius: 100 + "%",
 													border: "2px solid white",
 												}}
+												onClick={devPlataformChange}
 											></Image>
 										</div>
 									</div>

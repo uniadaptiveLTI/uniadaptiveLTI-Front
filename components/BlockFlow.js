@@ -23,6 +23,7 @@ import {
 	BlockJsonContext,
 	DeleteEdgeContext,
 	ExpandedContext,
+	PlatformContext,
 	ReactFlowInstanceContext,
 	SettingsContext,
 } from "@components/pages/_app.js";
@@ -37,68 +38,18 @@ const minimapStyle = {
 	height: 120,
 };
 
-const nodeColor = (node) => {
-	//TODO: Add the rest
-	switch (node.type) {
-		//Moodle + Sakai
-		case "questionnaire":
-			return "#eb9408";
-		case "assignment":
-			return "#0dcaf0";
-		case "forum":
-			return "#800080";
-		case "file":
-			return "#0d6efd";
-		case "folder":
-			return "#ffc107";
-		case "url":
-			return "#5f9ea0";
-		//Moodle
-		case "workshop":
-			return "#15a935";
-		case "choice":
-			return "#dc3545";
-		case "tag":
-			return "#a91568";
-		case "page":
-			return "#6c757d";
-		case "badge":
-			return "#198754";
-		case "generic":
-			return "#1f1e42";
-		//Sakai
-		case "exam":
-			return "#dc3545";
-		case "contents":
-			return "#15a935";
-		case "text":
-			return "#6c757d";
-		case "html":
-			return "#a91568";
-		//LTI
-		case "start":
-			return "#363638";
-		case "end":
-			return "#363638";
-		case "fragment":
-			return "#00008b";
-		default:
-			return "#ffc107";
-	}
-};
-
 const nodeTypes = {
 	badge: ActionNode,
-	questionnaire: ElementNode,
-	assignment: ElementNode,
+	quiz: ElementNode,
+	assign: ElementNode,
 	forum: ElementNode,
-	file: ElementNode,
+	resource: ElementNode,
 	folder: ElementNode,
 	url: ElementNode,
 	// Moodle
 	workshop: ElementNode,
 	choice: ElementNode,
-	tag: ElementNode,
+	label: ElementNode,
 	page: ElementNode,
 	generic: ElementNode,
 	// Sakai
@@ -140,6 +91,8 @@ const OverviewFlow = ({ map, deleteBlocks }, ref) => {
 
 	const reactFlowWrapper = useRef(null);
 
+	const { platform } = useContext(PlatformContext);
+
 	const toggleMinimap = () => setMinimap(!minimap);
 
 	function CustomControls() {
@@ -168,6 +121,90 @@ const OverviewFlow = ({ map, deleteBlocks }, ref) => {
 			</Controls>
 		);
 	}
+
+	const nodeColor = (node) => {
+		//TODO: Add the rest
+		switch (platform) {
+			case "moodle":
+				switch (node.type) {
+					case "quiz":
+						return "#5D63F6";
+					case "assign":
+						return "#5D63F6";
+					case "forum":
+						return "#11A676";
+					case "resource":
+						return "#A378FF";
+					case "folder":
+						return "#399BE2";
+					case "url":
+						return "#EB66A2";
+					case "workshop":
+						return "#A378FF";
+					case "choice":
+						return "#F7634D";
+					case "label":
+						return "#F7634D";
+					case "page":
+						return "#A378FF";
+					case "badge":
+						return "#11A676";
+					case "generic":
+						return "#11A676";
+					default:
+						return "#11A676";
+				}
+				break;
+			default: {
+				switch (node.type) {
+					//Moodle + Sakai
+					case "quiz":
+						return "#eb9408";
+					case "assign":
+						return "#0dcaf0";
+					case "forum":
+						return "#800080";
+					case "resource":
+						return "#0d6efd";
+					case "folder":
+						return "#ffc107";
+					case "url":
+						return "#5f9ea0";
+					//Moodle
+					case "workshop":
+						return "#15a935";
+					case "choice":
+						return "#dc3545";
+					case "label":
+						return "#a91568";
+					case "page":
+						return "#6c757d";
+					case "badge":
+						return "#198754";
+					case "generic":
+						return "#1f1e42";
+					//Sakai
+					case "exam":
+						return "#dc3545";
+					case "contents":
+						return "#15a935";
+					case "text":
+						return "#6c757d";
+					case "html":
+						return "#a91568";
+					//LTI
+					case "start":
+						return "#363638";
+					case "end":
+						return "#363638";
+					case "fragment":
+						return "#00008b";
+					default:
+						return "#ffc107";
+				}
+			}
+		}
+	};
 
 	const onInit = (reactFlowInstance) => {
 		console.log("Blockflow loaded:", reactFlowInstance);

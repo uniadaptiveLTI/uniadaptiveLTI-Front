@@ -80,14 +80,14 @@ export default function Aside({ className, closeBtn }) {
 	];
 
 	const [moodleResource, setMoodleResource] = useState([
-		{ id: 0, value: "questionnaire", name: "Cuestionario" },
-		{ id: 1, value: "assignment", name: "Tarea" },
+		{ id: 0, value: "quiz", name: "Cuestionario" },
+		{ id: 1, value: "assign", name: "Tarea" },
 		{ id: 3, value: "workshop", name: "Taller" },
 		{ id: 4, value: "choice", name: "Consulta" },
 		{ id: 5, value: "forum", name: "Foro" },
-		{ id: 6, value: "file", name: "Archivo" },
+		{ id: 6, value: "resource", name: "Archivo" },
 		{ id: 7, value: "folder", name: "Carpeta" },
-		{ id: 8, value: "tag", name: "Etiqueta" },
+		{ id: 8, value: "label", name: "Etiqueta" },
 		{ id: 9, value: "page", name: "Página" },
 		{ id: 10, value: "url", name: "URL" },
 		{ id: 11, value: "badge", name: "Medalla" },
@@ -96,17 +96,17 @@ export default function Aside({ className, closeBtn }) {
 	]);
 
 	const [sakaiResource, setSakaiResource] = useState([
-		{ id: 0, value: "questionnaire", name: "Exámenes" },
-		{ id: 1, value: "assignment", name: "Tareas" },
+		{ id: 0, value: "quiz", name: "Exámenes" },
+		{ id: 1, value: "assign", name: "Tareas" },
 		{ id: 3, value: "forum", name: "Foro" },
 		{ id: 4, value: "resources", name: "Recursos" },
-		{ id: 5, value: "file", name: "Archivo" },
+		{ id: 5, value: "resource", name: "Archivo" },
 		{ id: 6, value: "folder", name: "Carpeta" },
 		{ id: 7, value: "url", name: "URL" },
 		{ id: 8, value: "page", name: "Página" },
 		{
 			id: 9,
-			value: "file",
+			value: "resource",
 			name: "Documento de texto simple",
 		},
 		{ id: 10, value: "html-page", name: "Página HTML" },
@@ -115,14 +115,14 @@ export default function Aside({ className, closeBtn }) {
 
 	useEffect(() => {
 		switch (selectedOption) {
-			case "questionnaire":
+			case "quiz":
 				setSecondOptions([
 					{ id: 0, name: "Cuestionario 1" },
 					{ id: 1, name: "Cuestionario 2" },
 					{ id: 2, name: "Cuestionario 3" },
 				]);
 				break;
-			case "assignment":
+			case "assign":
 				setSecondOptions([
 					{ id: 0, name: "Tarea 1" },
 					{ id: 1, name: "Tarea 2" },
@@ -150,7 +150,7 @@ export default function Aside({ className, closeBtn }) {
 					{ id: 2, name: "Foro 3" },
 				]);
 				break;
-			case "file":
+			case "resource":
 				setSecondOptions([
 					{ id: 0, name: "Archivo 1" },
 					{ id: 1, name: "Archivo 2" },
@@ -164,7 +164,7 @@ export default function Aside({ className, closeBtn }) {
 					{ id: 2, name: "Carpeta 3" },
 				]);
 				break;
-			case "tag":
+			case "label":
 				setSecondOptions([
 					{ id: 0, name: "Etiqueta 1" },
 					{ id: 1, name: "Etiqueta 2" },

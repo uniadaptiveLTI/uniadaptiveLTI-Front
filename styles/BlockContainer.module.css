@@ -11,6 +11,10 @@
 	width: 32px;
 }
 
+.moodleIcon {
+	filter:invert();
+}
+
 .container > span.blockInfo {
 
 	width: 8em;
@@ -58,7 +62,7 @@
 	right: 4px;
 }
 
-.container:hover .badge, .block:focus-visible~.badge, .block.borderAnim ~ .badge, .container:hover .badgeTwo, .block:focus-visible~.badgeTwo, .block.borderAnim ~ .badgeTwo {
+.container:hover .badge, .container:focus-visible ~ .badge, .container.borderAnim ~ .badge, .container:hover .badgeTwo, .container:focus-visible ~ .badgeTwo, .container.borderAnim ~ .badgeTwo {
 	position: absolute;
 	transform: scaleY(1);
 	visibility: visible;
