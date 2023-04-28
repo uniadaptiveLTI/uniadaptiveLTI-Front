@@ -113,6 +113,22 @@ export default function BlockCanvas() {
 	/** Client-side */
 
 	useEffect(() => {
+		if (!Array.isArray(cMBlockData)) {
+			let newcurrentBlocksData = [...currentBlocksData];
+			newcurrentBlocksData[
+				currentBlocksData.findIndex((b) => b.id == cMBlockData.id)
+			] = cMBlockData;
+			setCurrentBlocksData(newcurrentBlocksData);
+		} else {
+			const newcurrentBlocksData = currentBlocksData.map((block) => {
+				const newBlock = cMBlockData.find((b) => b.id === block.id);
+				return newBlock ? { ...block, ...newBlock } : block;
+			});
+			setCurrentBlocksData(newcurrentBlocksData);
+		}
+	}, [cMBlockData]);
+
+	useEffect(() => {
 		if (!Array.isArray(blockJson)) {
 			if (currentBlocksData) {
 				let newcurrentBlocksData = [...currentBlocksData];
@@ -397,7 +413,7 @@ export default function BlockCanvas() {
 						{showConditionsModal && (
 							<ConditionModal
 								blockData={cMBlockData}
-								setCMBlockData={setCMBlockData}
+								setBlockData={setCMBlockData}
 								blocksData={currentBlocksData}
 								showConditionsModal={showConditionsModal}
 								setShowConditionsModal={setShowConditionsModal}

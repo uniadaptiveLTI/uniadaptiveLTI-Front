@@ -15,16 +15,20 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 function ConditionModal({
 	blockData,
-	setCMBlockData,
+	setBlockData,
 	blocksData,
 	showConditionsModal,
 	setShowConditionsModal,
 	setBlockJson,
 }) {
-	console.log(blockData);
 	const handleClose = () => {
 		setShowConditionsModal(false);
 	};
+
+	const [editing, setEditing] = useState(false);
+
+	const [isObjectiveEnabled, setIsObjectiveEnabled] = useState(false);
+	const [isObjective2Enabled, setIsObjective2Enabled] = useState(false);
 
 	const [selectedOption, setSelectedOption] = useState(null);
 
@@ -38,15 +42,24 @@ function ConditionModal({
 	const conditionObjective2 = useRef(null);
 
 	const deleteCondition = (conditionId) => {
-		blockData.conditions = blockData.conditions.filter(
+		const updatedConditions = blockData.conditions.filter(
 			(condition) => condition.id !== conditionId
 		);
 
-		if (blockData.conditions.length === 0) {
-			blockData.conditions = undefined;
+		const updatedBlockData = { ...blockData, conditions: updatedConditions };
+
+		if (updatedConditions.length === 0) {
+			updatedBlockData.conditions = undefined;
 		}
 
-		setBlockJson(blockData);
+		setBlockData(updatedBlockData);
+	};
+
+	const cancelEditCondition = () => {
+		setIsObjectiveEnabled(true);
+		setIsObjective2Enabled(false);
+		setSelectedOption("");
+		setEditing(false);
 	};
 
 	const saveNewCondition = () => {
@@ -70,6 +83,8 @@ function ConditionModal({
 				formData.query = conditionQuery.current.value;
 				break;
 			case "qualification":
+				console.log(isObjectiveEnabled);
+				console.log(isObjective2Enabled);
 				if (isObjectiveEnabled) {
 					formData.objective = conditionObjective.current.value;
 				}
@@ -96,19 +111,14 @@ function ConditionModal({
 				break;
 		}
 
-		if (!blockData.conditions) {
-			blockData.conditions = [formData];
-		} else {
-			blockData.conditions.push(formData);
-		}
+		const updatedConditions = [...(blockData.conditions || []), formData];
+		const updatedBlock = { ...blockData, conditions: updatedConditions };
 
-		setBlockJson(blockData);
+		setIsObjectiveEnabled(true);
+		setIsObjective2Enabled(false);
+		setSelectedOption("");
+		setBlockData(updatedBlock);
 	};
-
-	const [editing, setEditing] = useState(false);
-
-	const [isObjectiveEnabled, setIsObjectiveEnabled] = useState(false);
-	const [isObjective2Enabled, setIsObjective2Enabled] = useState(false);
 
 	const handleObjectiveCheckboxChange = (event) => {
 		setIsObjectiveEnabled(event.target.checked);
@@ -228,7 +238,7 @@ function ConditionModal({
 					})}
 
 				{editing && (
-					<Form.Select onChange={handleSelectChange}>
+					<Form.Select onChange={handleSelectChange} required>
 						<option value="" disabled selected>
 							Escoge un tipo de condición...
 						</option>
@@ -248,7 +258,11 @@ function ConditionModal({
 							<option value="dateFrom">Desde</option>
 							<option value="dateTo">Hasta</option>
 						</Form.Select>
-						<Form.Control ref={conditionOperator} type="date" />
+						<Form.Control
+							ref={conditionOperator}
+							type="date"
+							defaultValue={new Date().toISOString().substr(0, 10)}
+						/>
 					</Form.Group>
 				)}
 
@@ -265,10 +279,14 @@ function ConditionModal({
 							type="checkbox"
 							label="debe ser >="
 							onChange={handleObjectiveCheckboxChange}
+							defaultChecked
 						/>
 						<Form.Control
 							ref={conditionObjective}
 							type="number"
+							min="0"
+							max="10"
+							defaultValue={5}
 							disabled={!isObjectiveEnabled}
 						/>
 						<Form.Check
@@ -279,6 +297,8 @@ function ConditionModal({
 						<Form.Control
 							ref={conditionObjective2}
 							type="number"
+							min="0"
+							max="10"
 							disabled={!isObjective2Enabled}
 						/>
 					</Form.Group>
@@ -343,10 +363,14 @@ function ConditionModal({
 			<Modal.Footer>
 				{editing && (
 					<div>
-						<Button variant="primary" onClick={saveNewCondition}>
+						<Button variant="primary" onClick={cancelEditCondition}>
 							Cancelar edición
 						</Button>
-						<Button variant="primary" onClick={saveNewCondition}>
+						<Button
+							variant="primary"
+							onClick={saveNewCondition}
+							disabled={selectedOption === "" || !selectedOption}
+						>
 							Guardar condición
 						</Button>
 					</div>
