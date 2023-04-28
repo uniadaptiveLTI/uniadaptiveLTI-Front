@@ -45,18 +45,21 @@
 						"title": "Aerodinámica",
 						"conditions": [
 							{
+								"id": "1",
 								"type": "qualification",
 								"op": ">=",
 								"objective": 5,
 								"unlockId": "dev2A1"
 							},
 							{
+								"id": "2",
 								"type": "qualification",
 								"op": ">=",
 								"objective": 5,
 								"unlockId": "dev3A1"
 							},
 							{
+								"id": "3",
 								"type": "qualification",
 								"op": "<",
 								"objective": 5,
@@ -96,12 +99,14 @@
 						"children": ["dev5A1", "dev6A1"],
 						"conditions": [
 							{
+								"id": "1",
 								"type": "qualification",
 								"op": ">=",
 								"objective": 5,
 								"unlockId": "dev5A1"
 							},
 							{
+								"id": "2",
 								"type": "qualification",
 								"op": "<",
 								"objective": 5,
@@ -173,18 +178,21 @@
 						"children": ["dev11A1", "dev12A1", "dev5A1"],
 						"conditions": [
 							{
+								"id": "1",
 								"type": "qualification",
 								"op": ">=",
 								"objective": 5,
 								"unlockId": "dev5A1"
 							},
 							{
+								"id": "2",
 								"type": "qualification",
 								"op": ">=",
 								"objective": 5,
 								"unlockId": "dev11A1"
 							},
 							{
+								"id": "3",
 								"type": "qualification",
 								"op": "<",
 								"objective": 5,
@@ -245,18 +253,21 @@
 						"children": ["dev7A1", "dev8A1", "dev16A1"],
 						"conditions": [
 							{
+								"id": "1",
 								"type": "qualification",
 								"op": ">=",
 								"objective": 5,
 								"unlockId": "dev7A1"
 							},
 							{
+								"id": "2",
 								"type": "qualification",
 								"op": ">=",
 								"objective": 5,
 								"unlockId": "dev8A1"
 							},
 							{
+								"id": "3",
 								"type": "qualification",
 								"op": "<",
 								"objective": 5,
@@ -353,6 +364,7 @@
 						"title": "Examen Tema 1",
 						"conditions": [
 							{
+								"id": "1",
 								"type": "qualification",
 								"op": ">",
 								"objective": 8,
@@ -492,6 +504,7 @@
 						"title": "Examen Tema 1",
 						"conditions": [
 							{
+								"id": "1",
 								"type": "qualification",
 								"op": ">",
 								"objective": 8,
@@ -652,6 +665,7 @@
 						"title": "Examen Tema 1",
 						"conditions": [
 							{
+								"id": "1",
 								"type": "qualification",
 								"op": ">",
 								"objective": 8,

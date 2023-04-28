@@ -1,5 +1,17 @@
 import React, { useRef, useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
+import {
+	faSquarePlus,
+	faDiagramNext,
+	faScissors,
+	faClipboard,
+	faPaste,
+	faTrashCan,
+	faDiagramProject,
+	faEdit,
+	faPlus,
+} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 function ConditionModal({
 	blockData,
@@ -9,6 +21,7 @@ function ConditionModal({
 	setShowConditionsModal,
 	setBlockJson,
 }) {
+	console.log(blockData);
 	const handleClose = () => {
 		setShowConditionsModal(false);
 	};
@@ -24,9 +37,33 @@ function ConditionModal({
 	const conditionObjective = useRef(null);
 	const conditionObjective2 = useRef(null);
 
+	const deleteCondition = (conditionId) => {
+		blockData.conditions = blockData.conditions.filter(
+			(condition) => condition.id !== conditionId
+		);
+
+		if (blockData.conditions.length === 0) {
+			blockData.conditions = undefined;
+		}
+
+		setBlockJson(blockData);
+	};
+
 	const saveNewCondition = () => {
-		console.log(blockData);
+		setEditing(false);
+
 		const formData = { type: selectedOption };
+
+		const maxId = blockData.conditions
+			? blockData.conditions.reduce(
+					(max, condition) =>
+						parseInt(condition.id) > max ? parseInt(condition.id) : max,
+					0
+			  )
+			: -1;
+
+		formData.id = String(maxId + 1);
+
 		formData.op = conditionOperator.current.value;
 		switch (selectedOption) {
 			case "date":
@@ -65,9 +102,10 @@ function ConditionModal({
 			blockData.conditions.push(formData);
 		}
 
-		setCMBlockData(blockData);
 		setBlockJson(blockData);
 	};
+
+	const [editing, setEditing] = useState(false);
 
 	const [isObjectiveEnabled, setIsObjectiveEnabled] = useState(false);
 	const [isObjective2Enabled, setIsObjective2Enabled] = useState(false);
@@ -94,16 +132,37 @@ function ConditionModal({
 				<Modal.Title>Precondiciones</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
+				{!editing && (
+					<Button
+						className="mb-3"
+						variant="light"
+						onClick={() => setEditing(true)}
+					>
+						<div role="button">
+							<FontAwesomeIcon icon={faPlus} />
+							Crear nuevo bloque...
+						</div>
+					</Button>
+				)}
 				{blockData.conditions &&
+					!editing &&
 					blockData.conditions.map((condition) => {
-						console.log(blockData.conditions);
 						switch (condition.type) {
 							case "date":
 								return (
-									<div className="mb-3">
+									<div id={condition.id} className="mb-3">
 										<div>Tipo: Fecha</div>
 										<div>Consulta: {condition.query}</div>
 										<div>Operador: {condition.op}</div>
+										<Button
+											variant="light"
+											onClick={() => deleteCondition(condition.id)}
+										>
+											<div>
+												<FontAwesomeIcon icon={faTrashCan} />
+												Eliminar bloque...
+											</div>
+										</Button>
 									</div>
 								);
 							case "qualification":
@@ -115,6 +174,15 @@ function ConditionModal({
 										{condition.objective2 && (
 											<div>Menor que: {condition.objective2}</div>
 										)}
+										<Button
+											variant="light"
+											onClick={() => deleteCondition(condition.id)}
+										>
+											<div>
+												<FontAwesomeIcon onclick icon={faTrashCan} />
+												Eliminar bloque...
+											</div>
+										</Button>
 									</div>
 								);
 							case "completion":
@@ -123,6 +191,15 @@ function ConditionModal({
 										<div>Tipo: Finalización</div>
 										<div>Operador: {condition.op}</div>
 										<div>Objetivo 1: {condition.query}</div>
+										<Button
+											variant="light"
+											onClick={() => deleteCondition(condition.id)}
+										>
+											<div>
+												<FontAwesomeIcon icon={faTrashCan} />
+												Eliminar bloque...
+											</div>
+										</Button>
 									</div>
 								);
 							case "userProfile":
@@ -131,6 +208,15 @@ function ConditionModal({
 										<div>Tipo: Perfil de usuario</div>
 										<div>Operador: {condition.op}</div>
 										<div>Consulta: {condition.query}</div>
+										<Button
+											variant="light"
+											onClick={() => deleteCondition(condition.id)}
+										>
+											<div>
+												<FontAwesomeIcon icon={faTrashCan} />
+												Eliminar condición...
+											</div>
+										</Button>
 									</div>
 								);
 
@@ -141,20 +227,22 @@ function ConditionModal({
 						}
 					})}
 
-				<Form.Select onChange={handleSelectChange}>
-					<option value="" disabled selected>
-						Escoge un tipo de condición...
-					</option>
-					<option value="date">Fecha</option>
-					<option value="qualification">Calificación</option>
-					{parentsNodeArray.length > 0 && (
-						<option value="completion">Finalización</option>
-					)}
-					<option value="userProfile">Perfil de usuario</option>
-					<option value="conditionsGroup">Conjunto de condiciones</option>
-				</Form.Select>
+				{editing && (
+					<Form.Select onChange={handleSelectChange}>
+						<option value="" disabled selected>
+							Escoge un tipo de condición...
+						</option>
+						<option value="date">Fecha</option>
+						<option value="qualification">Calificación</option>
+						{parentsNodeArray.length > 0 && (
+							<option value="completion">Finalización</option>
+						)}
+						<option value="userProfile">Perfil de usuario</option>
+						<option value="conditionsGroup">Conjunto de condiciones</option>
+					</Form.Select>
+				)}
 
-				{selectedOption === "date" && (
+				{editing && selectedOption === "date" && (
 					<Form.Group>
 						<Form.Select ref={conditionQuery}>
 							<option value="dateFrom">Desde</option>
@@ -164,7 +252,7 @@ function ConditionModal({
 					</Form.Group>
 				)}
 
-				{selectedOption === "qualification" && (
+				{editing && selectedOption === "qualification" && (
 					<Form.Group>
 						<Form.Select ref={conditionOperator}>
 							<option value="fullCourse">Total del curso</option>
@@ -196,7 +284,7 @@ function ConditionModal({
 					</Form.Group>
 				)}
 
-				{selectedOption === "completion" && (
+				{editing && selectedOption === "completion" && (
 					<Form.Group>
 						<Form.Select ref={conditionOperator}>
 							{parentsNodeArray.length > 0 &&
@@ -217,7 +305,7 @@ function ConditionModal({
 					</Form.Group>
 				)}
 
-				{selectedOption === "userProfile" && (
+				{editing && selectedOption === "userProfile" && (
 					<Form.Group>
 						<Form.Select ref={conditionOperator}>
 							<option value="firstName">Nombre</option>
@@ -245,7 +333,7 @@ function ConditionModal({
 					</Form.Group>
 				)}
 
-				{selectedOption === "conditionsGroup" && (
+				{editing && selectedOption === "conditionsGroup" && (
 					<Form.Group>
 						<Form.Control type="text" />
 						<Form.Control type="number" />
@@ -253,9 +341,16 @@ function ConditionModal({
 				)}
 			</Modal.Body>
 			<Modal.Footer>
-				<Button variant="primary" onClick={saveNewCondition}>
-					Save Changes
-				</Button>
+				{editing && (
+					<div>
+						<Button variant="primary" onClick={saveNewCondition}>
+							Cancelar edición
+						</Button>
+						<Button variant="primary" onClick={saveNewCondition}>
+							Guardar condición
+						</Button>
+					</div>
+				)}
 			</Modal.Footer>
 		</Modal>
 	);
