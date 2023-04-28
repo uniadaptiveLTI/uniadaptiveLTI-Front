@@ -303,7 +303,6 @@
 						"y": 0,
 						"type": "start",
 						"title": "Inicio",
-						"children": ["dev-1A2"],
 						"identation": 1
 					},
 					{
@@ -856,7 +855,6 @@
 						"y": 0,
 						"type": "start",
 						"title": "Inicio",
-						"children": ["dev-1C1"],
 						"identation": 1
 					},
 					{
@@ -881,7 +879,6 @@
 						"y": 0,
 						"type": "start",
 						"title": "Inicio",
-						"children": ["dev-1C2"],
 						"identation": 1
 					},
 					{

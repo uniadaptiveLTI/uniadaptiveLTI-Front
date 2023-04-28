@@ -170,79 +170,93 @@ function Header({ closeBtn }, ref) {
 	/**
 	 * Handles the creation of a new map.
 	 */
-	const handleNewMap = () => {
+	const handleNewMap = (e, data) => {
 		const uniqueId = () => parseInt(Date.now() * Math.random()).toString();
 		const endId = uniqueId();
-		const newMap = [
+		const emptyNewMap = {
+			id: maps.length,
+			name: "Nuevo Mapa " + maps.length,
+			versions: [
+				{
+					id: 0,
+					name: "Última versión",
+					lastUpdate: new Date().toLocaleDateString(),
+					default: "true",
+					blocksData: [
+						{
+							id: uniqueId(),
+							x: 0,
+							y: 0,
+							type: "start",
+							title: "Inicio",
+							identation: 1,
+						},
+						{
+							id: endId,
+							x: 125,
+							y: 0,
+							type: "end",
+							title: "Final",
+							identation: 1,
+						},
+					],
+				},
+			],
+		};
+		const newMaps = [
 			...maps,
-			{
-				id: maps.length,
-				name: "Nuevo Mapa " + maps.length,
-				versions: [
-					{
-						id: 0,
-						name: "Última versión",
-						lastUpdate: new Date().toLocaleDateString(),
-						default: "true",
-						blocksData: [
-							{
-								id: uniqueId(),
-								x: 0,
-								y: 0,
-								type: "start",
-								title: "Inicio",
-								children: [endId],
-								identation: 1,
-							},
-							{
-								id: endId,
-								x: 125,
-								y: 0,
-								type: "end",
-								title: "Final",
-								identation: 1,
-							},
-						],
-					},
-				],
-			},
+			data
+				? {
+						...data,
+						id: maps.length,
+						name: "Nuevo Mapa " + maps.length,
+				  }
+				: emptyNewMap,
 		];
-		setMaps(newMap);
+		setMaps(newMaps);
 		toast(`Mapa: "Nuevo Mapa ${maps.length}" creado`, defaultToastSuccess);
 	};
 
 	/**
 	 * Handles the creation of a new version.
 	 */
-	const handleNewVersion = () => {
+	const handleNewVersion = (e, data) => {
 		const endId = uniqueId();
+		const emptyNewVersion = {
+			id: selectedMap.versions.length,
+			name: "Nueva Versión " + selectedMap.versions.length,
+			lastUpdate: new Date().toLocaleDateString(),
+			default: "true",
+			blocksData: [
+				{
+					id: uniqueId(),
+					x: 0,
+					y: 0,
+					type: "start",
+					title: "Inicio",
+					identation: 1,
+				},
+				{
+					id: endId,
+					x: 125,
+					y: 0,
+					type: "end",
+					title: "Final",
+					identation: 1,
+				},
+			],
+		};
 		const newMapVersions = [
 			...selectedMap.versions,
-			{
-				id: selectedMap.versions.length,
-				name: "Nueva Versión " + selectedMap.versions.length,
-				lastUpdate: new Date().toLocaleDateString(),
-				default: "true",
-				blocksData: [
-					{
+			data
+				? {
+						...data,
 						id: uniqueId(),
-						x: 0,
-						y: 0,
-						type: "start",
-						title: "Inicio",
-						children: [endId],
-						identation: 1,
-					},
-					{
-						id: endId,
-						x: 125,
-						y: 0,
-						type: "end",
-						title: "Final",
-						identation: 1,
-					},
-				],
-			},
+						lastUpdate: new Date().toLocaleDateString(),
+						name: "Nueva Versión " + selectedMap.versions.length,
+						default: false,
+				  }
+				: emptyNewVersion,
 		];
 		let modifiedMap = selectedMap;
 		modifiedMap.versions = newMapVersions;
@@ -540,12 +554,22 @@ function Header({ closeBtn }, ref) {
 								</Dropdown.Toggle>
 								<Dropdown.Menu>
 									<Dropdown.Item onClick={handleNewMap}>
-										Crear nuevo mapa
+										Nuevo mapa vacío
 									</Dropdown.Item>
 									{selectedMap.id >= 0 && (
-										<Dropdown.Item onClick={handleNewVersion}>
-											Crear nueva versión
-										</Dropdown.Item>
+										<>
+											<Dropdown.Item onClick={handleNewVersion}>
+												Nueva versión vacía
+											</Dropdown.Item>
+											<Dropdown.Item onClick={() => handleNewMap(selectedMap)}>
+												Nuevo mapa desde el actual
+											</Dropdown.Item>
+											<Dropdown.Item
+												onClick={() => handleNewVersion(selectedVersion)}
+											>
+												Nueva versión desde la actual
+											</Dropdown.Item>
+										</>
 									)}
 								</Dropdown.Menu>
 							</Dropdown>
