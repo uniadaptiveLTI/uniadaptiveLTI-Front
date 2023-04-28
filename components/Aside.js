@@ -22,7 +22,7 @@ import {
 	BlocksDataContext,
 } from "../pages/_app.js";
 
-export default function Aside({ className, closeBtn }) {
+export default function Aside({ className, closeBtn, svgExists }) {
 	const [expandedContent, setExpandedContent] = useState(true);
 	const [expandedAttr, setExpandedAttr] = useState(true);
 	const [expandedInteract, setExpandedInteract] = useState(true);
@@ -369,8 +369,7 @@ export default function Aside({ className, closeBtn }) {
 				>
 					<img
 						alt="Logo"
-						src="images/branding/logo.svg"
-						onError={(e) => (e.target.src = "images/branding/logo.png")}
+						src={process.env.LOGO_PATH}
 						style={{ width: "100%" }}
 					/>
 					<span className={styles.collapse + " display-6"}>

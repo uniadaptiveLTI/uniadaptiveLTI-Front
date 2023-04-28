@@ -33,6 +33,8 @@ import { ToastContainer } from "react-toastify";
 import { toast } from "react-toastify";
 import { useIsOnline } from "react-use-is-online";
 
+export const BACK_URL = process.env.BACK_URL;
+
 const sessionStart = Date.now();
 
 export default function App({ Component, pageProps }) {
