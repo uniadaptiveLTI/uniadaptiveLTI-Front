@@ -4,6 +4,7 @@ import { Modal, Button, Form } from "react-bootstrap";
 function ConditionModal({
 	blockData,
 	setCMBlockData,
+	blocksData,
 	showConditionsModal,
 	setShowConditionsModal,
 	setBlockJson,
@@ -26,13 +27,12 @@ function ConditionModal({
 	const saveNewCondition = () => {
 		console.log(blockData);
 		const formData = { type: selectedOption };
+		formData.op = conditionOperator.current.value;
 		switch (selectedOption) {
 			case "date":
 				formData.query = conditionQuery.current.value;
-				formData.op = conditionOperator.current.value;
 				break;
-			case "calification":
-				formData.op = conditionOperator.current.value;
+			case "qualification":
 				if (isObjectiveEnabled) {
 					formData.objective = conditionObjective.current.value;
 				}
@@ -45,12 +45,10 @@ function ConditionModal({
 				}
 				break;
 			case "completion":
-				//formData.dateFrom = document.getElementById("dateFromInput").value;
-				formData.dateTo = conditionOperator.current.value;
+				formData.query = conditionQuery.current.value;
 				break;
 			case "userProfile":
 				formData.query = conditionQuery.current.value;
-				formData.op = conditionOperator.current.value;
 				formData.objective = conditionObjective.current.value;
 				break;
 			case "conditionsGroup":
@@ -82,6 +80,14 @@ function ConditionModal({
 		setIsObjective2Enabled(event.target.checked);
 	};
 
+	function getParentsNode(nodesArray, childId) {
+		return nodesArray.filter(
+			(node) => node.children && node.children.includes(childId)
+		);
+	}
+
+	const parentsNodeArray = getParentsNode(blocksData, blockData.id);
+
 	return (
 		<Modal show={showConditionsModal} onHide={handleClose}>
 			<Modal.Header closeButton>
@@ -94,20 +100,37 @@ function ConditionModal({
 						switch (condition.type) {
 							case "date":
 								return (
-									<div>
-										<div>{condition.op}</div>
-										<div>{condition.query}</div>
+									<div className="mb-3">
+										<div>Tipo: Fecha</div>
+										<div>Consulta: {condition.query}</div>
+										<div>Operador: {condition.op}</div>
 									</div>
 								);
 							case "qualification":
-								break;
+								return (
+									<div className="mb-3">
+										<div>Tipo: Calificación</div>
+										<div>Operador: {condition.op}</div>
+										<div>Mayor o igual que: {condition.objective}</div>
+										{condition.objective2 && (
+											<div>Menor que: {condition.objective2}</div>
+										)}
+									</div>
+								);
 							case "completion":
-								break;
+								return (
+									<div className="mb-3">
+										<div>Tipo: Finalización</div>
+										<div>Operador: {condition.op}</div>
+										<div>Objetivo 1: {condition.query}</div>
+									</div>
+								);
 							case "userProfile":
 								return (
-									<div>
-										<div>{condition.query}</div>
-										<div>{condition.op}</div>
+									<div className="mb-3">
+										<div>Tipo: Perfil de usuario</div>
+										<div>Operador: {condition.op}</div>
+										<div>Consulta: {condition.query}</div>
 									</div>
 								);
 
@@ -123,8 +146,10 @@ function ConditionModal({
 						Escoge un tipo de condición...
 					</option>
 					<option value="date">Fecha</option>
-					<option value="calification">Calificación</option>
-					<option value="completion">Finalización</option>
+					<option value="qualification">Calificación</option>
+					{parentsNodeArray.length > 0 && (
+						<option value="completion">Finalización</option>
+					)}
 					<option value="userProfile">Perfil de usuario</option>
 					<option value="conditionsGroup">Conjunto de condiciones</option>
 				</Form.Select>
@@ -139,21 +164,18 @@ function ConditionModal({
 					</Form.Group>
 				)}
 
-				{selectedOption === "calification" && (
+				{selectedOption === "qualification" && (
 					<Form.Group>
 						<Form.Select ref={conditionOperator}>
-							<option value="completed">debe estar completa</option>
-							<option value="notCompleted">no debe estar completa</option>
-							<option value="completedApproved">
-								debe estar completa y aprobada
-							</option>
-							<option value="completedSuspended">
-								debe estar completa y suspendida
-							</option>
+							<option value="fullCourse">Total del curso</option>
+							{parentsNodeArray.length > 0 &&
+								parentsNodeArray.map((node) => (
+									<option key={node.id}>{node.title}</option>
+								))}
 						</Form.Select>
 						<Form.Check
 							type="checkbox"
-							label="Enable Objective"
+							label="debe ser >="
 							onChange={handleObjectiveCheckboxChange}
 						/>
 						<Form.Control
@@ -163,7 +185,7 @@ function ConditionModal({
 						/>
 						<Form.Check
 							type="checkbox"
-							label="Enable Objective2"
+							label="debe ser <"
 							onChange={handleObjective2CheckboxChange}
 						/>
 						<Form.Control
@@ -177,6 +199,12 @@ function ConditionModal({
 				{selectedOption === "completion" && (
 					<Form.Group>
 						<Form.Select ref={conditionOperator}>
+							{parentsNodeArray.length > 0 &&
+								parentsNodeArray.map((node) => (
+									<option key={node.id}>{node.title}</option>
+								))}
+						</Form.Select>
+						<Form.Select ref={conditionQuery}>
 							<option value="completed">debe estar completa</option>
 							<option value="notCompleted">no debe estar completa</option>
 							<option value="completedApproved">
@@ -191,7 +219,7 @@ function ConditionModal({
 
 				{selectedOption === "userProfile" && (
 					<Form.Group>
-						<Form.Select ref={conditionQuery}>
+						<Form.Select ref={conditionOperator}>
 							<option value="firstName">Nombre</option>
 							<option value="lastName">Apellido</option>
 							<option value="city">Ciudad</option>
@@ -204,7 +232,7 @@ function ConditionModal({
 							<option value="telephone">Teléfono</option>
 							<option value="mobilePhone">Teléfono Movil</option>
 						</Form.Select>
-						<Form.Select ref={conditionOperator}>
+						<Form.Select ref={conditionQuery}>
 							<option value="equals">es igual a</option>
 							<option value="contains">contiene</option>
 							<option value="notContains">no contiene</option>

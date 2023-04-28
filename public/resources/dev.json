@@ -46,19 +46,19 @@
 						"conditions": [
 							{
 								"type": "qualification",
-								"operand": ">=",
+								"op": ">=",
 								"objective": 5,
 								"unlockId": "dev2A1"
 							},
 							{
 								"type": "qualification",
-								"operand": ">=",
+								"op": ">=",
 								"objective": 5,
 								"unlockId": "dev3A1"
 							},
 							{
 								"type": "qualification",
-								"operand": "<",
+								"op": "<",
 								"objective": 5,
 								"unlockId": "dev9A1"
 							}
@@ -97,13 +97,13 @@
 						"conditions": [
 							{
 								"type": "qualification",
-								"operand": ">=",
+								"op": ">=",
 								"objective": 5,
 								"unlockId": "dev5A1"
 							},
 							{
 								"type": "qualification",
-								"operand": "<",
+								"op": "<",
 								"objective": 5,
 								"unlockId": "dev6A1"
 							}
@@ -174,19 +174,19 @@
 						"conditions": [
 							{
 								"type": "qualification",
-								"operand": ">=",
+								"op": ">=",
 								"objective": 5,
 								"unlockId": "dev5A1"
 							},
 							{
 								"type": "qualification",
-								"operand": ">=",
+								"op": ">=",
 								"objective": 5,
 								"unlockId": "dev11A1"
 							},
 							{
 								"type": "qualification",
-								"operand": "<",
+								"op": "<",
 								"objective": 5,
 								"unlockId": "dev12A1"
 							}
@@ -246,19 +246,19 @@
 						"conditions": [
 							{
 								"type": "qualification",
-								"operand": ">=",
+								"op": ">=",
 								"objective": 5,
 								"unlockId": "dev7A1"
 							},
 							{
 								"type": "qualification",
-								"operand": ">=",
+								"op": ">=",
 								"objective": 5,
 								"unlockId": "dev8A1"
 							},
 							{
 								"type": "qualification",
-								"operand": "<",
+								"op": "<",
 								"objective": 5,
 								"unlockId": "dev16A1"
 							}
@@ -354,7 +354,7 @@
 						"conditions": [
 							{
 								"type": "qualification",
-								"operand": ">",
+								"op": ">",
 								"objective": 8,
 								"unlockId": "dev2B1"
 							}
@@ -493,7 +493,7 @@
 						"conditions": [
 							{
 								"type": "qualification",
-								"operand": ">",
+								"op": ">",
 								"objective": 8,
 								"unlockId": "dev2B2"
 							}
@@ -653,7 +653,7 @@
 						"conditions": [
 							{
 								"type": "qualification",
-								"operand": ">",
+								"op": ">",
 								"objective": 8,
 								"unlockId": "dev2B3"
 							}

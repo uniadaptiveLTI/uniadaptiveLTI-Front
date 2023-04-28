@@ -359,6 +359,7 @@ export default function BlockCanvas() {
 							<ConditionModal
 								blockData={cMBlockData}
 								setCMBlockData={setCMBlockData}
+								blocksData={currentBlocksData}
 								showConditionsModal={showConditionsModal}
 								setShowConditionsModal={setShowConditionsModal}
 								setBlockJson={setBlockJson}
