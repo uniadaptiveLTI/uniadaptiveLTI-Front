@@ -531,7 +531,7 @@ function Header({ closeBtn }, ref) {
 								<Dropdown.Toggle
 									variant="light"
 									className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder} ${styles.toggleButton}`}
-									disabled={isOffline}
+									disabled={isOffline || !loadedMaps}
 								>
 									<FontAwesomeIcon
 										icon={faCirclePlus}
@@ -555,7 +555,7 @@ function Header({ closeBtn }, ref) {
 										<Dropdown.Toggle
 											variant="light"
 											className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder} ${styles.toggleButton}`}
-											disabled={isOffline}
+											disabled={isOffline || !loadedMaps}
 										>
 											<FontAwesomeIcon
 												icon={faTrash}
@@ -576,7 +576,7 @@ function Header({ closeBtn }, ref) {
 										<Dropdown.Toggle
 											variant="light"
 											className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder} ${styles.toggleButton}`}
-											disabled={isOffline}
+											disabled={isOffline || !loadedMaps}
 										>
 											<FontAwesomeIcon
 												icon={faPencil}
@@ -594,7 +594,7 @@ function Header({ closeBtn }, ref) {
 									</Dropdown>
 									<Button
 										className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder}`}
-										disabled={isOffline}
+										disabled={isOffline || !loadedMaps}
 										aria-label="Guardar versión actual"
 										onClick={notImplemented}
 									>
@@ -690,7 +690,7 @@ function Header({ closeBtn }, ref) {
 								title={versions.length > 0 ? selectedVersion.name : ""}
 								onClick={openModalVersiones}
 								variant="none"
-								disabled={isOffline}
+								disabled={isOffline || !loadedMaps}
 							>
 								{versions.map((version) => (
 									<Dropdown.Item

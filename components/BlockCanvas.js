@@ -25,7 +25,7 @@ import {
 	MainDOMContext,
 } from "../pages/_app.js";
 
-import BlockContextualMenu from "./BlockContextualMenu.js";
+import BlockContextualMenu from "./ContextualMenu.js";
 import ConditionModal from "./flow/conditions/ConditionModal.js";
 import BlockFlow from "./BlockFlow.js";
 
@@ -43,6 +43,37 @@ function addEventListeners(element, events) {
 	});
 }
 
+const reservedBlocksTypes = ["start", "end"];
+
+/**
+ * Checks if there are any reserved blocks in an array of DOM elements
+ * @param {HTMLElement[]} blockArray - An array of DOM elements
+ * @returns {boolean} True if there is at least one reserved block, false otherwise
+ */
+export function thereIsReservedBlocksInArray(blockArray) {
+	// Get the CSS selectors for the reserved block types
+	let classes = getReservedBlockNodesFromTypes();
+	// Join the selectors with a comma
+	let matchString = classes.join(", ");
+	// Check if any element in the array matches any of the selectors
+	const isReserved = blockArray.some((dom) =>
+		dom.matches(":is(" + matchString + ")")
+	);
+	return isReserved;
+}
+
+/**
+ * Converts an array of reserved block types to an array of CSS selectors
+ * @returns {string[]} An array of CSS selectors for the reserved block types
+ */
+function getReservedBlockNodesFromTypes() {
+	// Prefix each type with the class name "react-flow__node-"
+	const nodes = reservedBlocksTypes.map((type) => "react-flow__node-" + type);
+	// Add a dot before each selector
+	const classes = nodes.map((node) => "." + node);
+	return classes;
+}
+
 export default function BlockCanvas() {
 	const { blockJson, setBlockJson } = useContext(BlockJsonContext);
 	const { expanded, setExpanded } = useContext(ExpandedContext);
@@ -50,10 +81,6 @@ export default function BlockCanvas() {
 	const { mainDOM } = useContext(MainDOMContext);
 	const { currentBlocksData, setCurrentBlocksData } =
 		useContext(BlocksDataContext);
-
-	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
-	const { selectedEditVersion, setSelectedEditVersion } =
-		useContext(VersionInfoContext);
 
 	const [showContextualMenu, setShowContextualMenu] = useState(false);
 	const [showConditionsModal, setShowConditionsModal] = useState(false);
@@ -68,10 +95,10 @@ export default function BlockCanvas() {
 	const [cMY, setCMY] = useState(0);
 	const [contextMenuOrigin, setContextMenuOrigin] = useState("");
 	const [cMBlockData, setCMBlockData] = useState({});
+	const [cMContainsReservedNodes, setCMContainsReservedNodes] = useState(false);
 	const [blockOrigin, setBlockOrigin] = useState();
 
 	//Refs
-	const canvasRef = useRef();
 	const contextMenuDOM = useRef(null);
 	const blockFlowDOM = useRef(null);
 
@@ -86,13 +113,14 @@ export default function BlockCanvas() {
 	/** Client-side */
 
 	useEffect(() => {
-		console.log(blockJson);
 		if (!Array.isArray(blockJson)) {
-			let newcurrentBlocksData = [...currentBlocksData];
-			newcurrentBlocksData[
-				currentBlocksData.findIndex((b) => b.id == blockJson.id)
-			] = blockJson;
-			setCurrentBlocksData(newcurrentBlocksData);
+			if (currentBlocksData) {
+				let newcurrentBlocksData = [...currentBlocksData];
+				newcurrentBlocksData[
+					currentBlocksData.findIndex((b) => b.id == blockJson.id)
+				] = blockJson;
+				setCurrentBlocksData(newcurrentBlocksData);
+			}
 		} else {
 			const newcurrentBlocksData = currentBlocksData.map((block) => {
 				const newBlock = blockJson.find((b) => b.id === block.id);
@@ -282,6 +310,7 @@ export default function BlockCanvas() {
 		const bounds = bF?.getBoundingClientRect();
 		if (bF) {
 			if (bF.contains(e.target)) {
+				setCMContainsReservedNodes(false);
 				if (
 					e.target.classList.contains("block") &&
 					document.getElementsByClassName("selected").length <= 1
@@ -294,21 +323,19 @@ export default function BlockCanvas() {
 							(e) => e.id == selectedBlock.id
 						);
 						setCMBlockData(block);
+						if (block.type == "start" || block.type == "end") {
+							setCMContainsReservedNodes(true);
+						}
 						setContextMenuOrigin("block");
 						setShowContextualMenu(true);
 					}
 				} else if (e.target.classList.contains("react-flow__pane")) {
-					if (selectedBlock) {
-						e.preventDefault();
-						setCMX(e.clientX - bounds.left);
-						setCMY(e.clientY - bounds.top);
-						let block = currentBlocksDataRef.current.find(
-							(e) => e.id == selectedBlock.id
-						);
-						setCMBlockData(block);
-						setContextMenuOrigin("pane");
-						setShowContextualMenu(true);
-					}
+					e.preventDefault();
+					setCMX(e.clientX - bounds.left);
+					setCMY(e.clientY - bounds.top);
+					setCMBlockData(undefined);
+					setContextMenuOrigin("pane");
+					setShowContextualMenu(true);
 				} else if (
 					e.target.classList.contains("react-flow__nodesselection-rect") ||
 					(e.target.classList.contains("block") &&
@@ -318,6 +345,16 @@ export default function BlockCanvas() {
 					setCMX(e.clientX - bounds.left);
 					setCMY(e.clientY - bounds.top);
 					setContextMenuOrigin("nodesselection");
+					console.log(
+						thereIsReservedBlocksInArray([
+							...document.querySelectorAll(".react-flow__node.selected"),
+						])
+					);
+					setCMContainsReservedNodes(
+						thereIsReservedBlocksInArray([
+							...document.querySelectorAll(".react-flow__node.selected"),
+						])
+					);
 					setShowContextualMenu(true);
 				}
 			}
@@ -339,11 +376,13 @@ export default function BlockCanvas() {
 							ref={blockFlowDOM}
 							map={currentBlocksData}
 							deleteBlocks={deleteBlocks}
+							setShowContextualMenu={setShowContextualMenu}
 						></BlockFlow>
 						{showContextualMenu && (
 							<BlockContextualMenu
 								ref={contextMenuDOM}
 								blockData={cMBlockData}
+								containsReservedNodes={cMContainsReservedNodes}
 								blocksData={currentBlocksData}
 								setBlocksData={setCurrentBlocksData}
 								setShowContextualMenu={setShowContextualMenu}

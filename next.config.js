@@ -2,7 +2,7 @@
 const nextConfig = {
 	reactStrictMode: true,
 	env: {
-		//URL that points to the Uniadaptive LTI Backend
+		//URL that points to the UNIAdaptive LTI Backend
 		BACK_URL: "",
 		//Relative path or URL to the image (rectangular) it will be rendered in the Aside component
 		LOGO_PATH: "images/branding/logo.png",

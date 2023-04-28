@@ -31,7 +31,7 @@ import FinalNode from "./flow/nodes/FinalNode.js";
 import InitialNode from "./flow/nodes/InitialNode.js";
 import FragmentNode from "./flow/nodes/InitialNode.js";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMap, faX } from "@fortawesome/free-solid-svg-icons";
+import { faMap, faX, faFlagCheckered } from "@fortawesome/free-solid-svg-icons";
 import { PaneContextMenuPositionContext } from "./BlockCanvas.js";
 
 const minimapStyle = {
@@ -63,7 +63,7 @@ const nodeTypes = {
 	fragment: FragmentNode,
 };
 
-const OverviewFlow = ({ map, deleteBlocks }, ref) => {
+const OverviewFlow = ({ map, deleteBlocks, setShowContextualMenu }, ref) => {
 	const { blockJson, setBlockJson } = useContext(BlockJsonContext);
 	const { deletedEdge, setDeletedEdge } = useContext(DeleteEdgeContext);
 	const { expanded, setExpanded } = useContext(ExpandedContext);
@@ -94,10 +94,26 @@ const OverviewFlow = ({ map, deleteBlocks }, ref) => {
 	const { platform } = useContext(PlatformContext);
 
 	const toggleMinimap = () => setMinimap(!minimap);
+	const centerToStart = () => {
+		const startNode = reactFlowInstance
+			.getNodes()
+			.find((el) => el.type === "start");
+		if (startNode) {
+			const x = startNode.position.x + startNode.width / 2;
+			const y = startNode.position.y + startNode.height / 2;
+			reactFlowInstance.setCenter(
+				startNode.position.x + startNode.width / 2,
+				startNode.position.y + startNode.height / 2
+			);
+		}
+	};
 
 	function CustomControls() {
 		return (
 			<Controls>
+				<ControlButton title="Move to start" onClick={centerToStart}>
+					<FontAwesomeIcon icon={faFlagCheckered} />
+				</ControlButton>
 				<ControlButton title="Toggle Minimap" onClick={toggleMinimap}>
 					{!minimap && <FontAwesomeIcon icon={faMap} />}
 					{minimap && (
@@ -212,10 +228,12 @@ const OverviewFlow = ({ map, deleteBlocks }, ref) => {
 	};
 
 	const handleNodeDragStart = (event, node) => {
+		setShowContextualMenu(false);
 		draggedNodePosition.current = node.position;
 	};
 
 	const onSelectionDragStart = (event, nodes) => {
+		setShowContextualMenu(false);
 		draggedNodesPosition.current = nodes[0].position;
 	};
 
@@ -301,6 +319,11 @@ const OverviewFlow = ({ map, deleteBlocks }, ref) => {
 		setEdges(newInitialEdges);
 	}, [newInitialNodes, newInitialEdges]);
 
+	// Centers the map on a map change, if the map changed, based on the change of the id of the start block
+	useEffect(() => {
+		reactFlowInstance?.fitView();
+	}, [[reactFlowInstance?.getNodes().find((n) => n.type == "start")][0]?.id]);
+
 	const onNodesDelete = (nodes) => {
 		setBlockSelected();
 		deleteBlocks(nodes);
@@ -314,7 +337,7 @@ const OverviewFlow = ({ map, deleteBlocks }, ref) => {
 
 	useEffect(() => {
 		setNewInitialNodes(
-			map.map((block) => ({
+			map?.map((block) => ({
 				id: block.id,
 				type: block.type,
 				data: {
@@ -330,7 +353,7 @@ const OverviewFlow = ({ map, deleteBlocks }, ref) => {
 		);
 
 		setNewInitialEdges(
-			map.flatMap((parent) => {
+			map?.flatMap((parent) => {
 				if (parent.children) {
 					return parent.children.map((child) => {
 						return {
@@ -387,6 +410,7 @@ const OverviewFlow = ({ map, deleteBlocks }, ref) => {
 				onConnect={onConnect}
 				onInit={onInit}
 				onLoad={onLoad}
+				onMoveStart={() => setShowContextualMenu(false)}
 				fitView
 				proOptions={{ hideAttribution: true }}
 				nodeTypes={nodeTypes}

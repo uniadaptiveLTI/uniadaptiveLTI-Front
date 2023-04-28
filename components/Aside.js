@@ -377,7 +377,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 					</span>
 				</div>
 				<hr />
-				<div id={mapSelected.id}></div>
+				<div id={mapSelected?.id}></div>
 			</div>
 
 			{blockSelected &&
@@ -515,8 +515,8 @@ export default function Aside({ className, closeBtn, svgExists }) {
 								<Form.Group>
 									<Form.Label className="mb-1">Visibilidad</Form.Label>
 									<Form.Select>
-										<option>Si</option>
-										<option>No</option>
+										<option>Ocultar hasta tener acceso</option>
+										<option>Mostrar siempre sin acceso</option>
 									</Form.Select>
 								</Form.Group>
 							</div>
