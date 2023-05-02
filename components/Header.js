@@ -1,6 +1,7 @@
 import styles from "@components/styles/Header.module.css";
 import { useState, useContext, useEffect, forwardRef, useRef } from "react";
 import SimpleActionDialog from "./dialogs/SimpleActionDialog";
+import SimpleMapSelector from "./dialogs/SimpleMapSelector";
 import UserSettings from "./UserSettings";
 import Image from "next/image";
 import {
@@ -25,7 +26,6 @@ import {
 	faFloppyDisk,
 } from "@fortawesome/free-solid-svg-icons";
 import {
-	MapContext,
 	BlockInfoContext,
 	ExpandedContext,
 	MapInfoContext,
@@ -57,11 +57,14 @@ const defaultToastError = {
 
 function Header({ closeBtn }, ref) {
 	const [showModalVersions, setShowModalVersions] = useState(false);
-	const [showModal, setShowModal] = useState(false);
+	const [showDeleteModal, setShowDeleteModal] = useState(false);
+	const [showMapSelectorModal, setShowMapSelectorModal] = useState(false);
 	const [modalTitle, setModalTitle] = useState();
 	const [modalBody, setModalBody] = useState();
 	const [modalCallback, setModalCallback] = useState();
-	const toggleModal = () => setShowModal(!showModal);
+	const toggleDeleteModal = () => setShowDeleteModal(!showDeleteModal);
+	const toggleMapSelectorModal = () =>
+		setShowMapSelectorModal(!showMapSelectorModal);
 
 	const closeModalVersiones = () => setShowModalVersions(false);
 	const openModalVersiones = () => setShowModalVersions(true);
@@ -94,11 +97,7 @@ function Header({ closeBtn }, ref) {
 	const emptyMap = { id: -1, name: "Seleccionar un mapa" };
 	const [maps, setMaps] = useState([emptyMap]);
 
-	const [selectedMap, setSelectedMap] = useState(getMapById(-1));
-
 	const [selectedVersion, setSelectedVersion] = useState();
-
-	const { map, setMap } = useContext(MapContext);
 
 	/**
 	 * Updates the version of an object in an array of versions.
@@ -131,7 +130,6 @@ function Header({ closeBtn }, ref) {
 	function resetEdit() {
 		setBlockSelected("");
 		setSelectedEditVersion("");
-		setMapSelected("");
 	}
 
 	/**
@@ -142,12 +140,14 @@ function Header({ closeBtn }, ref) {
 		resetEdit();
 		let id = Number(e.target.value);
 		let selectedMap = [...maps].find((e) => e.id == id);
-		setSelectedMap(selectedMap);
-		id > -1 ? setMap(selectedMap) : setMap("");
+		setMapSelected(selectedMap);
 		setVersions(selectedMap.versions);
 		if (selectedMap.versions) {
 			setSelectedVersion(selectedMap.versions[0]);
 			setCurrentBlocksData(selectedMap.versions[0].blocksData);
+		}
+		if (selectedMap.id == -1) {
+			setCurrentBlocksData();
 		}
 		resetMapSesion();
 	}
@@ -162,8 +162,8 @@ function Header({ closeBtn }, ref) {
 	 */
 	function changeToMapSelection() {
 		resetEdit();
-		setSelectedMap(getMapById(-1));
-		setMap("");
+		setMapSelected(getMapById(-1));
+		setCurrentBlocksData();
 		setMSG([]);
 	}
 
@@ -222,6 +222,7 @@ function Header({ closeBtn }, ref) {
 	 */
 	const handleNewVersion = (e, data) => {
 		const endId = uniqueId();
+		const selectedMap = getMapById(selectMapDOM.current.value);
 		const emptyNewVersion = {
 			id: selectedMap.versions.length,
 			name: "Nueva Versión " + selectedMap.versions.length,
@@ -272,6 +273,42 @@ function Header({ closeBtn }, ref) {
 	};
 
 	/**
+	 * Adds a new version to a map with the given the version data and a map id.
+	 * @param {Object} data - The data for the new version of the map.
+	 * @param {string} mapId - The id of the map to create a new version for.
+	 */
+	const handleNewVersionIn = (data, mapId) => {
+		const selectedMap = getMapById(mapId);
+		const newMapVersions = [
+			...selectedMap.versions,
+			{
+				...data,
+				id: uniqueId(),
+				lastUpdate: new Date().toLocaleDateString(),
+				name: "Nueva Versión " + selectedMap.versions.length,
+				default: false,
+			},
+		];
+
+		let modifiedMap = selectedMap;
+		modifiedMap.versions = newMapVersions;
+		const mapIndex = maps.findIndex((m) => m.id == selectedMap.id);
+		const newMaps = [...maps];
+		newMaps[mapIndex] = modifiedMap;
+		setMaps(newMaps);
+		setVersions(modifiedMap.versions);
+		setMapSelected(modifiedMap);
+		setSelectedVersion(modifiedMap.versions[selectedMap.versions.length - 1]);
+		setCurrentBlocksData(
+			modifiedMap.versions[selectedMap.versions.length - 1].blocksData
+		);
+		toast(
+			`Versión: "Nueva Versión ${modifiedMap.versions.length - 1}" creada`,
+			defaultToastSuccess
+		);
+	};
+
+	/**
 	 * Handles the editing of an map.
 	 */
 	const editMap = () => {
@@ -292,7 +329,6 @@ function Header({ closeBtn }, ref) {
 			setExpanded(true);
 		}
 		setBlockSelected("");
-		setMapSelected("");
 		setSelectedEditVersion(selectedVersion);
 	};
 
@@ -300,10 +336,10 @@ function Header({ closeBtn }, ref) {
 	 * Shows a modal to confirm deletion of an map.
 	 */
 	const showDeleteMapModal = () => {
-		setModalTitle(`¿Eliminar "${selectedMap.name}"?`);
-		setModalBody(`¿Desea eliminar "${selectedMap.name}"?`);
+		setModalTitle(`¿Eliminar "${mapSelected.name}"?`);
+		setModalBody(`¿Desea eliminar "${mapSelected.name}"?`);
 		setModalCallback(() => deleteMap);
-		setShowModal(true);
+		setShowDeleteModal(true);
 	};
 
 	/**
@@ -312,7 +348,7 @@ function Header({ closeBtn }, ref) {
 	const deleteMap = () => {
 		const mapId = selectMapDOM.current.value;
 		if (mapId != -1) {
-			setMaps((mapas) => mapas.filter((mapa) => mapa.id !== parseInt(mapId)));
+			setMaps((map) => map.filter((map) => map.id !== parseInt(mapId)));
 			toast(`Mapa eliminado con éxito.`, defaultToastSuccess);
 			changeToMapSelection();
 		} else {
@@ -327,7 +363,7 @@ function Header({ closeBtn }, ref) {
 		setModalTitle(`¿Eliminar "${selectedVersion.name}"?`);
 		setModalBody(`¿Desea eliminar "${selectedVersion.name}"?`);
 		setModalCallback(() => deleteVersion);
-		setShowModal(true);
+		setShowDeleteModal(true);
 	};
 
 	/**
@@ -345,15 +381,16 @@ function Header({ closeBtn }, ref) {
 			);
 			setSelectedVersion(firstVersion || versions[0] || null);
 
-			const newMapVersions = selectedMap.versions.filter(
+			const newMapVersions = mapSelected.versions.filter(
 				(version) => version.id !== parseInt(versionId)
 			);
-			const modifiedMap = { ...selectedMap, versions: newMapVersions };
-			const mapIndex = maps.findIndex((m) => m.id === selectedMap.id);
+			const modifiedMap = { ...mapSelected, versions: newMapVersions };
+			const mapIndex = maps.findIndex((m) => m.id === mapSelected.id);
 			const newMaps = [...maps];
 			newMaps[mapIndex] = modifiedMap;
 			setMaps(newMaps);
 			setVersions(modifiedMap.versions);
+			setCurrentBlocksData(firstVersion?.blocksData || versions[0]?.blocksData);
 			toast(`Versión eliminada con éxito.`, defaultToastSuccess);
 		} else {
 			toast(`No puedes eliminar esta versión.`, defaultToastError);
@@ -382,10 +419,10 @@ function Header({ closeBtn }, ref) {
 	useEffect(() => {
 		if (loadedMaps) {
 			let newMap = [...maps];
-			newMap[maps.findIndex((b) => b.id == map.id)] = map;
+			newMap[maps.findIndex((b) => b.id == mapSelected.id)] = mapSelected;
 			setMaps(newMap);
 		}
-	}, [map]);
+	}, [mapSelected]);
 
 	useEffect(() => {
 		if (selectedVersion) {
@@ -519,14 +556,15 @@ function Header({ closeBtn }, ref) {
 						{!expanded && <CreateLogo />}
 						<Form.Select
 							ref={selectMapDOM}
-							value={selectedMap.id}
+							value={mapSelected.id}
 							onChange={handleMapChange}
 							disabled={isOffline || !loadedMaps}
+							defaultValue={-1}
 						>
 							{loadedMaps &&
-								maps.map((mapa) => (
-									<option id={mapa.id} key={mapa.id} value={mapa.id}>
-										{mapa.name}
+								maps.map((map) => (
+									<option id={map.id} key={map.id} value={map.id}>
+										{map.name}
 									</option>
 								))}
 						</Form.Select>
@@ -556,24 +594,29 @@ function Header({ closeBtn }, ref) {
 									<Dropdown.Item onClick={handleNewMap}>
 										Nuevo mapa vacío
 									</Dropdown.Item>
-									{selectedMap.id >= 0 && (
+									{mapSelected.id >= 0 && (
 										<>
 											<Dropdown.Item onClick={handleNewVersion}>
 												Nueva versión vacía
 											</Dropdown.Item>
-											<Dropdown.Item onClick={() => handleNewMap(selectedMap)}>
+											{/*<Dropdown.Item onClick={() => handleNewMap(mapSelected)}>
 												Nuevo mapa desde el actual
-											</Dropdown.Item>
+											</Dropdown.Item>*/}
 											<Dropdown.Item
-												onClick={() => handleNewVersion(selectedVersion)}
+												onClick={(e) => handleNewVersion(e, selectedVersion)}
 											>
 												Nueva versión desde la actual
+											</Dropdown.Item>
+											<Dropdown.Item
+												onClick={() => setShowMapSelectorModal(true)}
+											>
+												Nueva versión desde la actual en...
 											</Dropdown.Item>
 										</>
 									)}
 								</Dropdown.Menu>
 							</Dropdown>
-							{selectedMap.id >= 0 && (
+							{mapSelected.id >= 0 && (
 								<>
 									<Dropdown className={`btn-light d-flex align-items-center`}>
 										<Dropdown.Toggle
@@ -699,7 +742,7 @@ function Header({ closeBtn }, ref) {
 						</Container>
 					</Nav>
 				</Container>
-				{selectedMap.id > -1 && (
+				{mapSelected.id > -1 && (
 					<div
 						className={
 							styles.mapContainer +
@@ -753,14 +796,22 @@ function Header({ closeBtn }, ref) {
 				<></>
 			)}
 			<SimpleActionDialog
-				showDialog={showModal}
-				toggleDialog={toggleModal}
+				showDialog={showDeleteModal}
+				toggleDialog={toggleDeleteModal}
 				title={modalTitle}
 				body={modalBody}
 				action=""
 				cancel=""
 				type="delete"
 				callback={modalCallback}
+			/>
+			<SimpleMapSelector
+				showDialog={showMapSelectorModal}
+				toggleDialog={toggleMapSelectorModal}
+				title={"Clonar versión a..."}
+				maps={maps}
+				callback={handleNewVersionIn}
+				selectedVersion={selectedVersion}
 			/>
 		</header>
 	);

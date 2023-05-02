@@ -1,10 +1,11 @@
 import Head from "next/head";
 import { useContext } from "react";
-import { MapContext } from "./_app";
+import { BlocksDataContext } from "./_app";
 import BlockCanvas from "@components/components/BlockCanvas";
 
 export default function Home() {
-	const { map, setMap } = useContext(MapContext);
+	const { currentBlocksData, setCurrentBlocksData } =
+		useContext(BlocksDataContext);
 	return (
 		<>
 			<Head>
@@ -30,7 +31,7 @@ export default function Home() {
 				/>
 				<link rel="manifest" href="/site.webmanifest" />
 			</Head>
-			{typeof map != "string" ? (
+			{currentBlocksData ? (
 				<BlockCanvas></BlockCanvas>
 			) : (
 				<div

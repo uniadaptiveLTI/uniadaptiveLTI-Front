@@ -16,7 +16,6 @@ import {
 	ExpandedContext,
 	MapInfoContext,
 	VersionInfoContext,
-	MapContext,
 	VersionJsonContext,
 	SettingsContext,
 	BlocksDataContext,
@@ -63,7 +62,6 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	const { versionJson, setVersionJson } = useContext(VersionJsonContext);
 	const { currentBlocksData, setCurrentBlocksData } =
 		useContext(BlocksDataContext);
-	const { map, setMap } = useContext(MapContext);
 
 	const { expanded, setExpanded } = useContext(ExpandedContext);
 
@@ -262,20 +260,6 @@ export default function Aside({ className, closeBtn, svgExists }) {
 		}
 	}, [blockSelected]);
 
-	useEffect(() => {
-		const titleMap = mapTitleDOM.current;
-		if (titleMap) {
-			titleMap.value = mapSelected.name;
-		}
-	}, [mapSelected]);
-
-	useEffect(() => {
-		const titleVersion = versionTitleDOM.current;
-		if (titleVersion) {
-			titleVersion.value = selectedEditVersion.name;
-		}
-	}, [selectedEditVersion]);
-
 	/**
 	 * Updates the selected block with the values from the specified DOM elements.
 	 */
@@ -299,7 +283,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	 * Updates the selected map with the value from the specified DOM element.
 	 */
 	const updateMap = () => {
-		setMap((prevMap) => ({
+		setMapSelected((prevMap) => ({
 			...prevMap,
 			id: mapSelected.id,
 			name: mapTitleDOM.current.value,
@@ -627,7 +611,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 				<></>
 			)}
 
-			{mapSelected ? (
+			{mapSelected && !(blockSelected || selectedEditVersion) ? (
 				<div className="container-fluid">
 					<Form.Group className="mb-3">
 						<div
@@ -660,6 +644,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 									ref={mapTitleDOM}
 									type="text"
 									className="w-100"
+									defaultValue={mapSelected.name}
 								></Form.Control>
 							</Form.Group>
 						</div>
@@ -706,6 +691,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 									ref={versionTitleDOM}
 									type="text"
 									className="w-100"
+									defaultValue={selectedEditVersion.name}
 								></Form.Control>
 							</Form.Group>
 						</div>

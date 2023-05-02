@@ -164,7 +164,6 @@ function ActionNode({
 			if (type != "start" && type != "end") setExpanded(true);
 		}
 
-		setMapSelected("");
 		setSelectedEditVersion("");
 		setBlockSelected(blockData);
 	};

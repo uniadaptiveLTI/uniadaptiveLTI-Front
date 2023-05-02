@@ -47,7 +47,6 @@ function FragmentNode({ id, xPos, yPos, type, data, isConnectable }) {
 			if (type != "start" && type != "end") setExpanded(true);
 		}
 
-		setMapSelected("");
 		setSelectedEditVersion("");
 		setBlockSelected(blockData);
 	};

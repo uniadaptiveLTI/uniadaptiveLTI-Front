@@ -60,7 +60,6 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 			if (type != "start" && type != "end") setExpanded(true);
 		}
 
-		setMapSelected("");
 		setSelectedEditVersion("");
 		setBlockSelected(blockData);
 	};
@@ -203,6 +202,7 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 				return platform == "moodle" ? (
 					<Image
 						src="icons/moodle/lti.svg"
+						alt=""
 						height={32}
 						width={32}
 						className={[styles.moodleIcon, "moodleIcon"].join(" ")}

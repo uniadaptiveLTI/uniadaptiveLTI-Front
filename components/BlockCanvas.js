@@ -104,28 +104,25 @@ export default function BlockCanvas() {
 
 	//This will be given by the back
 
-	useLayoutEffect(() => {
-		setCurrentBlocksData(currentBlocksData);
-	}, [currentBlocksData]);
-
 	const currentBlocksDataRef = useRef(currentBlocksData);
 
 	/** Client-side */
 
 	useEffect(() => {
-		if (!Array.isArray(cMBlockData)) {
-			let newcurrentBlocksData = [...currentBlocksData];
-			newcurrentBlocksData[
-				currentBlocksData.findIndex((b) => b.id == cMBlockData.id)
-			] = cMBlockData;
-			setCurrentBlocksData(newcurrentBlocksData);
-		} else {
-			const newcurrentBlocksData = currentBlocksData.map((block) => {
-				const newBlock = cMBlockData.find((b) => b.id === block.id);
-				return newBlock ? { ...block, ...newBlock } : block;
-			});
-			setCurrentBlocksData(newcurrentBlocksData);
-		}
+		if (cMBlockData)
+			if (!Array.isArray(cMBlockData)) {
+				let newcurrentBlocksData = [...currentBlocksData];
+				newcurrentBlocksData[
+					currentBlocksData.findIndex((b) => b.id == cMBlockData.id)
+				] = cMBlockData;
+				setCurrentBlocksData(newcurrentBlocksData);
+			} else {
+				const newcurrentBlocksData = currentBlocksData.map((block) => {
+					const newBlock = cMBlockData.find((b) => b.id === block.id);
+					return newBlock ? { ...block, ...newBlock } : block;
+				});
+				setCurrentBlocksData(newcurrentBlocksData);
+			}
 	}, [cMBlockData]);
 
 	useEffect(() => {
