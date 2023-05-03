@@ -1,14 +1,7 @@
 import styles from "@components/styles/BlockContextualMenu.module.css";
-import { forwardRef, useContext, useImperativeHandle, useRef } from "react";
-import {
-	BlockInfoContext,
-	ExpandedContext,
-	ReactFlowInstanceContext,
-	PlatformContext,
-} from "@components/pages/_app";
-import { BlockOriginContext, CopiedBlocksContext } from "./BlockCanvas";
-import { toast } from "react-toastify";
-import { uniqueId } from "./Utils";
+import { forwardRef, useContext } from "react";
+import { ExpandedContext } from "@components/pages/_app";
+import { BlockOriginContext } from "./BlockCanvas";
 import CMBlockMenu from "./flow/contextualmenu/CMBlockMenu";
 import CMPaneMenu from "./flow/contextualmenu/CMPaneMenu";
 import CMSelectionMenu from "./flow/contextualmenu/CMSelectionMenu";
@@ -35,17 +28,16 @@ export default forwardRef(function ContextualMenu(
 ) {
 	const { blockOrigin, setBlockOrigin } = useContext(BlockOriginContext);
 
-	const { reactFlowInstance, setReactFlowInstance } = useContext(
-		ReactFlowInstanceContext
-	);
-	const { expanded, setExpanded } = useContext(ExpandedContext);
-	const { platform, setPlatform } = useContext(PlatformContext);
-	const { copiedBlocks, setCopiedBlocks } = useContext(CopiedBlocksContext);
+	const { expanded } = useContext(ExpandedContext);
 
 	const handleShow = () => {
 		setShowConditionsModal(true);
 		setShowContextualMenu(false);
 	};
+
+	const asideBounds = expanded
+		? document.getElementsByTagName("aside")[0]?.getBoundingClientRect()
+		: 0;
 
 	return (
 		<>
