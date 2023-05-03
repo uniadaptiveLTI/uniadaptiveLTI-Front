@@ -124,9 +124,27 @@
 						"type": "quiz",
 						"title": "Física de fluidos",
 						"children": ["dev7A1", "dev8A1", "dev13A1"],
-						"identation": 1,
-						"order": 9,
-						"unit": 2
+						"identation": 3,
+						"order": 8,
+						"unit": 1,
+						"conditions": {
+							"type": "conditionsGroup",
+							"id": "100236670156",
+							"op": "&",
+							"conditions": [
+								{
+									"type": "qualification",
+									"id": "1326689252709",
+									"op": "fullCourse",
+									"objective": "5"
+								},
+								{
+									"type": "conditionsGroup",
+									"id": "100236670128",
+									"op": "&"
+								}
+							]
+						}
 					},
 					{
 						"id": "dev6A1",

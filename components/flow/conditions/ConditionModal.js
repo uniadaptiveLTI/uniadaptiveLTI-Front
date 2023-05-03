@@ -21,11 +21,12 @@ function ConditionModal({
 	setShowConditionsModal,
 	setBlockJson,
 }) {
+	console.log(blockData);
 	const handleClose = () => {
 		setShowConditionsModal(false);
 	};
 
-	const [editing, setEditing] = useState(false);
+	const [editing, setEditing] = useState(undefined);
 
 	const [isObjectiveEnabled, setIsObjectiveEnabled] = useState(false);
 	const [isObjective2Enabled, setIsObjective2Enabled] = useState(false);
@@ -40,6 +41,18 @@ function ConditionModal({
 	const conditionQuery = useRef(null);
 	const conditionObjective = useRef(null);
 	const conditionObjective2 = useRef(null);
+
+	const addCondition = (conditionId) => {
+		if (blockData.conditions.id != conditionId) {
+			const foundCondition = blockData.conditions.conditions.find(
+				(condition) => condition.id === conditionId
+			);
+
+			setEditing(foundCondition);
+		} else {
+			setEditing(blockData.conditions);
+		}
+	};
 
 	const deleteCondition = (conditionId) => {
 		const updatedConditions = blockData.conditions.filter(
@@ -59,23 +72,15 @@ function ConditionModal({
 		setIsObjectiveEnabled(true);
 		setIsObjective2Enabled(false);
 		setSelectedOption("");
-		setEditing(false);
+		setEditing(undefined);
 	};
 
 	const saveNewCondition = () => {
-		setEditing(false);
-
 		const formData = { type: selectedOption };
 
-		const maxId = blockData.conditions
-			? blockData.conditions.reduce(
-					(max, condition) =>
-						parseInt(condition.id) > max ? parseInt(condition.id) : max,
-					0
-			  )
-			: -1;
+		const uniqueId = parseInt(Date.now() * Math.random()).toString();
 
-		formData.id = String(maxId + 1);
+		formData.id = uniqueId;
 
 		formData.op = conditionOperator.current.value;
 		switch (selectedOption) {
@@ -83,8 +88,6 @@ function ConditionModal({
 				formData.query = conditionQuery.current.value;
 				break;
 			case "qualification":
-				console.log(isObjectiveEnabled);
-				console.log(isObjective2Enabled);
 				if (isObjectiveEnabled) {
 					formData.objective = conditionObjective.current.value;
 				}
@@ -104,20 +107,84 @@ function ConditionModal({
 				formData.objective = conditionObjective.current.value;
 				break;
 			case "conditionsGroup":
-				formData.operand = document.getElementById("operandInput").value;
-				formData.objective = document.getElementById("objectiveInput").value;
 				break;
 			default:
 				break;
 		}
 
-		const updatedConditions = [...(blockData.conditions || []), formData];
-		const updatedBlock = { ...blockData, conditions: updatedConditions };
+		console.log(blockData);
+		console.log(formData);
+		console.log(editing);
+
+		const updatedCondition = {
+			...editing,
+			conditions: editing.conditions
+				? [...editing.conditions, formData]
+				: [formData],
+		};
+
+		console.log(updatedCondition);
+
+		if (!blockData.conditions) {
+			updateBlockData(updatedCondition);
+		} else {
+			if (updatedCondition.id == blockData.conditions.id) {
+				updateBlockData(updatedCondition);
+			} else {
+				const existingConditions = blockData.conditions;
+
+				const updatedConditionIndex = existingConditions.conditions.findIndex(
+					(condition) => condition.id === updatedCondition.id
+				);
+
+				const newConditions = {
+					...existingConditions,
+					conditions: existingConditions.conditions.map((condition, index) =>
+						index === updatedConditionIndex ? updatedCondition : condition
+					),
+				};
+
+				console.log(newConditions);
+
+				const updatedJsonObject = {
+					...blockData,
+					conditions: newConditions,
+				};
+
+				console.log(updatedJsonObject);
+
+				setIsObjectiveEnabled(true);
+				setIsObjective2Enabled(false);
+				setSelectedOption("");
+				setEditing(undefined);
+				setBlockData(updatedJsonObject);
+			}
+		}
+	};
+
+	const updateBlockData = (updatedCondition) => {
+		const updatedJsonObject = { ...blockData, conditions: updatedCondition };
+		console.log(updatedJsonObject);
 
 		setIsObjectiveEnabled(true);
 		setIsObjective2Enabled(false);
 		setSelectedOption("");
-		setBlockData(updatedBlock);
+		setEditing(undefined);
+		setBlockData(updatedJsonObject);
+	};
+
+	const addConditionToMain = () => {
+		if (blockData.conditions) {
+			addCondition(blockData.conditions.id);
+		} else {
+			const firstConditionGroup = {
+				type: "conditionsGroup",
+				id: parseInt(Date.now() * Math.random()).toString(),
+				op: "&",
+			};
+
+			setEditing(firstConditionGroup);
+		}
 	};
 
 	const handleObjectiveCheckboxChange = (event) => {
@@ -143,20 +210,16 @@ function ConditionModal({
 			</Modal.Header>
 			<Modal.Body>
 				{!editing && (
-					<Button
-						className="mb-3"
-						variant="light"
-						onClick={() => setEditing(true)}
-					>
+					<Button className="mb-3" variant="light" onClick={addConditionToMain}>
 						<div role="button">
 							<FontAwesomeIcon icon={faPlus} />
-							Crear nuevo bloque...
+							Crear condición
 						</div>
 					</Button>
 				)}
 				{blockData.conditions &&
 					!editing &&
-					blockData.conditions.map((condition) => {
+					blockData.conditions.conditions.map((condition) => {
 						switch (condition.type) {
 							case "date":
 								return (
@@ -231,15 +294,30 @@ function ConditionModal({
 								);
 
 							case "conditionsGroup":
-								break;
+								return (
+									<div className="mb-3">
+										<div>Tipo: Conjunto de condiciones</div>
+										<div>Operador: {condition.op}</div>
+										<Button
+											className="mb-3"
+											variant="light"
+											onClick={() => addCondition(condition.id)}
+										>
+											<div role="button">
+												<FontAwesomeIcon icon={faPlus} />
+												Crear condición
+											</div>
+										</Button>
+									</div>
+								);
 							default:
 								break;
 						}
 					})}
 
 				{editing && (
-					<Form.Select onChange={handleSelectChange} required>
-						<option value="" disabled selected>
+					<Form.Select onChange={handleSelectChange} defaultValue="" required>
+						<option value="" disabled>
 							Escoge un tipo de condición...
 						</option>
 						<option value="date">Fecha</option>
@@ -355,8 +433,10 @@ function ConditionModal({
 
 				{editing && selectedOption === "conditionsGroup" && (
 					<Form.Group>
-						<Form.Control type="text" />
-						<Form.Control type="number" />
+						<Form.Select ref={conditionOperator}>
+							<option value="&">Se deben cumplir todas</option>
+							<option value="|">Solo debe cumplirse una</option>
+						</Form.Select>
 					</Form.Group>
 				)}
 			</Modal.Body>
