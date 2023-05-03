@@ -76,17 +76,9 @@ const Menu = (
 						>
 							<div>
 								<FontAwesomeIcon icon={faDiagramNext} />
-								<div
-									style={{
-										display: "flex",
-										flexDirection: "column",
-										alignItems: "flex-start",
-									}}
-								>
-									<div>
-										Terminar relación
-										<span>Unir a "{blockOrigin.title}"</span>
-									</div>
+								<div>
+									Terminar relación
+									<span>Unir a "{blockOrigin.title}"</span>
 								</div>
 							</div>
 						</Button>

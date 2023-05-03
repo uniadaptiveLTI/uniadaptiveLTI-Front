@@ -40,6 +40,7 @@ import {
 import { toast } from "react-toastify";
 import { notImplemented } from "@components/pages/_app";
 import { capitalizeFirstLetter, uniqueId } from "./Utils";
+import download from "downloadjs";
 
 const defaultToastSuccess = {
 	hideProgressBar: false,
@@ -98,6 +99,7 @@ function Header({ closeBtn }, ref) {
 	const [maps, setMaps] = useState([emptyMap]);
 
 	const [selectedVersion, setSelectedVersion] = useState();
+	const fileImportDOM = useRef(null);
 
 	/**
 	 * Updates the version of an object in an array of versions.
@@ -395,6 +397,35 @@ function Header({ closeBtn }, ref) {
 		} else {
 			toast(`No puedes eliminar esta versión.`, defaultToastError);
 		}
+	};
+
+	const handleBlockDataExport = () => {
+		download(
+			JSON.stringify(currentBlocksData, null, "\t"),
+			`${mapSelected.name}-${selectedVersion.name}-${new Date()
+				.toLocaleDateString()
+				.replaceAll("/", "-")}.json`,
+			"application/json"
+		);
+		setShowModalVersions(false);
+	};
+
+	const handleBlockDataImport = () => {
+		fileImportDOM.current.click();
+	};
+
+	const handleImportedData = (e) => {
+		let file = e.target.files[0];
+		let reader = new FileReader();
+		reader.onload = function (e) {
+			let output = e.target.result;
+			//FIXME: File verification
+			const jsonBlockData = JSON.parse(output);
+			setCurrentBlocksData(jsonBlockData);
+			//displayContents(output);
+		};
+
+		reader.readAsText(file);
 	};
 
 	useEffect(() => {
@@ -738,7 +769,9 @@ function Header({ closeBtn }, ref) {
 												className={styles.userProfile}
 												width={48}
 												height={48}
-												onClick={devPlataformChange}
+												onClick={
+													process.env.DEV_MODE ? devPlataformChange : null
+												}
 											></Image>
 										</div>
 									</div>
@@ -793,11 +826,48 @@ function Header({ closeBtn }, ref) {
 						Actualmente la versión seleccionada es &quot;
 						<strong>{selectedVersion.name}</strong>&quot;, modificada por última
 						vez <b>{selectedVersion.lastUpdate}</b>.
+						{process.env.DEV_MODE && (
+							<>
+								<br />
+								<div
+									style={{
+										overflow: "auto",
+									}}
+								>
+									<details>
+										<summary>
+											<b>Version -&gt; JSON:</b>
+										</summary>
+										<code
+											style={{
+												whiteSpace: "pre",
+												fontFamily: "monospace",
+											}}
+										>
+											{JSON.stringify(currentBlocksData, null, "\t")}
+										</code>
+									</details>
+								</div>
+							</>
+						)}
 					</Modal.Body>
 					<Modal.Footer>
+						<Button variant="primary" onClick={handleBlockDataImport}>
+							Importar...
+						</Button>
+						<Button variant="success" onClick={handleBlockDataExport}>
+							Exportar
+						</Button>
 						<Button variant="secondary" onClick={closeModalVersiones}>
 							Cerrar
 						</Button>
+						<input
+							style={{ display: "none" }}
+							type="file"
+							ref={fileImportDOM}
+							accept="application/json"
+							onChange={handleImportedData}
+						/>
 					</Modal.Footer>
 				</Modal>
 			) : (
