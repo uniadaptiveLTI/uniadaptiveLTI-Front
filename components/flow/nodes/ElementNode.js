@@ -328,10 +328,19 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 					{data.label}
 				</span>
 				{process.env.DEV_MODE == true && (
-					<>
+					<div
+						style={{
+							position: "absolute",
+							color: "black",
+							left: "8em",
+							top: "0",
+							fontSize: "0.65em",
+						}}
+					>
 						<div>{`id:${id}`}</div>
 						<div>{`children:${data.children}`}</div>
-					</>
+						<div>{`conditions:${JSON.stringify(data.conditions)}`}</div>
+					</div>
 				)}
 				<div>{getTypeIcon(type)}</div>
 				<span className={styles.blockInfo + " " + styles.bottom}>

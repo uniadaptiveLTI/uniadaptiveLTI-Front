@@ -14,6 +14,7 @@ import { useRef, forwardRef } from "react";
 const Menu = (
 	{
 		handleDeleteBlockSelection,
+		handleBlockCopy,
 		EnableCreateFragment,
 		EnableCopy,
 		EnableCut,
@@ -31,15 +32,25 @@ const Menu = (
 				>
 					<div>
 						<FontAwesomeIcon icon={faDiagramProject} />
-						Crear fragmento
+						<div>
+							Crear fragmento
+							<span>CTRL+F</span>
+						</div>
 					</div>
 				</Button>
 			</li>
 			<li>
-				<Button variant="light" onClick={notImplemented} disabled={!EnableCopy}>
+				<Button
+					variant="light"
+					onClick={() => handleBlockCopy()}
+					disabled={!EnableCopy}
+				>
 					<div>
 						<FontAwesomeIcon icon={faClipboard} />
-						Copiar bloques
+						<div>
+							Copiar bloques
+							<span>CTRL+C</span>
+						</div>
 					</div>
 				</Button>
 			</li>
@@ -47,7 +58,10 @@ const Menu = (
 				<Button variant="light" onClick={notImplemented} disabled={!EnableCut}>
 					<div>
 						<FontAwesomeIcon icon={faScissors} />
-						Cortar bloques
+						<div>
+							Cortar bloques
+							<span>CTRL+X</span>
+						</div>
 					</div>
 				</Button>
 			</li>
@@ -59,7 +73,10 @@ const Menu = (
 				>
 					<div>
 						<FontAwesomeIcon icon={faTrashCan} />
-						Eliminar bloques...
+						<div>
+							Eliminar bloques
+							<span>Supr / Backspace</span>
+						</div>
 					</div>
 				</Button>
 			</li>
@@ -70,14 +87,14 @@ const MenuWithRefs = forwardRef(Menu);
 
 export default function CMSelectionMenu({
 	handleDeleteBlockSelection,
+	handleBlockCopy,
 	EnableCreateFragment = false,
 	EnableCopy = false,
 	EnableCut = false,
 	EnableDelete = false,
 }) {
 	const ref = useRef(null);
-	const focus = EnableCopy || EnableCut || EnableDelete;
-	console.log(focus, EnableCreateFragment, EnableCopy, EnableCut, EnableDelete);
+	const focus = EnableCopy || EnableCut || EnableDelete || EnableCreateFragment;
 	return focus ? (
 		<FocusTrap
 			focusTrapOptions={{
@@ -89,6 +106,7 @@ export default function CMSelectionMenu({
 			<MenuWithRefs
 				ref={ref}
 				handleDeleteBlockSelection={handleDeleteBlockSelection}
+				handleBlockCopy={handleBlockCopy}
 				EnableCreateFragment={EnableCreateFragment}
 				EnableCut={EnableCut}
 				EnableCopy={EnableCopy}
@@ -99,6 +117,7 @@ export default function CMSelectionMenu({
 		<MenuWithRefs
 			ref={ref}
 			handleDeleteBlockSelection={handleDeleteBlockSelection}
+			handleBlockCopy={handleBlockCopy}
 			EnableCreateFragment={EnableCreateFragment}
 			EnableCut={EnableCut}
 			EnableCopy={EnableCopy}

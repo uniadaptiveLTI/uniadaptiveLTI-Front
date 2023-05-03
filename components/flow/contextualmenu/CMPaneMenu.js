@@ -6,7 +6,10 @@ import { Button } from "react-bootstrap";
 import { notImplemented } from "@components/pages/_app";
 import { useRef, forwardRef } from "react";
 
-const Menu = ({ createBlock, EnableCreate, EnablePaste }, ref) => {
+const Menu = (
+	{ createBlock, handleBlockPaste, EnableCreate, EnablePaste },
+	ref
+) => {
 	return (
 		<div ref={ref} className={styles.cM + " "}>
 			<li>
@@ -15,21 +18,28 @@ const Menu = ({ createBlock, EnableCreate, EnablePaste }, ref) => {
 					onClick={() => createBlock()}
 					disabled={!EnableCreate}
 				>
-					<div role="button">
+					<div>
 						<FontAwesomeIcon icon={faSquarePlus} />
-						Crear nuevo bloque...
+						<div>
+							Crear nuevo bloque...
+							<span>CTRL+B</span>
+						</div>
 					</div>
 				</Button>
 			</li>
 			<li>
 				<Button
 					variant="light"
-					onClick={notImplemented}
+					onClick={() => handleBlockPaste()}
 					disabled={!EnablePaste}
 				>
 					<div>
 						<FontAwesomeIcon icon={faPaste} />
-						Pegar bloque/s
+
+						<div>
+							Pegar bloque/s
+							<span>CTRL+V</span>
+						</div>
 					</div>
 				</Button>
 			</li>
@@ -41,6 +51,7 @@ const MenuWithRefs = forwardRef(Menu);
 
 export default function CMPaneMenu({
 	createBlock,
+	handleBlockPaste,
 	EnableCreate = false,
 	EnablePaste = false,
 }) {
@@ -57,6 +68,7 @@ export default function CMPaneMenu({
 			<MenuWithRefs
 				ref={ref}
 				createBlock={createBlock}
+				handleBlockPaste={handleBlockPaste}
 				EnableCreate={EnableCreate}
 				EnablePaste={EnablePaste}
 			/>

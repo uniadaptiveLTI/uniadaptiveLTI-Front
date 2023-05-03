@@ -19,7 +19,6 @@ export const MapContext = createContext();
 export const ExpandedContext = createContext();
 export const VersionJsonContext = createContext();
 export const BlockJsonContext = createContext(true);
-export const CreateBlockContext = createContext();
 export const DeleteEdgeContext = createContext();
 export const SettingsContext = createContext();
 export const PlatformContext = createContext("moodle");

@@ -18,10 +18,12 @@ const Menu = (
 		handleShow,
 		blockOrigin,
 		blockData,
-		handleDeleteBlock,
 		setBlockOrigin,
 		setShowContextualMenu,
+		handleDeleteBlock,
 		handleNewRelation,
+		handleBlockCopy,
+		handleBlockCut,
 		EnableEditPreconditions,
 		EnableCreateRelation,
 		EnableCut,
@@ -40,7 +42,10 @@ const Menu = (
 				>
 					<div>
 						<FontAwesomeIcon icon={faEdit} />
-						Editar precondiciones
+						<div>
+							Editar precondiciones
+							<span>CTRL+E</span>
+						</div>
 					</div>
 				</Button>
 			</li>
@@ -56,7 +61,10 @@ const Menu = (
 						>
 							<div>
 								<FontAwesomeIcon icon={faDiagramNext} />
-								Cancelar relación
+								<div>
+									Cancelar relación
+									<span>CTRL+R</span>
+								</div>
 							</div>
 						</Button>
 					</li>
@@ -75,10 +83,10 @@ const Menu = (
 										alignItems: "flex-start",
 									}}
 								>
-									<span>Terminar relación</span>
-									<span style={{ fontSize: "0.7em" }}>
-										Unir a "{blockOrigin.title}"
-									</span>
+									<div>
+										Terminar relación
+										<span>Unir a "{blockOrigin.title}"</span>
+									</div>
 								</div>
 							</div>
 						</Button>
@@ -96,25 +104,43 @@ const Menu = (
 							disabled={!EnableCreateRelation}
 						>
 							<div>
-								<FontAwesomeIcon icon={faDiagramNext} /> Crear relación
+								<FontAwesomeIcon icon={faDiagramNext} />
+								<div>
+									Crear relación
+									<span>CTRL+R</span>
+								</div>
 							</div>
 						</Button>
 					</li>
 				)
 			)}
 			<li>
-				<Button variant="light" onClick={notImplemented} disabled={!EnableCopy}>
+				<Button
+					variant="light"
+					onClick={() => handleBlockCopy([blockData])}
+					disabled={!EnableCopy}
+				>
 					<div>
 						<FontAwesomeIcon icon={faClipboard} />
-						Copiar bloque
+						<div>
+							Copiar bloque
+							<span>CTRL+C</span>
+						</div>
 					</div>
 				</Button>
 			</li>
 			<li>
-				<Button variant="light" onClick={notImplemented} disabled={!EnableCut}>
+				<Button
+					variant="light"
+					onClick={() => handleBlockCut([blockData])}
+					disabled={!EnableCut}
+				>
 					<div>
 						<FontAwesomeIcon icon={faScissors} />
-						Cortar bloque
+						<div>
+							Cortar bloque
+							<span>CTRL+X</span>
+						</div>
 					</div>
 				</Button>
 			</li>
@@ -126,7 +152,10 @@ const Menu = (
 				>
 					<div>
 						<FontAwesomeIcon icon={faTrashCan} />
-						Eliminar bloque...
+						<div>
+							Eliminar bloque
+							<span>Supr / Backspace</span>
+						</div>
 					</div>
 				</Button>
 			</li>
@@ -139,10 +168,12 @@ export default function CMBlockMenu({
 	handleShow,
 	blockOrigin,
 	blockData,
-	handleDeleteBlock,
 	setBlockOrigin,
 	setShowContextualMenu,
+	handleDeleteBlock,
 	handleNewRelation,
+	handleBlockCopy,
+	handleBlockCut,
 	EnableEditPreconditions = false,
 	EnableCreateRelation = false,
 	EnableCut = false,
@@ -165,10 +196,12 @@ export default function CMBlockMenu({
 				handleShow={handleShow}
 				blockOrigin={blockOrigin}
 				blockData={blockData}
-				handleDeleteBlock={handleDeleteBlock}
 				setBlockOrigin={setBlockOrigin}
 				setShowContextualMenu={setShowContextualMenu}
+				handleDeleteBlock={handleDeleteBlock}
 				handleNewRelation={handleNewRelation}
+				handleBlockCopy={handleBlockCopy}
+				handleBlockCut={handleBlockCut}
 				EnableEditPreconditions={EnableEditPreconditions}
 				EnableCreateRelation={EnableCreateRelation}
 				EnableCut={EnableCut}
@@ -182,10 +215,12 @@ export default function CMBlockMenu({
 			handleShow={handleShow}
 			blockOrigin={blockOrigin}
 			blockData={blockData}
-			handleDeleteBlock={handleDeleteBlock}
 			setBlockOrigin={setBlockOrigin}
 			setShowContextualMenu={setShowContextualMenu}
+			handleDeleteBlock={handleDeleteBlock}
 			handleNewRelation={handleNewRelation}
+			handleBlockCopy={handleBlockCopy}
+			handleBlockCut={handleBlockCut}
 			EnableEditPreconditions={EnableEditPreconditions}
 			EnableCreateRelation={EnableCreateRelation}
 			EnableCut={EnableCut}

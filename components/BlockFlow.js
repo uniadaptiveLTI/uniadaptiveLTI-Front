@@ -14,7 +14,6 @@ import ReactFlow, {
 	useEdgesState,
 	ControlButton,
 } from "reactflow";
-import { useHotkeys } from "react-hotkeys";
 import "reactflow/dist/style.css";
 import ActionNode from "./flow/nodes/ActionNode.js";
 import ElementNode from "./flow/nodes/ElementNode.js";
@@ -167,10 +166,16 @@ const OverviewFlow = ({ map, deleteBlocks, setShowContextualMenu }, ref) => {
 						return "#11A676";
 					case "generic":
 						return "#11A676";
+					//LTI
+					case "start":
+						return "#363638";
+					case "end":
+						return "#363638";
+					case "fragment":
+						return "#00008b";
 					default:
 						return "#11A676";
 				}
-				break;
 			default: {
 				switch (node.type) {
 					//Moodle + Sakai
@@ -383,6 +388,7 @@ const OverviewFlow = ({ map, deleteBlocks, setShowContextualMenu }, ref) => {
 			edge.type = edgeType;
 		}
 
+		//FIXME: Does nothing
 		if (edge.conditions != undefined) {
 			for (let condition of cedge.conditions) {
 				edge.label = "" + condition.operand + condition.objective;

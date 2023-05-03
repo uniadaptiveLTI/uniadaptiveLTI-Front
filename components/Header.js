@@ -549,7 +549,9 @@ function Header({ closeBtn }, ref) {
 				<Container fluid>
 					<Form
 						className={
-							!expanded ? "d-flex px-2 col-sm-8" : "d-flex px-2 col-sm-8"
+							!expanded
+								? "d-flex px-2 col-2 col-sm-6 col-md-8"
+								: "d-flex px-2 col-2 col-sm-6 col-md-8"
 						}
 						style={{ gap: "20px" }}
 					>
@@ -569,7 +571,13 @@ function Header({ closeBtn }, ref) {
 								))}
 						</Form.Select>
 					</Form>
-					<Nav className={!expanded ? "col-sm-4" : "col-sm-4"}>
+					<Nav
+						className={
+							!expanded
+								? "col-10 col-sm-6 col-md-4"
+								: "col-10 col-sm-6 col-md-4"
+						}
+					>
 						<Container
 							fluid
 							className={

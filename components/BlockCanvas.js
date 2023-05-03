@@ -3,11 +3,10 @@ import styles from "@components/styles/BlockCanvas.module.css";
 import {
 	BlockJsonContext,
 	BlocksDataContext,
-	CreateBlockContext,
-	DeleteBlockContext,
 	DeleteEdgeContext,
-	MapInfoContext,
-	VersionInfoContext,
+	ReactFlowInstanceContext,
+	PlatformContext,
+	BlockInfoContext,
 } from "@components/pages/_app";
 
 import {
@@ -19,7 +18,6 @@ import {
 	useRef,
 } from "react";
 import {
-	BlockInfoContext,
 	ExpandedContext,
 	SettingsContext,
 	MainDOMContext,
@@ -28,9 +26,13 @@ import {
 import BlockContextualMenu from "./ContextualMenu.js";
 import ConditionModal from "./flow/conditions/ConditionModal.js";
 import BlockFlow from "./BlockFlow.js";
+import { toast } from "react-toastify";
+import { useHotkeys } from "react-hotkeys-hook";
+import { uniqueId } from "./Utils.js";
 
 export const BlockOriginContext = createContext();
 export const PaneContextMenuPositionContext = createContext();
+export const CopiedBlocksContext = createContext();
 
 /**
  * Adds multiple event listeners to an element.
@@ -78,9 +80,14 @@ export default function BlockCanvas() {
 	const { blockJson, setBlockJson } = useContext(BlockJsonContext);
 	const { expanded, setExpanded } = useContext(ExpandedContext);
 	const { settings, setSettings } = useContext(SettingsContext);
+	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
+	const { reactFlowInstance, setReactFlowInstance } = useContext(
+		ReactFlowInstanceContext
+	);
 	const { mainDOM } = useContext(MainDOMContext);
 	const { currentBlocksData, setCurrentBlocksData } =
 		useContext(BlocksDataContext);
+	const { platform } = useContext(PlatformContext);
 
 	const [showContextualMenu, setShowContextualMenu] = useState(false);
 	const [showConditionsModal, setShowConditionsModal] = useState(false);
@@ -97,6 +104,11 @@ export default function BlockCanvas() {
 	const [cMBlockData, setCMBlockData] = useState({});
 	const [cMContainsReservedNodes, setCMContainsReservedNodes] = useState(false);
 	const [blockOrigin, setBlockOrigin] = useState();
+	const [copiedBlocks, setCopiedBlocks] = useState();
+	const [currentMousePosition, setCurrentMousePosition] = useState({
+		x: 0,
+		y: 0,
+	});
 
 	//Refs
 	const contextMenuDOM = useRef(null);
@@ -107,6 +119,18 @@ export default function BlockCanvas() {
 	const currentBlocksDataRef = useRef(currentBlocksData);
 
 	/** Client-side */
+
+	useHotkeys("ctrl+c", () => {
+		handleBlockCopy();
+	});
+	useHotkeys("ctrl+b", () => createBlock());
+	useHotkeys("ctrl+v", () => handleBlockPaste());
+	useHotkeys("ctrl+x", () => handleBlockCut());
+	useHotkeys("ctrl+z", () => console.log("UNDO"));
+	useHotkeys(["ctrl+shift+z", "ctrl+y"], () => console.log("REDO"));
+	useHotkeys("ctrl+r", () => handleNewRelation(blockOrigin));
+	useHotkeys("ctrl+f", () => console.log("CREATE_FRAGMENT"));
+	useHotkeys("ctrl+e", () => console.log("EDIT_PRECONDITIONS"));
 
 	useEffect(() => {
 		if (cMBlockData)
@@ -143,16 +167,7 @@ export default function BlockCanvas() {
 		}
 	}, [blockJson]);
 
-	const [createdBlock, setCreatedBlock] = useState([]);
 	const [deletedEdge, setDeletedEdge] = useState([]);
-
-	useEffect(() => {
-		if (Object.keys(createdBlock).length !== 0) {
-			let newcurrentBlocksData = [...currentBlocksData];
-			newcurrentBlocksData.push(createdBlock);
-			setCurrentBlocksData(newcurrentBlocksData);
-		}
-	}, [createdBlock]);
 
 	useEffect(() => {
 		if (deletedEdge.id) {
@@ -305,6 +320,12 @@ export default function BlockCanvas() {
 					}
 				},
 			},
+			{
+				type: "mousemove",
+				listener: (e) => {
+					setCurrentMousePosition({ x: e.clientX, y: e.clientY });
+				},
+			},
 		]);
 	});
 
@@ -358,11 +379,6 @@ export default function BlockCanvas() {
 					setCMX(e.clientX - bounds.left);
 					setCMY(e.clientY - bounds.top);
 					setContextMenuOrigin("nodesselection");
-					console.log(
-						thereIsReservedBlocksInArray([
-							...document.querySelectorAll(".react-flow__node.selected"),
-						])
-					);
 					setCMContainsReservedNodes(
 						thereIsReservedBlocksInArray([
 							...document.querySelectorAll(".react-flow__node.selected"),
@@ -378,12 +394,280 @@ export default function BlockCanvas() {
 		setShowConditionsModal(false);
 	};
 
+	const handleBlockCopy = (blockData = []) => {
+		setShowContextualMenu(false);
+
+		let blockDataSet = new Set(blockData);
+		if (blockData.length > 0) {
+			blockDataSet = new Set(blockData);
+		} else {
+			blockDataSet = new Set();
+		}
+
+		const selectedNodes = document.querySelectorAll(
+			".react-flow__node.selected"
+		);
+
+		for (const node of selectedNodes) {
+			const id = node.dataset?.id;
+			if (id) {
+				const blockDataMap = new Map(
+					currentBlocksData.map((block) => [block.id, block])
+				);
+				const block = blockDataMap.get(id);
+				if (block) {
+					blockDataSet.add(block);
+				}
+			}
+		}
+		const blockDataArray = [...blockDataSet];
+
+		if (blockDataArray.length > 0) {
+			setCopiedBlocks(blockDataArray);
+
+			toast("Se han copiado " + blockDataArray.length + " bloque(s)", {
+				hideProgressBar: false,
+				autoClose: 2000,
+				type: "info",
+				position: "bottom-center",
+				theme: "light",
+			});
+		}
+	};
+
+	const handleBlockPaste = () => {
+		if (copiedBlocks && copiedBlocks.length > 0) {
+			const newBlocksToPaste = [...copiedBlocks];
+
+			const originalIDs = newBlocksToPaste.map((block) => block.id);
+
+			const newIDs = newBlocksToPaste.map((block) => uniqueId());
+			const originalX = newBlocksToPaste.map((block) => block.x);
+			const originalY = newBlocksToPaste.map((block) => block.y);
+			const firstOneInX = Math.min(...originalX);
+			const firstOneInY = Math.min(...originalY);
+			const newX = originalX.map((x) => -firstOneInX + x);
+			const newY = originalY.map((y) => -firstOneInY + y);
+			const newBlocks = newBlocksToPaste.map((block, index) => {
+				let filteredChildren = block.children
+					?.map((child) => newIDs[originalIDs.indexOf(child)])
+					.filter((child) => child !== undefined);
+				return {
+					...block,
+					id: newIDs[index],
+					x: newX[index],
+					y: newY[index],
+					children:
+						filteredChildren?.length === 0 ? undefined : filteredChildren,
+					conditions: undefined,
+				};
+			});
+
+			copiedBlocks.length <= 1
+				? createBlock(newBlocks[0], newBlocks[0].x, newBlocks[0].y)
+				: createBlockBulk(newBlocks);
+		}
+	};
+
+	const handleBlockCut = (blockData = []) => {
+		handleBlockCopy(blockData);
+		if (document.querySelectorAll(".react-flow__node.selected") > 0) {
+			handleDeleteBlockSelection();
+		} else {
+			handleDeleteBlock(blockData);
+		}
+	};
+
+	const asideBounds = expanded
+		? document.getElementsByTagName("aside")[0]?.getBoundingClientRect()
+		: 0;
+
+	const createBlock = (blockData, posX, posY) => {
+		//TODO: Block selector
+		const reactFlowBounds = blockFlowDOM.current?.getBoundingClientRect();
+
+		const preferredPosition = contextMenuDOM
+			? { x: currentMousePosition.x, y: currentMousePosition.y }
+			: { x: cMX, y: cMY };
+
+		let flowPos = reactFlowInstance.project({
+			x: preferredPosition.x - reactFlowBounds.left,
+			y: preferredPosition.y - reactFlowBounds.top,
+		});
+
+		const asideOffset = expanded
+			? Math.floor(asideBounds.width / 125) * 125
+			: 0;
+
+		flowPos.x += asideOffset;
+
+		let newBlockCreated;
+
+		if (blockData) {
+			//Doesn't check if ID already exists
+			newBlockCreated = {
+				...blockData,
+				x: posX ? posX + asideOffset + flowPos.x : flowPos.x,
+				y: posY ? posY + asideOffset + flowPos.y : flowPos.y,
+			};
+		} else {
+			if (platform == "moodle") {
+				newBlockCreated = {
+					id: uniqueId(),
+					x: flowPos.x,
+					y: flowPos.y,
+					type: "generic",
+					title: "Nuevo bloque",
+					children: undefined,
+					order: 100,
+					unit: 1,
+				};
+			} else {
+				newBlockCreated = {
+					id: uniqueId(),
+					x: flowPos.x,
+					y: flowPos.y,
+					type: "resource",
+					title: "Nuevo bloque",
+					children: undefined,
+					order: 100,
+					unit: 1,
+				};
+			}
+		}
+
+		setShowContextualMenu(false);
+
+		if (Object.keys(newBlockCreated).length !== 0) {
+			let newcurrentBlocksData = [...currentBlocksData];
+			newcurrentBlocksData.push(newBlockCreated);
+			setCurrentBlocksData(newcurrentBlocksData);
+		}
+	};
+
+	const createBlockBulk = (blockDataArray) => {
+		const reactFlowBounds = blockFlowDOM.current?.getBoundingClientRect();
+
+		const preferredPosition = contextMenuDOM
+			? { x: currentMousePosition.x, y: currentMousePosition.y }
+			: { x: cMX, y: cMY };
+
+		let flowPos = reactFlowInstance.project({
+			x: preferredPosition.x - reactFlowBounds.left,
+			y: preferredPosition.y - reactFlowBounds.top,
+		});
+
+		const asideOffset = expanded
+			? Math.floor(asideBounds.width / 125) * 125
+			: 0;
+
+		flowPos.x += asideOffset;
+		const newBlocks = blockDataArray.map((blockData) => {
+			return {
+				...blockData,
+				x: blockData.x + asideOffset + flowPos.x,
+				y: blockData.y + asideOffset + flowPos.y,
+			};
+		});
+		setShowContextualMenu(false);
+
+		let newcurrentBlocksData = [...currentBlocksData, ...newBlocks];
+		setCurrentBlocksData(newcurrentBlocksData);
+	};
+
+	const handleDeleteBlock = (blockData) => {
+		setShowContextualMenu(false);
+		setBlockSelected();
+		deleteBlocks(blockData);
+	};
+
+	const handleDeleteBlockSelection = () => {
+		setShowContextualMenu(false);
+		const selectedNodes = document.querySelectorAll(
+			".react-flow__node.selected"
+		);
+		const blockDataArray = [];
+		for (let node of selectedNodes) {
+			const SingularBlockData = currentBlocksData.find(
+				(block) => block.id == node.dataset.id
+			);
+			blockDataArray.push(SingularBlockData);
+		}
+		console.log(blockDataArray);
+
+		deleteBlocks(blockDataArray);
+	};
+
+	const handleNewRelation = (origin, end) => {
+		const currentSelectionId =
+			document.querySelectorAll(".react-flow__node.selected")[0]?.dataset.id ||
+			undefined;
+
+		end =
+			end || currentBlocksData.find((block) => block.id === currentSelectionId);
+
+		setShowContextualMenu(false);
+
+		if (origin && end) {
+			if (origin.id == end.id) {
+				toast("Relación cancelada", {
+					hideProgressBar: false,
+					autoClose: 2000,
+					type: "info",
+					position: "bottom-center",
+					theme: "light",
+				});
+				setBlockOrigin();
+				return;
+			}
+
+			const newBlocksData = [...currentBlocksData];
+			const bI = newBlocksData.findIndex((block) => block.id == origin.id);
+			if (newBlocksData[bI].children) {
+				const alreadyAChildren = newBlocksData[bI].children.includes(end.id);
+				if (!alreadyAChildren) {
+					if (newBlocksData[bI].children) {
+						newBlocksData[bI].children.push(end.id);
+					} else {
+						newBlocksData[bI].children = [end.id];
+					}
+				} else {
+					toast("Esta relación ya existe", {
+						hideProgressBar: false,
+						autoClose: 2000,
+						type: "info",
+						position: "bottom-center",
+						theme: "light",
+					});
+				}
+			} else {
+				newBlocksData[bI].children = [end.id];
+			}
+			setBlockOrigin();
+			setCurrentBlocksData(newBlocksData);
+		} else {
+			toast("Iniciando relación", {
+				hideProgressBar: false,
+				autoClose: 2000,
+				type: "info",
+				position: "bottom-center",
+				theme: "light",
+			});
+
+			setBlockOrigin(
+				currentBlocksData.find((block) => block.id == currentSelectionId)
+			);
+		}
+	};
+
 	return (
-		<CreateBlockContext.Provider value={{ createdBlock, setCreatedBlock }}>
-			<DeleteEdgeContext.Provider value={{ deletedEdge, setDeletedEdge }}>
-				<BlockOriginContext.Provider value={{ blockOrigin, setBlockOrigin }}>
-					<PaneContextMenuPositionContext.Provider
-						value={{ paneContextMenuPosition, setPaneContextMenuPosition }}
+		<DeleteEdgeContext.Provider value={{ deletedEdge, setDeletedEdge }}>
+			<BlockOriginContext.Provider value={{ blockOrigin, setBlockOrigin }}>
+				<PaneContextMenuPositionContext.Provider
+					value={{ paneContextMenuPosition, setPaneContextMenuPosition }}
+				>
+					<CopiedBlocksContext.Provider
+						value={{ copiedBlocks, setCopiedBlocks }}
 					>
 						<BlockFlow
 							ref={blockFlowDOM}
@@ -391,22 +675,25 @@ export default function BlockCanvas() {
 							deleteBlocks={deleteBlocks}
 							setShowContextualMenu={setShowContextualMenu}
 						></BlockFlow>
-						{showContextualMenu && (
-							<BlockContextualMenu
-								ref={contextMenuDOM}
-								blockData={cMBlockData}
-								containsReservedNodes={cMContainsReservedNodes}
-								blocksData={currentBlocksData}
-								setBlocksData={setCurrentBlocksData}
-								setShowContextualMenu={setShowContextualMenu}
-								setShowConditionsModal={setShowConditionsModal}
-								x={cMX}
-								y={cMY}
-								contextMenuOrigin={contextMenuOrigin}
-								blockFlowDOM={blockFlowDOM}
-								deleteBlocks={deleteBlocks}
-							/>
-						)}
+
+						<BlockContextualMenu
+							ref={contextMenuDOM}
+							showContextualMenu={showContextualMenu}
+							blockData={cMBlockData}
+							containsReservedNodes={cMContainsReservedNodes}
+							setShowContextualMenu={setShowContextualMenu}
+							setShowConditionsModal={setShowConditionsModal}
+							x={cMX}
+							y={cMY}
+							contextMenuOrigin={contextMenuOrigin}
+							createBlock={createBlock}
+							handleBlockCopy={handleBlockCopy}
+							handleBlockPaste={handleBlockPaste}
+							handleNewRelation={handleNewRelation}
+							handleBlockCut={handleBlockCut}
+							handleDeleteBlock={handleDeleteBlock}
+							handleDeleteBlockSelection={handleDeleteBlockSelection}
+						/>
 						{showConditionsModal && (
 							<ConditionModal
 								blockData={cMBlockData}
@@ -417,9 +704,9 @@ export default function BlockCanvas() {
 								setBlockJson={setBlockJson}
 							/>
 						)}
-					</PaneContextMenuPositionContext.Provider>
-				</BlockOriginContext.Provider>
-			</DeleteEdgeContext.Provider>
-		</CreateBlockContext.Provider>
+					</CopiedBlocksContext.Provider>
+				</PaneContextMenuPositionContext.Provider>
+			</BlockOriginContext.Provider>
+		</DeleteEdgeContext.Provider>
 	);
 }
