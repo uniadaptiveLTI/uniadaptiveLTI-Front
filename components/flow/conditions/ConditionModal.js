@@ -1,5 +1,6 @@
 import React, { useRef, useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
+import Condition from "./Condition";
 import {
 	faSquarePlus,
 	faDiagramNext,
@@ -44,28 +45,82 @@ function ConditionModal({
 
 	const addCondition = (conditionId) => {
 		if (blockData.conditions.id != conditionId) {
-			const foundCondition = blockData.conditions.conditions.find(
-				(condition) => condition.id === conditionId
+			const foundCondition = findConditionById(
+				conditionId,
+				blockData.conditions.conditions
 			);
-
+			console.log(foundCondition);
 			setEditing(foundCondition);
 		} else {
 			setEditing(blockData.conditions);
 		}
 	};
 
-	const deleteCondition = (conditionId) => {
-		const updatedConditions = blockData.conditions.filter(
-			(condition) => condition.id !== conditionId
-		);
-
-		const updatedBlockData = { ...blockData, conditions: updatedConditions };
-
-		if (updatedConditions.length === 0) {
-			updatedBlockData.conditions = undefined;
+	function findConditionById(id, conditions) {
+		if (!conditions) {
+			return null;
 		}
 
-		setBlockData(updatedBlockData);
+		const foundCondition = conditions.find((condition) => condition.id === id);
+		if (foundCondition) {
+			return foundCondition;
+		}
+
+		for (const condition of conditions) {
+			if (condition.conditions) {
+				const innerCondition = findConditionById(id, condition.conditions);
+				if (innerCondition) {
+					console.log();
+					return innerCondition;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	function deleteConditionById(conditions, id) {
+		for (let i = 0; i < conditions.length; i++) {
+			const condition = conditions[i];
+			if (condition.id === id) {
+				conditions.splice(i, 1);
+				if (conditions.length === 0) {
+					conditions = undefined;
+				}
+				return true;
+			} else if (condition.conditions) {
+				if (deleteConditionById(condition.conditions, id)) {
+					if (condition.conditions.length === 0) {
+						condition.conditions = undefined;
+					}
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	function updateConditionById(conditions, id, newCondition) {
+		for (let i = 0; i < conditions.length; i++) {
+			const condition = conditions[i];
+			if (condition.id === id) {
+				conditions[i] = newCondition;
+				return true;
+			} else if (condition.conditions) {
+				if (updateConditionById(condition.conditions, id, newCondition)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	const deleteCondition = (conditionId) => {
+		const blockDataCopy = deepCopy(blockData);
+
+		deleteConditionById(blockDataCopy.conditions.conditions, conditionId);
+
+		setBlockData(blockDataCopy);
 	};
 
 	const cancelEditCondition = () => {
@@ -123,55 +178,51 @@ function ConditionModal({
 				: [formData],
 		};
 
+		const updatedBlockData = deepCopy(blockData);
+		console.log(updatedBlockData);
+
 		console.log(updatedCondition);
 
-		if (!blockData.conditions) {
-			updateBlockData(updatedCondition);
+		if (!updatedBlockData.conditions) {
+			updatedBlockData.conditions = updatedCondition;
+
+			setBlockData(updatedBlockData);
 		} else {
-			if (updatedCondition.id == blockData.conditions.id) {
-				updateBlockData(updatedCondition);
+			if (
+				updateConditionById(
+					updatedBlockData.conditions.conditions,
+					updatedCondition.id,
+					updatedCondition
+				)
+			) {
+				setBlockData(updatedBlockData);
 			} else {
-				const existingConditions = blockData.conditions;
-
-				const updatedConditionIndex = existingConditions.conditions.findIndex(
-					(condition) => condition.id === updatedCondition.id
-				);
-
-				const newConditions = {
-					...existingConditions,
-					conditions: existingConditions.conditions.map((condition, index) =>
-						index === updatedConditionIndex ? updatedCondition : condition
-					),
-				};
-
-				console.log(newConditions);
-
 				const updatedJsonObject = {
-					...blockData,
-					conditions: newConditions,
+					...updatedBlockData,
+					conditions: updatedCondition,
 				};
 
-				console.log(updatedJsonObject);
-
-				setIsObjectiveEnabled(true);
-				setIsObjective2Enabled(false);
-				setSelectedOption("");
-				setEditing(undefined);
 				setBlockData(updatedJsonObject);
 			}
 		}
-	};
-
-	const updateBlockData = (updatedCondition) => {
-		const updatedJsonObject = { ...blockData, conditions: updatedCondition };
-		console.log(updatedJsonObject);
 
 		setIsObjectiveEnabled(true);
 		setIsObjective2Enabled(false);
 		setSelectedOption("");
 		setEditing(undefined);
-		setBlockData(updatedJsonObject);
 	};
+
+	function deepCopy(obj) {
+		if (Array.isArray(obj)) {
+			return obj.map((item) => deepCopy(item));
+		} else if (typeof obj === "object" && obj !== null) {
+			return Object.fromEntries(
+				Object.entries(obj).map(([key, value]) => [key, deepCopy(value)])
+			);
+		} else {
+			return obj;
+		}
+	}
 
 	const addConditionToMain = () => {
 		if (blockData.conditions) {
@@ -220,99 +271,14 @@ function ConditionModal({
 				{blockData.conditions &&
 					!editing &&
 					blockData.conditions.conditions.map((condition) => {
-						switch (condition.type) {
-							case "date":
-								return (
-									<div id={condition.id} className="mb-3">
-										<div>Tipo: Fecha</div>
-										<div>Consulta: {condition.query}</div>
-										<div>Operador: {condition.op}</div>
-										<Button
-											variant="light"
-											onClick={() => deleteCondition(condition.id)}
-										>
-											<div>
-												<FontAwesomeIcon icon={faTrashCan} />
-												Eliminar bloque...
-											</div>
-										</Button>
-									</div>
-								);
-							case "qualification":
-								return (
-									<div className="mb-3">
-										<div>Tipo: Calificación</div>
-										<div>Operador: {condition.op}</div>
-										<div>Mayor o igual que: {condition.objective}</div>
-										{condition.objective2 && (
-											<div>Menor que: {condition.objective2}</div>
-										)}
-										<Button
-											variant="light"
-											onClick={() => deleteCondition(condition.id)}
-										>
-											<div>
-												<FontAwesomeIcon onclick icon={faTrashCan} />
-												Eliminar bloque...
-											</div>
-										</Button>
-									</div>
-								);
-							case "completion":
-								return (
-									<div className="mb-3">
-										<div>Tipo: Finalización</div>
-										<div>Operador: {condition.op}</div>
-										<div>Objetivo 1: {condition.query}</div>
-										<Button
-											variant="light"
-											onClick={() => deleteCondition(condition.id)}
-										>
-											<div>
-												<FontAwesomeIcon icon={faTrashCan} />
-												Eliminar bloque...
-											</div>
-										</Button>
-									</div>
-								);
-							case "userProfile":
-								return (
-									<div className="mb-3">
-										<div>Tipo: Perfil de usuario</div>
-										<div>Operador: {condition.op}</div>
-										<div>Consulta: {condition.query}</div>
-										<Button
-											variant="light"
-											onClick={() => deleteCondition(condition.id)}
-										>
-											<div>
-												<FontAwesomeIcon icon={faTrashCan} />
-												Eliminar condición...
-											</div>
-										</Button>
-									</div>
-								);
-
-							case "conditionsGroup":
-								return (
-									<div className="mb-3">
-										<div>Tipo: Conjunto de condiciones</div>
-										<div>Operador: {condition.op}</div>
-										<Button
-											className="mb-3"
-											variant="light"
-											onClick={() => addCondition(condition.id)}
-										>
-											<div role="button">
-												<FontAwesomeIcon icon={faPlus} />
-												Crear condición
-											</div>
-										</Button>
-									</div>
-								);
-							default:
-								break;
-						}
+						console.log(condition);
+						return (
+							<Condition
+								condition={condition}
+								deleteCondition={deleteCondition}
+								addCondition={addCondition}
+							></Condition>
+						);
 					})}
 
 				{editing && (

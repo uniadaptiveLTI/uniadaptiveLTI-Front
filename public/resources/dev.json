@@ -141,7 +141,28 @@
 								{
 									"type": "conditionsGroup",
 									"id": "100236670128",
-									"op": "&"
+									"op": "&",
+									"conditions": [
+										{
+											"type": "qualification",
+											"id": "1321231241559",
+											"op": "fullCourse",
+											"objective": "10"
+										}
+									]
+								},
+								{
+									"type": "conditionsGroup",
+									"id": "324236670128",
+									"op": "&",
+									"conditions": [
+										{
+											"type": "qualification",
+											"id": "131234681559",
+											"op": "fullCourse",
+											"objective": "2"
+										}
+									]
 								}
 							]
 						}
