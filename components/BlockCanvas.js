@@ -141,8 +141,7 @@ export default function BlockCanvas() {
 		console.log("CREATE_FRAGMENT");
 	});
 	useHotkeys("shift+e", () => {
-		notImplemented("edición de precondiciones");
-		console.log("EDIT_PRECONDITIONS");
+		handleShow();
 	});
 
 	useEffect(() => {
@@ -678,6 +677,34 @@ export default function BlockCanvas() {
 		}
 	};
 
+	const handleShow = () => {
+		const selectedNodes = document.querySelectorAll(
+			".react-flow__node.selected"
+		);
+
+		let newCMBlockData = undefined;
+		if (selectedNodes.length == 1) {
+			newCMBlockData = getBlockByNode(selectedNodes[0]);
+		}
+
+		if (newCMBlockData || cMBlockData) {
+			if (selectedNodes.length == 1) {
+				setCMBlockData(newCMBlockData);
+			}
+
+			setShowConditionsModal(true);
+			setShowContextualMenu(false);
+		} else {
+			toast("No se pueden editar las precondiciones de la selección actual", {
+				hideProgressBar: false,
+				autoClose: 4000,
+				type: "error",
+				position: "bottom-center",
+				theme: "light",
+			});
+		}
+	};
+
 	const getBlockById = (id) => {
 		return currentBlocksData.find((block) => block.id == id);
 	};
@@ -730,6 +757,7 @@ export default function BlockCanvas() {
 							handleBlockCut={handleBlockCut}
 							handleDeleteBlock={handleDeleteBlock}
 							handleDeleteBlockSelection={handleDeleteBlockSelection}
+							handleShow={handleShow}
 						/>
 						{showConditionsModal && (
 							<ConditionModal

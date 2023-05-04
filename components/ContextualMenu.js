@@ -23,17 +23,13 @@ export default forwardRef(function ContextualMenu(
 		handleBlockCut,
 		handleDeleteBlock,
 		handleDeleteBlockSelection,
+		handleShow,
 	},
 	ref
 ) {
 	const { blockOrigin, setBlockOrigin } = useContext(BlockOriginContext);
 
 	const { expanded } = useContext(ExpandedContext);
-
-	const handleShow = () => {
-		setShowConditionsModal(true);
-		setShowContextualMenu(false);
-	};
 
 	const asideBounds = expanded
 		? document.getElementsByTagName("aside")[0]?.getBoundingClientRect()

@@ -24,6 +24,7 @@ function ConditionModal({
 }) {
 	console.log(blockData);
 	const handleClose = () => {
+		setBlockData();
 		setShowConditionsModal(false);
 	};
 
@@ -257,7 +258,7 @@ function ConditionModal({
 	return (
 		<Modal show={showConditionsModal} onHide={handleClose}>
 			<Modal.Header closeButton>
-				<Modal.Title>Precondiciones</Modal.Title>
+				<Modal.Title>Precondiciones de "{blockData.title}"</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
 				{!editing && (
