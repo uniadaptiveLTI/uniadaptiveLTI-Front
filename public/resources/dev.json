@@ -43,33 +43,33 @@
 						"y": 0,
 						"type": "quiz",
 						"title": "Aerodinámica",
-						"conditions": [
-							{
-								"id": "1",
-								"type": "qualification",
-								"op": ">=",
-								"objective": 5,
-								"unlockId": "dev2A1"
-							},
-							{
-								"id": "2",
-								"type": "qualification",
-								"op": ">=",
-								"objective": 5,
-								"unlockId": "dev3A1"
-							},
-							{
-								"id": "3",
-								"type": "qualification",
-								"op": "<",
-								"objective": 5,
-								"unlockId": "dev9A1"
-							}
-						],
 						"children": ["dev2A1", "dev3A1", "dev9A1"],
 						"identation": 2,
 						"order": 2,
-						"unit": 1
+						"unit": 1,
+						"conditions": {
+							"type": "conditionsGroup",
+							"id": "3123551512354",
+							"op": "&",
+							"conditions": [
+								{
+									"type": "qualification",
+									"id": "1326689252709",
+									"op": "fullCourse",
+									"objective": "2"
+								},
+								{
+									"type": "qualification",
+									"id": "7841278214890",
+									"op": "fullCourse",
+									"objective": "3"
+								},
+								{
+									"type": "qualification",
+									"id": "8795742484563",
+									"op": "fullCourse",
+									"objective": "10"
+								}]}
 					},
 					{
 						"id": "dev2A1",
@@ -97,25 +97,26 @@
 						"type": "assign",
 						"title": "Ejercicios de la Web",
 						"children": ["dev5A1", "dev6A1"],
-						"conditions": [
-							{
-								"id": "1",
-								"type": "qualification",
-								"op": ">=",
-								"objective": 5,
-								"unlockId": "dev5A1"
-							},
-							{
-								"id": "2",
-								"type": "qualification",
-								"op": "<",
-								"objective": 5,
-								"unlockId": "dev6A1"
-							}
-						],
 						"identation": 2,
 						"order": 4,
-						"unit": 1
+						"unit": 1,
+						"conditions": {
+							"type": "conditionsGroup",
+							"id": "784378163420978",
+							"op": "&",
+							"conditions": [
+								{
+									"type": "qualification",
+									"id": "89674351236523",
+									"op": "fullCourse",
+									"objective": "2"
+								},
+								{
+									"type": "qualification",
+									"id": "1532657364123",
+									"op": "fullCourse",
+									"objective": "2"
+								}]}
 					},
 					{
 						"id": "dev5A1",
@@ -215,32 +216,26 @@
 						"type": "quiz",
 						"title": "Aerodínamica, refuerzo",
 						"children": ["dev11A1", "dev12A1", "dev5A1"],
-						"conditions": [
-							{
-								"id": "1",
-								"type": "qualification",
-								"op": ">=",
-								"objective": 5,
-								"unlockId": "dev5A1"
-							},
-							{
-								"id": "2",
-								"type": "qualification",
-								"op": ">=",
-								"objective": 5,
-								"unlockId": "dev11A1"
-							},
-							{
-								"id": "3",
-								"type": "qualification",
-								"op": "<",
-								"objective": 5,
-								"unlockId": "dev12A1"
-							}
-						],
 						"identation": 2,
 						"order": 6,
-						"unit": 1
+						"unit": 1,
+						"conditions": {
+							"type": "conditionsGroup",
+							"id": "98437432194690",
+							"op": "&",
+							"conditions": [
+								{
+									"type": "qualification",
+									"id": "64819193482345",
+									"op": "fullCourse",
+									"objective": "2"
+								},
+								{
+									"type": "qualification",
+									"id": "1245689934223",
+									"op": "fullCourse",
+									"objective": "2"
+								}]}
 					},
 					{
 						"id": "dev11A1",
@@ -290,32 +285,32 @@
 						"type": "quiz",
 						"title": "Recuperación fluidos",
 						"children": ["dev7A1", "dev8A1", "dev16A1"],
-						"conditions": [
-							{
-								"id": "1",
-								"type": "qualification",
-								"op": ">=",
-								"objective": 5,
-								"unlockId": "dev7A1"
-							},
-							{
-								"id": "2",
-								"type": "qualification",
-								"op": ">=",
-								"objective": 5,
-								"unlockId": "dev8A1"
-							},
-							{
-								"id": "3",
-								"type": "qualification",
-								"op": "<",
-								"objective": 5,
-								"unlockId": "dev16A1"
-							}
-						],
 						"identation": 3,
 						"order": 12,
-						"unit": 2
+						"unit": 2,
+						"conditions": {
+							"type": "conditionsGroup",
+							"id": "66789554263476",
+							"op": "&",
+							"conditions": [
+								{
+									"type": "22374819276399",
+									"id": "33211882379017",
+									"op": "fullCourse",
+									"objective": "2"
+								},
+								{
+									"type": "qualification",
+									"id": "45566778891238",
+									"op": "fullCourse",
+									"objective": "2"
+								},
+								{
+									"type": "qualification",
+									"id": "92172368816234",
+									"op": "fullCourse",
+									"objective": "2"
+								}]}
 					},
 					{
 						"id": "dev16A1",
@@ -400,19 +395,27 @@
 						"y": 175,
 						"type": "quiz",
 						"title": "Examen Tema 1",
-						"conditions": [
-							{
-								"id": "1",
-								"type": "qualification",
-								"op": ">",
-								"objective": 8,
-								"unlockId": "dev2B1"
-							}
-						],
 						"children": ["dev2B1", "dev4B1"],
 						"identation": 2,
 						"order": 2,
-						"unit": 1
+						"unit": 1,
+						"conditions": {
+							"type": "conditionsGroup",
+							"id": "781267123670427",
+							"op": "&",
+							"conditions": [
+								{
+									"type": "qualification",
+									"id": "984325782581123",
+									"op": "fullCourse",
+									"objective": "2"
+								},
+								{
+									"type": "qualification",
+									"id": "123658623618641",
+									"op": "fullCourse",
+									"objective": "2"
+								}]}
 					},
 					{
 						"id": "dev2B1",
@@ -540,19 +543,27 @@
 						"y": 700,
 						"type": "quiz",
 						"title": "Examen Tema 1",
-						"conditions": [
-							{
-								"id": "1",
-								"type": "qualification",
-								"op": ">",
-								"objective": 8,
-								"unlockId": "dev2B2"
-							}
-						],
 						"children": ["dev2B2", "dev5B2"],
 						"identation": 2,
 						"order": 2,
-						"unit": 1
+						"unit": 1,
+						"conditions": {
+							"type": "conditionsGroup",
+							"id": "77665544331122",
+							"op": "&",
+							"conditions": [
+								{
+									"type": "qualification",
+									"id": "22885507753719",
+									"op": "fullCourse",
+									"objective": "2"
+								},
+								{
+									"type": "qualification",
+									"id": "228855077531234",
+									"op": "fullCourse",
+									"objective": "2"
+								}]}
 					},
 					{
 						"id": "dev2B2",
@@ -701,19 +712,27 @@
 						"y": 175,
 						"type": "quiz",
 						"title": "Examen Tema 1",
-						"conditions": [
-							{
-								"id": "1",
-								"type": "qualification",
-								"op": ">",
-								"objective": 8,
-								"unlockId": "dev2B3"
-							}
-						],
 						"children": ["dev2B3", "dev3B3"],
 						"identation": 2,
 						"order": 2,
-						"unit": 1
+						"unit": 1,
+						"conditions": {
+							"type": "conditionsGroup",
+							"id": "44885577221100",
+							"op": "&",
+							"conditions": [
+								{
+									"type": "qualification",
+									"id": "0987886579865",
+									"op": "fullCourse",
+									"objective": "2"
+								},
+								{
+									"type": "qualification",
+									"id": "3678543556977",
+									"op": "fullCourse",
+									"objective": "2"
+								}]}
 					},
 					{
 						"id": "dev2B3",
