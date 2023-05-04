@@ -22,7 +22,7 @@ const Menu = (
 						<FontAwesomeIcon icon={faSquarePlus} />
 						<div>
 							Crear nuevo bloque...
-							<span>CTRL+B</span>
+							<span>SHIFT+B</span>
 						</div>
 					</div>
 				</Button>

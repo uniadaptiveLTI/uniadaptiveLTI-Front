@@ -7,6 +7,7 @@ import {
 	ReactFlowInstanceContext,
 	PlatformContext,
 	BlockInfoContext,
+	notImplemented,
 } from "@components/pages/_app";
 
 import {
@@ -123,14 +124,26 @@ export default function BlockCanvas() {
 	useHotkeys("ctrl+c", () => {
 		handleBlockCopy();
 	});
-	useHotkeys("ctrl+b", () => createBlock());
+	useHotkeys("shift+b", () => createBlock());
 	useHotkeys("ctrl+v", () => handleBlockPaste());
 	useHotkeys("ctrl+x", () => handleBlockCut());
-	useHotkeys("ctrl+z", () => console.log("UNDO"));
-	useHotkeys(["ctrl+shift+z", "ctrl+y"], () => console.log("REDO"));
-	useHotkeys("ctrl+r", () => handleNewRelation(blockOrigin));
-	useHotkeys("ctrl+f", () => console.log("CREATE_FRAGMENT"));
-	useHotkeys("ctrl+e", () => console.log("EDIT_PRECONDITIONS"));
+	useHotkeys("ctrl+z", () => {
+		notImplemented("deshacer/rehacer");
+		console.log("UNDO");
+	});
+	useHotkeys(["ctrl+shift+z", "ctrl+y"], () => {
+		notImplemented("deshacer/rehacer");
+		console.log("REDO");
+	});
+	useHotkeys("shift+r", () => handleNewRelation(blockOrigin));
+	useHotkeys("shift+f", () => {
+		notImplemented("creación de fragmentos");
+		console.log("CREATE_FRAGMENT");
+	});
+	useHotkeys("shift+e", () => {
+		notImplemented("edición de precondiciones");
+		console.log("EDIT_PRECONDITIONS");
+	});
 
 	useEffect(() => {
 		if (cMBlockData)
@@ -470,10 +483,16 @@ export default function BlockCanvas() {
 	};
 
 	const handleBlockCut = (blockData = []) => {
+		const selectedNodes = document.querySelectorAll(
+			".react-flow__node.selected"
+		);
 		handleBlockCopy(blockData);
-		if (document.querySelectorAll(".react-flow__node.selected") > 0) {
+		if (selectedNodes.length > 1) {
 			handleDeleteBlockSelection();
 		} else {
+			if (selectedNodes.length == 1) {
+				blockData = getBlockByNode(selectedNodes[0]);
+			}
 			handleDeleteBlock(blockData);
 		}
 	};
@@ -504,7 +523,7 @@ export default function BlockCanvas() {
 		let newBlockCreated;
 
 		if (blockData) {
-			//Doesn't check if ID already exists
+			//TODO: Check if ID already exists
 			newBlockCreated = {
 				...blockData,
 				x: posX ? posX + asideOffset + flowPos.x : flowPos.x,
@@ -588,13 +607,8 @@ export default function BlockCanvas() {
 		);
 		const blockDataArray = [];
 		for (let node of selectedNodes) {
-			const SingularBlockData = currentBlocksData.find(
-				(block) => block.id == node.dataset.id
-			);
-			blockDataArray.push(SingularBlockData);
+			blockDataArray.push(getBlockByNode(node));
 		}
-		console.log(blockDataArray);
-
 		deleteBlocks(blockDataArray);
 	};
 
@@ -646,18 +660,41 @@ export default function BlockCanvas() {
 			setBlockOrigin();
 			setCurrentBlocksData(newBlocksData);
 		} else {
-			toast("Iniciando relación", {
-				hideProgressBar: false,
-				autoClose: 2000,
-				type: "info",
-				position: "bottom-center",
-				theme: "light",
-			});
-
-			setBlockOrigin(
-				currentBlocksData.find((block) => block.id == currentSelectionId)
+			const starterBlock = currentBlocksData.find(
+				(block) => block.id == currentSelectionId
 			);
+
+			setBlockOrigin(starterBlock);
+
+			if (starterBlock) {
+				toast("Iniciando relación", {
+					hideProgressBar: false,
+					autoClose: 2000,
+					type: "info",
+					position: "bottom-center",
+					theme: "light",
+				});
+			}
 		}
+	};
+
+	const getBlockById = (id) => {
+		return currentBlocksData.find((block) => block.id == id);
+	};
+
+	const getBlockByNode = (node) => {
+		return currentBlocksData.find((block) => block.id == node.dataset.id);
+	};
+
+	const getBlocksByNodes = (nodes) => {
+		const blockArray = [];
+		nodes.forEach((node) => {
+			const block = getBlockByNode(node);
+			if (block) {
+				blockArray.push(block);
+			}
+		});
+		return blockArray;
 	};
 
 	return (

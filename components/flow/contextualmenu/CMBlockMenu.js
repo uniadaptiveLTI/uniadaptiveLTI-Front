@@ -44,7 +44,7 @@ const Menu = (
 						<FontAwesomeIcon icon={faEdit} />
 						<div>
 							Editar precondiciones
-							<span>CTRL+E</span>
+							<span>SHIFT+E</span>
 						</div>
 					</div>
 				</Button>
@@ -63,7 +63,7 @@ const Menu = (
 								<FontAwesomeIcon icon={faDiagramNext} />
 								<div>
 									Cancelar relación
-									<span>CTRL+R</span>
+									<span>SHIFT+R</span>
 								</div>
 							</div>
 						</Button>
@@ -99,7 +99,7 @@ const Menu = (
 								<FontAwesomeIcon icon={faDiagramNext} />
 								<div>
 									Crear relación
-									<span>CTRL+R</span>
+									<span>SHIFT+R</span>
 								</div>
 							</div>
 						</Button>

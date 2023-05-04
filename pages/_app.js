@@ -84,8 +84,11 @@ export default function App({ Component, pageProps }) {
 	);
 }
 
-export const notImplemented = () => {
-	toast("Esta función aún no ha sido implementada.", {
+export const notImplemented = (name) => {
+	let finalString = name
+		? "La funcionalidad de " + name + " todavía no ha sido implementada"
+		: "Esta función aún no ha sido implementada.";
+	toast(finalString, {
 		hideProgressBar: false,
 		autoClose: 2000,
 		type: "error",

@@ -15,6 +15,7 @@ const Menu = (
 	{
 		handleDeleteBlockSelection,
 		handleBlockCopy,
+		handleBlockCut,
 		EnableCreateFragment,
 		EnableCopy,
 		EnableCut,
@@ -34,7 +35,7 @@ const Menu = (
 						<FontAwesomeIcon icon={faDiagramProject} />
 						<div>
 							Crear fragmento
-							<span>CTRL+F</span>
+							<span>SHIFT+F</span>
 						</div>
 					</div>
 				</Button>
@@ -55,7 +56,11 @@ const Menu = (
 				</Button>
 			</li>
 			<li>
-				<Button variant="light" onClick={notImplemented} disabled={!EnableCut}>
+				<Button
+					variant="light"
+					onClick={() => handleBlockCut()}
+					disabled={!EnableCut}
+				>
 					<div>
 						<FontAwesomeIcon icon={faScissors} />
 						<div>
@@ -88,6 +93,7 @@ const MenuWithRefs = forwardRef(Menu);
 export default function CMSelectionMenu({
 	handleDeleteBlockSelection,
 	handleBlockCopy,
+	handleBlockCut,
 	EnableCreateFragment = false,
 	EnableCopy = false,
 	EnableCut = false,
@@ -107,6 +113,7 @@ export default function CMSelectionMenu({
 				ref={ref}
 				handleDeleteBlockSelection={handleDeleteBlockSelection}
 				handleBlockCopy={handleBlockCopy}
+				handleBlockCut={handleBlockCut}
 				EnableCreateFragment={EnableCreateFragment}
 				EnableCut={EnableCut}
 				EnableCopy={EnableCopy}
@@ -118,6 +125,7 @@ export default function CMSelectionMenu({
 			ref={ref}
 			handleDeleteBlockSelection={handleDeleteBlockSelection}
 			handleBlockCopy={handleBlockCopy}
+			handleBlockCut={handleBlockCut}
 			EnableCreateFragment={EnableCreateFragment}
 			EnableCut={EnableCut}
 			EnableCopy={EnableCopy}
