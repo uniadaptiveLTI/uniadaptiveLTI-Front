@@ -63,7 +63,6 @@ function Condition({ condition, deleteCondition, addCondition }) {
 				</div>
 			);
 		case "conditionsGroup":
-			console.log(condition.id);
 			return (
 				<div
 					className="mb-3"

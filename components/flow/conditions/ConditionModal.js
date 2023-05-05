@@ -20,9 +20,7 @@ function ConditionModal({
 	blocksData,
 	showConditionsModal,
 	setShowConditionsModal,
-	setBlockJson,
 }) {
-	console.log(blockData);
 	const handleClose = () => {
 		setBlockData();
 		setShowConditionsModal(false);
@@ -50,7 +48,6 @@ function ConditionModal({
 				conditionId,
 				blockData.conditions.conditions
 			);
-			console.log(foundCondition);
 			setEditing(foundCondition);
 		} else {
 			setEditing(blockData.conditions);
@@ -71,7 +68,6 @@ function ConditionModal({
 			if (condition.conditions) {
 				const innerCondition = findConditionById(id, condition.conditions);
 				if (innerCondition) {
-					console.log();
 					return innerCondition;
 				}
 			}
@@ -168,10 +164,6 @@ function ConditionModal({
 				break;
 		}
 
-		console.log(blockData);
-		console.log(formData);
-		console.log(editing);
-
 		const updatedCondition = {
 			...editing,
 			conditions: editing.conditions
@@ -180,9 +172,6 @@ function ConditionModal({
 		};
 
 		const updatedBlockData = deepCopy(blockData);
-		console.log(updatedBlockData);
-
-		console.log(updatedCondition);
 
 		if (!updatedBlockData.conditions) {
 			updatedBlockData.conditions = updatedCondition;
@@ -272,7 +261,6 @@ function ConditionModal({
 				{blockData.conditions &&
 					!editing &&
 					blockData.conditions.conditions.map((condition) => {
-						console.log(condition);
 						return (
 							<Condition
 								condition={condition}

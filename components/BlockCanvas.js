@@ -746,7 +746,6 @@ export default function BlockCanvas() {
 								blocksData={currentBlocksData}
 								showConditionsModal={showConditionsModal}
 								setShowConditionsModal={setShowConditionsModal}
-								setBlockJson={setBlockJson}
 							/>
 						)}
 					</CopiedBlocksContext.Provider>
