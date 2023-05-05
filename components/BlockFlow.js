@@ -28,10 +28,20 @@ import {
 } from "@components/pages/_app.js";
 import FinalNode from "./flow/nodes/FinalNode.js";
 import InitialNode from "./flow/nodes/InitialNode.js";
-import FragmentNode from "./flow/nodes/InitialNode.js";
+import FragmentNode from "./flow/nodes/FragmentNode.js";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMap, faX, faFlagCheckered } from "@fortawesome/free-solid-svg-icons";
+import {
+	faMap,
+	faX,
+	faFlagCheckered,
+	faMagnifyingGlassPlus,
+	faMagnifyingGlassMinus,
+	faArrowsToDot,
+	faLock,
+	faLockOpen,
+} from "@fortawesome/free-solid-svg-icons";
 import { PaneContextMenuPositionContext } from "./BlockCanvas.js";
+import { Button } from "react-bootstrap";
 
 const minimapStyle = {
 	height: 120,
@@ -81,6 +91,7 @@ const OverviewFlow = ({ map, deleteBlocks, setShowContextualMenu }, ref) => {
 	const [newInitialNodes, setNewInitialNodes] = useState([]);
 	const [newInitialEdges, setNewInitialEdges] = useState([]);
 	const [minimap, setMinimap] = useState(true);
+	const [interactive, setInteractive] = useState(true);
 
 	const [nodes, setNodes, onNodesChange] = useNodesState(newInitialNodes);
 	const [edges, setEdges, onEdgesChange] = useEdgesState(newInitialEdges);
@@ -92,28 +103,63 @@ const OverviewFlow = ({ map, deleteBlocks, setShowContextualMenu }, ref) => {
 
 	const { platform } = useContext(PlatformContext);
 
-	const toggleMinimap = () => setMinimap(!minimap);
-	const centerToStart = () => {
-		const startNode = reactFlowInstance
-			.getNodes()
-			.find((el) => el.type === "start");
-		if (startNode) {
-			const x = startNode.position.x + startNode.width / 2;
-			const y = startNode.position.y + startNode.height / 2;
-			reactFlowInstance.setCenter(
-				startNode.position.x + startNode.width / 2,
-				startNode.position.y + startNode.height / 2
-			);
-		}
-	};
-
-	function CustomControls() {
+	const CustomControls = () => {
+		const toggleInteractive = () => setInteractive(!interactive);
+		const toggleMinimap = () => setMinimap(!minimap);
+		const centerToStart = () => {
+			const startNode = reactFlowInstance
+				.getNodes()
+				.find((el) => el.type === "start");
+			if (startNode) {
+				const x = startNode.position.x + startNode.width / 2;
+				const y = startNode.position.y + startNode.height / 2;
+				reactFlowInstance.setCenter(
+					startNode.position.x + startNode.width / 2,
+					startNode.position.y + startNode.height / 2
+				);
+			}
+		};
+		const fitMap = () => {
+			reactFlowInstance.fitView();
+		};
+		const zoomIn = () => {
+			reactFlowInstance.zoomIn();
+		};
+		const zoomOut = () => {
+			reactFlowInstance.zoomOut();
+			console.log(reactFlowInstance);
+		};
 		return (
-			<Controls>
-				<ControlButton title="Move to start" onClick={centerToStart}>
+			<div
+				className="react-flow__controls"
+				style={{
+					position: "absolute",
+					bottom: "5px",
+					left: "5px",
+					display: "flex",
+					flexDirection: "column",
+				}}
+			>
+				<Button title="Zoom in" onClick={zoomIn} variant="light">
+					<FontAwesomeIcon icon={faMagnifyingGlassPlus} />
+				</Button>
+				<Button title="Zoom out" onClick={zoomOut} variant="light">
+					<FontAwesomeIcon icon={faMagnifyingGlassMinus} />
+				</Button>
+				<Button title="Fit map" onClick={fitMap} variant="light">
+					<FontAwesomeIcon icon={faArrowsToDot} />
+				</Button>
+				<Button title="Move to start" onClick={centerToStart} variant="light">
 					<FontAwesomeIcon icon={faFlagCheckered} />
-				</ControlButton>
-				<ControlButton title="Toggle Minimap" onClick={toggleMinimap}>
+				</Button>
+				<Button
+					title="Lock/unlock pan"
+					onClick={toggleInteractive}
+					variant="light"
+				>
+					<FontAwesomeIcon icon={interactive ? faLockOpen : faLock} />
+				</Button>
+				<Button title="Toggle Minimap" onClick={toggleMinimap} variant="light">
 					{!minimap && <FontAwesomeIcon icon={faMap} />}
 					{minimap && (
 						<div
@@ -123,19 +169,22 @@ const OverviewFlow = ({ map, deleteBlocks, setShowContextualMenu }, ref) => {
 								display: "flex",
 								justifyContent: "center",
 								alignItems: "center",
+								width: "18px",
+								height: "24px",
 							}}
 						>
 							<FontAwesomeIcon
 								icon={faX}
-								style={{ position: "absolute", top: "0" }}
+								style={{ position: "absolute", top: "4px" }}
+								color="white"
 							/>
 							<FontAwesomeIcon icon={faMap} />
 						</div>
 					)}
-				</ControlButton>
-			</Controls>
+				</Button>
+			</div>
 		);
-	}
+	};
 
 	const nodeColor = (node) => {
 		//TODO: Add the rest
@@ -254,6 +303,11 @@ const OverviewFlow = ({ map, deleteBlocks, setShowContextualMenu }, ref) => {
 				y: b.position.y,
 				type: b.type,
 				title: b.data.label,
+				parent: b.parentNode,
+				style: b.data.style,
+				innerNodes: b.data.innerNodes,
+				expanded: b.data.expanded,
+				draggable: b.draggable,
 				children: b.data.children,
 				identation: b.data.identation,
 				conditions: b.data.conditions,
@@ -276,6 +330,11 @@ const OverviewFlow = ({ map, deleteBlocks, setShowContextualMenu }, ref) => {
 					y: node.position.y,
 					type: node.type,
 					title: node.data.label,
+					parent: node.parentNode,
+					style: node.data.style,
+					innerNodes: node.data.innerNodes,
+					expanded: node.data.expanded,
+					draggable: node.draggable,
 					children: node.data.children,
 					identation: node.data.identation,
 					conditions: node.data.conditions,
@@ -306,17 +365,7 @@ const OverviewFlow = ({ map, deleteBlocks, setShowContextualMenu }, ref) => {
 			}
 		}
 
-		setBlockJson({
-			id: sourceNode.id,
-			x: sourceNode.x,
-			y: sourceNode.y,
-			type: sourceNode.type,
-			title: sourceNode.title,
-			children: sourceNode.children,
-			identation: sourceNode.identation,
-			order: sourceNode.order,
-			unit: sourceNode.unit,
-		});
+		setBlockJson({ ...sourceNode });
 	};
 
 	useEffect(() => {
@@ -345,11 +394,18 @@ const OverviewFlow = ({ map, deleteBlocks, setShowContextualMenu }, ref) => {
 			map?.map((block) => ({
 				id: block.id,
 				type: block.type,
+				parentNode: block.parent,
+				extent: block.parent ? "parent" : undefined,
+				draggable: block.parent ? false : true,
+
 				data: {
 					label: block.title,
 					identation: block.identation,
 					children: block.children,
 					conditions: block.conditions,
+					style: block.style,
+					innerNodes: block.innerNodes,
+					expanded: block.expanded,
 					order: block.order,
 					unit: block.unit,
 				},
@@ -362,7 +418,7 @@ const OverviewFlow = ({ map, deleteBlocks, setShowContextualMenu }, ref) => {
 				if (parent.children) {
 					return parent.children.map((child) => {
 						return {
-							id: `e${parent.id}-${child}`,
+							id: `${parent.id}-${child}`,
 							source: parent.id,
 							target: child,
 						};
@@ -435,9 +491,10 @@ const OverviewFlow = ({ map, deleteBlocks, setShowContextualMenu }, ref) => {
 						pannable
 					/>
 				)}
-				<CustomControls />
+
 				<Background color="#aaa" gap={16} />
 			</ReactFlow>
+			<CustomControls />
 		</div>
 	);
 };

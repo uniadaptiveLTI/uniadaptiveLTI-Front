@@ -1,31 +1,44 @@
-import { useCallback, useContext } from "react";
-import { Handle, Position } from "reactflow";
+import { useCallback, useContext, useState } from "react";
+import { Handle, Position, useEdges } from "reactflow";
 import { Badge } from "react-bootstrap";
 import styles from "@components/styles/BlockContainer.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCubes } from "@fortawesome/free-solid-svg-icons";
 import {
 	BlockInfoContext,
-	ExpandedContext,
+	BlocksDataContext,
 	MapInfoContext,
+	ReactFlowInstanceContext,
 	SettingsContext,
 	VersionInfoContext,
 } from "@components/pages/_app";
+import { useEffect } from "react";
+import {
+	getBlockByNode,
+	getEdgeBetweenNodeIds,
+	getNodesByProperty,
+	getUpdatedBlocksData,
+} from "@components/components/Utils";
 
-function FragmentNode({ id, xPos, yPos, type, data, isConnectable }) {
+function FragmentNode({ id, xPos, yPos, type, data }) {
 	const onChange = useCallback((evt) => {
 		//console.log(evt.target.value);
 	}, []);
 
-	const { expanded, setExpanded } = useContext(ExpandedContext);
 	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
 	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
 	const { selectedEditVersion, setSelectedEditVersion } =
 		useContext(VersionInfoContext);
-
+	const { reactFlowInstance } = useContext(ReactFlowInstanceContext);
+	const { currentBlocksData, setCurrentBlocksData } =
+		useContext(BlocksDataContext);
 	const { settings, setSettings } = useContext(SettingsContext);
 	const parsedSettings = JSON.parse(settings);
 	const { highContrast, showDetails, reducedAnimations } = parsedSettings;
+	const [originalChildrenStatus, setOriginalChildrenStatus] = useState(
+		data.innerNodes
+	);
+	const [expanded, setExpanded] = useState(data.expanded);
 
 	const handleClick = () => {
 		const blockData = {
@@ -35,21 +48,80 @@ function FragmentNode({ id, xPos, yPos, type, data, isConnectable }) {
 			type: type,
 			title: data.label,
 			children: data.children,
-			innerBlocks: data.innerBlocks,
-			identation: data.identation,
-			conditions: data.conditions,
-			order: data.order,
-			unit: data.unit,
 		};
 		//console.log(blockData);
-
-		if (expanded != true) {
-			if (type != "start" && type != "end") setExpanded(true);
-		}
 
 		setSelectedEditVersion("");
 		setBlockSelected(blockData);
 	};
+
+	const handleDoubleClick = () => {
+		console.log("dobleclick");
+		data.expanded = !expanded;
+		setExpanded(!expanded);
+	};
+
+	const findChildren = () => {
+		return getNodesByProperty(reactFlowInstance, "parentNode", id);
+	};
+
+	useEffect(() => {
+		const children = findChildren();
+		console.log(expanded);
+
+		if (children) {
+			for (const [index, childNode] of children.entries()) {
+				const nodeDOM = document.querySelector(
+					"[data-id=" + childNode.id + "]"
+				);
+
+				if (!expanded) {
+					nodeDOM.classList.add("insideContractedFragment");
+					const newBlock = getBlockByNode(nodeDOM, currentBlocksData);
+					newBlock.x = 0;
+					newBlock.y = 0;
+					setCurrentBlocksData(
+						getUpdatedBlocksData(newBlock, currentBlocksData)
+					);
+				} else {
+					nodeDOM.classList.remove("insideContractedFragment");
+					const newBlock = getBlockByNode(nodeDOM, currentBlocksData);
+					newBlock.x = originalChildrenStatus[index].x;
+					newBlock.y = originalChildrenStatus[index].y;
+					setCurrentBlocksData(
+						getUpdatedBlocksData(newBlock, currentBlocksData)
+					);
+				}
+			}
+
+			for (const childNode1 of children) {
+				const childId1 = childNode1.id;
+				for (const childNode2 of children) {
+					const childId2 = childNode2.id;
+					const edge = getEdgeBetweenNodeIds(
+						childId1,
+						childId2,
+						reactFlowInstance
+					);
+					if (edge) {
+						//Timeout so the edges get the time to generate
+						setTimeout(() => {
+							const edgeDOM = document.querySelector(
+								"[data-testid=rf__edge-" + edge.id + "]"
+							);
+							if (edgeDOM) {
+								if (!expanded) {
+									edgeDOM.style.visibility = "hidden";
+								} else {
+									edgeDOM.style.visibility = "visible";
+								}
+							}
+						}, 10);
+					}
+				}
+			}
+		}
+	}, [expanded]);
 
 	const getAriaLabel = () => {
 		let end = "";
@@ -75,18 +147,6 @@ function FragmentNode({ id, xPos, yPos, type, data, isConnectable }) {
 
 	return (
 		<>
-			<Handle
-				type="target"
-				position={Position.Left}
-				isConnectable={isConnectable}
-				isConnectableStart="false"
-			/>
-			<Handle
-				type="source"
-				position={Position.Right}
-				isConnectable={isConnectable}
-				isConnectableEnd="false"
-			/>
 			<div
 				id={id}
 				className={
@@ -95,63 +155,36 @@ function FragmentNode({ id, xPos, yPos, type, data, isConnectable }) {
 					" " +
 					(highContrast && styles.highContrast + " highContrast ") +
 					" " +
-					(reducedAnimations && styles.noAnimation + " noAnimation")
+					(reducedAnimations && styles.noAnimation + " noAnimation") +
+					" " +
+					(expanded && "expandedFragment")
 				}
-				onClick={handleClick}
+				onClick={(e) => {
+					if (e.detail === 1) handleClick();
+					if (e.detail === 2) handleDoubleClick();
+				}}
 				aria-label={getAriaLabel} //FIXME: Doesn't work
+				style={
+					expanded
+						? {
+								height: data.style.height + 122,
+								width: data.style.width + 64,
+						  }
+						: {}
+				}
 			>
-				<span className={styles.blockInfo + " " + styles.top}>
-					{data.label}
-				</span>
-				{process.env.DEV_MODE == true && (
-					<>
-						<div>{`id:${id}`}</div>
-						<div>{`children:${data.children}`}</div>
-					</>
+				{!expanded && (
+					<span className={styles.blockInfo + " " + styles.top}>
+						{data.label}
+					</span>
 				)}
-
 				<div>
-					<FontAwesomeIcon icon={faCubes} />;
+					<FontAwesomeIcon icon={faCubes} />
 				</div>
-
-				<span className={styles.blockInfo + " " + styles.bottom}>
-					Fragmento
-				</span>
-				{data.unit && (
-					<Badge
-						bg="light"
-						className={
-							styles.badge +
-							" " +
-							(reducedAnimations && styles.noAnimation) +
-							" " +
-							(showDetails && styles.showBadges) +
-							" " +
-							(highContrast && styles.highContrast)
-						}
-						title="Unidad"
-					>
-						{data.unit}
-					</Badge>
-				)}
-				{data.order && (
-					<Badge
-						bg="warning"
-						className={
-							styles.badgeTwo +
-							" " +
-							(reducedAnimations && styles.noAnimation) +
-							" " +
-							(showDetails && styles.showBadges) +
-							" " +
-							(highContrast && styles.highContrast)
-						}
-						title="Posición en Moodle"
-					>
-						{data.innerBlocks
-							? `${data.order}-${data.order + data.innerBlocks.length}`
-							: data.order}
-					</Badge>
+				{!expanded && (
+					<span className={styles.blockInfo + " " + styles.bottom}>
+						Fragmento
+					</span>
 				)}
 			</div>
 		</>

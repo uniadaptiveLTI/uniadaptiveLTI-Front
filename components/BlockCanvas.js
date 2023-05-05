@@ -29,7 +29,7 @@ import ConditionModal from "./flow/conditions/ConditionModal.js";
 import BlockFlow from "./BlockFlow.js";
 import { toast } from "react-toastify";
 import { useHotkeys } from "react-hotkeys-hook";
-import { uniqueId } from "./Utils.js";
+import { uniqueId, getBlockByNode } from "./Utils.js";
 
 export const BlockOriginContext = createContext();
 export const PaneContextMenuPositionContext = createContext();
@@ -46,7 +46,7 @@ function addEventListeners(element, events) {
 	});
 }
 
-const reservedBlocksTypes = ["start", "end"];
+const reservedBlocksTypes = ["start", "end", "fragment"];
 
 /**
  * Checks if there are any reserved blocks in an array of DOM elements
@@ -302,7 +302,6 @@ export default function BlockCanvas() {
 			}
 		});
 	};
-
 	useEffect(() => {
 		addEventListeners(document.body, [
 			{ type: "contextmenu", listener: handleContextMenu },
@@ -339,7 +338,7 @@ export default function BlockCanvas() {
 				},
 			},
 		]);
-	});
+	}, []);
 
 	useLayoutEffect(() => {
 		currentBlocksDataRef.current = currentBlocksData;
@@ -490,7 +489,7 @@ export default function BlockCanvas() {
 			handleDeleteBlockSelection();
 		} else {
 			if (selectedNodes.length == 1) {
-				blockData = getBlockByNode(selectedNodes[0]);
+				blockData = getBlockByNode(selectedNodes[0], currentBlocksData);
 			}
 			handleDeleteBlock(blockData);
 		}
@@ -606,7 +605,7 @@ export default function BlockCanvas() {
 		);
 		const blockDataArray = [];
 		for (let node of selectedNodes) {
-			blockDataArray.push(getBlockByNode(node));
+			blockDataArray.push(getBlockByNode(node, currentBlocksData));
 		}
 		deleteBlocks(blockDataArray);
 	};
@@ -684,7 +683,7 @@ export default function BlockCanvas() {
 
 		let newCMBlockData = undefined;
 		if (selectedNodes.length == 1) {
-			newCMBlockData = getBlockByNode(selectedNodes[0]);
+			newCMBlockData = getBlockByNode(selectedNodes[0], currentBlocksData);
 		}
 
 		if (newCMBlockData || cMBlockData) {
@@ -703,25 +702,6 @@ export default function BlockCanvas() {
 				theme: "light",
 			});
 		}
-	};
-
-	const getBlockById = (id) => {
-		return currentBlocksData.find((block) => block.id == id);
-	};
-
-	const getBlockByNode = (node) => {
-		return currentBlocksData.find((block) => block.id == node.dataset.id);
-	};
-
-	const getBlocksByNodes = (nodes) => {
-		const blockArray = [];
-		nodes.forEach((node) => {
-			const block = getBlockByNode(node);
-			if (block) {
-				blockArray.push(block);
-			}
-		});
-		return blockArray;
 	};
 
 	return (

@@ -28,6 +28,7 @@
 	color: var(--blockflow-font-color);
 	font-family: var(--blockflow-font-family);
 	background-color: var(--blockflow-text-background-color);
+	pointer-events: none;
 	
 }
 

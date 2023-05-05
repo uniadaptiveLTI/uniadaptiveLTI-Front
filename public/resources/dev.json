@@ -262,11 +262,29 @@
 						"unit": 1
 					},
 					{
-						"id": "dev13A1",
+						"id": "devFragment",
 						"x": 1125,
 						"y": 175,
+						"type": "fragment",
+						"title": "Fragmento",
+						"style": {
+							"width": 318,
+							"height": 68
+						},
+						"expanded": false,
+						"innerNodes": [
+							{ "id": "dev13A1", "x": 32, "y": 64 },
+							{ "id": "dev14A1", "x": 157, "y": 64 },
+							{ "id": "dev15A1", "x": 282, "y": 64 }
+						]
+					},
+					{
+						"id": "dev13A1",
+						"x": 32,
+						"y": 64,
 						"type": "page",
 						"title": "Ayuda física de fluidos",
+						"parent": "devFragment",
 						"children": ["dev14A1"],
 						"identation": 3,
 						"order": 10,
@@ -274,10 +292,11 @@
 					},
 					{
 						"id": "dev14A1",
-						"x": 1250,
-						"y": 175,
+						"x": 157,
+						"y": 64,
 						"type": "forum",
 						"title": "Preguntas fluidos",
+						"parent": "devFragment",
 						"children": ["dev15A1"],
 						"identation": 3,
 						"order": 11,
@@ -285,10 +304,11 @@
 					},
 					{
 						"id": "dev15A1",
-						"x": 1375,
-						"y": 175,
+						"x": 282,
+						"y": 64,
 						"type": "quiz",
 						"title": "Recuperación fluidos",
+						"parent": "devFragment",
 						"children": ["dev7A1", "dev8A1", "dev16A1"],
 						"conditions": [
 							{

@@ -139,7 +139,7 @@ const Menu = (
 			<li>
 				<Button
 					variant="light"
-					onClick={handleDeleteBlock}
+					onClick={() => handleDeleteBlock(blockData)}
 					disabled={!EnableDelete}
 				>
 					<div>

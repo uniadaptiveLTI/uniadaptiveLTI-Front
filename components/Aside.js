@@ -367,8 +367,9 @@ export default function Aside({ className, closeBtn, svgExists }) {
 			{blockSelected &&
 			!(blockSelected.type == "start" || blockSelected.type == "end") ? (
 				<Form
-					action=""
-					onSubmit={allowResourceSelection ? updateBlock : undefined}
+					action="#"
+					method=""
+					onSubmit={allowResourceSelection ? updateBlock : null}
 				>
 					<div className="container-fluid">
 						<Form.Group className="mb-3">
