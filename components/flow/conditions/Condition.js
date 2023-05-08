@@ -23,18 +23,18 @@ function Condition({
 						<Col>
 							<Button
 								variant="light"
-								onClick={() => deleteCondition(condition.id)}
-							>
-								<div>
-									<FontAwesomeIcon icon={faTrashCan} />
-								</div>
-							</Button>
-							<Button
-								variant="light"
 								onClick={() => setConditionEdit(condition)}
 							>
 								<div>
 									<FontAwesomeIcon icon={faEdit} />
+								</div>
+							</Button>
+							<Button
+								variant="light"
+								onClick={() => deleteCondition(condition.id)}
+							>
+								<div>
+									<FontAwesomeIcon icon={faTrashCan} />
 								</div>
 							</Button>
 						</Col>
@@ -59,18 +59,18 @@ function Condition({
 						<Col>
 							<Button
 								variant="light"
-								onClick={() => deleteCondition(condition.id)}
-							>
-								<div>
-									<FontAwesomeIcon onclick icon={faTrashCan} />
-								</div>
-							</Button>
-							<Button
-								variant="light"
 								onClick={() => setConditionEdit(condition)}
 							>
 								<div>
 									<FontAwesomeIcon icon={faEdit} />
+								</div>
+							</Button>
+							<Button
+								variant="light"
+								onClick={() => deleteCondition(condition.id)}
+							>
+								<div>
+									<FontAwesomeIcon onclick icon={faTrashCan} />
 								</div>
 							</Button>
 						</Col>
@@ -90,18 +90,18 @@ function Condition({
 						<Col>
 							<Button
 								variant="light"
-								onClick={() => deleteCondition(condition.id)}
-							>
-								<div>
-									<FontAwesomeIcon icon={faTrashCan} />
-								</div>
-							</Button>
-							<Button
-								variant="light"
 								onClick={() => setConditionEdit(condition)}
 							>
 								<div>
 									<FontAwesomeIcon icon={faEdit} />
+								</div>
+							</Button>
+							<Button
+								variant="light"
+								onClick={() => deleteCondition(condition.id)}
+							>
+								<div>
+									<FontAwesomeIcon icon={faTrashCan} />
 								</div>
 							</Button>
 						</Col>
@@ -121,18 +121,18 @@ function Condition({
 						<Col>
 							<Button
 								variant="light"
-								onClick={() => deleteCondition(condition.id)}
-							>
-								<div>
-									<FontAwesomeIcon icon={faTrashCan} />
-								</div>
-							</Button>
-							<Button
-								variant="light"
 								onClick={() => setConditionEdit(condition)}
 							>
 								<div>
 									<FontAwesomeIcon icon={faEdit} />
+								</div>
+							</Button>
+							<Button
+								variant="light"
+								onClick={() => deleteCondition(condition.id)}
+							>
+								<div>
+									<FontAwesomeIcon icon={faTrashCan} />
 								</div>
 							</Button>
 						</Col>
@@ -160,18 +160,18 @@ function Condition({
 							</Button>
 							<Button
 								variant="light"
-								onClick={() => deleteCondition(condition.id)}
-							>
-								<div>
-									<FontAwesomeIcon icon={faTrashCan} />
-								</div>
-							</Button>
-							<Button
-								variant="light"
 								onClick={() => setConditionEdit(condition)}
 							>
 								<div>
 									<FontAwesomeIcon icon={faEdit} />
+								</div>
+							</Button>
+							<Button
+								variant="light"
+								onClick={() => deleteCondition(condition.id)}
+							>
+								<div>
+									<FontAwesomeIcon icon={faTrashCan} />
 								</div>
 							</Button>
 						</Col>

@@ -19,8 +19,10 @@ function ConditionModal({
 	const [editing, setEditing] = useState(undefined);
 	const [conditionEdit, setConditionEdit] = useState(undefined);
 
-	const [isObjectiveEnabled, setIsObjectiveEnabled] = useState(true);
-	const [isObjective2Enabled, setIsObjective2Enabled] = useState(false);
+	const [qualificationObjective, setQualificationObjective] = useState(false);
+	const [qualificationObjective2, setQualificationObjective2] = useState(true);
+	const [userProfileObjective, setUserProfileObjective] = useState(true);
+	const [dateOperator, setDateOperator] = useState(false);
 
 	const [selectedOption, setSelectedOption] = useState(null);
 
@@ -91,7 +93,6 @@ function ConditionModal({
 	}
 
 	function updateConditionById(conditions, id, newCondition) {
-		console.log(conditions);
 		for (let i = 0; i < conditions.length; i++) {
 			const condition = conditions[i];
 			if (condition.id === id) {
@@ -115,8 +116,6 @@ function ConditionModal({
 	};
 
 	const cancelEditCondition = () => {
-		setIsObjectiveEnabled(true);
-		setIsObjective2Enabled(false);
 		setSelectedOption("");
 		setConditionEdit(undefined);
 		setEditing(undefined);
@@ -131,10 +130,10 @@ function ConditionModal({
 				formData.query = conditionQuery.current.value;
 				break;
 			case "qualification":
-				if (isObjectiveEnabled) {
+				if (!conditionObjective.current.disabled) {
 					formData.objective = conditionObjective.current.value;
 				}
-				if (isObjective2Enabled) {
+				if (!conditionObjective2.current.disabled) {
 					formData.objective2 = conditionObjective2.current.value;
 				}
 				break;
@@ -158,6 +157,9 @@ function ConditionModal({
 
 		if (edition) {
 			formData.id = conditionEdit.id;
+			if (conditionEdit.type == "conditionsGroup") {
+				formData.conditions = conditionEdit.conditions;
+			}
 
 			updateConditionById(
 				updatedBlockData.conditions.conditions,
@@ -197,8 +199,6 @@ function ConditionModal({
 				}
 			}
 		}
-		setIsObjectiveEnabled(true);
-		setIsObjective2Enabled(false);
 		setSelectedOption("");
 		setConditionEdit(undefined);
 		setEditing(undefined);
@@ -216,20 +216,6 @@ function ConditionModal({
 		}
 	}
 
-	function updateConditionById(conditions, id, newData) {
-		for (let condition of conditions) {
-			if (condition.id === id) {
-				Object.assign(condition, newData);
-				return true;
-			} else if (condition.conditions) {
-				if (updateConditionById(condition.conditions, id, newData)) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
 	const addConditionToMain = () => {
 		if (blockData.conditions) {
 			addCondition(blockData.conditions.id);
@@ -244,12 +230,24 @@ function ConditionModal({
 		}
 	};
 
+	function handleUserProfileChange() {
+		setUserProfileObjective(conditionObjective.current.value === "");
+	}
+
+	function handleDateChange() {
+		setDateOperator(conditionOperator.current.value === "");
+	}
+
 	const handleObjectiveCheckboxChange = (event) => {
-		setIsObjectiveEnabled(event.target.checked);
+		var condition = conditionObjective.current.disabled;
+		conditionObjective.current.disabled = !condition;
+		setQualificationObjective(!condition);
 	};
 
 	const handleObjective2CheckboxChange = (event) => {
-		setIsObjective2Enabled(event.target.checked);
+		var condition = conditionObjective2.current.disabled;
+		conditionObjective2.current.disabled = !condition;
+		setQualificationObjective2(!condition);
 	};
 
 	function getParentsNode(nodesArray, childId) {
@@ -284,7 +282,6 @@ function ConditionModal({
 							></Condition>
 						);
 					})}
-
 				{editing &&
 					(conditionEdit === undefined ||
 					conditionEdit.type !== "conditionsGroup" ? (
@@ -306,7 +303,6 @@ function ConditionModal({
 							<option value="conditionsGroup">Conjunto de condiciones</option>
 						</Form.Select>
 					) : null)}
-
 				{editing && selectedOption === "date" && (
 					<Form.Group>
 						<Form.Select
@@ -319,6 +315,7 @@ function ConditionModal({
 						<Form.Control
 							ref={conditionOperator}
 							type="date"
+							onChange={handleDateChange}
 							defaultValue={
 								conditionEdit?.op
 									? conditionEdit?.op
@@ -327,7 +324,6 @@ function ConditionModal({
 						/>
 					</Form.Group>
 				)}
-
 				{editing && selectedOption === "qualification" && (
 					<Form.Group>
 						<Form.Select
@@ -360,11 +356,7 @@ function ConditionModal({
 									? conditionEdit.objective
 									: 5
 							}
-							disabled={
-								conditionEdit && conditionEdit.objective !== undefined
-									? true
-									: !isObjectiveEnabled
-							}
+							disabled={conditionEdit && !conditionEdit.objective}
 						/>
 						<Form.Check
 							type="checkbox"
@@ -384,17 +376,12 @@ function ConditionModal({
 							defaultValue={
 								conditionEdit && conditionEdit.objective2 !== undefined
 									? conditionEdit.objective2
-									: ""
+									: 5
 							}
-							disabled={
-								conditionEdit && conditionEdit.objective2 !== undefined
-									? false
-									: !isObjective2Enabled
-							}
+							disabled={!conditionEdit || !conditionEdit.objective2}
 						/>
 					</Form.Group>
 				)}
-
 				{editing && selectedOption === "completion" && (
 					<Form.Group>
 						<Form.Select
@@ -421,7 +408,6 @@ function ConditionModal({
 						</Form.Select>
 					</Form.Group>
 				)}
-
 				{editing && selectedOption === "userProfile" && (
 					<Form.Group>
 						<Form.Select
@@ -454,12 +440,12 @@ function ConditionModal({
 						</Form.Select>
 						<Form.Control
 							ref={conditionObjective}
+							onChange={handleUserProfileChange}
 							defaultValue={conditionEdit?.objective}
 							type="text"
 						/>
 					</Form.Group>
 				)}
-
 				{editing && selectedOption === "conditionsGroup" && (
 					<Form.Group>
 						<Form.Select
@@ -471,7 +457,6 @@ function ConditionModal({
 						</Form.Select>
 					</Form.Group>
 				)}
-
 				{!editing && (
 					<Button className="mb-3" variant="light" onClick={addConditionToMain}>
 						<div role="button">
@@ -496,7 +481,15 @@ function ConditionModal({
 									saveNewCondition(false);
 								}
 							}}
-							disabled={selectedOption === "" || !selectedOption}
+							disabled={
+								selectedOption === "" ||
+								!selectedOption ||
+								(selectedOption === "userProfile" && userProfileObjective) ||
+								(selectedOption === "date" && dateOperator) ||
+								(selectedOption === "qualification" &&
+									conditionObjective.current?.disabled &&
+									conditionObjective2.current?.disabled)
+							}
 						>
 							Guardar
 						</Button>
