@@ -9,16 +9,87 @@ function Condition({
 	addCondition,
 	setConditionEdit,
 }) {
+	const completionQueryList = [
+		{ value: "completed", name: "debe estar completa" },
+		{ value: "notCompleted", name: "no debe estar completa" },
+		{ value: "completedApproved", name: "debe estar completa y aprobada" },
+		{ value: "completedSuspended", name: "debe estar completa y suspendida" },
+	];
+
+	const userProfileOperatorList = [
+		{ value: "firstName", name: "Nombre" },
+		{ value: "lastName", name: "Apellido" },
+		{ value: "city", name: "Ciudad" },
+		{ value: "department", name: "Departamento" },
+		{ value: "address", name: "Dirección" },
+		{ value: "emailAddress", name: "Dirección de correo" },
+		{ value: "institution", name: "Institución" },
+		{ value: "idNumber", name: "Número de ID" },
+		{ value: "country", name: "País" },
+		{ value: "telephone", name: "Teléfono" },
+		{ value: "mobilePhone", name: "Teléfono Movil" },
+	];
+	const userProfileQueryList = [
+		{ value: "equals", name: "es igual a" },
+		{ value: "contains", name: "contiene" },
+		{ value: "notContains", name: "no contiene" },
+		{ value: "startsWith", name: "comienza con" },
+		{ value: "endsWith", name: "termina en" },
+		{ value: "empty", name: "está vacío" },
+		{ value: "notEmpty", name: "no está vacío" },
+	];
+	const conditionsGroupOperatorList = [
+		{ value: "&", name: "Se deben cumplir todas" },
+		{ value: "|", name: "Solo debe cumplirse una" },
+	];
+
+	function transformDate(dateStr) {
+		const date = new Date(dateStr);
+		const year = date.getFullYear();
+		const month = date.getMonth();
+
+		const monthNames = [
+			"enero",
+			"febrero",
+			"marzo",
+			"abril",
+			"mayo",
+			"junio",
+			"julio",
+			"agosto",
+			"septiembre",
+			"octubre",
+			"noviembre",
+			"diciembre",
+		];
+
+		const monthName = monthNames[month];
+		const day = date.getDate();
+
+		const formattedDate = `${day} de ${monthName} de ${year}`;
+
+		return formattedDate;
+	}
+
 	switch (condition.type) {
 		case "date":
 			return (
 				<Container className="mb-3 mt-3">
 					<Row>
 						<Col>
-							<div>Id: {condition.id}</div>
 							<div>Tipo: Fecha</div>
-							<div>Consulta: {condition.query}</div>
-							<div>Operador: {condition.op}</div>
+							{condition.query === "dateFrom" && (
+								<div>
+									En esta fecha <strong>{transformDate(condition.op)}</strong> o
+									después
+								</div>
+							)}
+							{condition.query === "dateTo" && (
+								<div>
+									Antes del final de{" "}
+									<strong>{transformDate(condition.op)}</strong>
+								</div>
+							)}
 						</Col>
 						<Col>
 							<Button
@@ -46,15 +117,55 @@ function Condition({
 				<Container className="mb-3 mt-3">
 					<Row>
 						<Col>
-							<div>Id: {condition.id}</div>
 							<div>Tipo: Calificación</div>
-							<div>Operador: {condition.op}</div>
-							{condition.objective && (
-								<div>Mayor o igual que: {condition.objective}</div>
-							)}
-							{condition.objective2 && (
-								<div>Menor que: {condition.objective2}</div>
-							)}
+							<div>
+								{condition.objective && !condition.objective2 && (
+									<div>
+										La puntuación debe ser{" "}
+										<strong>
+											{">="} {condition.objective}
+										</strong>{" "}
+										en{" "}
+										{condition.op === "fullCourse" ? (
+											<strong>Total del curso</strong>
+										) : (
+											<strong>{condition.op}</strong>
+										)}
+									</div>
+								)}
+								{!condition.objective && condition.objective2 && (
+									<div>
+										La puntuación debe ser{" "}
+										<strong>
+											{"<"} {condition.objective2}
+										</strong>{" "}
+										en{" "}
+										{condition.op === "fullCourse" ? (
+											<strong>Total del curso</strong>
+										) : (
+											<strong>{condition.op}</strong>
+										)}
+									</div>
+								)}
+								{condition.objective && condition.objective2 && (
+									<div>
+										La puntuación debe ser{" "}
+										<strong>
+											{">="} {condition.objective}
+										</strong>{" "}
+										y{" "}
+										<strong>
+											{"<"} {condition.objective2}
+										</strong>{" "}
+										en{" "}
+										{condition.op === "fullCourse" ? (
+											<strong>Total del curso</strong>
+										) : (
+											<strong>{condition.op}</strong>
+										)}
+									</div>
+								)}
+							</div>
 						</Col>
 						<Col>
 							<Button
@@ -82,10 +193,15 @@ function Condition({
 				<Container className="mb-3 mt-3">
 					<Row>
 						<Col>
-							<div>Id: {condition.id}</div>
 							<div>Tipo: Finalización</div>
-							<div>Operador: {condition.op}</div>
-							<div>Objetivo 1: {condition.query}</div>
+							<div>
+								La actividad <strong>{condition.op}</strong>{" "}
+								{
+									completionQueryList.find(
+										(item) => item.value === condition.query
+									)?.name
+								}
+							</div>
 						</Col>
 						<Col>
 							<Button
@@ -113,10 +229,23 @@ function Condition({
 				<Container className="mb-3 mt-3">
 					<Row>
 						<Col>
-							<div>Id: {condition.id}</div>
 							<div>Tipo: Perfil de usuario</div>
-							<div>Operador: {condition.op}</div>
-							<div>Consulta: {condition.query}</div>
+							<div>
+								Su{" "}
+								<strong>
+									{
+										userProfileOperatorList.find(
+											(item) => item.value === condition.op
+										)?.name
+									}
+								</strong>{" "}
+								{
+									userProfileQueryList.find(
+										(item) => item.value === condition.query
+									)?.name
+								}{" "}
+								<strong>{condition.objective}</strong>
+							</div>
 						</Col>
 						<Col>
 							<Button
@@ -147,9 +276,16 @@ function Condition({
 				>
 					<Row>
 						<Col>
-							<div>Id: {condition.id}</div>
 							<div>Tipo: Conjunto de condiciones</div>
-							<div>Operador: {condition.op}</div>
+							<div>
+								<strong>
+									{
+										conditionsGroupOperatorList.find(
+											(item) => item.value === condition.op
+										)?.name
+									}
+								</strong>
+							</div>
 						</Col>
 						<Col>
 							<Button
