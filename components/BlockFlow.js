@@ -296,7 +296,6 @@ const OverviewFlow = ({ map, deleteBlocks, setShowContextualMenu }, ref) => {
 
 	const onSelectionDragStart = (event, nodes) => {
 		setShowContextualMenu(false);
-
 		draggedNodesPosition.current = nodes[0].position;
 	};
 

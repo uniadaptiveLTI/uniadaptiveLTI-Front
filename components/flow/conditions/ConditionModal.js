@@ -1,17 +1,7 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import Condition from "./Condition";
-import {
-	faSquarePlus,
-	faDiagramNext,
-	faScissors,
-	faClipboard,
-	faPaste,
-	faTrashCan,
-	faDiagramProject,
-	faEdit,
-	faPlus,
-} from "@fortawesome/free-solid-svg-icons";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 function ConditionModal({
@@ -27,9 +17,12 @@ function ConditionModal({
 	};
 
 	const [editing, setEditing] = useState(undefined);
+	const [conditionEdit, setConditionEdit] = useState(undefined);
 
-	const [isObjectiveEnabled, setIsObjectiveEnabled] = useState(false);
-	const [isObjective2Enabled, setIsObjective2Enabled] = useState(false);
+	const [qualificationObjective, setQualificationObjective] = useState(false);
+	const [qualificationObjective2, setQualificationObjective2] = useState(true);
+	const [userProfileObjective, setUserProfileObjective] = useState(true);
+	const [dateOperator, setDateOperator] = useState(false);
 
 	const [selectedOption, setSelectedOption] = useState(null);
 
@@ -41,6 +34,8 @@ function ConditionModal({
 	const conditionQuery = useRef(null);
 	const conditionObjective = useRef(null);
 	const conditionObjective2 = useRef(null);
+
+	const parentsNodeArray = getParentsNode(blocksData, blockData.id);
 
 	const addCondition = (conditionId) => {
 		if (blockData.conditions.id != conditionId) {
@@ -121,18 +116,13 @@ function ConditionModal({
 	};
 
 	const cancelEditCondition = () => {
-		setIsObjectiveEnabled(true);
-		setIsObjective2Enabled(false);
 		setSelectedOption("");
+		setConditionEdit(undefined);
 		setEditing(undefined);
 	};
 
-	const saveNewCondition = () => {
+	const saveNewCondition = (edition) => {
 		const formData = { type: selectedOption };
-
-		const uniqueId = parseInt(Date.now() * Math.random()).toString();
-
-		formData.id = uniqueId;
 
 		formData.op = conditionOperator.current.value;
 		switch (selectedOption) {
@@ -140,15 +130,11 @@ function ConditionModal({
 				formData.query = conditionQuery.current.value;
 				break;
 			case "qualification":
-				if (isObjectiveEnabled) {
+				if (!conditionObjective.current.disabled) {
 					formData.objective = conditionObjective.current.value;
 				}
-				if (isObjective2Enabled) {
-					if (isObjectiveEnabled) {
-						formData.objective2 = conditionObjective2.current.value;
-					} else {
-						formData.objective = conditionObjective2.current.value;
-					}
+				if (!conditionObjective2.current.disabled) {
+					formData.objective2 = conditionObjective2.current.value;
 				}
 				break;
 			case "completion":
@@ -164,41 +150,57 @@ function ConditionModal({
 				break;
 		}
 
-		const updatedCondition = {
-			...editing,
-			conditions: editing.conditions
-				? [...editing.conditions, formData]
-				: [formData],
-		};
+		const uniqueId = parseInt(Date.now() * Math.random()).toString();
+		formData.id = uniqueId;
 
 		const updatedBlockData = deepCopy(blockData);
 
-		if (!updatedBlockData.conditions) {
-			updatedBlockData.conditions = updatedCondition;
+		if (edition) {
+			formData.id = conditionEdit.id;
+			if (conditionEdit.type == "conditionsGroup") {
+				formData.conditions = conditionEdit.conditions;
+			}
+
+			updateConditionById(
+				updatedBlockData.conditions.conditions,
+				formData.id,
+				formData
+			);
 
 			setBlockData(updatedBlockData);
 		} else {
-			if (
-				updateConditionById(
-					updatedBlockData.conditions.conditions,
-					updatedCondition.id,
-					updatedCondition
-				)
-			) {
+			const updatedCondition = {
+				...editing,
+				conditions: editing.conditions
+					? [...editing.conditions, formData]
+					: [formData],
+			};
+
+			if (!updatedBlockData.conditions) {
+				updatedBlockData.conditions = updatedCondition;
+
 				setBlockData(updatedBlockData);
 			} else {
-				const updatedJsonObject = {
-					...updatedBlockData,
-					conditions: updatedCondition,
-				};
+				if (
+					updateConditionById(
+						updatedBlockData.conditions.conditions,
+						updatedCondition.id,
+						updatedCondition
+					)
+				) {
+					setBlockData(updatedBlockData);
+				} else {
+					const updatedJsonObject = {
+						...updatedBlockData,
+						conditions: updatedCondition,
+					};
 
-				setBlockData(updatedJsonObject);
+					setBlockData(updatedJsonObject);
+				}
 			}
 		}
-
-		setIsObjectiveEnabled(true);
-		setIsObjective2Enabled(false);
 		setSelectedOption("");
+		setConditionEdit(undefined);
 		setEditing(undefined);
 	};
 
@@ -228,12 +230,24 @@ function ConditionModal({
 		}
 	};
 
+	function handleUserProfileChange() {
+		setUserProfileObjective(conditionObjective.current.value === "");
+	}
+
+	function handleDateChange() {
+		setDateOperator(conditionOperator.current.value === "");
+	}
+
 	const handleObjectiveCheckboxChange = (event) => {
-		setIsObjectiveEnabled(event.target.checked);
+		var condition = conditionObjective.current.disabled;
+		conditionObjective.current.disabled = !condition;
+		setQualificationObjective(!condition);
 	};
 
 	const handleObjective2CheckboxChange = (event) => {
-		setIsObjective2Enabled(event.target.checked);
+		var condition = conditionObjective2.current.disabled;
+		conditionObjective2.current.disabled = !condition;
+		setQualificationObjective2(!condition);
 	};
 
 	function getParentsNode(nodesArray, childId) {
@@ -242,7 +256,12 @@ function ConditionModal({
 		);
 	}
 
-	const parentsNodeArray = getParentsNode(blocksData, blockData.id);
+	useEffect(() => {
+		if (conditionEdit) {
+			addCondition(conditionEdit.id);
+			setSelectedOption(conditionEdit.type);
+		}
+	}, [conditionEdit]);
 
 	return (
 		<Modal show={showConditionsModal} onHide={handleClose}>
@@ -250,14 +269,6 @@ function ConditionModal({
 				<Modal.Title>Precondiciones de "{blockData.title}"</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
-				{!editing && (
-					<Button className="mb-3" variant="light" onClick={addConditionToMain}>
-						<div role="button">
-							<FontAwesomeIcon icon={faPlus} />
-							Crear condición
-						</div>
-					</Button>
-				)}
 				{blockData.conditions &&
 					!editing &&
 					blockData.conditions.conditions.map((condition) => {
@@ -266,42 +277,59 @@ function ConditionModal({
 								condition={condition}
 								deleteCondition={deleteCondition}
 								addCondition={addCondition}
+								setSelectedOption={setSelectedOption}
+								setConditionEdit={setConditionEdit}
 							></Condition>
 						);
 					})}
-
-				{editing && (
-					<Form.Select onChange={handleSelectChange} defaultValue="" required>
-						<option value="" disabled>
-							Escoge un tipo de condición...
-						</option>
-						<option value="date">Fecha</option>
-						<option value="qualification">Calificación</option>
-						{parentsNodeArray.length > 0 && (
-							<option value="completion">Finalización</option>
-						)}
-						<option value="userProfile">Perfil de usuario</option>
-						<option value="conditionsGroup">Conjunto de condiciones</option>
-					</Form.Select>
-				)}
-
+				{editing &&
+					(conditionEdit === undefined ||
+					conditionEdit.type !== "conditionsGroup" ? (
+						<Form.Select
+							id="condition-select"
+							onChange={handleSelectChange}
+							defaultValue={conditionEdit?.type ? conditionEdit?.type : ""}
+							required
+						>
+							<option value="" disabled>
+								Escoge un tipo de condición...
+							</option>
+							<option value="date">Fecha</option>
+							<option value="qualification">Calificación</option>
+							{parentsNodeArray.length > 0 && (
+								<option value="completion">Finalización</option>
+							)}
+							<option value="userProfile">Perfil de usuario</option>
+							<option value="conditionsGroup">Conjunto de condiciones</option>
+						</Form.Select>
+					) : null)}
 				{editing && selectedOption === "date" && (
 					<Form.Group>
-						<Form.Select ref={conditionQuery}>
+						<Form.Select
+							ref={conditionQuery}
+							defaultValue={conditionEdit?.query}
+						>
 							<option value="dateFrom">Desde</option>
 							<option value="dateTo">Hasta</option>
 						</Form.Select>
 						<Form.Control
 							ref={conditionOperator}
 							type="date"
-							defaultValue={new Date().toISOString().substr(0, 10)}
+							onChange={handleDateChange}
+							defaultValue={
+								conditionEdit?.op
+									? conditionEdit?.op
+									: new Date().toISOString().substr(0, 10)
+							}
 						/>
 					</Form.Group>
 				)}
-
 				{editing && selectedOption === "qualification" && (
 					<Form.Group>
-						<Form.Select ref={conditionOperator}>
+						<Form.Select
+							ref={conditionOperator}
+							defaultValue={conditionEdit?.op}
+						>
 							<option value="fullCourse">Total del curso</option>
 							{parentsNodeArray.length > 0 &&
 								parentsNodeArray.map((node) => (
@@ -312,19 +340,32 @@ function ConditionModal({
 							type="checkbox"
 							label="debe ser >="
 							onChange={handleObjectiveCheckboxChange}
-							defaultChecked
+							defaultChecked={
+								conditionEdit && conditionEdit.objective
+									? true
+									: false || !conditionEdit
+							}
 						/>
 						<Form.Control
 							ref={conditionObjective}
 							type="number"
 							min="0"
 							max="10"
-							defaultValue={5}
-							disabled={!isObjectiveEnabled}
+							defaultValue={
+								conditionEdit && conditionEdit.objective !== undefined
+									? conditionEdit.objective
+									: 5
+							}
+							disabled={conditionEdit && !conditionEdit.objective}
 						/>
 						<Form.Check
 							type="checkbox"
 							label="debe ser <"
+							defaultChecked={
+								conditionEdit && conditionEdit.objective2
+									? true
+									: false || false
+							}
 							onChange={handleObjective2CheckboxChange}
 						/>
 						<Form.Control
@@ -332,20 +373,30 @@ function ConditionModal({
 							type="number"
 							min="0"
 							max="10"
-							disabled={!isObjective2Enabled}
+							defaultValue={
+								conditionEdit && conditionEdit.objective2 !== undefined
+									? conditionEdit.objective2
+									: 5
+							}
+							disabled={!conditionEdit || !conditionEdit.objective2}
 						/>
 					</Form.Group>
 				)}
-
 				{editing && selectedOption === "completion" && (
 					<Form.Group>
-						<Form.Select ref={conditionOperator}>
+						<Form.Select
+							ref={conditionOperator}
+							defaultValue={conditionEdit?.op}
+						>
 							{parentsNodeArray.length > 0 &&
 								parentsNodeArray.map((node) => (
 									<option key={node.id}>{node.title}</option>
 								))}
 						</Form.Select>
-						<Form.Select ref={conditionQuery}>
+						<Form.Select
+							ref={conditionQuery}
+							defaultValue={conditionEdit?.query}
+						>
 							<option value="completed">debe estar completa</option>
 							<option value="notCompleted">no debe estar completa</option>
 							<option value="completedApproved">
@@ -357,10 +408,12 @@ function ConditionModal({
 						</Form.Select>
 					</Form.Group>
 				)}
-
 				{editing && selectedOption === "userProfile" && (
 					<Form.Group>
-						<Form.Select ref={conditionOperator}>
+						<Form.Select
+							ref={conditionOperator}
+							defaultValue={conditionEdit?.op}
+						>
 							<option value="firstName">Nombre</option>
 							<option value="lastName">Apellido</option>
 							<option value="city">Ciudad</option>
@@ -373,7 +426,10 @@ function ConditionModal({
 							<option value="telephone">Teléfono</option>
 							<option value="mobilePhone">Teléfono Movil</option>
 						</Form.Select>
-						<Form.Select ref={conditionQuery}>
+						<Form.Select
+							ref={conditionQuery}
+							defaultValue={conditionEdit?.query}
+						>
 							<option value="equals">es igual a</option>
 							<option value="contains">contiene</option>
 							<option value="notContains">no contiene</option>
@@ -382,31 +438,60 @@ function ConditionModal({
 							<option value="empty">está vacío</option>
 							<option value="notEmpty">no está vacío</option>
 						</Form.Select>
-						<Form.Control ref={conditionObjective} type="text" />
+						<Form.Control
+							ref={conditionObjective}
+							onChange={handleUserProfileChange}
+							defaultValue={conditionEdit?.objective}
+							type="text"
+						/>
 					</Form.Group>
 				)}
-
 				{editing && selectedOption === "conditionsGroup" && (
 					<Form.Group>
-						<Form.Select ref={conditionOperator}>
+						<Form.Select
+							ref={conditionOperator}
+							defaultValue={conditionEdit?.op}
+						>
 							<option value="&">Se deben cumplir todas</option>
 							<option value="|">Solo debe cumplirse una</option>
 						</Form.Select>
 					</Form.Group>
+				)}
+				{!editing && (
+					<Button className="mb-3" variant="light" onClick={addConditionToMain}>
+						<div role="button">
+							<FontAwesomeIcon icon={faPlus} />
+							Crear condición
+						</div>
+					</Button>
 				)}
 			</Modal.Body>
 			<Modal.Footer>
 				{editing && (
 					<div>
 						<Button variant="primary" onClick={cancelEditCondition}>
-							Cancelar edición
+							Cancelar
 						</Button>
 						<Button
 							variant="primary"
-							onClick={saveNewCondition}
-							disabled={selectedOption === "" || !selectedOption}
+							onClick={() => {
+								if (conditionEdit) {
+									saveNewCondition(true);
+								} else {
+									saveNewCondition(false);
+								}
+							}}
+							disabled={
+								selectedOption === "" ||
+								!selectedOption ||
+								(selectedOption === "userProfile" && userProfileObjective) ||
+								(selectedOption === "date" && dateOperator) ||
+								(selectedOption === "qualification" &&
+									conditionObjective.current?.disabled &&
+									conditionObjective2.current?.disabled)
+							}
 						>
-							Guardar condición
+							Guardar
 						</Button>
 					</div>
 				)}
