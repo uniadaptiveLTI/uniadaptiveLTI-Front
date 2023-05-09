@@ -45,14 +45,30 @@
     right: -10px  !important;
 }
 
+/** Resize Control **/
+
+.react-flow__resize-control.line {
+	padding: 0.75em;
+	opacity: 0;
+}
+
+.react-flow__resize-control.handle {
+	padding:0.75em;
+	opacity: 0;
+}
+
 /** Nodes **/
 
 .react-flow__node {
     border: var(--blockflow-node-border);
     color: white;
     border-radius: var(--blockflow-node-border-radius);
-	transition: 0.2s, visibility 0ms;
+	transition: 0.2s, visibility 0ms
 
+}
+
+.react-flow__node.dragging:has(.insideFragment){
+	transition: 0.2s, transform 0s
 }
 
 .react-flow__node.insideContractedFragment{
@@ -63,6 +79,10 @@
     padding: 1em;
 	height: 64px;
 	width: 64px;
+}
+
+.react-flow__node-start, .react-flow__node-end {
+	border-radius: 100%;
 }
 
 /**
@@ -237,7 +257,7 @@ FALLBACK
 }
 
 .react-flow__node-fragment:hover, .react-flow__node-fragment:focus-visible, .react-flow__node-fragment:active {
-	background-color: #1d1da9;
+	background-color: #3f3fc3;
 }
 
 .react-flow__node-fragment:has(.expandedFragment) {
@@ -261,6 +281,11 @@ FALLBACK
     background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
     background-size: 15px 4px, 15px 4px, 4px 15px, 4px 15px;
     animation: border-dance 0.25s infinite linear;
+}
+
+.react-flow__node-start.selected, .react-flow__node-end.selected {
+	background-image: none;
+    animation: none
 }
 
 @keyframes border-dance {

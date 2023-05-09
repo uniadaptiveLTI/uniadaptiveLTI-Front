@@ -1,16 +1,18 @@
 import { useCallback, useContext } from "react";
-import { Handle, Position } from "reactflow";
+import { Handle, Position, NodeToolbar } from "reactflow";
 import styles from "@components/styles/BlockContainer.module.css";
 import {
 	BlockInfoContext,
-	ExpandedContext,
+	ExpandedAsideContext,
 	MapInfoContext,
 	SettingsContext,
 	VersionInfoContext,
 	PlatformContext,
 } from "@components/pages/_app";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAward, faCube } from "@fortawesome/free-solid-svg-icons";
+import { faAward, faCube, faEdit } from "@fortawesome/free-solid-svg-icons";
+import FocusTrap from "focus-trap-react";
+import { Button } from "react-bootstrap";
 
 export const ActionBlocks = ["badge"];
 
@@ -118,7 +120,7 @@ function ActionNode({
 		//console.log(evt.target.value);
 	}, []);
 
-	const { expanded, setExpanded } = useContext(ExpandedContext);
+	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
 	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
 	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
 	const { selectedEditVersion, setSelectedEditVersion } =
@@ -149,7 +151,7 @@ function ActionNode({
 		}
 	}
 
-	const handleClick = () => {
+	const handleEdit = () => {
 		const blockData = {
 			id: id,
 			x: xPos,
@@ -160,8 +162,8 @@ function ActionNode({
 			identation: data.identation,
 			conditions: data.conditions,
 		};
-		if (expanded != true) {
-			if (type != "start" && type != "end") setExpanded(true);
+		if (expandedAside != true) {
+			if (type != "start" && type != "end") setExpandedAside(true);
 		}
 
 		setSelectedEditVersion("");
@@ -176,6 +178,21 @@ function ActionNode({
 				isConnectable={isConnectable}
 				isConnectableStart="false"
 			/>
+			<NodeToolbar position="left" offset={25}>
+				<FocusTrap
+					focusTrapOptions={{
+						clickOutsideDeactivates: true,
+						returnFocusOnDeactivate: true,
+					}}
+				>
+					<div className={styles.blockToolbar}>
+						<Button variant="dark" onClick={handleEdit}>
+							<FontAwesomeIcon icon={faEdit} />
+							<span className="visually-hidden">Editar fragmento</span>
+						</Button>
+					</div>
+				</FocusTrap>
+			</NodeToolbar>
 			<div
 				id={id}
 				className={
@@ -186,7 +203,6 @@ function ActionNode({
 					" " +
 					(reducedAnimations && styles.noAnimation + " noAnimation")
 				}
-				onClick={handleClick}
 			>
 				<span className={styles.blockInfo + " " + styles.top}>
 					{data.label}

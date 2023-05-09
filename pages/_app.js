@@ -16,7 +16,7 @@ export const BlockInfoContext = createContext();
 export const MapInfoContext = createContext("");
 export const VersionInfoContext = createContext();
 export const MapContext = createContext();
-export const ExpandedContext = createContext();
+export const ExpandedAsideContext = createContext();
 export const VersionJsonContext = createContext();
 export const BlockJsonContext = createContext(true);
 export const DeleteEdgeContext = createContext();
@@ -85,6 +85,7 @@ export default function App({ Component, pageProps }) {
 }
 
 export const notImplemented = (name) => {
+	typeof name != "string" ? (name = undefined) : null;
 	let finalString = name
 		? "La funcionalidad de " + name + " todavía no ha sido implementada"
 		: "Esta función aún no ha sido implementada.";

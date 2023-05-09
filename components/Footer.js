@@ -6,7 +6,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCaretDown, faCaretUp } from "@fortawesome/free-solid-svg-icons";
 
 export default function Footer({ msg, className }) {
-	const [expanded, setExpanded] = useState(msg.length == 0 ? false : true);
+	const [expandedFooter, setExpandedFooter] = useState(
+		msg.length == 0 ? false : true
+	);
 	const { settings } = useContext(SettingsContext);
 
 	const parsedSettings = JSON.parse(settings);
@@ -14,10 +16,10 @@ export default function Footer({ msg, className }) {
 
 	useEffect(() => {
 		if (autoExpandMSGBox && msg.length > 0) {
-			setExpanded(true);
+			setExpandedFooter(true);
 		}
 		if (autoHideMSGBox && msg.length <= 0) {
-			setExpanded(false);
+			setExpandedFooter(false);
 		}
 	}, [msg.length]);
 
@@ -29,7 +31,7 @@ export default function Footer({ msg, className }) {
 				fluid
 				className="d-flex justify-content-between my-2"
 				style={{ height: "2.5em" }}
-				onClick={() => setExpanded(!expanded)}
+				onClick={() => setExpandedFooter(!expandedFooter)}
 			>
 				<span
 					className="d-flex "
@@ -55,7 +57,7 @@ export default function Footer({ msg, className }) {
 						justifyContent: "space-between",
 					}}
 				>
-					{expanded ? (
+					{expandedFooter ? (
 						<FontAwesomeIcon icon={faCaretDown} />
 					) : (
 						<FontAwesomeIcon icon={faCaretUp} />
@@ -66,7 +68,7 @@ export default function Footer({ msg, className }) {
 				className={
 					styles.messageBox +
 					" " +
-					(expanded ? styles.expanded : "") +
+					(expandedFooter ? styles.expanded : "") +
 					" " +
 					(reducedAnimations && styles.noAnimation)
 				}

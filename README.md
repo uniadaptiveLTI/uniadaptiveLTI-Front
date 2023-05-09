@@ -5,6 +5,12 @@ This is is a front-end tool, using the LTI (Learning Tools Interoperability) Pro
 - [Install NodeJS](https://nodejs.org/)
 - [Install Yarn](https://classic.yarnpkg.com/lang/en/docs/install/)
 
+Install necessary dependencies:
+
+```bash
+yarn install
+```
+
 Run the development server:
 
 ```bash
