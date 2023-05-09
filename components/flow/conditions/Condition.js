@@ -100,7 +100,7 @@ function Condition({
 								</div>
 							)}
 						</Col>
-						<Col class="col d-flex align-items-center">
+						<Col class="col d-flex align-items-center gap-2">
 							<Button
 								variant="light"
 								onClick={() => setConditionEdit(condition)}
@@ -179,7 +179,7 @@ function Condition({
 								)}
 							</div>
 						</Col>
-						<Col class="col d-flex align-items-center">
+						<Col class="col d-flex align-items-center gap-2">
 							<Button
 								variant="light"
 								onClick={() => setConditionEdit(condition)}
@@ -218,7 +218,7 @@ function Condition({
 								}
 							</div>
 						</Col>
-						<Col class="col d-flex align-items-center">
+						<Col class="col d-flex align-items-center gap-2">
 							<Button
 								variant="light"
 								onClick={() => setConditionEdit(condition)}
@@ -265,7 +265,7 @@ function Condition({
 								<strong>{condition.objective}</strong>
 							</div>
 						</Col>
-						<Col class="col d-flex align-items-center">
+						<Col class="col d-flex align-items-center gap-2">
 							<Button
 								variant="light"
 								onClick={() => setConditionEdit(condition)}
@@ -305,7 +305,7 @@ function Condition({
 								</strong>
 							</div>
 						</Col>
-						<Col class="col d-flex align-items-center">
+						<Col class="col d-flex align-items-center gap-2">
 							<Button
 								variant="light"
 								onClick={() => addCondition(condition.id)}
