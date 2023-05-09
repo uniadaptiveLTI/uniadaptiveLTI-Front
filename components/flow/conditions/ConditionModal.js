@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from "@components/styles/ConditionModal.module.css";
-import { Modal, Button, Form } from "react-bootstrap";
+import { Modal, Button, Form, Row, Col, Container } from "react-bootstrap";
 import Condition from "./Condition";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faEdit, faPlus, faShuffle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 function ConditionModal({
@@ -230,6 +230,14 @@ function ConditionModal({
 		}
 	};
 
+	function swapConditionGroup(condition) {
+		const updatedBlockData = deepCopy(blockData);
+		const swapOperator = condition.op === "&" ? "|" : "&";
+
+		updateConditionOp(updatedBlockData.conditions, condition.id, swapOperator);
+		setBlockData(updatedBlockData);
+	}
+
 	function handleUserProfileChange() {
 		setUserProfileObjective(conditionObjective.current.value === "");
 	}
@@ -242,6 +250,20 @@ function ConditionModal({
 		return nodesArray.filter(
 			(node) => node.children && node.children.includes(childId)
 		);
+	}
+
+	function updateConditionOp(jsonObj, id, newOp) {
+		if (jsonObj.id === id) {
+			jsonObj.op = newOp;
+			return true;
+		} else if (jsonObj.conditions) {
+			for (let i = 0; i < jsonObj.conditions.length; i++) {
+				if (updateConditionOp(jsonObj.conditions[i], id, newOp)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	const checkInputs = () => {
@@ -301,25 +323,67 @@ function ConditionModal({
 		}
 	}, [conditionEdit]);
 
+	const conditionsGroupOperatorList = [
+		{ value: "&", name: "Se deben cumplir todas" },
+		{ value: "|", name: "Solo debe cumplirse una" },
+	];
+
 	return (
 		<Modal size="xl" show={showConditionsModal} onHide={handleClose}>
 			<Modal.Header closeButton>
 				<Modal.Title>Precondiciones de "{blockData.title}"</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
-				{blockData.conditions &&
-					!editing &&
-					blockData.conditions.conditions.map((condition) => {
-						return (
-							<Condition
-								condition={condition}
-								deleteCondition={deleteCondition}
-								addCondition={addCondition}
-								setSelectedOption={setSelectedOption}
-								setConditionEdit={setConditionEdit}
-							></Condition>
-						);
-					})}
+				{blockData.conditions && !editing && (
+					<Container
+						style={{
+							padding: "10px",
+							border: "1px solid #C7C7C7",
+							marginBottom: "10px",
+						}}
+					>
+						<Row>
+							<Col>
+								<div>Tipo: Conjunto de condiciones</div>
+								<div>
+									<strong>
+										{
+											conditionsGroupOperatorList.find(
+												(item) => item.value === blockData.conditions.op
+											)?.name
+										}
+									</strong>
+								</div>
+							</Col>
+							<Col class="col d-flex align-items-center">
+								<Button
+									variant="light"
+									onClick={() => {
+										swapConditionGroup(blockData.conditions);
+									}}
+								>
+									<div>
+										<FontAwesomeIcon icon={faShuffle} />
+									</div>
+								</Button>
+							</Col>
+						</Row>
+						<Container>
+							{blockData.conditions.conditions.map((condition) => {
+								return (
+									<Condition
+										condition={condition}
+										deleteCondition={deleteCondition}
+										addCondition={addCondition}
+										setSelectedOption={setSelectedOption}
+										setConditionEdit={setConditionEdit}
+										swapConditionGroup={swapConditionGroup}
+									></Condition>
+								);
+							})}
+						</Container>
+					</Container>
+				)}
 				{editing &&
 					(conditionEdit === undefined ||
 					conditionEdit.type !== "conditionsGroup" ? (

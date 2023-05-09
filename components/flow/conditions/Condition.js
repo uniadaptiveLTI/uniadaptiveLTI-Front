@@ -1,4 +1,9 @@
-import { faEdit, faPlus, faTrashCan } from "@fortawesome/free-solid-svg-icons";
+import {
+	faEdit,
+	faPlus,
+	faShuffle,
+	faTrashCan,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
 import { Button, Col, Container, Row } from "react-bootstrap";
@@ -8,6 +13,7 @@ function Condition({
 	deleteCondition,
 	addCondition,
 	setConditionEdit,
+	swapConditionGroup,
 }) {
 	const completionQueryList = [
 		{ value: "completed", name: "debe estar completa" },
@@ -74,7 +80,10 @@ function Condition({
 	switch (condition.type) {
 		case "date":
 			return (
-				<Container className="mb-3 mt-3">
+				<Container
+					className="mb-3 mt-3"
+					style={{ padding: "10px", border: "1px solid #C7C7C7" }}
+				>
 					<Row>
 						<Col>
 							<div>Tipo: Fecha</div>
@@ -91,7 +100,7 @@ function Condition({
 								</div>
 							)}
 						</Col>
-						<Col>
+						<Col class="col d-flex align-items-center">
 							<Button
 								variant="light"
 								onClick={() => setConditionEdit(condition)}
@@ -114,7 +123,10 @@ function Condition({
 			);
 		case "qualification":
 			return (
-				<Container className="mb-3 mt-3">
+				<Container
+					className="mb-3 mt-3"
+					style={{ padding: "10px", border: "1px solid #C7C7C7" }}
+				>
 					<Row>
 						<Col>
 							<div>Tipo: Calificación</div>
@@ -167,7 +179,7 @@ function Condition({
 								)}
 							</div>
 						</Col>
-						<Col>
+						<Col class="col d-flex align-items-center">
 							<Button
 								variant="light"
 								onClick={() => setConditionEdit(condition)}
@@ -190,7 +202,10 @@ function Condition({
 			);
 		case "completion":
 			return (
-				<Container className="mb-3 mt-3">
+				<Container
+					className="mb-3 mt-3"
+					style={{ padding: "10px", border: "1px solid #C7C7C7" }}
+				>
 					<Row>
 						<Col>
 							<div>Tipo: Finalización</div>
@@ -203,7 +218,7 @@ function Condition({
 								}
 							</div>
 						</Col>
-						<Col>
+						<Col class="col d-flex align-items-center">
 							<Button
 								variant="light"
 								onClick={() => setConditionEdit(condition)}
@@ -226,7 +241,10 @@ function Condition({
 			);
 		case "userProfile":
 			return (
-				<Container className="mb-3 mt-3">
+				<Container
+					className="mb-3 mt-3"
+					style={{ padding: "10px", border: "1px solid #C7C7C7" }}
+				>
 					<Row>
 						<Col>
 							<div>Tipo: Perfil de usuario</div>
@@ -247,7 +265,7 @@ function Condition({
 								<strong>{condition.objective}</strong>
 							</div>
 						</Col>
-						<Col>
+						<Col class="col d-flex align-items-center">
 							<Button
 								variant="light"
 								onClick={() => setConditionEdit(condition)}
@@ -272,7 +290,7 @@ function Condition({
 			return (
 				<Container
 					className="mb-3 mt-3"
-					style={{ border: "1px solid black", padding: "10px" }}
+					style={{ padding: "10px", border: "1px solid #C7C7C7" }}
 				>
 					<Row>
 						<Col>
@@ -287,7 +305,7 @@ function Condition({
 								</strong>
 							</div>
 						</Col>
-						<Col>
+						<Col class="col d-flex align-items-center">
 							<Button
 								variant="light"
 								onClick={() => addCondition(condition.id)}
@@ -296,10 +314,12 @@ function Condition({
 							</Button>
 							<Button
 								variant="light"
-								onClick={() => setConditionEdit(condition)}
+								onClick={() => {
+									swapConditionGroup(condition);
+								}}
 							>
 								<div>
-									<FontAwesomeIcon icon={faEdit} />
+									<FontAwesomeIcon icon={faShuffle} />
 								</div>
 							</Button>
 							<Button
@@ -319,6 +339,7 @@ function Condition({
 										deleteCondition={deleteCondition}
 										addCondition={addCondition}
 										setConditionEdit={setConditionEdit}
+										swapConditionGroup={swapConditionGroup}
 									/>
 								</div>
 							))}

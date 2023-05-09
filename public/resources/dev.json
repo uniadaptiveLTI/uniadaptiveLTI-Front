@@ -135,7 +135,7 @@
 						"conditions": {
 							"type": "conditionsGroup",
 							"id": "100236670156",
-							"op": "&",
+							"op": "|",
 							"conditions": [
 								{
 									"type": "qualification",
