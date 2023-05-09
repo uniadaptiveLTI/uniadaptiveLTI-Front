@@ -268,7 +268,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	 */
 	const updateBlock = () => {
 		console.log(blockSelected);
-		setCurrentBlocksData(
+		reactFlowInstance.setNodes(
 			getUpdatedArrayById(
 				{
 					...blockSelected,
@@ -283,7 +283,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 						},
 					},
 				},
-				currentBlocksData
+				reactFlowInstance.getNodes()
 			)
 		);
 

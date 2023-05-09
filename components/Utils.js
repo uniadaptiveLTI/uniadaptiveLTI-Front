@@ -28,6 +28,35 @@ export const getBlocksByNodesDOM = (nodes, blocksData) => {
 export const getUpdatedBlocksDataFromFlow = (blocksData, reactflowInstance) => {
 	return getUpdatedArrayById(reactflowInstance.getNodes(), blocksData);
 };
+
+export const isBlockEqual = (block1, block2) => {
+	return JSON.stringify(block1) == JSON.stringify(block2);
+};
+
+export const isBlockArrayEqual = (blockArray1, blockArray2) => {
+	if (blockArray1.length != blockArray2.length) {
+		return false;
+	}
+
+	const filteredArray = blockArray1.filter((block1) =>
+		getBlockById(block1.id, blockArray2)
+	);
+
+	if (filteredArray.length != blockArray1.length) {
+		return false;
+	}
+
+	for (const [index, block1] of blockArray1.entries()) {
+		const block2 = blockArray2.find((block2) => block2.id == block1.id);
+		if (!isBlockEqual(block1, block2)) {
+			console.log(block1, block2);
+			return false;
+		}
+	}
+
+	return true;
+};
+
 //Nodes
 
 export const getNodeById = (id, reactflowInstance) => {

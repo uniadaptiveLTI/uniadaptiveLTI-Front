@@ -350,11 +350,9 @@ const OverviewFlow = ({ map, deleteBlocks, setShowContextualMenu }, ref) => {
 			}
 		}
 
-		setCurrentBlocksData(
-			getUpdatedArrayById({ ...sourceNode }, currentBlocksData)
+		reactFlowInstance.setNodes(
+			getUpdatedArrayById({ ...sourceNode }, reactFlowInstance.getNodes())
 		);
-
-		//FIXME:
 		setEdges([
 			...edges,
 			{
@@ -363,8 +361,6 @@ const OverviewFlow = ({ map, deleteBlocks, setShowContextualMenu }, ref) => {
 				target: targetNodeId,
 			},
 		]);
-
-		console.log(sourceNode);
 	};
 
 	useEffect(() => {
@@ -392,8 +388,6 @@ const OverviewFlow = ({ map, deleteBlocks, setShowContextualMenu }, ref) => {
 		setNewInitialNodes(
 			map?.map((block) => ({
 				...block,
-				extent: block.parent ? "parent" : undefined,
-				//draggable: block.parent ? false : true,
 			}))
 		);
 

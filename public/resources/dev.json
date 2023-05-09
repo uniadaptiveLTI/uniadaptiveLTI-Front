@@ -365,6 +365,7 @@
 						},
 						"type": "page",
 						"parentNode": "devFragment",
+						"extent": "parent",
 						"data": {
 							"label": "Ayuda física de fluidos",
 							"children": ["dev14A1"],
@@ -381,6 +382,7 @@
 						},
 						"type": "forum",
 						"parentNode": "devFragment",
+						"extent": "parent",
 						"data": {
 							"label": "Preguntas fluidos",
 							"children": ["dev15A1"],
@@ -397,6 +399,7 @@
 						},
 						"type": "quiz",
 						"parentNode": "devFragment",
+						"extent": "parent",
 						"data": {
 							"label": "Recuperación fluidos",
 							"children": ["dev7A1", "dev8A1", "dev16A1"],

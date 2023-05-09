@@ -40,7 +40,7 @@ import {
 } from "@components/pages/_app";
 import { toast } from "react-toastify";
 import { notImplemented } from "@components/pages/_app";
-import { capitalizeFirstLetter, uniqueId } from "./Utils";
+import { capitalizeFirstLetter, isBlockArrayEqual, uniqueId } from "./Utils";
 import download from "downloadjs";
 
 const defaultToastSuccess = {
@@ -104,6 +104,8 @@ function Header({ closeBtn }, ref) {
 
 	const [selectedVersion, setSelectedVersion] = useState();
 	const fileImportDOM = useRef(null);
+
+	const [saveButtonColor, setSaveButtonColor] = useState();
 
 	/**
 	 * Updates the version of an object in an array of versions.
@@ -486,6 +488,34 @@ function Header({ closeBtn }, ref) {
 		}
 	}, [versionJson]);
 
+	//Gets if the nodes and the loaded version are different
+	useEffect(() => {
+		if (reactFlowInstance && currentBlocksData) {
+			const rfNodes = [...reactFlowInstance?.getNodes()].map((e) => {
+				delete e.height;
+				delete e.width;
+				delete e.positionAbsolute;
+				delete e.dragging;
+				delete e.selected;
+				delete e["Symbol(internals)"];
+				delete e.x; //FIXME: Find where these symbols are assignated
+				delete e.y;
+				return e;
+			});
+			if (rfNodes.length > 0) {
+				if (isBlockArrayEqual(rfNodes, currentBlocksData)) {
+					setSaveButtonColor(styles.primary);
+				} else {
+					setSaveButtonColor(styles.warning);
+				}
+			} else {
+				setSaveButtonColor();
+			}
+		} else {
+			setSaveButtonColor();
+		}
+	}, [reactFlowInstance?.getNodes()]); //TODO: Make it respond to node movement
+
 	/**
 	 * A React component that renders a logo.
 	 * @returns {JSX.Element} A JSX element representing the logo.
@@ -666,7 +696,7 @@ function Header({ closeBtn }, ref) {
 									<Dropdown className={`btn-light d-flex align-items-center`}>
 										<Dropdown.Toggle
 											variant="light"
-											className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder} ${styles.toggleButton}`}
+											className={`btn-light d-flex align-items-center p-2 ${styles.actionButtons} ${styles.toggleButton}`}
 											disabled={isOffline || !loadedMaps}
 										>
 											<FontAwesomeIcon
@@ -687,7 +717,7 @@ function Header({ closeBtn }, ref) {
 									<Dropdown className={`btn-light d-flex align-items-center `}>
 										<Dropdown.Toggle
 											variant="light"
-											className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder} ${styles.toggleButton}`}
+											className={`btn-light d-flex align-items-center p-2 ${styles.actionButtons} ${styles.toggleButton}`}
 											disabled={isOffline || !loadedMaps}
 										>
 											<FontAwesomeIcon
@@ -705,7 +735,7 @@ function Header({ closeBtn }, ref) {
 										</Dropdown.Menu>
 									</Dropdown>
 									<Button
-										className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder}`}
+										className={` d-flex align-items-center p-2 ${styles.actionButtons} ${saveButtonColor}`}
 										disabled={isOffline || !loadedMaps}
 										aria-label="Guardar versión actual"
 										onClick={notImplemented}
@@ -724,7 +754,7 @@ function Header({ closeBtn }, ref) {
 								trigger="focus"
 							>
 								<Button
-									className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder}`}
+									className={`btn-light d-flex align-items-center p-2 ${styles.actionButtons}`}
 									data-bs-container="body"
 									data-bs-toggle="popover"
 									data-bs-placement="top"
@@ -739,7 +769,7 @@ function Header({ closeBtn }, ref) {
 
 							<Button
 								variant="dark"
-								className={`d-flex align-items-center p-2 ${styles.actionsBorder} ${styles.error}`}
+								className={`d-flex align-items-center p-2 ${styles.actionButtons} ${styles.error}`}
 							>
 								<FontAwesomeIcon
 									icon={faBell}

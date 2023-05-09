@@ -342,6 +342,7 @@ export default function BlockCanvas() {
 						e.preventDefault();
 						setCMX(e.clientX - bounds.left);
 						setCMY(e.clientY - bounds.top);
+
 						let block = currentBlocksData.find((e) => e.id == selectedBlock.id);
 						setCMBlockData(block);
 						if (block.type == "start" || block.type == "end") {
@@ -517,24 +518,26 @@ export default function BlockCanvas() {
 			if (platform == "moodle") {
 				newBlockCreated = {
 					id: uniqueId(),
-					x: flowPos.x,
-					y: flowPos.y,
+					position: { x: flowPos.x, y: flowPos.y },
 					type: "generic",
-					title: "Nuevo bloque",
-					children: undefined,
-					order: 100,
-					unit: 1,
+					data: {
+						title: "Nuevo bloque",
+						children: undefined,
+						order: 100,
+						unit: 1,
+					},
 				};
 			} else {
 				newBlockCreated = {
 					id: uniqueId(),
-					x: flowPos.x,
-					y: flowPos.y,
+					position: { x: flowPos.x, y: flowPos.y },
 					type: "resource",
-					title: "Nuevo bloque",
-					children: undefined,
-					order: 100,
-					unit: 1,
+					data: {
+						title: "Nuevo bloque",
+						children: undefined,
+						order: 100,
+						unit: 1,
+					},
 				};
 			}
 		}
@@ -574,8 +577,8 @@ export default function BlockCanvas() {
 		});
 		setShowContextualMenu(false);
 
-		let newcurrentBlocksData = [...reactFlowInstance.getNodes(), ...newBlocks];
-		reactFlowInstance.setNodes(newcurrentBlocksData);
+		let newcurrentBlocksData = [...currentBlocksData, ...newBlocks];
+		setCurrentBlocksData(newcurrentBlocksData);
 	};
 
 	const handleDeleteBlock = (blockData) => {

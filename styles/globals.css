@@ -10,6 +10,7 @@
   --main-ui-input-border-radius: 0;
   */
 
+  --primary-background-color: var(--bs-primary);
   --success-background-color: var(--bs-success);
   --warning-background-color: var(--bs-warning);
   --error-background-color: var(--bs-danger);

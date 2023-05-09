@@ -16,25 +16,29 @@
     display: none !important;
 }
 
-.actionsBorder, .actionsBorder:hover{
+.actionButtons, .actionButtons:hover{
     border-radius: var(--header-action-buttons-border-radius);
     border: var(--header-action-buttons-border);
     background-color: var(--header-action-buttons-background-color);
 }
 
-.actionsBorder.success, .actionsBorder.success:hover{
+.actionButtons.success, .actionButtons.success:hover{
     background-color: var(--success-background-color)
 }
 
-.actionsBorder.warning, .actionsBorder.warning:hover{
+.actionButtons.warning, .actionButtons.warning:hover{
     background-color: var(--warning-background-color)
 }
 
-.actionsBorder.error, .actionsBorder.error:hover{
+.actionButtons.error, .actionButtons.error:hover{
     background-color: var(--error-background-color)
 }
 
-.actionsBorder svg {
+.actionButtons.primary, .actionButtons.primary:hover{
+    background-color: var(--primary-background-color)
+}
+
+.actionButtons svg {
     filter: var(--header-action-buttons-svg-filter);
 }
 
