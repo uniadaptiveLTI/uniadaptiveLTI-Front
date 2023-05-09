@@ -1,6 +1,6 @@
 import styles from "@components/styles/BlockContextualMenu.module.css";
 import { forwardRef, useContext } from "react";
-import { ExpandedContext } from "@components/pages/_app";
+import { ExpandedAsideContext } from "@components/pages/_app";
 import { BlockOriginContext } from "./BlockCanvas";
 import CMBlockMenu from "./flow/contextualmenu/CMBlockMenu";
 import CMPaneMenu from "./flow/contextualmenu/CMPaneMenu";
@@ -29,9 +29,9 @@ export default forwardRef(function ContextualMenu(
 ) {
 	const { blockOrigin, setBlockOrigin } = useContext(BlockOriginContext);
 
-	const { expanded } = useContext(ExpandedContext);
+	const { expanded: expandedAside } = useContext(ExpandedAsideContext);
 
-	const asideBounds = expanded
+	const asideBounds = expandedAside
 		? document.getElementsByTagName("aside")[0]?.getBoundingClientRect()
 		: 0;
 

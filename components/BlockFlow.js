@@ -19,9 +19,9 @@ import ActionNode from "./flow/nodes/ActionNode.js";
 import ElementNode from "./flow/nodes/ElementNode.js";
 import {
 	BlockInfoContext,
-	BlockJsonContext,
+	BlocksDataContext,
 	DeleteEdgeContext,
-	ExpandedContext,
+	ExpandedAsideContext,
 	PlatformContext,
 	ReactFlowInstanceContext,
 	SettingsContext,
@@ -42,6 +42,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { PaneContextMenuPositionContext } from "./BlockCanvas.js";
 import { Button } from "react-bootstrap";
+import { getBlockById, getNodeById, getUpdatedBlocksData } from "./Utils.js";
 
 const minimapStyle = {
 	height: 120,
@@ -73,12 +74,13 @@ const nodeTypes = {
 };
 
 const OverviewFlow = ({ map, deleteBlocks, setShowContextualMenu }, ref) => {
-	const { blockJson, setBlockJson } = useContext(BlockJsonContext);
 	const { deletedEdge, setDeletedEdge } = useContext(DeleteEdgeContext);
-	const { expanded, setExpanded } = useContext(ExpandedContext);
+	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
 	const { paneContextMenuPosition, setPaneContextMenuPosition } = useContext(
 		PaneContextMenuPositionContext
 	);
+	const { currentBlocksData, setCurrentBlocksData } =
+		useContext(BlocksDataContext);
 	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
 	const { reactFlowInstance, setReactFlowInstance } = useContext(
 		ReactFlowInstanceContext
@@ -92,6 +94,7 @@ const OverviewFlow = ({ map, deleteBlocks, setShowContextualMenu }, ref) => {
 	const [newInitialEdges, setNewInitialEdges] = useState([]);
 	const [minimap, setMinimap] = useState(true);
 	const [interactive, setInteractive] = useState(true);
+	const [snapToGrid, setSnapToGrid] = useState(true);
 
 	const [nodes, setNodes, onNodesChange] = useNodesState(newInitialNodes);
 	const [edges, setEdges, onEdgesChange] = useEdgesState(newInitialEdges);
@@ -283,11 +286,17 @@ const OverviewFlow = ({ map, deleteBlocks, setShowContextualMenu }, ref) => {
 
 	const handleNodeDragStart = (event, node) => {
 		setShowContextualMenu(false);
+		let inFragment = true;
+		getBlockById(node.id, currentBlocksData).parent
+			? null
+			: (inFragment = false);
+		setSnapToGrid(!inFragment);
 		draggedNodePosition.current = node.position;
 	};
 
 	const onSelectionDragStart = (event, nodes) => {
 		setShowContextualMenu(false);
+
 		draggedNodesPosition.current = nodes[0].position;
 	};
 
@@ -297,7 +306,7 @@ const OverviewFlow = ({ map, deleteBlocks, setShowContextualMenu }, ref) => {
 			(draggedNodesPosition.current.x !== nodes[0].position.x ||
 				draggedNodesPosition.current.y !== nodes[0].position.y)
 		) {
-			const selectionBlockJson = nodes.map((b) => ({
+			const selectionBlock = nodes.map((b) => ({
 				id: b.id,
 				x: b.position.x,
 				y: b.position.y,
@@ -314,7 +323,9 @@ const OverviewFlow = ({ map, deleteBlocks, setShowContextualMenu }, ref) => {
 				order: b.data.order,
 				unit: b.data.unit,
 			}));
-			setBlockJson(selectionBlockJson);
+			setCurrentBlocksData(
+				getUpdatedBlocksData(selectionBlock, currentBlocksData)
+			);
 		}
 	};
 
@@ -324,31 +335,39 @@ const OverviewFlow = ({ map, deleteBlocks, setShowContextualMenu }, ref) => {
 				draggedNodePosition.current.x !== node.position.x ||
 				draggedNodePosition.current.y !== node.position.y
 			) {
-				setBlockJson({
-					id: node.id,
-					x: node.position.x,
-					y: node.position.y,
-					type: node.type,
-					title: node.data.label,
-					parent: node.parentNode,
-					style: node.data.style,
-					innerNodes: node.data.innerNodes,
-					expanded: node.data.expanded,
-					draggable: node.draggable,
-					children: node.data.children,
-					identation: node.data.identation,
-					conditions: node.data.conditions,
-					order: node.data.order,
-					unit: node.data.unit,
-				});
+				setCurrentBlocksData(
+					getUpdatedBlocksData(
+						{
+							id: node.id,
+							x: node.position.x,
+							y: node.position.y,
+							type: node.type,
+							title: node.data.label,
+							parent: node.parentNode,
+							style: node.data.style,
+							innerNodes: node.data.innerNodes,
+							expanded: node.data.expanded,
+							draggable: node.draggable,
+							children: node.data.children,
+							identation: node.data.identation,
+							conditions: node.data.conditions,
+							order: node.data.order,
+							unit: node.data.unit,
+						},
+						currentBlocksData
+					)
+				);
+				console.log(node);
+				setSnapToGrid(true);
 			}
 		}
 	};
 
 	const onPaneClick = () => {
 		if (autoHideAside) {
-			setExpanded(false);
+			setExpandedAside(false);
 		}
+		setSnapToGrid(true);
 	};
 
 	const onConnect = (event) => {
@@ -365,7 +384,9 @@ const OverviewFlow = ({ map, deleteBlocks, setShowContextualMenu }, ref) => {
 			}
 		}
 
-		setBlockJson({ ...sourceNode });
+		setCurrentBlocksData(
+			getUpdatedBlocksData({ ...sourceNode }, currentBlocksData)
+		);
 	};
 
 	useEffect(() => {
@@ -396,8 +417,7 @@ const OverviewFlow = ({ map, deleteBlocks, setShowContextualMenu }, ref) => {
 				type: block.type,
 				parentNode: block.parent,
 				extent: block.parent ? "parent" : undefined,
-				draggable: block.parent ? false : true,
-
+				//draggable: block.parent ? false : true,
 				data: {
 					label: block.title,
 					identation: block.identation,
@@ -468,6 +488,7 @@ const OverviewFlow = ({ map, deleteBlocks, setShowContextualMenu }, ref) => {
 				onEdgesChange={onEdgesChange}
 				onNodesDelete={onNodesDelete}
 				onEdgesDelete={onEdgesDelete}
+				onNodeClick={() => setSnapToGrid(true)}
 				onPaneClick={onPaneClick}
 				onConnect={onConnect}
 				onInit={onInit}
@@ -478,7 +499,7 @@ const OverviewFlow = ({ map, deleteBlocks, setShowContextualMenu }, ref) => {
 				nodeTypes={nodeTypes}
 				snapGrid={[125, 175]}
 				//connectionLineComponent={}
-				snapToGrid={true}
+				snapToGrid={snapToGrid}
 				deleteKeyCode={["Backspace", "Delete", "d"]}
 				multiSelectionKeyCode={["Shift"]}
 				selectionKeyCode={["Shift"]}

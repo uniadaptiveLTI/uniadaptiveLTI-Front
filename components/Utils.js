@@ -34,6 +34,9 @@ export const getUpdatedBlocksData = (newBlock, blocksData) => {
 	});
 };
 
+export const getUpdatedBlocksDataFromFlow = (blocksData, reactflowInstance) => {
+	return getUpdatedBlocksData(reactflowInstance.getNodes(), blocksData);
+};
 //Nodes
 
 export const getNodeById = (id, reactflowInstance) => {

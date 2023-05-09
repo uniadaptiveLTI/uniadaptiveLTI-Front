@@ -1,7 +1,6 @@
 import styles from "@components/styles/BlockCanvas.module.css";
 
 import {
-	BlockJsonContext,
 	BlocksDataContext,
 	DeleteEdgeContext,
 	ReactFlowInstanceContext,
@@ -19,7 +18,7 @@ import {
 	useRef,
 } from "react";
 import {
-	ExpandedContext,
+	ExpandedAsideContext,
 	SettingsContext,
 	MainDOMContext,
 } from "../pages/_app.js";
@@ -78,8 +77,7 @@ function getReservedBlockNodesFromTypes() {
 }
 
 export default function BlockCanvas() {
-	const { blockJson, setBlockJson } = useContext(BlockJsonContext);
-	const { expanded, setExpanded } = useContext(ExpandedContext);
+	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
 	const { settings, setSettings } = useContext(SettingsContext);
 	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
 	const { reactFlowInstance, setReactFlowInstance } = useContext(
@@ -160,24 +158,6 @@ export default function BlockCanvas() {
 				setCurrentBlocksData(newcurrentBlocksData);
 			}
 	}, [cMBlockData]);
-
-	useEffect(() => {
-		if (!Array.isArray(blockJson)) {
-			if (currentBlocksData) {
-				let newcurrentBlocksData = [...currentBlocksData];
-				newcurrentBlocksData[
-					currentBlocksData.findIndex((b) => b.id == blockJson.id)
-				] = blockJson;
-				setCurrentBlocksData(newcurrentBlocksData);
-			}
-		} else {
-			const newcurrentBlocksData = currentBlocksData.map((block) => {
-				const newBlock = blockJson.find((b) => b.id === block.id);
-				return newBlock ? { ...block, ...newBlock } : block;
-			});
-			setCurrentBlocksData(newcurrentBlocksData);
-		}
-	}, [blockJson]);
 
 	const [deletedEdge, setDeletedEdge] = useState([]);
 
@@ -342,7 +322,7 @@ export default function BlockCanvas() {
 
 	useLayoutEffect(() => {
 		currentBlocksDataRef.current = currentBlocksData;
-	}, [expanded, settings, currentBlocksData]);
+	}, [expandedAside, settings, currentBlocksData]);
 
 	/**
 	 * Handles the context menu position, positioning it.
@@ -495,7 +475,7 @@ export default function BlockCanvas() {
 		}
 	};
 
-	const asideBounds = expanded
+	const asideBounds = expandedAside
 		? document.getElementsByTagName("aside")[0]?.getBoundingClientRect()
 		: 0;
 

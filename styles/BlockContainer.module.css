@@ -80,6 +80,16 @@
 	filter: drop-shadow(0 0px 5px rgba(0, 0, 0, 0.65));
 }
 
+.blockToolbar {
+	display: flex;
+	flex-direction: column;
+}
+
+.blockToolbar button{
+	border-radius: 0;
+	border: var(--main-ui-borders)
+}
+
  /* Accesibility */
 
 .badge.noAnimation, .badgeTwo.noAnimation  {

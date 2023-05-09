@@ -12,14 +12,14 @@ import { useState, useContext, useEffect, useRef, useId, version } from "react";
 import {
 	PlatformContext,
 	BlockInfoContext,
-	BlockJsonContext,
-	ExpandedContext,
+	ExpandedAsideContext,
 	MapInfoContext,
 	VersionInfoContext,
 	VersionJsonContext,
 	SettingsContext,
 	BlocksDataContext,
 } from "../pages/_app.js";
+import { getUpdatedBlocksData } from "./Utils.js";
 
 export default function Aside({ className, closeBtn, svgExists }) {
 	const [expandedContent, setExpandedContent] = useState(true);
@@ -58,12 +58,11 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	//TODO: Add the rest
 
 	const [secondOptions, setSecondOptions] = useState([]);
-	const { blockJson, setBlockJson } = useContext(BlockJsonContext);
 	const { versionJson, setVersionJson } = useContext(VersionJsonContext);
 	const { currentBlocksData, setCurrentBlocksData } =
 		useContext(BlocksDataContext);
 
-	const { expanded, setExpanded } = useContext(ExpandedContext);
+	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
 
 	const conditionTypes = [
 		{ id: 0, value: "qualification", name: "Calificación", default: "true" },
@@ -264,18 +263,23 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	 * Updates the selected block with the values from the specified DOM elements.
 	 */
 	const updateBlock = () => {
-		setBlockJson({
-			id: blockSelected.id,
-			x: blockSelected.x,
-			y: blockSelected.y,
-			type: typeDOM.current.value,
-			title: titleDOM.current.value,
-			resource: optionsDOM.current.value,
-			children: blockSelected.children,
-			identation: blockSelected.identation,
-		});
+		setCurrentBlocksData(
+			getUpdatedBlocksData(
+				{
+					id: blockSelected.id,
+					x: blockSelected.x,
+					y: blockSelected.y,
+					type: typeDOM.current.value,
+					title: titleDOM.current.value,
+					resource: optionsDOM.current.value,
+					children: blockSelected.children,
+					identation: blockSelected.identation,
+				},
+				currentBlocksData
+			)
+		);
 		if (autoHideAside) {
-			setExpanded(false);
+			setExpandedAside(false);
 		}
 	};
 
@@ -307,7 +311,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	 * Collapses the side panel.
 	 */
 	function collapseAside() {
-		setExpanded(false);
+		setExpandedAside(false);
 	}
 
 	const [showConditions, setShowConditions] = useState(false);
@@ -341,10 +345,11 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	};
 	return (
 		<aside className={`${className} ${styles.aside}`}>
+			{/* TODO: FocusTrap this */}
 			<div className={"text-center p-2"}>
 				<div
 					role="button"
-					onClick={() => setExpanded(false)}
+					onClick={() => setExpandedAside(false)}
 					className={
 						styles.uniadaptive + " " + (reducedAnimations && styles.noAnimation)
 					}
@@ -618,12 +623,12 @@ export default function Aside({ className, closeBtn, svgExists }) {
 						<div
 							className="d-flex gap-2"
 							role="button"
-							onClick={() => setExpanded(!expanded)}
+							onClick={() => setExpandedAside(!expandedAside)}
 						>
 							<div className="fw-bold">Contenido</div>
 							<div>
 								<div>
-									{!expanded ? (
+									{!expandedAside ? (
 										<FontAwesomeIcon icon={faCaretUp} />
 									) : (
 										<FontAwesomeIcon icon={faCaretDown} />
@@ -634,7 +639,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 						<div
 							className={[
 								styles.uniadaptiveDetails,
-								expanded && styles.active,
+								expandedAside && styles.active,
 								reducedAnimations && styles.noAnimation,
 							]}
 						>
@@ -664,12 +669,12 @@ export default function Aside({ className, closeBtn, svgExists }) {
 						<div
 							className="d-flex gap-2"
 							role="button"
-							onClick={() => setExpanded(!expanded)}
+							onClick={() => setExpandedAside(!expandedAside)}
 						>
 							<div className="fw-bold">Contenido</div>
 							<div>
 								<div>
-									{!expanded ? (
+									{!expandedAside ? (
 										<FontAwesomeIcon icon={faCaretUp} />
 									) : (
 										<FontAwesomeIcon icon={faCaretDown} />
@@ -679,9 +684,9 @@ export default function Aside({ className, closeBtn, svgExists }) {
 						</div>
 						<div
 							style={{
-								opacity: expanded ? "1" : "0",
-								visibility: expanded ? "visible" : "hidden",
-								maxHeight: expanded ? "" : "0",
+								opacity: expandedAside ? "1" : "0",
+								visibility: expandedAside ? "visible" : "hidden",
+								maxHeight: expandedAside ? "" : "0",
 								transition: "all .2s",
 							}}
 						>

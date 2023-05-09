@@ -1,6 +1,6 @@
 import { useCallback, useContext } from "react";
-import { Handle, Position } from "reactflow";
-import { Badge } from "react-bootstrap";
+import { Handle, Position, NodeToolbar } from "reactflow";
+import { Badge, Button } from "react-bootstrap";
 import styles from "@components/styles/BlockContainer.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -15,23 +15,25 @@ import {
 	faQuestion,
 	faTag,
 	faFileLines,
+	faEdit,
 } from "@fortawesome/free-solid-svg-icons";
 import {
 	BlockInfoContext,
-	ExpandedContext,
+	ExpandedAsideContext,
 	MapInfoContext,
 	SettingsContext,
 	VersionInfoContext,
 	PlatformContext,
 } from "@components/pages/_app";
 import Image from "next/image";
+import FocusTrap from "focus-trap-react";
 
 function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 	const onChange = useCallback((evt) => {
 		//console.log(evt.target.value);
 	}, []);
 
-	const { expanded, setExpanded } = useContext(ExpandedContext);
+	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
 	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
 	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
 	const { selectedEditVersion, setSelectedEditVersion } =
@@ -42,7 +44,7 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 	const parsedSettings = JSON.parse(settings);
 	const { highContrast, showDetails, reducedAnimations } = parsedSettings;
 
-	const handleClick = () => {
+	const handleEdit = () => {
 		const blockData = {
 			id: id,
 			x: xPos,
@@ -56,8 +58,8 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 			unit: data.unit,
 		};
 
-		if (expanded != true) {
-			if (type != "start" && type != "end") setExpanded(true);
+		if (expandedAside != true) {
+			if (type != "start" && type != "end") setExpandedAside(true);
 		}
 
 		setSelectedEditVersion("");
@@ -311,6 +313,21 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 				isConnectable={isConnectable}
 				isConnectableEnd="false"
 			/>
+			<NodeToolbar position="left" offset={25}>
+				<FocusTrap
+					focusTrapOptions={{
+						clickOutsideDeactivates: true,
+						returnFocusOnDeactivate: true,
+					}}
+				>
+					<div className={styles.blockToolbar}>
+						<Button variant="dark" onClick={handleEdit}>
+							<FontAwesomeIcon icon={faEdit} />
+							<span className="visually-hidden">Editar fragmento</span>
+						</Button>
+					</div>
+				</FocusTrap>
+			</NodeToolbar>
 			<div
 				id={id}
 				className={
@@ -321,7 +338,6 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 					" " +
 					(reducedAnimations && styles.noAnimation + " noAnimation")
 				}
-				onClick={handleClick}
 				aria-label={getAriaLabel} //FIXME: Doesn't work
 			>
 				<span className={styles.blockInfo + " " + styles.top}>

@@ -32,6 +32,7 @@
 						"y": 0,
 						"type": "resource",
 						"title": "Objetivos del curso",
+						"res": "url/objetivos.pdf",
 						"children": ["dev1A1"],
 						"identation": 1,
 						"order": 1,
@@ -69,15 +70,16 @@
 									"id": "8795742484563",
 									"op": "fullCourse",
 									"objective": "10"
-								}]}
+								}
+							]
+						}
 					},
 					{
 						"id": "dev2A1",
 						"x": 375,
 						"y": -175,
 						"type": "badge",
-						"title": "Conocimiento",
-						"identation": 2
+						"title": "Conocimiento"
 					},
 					{
 						"id": "dev3A1",
@@ -116,7 +118,9 @@
 									"id": "1532657364123",
 									"op": "fullCourse",
 									"objective": "2"
-								}]}
+								}
+							]
+						}
 					},
 					{
 						"id": "dev5A1",
@@ -235,7 +239,9 @@
 									"id": "1245689934223",
 									"op": "fullCourse",
 									"objective": "2"
-								}]}
+								}
+							]
+						}
 					},
 					{
 						"id": "dev11A1",
@@ -268,9 +274,21 @@
 						},
 						"expanded": false,
 						"innerNodes": [
-							{ "id": "dev13A1", "x": 32, "y": 64 },
-							{ "id": "dev14A1", "x": 157, "y": 64 },
-							{ "id": "dev15A1", "x": 282, "y": 64 }
+							{
+								"id": "dev13A1",
+								"x": 32,
+								"y": 64
+							},
+							{
+								"id": "dev14A1",
+								"x": 157,
+								"y": 64
+							},
+							{
+								"id": "dev15A1",
+								"x": 282,
+								"y": 64
+							}
 						]
 					},
 					{
@@ -330,7 +348,9 @@
 									"id": "92172368816234",
 									"op": "fullCourse",
 									"objective": "2"
-								}]}
+								}
+							]
+						}
 					},
 					{
 						"id": "dev16A1",
@@ -435,7 +455,9 @@
 									"id": "123658623618641",
 									"op": "fullCourse",
 									"objective": "2"
-								}]}
+								}
+							]
+						}
 					},
 					{
 						"id": "dev2B1",
@@ -583,7 +605,9 @@
 									"id": "228855077531234",
 									"op": "fullCourse",
 									"objective": "2"
-								}]}
+								}
+							]
+						}
 					},
 					{
 						"id": "dev2B2",
@@ -752,7 +776,9 @@
 									"id": "3678543556977",
 									"op": "fullCourse",
 									"objective": "2"
-								}]}
+								}
+							]
+						}
 					},
 					{
 						"id": "dev2B3",

@@ -27,7 +27,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import {
 	BlockInfoContext,
-	ExpandedContext,
+	ExpandedAsideContext,
 	MapInfoContext,
 	VersionJsonContext,
 	VersionInfoContext,
@@ -79,7 +79,7 @@ function Header({ closeBtn }, ref) {
 
 	const { versionJson, setVersionJson } = useContext(VersionJsonContext);
 
-	const { expanded, setExpanded } = useContext(ExpandedContext);
+	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
 
 	const { currentBlocksData, setCurrentBlocksData } =
 		useContext(BlocksDataContext);
@@ -314,8 +314,8 @@ function Header({ closeBtn }, ref) {
 	 * Handles the editing of an map.
 	 */
 	const editMap = () => {
-		if (expanded != true) {
-			setExpanded(true);
+		if (expandedAside != true) {
+			setExpandedAside(true);
 		}
 		const mapId = selectMapDOM.current.value;
 		setBlockSelected("");
@@ -327,8 +327,8 @@ function Header({ closeBtn }, ref) {
 	 * Handles the editing of a version.
 	 */
 	const editVersion = () => {
-		if (expanded != true) {
-			setExpanded(true);
+		if (expandedAside != true) {
+			setExpandedAside(true);
 		}
 		setBlockSelected("");
 		setSelectedEditVersion(selectedVersion);
@@ -401,7 +401,7 @@ function Header({ closeBtn }, ref) {
 
 	const handleBlockDataExport = () => {
 		download(
-			JSON.stringify(currentBlocksData, null, "\t"),
+			encodeURIComponent(JSON.stringify(currentBlocksData)),
 			`${mapSelected.name}-${selectedVersion.name}-${new Date()
 				.toLocaleDateString()
 				.replaceAll("/", "-")}.json`,
@@ -420,7 +420,7 @@ function Header({ closeBtn }, ref) {
 		reader.onload = function (e) {
 			let output = e.target.result;
 			//FIXME: File verification
-			const jsonBlockData = JSON.parse(output);
+			const jsonBlockData = JSON.parse(decodeURIComponent(output));
 			setCurrentBlocksData(jsonBlockData);
 			//displayContents(output);
 		};
@@ -488,7 +488,7 @@ function Header({ closeBtn }, ref) {
 		return (
 			<div className="mx-auto d-flex align-items-center" role="button">
 				<img
-					onClick={() => setExpanded(!expanded)}
+					onClick={() => setExpandedAside(!expandedAside)}
 					src={process.env.SMALL_LOGO_PATH}
 					alt="Mostrar menú lateral"
 					className={styles.icon}
@@ -580,13 +580,13 @@ function Header({ closeBtn }, ref) {
 				<Container fluid>
 					<Form
 						className={
-							!expanded
+							!expandedAside
 								? "d-flex px-2 col-2 col-sm-6 col-md-8"
 								: "d-flex px-2 col-2 col-sm-6 col-md-8"
 						}
 						style={{ gap: "20px" }}
 					>
-						{!expanded && <CreateLogo />}
+						{!expandedAside && <CreateLogo />}
 						<Form.Select
 							ref={selectMapDOM}
 							value={mapSelected.id}
@@ -604,7 +604,7 @@ function Header({ closeBtn }, ref) {
 					</Form>
 					<Nav
 						className={
-							!expanded
+							!expandedAside
 								? "col-10 col-sm-6 col-md-4"
 								: "col-10 col-sm-6 col-md-4"
 						}
@@ -612,7 +612,7 @@ function Header({ closeBtn }, ref) {
 						<Container
 							fluid
 							className={
-								!expanded
+								!expandedAside
 									? "d-flex align-items-center justify-content-evenly col-sm-7"
 									: "d-flex align-items-center justify-content-evenly col-sm-7"
 							}
@@ -743,7 +743,7 @@ function Header({ closeBtn }, ref) {
 						</Container>
 						<Container
 							fluid
-							className={!expanded ? "d-flex col-sm-5" : "d-flex col-sm-5"}
+							className={!expandedAside ? "d-flex col-sm-5" : "d-flex col-sm-5"}
 						>
 							<Dropdown
 								role="menu"
