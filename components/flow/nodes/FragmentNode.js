@@ -25,11 +25,11 @@ import {
 import { useEffect } from "react";
 import {
 	getBlockById,
-	getBlockByNode,
+	getBlockByNodeDOM,
 	getEdgeBetweenNodeIds,
 	getNodeById,
 	getNodesByProperty,
-	getUpdatedBlocksData,
+	getUpdatedArrayById,
 	getUpdatedBlocksDataFromFlow,
 } from "@components/components/Utils";
 import FocusTrap from "focus-trap-react";
@@ -92,22 +92,28 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 
 				if (!expanded) {
 					nodeDOM.classList.add("insideContractedFragment");
-					const newBlock = getBlockByNode(nodeDOM, currentBlocksData);
+					const newBlock = getBlockByNodeDOM(
+						nodeDOM,
+						reactFlowInstance.getNodes()
+					);
 					newBlock.x = 0;
 					newBlock.y = 0;
-					setCurrentBlocksData(
-						getUpdatedBlocksData(newBlock, currentBlocksData)
+					reactFlowInstance.setNodes(
+						getUpdatedArrayById(newBlock, reactFlowInstance.getNodes())
 					);
 				} else {
 					nodeDOM.classList.remove("insideContractedFragment");
-					const newBlock = getBlockByNode(nodeDOM, currentBlocksData);
+					const newBlock = getBlockByNodeDOM(
+						nodeDOM,
+						reactFlowInstance.getNodes()
+					);
 					const matchingInnerNode = originalChildrenStatus.find(
 						(innerNode) => innerNode.id == newBlock.id
 					);
 					newBlock.x = matchingInnerNode.x;
 					newBlock.y = matchingInnerNode.y;
-					setCurrentBlocksData(
-						getUpdatedBlocksData(newBlock, currentBlocksData)
+					reactFlowInstance.setNodes(
+						getUpdatedArrayById(newBlock, reactFlowInstance.getNodes())
 					);
 				}
 			}
@@ -186,10 +192,10 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 
 		setOriginalChildrenStatus(updatedChildrenBlockData);
 
-		setCurrentBlocksData(
-			getUpdatedBlocksData(
+		reactFlowInstance.setNodes(
+			getUpdatedArrayById(
 				[updatedInfo, ...updatedChildrenBlockData],
-				currentBlocksData
+				reactFlowInstance.getNodes()
 			)
 		);
 	};
@@ -202,7 +208,10 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 				const nodeDOM = document.querySelector(
 					"[data-id=" + childNode.id + "]"
 				);
-				const newBlock = getBlockByNode(nodeDOM, currentBlocksData);
+				const newBlock = getBlockByNodeDOM(
+					nodeDOM,
+					reactFlowInstance.getNodes()
+				);
 				const matchingInnerNode = getNodesByProperty(
 					reactFlowInstance,
 					"parentNode",
@@ -234,7 +243,7 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 		}
 		return (
 			"Fragmento, " +
-			data.title +
+			data.label +
 			", posición en el eje X: " +
 			xPos +
 			", posición en el eje Y: " +

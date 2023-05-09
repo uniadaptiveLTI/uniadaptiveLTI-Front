@@ -34,21 +34,23 @@ const Menu = (
 ) => {
 	return (
 		<div ref={ref} className={styles.cM + " "}>
-			<li>
-				<Button
-					variant="light"
-					onClick={handleShow}
-					disabled={!EnableEditPreconditions}
-				>
-					<div>
-						<FontAwesomeIcon icon={faEdit} />
+			{["fragment"].includes(blockData.type) == false && (
+				<li>
+					<Button
+						variant="light"
+						onClick={handleShow}
+						disabled={!EnableEditPreconditions}
+					>
 						<div>
-							Editar precondiciones
-							<span>SHIFT+E</span>
+							<FontAwesomeIcon icon={faEdit} />
+							<div>
+								Editar precondiciones
+								<span>SHIFT+E</span>
+							</div>
 						</div>
-					</div>
-				</Button>
-			</li>
+					</Button>
+				</li>
+			)}
 			{blockOrigin ? (
 				blockOrigin.id == blockData.id ? (
 					<li>
@@ -58,6 +60,7 @@ const Menu = (
 								setBlockOrigin();
 								setShowContextualMenu(false);
 							}}
+							disabled={!EnableCreateRelation}
 						>
 							<div>
 								<FontAwesomeIcon icon={faDiagramNext} />
@@ -69,23 +72,27 @@ const Menu = (
 						</Button>
 					</li>
 				) : (
-					<li>
-						<Button
-							variant="light"
-							onClick={() => handleNewRelation(blockOrigin, blockData)}
-						>
-							<div>
-								<FontAwesomeIcon icon={faDiagramNext} />
+					["fragment"].includes(blockData.type) == false && (
+						<li>
+							<Button
+								variant="light"
+								onClick={() => handleNewRelation(blockOrigin, blockData)}
+								disabled={!EnableCreateRelation}
+							>
 								<div>
-									Terminar relación
-									<span>Unir a "{blockOrigin.title}"</span>
+									<FontAwesomeIcon icon={faDiagramNext} />
+									<div>
+										Terminar relación
+										<span>Unir a "{blockOrigin.title}"</span>
+									</div>
 								</div>
-							</div>
-						</Button>
-					</li>
+							</Button>
+						</li>
+					)
 				)
 			) : (
-				[...ActionBlocks, "end"].includes(blockData.type) == false && (
+				[...ActionBlocks, "end", "fragment"].includes(blockData.type) ==
+					false && (
 					<li>
 						<Button
 							variant="light"

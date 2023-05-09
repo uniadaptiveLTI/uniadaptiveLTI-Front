@@ -18,8 +18,9 @@ import {
 	VersionJsonContext,
 	SettingsContext,
 	BlocksDataContext,
+	ReactFlowInstanceContext,
 } from "../pages/_app.js";
-import { getUpdatedBlocksData } from "./Utils.js";
+import { getUpdatedArrayById } from "./Utils.js";
 
 export default function Aside({ className, closeBtn, svgExists }) {
 	const [expandedContent, setExpandedContent] = useState(true);
@@ -61,6 +62,9 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	const { versionJson, setVersionJson } = useContext(VersionJsonContext);
 	const { currentBlocksData, setCurrentBlocksData } =
 		useContext(BlocksDataContext);
+	const { reactFlowInstance, setReactFlowInstance } = useContext(
+		ReactFlowInstanceContext
+	);
 
 	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
 
@@ -263,7 +267,27 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	 * Updates the selected block with the values from the specified DOM elements.
 	 */
 	const updateBlock = () => {
+		console.log(blockSelected);
 		setCurrentBlocksData(
+			getUpdatedArrayById(
+				{
+					...blockSelected,
+					...{
+						id: blockSelected.id,
+						type: typeDOM.current.value,
+						data: {
+							label: titleDOM.current.value,
+							resource: optionsDOM.current.value,
+							children: blockSelected.children,
+							identation: blockSelected.identation,
+						},
+					},
+				},
+				currentBlocksData
+			)
+		);
+
+		/*setCurrentBlocksData(
 			getUpdatedBlocksData(
 				{
 					id: blockSelected.id,
@@ -277,7 +301,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 				},
 				currentBlocksData
 			)
-		);
+		);*/
 		if (autoHideAside) {
 			setExpandedAside(false);
 		}
@@ -553,9 +577,9 @@ export default function Aside({ className, closeBtn, svgExists }) {
 
 											{blockSelected.children &&
 												blockSelected.children.map((childId) => {
-													const selectedChild = currentBlocksData.find(
-														(child) => child.id === childId
-													);
+													const selectedChild = reactFlowInstance
+														.getNodes()
+														.find((child) => child.id === childId);
 
 													return (
 														<option

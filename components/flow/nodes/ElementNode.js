@@ -229,7 +229,7 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 		return (
 			getHumanDesc() +
 			", " +
-			data.title +
+			data.label +
 			", posición en el eje X: " +
 			xPos +
 			", posición en el eje Y: " +

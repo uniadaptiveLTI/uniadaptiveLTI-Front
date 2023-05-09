@@ -10,14 +10,14 @@ export const getBlockById = (id, blocksData) => {
 	return blocksData.find((block) => block.id == id);
 };
 
-export const getBlockByNode = (node, blocksData) => {
+export const getBlockByNodeDOM = (node, blocksData) => {
 	return blocksData.find((block) => block.id == node.dataset.id);
 };
 
-export const getBlocksByNodes = (nodes, blocksData) => {
+export const getBlocksByNodesDOM = (nodes, blocksData) => {
 	const blockArray = [];
 	nodes.forEach((node) => {
-		const block = getBlockByNode(node, blocksData);
+		const block = getBlockByNodeDOM(node, blocksData);
 		if (block) {
 			blockArray.push(block);
 		}
@@ -25,17 +25,8 @@ export const getBlocksByNodes = (nodes, blocksData) => {
 	return blockArray;
 };
 
-export const getUpdatedBlocksData = (newBlock, blocksData) => {
-	const newBlocks = Array.isArray(newBlock) ? newBlock : [newBlock];
-
-	return blocksData.map((oldBlock) => {
-		const newBlock = newBlocks.find((block) => block.id === oldBlock.id);
-		return newBlock ? { ...oldBlock, ...newBlock } : oldBlock;
-	});
-};
-
 export const getUpdatedBlocksDataFromFlow = (blocksData, reactflowInstance) => {
-	return getUpdatedBlocksData(reactflowInstance.getNodes(), blocksData);
+	return getUpdatedArrayById(reactflowInstance.getNodes(), blocksData);
 };
 //Nodes
 
@@ -50,7 +41,7 @@ export const getNodeByBlock = (block, reactflowInstance) => {
 export const getNodesByBlocks = (blocks, reactflowInstance) => {
 	const nodeArray = [];
 	blocks.forEach((block) => {
-		const node = getBlockByNode(block, reactflowInstance);
+		const node = getBlockByNodeDOM(block, reactflowInstance);
 		if (node) {
 			nodeArray.push(node);
 		}
@@ -72,4 +63,21 @@ export const getNodesByProperty = (
 
 export const getEdgeBetweenNodeIds = (id1, id2, reactflowInstance) => {
 	return reactflowInstance.getEdge(`${id1}-${id2}`);
+};
+
+//Generic
+
+/**
+ * Returns a new array with updated entries from the original array.
+ * @param {Object|Object[]} updatedEntry - The entry or entries to be updated in the original array. Each entry must have an id property.
+ * @param {Object[]} originalArray - The original array of entries. Each entry must have an id property.
+ * @returns {Object[]} A new array with the updated entries. If an entry in the original array does not have a matching id in the updatedEntry, it is returned unchanged.
+ */
+export const getUpdatedArrayById = (updatedEntry, originalArray) => {
+	const newBlocks = Array.isArray(updatedEntry) ? updatedEntry : [updatedEntry];
+
+	return originalArray.map((oldEntry) => {
+		const newBlock = newBlocks.find((entry) => entry.id === oldEntry.id);
+		return newBlock ? { ...oldEntry, ...newBlock } : oldEntry;
+	});
 };

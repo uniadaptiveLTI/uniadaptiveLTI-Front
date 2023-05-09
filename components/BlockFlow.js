@@ -42,7 +42,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { PaneContextMenuPositionContext } from "./BlockCanvas.js";
 import { Button } from "react-bootstrap";
-import { getBlockById, getNodeById, getUpdatedBlocksData } from "./Utils.js";
+import { getBlockById, getNodeById, getUpdatedArrayById } from "./Utils.js";
 
 const minimapStyle = {
 	height: 120,
@@ -286,10 +286,10 @@ const OverviewFlow = ({ map, deleteBlocks, setShowContextualMenu }, ref) => {
 
 	const handleNodeDragStart = (event, node) => {
 		setShowContextualMenu(false);
-		let inFragment = true;
-		getBlockById(node.id, currentBlocksData).parent
-			? null
-			: (inFragment = false);
+		let inFragment = false;
+		if (node.parentNode != undefined) {
+			inFragment = true;
+		}
 		setSnapToGrid(!inFragment);
 		draggedNodePosition.current = node.position;
 	};
@@ -305,25 +305,12 @@ const OverviewFlow = ({ map, deleteBlocks, setShowContextualMenu }, ref) => {
 			(draggedNodesPosition.current.x !== nodes[0].position.x ||
 				draggedNodesPosition.current.y !== nodes[0].position.y)
 		) {
+			//FIXME:LOOK IF NECESSARY
 			const selectionBlock = nodes.map((b) => ({
-				id: b.id,
-				x: b.position.x,
-				y: b.position.y,
-				type: b.type,
-				title: b.data.label,
-				parent: b.parentNode,
-				style: b.data.style,
-				innerNodes: b.data.innerNodes,
-				expanded: b.data.expanded,
-				draggable: b.draggable,
-				children: b.data.children,
-				identation: b.data.identation,
-				conditions: b.data.conditions,
-				order: b.data.order,
-				unit: b.data.unit,
+				b,
 			}));
-			setCurrentBlocksData(
-				getUpdatedBlocksData(selectionBlock, currentBlocksData)
+			reactFlowInstance.setNodes(
+				getUpdatedArrayById(selectionBlock, reactFlowInstance.getNodes())
 			);
 		}
 	};
@@ -334,29 +321,9 @@ const OverviewFlow = ({ map, deleteBlocks, setShowContextualMenu }, ref) => {
 				draggedNodePosition.current.x !== node.position.x ||
 				draggedNodePosition.current.y !== node.position.y
 			) {
-				setCurrentBlocksData(
-					getUpdatedBlocksData(
-						{
-							id: node.id,
-							x: node.position.x,
-							y: node.position.y,
-							type: node.type,
-							title: node.data.label,
-							parent: node.parentNode,
-							style: node.data.style,
-							innerNodes: node.data.innerNodes,
-							expanded: node.data.expanded,
-							draggable: node.draggable,
-							children: node.data.children,
-							identation: node.data.identation,
-							conditions: node.data.conditions,
-							order: node.data.order,
-							unit: node.data.unit,
-						},
-						currentBlocksData
-					)
+				reactFlowInstance.setNodes(
+					getUpdatedArrayById(node, reactFlowInstance.getNodes())
 				);
-				console.log(node);
 				setSnapToGrid(true);
 			}
 		}
@@ -384,8 +351,20 @@ const OverviewFlow = ({ map, deleteBlocks, setShowContextualMenu }, ref) => {
 		}
 
 		setCurrentBlocksData(
-			getUpdatedBlocksData({ ...sourceNode }, currentBlocksData)
+			getUpdatedArrayById({ ...sourceNode }, currentBlocksData)
 		);
+
+		//FIXME:
+		setEdges([
+			...edges,
+			{
+				id: sourceNodeId + "-" + targetNodeId,
+				source: sourceNodeId,
+				target: targetNodeId,
+			},
+		]);
+
+		console.log(sourceNode);
 	};
 
 	useEffect(() => {
@@ -412,30 +391,16 @@ const OverviewFlow = ({ map, deleteBlocks, setShowContextualMenu }, ref) => {
 	useEffect(() => {
 		setNewInitialNodes(
 			map?.map((block) => ({
-				id: block.id,
-				type: block.type,
-				parentNode: block.parent,
+				...block,
 				extent: block.parent ? "parent" : undefined,
 				//draggable: block.parent ? false : true,
-				data: {
-					label: block.title,
-					identation: block.identation,
-					children: block.children,
-					conditions: block.conditions,
-					style: block.style,
-					innerNodes: block.innerNodes,
-					expanded: block.expanded,
-					order: block.order,
-					unit: block.unit,
-				},
-				position: { x: block.x, y: block.y },
 			}))
 		);
 
 		setNewInitialEdges(
 			map?.flatMap((parent) => {
-				if (parent.children) {
-					return parent.children.map((child) => {
+				if (parent.data.children) {
+					return parent.data.children.map((child) => {
 						return {
 							id: `${parent.id}-${child}`,
 							source: parent.id,
@@ -456,22 +421,24 @@ const OverviewFlow = ({ map, deleteBlocks, setShowContextualMenu }, ref) => {
 
 	// we are using a bit of a shortcut here to adjust the edge type
 	// this could also be done with a custom edge for example
-	const edgesWithUpdatedTypes = edges.map((edge) => {
-		if (edge.sourceHandle) {
-			const edgeType = nodes.find((node) => node.type === "custom").data
-				.selects[edge.sourceHandle];
-			edge.type = edgeType;
-		}
+	const edgesWithUpdatedTypes = edges
+		? edges.map((edge) => {
+				if (edge.sourceHandle) {
+					const edgeType = nodes.find((node) => node.type === "custom").data
+						.selects[edge.sourceHandle];
+					edge.type = edgeType;
+				}
 
-		//FIXME: Does nothing
-		if (edge.conditions != undefined) {
-			for (let condition of cedge.conditions) {
-				edge.label = "" + condition.operand + condition.objective;
-			}
-		}
+				//FIXME: Does nothing
+				if (edge.conditions != undefined) {
+					for (let condition of cedge.conditions) {
+						edge.label = "" + condition.operand + condition.objective;
+					}
+				}
 
-		return edge;
-	});
+				return edge;
+		  })
+		: edges;
 
 	return (
 		<div ref={reactFlowWrapper} style={{ height: "100%", width: "100%" }}>
@@ -502,6 +469,7 @@ const OverviewFlow = ({ map, deleteBlocks, setShowContextualMenu }, ref) => {
 				deleteKeyCode={["Backspace", "Delete", "d"]}
 				multiSelectionKeyCode={["Shift"]}
 				selectionKeyCode={["Shift"]}
+				zoomOnDoubleClick={false}
 			>
 				{minimap && (
 					<MiniMap

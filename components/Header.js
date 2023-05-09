@@ -36,6 +36,7 @@ import {
 	MSGContext,
 	SettingsContext,
 	OnlineContext,
+	ReactFlowInstanceContext,
 } from "@components/pages/_app";
 import { toast } from "react-toastify";
 import { notImplemented } from "@components/pages/_app";
@@ -81,6 +82,9 @@ function Header({ closeBtn }, ref) {
 
 	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
 
+	const { reactFlowInstance, setReactFlowInstance } = useContext(
+		ReactFlowInstanceContext
+	);
 	const { currentBlocksData, setCurrentBlocksData } =
 		useContext(BlocksDataContext);
 	const { isOffline } = useContext(OnlineContext);
@@ -147,6 +151,7 @@ function Header({ closeBtn }, ref) {
 		if (selectedMap.versions) {
 			setSelectedVersion(selectedMap.versions[0]);
 			setCurrentBlocksData(selectedMap.versions[0].blocksData);
+			console.log(selectedMap.versions[0].blocksData);
 		}
 		if (selectedMap.id == -1) {
 			setCurrentBlocksData();
@@ -304,6 +309,7 @@ function Header({ closeBtn }, ref) {
 		setCurrentBlocksData(
 			modifiedMap.versions[selectedMap.versions.length - 1].blocksData
 		);
+
 		toast(
 			`Versión: "Nueva Versión ${modifiedMap.versions.length - 1}" creada`,
 			defaultToastSuccess
@@ -392,7 +398,7 @@ function Header({ closeBtn }, ref) {
 			newMaps[mapIndex] = modifiedMap;
 			setMaps(newMaps);
 			setVersions(modifiedMap.versions);
-			setCurrentBlocksData(firstVersion?.blocksData || versions[0]?.blocksData);
+			currentBlocksData(firstVersion?.blocksData || versions[0]?.blocksData);
 			toast(`Versión eliminada con éxito.`, defaultToastSuccess);
 		} else {
 			toast(`No puedes eliminar esta versión.`, defaultToastError);
@@ -401,7 +407,7 @@ function Header({ closeBtn }, ref) {
 
 	const handleBlockDataExport = () => {
 		download(
-			encodeURIComponent(JSON.stringify(currentBlocksData)),
+			encodeURIComponent(JSON.stringify(reactFlowInstance.getNodes())),
 			`${mapSelected.name}-${selectedVersion.name}-${new Date()
 				.toLocaleDateString()
 				.replaceAll("/", "-")}.json`,
@@ -456,14 +462,14 @@ function Header({ closeBtn }, ref) {
 	}, [mapSelected]);
 
 	useEffect(() => {
-		if (selectedVersion) {
+		if (selectedVersion && reactFlowInstance) {
 			if (selectedVersion.id != versionJson.id) {
 				resetEdit();
 				setCurrentBlocksData(selectedVersion.blocksData);
 				resetMapSesion();
 			}
 		}
-	}, [selectedVersion]);
+	}, [selectedVersion, reactFlowInstance]);
 
 	useEffect(() => {
 		if (versions) {
@@ -844,7 +850,7 @@ function Header({ closeBtn }, ref) {
 												fontFamily: "monospace",
 											}}
 										>
-											{JSON.stringify(currentBlocksData, null, "\t")}
+											{JSON.stringify(reactFlowInstance.getNodes(), null, "\t")}
 										</code>
 									</details>
 								</div>

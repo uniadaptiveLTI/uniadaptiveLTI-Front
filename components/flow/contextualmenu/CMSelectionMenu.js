@@ -16,6 +16,7 @@ const Menu = (
 		handleDeleteBlockSelection,
 		handleBlockCopy,
 		handleBlockCut,
+		blocksData,
 		EnableCreateFragment,
 		EnableCopy,
 		EnableCut,
@@ -43,7 +44,7 @@ const Menu = (
 			<li>
 				<Button
 					variant="light"
-					onClick={() => handleBlockCopy()}
+					onClick={() => handleBlockCopy(blocksData)}
 					disabled={!EnableCopy}
 				>
 					<div>
@@ -58,7 +59,7 @@ const Menu = (
 			<li>
 				<Button
 					variant="light"
-					onClick={() => handleBlockCut()}
+					onClick={() => handleBlockCut(blocksData)}
 					disabled={!EnableCut}
 				>
 					<div>
@@ -73,7 +74,7 @@ const Menu = (
 			<li>
 				<Button
 					variant="light"
-					onClick={handleDeleteBlockSelection}
+					onClick={() => handleDeleteBlockSelection(blocksData)}
 					disabled={!EnableDelete}
 				>
 					<div>
@@ -94,6 +95,7 @@ export default function CMSelectionMenu({
 	handleDeleteBlockSelection,
 	handleBlockCopy,
 	handleBlockCut,
+	blocksData,
 	EnableCreateFragment = false,
 	EnableCopy = false,
 	EnableCut = false,
@@ -114,6 +116,7 @@ export default function CMSelectionMenu({
 				handleDeleteBlockSelection={handleDeleteBlockSelection}
 				handleBlockCopy={handleBlockCopy}
 				handleBlockCut={handleBlockCut}
+				blocksData={blocksData}
 				EnableCreateFragment={EnableCreateFragment}
 				EnableCut={EnableCut}
 				EnableCopy={EnableCopy}
@@ -126,6 +129,7 @@ export default function CMSelectionMenu({
 			handleDeleteBlockSelection={handleDeleteBlockSelection}
 			handleBlockCopy={handleBlockCopy}
 			handleBlockCut={handleBlockCut}
+			blocksData={blocksData}
 			EnableCreateFragment={EnableCreateFragment}
 			EnableCut={EnableCut}
 			EnableCopy={EnableCopy}

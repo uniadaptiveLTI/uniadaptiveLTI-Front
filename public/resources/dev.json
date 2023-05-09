@@ -11,357 +11,439 @@
 				"blocksData": [
 					{
 						"id": "dev-2A1",
-						"x": 0,
-						"y": 0,
+						"position": {
+							"x": 0,
+							"y": 0
+						},
 						"type": "start",
-						"title": "Inicio",
-						"children": ["dev0A1"],
-						"identation": 1
+						"data": {
+							"label": "Inicio",
+							"children": ["dev0A1"]
+						}
 					},
 					{
 						"id": "dev-1A1",
-						"x": 2000,
-						"y": 0,
+						"position": {
+							"x": 2000,
+							"y": 0
+						},
 						"type": "end",
-						"title": "Final",
-						"identation": 1
+						"data": {
+							"label": "Final"
+						}
 					},
 					{
 						"id": "dev0A1",
-						"x": 125,
-						"y": 0,
+						"position": {
+							"x": 125,
+							"y": 0
+						},
 						"type": "resource",
-						"title": "Objetivos del curso",
-						"res": "url/objetivos.pdf",
-						"children": ["dev1A1"],
-						"identation": 1,
-						"order": 1,
-						"unit": 1
+						"data": {
+							"label": "Objetivos del curso",
+							"res": "url/objetivos.pdf",
+							"children": ["dev1A1"],
+							"identation": 1,
+							"order": 1,
+							"unit": 1
+						}
 					},
 					{
 						"id": "dev1A1",
-						"x": 250,
-						"y": 0,
+						"position": {
+							"x": 250,
+							"y": 0
+						},
 						"type": "quiz",
-						"title": "Aerodinámica",
-						"children": ["dev2A1", "dev3A1", "dev9A1"],
-						"identation": 2,
-						"order": 2,
-						"unit": 1,
-						"conditions": {
-							"type": "conditionsGroup",
-							"id": "3123551512354",
-							"op": "&",
-							"conditions": [
-								{
-									"type": "qualification",
-									"id": "1326689252709",
-									"op": "fullCourse",
-									"objective": "2"
-								},
-								{
-									"type": "qualification",
-									"id": "7841278214890",
-									"op": "fullCourse",
-									"objective": "3"
-								},
-								{
-									"type": "qualification",
-									"id": "8795742484563",
-									"op": "fullCourse",
-									"objective": "10"
-								}
-							]
+						"data": {
+							"label": "Aerodinámica",
+							"children": ["dev2A1", "dev3A1", "dev9A1"],
+							"identation": 2,
+							"order": 2,
+							"unit": 1,
+							"conditions": {
+								"type": "conditionsGroup",
+								"id": "3123551512354",
+								"op": "&",
+								"conditions": [
+									{
+										"type": "qualification",
+										"id": "1326689252709",
+										"op": "fullCourse",
+										"objective": "2"
+									},
+									{
+										"type": "qualification",
+										"id": "7841278214890",
+										"op": "fullCourse",
+										"objective": "3"
+									},
+									{
+										"type": "qualification",
+										"id": "8795742484563",
+										"op": "fullCourse",
+										"objective": "10"
+									}
+								]
+							}
 						}
 					},
 					{
 						"id": "dev2A1",
-						"x": 375,
-						"y": -175,
+						"position": {
+							"x": 375,
+							"y": -175
+						},
 						"type": "badge",
-						"title": "Conocimiento"
+						"data": {
+							"label": "Conocimiento"
+						}
 					},
 					{
 						"id": "dev3A1",
-						"x": 500,
-						"y": 0,
+						"position": {
+							"x": 500,
+							"y": 0
+						},
 						"type": "url",
-						"title": "Web de Aerodinámica Avanzada",
-						"children": ["dev4A1"],
-						"identation": 2,
-						"order": 3,
-						"unit": 1
+						"data": {
+							"label": "Web de Aerodinámica Avanzada",
+							"children": ["dev4A1"],
+							"identation": 2,
+							"order": 3,
+							"unit": 1
+						}
 					},
 					{
 						"id": "dev4A1",
-						"x": 625,
-						"y": 0,
+						"position": {
+							"x": 625,
+							"y": 0
+						},
 						"type": "assign",
-						"title": "Ejercicios de la Web",
-						"children": ["dev5A1", "dev6A1"],
-						"identation": 2,
-						"order": 4,
-						"unit": 1,
-						"conditions": {
-							"type": "conditionsGroup",
-							"id": "784378163420978",
-							"op": "&",
-							"conditions": [
-								{
-									"type": "qualification",
-									"id": "89674351236523",
-									"op": "fullCourse",
-									"objective": "2"
-								},
-								{
-									"type": "qualification",
-									"id": "1532657364123",
-									"op": "fullCourse",
-									"objective": "2"
-								}
-							]
+						"data": {
+							"label": "Ejercicios de la Web",
+							"children": ["dev5A1", "dev6A1"],
+							"identation": 2,
+							"order": 4,
+							"unit": 1,
+							"conditions": {
+								"type": "conditionsGroup",
+								"id": "784378163420978",
+								"op": "&",
+								"conditions": [
+									{
+										"type": "qualification",
+										"id": "89674351236523",
+										"op": "fullCourse",
+										"objective": "2"
+									},
+									{
+										"type": "qualification",
+										"id": "1532657364123",
+										"op": "fullCourse",
+										"objective": "2"
+									}
+								]
+							}
 						}
 					},
 					{
 						"id": "dev5A1",
-						"x": 1000,
-						"y": 0,
+						"position": {
+							"x": 1000,
+							"y": 0
+						},
 						"type": "quiz",
-						"title": "Física de fluidos",
-						"children": ["dev7A1", "dev8A1", "dev13A1"],
-						"identation": 3,
-						"order": 8,
-						"unit": 1,
-						"conditions": {
-							"type": "conditionsGroup",
-							"id": "100236670156",
-							"op": "|",
-							"conditions": [
-								{
-									"type": "qualification",
-									"id": "1326689252709",
-									"op": "Ejercicios de la Web",
-									"objective2": "5"
-								},
-								{
-									"type": "conditionsGroup",
-									"id": "100236670128",
-									"op": "&",
-									"conditions": [
-										{
-											"type": "qualification",
-											"id": "1321231241559",
-											"op": "fullCourse",
-											"objective": "10"
-										}
-									]
-								},
-								{
-									"type": "conditionsGroup",
-									"id": "324236670128",
-									"op": "&",
-									"conditions": [
-										{
-											"type": "qualification",
-											"id": "131234681559",
-											"op": "fullCourse",
-											"objective": "2"
-										}
-									]
-								}
-							]
+						"data": {
+							"label": "Física de fluidos",
+							"children": ["dev7A1", "dev8A1", "dev13A1"],
+							"identation": 3,
+							"order": 8,
+							"unit": 1,
+							"conditions": {
+								"type": "conditionsGroup",
+								"id": "100236670156",
+								"op": "|",
+								"conditions": [
+									{
+										"type": "qualification",
+										"id": "1326689252709",
+										"op": "Ejercicios de la Web",
+										"objective2": "5"
+									},
+									{
+										"type": "conditionsGroup",
+										"id": "100236670128",
+										"op": "&",
+										"conditions": [
+											{
+												"type": "qualification",
+												"id": "1321231241559",
+												"op": "fullCourse",
+												"objective": "10"
+											}
+										]
+									},
+									{
+										"type": "conditionsGroup",
+										"id": "324236670128",
+										"op": "&",
+										"conditions": [
+											{
+												"type": "qualification",
+												"id": "131234681559",
+												"op": "fullCourse",
+												"objective": "2"
+											}
+										]
+									}
+								]
+							}
 						}
 					},
 					{
 						"id": "dev6A1",
-						"x": 875,
-						"y": 175,
+						"position": {
+							"x": 875,
+							"y": 175
+						},
 						"type": "assign",
-						"title": "Ejercicios de ampliación",
-						"children": ["dev5A1"],
-						"identation": 3,
-						"order": 8,
-						"unit": 1
+						"data": {
+							"label": "Ejercicios de ampliación",
+							"children": ["dev5A1"],
+							"identation": 3,
+							"order": 8,
+							"unit": 1
+						}
 					},
 					{
 						"id": "dev7A1",
-						"x": 1750,
-						"y": -175,
+						"position": {
+							"x": 1750,
+							"y": -175
+						},
 						"type": "badge",
-						"title": "Mecánica de fluidos",
-						"identation": 1
+						"data": {
+							"label": "Mecánica de fluidos"
+						}
 					},
 					{
 						"id": "dev8A1",
-						"x": 1875,
-						"y": 0,
+						"position": {
+							"x": 1875,
+							"y": 0
+						},
 						"type": "page",
-						"title": "Física cuantica",
-						"children": ["dev-1A1"],
-						"identation": 1,
-						"order": 14,
-						"unit": 3
+						"data": {
+							"label": "Física cuantica",
+							"children": ["dev-1A1"],
+							"identation": 1,
+							"order": 14,
+							"unit": 3
+						}
 					},
 					{
 						"id": "dev9A1",
-						"x": 375,
-						"y": 350,
+						"position": {
+							"x": 375,
+							"y": 350
+						},
 						"type": "folder",
-						"title": "Aerodínamica, refuerzo",
-						"children": ["dev10A1"],
-						"identation": 2,
-						"order": 5,
-						"unit": 1
+						"data": {
+							"label": "Aerodínamica, refuerzo",
+							"children": ["dev10A1"],
+							"identation": 2,
+							"order": 5,
+							"unit": 1
+						}
 					},
 					{
 						"id": "dev10A1",
-						"x": 500,
-						"y": 350,
+						"position": {
+							"x": 500,
+							"y": 350
+						},
 						"type": "quiz",
-						"title": "Aerodínamica, refuerzo",
-						"children": ["dev11A1", "dev12A1", "dev5A1"],
-						"identation": 2,
-						"order": 6,
-						"unit": 1,
-						"conditions": {
-							"type": "conditionsGroup",
-							"id": "98437432194690",
-							"op": "&",
-							"conditions": [
-								{
-									"type": "qualification",
-									"id": "64819193482345",
-									"op": "fullCourse",
-									"objective": "2"
-								},
-								{
-									"type": "qualification",
-									"id": "1245689934223",
-									"op": "fullCourse",
-									"objective": "2"
-								}
-							]
+						"data": {
+							"label": "Aerodínamica, refuerzo",
+							"children": ["dev11A1", "dev12A1", "dev5A1"],
+							"identation": 2,
+							"order": 6,
+							"unit": 1,
+							"conditions": {
+								"type": "conditionsGroup",
+								"id": "98437432194690",
+								"op": "&",
+								"conditions": [
+									{
+										"type": "qualification",
+										"id": "64819193482345",
+										"op": "fullCourse",
+										"objective": "2"
+									},
+									{
+										"type": "qualification",
+										"id": "1245689934223",
+										"op": "fullCourse",
+										"objective": "2"
+									}
+								]
+							}
 						}
 					},
 					{
 						"id": "dev11A1",
-						"x": 625,
-						"y": 175,
+						"position": {
+							"x": 625,
+							"y": 175
+						},
 						"type": "badge",
-						"title": "Recuperación",
-						"identation": 3
+						"data": {
+							"label": "Recuperación"
+						}
 					},
 					{
 						"id": "dev12A1",
-						"x": 625,
-						"y": 525,
+						"position": {
+							"x": 625,
+							"y": 525
+						},
 						"type": "assign",
-						"title": "Trabajo de recuperación",
-						"children": ["dev6A1"],
-						"identation": 3,
-						"order": 7,
-						"unit": 1
+						"data": {
+							"label": "Trabajo de recuperación",
+							"children": ["dev6A1"],
+							"identation": 3,
+							"order": 7,
+							"unit": 1
+						}
 					},
 					{
 						"id": "devFragment",
-						"x": 1125,
-						"y": 175,
-						"type": "fragment",
-						"title": "Fragmento",
-						"style": {
-							"width": 318,
-							"height": 68
+						"position": {
+							"x": 1125,
+							"y": 175
 						},
-						"expanded": false,
-						"innerNodes": [
-							{
-								"id": "dev13A1",
-								"x": 32,
-								"y": 64
+						"type": "fragment",
+						"data": {
+							"label": "Fragmento",
+							"style": {
+								"width": 318,
+								"height": 68
 							},
-							{
-								"id": "dev14A1",
-								"x": 157,
-								"y": 64
-							},
-							{
-								"id": "dev15A1",
-								"x": 282,
-								"y": 64
-							}
-						]
-					},
-					{
-						"id": "dev13A1",
-						"x": 32,
-						"y": 64,
-						"type": "page",
-						"title": "Ayuda física de fluidos",
-						"parent": "devFragment",
-						"children": ["dev14A1"],
-						"identation": 3,
-						"order": 10,
-						"unit": 2
-					},
-					{
-						"id": "dev14A1",
-						"x": 157,
-						"y": 64,
-						"type": "forum",
-						"title": "Preguntas fluidos",
-						"parent": "devFragment",
-						"children": ["dev15A1"],
-						"identation": 3,
-						"order": 11,
-						"unit": 2
-					},
-					{
-						"id": "dev15A1",
-						"x": 282,
-						"y": 64,
-						"type": "quiz",
-						"title": "Recuperación fluidos",
-						"parent": "devFragment",
-						"children": ["dev7A1", "dev8A1", "dev16A1"],
-						"identation": 3,
-						"order": 12,
-						"unit": 2,
-						"conditions": {
-							"type": "conditionsGroup",
-							"id": "66789554263476",
-							"op": "&",
-							"conditions": [
+							"expanded": false,
+							"innerNodes": [
 								{
-									"type": "22374819276399",
-									"id": "33211882379017",
-									"op": "fullCourse",
-									"objective": "2"
+									"id": "dev13A1",
+									"position": {
+										"x": 32,
+										"y": 64
+									}
 								},
 								{
-									"type": "qualification",
-									"id": "45566778891238",
-									"op": "fullCourse",
-									"objective": "2"
+									"id": "dev14A1",
+									"position": {
+										"x": 157,
+										"y": 64
+									}
 								},
 								{
-									"type": "qualification",
-									"id": "92172368816234",
-									"op": "fullCourse",
-									"objective": "2"
+									"id": "dev15A1",
+									"position": {
+										"x": 282,
+										"y": 64
+									}
 								}
 							]
 						}
 					},
 					{
+						"id": "dev13A1",
+						"position": {
+							"x": 32,
+							"y": 64
+						},
+						"type": "page",
+						"parentNode": "devFragment",
+						"data": {
+							"label": "Ayuda física de fluidos",
+							"children": ["dev14A1"],
+							"identation": 3,
+							"order": 10,
+							"unit": 2
+						}
+					},
+					{
+						"id": "dev14A1",
+						"position": {
+							"x": 157,
+							"y": 64
+						},
+						"type": "forum",
+						"parentNode": "devFragment",
+						"data": {
+							"label": "Preguntas fluidos",
+							"children": ["dev15A1"],
+							"identation": 3,
+							"order": 11,
+							"unit": 2
+						}
+					},
+					{
+						"id": "dev15A1",
+						"position": {
+							"x": 282,
+							"y": 64
+						},
+						"type": "quiz",
+						"parentNode": "devFragment",
+						"data": {
+							"label": "Recuperación fluidos",
+							"children": ["dev7A1", "dev8A1", "dev16A1"],
+							"identation": 3,
+							"order": 12,
+							"unit": 2,
+							"conditions": {
+								"type": "conditionsGroup",
+								"id": "66789554263476",
+								"op": "&",
+								"conditions": [
+									{
+										"type": "22374819276399",
+										"id": "33211882379017",
+										"op": "fullCourse",
+										"objective": "2"
+									},
+									{
+										"type": "qualification",
+										"id": "45566778891238",
+										"op": "fullCourse",
+										"objective": "2"
+									},
+									{
+										"type": "qualification",
+										"id": "92172368816234",
+										"op": "fullCourse",
+										"objective": "2"
+									}
+								]
+							}
+						}
+					},
+					{
 						"id": "dev16A1",
-						"x": 1500,
-						"y": 350,
+						"position": {
+							"x": 1500,
+							"y": 350
+						},
 						"type": "assign",
-						"title": "Trabajo de recuperación",
-						"children": ["dev7A1", "dev8A1"],
-						"identation": 4,
-						"order": 13,
-						"unit": 2
+						"data": {
+							"label": "Trabajo de recuperación",
+							"children": ["dev7A1", "dev8A1"],
+							"identation": 4,
+							"order": 13,
+							"unit": 2
+						}
 					}
 				]
 			},
@@ -373,19 +455,25 @@
 				"blocksData": [
 					{
 						"id": "dev-2A2",
-						"x": 0,
-						"y": 0,
+						"position": {
+							"x": 0,
+							"y": 0
+						},
 						"type": "start",
-						"title": "Inicio",
-						"identation": 1
+						"data": {
+							"label": "Inicio"
+						}
 					},
 					{
 						"id": "dev-1A2",
-						"x": 125,
-						"y": 0,
+						"position": {
+							"x": 125,
+							"y": 0
+						},
 						"type": "end",
-						"title": "Final",
-						"identation": 1
+						"data": {
+							"label": "Final"
+						}
 					}
 				]
 			}
@@ -403,145 +491,190 @@
 				"blocksData": [
 					{
 						"id": "dev-2B1",
-						"x": 0,
-						"y": 175,
+						"position": {
+							"x": 0,
+							"y": 175
+						},
 						"type": "start",
-						"title": "Inicio",
-						"children": ["dev0B1"],
-						"identation": 1
+						"data": {
+							"label": "Inicio",
+							"children": ["dev0B1"]
+						}
 					},
 					{
 						"id": "dev-1B1",
-						"x": 1000,
-						"y": 525,
+						"position": {
+							"x": 1000,
+							"y": 525
+						},
 						"type": "end",
-						"title": "Final",
-						"identation": 1
+						"data": {
+							"label": "Final"
+						}
 					},
 					{
 						"id": "dev0B1",
-						"x": 125,
-						"y": 175,
+						"position": {
+							"x": 125,
+							"y": 175
+						},
 						"type": "resource",
-						"title": "Ecuaciones",
-						"children": ["dev1B1"],
-						"identation": 1,
-						"order": 1,
-						"unit": 1
+						"data": {
+							"label": "Ecuaciones",
+							"children": ["dev1B1"],
+							"identation": 1,
+							"order": 1,
+							"unit": 1
+						}
 					},
 					{
 						"id": "dev1B1",
-						"x": 250,
-						"y": 175,
+						"position": {
+							"x": 250,
+							"y": 175
+						},
 						"type": "quiz",
-						"title": "Examen Tema 1",
-						"children": ["dev2B1", "dev4B1"],
-						"identation": 2,
-						"order": 2,
-						"unit": 1,
-						"conditions": {
-							"type": "conditionsGroup",
-							"id": "781267123670427",
-							"op": "&",
-							"conditions": [
-								{
-									"type": "qualification",
-									"id": "984325782581123",
-									"op": "fullCourse",
-									"objective": "2"
-								},
-								{
-									"type": "qualification",
-									"id": "123658623618641",
-									"op": "fullCourse",
-									"objective": "2"
-								}
-							]
+						"data": {
+							"label": "Examen Tema 1",
+							"children": ["dev2B1", "dev4B1"],
+							"identation": 2,
+							"order": 2,
+							"unit": 1,
+							"conditions": {
+								"type": "conditionsGroup",
+								"id": "781267123670427",
+								"op": "&",
+								"conditions": [
+									{
+										"type": "qualification",
+										"id": "984325782581123",
+										"op": "fullCourse",
+										"objective": "2"
+									},
+									{
+										"type": "qualification",
+										"id": "123658623618641",
+										"op": "fullCourse",
+										"objective": "2"
+									}
+								]
+							}
 						}
 					},
 					{
 						"id": "dev2B1",
-						"x": 375,
-						"y": 0,
+						"position": {
+							"x": 375,
+							"y": 0
+						},
 						"type": "folder",
-						"title": "Ecuaciones",
-						"children": ["dev3B1"],
-						"identation": 2,
-						"order": 3,
-						"unit": 1
+						"data": {
+							"label": "Ecuaciones",
+							"children": ["dev3B1"],
+							"identation": 2,
+							"order": 3,
+							"unit": 1
+						}
 					},
 					{
 						"id": "dev3B1",
-						"x": 500,
-						"y": 0,
+						"position": {
+							"x": 500,
+							"y": 0
+						},
 						"type": "badge",
-						"title": "Insignia Ecuaciones",
-						"identation": 2
+						"data": {
+							"label": "Insignia Ecuaciones"
+						}
 					},
 					{
 						"id": "dev4B1",
-						"x": 375,
-						"y": 350,
+						"position": {
+							"x": 375,
+							"y": 350
+						},
 						"type": "url",
-						"title": "Web raices cuadradas",
-						"children": ["dev5B1"],
-						"identation": 1,
-						"order": 4,
-						"unit": 1
+						"data": {
+							"label": "Web raices cuadradas",
+							"children": ["dev5B1"],
+							"identation": 1,
+							"order": 4,
+							"unit": 1
+						}
 					},
 					{
 						"id": "dev5B1",
-						"x": 500,
-						"y": 350,
+						"position": {
+							"x": 500,
+							"y": 350
+						},
 						"type": "forum",
-						"title": "Foro de discusión",
-						"children": ["dev6B1"],
-						"identation": 2,
-						"order": 5,
-						"unit": 1
+						"data": {
+							"label": "Foro de discusión",
+							"children": ["dev6B1"],
+							"identation": 2,
+							"order": 5,
+							"unit": 1
+						}
 					},
 					{
 						"id": "dev6B1",
-						"x": 625,
-						"y": 350,
+						"position": {
+							"x": 625,
+							"y": 350
+						},
 						"type": "quiz",
-						"title": "Cuestionario de raices",
-						"children": ["dev7B1", "dev8B1"],
-						"identation": 1,
-						"order": 6,
-						"unit": 2
+						"data": {
+							"label": "Cuestionario de raices",
+							"children": ["dev7B1", "dev8B1"],
+							"identation": 1,
+							"order": 6,
+							"unit": 2
+						}
 					},
 					{
 						"id": "dev7B1",
-						"x": 750,
-						"y": 175,
+						"position": {
+							"x": 750,
+							"y": 175
+						},
 						"type": "assign",
-						"title": "Ejercicio de raices",
-						"identation": 1,
-						"order": 7,
-						"unit": 2
+						"data": {
+							"label": "Ejercicio de raices",
+							"identation": 1,
+							"order": 7,
+							"unit": 2
+						}
 					},
 					{
 						"id": "dev8B1",
-						"x": 750,
-						"y": 525,
+						"position": {
+							"x": 750,
+							"y": 525
+						},
 						"type": "choice",
-						"title": "Preguntas sobre raices",
-						"children": ["dev9B1"],
-						"identation": 1,
-						"order": 8,
-						"unit": 2
+						"data": {
+							"label": "Preguntas sobre raices",
+							"children": ["dev9B1"],
+							"identation": 1,
+							"order": 8,
+							"unit": 2
+						}
 					},
 					{
 						"id": "dev9B1",
-						"x": 875,
-						"y": 525,
+						"position": {
+							"x": 875,
+							"y": 525
+						},
 						"type": "page",
-						"title": "Web informativa",
-						"children": ["dev-1B1"],
-						"identation": 2,
-						"order": 9,
-						"unit": 3
+						"data": {
+							"label": "Web informativa",
+							"children": ["dev-1B1"],
+							"identation": 2,
+							"order": 9,
+							"unit": 3
+						}
 					}
 				]
 			},
@@ -553,166 +686,222 @@
 				"blocksData": [
 					{
 						"id": "dev-2B2",
-						"x": 0,
-						"y": 700,
+						"position": {
+							"x": 0,
+							"y": 700
+						},
 						"type": "start",
-						"title": "Inicio",
-						"children": ["dev0B2"],
-						"identation": 1
+						"data": {
+							"label": "Inicio",
+							"children": ["dev0B2"]
+						}
 					},
 					{
 						"id": "dev-1B2",
-						"x": 1000,
-						"y": 700,
+						"position": {
+							"x": 1000,
+							"y": 700
+						},
 						"type": "end",
-						"title": "Final",
-						"identation": 1
+						"data": {
+							"label": "Final"
+						}
 					},
 					{
 						"id": "dev0B2",
-						"x": 125,
-						"y": 700,
+						"position": {
+							"x": 125,
+							"y": 700
+						},
 						"type": "resource",
-						"title": "Ecuaciones",
-						"children": ["dev1B2"],
-						"identation": 1,
-						"order": 1,
-						"unit": 1
+						"data": {
+							"label": "Ecuaciones",
+							"children": ["dev1B2"],
+							"identation": 1,
+							"order": 1,
+							"unit": 1
+						}
 					},
 					{
 						"id": "dev1B2",
-						"x": 250,
-						"y": 700,
+						"position": {
+							"x": 250,
+							"y": 700
+						},
 						"type": "quiz",
-						"title": "Examen Tema 1",
-						"children": ["dev2B2", "dev5B2"],
-						"identation": 2,
-						"order": 2,
-						"unit": 1,
-						"conditions": {
-							"type": "conditionsGroup",
-							"id": "77665544331122",
-							"op": "&",
-							"conditions": [
-								{
-									"type": "qualification",
-									"id": "22885507753719",
-									"op": "fullCourse",
-									"objective": "2"
-								},
-								{
-									"type": "qualification",
-									"id": "228855077531234",
-									"op": "fullCourse",
-									"objective": "2"
-								}
-							]
+						"data": {
+							"label": "Examen Tema 1",
+							"children": ["dev2B2", "dev5B2"],
+							"identation": 2,
+							"order": 2,
+							"unit": 1,
+							"conditions": {
+								"type": "conditionsGroup",
+								"id": "77665544331122",
+								"op": "&",
+								"conditions": [
+									{
+										"type": "qualification",
+										"id": "22885507753719",
+										"op": "fullCourse",
+										"objective": "2"
+									},
+									{
+										"type": "qualification",
+										"id": "228855077531234",
+										"op": "fullCourse",
+										"objective": "2"
+									}
+								]
+							}
 						}
 					},
 					{
 						"id": "dev2B2",
-						"x": 375,
-						"y": 525,
+						"position": {
+							"x": 375,
+							"y": 525
+						},
 						"type": "folder",
-						"title": "Carpeta Ecuaciones",
-						"children": ["dev10B2", "dev11B2"],
-						"identation": 2,
-						"order": 3,
-						"unit": 1
+						"data": {
+							"label": "Carpeta Ecuaciones",
+							"children": ["dev10B2", "dev11B2"],
+							"identation": 2,
+							"order": 3,
+							"unit": 1
+						}
 					},
 					{
 						"id": "dev5B2",
-						"x": 375,
-						"y": 1050,
+						"position": {
+							"x": 375,
+							"y": 1050
+						},
 						"type": "quiz",
-						"title": "Cuestionario de raices",
-						"children": ["dev6B2", "dev7B2"],
-						"identation": 1,
-						"order": 8,
-						"unit": 2
+						"data": {
+							"label": "Cuestionario de raices",
+							"children": ["dev6B2", "dev7B2"],
+							"identation": 1,
+							"order": 8,
+							"unit": 2
+						}
 					},
 					{
 						"id": "dev6B2",
-						"x": 625,
-						"y": 875,
+						"position": {
+							"x": 625,
+							"y": 875
+						},
 						"type": "assign",
-						"title": "Ejercicio de raices",
-						"children": ["dev-1B2"],
-						"identation": 1,
-						"order": 9,
-						"unit": 2
+						"data": {
+							"label": "Ejercicio de raices",
+							"children": ["dev-1B2"],
+							"identation": 1,
+							"order": 9,
+							"unit": 2
+						}
 					},
 					{
 						"id": "dev7B2",
 						"x": 625,
 						"y": 1225,
+						"position": {
+							"x": 625,
+							"y": 1225
+						},
 						"type": "choice",
-						"title": "Preguntas y respuestas",
-						"children": ["dev40B2", "dev41B2"],
-						"identation": 1,
-						"order": 10,
-						"unit": 2
+						"data": {
+							"label": "Preguntas y respuestas",
+							"children": ["dev40B2", "dev41B2"],
+							"identation": 1,
+							"order": 10,
+							"unit": 2
+						}
 					},
 					{
 						"id": "dev10B2",
-						"x": 500,
-						"y": 350,
+						"position": {
+							"x": 500,
+							"y": 350
+						},
 						"type": "folder",
-						"title": "Carpeta Ecuaciones 2",
-						"children": ["dev12B2", "dev13B2"],
-						"identation": 2,
-						"order": 4,
-						"unit": 1
+						"data": {
+							"label": "Carpeta Ecuaciones 2",
+							"children": ["dev12B2", "dev13B2"],
+							"identation": 2,
+							"order": 4,
+							"unit": 1
+						}
 					},
 					{
 						"id": "dev11B2",
-						"x": 500,
-						"y": 700,
+						"position": {
+							"x": 500,
+							"y": 700
+						},
 						"type": "folder",
-						"title": "Carpeta Ecuaciones 3",
-						"identation": 2,
-						"order": 5,
-						"unit": 1
+						"data": {
+							"label": "Carpeta Ecuaciones 3",
+							"identation": 2,
+							"order": 5,
+							"unit": 1
+						}
 					},
 					{
 						"id": "dev12B2",
-						"x": 625,
-						"y": 175,
+						"position": {
+							"x": 625,
+							"y": 175
+						},
 						"type": "folder",
-						"title": "Insignia Ecuaciones 4",
-						"identation": 2,
-						"order": 6,
-						"unit": 1
+						"data": {
+							"label": "Insignia Ecuaciones 4",
+							"identation": 2,
+							"order": 6,
+							"unit": 1
+						}
 					},
 					{
 						"id": "dev13B2",
-						"x": 625,
-						"y": 525,
+						"position": {
+							"x": 625,
+							"y": 525
+						},
 						"type": "folder",
-						"title": "Carpeta Ecuaciones 5",
-						"identation": 2,
-						"order": 7,
-						"unit": 1
+						"data": {
+							"label": "Carpeta Ecuaciones 5",
+							"identation": 2,
+							"order": 7,
+							"unit": 1
+						}
 					},
 					{
 						"id": "dev40B2",
-						"x": 750,
-						"y": 1050,
+						"position": {
+							"x": 750,
+							"y": 1050
+						},
 						"type": "page",
-						"title": "Web informativa 2",
-						"identation": 2,
-						"order": 11,
-						"unit": 2
+						"data": {
+							"label": "Web informativa 2",
+							"identation": 2,
+							"order": 11,
+							"unit": 2
+						}
 					},
 					{
 						"id": "dev41B2",
-						"x": 750,
-						"y": 1400,
+						"position": {
+							"x": 750,
+							"y": 1400
+						},
 						"type": "page",
-						"title": "Web informativa 3",
-						"identation": 2,
-						"order": 12,
-						"unit": 2
+						"data": {
+							"label": "Web informativa 3",
+							"identation": 2,
+							"order": 12,
+							"unit": 2
+						}
 					}
 				]
 			},
@@ -724,220 +913,294 @@
 				"blocksData": [
 					{
 						"id": "dev-2B3",
-						"x": 0,
-						"y": 175,
+						"position": {
+							"x": 0,
+							"y": 175
+						},
 						"type": "start",
-						"title": "Inicio",
-						"children": ["dev0B3"],
-						"identation": 1
+						"data": {
+							"label": "Inicio",
+							"children": ["dev0B3"]
+						}
 					},
 					{
 						"id": "dev-1B3",
-						"x": 1500,
-						"y": 525,
+						"position": {
+							"x": 1500,
+							"y": 525
+						},
 						"type": "end",
-						"title": "Final",
-						"identation": 1
+						"data": {
+							"label": "Final"
+						}
 					},
 					{
 						"id": "dev0B3",
-						"x": 125,
-						"y": 175,
+						"position": {
+							"x": 125,
+							"y": 175
+						},
 						"type": "resource",
-						"title": "Ecuaciones",
-						"children": ["dev1B3"],
-						"identation": 1,
-						"order": 1,
-						"unit": 1
+						"data": {
+							"label": "Ecuaciones",
+							"children": ["dev1B3"],
+							"identation": 1,
+							"order": 1,
+							"unit": 1
+						}
 					},
 					{
 						"id": "dev1B3",
-						"x": 250,
-						"y": 175,
+						"position": {
+							"x": 250,
+							"y": 175
+						},
 						"type": "quiz",
-						"title": "Examen Tema 1",
-						"children": ["dev2B3", "dev3B3"],
-						"identation": 2,
-						"order": 2,
-						"unit": 1,
-						"conditions": {
-							"type": "conditionsGroup",
-							"id": "44885577221100",
-							"op": "&",
-							"conditions": [
-								{
-									"type": "qualification",
-									"id": "0987886579865",
-									"op": "fullCourse",
-									"objective": "2"
-								},
-								{
-									"type": "qualification",
-									"id": "3678543556977",
-									"op": "fullCourse",
-									"objective": "2"
-								}
-							]
+						"data": {
+							"label": "Examen Tema 1",
+							"children": ["dev2B3", "dev3B3"],
+							"identation": 2,
+							"order": 2,
+							"unit": 1,
+							"conditions": {
+								"type": "conditionsGroup",
+								"id": "44885577221100",
+								"op": "&",
+								"conditions": [
+									{
+										"type": "qualification",
+										"id": "0987886579865",
+										"op": "fullCourse",
+										"objective": "2"
+									},
+									{
+										"type": "qualification",
+										"id": "3678543556977",
+										"op": "fullCourse",
+										"objective": "2"
+									}
+								]
+							}
 						}
 					},
 					{
 						"id": "dev2B3",
-						"x": 375,
-						"y": 0,
+						"position": {
+							"x": 375,
+							"y": 0
+						},
 						"type": "folder",
-						"title": "Carpeta Ecuaciones",
-						"identation": 2,
-						"order": 3,
-						"unit": 1
+						"data": {
+							"label": "Carpeta Ecuaciones",
+							"identation": 2,
+							"order": 3,
+							"unit": 1
+						}
 					},
 					{
 						"id": "dev3B3",
-						"x": 375,
-						"y": 350,
+						"position": {
+							"x": 375,
+							"y": 350
+						},
 						"type": "url",
-						"title": "Web raices cuadradas",
-						"children": ["dev4B3"],
-						"identation": 1,
-						"order": 4,
-						"unit": 1
+						"data": {
+							"label": "Web raices cuadradas",
+							"children": ["dev4B3"],
+							"identation": 1,
+							"order": 4,
+							"unit": 1
+						}
 					},
 					{
 						"id": "dev4B3",
-						"x": 500,
-						"y": 350,
+						"position": {
+							"x": 500,
+							"y": 350
+						},
 						"type": "forum",
-						"title": "Foro de discusión",
-						"children": ["dev5B3"],
-						"identation": 2,
-						"order": 5,
-						"unit": 1
+						"data": {
+							"label": "Foro de discusión",
+							"children": ["dev5B3"],
+							"identation": 2,
+							"order": 5,
+							"unit": 1
+						}
 					},
 					{
 						"id": "dev5B3",
-						"x": 625,
-						"y": 350,
+						"position": {
+							"x": 625,
+							"y": 350
+						},
 						"type": "quiz",
-						"title": "Cuestionario de raices",
-						"children": ["dev6B3", "dev7B3"],
-						"identation": 1,
-						"order": 6,
-						"unit": 1
+						"data": {
+							"label": "Cuestionario de raices",
+							"children": ["dev6B3", "dev7B3"],
+							"identation": 1,
+							"order": 6,
+							"unit": 1
+						}
 					},
 					{
 						"id": "dev6B3",
-						"x": 750,
-						"y": 0,
+						"position": {
+							"x": 750,
+							"y": 0
+						},
 						"type": "assign",
-						"title": "Ejercicio de raices",
-						"identation": 1,
-						"order": 7,
-						"unit": 1
+						"data": {
+							"label": "Ejercicio de raices",
+							"identation": 1,
+							"order": 7,
+							"unit": 1
+						}
 					},
 					{
 						"id": "dev7B3",
-						"x": 750,
-						"y": 350,
+						"position": {
+							"x": 750,
+							"y": 350
+						},
 						"type": "choice",
-						"title": "Preguntas de Matemáticas",
-						"children": ["dev8B3"],
-						"identation": 1,
-						"order": 8,
-						"unit": 1
+						"data": {
+							"label": "Preguntas de Matemáticas",
+							"children": ["dev8B3"],
+							"identation": 1,
+							"order": 8,
+							"unit": 1
+						}
 					},
 					{
 						"id": "dev8B3",
-						"x": 875,
-						"y": 525,
+						"position": {
+							"x": 875,
+							"y": 525
+						},
 						"type": "page",
-						"title": "Web informativa",
-						"children": ["dev40B3", "dev41B3"],
-						"identation": 2,
-						"order": 9,
-						"unit": 1
+						"data": {
+							"label": "Web informativa",
+							"children": ["dev40B3", "dev41B3"],
+							"identation": 2,
+							"order": 9,
+							"unit": 1
+						}
 					},
 					{
 						"id": "dev40B3",
-						"x": 1000,
-						"y": 875,
+						"position": {
+							"x": 1000,
+							"y": 875
+						},
 						"type": "page",
-						"title": "Web informativa 2",
-						"identation": 2,
-						"order": 10,
-						"unit": 2
+						"data": {
+							"label": "Web informativa 2",
+							"identation": 2,
+							"order": 10,
+							"unit": 2
+						}
 					},
 					{
 						"id": "dev41B3",
-						"x": 1000,
-						"y": 525,
+						"position": {
+							"x": 1000,
+							"y": 525
+						},
 						"type": "page",
-						"title": "Web informativa 3",
-						"children": ["dev44B3", "dev45B3"],
-						"identation": 2,
-						"order": 11,
-						"unit": 2
+						"data": {
+							"label": "Web informativa 3",
+							"children": ["dev44B3", "dev45B3"],
+							"identation": 2,
+							"order": 11,
+							"unit": 2
+						}
 					},
 					{
 						"id": "dev44B3",
-						"x": 1125,
-						"y": 525,
+						"position": {
+							"x": 1125,
+							"y": 525
+						},
 						"type": "page",
-						"title": "Web informativa 6",
-						"children": ["dev46B3", "dev47B3"],
-						"identation": 2,
-						"order": 12,
-						"unit": 2
+						"data": {
+							"label": "Web informativa 6",
+							"children": ["dev46B3", "dev47B3"],
+							"identation": 2,
+							"order": 12,
+							"unit": 2
+						}
 					},
 					{
 						"id": "dev45B3",
-						"x": 1125,
-						"y": 875,
+						"position": {
+							"x": 1125,
+							"y": 875
+						},
 						"type": "page",
-						"title": "Web informativa 7",
-						"identation": 2,
-						"order": 13,
-						"unit": 2
+						"data": {
+							"label": "Web informativa 7",
+							"identation": 2,
+							"order": 13,
+							"unit": 2
+						}
 					},
 					{
 						"id": "dev46B3",
-						"x": 1250,
-						"y": 525,
+						"position": {
+							"x": 1250,
+							"y": 525
+						},
 						"type": "page",
-						"title": "Web informativa 8",
-						"children": ["dev48B3", "dev49B3"],
-						"identation": 2,
-						"order": 14,
-						"unit": 2
+						"data": {
+							"label": "Web informativa 8",
+							"children": ["dev48B3", "dev49B3"],
+							"identation": 2,
+							"order": 14,
+							"unit": 2
+						}
 					},
 					{
 						"id": "dev47B3",
-						"x": 1250,
-						"y": 875,
+						"position": {
+							"x": 1250,
+							"y": 875
+						},
 						"type": "page",
-						"title": "Web informativa 9",
-						"identation": 2,
-						"order": 15,
-						"unit": 2
+						"data": {
+							"label": "Web informativa 9",
+							"identation": 2,
+							"order": 15,
+							"unit": 2
+						}
 					},
 					{
 						"id": "dev48B3",
-						"x": 1375,
-						"y": 525,
+						"position": {
+							"x": 1375,
+							"y": 525
+						},
 						"type": "page",
-						"title": "Web informativa 10",
-						"children": ["dev-1B3"],
-						"identation": 2,
-						"order": 16,
-						"unit": 2
+						"data": {
+							"label": "Web informativa 10",
+							"children": ["dev-1B3"],
+							"identation": 2,
+							"order": 16,
+							"unit": 2
+						}
 					},
 					{
 						"id": "dev49B3",
-						"x": 1375,
-						"y": 875,
+						"position": {
+							"x": 1375,
+							"y": 875
+						},
 						"type": "page",
-						"title": "Web informativa 11",
-						"identation": 2,
-						"order": 17,
-						"unit": 2
+						"data": {
+							"label": "Web informativa 11",
+							"identation": 2,
+							"order": 17,
+							"unit": 2
+						}
 					}
 				]
 			}
@@ -955,19 +1218,25 @@
 				"blocksData": [
 					{
 						"id": "dev-2C1",
-						"x": 0,
-						"y": 0,
+						"position": {
+							"x": 0,
+							"y": 0
+						},
 						"type": "start",
-						"title": "Inicio",
-						"identation": 1
+						"data": {
+							"label": "Inicio"
+						}
 					},
 					{
 						"id": "dev-1C1",
-						"x": 125,
-						"y": 0,
+						"position": {
+							"x": 125,
+							"y": 0
+						},
 						"type": "end",
-						"title": "Final",
-						"identation": 1
+						"data": {
+							"label": "Final"
+						}
 					}
 				]
 			},
@@ -981,17 +1250,25 @@
 						"id": "dev-2C2",
 						"x": 0,
 						"y": 0,
+						"position": {
+							"x": 0,
+							"y": 0
+						},
 						"type": "start",
-						"title": "Inicio",
-						"identation": 1
+						"data": {
+							"label": "Inicio"
+						}
 					},
 					{
 						"id": "dev-1C2",
-						"x": 125,
-						"y": 0,
+						"position": {
+							"x": 125,
+							"y": 0
+						},
 						"type": "end",
-						"title": "Final",
-						"identation": 1
+						"data": {
+							"label": "Final"
+						}
 					}
 				]
 			}

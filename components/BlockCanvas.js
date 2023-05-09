@@ -28,7 +28,7 @@ import ConditionModal from "./flow/conditions/ConditionModal.js";
 import BlockFlow from "./BlockFlow.js";
 import { toast } from "react-toastify";
 import { useHotkeys } from "react-hotkeys-hook";
-import { uniqueId, getBlockByNode } from "./Utils.js";
+import { uniqueId, getBlockByNodeDOM, getBlocksByNodesDOM } from "./Utils.js";
 
 export const BlockOriginContext = createContext();
 export const PaneContextMenuPositionContext = createContext();
@@ -45,7 +45,7 @@ function addEventListeners(element, events) {
 	});
 }
 
-const reservedBlocksTypes = ["start", "end", "fragment"];
+const reservedBlocksTypes = ["start", "end"];
 
 /**
  * Checks if there are any reserved blocks in an array of DOM elements
@@ -115,7 +115,7 @@ export default function BlockCanvas() {
 
 	//This will be given by the back
 
-	const currentBlocksDataRef = useRef(currentBlocksData);
+	//const currentBlocksDataRef = useRef(reactFlowInstance.getNodes());
 
 	/** Client-side */
 
@@ -143,19 +143,21 @@ export default function BlockCanvas() {
 	});
 
 	useEffect(() => {
-		if (cMBlockData)
+		if (cMBlockData && reactFlowInstance)
 			if (!Array.isArray(cMBlockData)) {
-				let newcurrentBlocksData = [...currentBlocksData];
+				let newcurrentBlocksData = [...reactFlowInstance.getNodes()];
 				newcurrentBlocksData[
-					currentBlocksData.findIndex((b) => b.id == cMBlockData.id)
+					reactFlowInstance.getNodes().findIndex((b) => b.id == cMBlockData.id)
 				] = cMBlockData;
-				setCurrentBlocksData(newcurrentBlocksData);
+				reactFlowInstance.setNodes(newcurrentBlocksData);
 			} else {
-				const newcurrentBlocksData = currentBlocksData.map((block) => {
-					const newBlock = cMBlockData.find((b) => b.id === block.id);
-					return newBlock ? { ...block, ...newBlock } : block;
-				});
-				setCurrentBlocksData(newcurrentBlocksData);
+				const newcurrentBlocksData = reactFlowInstance
+					.getNodes()
+					.map((block) => {
+						const newBlock = cMBlockData.find((b) => b.id === block.id);
+						return newBlock ? { ...block, ...newBlock } : block;
+					});
+				reactFlowInstance.setNodes(newcurrentBlocksData);
 			}
 	}, [cMBlockData]);
 
@@ -163,7 +165,7 @@ export default function BlockCanvas() {
 
 	useEffect(() => {
 		if (deletedEdge.id) {
-			let updatedBlocksArray = currentBlocksData.slice();
+			let updatedBlocksArray = reactFlowInstance.getNodes().slice();
 
 			const blockNodeDelete = updatedBlocksArray.find(
 				(obj) => obj.id === deletedEdge.source
@@ -191,15 +193,15 @@ export default function BlockCanvas() {
 				}
 			}
 
-			setCurrentBlocksData(updatedBlocksArray);
+			reactFlowInstance.setNodes(updatedBlocksArray);
 		}
 	}, [deletedEdge]);
 
 	const deleteBlocks = (blocks) => {
 		if (!Array.isArray(blocks)) {
-			const deletedBlockArray = currentBlocksData.filter(
-				(b) => b.id !== blocks.id
-			);
+			const deletedBlockArray = reactFlowInstance
+				.getNodes()
+				.filter((b) => b.id !== blocks.id);
 			const deletedRelatedChildrenArray = deleteRelatedChildrenById(
 				blocks.id,
 				deletedBlockArray
@@ -210,10 +212,10 @@ export default function BlockCanvas() {
 				deletedRelatedChildrenArray
 			);
 
-			setCurrentBlocksData(deleteRelatedConditionsArray);
+			reactFlowInstance.setNodes(deleteRelatedConditionsArray);
 		} else {
 			if (blocks.length > 0) {
-				let updatedBlocksArray = currentBlocksData.slice();
+				let updatedBlocksArray = reactFlowInstance.getNodes().slice();
 
 				blocks.forEach((b) => {
 					const id = b.id;
@@ -229,7 +231,7 @@ export default function BlockCanvas() {
 					);
 				});
 
-				setCurrentBlocksData(updatedBlocksArray);
+				reactFlowInstance.setNodes(updatedBlocksArray);
 			}
 		}
 	};
@@ -320,10 +322,6 @@ export default function BlockCanvas() {
 		]);
 	}, []);
 
-	useLayoutEffect(() => {
-		currentBlocksDataRef.current = currentBlocksData;
-	}, [expandedAside, settings, currentBlocksData]);
-
 	/**
 	 * Handles the context menu position, positioning it.
 	 * @param {Event} e
@@ -344,9 +342,7 @@ export default function BlockCanvas() {
 						e.preventDefault();
 						setCMX(e.clientX - bounds.left);
 						setCMY(e.clientY - bounds.top);
-						let block = currentBlocksDataRef.current.find(
-							(e) => e.id == selectedBlock.id
-						);
+						let block = currentBlocksData.find((e) => e.id == selectedBlock.id);
 						setCMBlockData(block);
 						if (block.type == "start" || block.type == "end") {
 							setCMContainsReservedNodes(true);
@@ -367,13 +363,19 @@ export default function BlockCanvas() {
 						document.getElementsByClassName("selected").length > 1)
 				) {
 					e.preventDefault();
+					const selectedNodes = [
+						...document.querySelectorAll(".react-flow__node.selected"),
+					];
 					setCMX(e.clientX - bounds.left);
 					setCMY(e.clientY - bounds.top);
 					setContextMenuOrigin("nodesselection");
+
+					console.log(selectedNodes);
+					setCMBlockData(
+						getBlocksByNodesDOM(selectedNodes, reactFlowInstance.getNodes())
+					);
 					setCMContainsReservedNodes(
-						thereIsReservedBlocksInArray([
-							...document.querySelectorAll(".react-flow__node.selected"),
-						])
+						thereIsReservedBlocksInArray(selectedNodes)
 					);
 					setShowContextualMenu(true);
 				}
@@ -388,22 +390,23 @@ export default function BlockCanvas() {
 	const handleBlockCopy = (blockData = []) => {
 		setShowContextualMenu(false);
 
-		let blockDataSet = new Set(blockData);
+		let blockDataSet;
 		if (blockData.length > 0) {
 			blockDataSet = new Set(blockData);
 		} else {
 			blockDataSet = new Set();
 		}
 
-		const selectedNodes = document.querySelectorAll(
-			".react-flow__node.selected"
-		);
+		const selectedNodes = [
+			...document.querySelectorAll(".react-flow__node.selected"),
+		];
 
 		for (const node of selectedNodes) {
 			const id = node.dataset?.id;
+			console.log(id);
 			if (id) {
 				const blockDataMap = new Map(
-					currentBlocksData.map((block) => [block.id, block])
+					reactFlowInstance.getNodes().map((block) => [block.id, block])
 				);
 				const block = blockDataMap.get(id);
 				if (block) {
@@ -469,7 +472,10 @@ export default function BlockCanvas() {
 			handleDeleteBlockSelection();
 		} else {
 			if (selectedNodes.length == 1) {
-				blockData = getBlockByNode(selectedNodes[0], currentBlocksData);
+				blockData = getBlockByNodeDOM(
+					selectedNodes[0],
+					reactFlowInstance.getNodes()
+				);
 			}
 			handleDeleteBlock(blockData);
 		}
@@ -492,7 +498,7 @@ export default function BlockCanvas() {
 			y: preferredPosition.y - reactFlowBounds.top,
 		});
 
-		const asideOffset = expanded
+		const asideOffset = expandedAside
 			? Math.floor(asideBounds.width / 125) * 125
 			: 0;
 
@@ -536,9 +542,9 @@ export default function BlockCanvas() {
 		setShowContextualMenu(false);
 
 		if (Object.keys(newBlockCreated).length !== 0) {
-			let newcurrentBlocksData = [...currentBlocksData];
+			let newcurrentBlocksData = [...reactFlowInstance.getNodes()];
 			newcurrentBlocksData.push(newBlockCreated);
-			setCurrentBlocksData(newcurrentBlocksData);
+			reactFlowInstance.setNodes(newcurrentBlocksData);
 		}
 	};
 
@@ -554,7 +560,7 @@ export default function BlockCanvas() {
 			y: preferredPosition.y - reactFlowBounds.top,
 		});
 
-		const asideOffset = expanded
+		const asideOffset = expandedAside
 			? Math.floor(asideBounds.width / 125) * 125
 			: 0;
 
@@ -568,8 +574,8 @@ export default function BlockCanvas() {
 		});
 		setShowContextualMenu(false);
 
-		let newcurrentBlocksData = [...currentBlocksData, ...newBlocks];
-		setCurrentBlocksData(newcurrentBlocksData);
+		let newcurrentBlocksData = [...reactFlowInstance.getNodes(), ...newBlocks];
+		reactFlowInstance.setNodes(newcurrentBlocksData);
 	};
 
 	const handleDeleteBlock = (blockData) => {
@@ -585,7 +591,9 @@ export default function BlockCanvas() {
 		);
 		const blockDataArray = [];
 		for (let node of selectedNodes) {
-			blockDataArray.push(getBlockByNode(node, currentBlocksData));
+			blockDataArray.push(
+				getBlockByNodeDOM(node, reactFlowInstance.getNodes())
+			);
 		}
 		deleteBlocks(blockDataArray);
 	};
@@ -596,7 +604,10 @@ export default function BlockCanvas() {
 			undefined;
 
 		end =
-			end || currentBlocksData.find((block) => block.id === currentSelectionId);
+			end ||
+			reactFlowInstance
+				.getNodes()
+				.find((block) => block.id === currentSelectionId);
 
 		setShowContextualMenu(false);
 
@@ -613,7 +624,7 @@ export default function BlockCanvas() {
 				return;
 			}
 
-			const newBlocksData = [...currentBlocksData];
+			const newBlocksData = [...reactFlowInstance.getNodes()];
 			const bI = newBlocksData.findIndex((block) => block.id == origin.id);
 			if (newBlocksData[bI].children) {
 				const alreadyAChildren = newBlocksData[bI].children.includes(end.id);
@@ -636,11 +647,11 @@ export default function BlockCanvas() {
 				newBlocksData[bI].children = [end.id];
 			}
 			setBlockOrigin();
-			setCurrentBlocksData(newBlocksData);
+			reactFlowInstance.setNodes(newBlocksData);
 		} else {
-			const starterBlock = currentBlocksData.find(
-				(block) => block.id == currentSelectionId
-			);
+			const starterBlock = reactFlowInstance
+				.getNodes()
+				.find((block) => block.id == currentSelectionId);
 
 			setBlockOrigin(starterBlock);
 
@@ -663,7 +674,10 @@ export default function BlockCanvas() {
 
 		let newCMBlockData = undefined;
 		if (selectedNodes.length == 1) {
-			newCMBlockData = getBlockByNode(selectedNodes[0], currentBlocksData);
+			newCMBlockData = getBlockByNodeDOM(
+				selectedNodes[0],
+				reactFlowInstance.getNodes()
+			);
 		}
 
 		if (newCMBlockData || cMBlockData) {
@@ -723,7 +737,7 @@ export default function BlockCanvas() {
 							<ConditionModal
 								blockData={cMBlockData}
 								setBlockData={setCMBlockData}
-								blocksData={currentBlocksData}
+								blocksData={reactFlowInstance.getNodes()}
 								showConditionsModal={showConditionsModal}
 								setShowConditionsModal={setShowConditionsModal}
 							/>

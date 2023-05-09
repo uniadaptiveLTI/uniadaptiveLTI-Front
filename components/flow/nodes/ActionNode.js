@@ -96,7 +96,7 @@ const getAriaLabel = () => {
 	return (
 		getHumanDesc() +
 		", " +
-		blockData.title +
+		blockData.label +
 		", posición en el eje X: " +
 		blockData.x +
 		", posición en el eje Y: " +
