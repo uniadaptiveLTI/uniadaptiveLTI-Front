@@ -1,14 +1,13 @@
 import styles from "@components/styles/BlockContextualMenu.module.css";
 import { forwardRef, useContext, useState, useLayoutEffect } from "react";
 import {
-	BlocksDataContext,
 	ExpandedAsideContext,
+	ReactFlowInstanceContext,
 } from "@components/pages/_app";
-import { BlockOriginContext } from "./BlockCanvas";
 import CMBlockMenu from "./flow/contextualmenu/CMBlockMenu";
 import CMPaneMenu from "./flow/contextualmenu/CMPaneMenu";
 import CMSelectionMenu from "./flow/contextualmenu/CMSelectionMenu";
-import { getBlocksByNodesDOM } from "./Utils";
+import { getNodesByNodesDOM } from "./Utils";
 
 export default forwardRef(function ContextualMenu(
 	{
@@ -16,6 +15,8 @@ export default forwardRef(function ContextualMenu(
 		y,
 		showContextualMenu,
 		blockData,
+		relationStarter,
+		setRelationStarter,
 		setShowContextualMenu,
 		contextMenuOrigin,
 		containsReservedNodes,
@@ -30,9 +31,9 @@ export default forwardRef(function ContextualMenu(
 	},
 	ref
 ) {
-	const { blockOrigin, setBlockOrigin } = useContext(BlockOriginContext);
-	const { currentBlocksData, setCurrentBlocksData } =
-		useContext(BlocksDataContext);
+	const { reactFlowInstance, setReactFlowInstance } = useContext(
+		ReactFlowInstanceContext
+	);
 	const { expanded: expandedAside } = useContext(ExpandedAsideContext);
 
 	const asideBounds = expandedAside
@@ -62,10 +63,7 @@ export default forwardRef(function ContextualMenu(
 
 			if (blockData) {
 				if (Array.isArray(blockData)) {
-					const blocks = getBlocksByNodesDOM(
-						blockData,
-						reactFlowInstance.getNodes()
-					);
+					const blocks = blockData;
 					const fragment = blocks.find((block) => block.type == "fragment");
 					if (fragment) {
 						setEnableCreateFragment(false);
@@ -100,9 +98,9 @@ export default forwardRef(function ContextualMenu(
 						{contextMenuOrigin == "block" && (
 							<CMBlockMenu
 								handleShow={handleShow}
-								blockOrigin={blockOrigin}
+								relationStarter={relationStarter}
 								blockData={blockData}
-								setBlockOrigin={setBlockOrigin}
+								setRelationStarter={setRelationStarter}
 								setShowContextualMenu={setShowContextualMenu}
 								handleDeleteBlock={handleDeleteBlock}
 								handleNewRelation={handleNewRelation}

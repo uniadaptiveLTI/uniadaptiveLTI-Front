@@ -1,7 +1,7 @@
 import Head from "next/head";
 import { useContext } from "react";
 import { BlocksDataContext } from "./_app";
-import BlockCanvas from "@components/components/BlockCanvas";
+import BlockFlow from "@components/components/BlockFlow";
 
 export default function Home() {
 	const { currentBlocksData, setCurrentBlocksData } =
@@ -32,7 +32,7 @@ export default function Home() {
 				<link rel="manifest" href="/site.webmanifest" />
 			</Head>
 			{currentBlocksData ? (
-				<BlockCanvas></BlockCanvas>
+				<BlockFlow map={currentBlocksData}></BlockFlow>
 			) : (
 				<div
 					style={{

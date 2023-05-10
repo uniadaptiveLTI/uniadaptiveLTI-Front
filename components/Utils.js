@@ -1,10 +1,6 @@
-export const uniqueId = () => parseInt(Date.now() * Math.random()).toString();
+export const ReservedBlockTypes = ["start", "end"];
 
-export function capitalizeFirstLetter(string) {
-	return string.charAt(0).toUpperCase() + string.slice(1);
-}
-
-//Blocks
+//Blocks //TODO: Test all if have any use
 
 export const getBlockById = (id, blocksData) => {
 	return blocksData.find((block) => block.id == id);
@@ -57,25 +53,71 @@ export const isBlockArrayEqual = (blockArray1, blockArray2) => {
 	return true;
 };
 
+/**
+ * Checks if there are any reserved blocks in an array of DOM elements
+ * @param {HTMLElement[]} nodeDOMArray - An array of DOM elements
+ * @returns {boolean} True if there is at least one reserved block, false otherwise
+ */
+export function thereIsReservedNodesDOMInArray(nodeDOMArray) {
+	// Get the CSS selectors for the reserved block types
+	let classes = getReservedNodeDOMClassesFromTypes();
+	// Join the selectors with a comma
+	let matchString = classes.join(", ");
+	// Check if any element in the array matches any of the selectors
+	const isReserved = nodeDOMArray.some((dom) =>
+		dom.matches(":is(" + matchString + ")")
+	);
+	return isReserved;
+}
+
+/**
+ * Converts an array of reserved block types to an array of CSS selectors
+ * @returns {string[]} An array of CSS selectors for the reserved block types
+ */
+function getReservedNodeDOMClassesFromTypes() {
+	// Prefix each type with the class name "react-flow__node-"
+	const nodes = ReservedBlockTypes.map((type) => "react-flow__node-" + type);
+	// Add a dot before each selector
+	const classes = nodes.map((node) => "." + node);
+	return classes;
+}
 //Nodes
 
-export const getNodeById = (id, reactflowInstance) => {
-	return reactflowInstance.getNodes()?.find((node) => node.id == id);
+export const getNodeById = (id, reactFlowInstance) => {
+	return reactFlowInstance.getNodes()?.find((node) => node.id == id);
 };
 
-export const getNodeByBlock = (block, reactflowInstance) => {
-	return reactflowInstance.getNodes()?.find((node) => node.id == block.id);
+export const getNodeByBlock = (block, reactFlowInstance) => {
+	return reactFlowInstance.getNodes()?.find((node) => node.id == block.id);
 };
 
-export const getNodesByBlocks = (blocks, reactflowInstance) => {
+export const getNodesByBlocks = (blocks, reactFlowInstance) => {
 	const nodeArray = [];
 	blocks.forEach((block) => {
-		const node = getBlockByNodeDOM(block, reactflowInstance);
+		const node = getBlockByNodeDOM(block, reactFlowInstance);
 		if (node) {
 			nodeArray.push(node);
 		}
 	});
 	return nodeArray;
+};
+
+export const getNodeByNodeDOM = (nodeDOM, reactFlowInstance) => {
+	console.log("gnbnD", nodeDOM, reactFlowInstance);
+	return reactFlowInstance
+		.getNodes()
+		.find((node) => node.id == nodeDOM.dataset.id);
+};
+
+export const getNodesByNodesDOM = (nodesDOM, reactFlowInstance) => {
+	const blockArray = [];
+	nodesDOM.forEach((nodeDOM) => {
+		const block = getNodeByNodeDOM(nodeDOM, reactFlowInstance);
+		if (block) {
+			blockArray.push(block);
+		}
+	});
+	return blockArray;
 };
 
 export const getNodesByProperty = (
@@ -110,3 +152,20 @@ export const getUpdatedArrayById = (updatedEntry, originalArray) => {
 		return newBlock ? { ...oldEntry, ...newBlock } : oldEntry;
 	});
 };
+
+/**
+ * Adds multiple event listeners to an element.
+ * @param {Element} element - The element to add the event listeners to.
+ * @param {Array} events - An array of event objects with the event type and listener function.
+ */
+export function addEventListeners(element, events) {
+	events.forEach(({ type, listener }) => {
+		element.addEventListener(type, listener, false);
+	});
+}
+
+export function capitalizeFirstLetter(string) {
+	return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+export const uniqueId = () => parseInt(Date.now() * Math.random()).toString();

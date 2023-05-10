@@ -16,6 +16,8 @@
 							"y": 0
 						},
 						"type": "start",
+						"selectable": false,
+						"deletable": false,
 						"data": {
 							"label": "Inicio",
 							"children": ["dev0A1"]
@@ -28,6 +30,8 @@
 							"y": 0
 						},
 						"type": "end",
+						"selectable": false,
+						"deletable": false,
 						"data": {
 							"label": "Final"
 						}
@@ -463,6 +467,8 @@
 							"y": 0
 						},
 						"type": "start",
+						"selectable": false,
+						"deletable": false,
 						"data": {
 							"label": "Inicio"
 						}
@@ -474,6 +480,8 @@
 							"y": 0
 						},
 						"type": "end",
+						"selectable": false,
+						"deletable": false,
 						"data": {
 							"label": "Final"
 						}
@@ -499,6 +507,8 @@
 							"y": 175
 						},
 						"type": "start",
+						"selectable": false,
+						"deletable": false,
 						"data": {
 							"label": "Inicio",
 							"children": ["dev0B1"]
@@ -511,6 +521,8 @@
 							"y": 525
 						},
 						"type": "end",
+						"selectable": false,
+						"deletable": false,
 						"data": {
 							"label": "Final"
 						}
@@ -694,6 +706,8 @@
 							"y": 700
 						},
 						"type": "start",
+						"selectable": false,
+						"deletable": false,
 						"data": {
 							"label": "Inicio",
 							"children": ["dev0B2"]
@@ -706,6 +720,8 @@
 							"y": 700
 						},
 						"type": "end",
+						"selectable": false,
+						"deletable": false,
 						"data": {
 							"label": "Final"
 						}
@@ -921,6 +937,8 @@
 							"y": 175
 						},
 						"type": "start",
+						"selectable": false,
+						"deletable": false,
 						"data": {
 							"label": "Inicio",
 							"children": ["dev0B3"]
@@ -933,6 +951,8 @@
 							"y": 525
 						},
 						"type": "end",
+						"selectable": false,
+						"deletable": false,
 						"data": {
 							"label": "Final"
 						}
@@ -1226,6 +1246,8 @@
 							"y": 0
 						},
 						"type": "start",
+						"selectable": false,
+						"deletable": false,
 						"data": {
 							"label": "Inicio"
 						}
@@ -1237,6 +1259,8 @@
 							"y": 0
 						},
 						"type": "end",
+						"selectable": false,
+						"deletable": false,
 						"data": {
 							"label": "Final"
 						}
@@ -1258,6 +1282,8 @@
 							"y": 0
 						},
 						"type": "start",
+						"selectable": false,
+						"deletable": false,
 						"data": {
 							"label": "Inicio"
 						}
@@ -1269,6 +1295,8 @@
 							"y": 0
 						},
 						"type": "end",
+						"selectable": false,
+						"deletable": false,
 						"data": {
 							"label": "Final"
 						}

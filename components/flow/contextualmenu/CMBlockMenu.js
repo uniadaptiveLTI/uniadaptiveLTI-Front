@@ -16,7 +16,7 @@ import { useRef, forwardRef } from "react";
 const Menu = (
 	{
 		handleShow,
-		blockOrigin,
+		relationStarter,
 		blockData,
 		setBlockOrigin,
 		setShowContextualMenu,
@@ -51,8 +51,8 @@ const Menu = (
 					</Button>
 				</li>
 			)}
-			{blockOrigin ? (
-				blockOrigin.id == blockData.id ? (
+			{relationStarter ? (
+				relationStarter.id == blockData.id ? (
 					<li>
 						<Button
 							variant="light"
@@ -76,14 +76,14 @@ const Menu = (
 						<li>
 							<Button
 								variant="light"
-								onClick={() => handleNewRelation(blockOrigin, blockData)}
+								onClick={() => handleNewRelation(relationStarter, blockData)}
 								disabled={!EnableCreateRelation}
 							>
 								<div>
 									<FontAwesomeIcon icon={faDiagramNext} />
 									<div>
 										Terminar relación
-										<span>Unir a "{blockOrigin.title}"</span>
+										<span>Unir a "{relationStarter.title}"</span>
 									</div>
 								</div>
 							</Button>
@@ -165,7 +165,7 @@ const MenuWithRefs = forwardRef(Menu);
 
 export default function CMBlockMenu({
 	handleShow,
-	blockOrigin,
+	relationStarter,
 	blockData,
 	setBlockOrigin,
 	setShowContextualMenu,
@@ -180,7 +180,7 @@ export default function CMBlockMenu({
 	EnableDelete = false,
 }) {
 	const ref = useRef(null);
-	const focus = !(blockData.type == "end" && blockOrigin == undefined);
+	const focus = !(blockData.type == "end" && relationStarter == undefined);
 
 	return focus ? (
 		<FocusTrap
@@ -193,7 +193,7 @@ export default function CMBlockMenu({
 			<MenuWithRefs
 				ref={ref}
 				handleShow={handleShow}
-				blockOrigin={blockOrigin}
+				relationStarter={relationStarter}
 				blockData={blockData}
 				setBlockOrigin={setBlockOrigin}
 				setShowContextualMenu={setShowContextualMenu}
@@ -212,7 +212,7 @@ export default function CMBlockMenu({
 		<MenuWithRefs
 			ref={ref}
 			handleShow={handleShow}
-			blockOrigin={blockOrigin}
+			relationStarter={relationStarter}
 			blockData={blockData}
 			setBlockOrigin={setBlockOrigin}
 			setShowContextualMenu={setShowContextualMenu}
