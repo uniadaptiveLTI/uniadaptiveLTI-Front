@@ -45,6 +45,8 @@ import {
 	getUpdatedArrayById,
 	addEventListeners,
 	thereIsReservedNodesDOMInArray,
+	getNodeDOMById,
+	getNodeById,
 } from "./Utils.js";
 import { toast } from "react-toastify";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -92,7 +94,7 @@ const OverviewFlow = ({ map }, ref) => {
 	const { settings, setSettings } = useContext(SettingsContext);
 
 	const parsedSettings = JSON.parse(settings);
-	let { autoHideAside } = parsedSettings;
+	let { autoHideAside, snapping } = parsedSettings;
 
 	//Flow States
 	const [newInitialNodes, setNewInitialNodes] = useState([]);
@@ -360,11 +362,20 @@ const OverviewFlow = ({ map }, ref) => {
 
 	const handleNodeDragStart = (event, node) => {
 		setShowContextualMenu(false);
-		let inFragment = false;
-		if (node.parentNode != undefined) {
-			inFragment = true;
+
+		if (snapping) {
+			let inFragment = node.parentNode ? true : false;
+
+			if (inFragment) {
+				const nodeDOM = getNodeDOMById(node.id);
+				nodeDOM.classList.add("insideFragment");
+			}
+
+			setSnapToGrid(!inFragment);
+		} else {
+			setSnapToGrid(false);
 		}
-		setSnapToGrid(!inFragment);
+
 		draggedNodePosition.current = node.position;
 	};
 
@@ -398,6 +409,19 @@ const OverviewFlow = ({ map }, ref) => {
 				reactFlowInstance.setNodes(
 					getUpdatedArrayById(node, reactFlowInstance.getNodes())
 				);
+
+				if (node.parentNode) {
+					const parent = getNodeById(node.parentNode, reactFlowInstance);
+					parent.data.innerNodes.map((innerNode) => {
+						if (innerNode.id == node.id) {
+							innerNode.position = node.position;
+							return innerNode;
+						} else {
+							return innerNode;
+						}
+					});
+				}
+
 				setSnapToGrid(true);
 			}
 		}
@@ -406,6 +430,18 @@ const OverviewFlow = ({ map }, ref) => {
 	const onPaneClick = () => {
 		if (autoHideAside) {
 			setExpandedAside(false);
+		}
+		setSnapToGrid(true);
+	};
+
+	const onNodeClick = (e, node) => {
+		if (node.type == "start" || node.type == "end") {
+			reactFlowInstance.setNodes(
+				reactFlowInstance.getNodes().map((n) => {
+					n.selected = false;
+					return n;
+				})
+			);
 		}
 		setSnapToGrid(true);
 	};
@@ -788,7 +824,7 @@ const OverviewFlow = ({ map }, ref) => {
 		}
 	};
 
-	const createBlock = (blockData, posX, posY) => {
+	const createBlock = (blockData) => {
 		//TODO: Block selector
 		const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
 
@@ -825,11 +861,17 @@ const OverviewFlow = ({ map }, ref) => {
 				};
 			} else {
 				//TODO: Check if ID already exists
-				newBlockCreated = {
-					...blockData,
-					x: posX ? posX + asideOffset + flowPos.x : flowPos.x,
-					y: posY ? posY + asideOffset + flowPos.y : flowPos.y,
-				};
+				if (blockData.type != "fragment") {
+					newBlockCreated = {
+						...blockData,
+						position: {
+							x: blockData.position.x + asideOffset + flowPos.x,
+							y: blockData.position.y + asideOffset + flowPos.y,
+						},
+					};
+				} else {
+					newBlockCreated = blockData;
+				}
 			}
 		} else {
 			if (platform == "moodle") {
@@ -862,9 +904,10 @@ const OverviewFlow = ({ map }, ref) => {
 		setShowContextualMenu(false);
 
 		if (Object.keys(newBlockCreated).length !== 0) {
-			let newcurrentBlocksData = [...reactFlowInstance.getNodes()];
+			let newcurrentBlocksData = reactFlowInstance.getNodes();
 			newcurrentBlocksData.push(newBlockCreated);
-			reactFlowInstance.setNodes(newcurrentBlocksData);
+			return newcurrentBlocksData;
+			reactFlowInstance.setNodes([...newcurrentBlocksData]);
 		}
 	};
 
@@ -896,6 +939,56 @@ const OverviewFlow = ({ map }, ref) => {
 
 		let newcurrentBlocksData = [...reactFlowInstance.getNodes(), ...newBlocks];
 		reactFlowInstance.setNodes(newcurrentBlocksData);
+	};
+
+	const handleFragmentCreation = () => {
+		const selectedNodes = reactFlowInstance
+			.getNodes()
+			.filter((node) => node.selected == true);
+
+		let minX = Infinity;
+		let minY = Infinity;
+		let maxX = 0;
+		let maxY = 0;
+		const innerNodes = [];
+		for (const node of selectedNodes) {
+			minX = Math.min(minX, node.position.x);
+			minY = Math.min(minY, node.position.y);
+			maxX = Math.max(maxX, node.position.x);
+			maxY = Math.max(maxY, node.position.y);
+		}
+		for (const node of selectedNodes) {
+			innerNodes.push({
+				id: node.id,
+				position: { x: node.position.x - minX, y: node.position.y - minY },
+			});
+		}
+
+		console.log(selectedNodes);
+		console.log(minX, minY, maxX, maxY);
+		console.log(innerNodes);
+		const newFragmentID = uniqueId();
+		const currentNodesWithFragment = createBlock({
+			id: newFragmentID,
+			position: { x: minX, y: minY },
+			type: "fragment",
+			style: { height: maxY - minY + 68, width: maxX - minX + 68 },
+			zIndex: -1,
+			data: {
+				label: "Nuevo Fragmento",
+				innerNodes: innerNodes,
+				expanded: true,
+			},
+		});
+		const parentedNodes = selectedNodes.map((node) => {
+			node.parentNode = newFragmentID;
+			node.expandParent = true;
+			return node;
+		});
+
+		reactFlowInstance.setNodes(
+			getUpdatedArrayById(parentedNodes, currentNodesWithFragment)
+		);
 	};
 
 	const handleDeleteBlock = (blockData) => {
@@ -1033,8 +1126,7 @@ const OverviewFlow = ({ map }, ref) => {
 	});
 	useHotkeys("shift+r", () => handleNewRelation(relationStarter));
 	useHotkeys("shift+f", () => {
-		notImplemented("creación de fragmentos");
-		console.log("CREATE_FRAGMENT");
+		handleFragmentCreation();
 	});
 	useHotkeys("shift+e", () => {
 		handleShow();
@@ -1054,7 +1146,7 @@ const OverviewFlow = ({ map }, ref) => {
 				onEdgesChange={onEdgesChange}
 				onNodesDelete={onNodesDelete}
 				onEdgesDelete={onEdgesDelete}
-				onNodeClick={() => setSnapToGrid(true)}
+				onNodeClick={onNodeClick}
 				onPaneClick={onPaneClick}
 				onConnect={onConnect}
 				onInit={onInit}
@@ -1101,6 +1193,7 @@ const OverviewFlow = ({ map }, ref) => {
 				y={cMY}
 				contextMenuOrigin={contextMenuOrigin}
 				createBlock={createBlock}
+				handleFragmentCreation={handleFragmentCreation}
 				handleBlockCopy={handleBlockCopy}
 				handleBlockPaste={handleBlockPaste}
 				handleNewRelation={handleNewRelation}

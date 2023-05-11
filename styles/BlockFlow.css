@@ -63,16 +63,8 @@
     border: var(--blockflow-node-border);
     color: white;
     border-radius: var(--blockflow-node-border-radius);
-	transition: 0.2s, visibility 0ms
+	transition: 0.2s, visibility 0s, transform 0s
 
-}
-
-.react-flow__node.dragging:has(.insideFragment){
-	transition: 0.2s, transform 0s
-}
-
-.react-flow__node.insideContractedFragment{
-	visibility: hidden !important;
 }
 
 .react-flow__node > div.block {
@@ -280,7 +272,7 @@ FALLBACK
 /* Fragment */
 .react-flow__node-fragment {
 	background-color:#00008b;
-	transition: 0.2s, margin 0ms, background-color 0.5s;
+	transition: 0.2s, margin 0ms, background-color 0.5s, transform 0s;
 }
 
 .react-flow__node-fragment:hover, .react-flow__node-fragment:focus-visible, .react-flow__node-fragment:active {
@@ -290,7 +282,7 @@ FALLBACK
 .react-flow__node-fragment:has(.expandedFragment) {
 	background-color:#00008b20;
 	border-color: #00006d20;
-	transition: 0.2s, margin 0ms, background-color 0.5s;
+	transition: 0.2s, margin 0ms, background-color 0.5s, transform 0s;
 }
 
 .react-flow__node-fragment:has(.expandedFragment) svg{

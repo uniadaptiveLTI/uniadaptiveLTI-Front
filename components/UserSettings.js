@@ -8,8 +8,9 @@ function UserSettings({}, ref) {
 	const parsedSettings = JSON.parse(settings);
 	let {
 		highContrast,
-		showDetails,
 		reducedAnimations,
+		snapping,
+		showDetails,
 		autoHideAside,
 		autoExpandMSGBox,
 		autoHideMSGBox,
@@ -24,11 +25,14 @@ function UserSettings({}, ref) {
 			case "switch-highContrast":
 				highContrast = !highContrast;
 				break;
-			case "switch-showDetails":
-				showDetails = !showDetails;
-				break;
 			case "switch-animation":
 				reducedAnimations = !reducedAnimations;
+				break;
+			case "switch-snapping":
+				snapping = !snapping;
+				break;
+			case "switch-showDetails":
+				showDetails = !showDetails;
 				break;
 			case "switch-autoHideAside":
 				autoHideAside = !autoHideAside;
@@ -42,8 +46,9 @@ function UserSettings({}, ref) {
 		}
 		let newSettings = parsedSettings;
 		newSettings.highContrast = highContrast;
-		newSettings.showDetails = showDetails;
 		newSettings.reducedAnimations = reducedAnimations;
+		newSettings.snapping = snapping;
+		newSettings.showDetails = showDetails;
 		newSettings.autoExpandMSGBox = autoExpandMSGBox;
 		newSettings.autoHideMSGBox = autoHideMSGBox;
 		newSettings.autoHideAside = autoHideAside;
@@ -68,6 +73,13 @@ function UserSettings({}, ref) {
 					id="switch-animation"
 					label="Animaciones reducidas"
 					defaultChecked={reducedAnimations}
+					onClick={handleSettingChange}
+				/>
+				<Form.Check
+					type="switch"
+					id="switch-snapping"
+					label="Autoajustar bloques a la cuadricula"
+					defaultChecked={snapping}
 					onClick={handleSettingChange}
 				/>
 				<Form.Check

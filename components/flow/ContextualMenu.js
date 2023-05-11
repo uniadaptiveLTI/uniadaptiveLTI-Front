@@ -23,6 +23,7 @@ export default forwardRef(function ContextualMenu(
 		handleBlockCopy,
 		handleBlockPaste,
 		createBlock,
+		handleFragmentCreation,
 		handleNewRelation,
 		handleBlockCut,
 		handleDeleteBlock,
@@ -115,6 +116,7 @@ export default forwardRef(function ContextualMenu(
 						)}
 						{contextMenuOrigin == "nodesselection" && (
 							<CMSelectionMenu
+								handleFragmentCreation={handleFragmentCreation}
 								handleDeleteBlockSelection={handleDeleteBlockSelection}
 								handleBlockCut={handleBlockCut}
 								handleBlockCopy={handleBlockCopy}

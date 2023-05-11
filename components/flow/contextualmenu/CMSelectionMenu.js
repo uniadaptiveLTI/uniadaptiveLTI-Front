@@ -13,6 +13,7 @@ import { useRef, forwardRef } from "react";
 
 const Menu = (
 	{
+		handleFragmentCreation,
 		handleDeleteBlockSelection,
 		handleBlockCopy,
 		handleBlockCut,
@@ -29,7 +30,7 @@ const Menu = (
 			<li>
 				<Button
 					variant="light"
-					onClick={notImplemented}
+					onClick={handleFragmentCreation}
 					disabled={!EnableCreateFragment}
 				>
 					<div>
@@ -92,6 +93,7 @@ const Menu = (
 const MenuWithRefs = forwardRef(Menu);
 
 export default function CMSelectionMenu({
+	handleFragmentCreation,
 	handleDeleteBlockSelection,
 	handleBlockCopy,
 	handleBlockCut,
@@ -113,6 +115,7 @@ export default function CMSelectionMenu({
 		>
 			<MenuWithRefs
 				ref={ref}
+				handleFragmentCreation={handleFragmentCreation}
 				handleDeleteBlockSelection={handleDeleteBlockSelection}
 				handleBlockCopy={handleBlockCopy}
 				handleBlockCut={handleBlockCut}
@@ -126,6 +129,7 @@ export default function CMSelectionMenu({
 	) : (
 		<MenuWithRefs
 			ref={ref}
+			handleFragmentCreation={handleFragmentCreation}
 			handleDeleteBlockSelection={handleDeleteBlockSelection}
 			handleBlockCopy={handleBlockCopy}
 			handleBlockCut={handleBlockCut}

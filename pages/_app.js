@@ -41,6 +41,7 @@ export default function App({ Component, pageProps }) {
 		JSON.stringify({
 			highContrast: false,
 			showDetails: false,
+			snapping: true,
 			reducedAnimations: false,
 			autoHideAside: true,
 			autoExpandMSGBox: false,

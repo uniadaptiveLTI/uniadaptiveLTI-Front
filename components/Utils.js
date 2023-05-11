@@ -45,7 +45,6 @@ export const isBlockArrayEqual = (blockArray1, blockArray2) => {
 	for (const [index, block1] of blockArray1.entries()) {
 		const block2 = blockArray2.find((block2) => block2.id == block1.id);
 		if (!isBlockEqual(block1, block2)) {
-			console.log(block1, block2);
 			return false;
 		}
 	}
@@ -134,6 +133,14 @@ export const getNodesByProperty = (
 
 export const getEdgeBetweenNodeIds = (id1, id2, reactflowInstance) => {
 	return reactflowInstance.getEdge(`${id1}-${id2}`);
+};
+
+//NodesDOM
+
+export const getNodeDOMById = (id) => {
+	return [...document.getElementsByClassName("react-flow__node")].find(
+		(node) => node.dataset.id == id
+	);
 };
 
 //Generic

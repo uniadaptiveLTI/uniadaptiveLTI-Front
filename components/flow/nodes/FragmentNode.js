@@ -53,7 +53,6 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 		data.innerNodes
 	);
 	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
-	const [expanded, setExpanded] = useState(data.expanded);
 
 	const handleEdit = () => {
 		const blockData = {
@@ -69,58 +68,76 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 		setBlockSelected(blockData);
 	};
 
-	const handleDoubleClick = () => {
-		data.expanded = !expanded;
-		setExpanded(!expanded);
-	};
-
-	const findChildren = () => {
+	const getInnerNodes = () => {
 		return getNodesByProperty(reactFlowInstance, "parentNode", id);
 	};
 
 	useEffect(() => {
-		getCurrentChildrenPositions();
-		const children = findChildren();
+		//Asigns children on creation/render
+		const changesArray = [];
+		data.innerNodes.map((innerNode) => {
+			const node = getNodeById(innerNode.id, reactFlowInstance);
+			node.parentNode = id;
+			node.expandParent = true; //FIXME: Propiety applies, but it doesn't work
+			node.position = innerNode.position;
+			changesArray.push(node);
+		});
+		reactFlowInstance.setNodes(
+			getUpdatedArrayById(changesArray, reactFlowInstance.getNodes())
+		);
+	}, []);
 
-		if (children) {
-			for (const [index, childNode] of children.entries()) {
-				const nodeDOM = document.querySelector(
-					"[data-id=" + childNode.id + "]"
-				);
-				const blockContainer = nodeDOM.getElementsByClassName("block")[0];
-				blockContainer.classList.add("insideFragment");
+	useEffect(() => {
+		const currentInnerNodes = getInnerNodes();
 
-				if (!expanded) {
-					nodeDOM.classList.add("insideContractedFragment");
-					const newBlock = getBlockByNodeDOM(
-						nodeDOM,
-						reactFlowInstance.getNodes()
-					);
-					newBlock.x = 0;
-					newBlock.y = 0;
+		const style = getNodeById(id, reactFlowInstance).style;
+
+		console.log(data.innerNodes, currentInnerNodes, style);
+		if (currentInnerNodes) {
+			for (const [index, childNode] of currentInnerNodes.entries()) {
+				if (!data.expanded) {
+					const newInnerNodes = currentInnerNodes.map((node) => {
+						{
+							node.hidden = true;
+							node.position = { x: 0, y: 0 };
+							return node;
+						}
+					});
 					reactFlowInstance.setNodes(
-						getUpdatedArrayById(newBlock, reactFlowInstance.getNodes())
+						getUpdatedArrayById(newInnerNodes, reactFlowInstance.getNodes())
 					);
+
+					style.width = style.height = 68;
 				} else {
-					nodeDOM.classList.remove("insideContractedFragment");
-					const newBlock = getBlockByNodeDOM(
-						nodeDOM,
-						reactFlowInstance.getNodes()
-					);
-					const matchingInnerNode = originalChildrenStatus.find(
-						(innerNode) => innerNode.id == newBlock.id
-					);
-					newBlock.x = matchingInnerNode.x;
-					newBlock.y = matchingInnerNode.y;
+					const maxPositions = { x: 0, y: 0 };
+					const newInnerNodes = currentInnerNodes.map((node, index) => {
+						{
+							const nodeX = data.innerNodes[index].position.x;
+							const nodeY = data.innerNodes[index].position.y;
+							node.hidden = false;
+							node.position = {
+								x: nodeX,
+								y: nodeY,
+							};
+							maxPositions.x < nodeX ? (maxPositions.x = nodeX) : null;
+							maxPositions.y < nodeY ? (maxPositions.y = nodeY) : null;
+
+							return node;
+						}
+					});
+
 					reactFlowInstance.setNodes(
-						getUpdatedArrayById(newBlock, reactFlowInstance.getNodes())
+						getUpdatedArrayById(newInnerNodes, reactFlowInstance.getNodes())
 					);
+
+					style.width = maxPositions.x + 68;
+					style.height = maxPositions.y + 68;
 				}
 			}
 
-			for (const childNode1 of children) {
+			for (const childNode1 of currentInnerNodes) {
 				const childId1 = childNode1.id;
-				for (const childNode2 of children) {
+				for (const childNode2 of currentInnerNodes) {
 					const childId2 = childNode2.id;
 					const edge = getEdgeBetweenNodeIds(
 						childId1,
@@ -134,7 +151,7 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 								"[data-testid=rf__edge-" + edge.id + "]"
 							);
 							if (edgeDOM) {
-								if (!expanded) {
+								if (!data.expanded) {
 									edgeDOM.style.visibility = "hidden";
 								} else {
 									edgeDOM.style.visibility = "visible";
@@ -145,9 +162,9 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 				}
 			}
 		}
-	}, [expanded]);
+	}, [data.expanded]);
 
-	const restrictedChildren = (width, height) => {
+	/*const restrictedChildren = (width, height) => {
 		const result = originalChildrenStatus.map((children) => {
 			let cwidth = children.x;
 			let cheight = children.y;
@@ -188,8 +205,6 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 			style: { width: newWidth, height: newHeight },
 		};
 
-		//console.log([updatedInfo, ...updatedChildrenBlockData]);
-
 		setOriginalChildrenStatus(updatedChildrenBlockData);
 
 		reactFlowInstance.setNodes(
@@ -201,7 +216,7 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 	};
 
 	const getCurrentChildrenPositions = () => {
-		const children = findChildren();
+		const children = getInnerNodes();
 		const innerNodes = [];
 		if (children) {
 			for (const childNode of children) {
@@ -228,7 +243,7 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 			}
 		}
 		setOriginalChildrenStatus(innerNodes);
-	};
+	};*/
 
 	const getAriaLabel = () => {
 		let end = "";
@@ -253,12 +268,12 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 	};
 	return (
 		<>
-			{expanded && (
+			{data.expanded && (
 				<NodeResizer
-					minWidth={136}
-					minHeight={194}
-					onResizeStart={getCurrentChildrenPositions}
-					onResizeEnd={handleResizeEnd}
+					minWidth={100}
+					minHeight={100}
+					/*onResizeStart={getCurrentChildrenPositions}
+					onResizeEnd={handleResizeEnd}*/
 				/>
 			)}
 			<NodeToolbar position="left" offset={25}>
@@ -269,14 +284,17 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 					}}
 				>
 					<div className={styles.blockToolbar}>
-						<Button variant="dark" onClick={() => setExpanded(!expanded)}>
-							{expanded ? (
+						<Button
+							variant="dark"
+							onClick={() => (data.expanded = !data.expanded)}
+						>
+							{data.expanded ? (
 								<FontAwesomeIcon icon={faCompress} />
 							) : (
 								<FontAwesomeIcon icon={faExpand} />
 							)}
 							<span className="visually-hidden">
-								{expanded ? "Contraer" : "Expandir"} fragmento
+								{data.expanded ? "Contraer" : "Expandir"} fragmento
 							</span>
 						</Button>
 						<Button variant="dark" onClick={handleEdit}>
@@ -309,7 +327,7 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 					" " +
 					(reducedAnimations && styles.noAnimation + " noAnimation") +
 					" " +
-					(expanded && "expandedFragment")
+					(data.expanded && "expandedFragment")
 				}
 				/*onClick={(e) => {
 					if (e.detail === 1)
@@ -318,16 +336,8 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 							handleDoubleClick();
 				}}*/
 				aria-label={getAriaLabel} //FIXME: Doesn't work
-				style={
-					expanded
-						? {
-								height: data.style.height + 122,
-								width: data.style.width + 64,
-						  }
-						: {}
-				}
 			>
-				{!expanded && (
+				{!data.expanded && (
 					<span className={styles.blockInfo + " " + styles.top}>
 						{data.label}
 					</span>
@@ -335,7 +345,7 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 				<div>
 					<FontAwesomeIcon icon={faCubes} />
 				</div>
-				{!expanded && (
+				{!data.expanded && (
 					<span className={styles.blockInfo + " " + styles.bottom}>
 						Fragmento
 					</span>
