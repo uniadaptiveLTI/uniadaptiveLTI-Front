@@ -29,7 +29,7 @@ function QualificationForm(props) {
 				defaultChecked={
 					conditionEdit && conditionEdit.objective
 						? true
-						: false || !conditionEdit
+						: false || !conditionEdit || conditionEdit.type !== "qualification"
 				}
 			/>
 			<Form.Control
@@ -38,11 +38,19 @@ function QualificationForm(props) {
 				min="0"
 				max="10"
 				defaultValue={
-					conditionEdit && conditionEdit.objective !== undefined
-						? conditionEdit.objective
+					conditionEdit
+						? conditionEdit.type === "qualification"
+							? conditionEdit.objective !== undefined
+								? conditionEdit.objective
+								: 5
+							: 5
 						: 5
 				}
-				disabled={conditionEdit && !conditionEdit.objective}
+				disabled={
+					conditionEdit &&
+					!conditionEdit.objective &&
+					conditionEdit.type === "qualification"
+				}
 				onChange={checkInputs}
 			/>
 			<Form.Check
