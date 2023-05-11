@@ -10,79 +10,42 @@ import {
 	PlatformContext,
 } from "@components/pages/_app";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAward, faCube, faEdit } from "@fortawesome/free-solid-svg-icons";
+import {
+	faAward,
+	faCube,
+	faEdit,
+	faEnvelope,
+	faUserPlus,
+	faUserMinus,
+} from "@fortawesome/free-solid-svg-icons";
 import FocusTrap from "focus-trap-react";
 import { Button } from "react-bootstrap";
 
-export const ActionBlocks = ["badge"];
+export const ActionBlocks = ["badge", "mail", "addgroup", "remgroup"];
 
 const getHumanDesc = (type) => {
 	let humanType = "";
 	switch (type) {
 		//Moodle + Sakai
-		case "quiz":
-			humanType = "Cuestionario";
+		case "mail":
+			humanType = "Enviar correo";
 			break;
-		case "assign":
-			humanType = "Tarea";
+		case "addgroup":
+			humanType = "Añadir a grupo";
 			break;
-		case "forum":
-			humanType = "Foro";
-			break;
-		case "resource":
-			humanType = "Archivo";
-			break;
-		case "folder":
-			humanType = "Folder";
-			break;
-		case "url":
-			humanType = "URL";
+		case "remgroup":
+			humanType = "Eliminar grupo";
 			break;
 		//Moodle
-		case "workshop":
-			humanType = "Taller";
-			break;
-		case "choice":
-			humanType = "Consulta";
-			break;
-		case "label":
-			humanType = "Etiqueta";
-			break;
-		case "page":
-			humanType = "Página";
-			break;
 		case "badge":
-			humanType = "Medalla";
+			humanType = "Dar Medalla";
 			break;
 		//Sakai
-		case "exam":
-			humanType = "Examen";
-			break;
-		case "contents":
-			humanType = "Contenidos";
-			break;
-		case "text":
-			humanType = "Texto";
-			break;
-		case "html":
-			humanType = "HTML";
-			break;
 		//LTI
-		case "start":
-			humanType = "Inicio";
-			break;
-		case "end":
-			humanType = "Final";
-			break;
-		case "fragment":
-			humanType = "Fragmento";
-			break;
 		default:
-			humanType = "Elemento";
+			humanType = "Elemento de Acción";
 			break;
 	}
-
-	if (type == "start" || type == "end") return humanType + " del Mapa";
 	return humanType;
 };
 
@@ -142,6 +105,24 @@ function ActionNode({
 				) : (
 					<FontAwesomeIcon icon={faAward} />
 				);
+			case "mail":
+				return platform == "moodle" ? (
+					<FontAwesomeIcon icon={faEnvelope} className={"moodleIcon"} />
+				) : (
+					<FontAwesomeIcon icon={faEnvelope} />
+				);
+			case "addgroup":
+				return platform == "moodle" ? (
+					<FontAwesomeIcon icon={faUserPlus} className={"moodleIcon"} />
+				) : (
+					<FontAwesomeIcon icon={faUserPlus} />
+				);
+			case "remgroup":
+				return platform == "moodle" ? (
+					<FontAwesomeIcon icon={faUserMinus} className={"moodleIcon"} />
+				) : (
+					<FontAwesomeIcon icon={faUserMinus} />
+				);
 
 			//Sakai
 
@@ -188,7 +169,7 @@ function ActionNode({
 					<div className={styles.blockToolbar}>
 						<Button variant="dark" onClick={handleEdit}>
 							<FontAwesomeIcon icon={faEdit} />
-							<span className="visually-hidden">Editar fragmento</span>
+							<span className="visually-hidden">Editar acción</span>
 						</Button>
 					</div>
 				</FocusTrap>
