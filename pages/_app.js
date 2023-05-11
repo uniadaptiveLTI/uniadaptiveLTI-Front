@@ -99,21 +99,23 @@ export const notImplemented = (name) => {
 };
 
 const connectionRestored = () => {
-	toast("La conexión a internet ha sido recuperada", {
-		hideProgressBar: false,
-		autoClose: 2000,
-		type: "info",
-		position: "bottom-center",
-		theme: "light",
-	});
+	if (window)
+		toast("La conexión a internet ha sido recuperada", {
+			hideProgressBar: false,
+			autoClose: 2000,
+			type: "info",
+			position: "bottom-center",
+			theme: "light",
+		});
 };
 
 const connectionLost = () => {
-	toast("La conexión a internet se ha perdido", {
-		hideProgressBar: false,
-		autoClose: 2000,
-		type: "info",
-		position: "bottom-center",
-		theme: "light",
-	});
+	if (window)
+		toast("La conexión a internet se ha perdido", {
+			hideProgressBar: false,
+			autoClose: 2000,
+			type: "info",
+			position: "bottom-center",
+			theme: "light",
+		});
 };

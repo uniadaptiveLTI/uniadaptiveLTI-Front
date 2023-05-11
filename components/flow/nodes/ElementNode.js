@@ -323,7 +323,7 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 					<div className={styles.blockToolbar}>
 						<Button variant="dark" onClick={handleEdit}>
 							<FontAwesomeIcon icon={faEdit} />
-							<span className="visually-hidden">Editar fragmento</span>
+							<span className="visually-hidden">Editar elemento</span>
 						</Button>
 					</div>
 				</FocusTrap>

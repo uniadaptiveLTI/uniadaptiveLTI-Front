@@ -48,7 +48,7 @@ import {
 } from "./Utils.js";
 import { toast } from "react-toastify";
 import { useHotkeys } from "react-hotkeys-hook";
-import ContextualMenu from "./ContextualMenu.js";
+import ContextualMenu from "./flow/ContextualMenu.js";
 import ConditionModal from "./flow/conditions/ConditionModal.js";
 
 const minimapStyle = {
@@ -56,18 +56,21 @@ const minimapStyle = {
 };
 
 const nodeTypes = {
-	badge: ActionNode,
 	quiz: ElementNode,
 	assign: ElementNode,
 	forum: ElementNode,
 	resource: ElementNode,
 	folder: ElementNode,
+	mail: ActionNode,
+	addgroup: ActionNode,
+	remgroup: ActionNode,
 	url: ElementNode,
 	// Moodle
 	workshop: ElementNode,
 	choice: ElementNode,
 	label: ElementNode,
 	page: ElementNode,
+	badge: ActionNode,
 	generic: ElementNode,
 	// Sakai
 	exam: ElementNode,
@@ -275,6 +278,12 @@ const OverviewFlow = ({ map }, ref) => {
 						return "#A378FF";
 					case "badge":
 						return "#11A676";
+					case "mail":
+						return "#399BE2";
+					case "addgroup":
+						return "#11A676";
+					case "remgroup":
+						return "#F7634D";
 					case "generic":
 						return "#11A676";
 					//LTI
@@ -302,6 +311,12 @@ const OverviewFlow = ({ map }, ref) => {
 						return "#ffc107";
 					case "url":
 						return "#5f9ea0";
+					case "mail":
+						return "#5f9ea0";
+					case "addgroup":
+						return "#198754";
+					case "remgroup":
+						return "#dc3545";
 					//Moodle
 					case "workshop":
 						return "#15a935";
@@ -680,10 +695,6 @@ const OverviewFlow = ({ map }, ref) => {
 			}
 	}, [cMBlockData]);
 
-	const handleClose = () => {
-		setShowConditionsModal(false);
-	};
-
 	const handleBlockCopy = (blockData = []) => {
 		setShowContextualMenu(false);
 
@@ -799,12 +810,27 @@ const OverviewFlow = ({ map }, ref) => {
 		let newBlockCreated;
 
 		if (blockData) {
-			//TODO: Check if ID already exists
-			newBlockCreated = {
-				...blockData,
-				x: posX ? posX + asideOffset + flowPos.x : flowPos.x,
-				y: posY ? posY + asideOffset + flowPos.y : flowPos.y,
-			};
+			if (blockData.type == "action") {
+				//Doesn't check plataform as both Moodle and Sakai have this common action
+				newBlockCreated = {
+					id: uniqueId(),
+					position: { x: flowPos.x, y: flowPos.y },
+					type: "mail",
+					data: {
+						label: "Nuevo bloque de acción",
+						children: undefined,
+						order: 100,
+						unit: 1,
+					},
+				};
+			} else {
+				//TODO: Check if ID already exists
+				newBlockCreated = {
+					...blockData,
+					x: posX ? posX + asideOffset + flowPos.x : flowPos.x,
+					y: posY ? posY + asideOffset + flowPos.y : flowPos.y,
+				};
+			}
 		} else {
 			if (platform == "moodle") {
 				newBlockCreated = {
@@ -812,7 +838,7 @@ const OverviewFlow = ({ map }, ref) => {
 					position: { x: flowPos.x, y: flowPos.y },
 					type: "generic",
 					data: {
-						title: "Nuevo bloque",
+						label: "Nuevo bloque",
 						children: undefined,
 						order: 100,
 						unit: 1,
@@ -824,7 +850,7 @@ const OverviewFlow = ({ map }, ref) => {
 					position: { x: flowPos.x, y: flowPos.y },
 					type: "resource",
 					data: {
-						title: "Nuevo bloque",
+						label: "Nuevo bloque",
 						children: undefined,
 						order: 100,
 						unit: 1,
@@ -994,6 +1020,7 @@ const OverviewFlow = ({ map }, ref) => {
 		handleBlockCopy();
 	});
 	useHotkeys("shift+b", () => createBlock());
+	useHotkeys("shift+alt+b", () => createBlock({ type: "action" }));
 	useHotkeys("ctrl+v", () => handleBlockPaste());
 	useHotkeys("ctrl+x", () => handleBlockCut());
 	useHotkeys("ctrl+z", () => {
@@ -1046,6 +1073,11 @@ const OverviewFlow = ({ map }, ref) => {
 				multiSelectionKeyCode={["Shift"]}
 				selectionKeyCode={["Shift"]}
 				zoomOnDoubleClick={false}
+				nodesDraggable={interactive}
+				nodesConnectable={interactive}
+				nodesFocusable={interactive}
+				edgesFocusable={interactive}
+				elementsSelectable={interactive}
 			>
 				{minimap && (
 					<MiniMap

@@ -2,6 +2,7 @@
 	{
 		"id": 1,
 		"name": "Física Grupo-A",
+		"platform": "moodle",
 		"versions": [
 			{
 				"id": 0,
@@ -493,6 +494,7 @@
 	{
 		"id": 2,
 		"name": "Ejemplos de UNIAdaptive",
+		"platform": "moodle",
 		"versions": [
 			{
 				"id": 0,
@@ -1232,6 +1234,7 @@
 	{
 		"id": 3,
 		"name": "Mapa vacío",
+		"platform": "moodle",
 		"versions": [
 			{
 				"id": 0,

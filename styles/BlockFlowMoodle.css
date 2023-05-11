@@ -58,6 +58,33 @@
     background-color: #ef85b5;
 }
 
+/* Mail */
+.react-flow__node-mail:has(.moodleIcon){
+    background-color: #399BE2;
+}
+
+.react-flow__node-mail:has(.moodleIcon):hover,  .react-flow__node-mail:has(.moodleIcon):focus-visible, .react-flow__node-mail:has(.moodleIcon):active{
+    background-color: #61afe8;
+}
+
+/* AddGroup */
+.react-flow__node-addgroup:has(.moodleIcon){
+    background-color: #11A676;
+}
+
+.react-flow__node-addgroup:has(.moodleIcon):hover,  .react-flow__node-addgroup:has(.moodleIcon):focus-visible, .react-flow__node-addgroup:has(.moodleIcon):active{
+    background-color: #17e1a0;
+}
+
+/* RemGroup */
+.react-flow__node-remgroup:has(.moodleIcon){
+    background-color: #F7634D;
+}
+
+.react-flow__node-remgroup:has(.moodleIcon):hover,  .react-flow__node-remgroup:has(.moodleIcon):focus-visible, .react-flow__node-remgroup:has(.moodleIcon):active{
+    background-color: #f98271;
+}
+
 /* Workshop */
 .react-flow__node-workshop:has(.moodleIcon){
     background-color: #A378FF;

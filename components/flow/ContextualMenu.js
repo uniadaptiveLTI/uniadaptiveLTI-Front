@@ -1,13 +1,13 @@
-import styles from "@components/styles/BlockContextualMenu.module.css";
+import styles from "@components/styles/ContextualMenu.module.css";
 import { forwardRef, useContext, useState, useLayoutEffect } from "react";
 import {
 	ExpandedAsideContext,
 	ReactFlowInstanceContext,
 } from "@components/pages/_app";
-import CMBlockMenu from "./flow/contextualmenu/CMBlockMenu";
-import CMPaneMenu from "./flow/contextualmenu/CMPaneMenu";
-import CMSelectionMenu from "./flow/contextualmenu/CMSelectionMenu";
-import { getNodesByNodesDOM } from "./Utils";
+import CMNodeMenu from "./contextualmenu/CMNodeMenu";
+import CMPaneMenu from "./contextualmenu/CMPaneMenu";
+import CMSelectionMenu from "./contextualmenu/CMSelectionMenu";
+import { getNodesByNodesDOM } from "../Utils";
 
 export default forwardRef(function ContextualMenu(
 	{
@@ -96,7 +96,7 @@ export default forwardRef(function ContextualMenu(
 							/>
 						)}
 						{contextMenuOrigin == "block" && (
-							<CMBlockMenu
+							<CMNodeMenu
 								handleShow={handleShow}
 								relationStarter={relationStarter}
 								blockData={blockData}

@@ -61,6 +61,22 @@ function Header({ closeBtn }, ref) {
 	const [showModalVersions, setShowModalVersions] = useState(false);
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
 	const [showMapSelectorModal, setShowMapSelectorModal] = useState(false);
+	const selectMapDOM = useRef(null);
+	const selectVersionDOM = useRef(null);
+	const [versions, setVersions] = useState([]);
+
+	const [loadedUserData, setLoadedUserData] = useState();
+	const [loadedMetaData, setLoadedMetaData] = useState();
+	const [loadedMaps, setLoadedMaps] = useState();
+	const emptyMap = { id: -1, name: "Seleccionar un mapa" };
+	const [maps, setMaps] = useState([emptyMap]);
+	const [metaData, setMetaData] = useState({});
+	const [userData, setUserData] = useState({});
+
+	const [selectedVersion, setSelectedVersion] = useState();
+	const fileImportDOM = useRef(null);
+	const [saveButtonColor, setSaveButtonColor] = useState();
+
 	const [modalTitle, setModalTitle] = useState();
 	const [modalBody, setModalBody] = useState();
 	const [modalCallback, setModalCallback] = useState();
@@ -92,20 +108,6 @@ function Header({ closeBtn }, ref) {
 
 	const parsedSettings = JSON.parse(settings);
 	let { reducedAnimations } = parsedSettings;
-
-	const selectMapDOM = useRef(null);
-	const selectVersionDOM = useRef(null);
-
-	const [versions, setVersions] = useState([]);
-
-	const [loadedMaps, setLoadedMaps] = useState();
-	const emptyMap = { id: -1, name: "Seleccionar un mapa" };
-	const [maps, setMaps] = useState([emptyMap]);
-
-	const [selectedVersion, setSelectedVersion] = useState();
-	const fileImportDOM = useRef(null);
-
-	const [saveButtonColor, setSaveButtonColor] = useState();
 
 	/**
 	 * Updates the version of an object in an array of versions.
@@ -441,22 +443,51 @@ function Header({ closeBtn }, ref) {
 	};
 
 	useEffect(() => {
-		fetch("resources/dev.json")
-			.then((response) => response.json())
-			.then((data) => {
-				setLoadedMaps(true);
-				setMaps([emptyMap, ...data]);
-			})
-			.catch((e) => {
-				toast(
-					`No se pudieron obtener los datos desde la LMS.`,
-					defaultToastError
-				);
-				console.error(
-					"No se pudieron obtener los datos desde la LMS. Error: \n",
-					e
-				);
-			});
+		try {
+			fetch("resources/devmaps.json")
+				.then((response) => response.json())
+				.then((data) => {
+					setMaps([emptyMap, ...data]);
+					setLoadedMaps(true);
+				})
+				.catch((e) => {
+					const error = new Error(
+						"No se pudieron obtener los datos del curso desde el LMS."
+					);
+					error.log = e;
+					throw error;
+				});
+			fetch("resources/devmeta.json")
+				.then((response) => response.json())
+				.then((data) => {
+					setPlatform(data.platform);
+					setMetaData({ ...data, courseSource: process.env.BACK_URL });
+					setLoadedMetaData(true);
+				})
+				.catch((e) => {
+					const error = new Error(
+						"No se pudieron obtener los metadatos del curso desde el LMS."
+					);
+					error.log = e;
+					throw error;
+				});
+			fetch("resources/devuser.json")
+				.then((response) => response.json())
+				.then((data) => {
+					setUserData(data);
+					setLoadedUserData(true);
+				})
+				.catch((e) => {
+					const error = new Error(
+						"No se pudieron obtener los datos del usuario desde el LMS."
+					);
+					error.log = e;
+					throw error;
+				});
+		} catch (e) {
+			toast(e, defaultToastError);
+			console.error(e, e.log);
+		}
 	}, []);
 
 	useEffect(() => {
@@ -799,20 +830,28 @@ function Header({ closeBtn }, ref) {
 								>
 									<div className="d-flex flex-row">
 										<Container className="d-flex flex-column">
-											<div>María García</div>
-											<div>{capitalizeFirstLetter(platform)}</div>
+											<div>
+												{loadedUserData
+													? userData.name + " " + userData.lastname
+													: "Cargando..."}
+											</div>
+											<div>
+												{loadedMetaData && capitalizeFirstLetter(platform)}
+											</div>
 										</Container>
 										<div className="mx-auto d-flex align-items-center">
-											<Image
-												alt="Imagen de perfil"
-												src="/images/3373707.jpg"
-												className={styles.userProfile}
-												width={48}
-												height={48}
-												onClick={
-													process.env.DEV_MODE ? devPlataformChange : null
-												}
-											></Image>
+											{loadedUserData && userData.profileURL && (
+												<Image
+													alt="Imagen de perfil"
+													src={userData.profileURL}
+													className={styles.userProfile}
+													width={48}
+													height={48}
+													onClick={
+														process.env.DEV_MODE ? devPlataformChange : null
+													}
+												></Image>
+											)}
 										</div>
 									</div>
 								</Dropdown.Toggle>

@@ -149,6 +149,33 @@ FALLBACK
 	background-color: #419093;
 }
 
+/* Mail */
+.react-flow__node-mail {
+	background-color: #5f9ea0;
+}
+
+.react-flow__node-mail:hover, .react-flow__node-mail:focus-visible, .react-flow__node-mail:active {
+	background-color: #419093;
+}
+
+/* AddGroup */
+.react-flow__node-addgroup {
+	background-color: #198754;
+}
+
+.react-flow__node-addgroup:hover, .react-flow__node-addgroup:focus-visible, .react-flow__node-addgroup:active {
+	background-color: #0e683e;
+}
+
+/* RemGroup */
+.react-flow__node-remgroup {
+	background-color: #dc3545;
+}
+
+.react-flow__node-remgroup:hover, .react-flow__node-remgroup:focus-visible, .react-flow__node-remgroup:active {
+	background-color: #bf2534;
+}
+
 /* Moodle */
 
 

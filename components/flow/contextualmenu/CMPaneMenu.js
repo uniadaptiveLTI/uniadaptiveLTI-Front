@@ -1,9 +1,13 @@
 import FocusTrap from "focus-trap-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSquarePlus, faPaste } from "@fortawesome/free-solid-svg-icons";
-import styles from "@components/styles/BlockContextualMenu.module.css";
+import {
+	faSquarePlus,
+	faPaste,
+	faSquare,
+	faPersonRunning,
+} from "@fortawesome/free-solid-svg-icons";
+import styles from "@components/styles/ContextualMenu.module.css";
 import { Button } from "react-bootstrap";
-import { notImplemented } from "@components/pages/_app";
 import { useRef, forwardRef } from "react";
 
 const Menu = (
@@ -23,6 +27,28 @@ const Menu = (
 						<div>
 							Crear nuevo bloque...
 							<span>SHIFT+B</span>
+						</div>
+					</div>
+				</Button>
+			</li>
+			<li>
+				<Button
+					variant="light"
+					onClick={() => createBlock({ type: "action" })}
+					disabled={!EnableCreate}
+				>
+					<div>
+						<div className={"fa-layers " + styles.layeredIcon}>
+							<FontAwesomeIcon icon={faSquare} />
+							<FontAwesomeIcon
+								icon={faPersonRunning}
+								color="white"
+								style={{ transform: "scale(0.75)" }}
+							/>
+						</div>
+						<div>
+							Crear nuevo bloque de acción...
+							<span>SHIFT+ALT+B</span>
 						</div>
 					</div>
 				</Button>
