@@ -4,6 +4,13 @@ import { Modal, Button, Form, Row, Col, Container } from "react-bootstrap";
 import Condition from "./Condition";
 import { faEdit, faPlus, faShuffle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import UserProfileForm from "./form-components/UserProfileForm";
+import CompletionForm from "./form-components/CompletionForm";
+import QualificationForm from "./form-components/QualificationForm";
+import DateForm from "./form-components/DateForm";
+import ConditionsGroupForm from "./form-components/ConditionsGroupForm";
+import GroupForm from "./form-components/GroupForm";
+import GroupingForm from "./form-components/GroupingForm";
 
 function ConditionModal({
 	blockData,
@@ -16,6 +23,26 @@ function ConditionModal({
 		setBlockData();
 		setShowConditionsModal(false);
 	};
+
+	const moodleGroups = [
+		{ id: "group-1", name: "Grupo A" },
+		{ id: "group-2", name: "Grupo B" },
+		{ id: "group-3", name: "Grupo C" },
+		{ id: "group-4", name: "Grupo D" },
+		{ id: "group-5", name: "Grupo E" },
+		{ id: "group-6", name: "Grupo F" },
+		{ id: "group-7", name: "Grupo G" },
+	];
+
+	const moodleGroupings = [
+		{ id: "grouping-1", name: "Agrupamiento A" },
+		{ id: "grouping-2", name: "Agrupamiento B" },
+		{ id: "grouping-3", name: "Agrupamiento C" },
+		{ id: "grouping-4", name: "Agrupamiento D" },
+		{ id: "grouping-5", name: "Agrupamiento E" },
+		{ id: "grouping-6", name: "Agrupamiento F" },
+		{ id: "grouping-7", name: "Agrupamiento G" },
+	];
 
 	const [editing, setEditing] = useState(undefined);
 	const [conditionEdit, setConditionEdit] = useState(undefined);
@@ -38,14 +65,14 @@ function ConditionModal({
 	const parentsNodeArray = getParentsNode(blocksData, blockData.id);
 
 	const addCondition = (conditionId) => {
-		if (blockData.conditions.id != conditionId) {
+		if (blockData.data.conditions.id != conditionId) {
 			const foundCondition = findConditionById(
 				conditionId,
-				blockData.conditions.conditions
+				blockData.data.conditions.conditions
 			);
 			setEditing(foundCondition);
 		} else {
-			setEditing(blockData.conditions);
+			setEditing(blockData.data.conditions);
 		}
 	};
 
@@ -110,7 +137,7 @@ function ConditionModal({
 	const deleteCondition = (conditionId) => {
 		const blockDataCopy = deepCopy(blockData);
 
-		deleteConditionById(blockDataCopy.conditions.conditions, conditionId);
+		deleteConditionById(blockDataCopy.data.conditions.conditions, conditionId);
 
 		setBlockData(blockDataCopy);
 	};
@@ -140,6 +167,10 @@ function ConditionModal({
 			case "completion":
 				formData.query = conditionQuery.current.value;
 				break;
+			case "group":
+				break;
+			case "grouping":
+				break;
 			case "userProfile":
 				formData.query = conditionQuery.current.value;
 				formData.objective = conditionObjective.current.value;
@@ -157,12 +188,9 @@ function ConditionModal({
 
 		if (edition) {
 			formData.id = conditionEdit.id;
-			if (conditionEdit.type == "conditionsGroup") {
-				formData.conditions = conditionEdit.conditions;
-			}
 
 			updateConditionById(
-				updatedBlockData.conditions.conditions,
+				updatedBlockData.data.conditions.conditions,
 				formData.id,
 				formData
 			);
@@ -176,14 +204,13 @@ function ConditionModal({
 					: [formData],
 			};
 
-			if (!updatedBlockData.conditions) {
-				updatedBlockData.conditions = updatedCondition;
-
+			if (!updatedBlockData.data.conditions) {
+				updatedBlockData.data.conditions = updatedCondition;
 				setBlockData(updatedBlockData);
 			} else {
 				if (
 					updateConditionById(
-						updatedBlockData.conditions.conditions,
+						updatedBlockData.data.conditions.conditions,
 						updatedCondition.id,
 						updatedCondition
 					)
@@ -192,9 +219,11 @@ function ConditionModal({
 				} else {
 					const updatedJsonObject = {
 						...updatedBlockData,
-						conditions: updatedCondition,
+						data: {
+							...updatedBlockData.data,
+							conditions: updatedCondition,
+						},
 					};
-
 					setBlockData(updatedJsonObject);
 				}
 			}
@@ -217,15 +246,14 @@ function ConditionModal({
 	}
 
 	const addConditionToMain = () => {
-		if (blockData.conditions) {
-			addCondition(blockData.conditions.id);
+		if (blockData.data.conditions) {
+			addCondition(blockData.data.conditions.id);
 		} else {
 			const firstConditionGroup = {
 				type: "conditionsGroup",
 				id: parseInt(Date.now() * Math.random()).toString(),
 				op: "&",
 			};
-
 			setEditing(firstConditionGroup);
 		}
 	};
@@ -234,7 +262,11 @@ function ConditionModal({
 		const updatedBlockData = deepCopy(blockData);
 		const swapOperator = condition.op === "&" ? "|" : "&";
 
-		updateConditionOp(updatedBlockData.conditions, condition.id, swapOperator);
+		updateConditionOp(
+			updatedBlockData.data.conditions,
+			condition.id,
+			swapOperator
+		);
 		setBlockData(updatedBlockData);
 	}
 
@@ -248,7 +280,7 @@ function ConditionModal({
 
 	function getParentsNode(nodesArray, childId) {
 		return nodesArray.filter(
-			(node) => node.children && node.children.includes(childId)
+			(node) => node.data.children && node.data.children.includes(childId)
 		);
 	}
 
@@ -305,7 +337,6 @@ function ConditionModal({
 
 		if (!isDisabled && !isDisabled2) {
 			if (isObjEmpty || isObj2Empty) {
-				console.log("ALGUNO VACIO");
 				saveButton.current.disabled = true;
 			} else {
 				saveButton.current.disabled = false;
@@ -331,10 +362,10 @@ function ConditionModal({
 	return (
 		<Modal size="xl" show={showConditionsModal} onHide={handleClose}>
 			<Modal.Header closeButton>
-				<Modal.Title>Precondiciones de "{blockData.title}"</Modal.Title>
+				<Modal.Title>Precondiciones de "{blockData.data.label}"</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
-				{blockData.conditions && !editing && (
+				{blockData.data.conditions && !editing && (
 					<Container
 						style={{
 							padding: "10px",
@@ -349,7 +380,7 @@ function ConditionModal({
 									<strong>
 										{
 											conditionsGroupOperatorList.find(
-												(item) => item.value === blockData.conditions.op
+												(item) => item.value === blockData.data.conditions.op
 											)?.name
 										}
 									</strong>
@@ -359,7 +390,7 @@ function ConditionModal({
 								<Button
 									variant="light"
 									onClick={() => {
-										swapConditionGroup(blockData.conditions);
+										swapConditionGroup(blockData.data.conditions);
 									}}
 								>
 									<div>
@@ -369,7 +400,7 @@ function ConditionModal({
 							</Col>
 						</Row>
 						<Container>
-							{blockData.conditions.conditions.map((condition) => {
+							{blockData.data.conditions.conditions.map((condition) => {
 								return (
 									<Condition
 										condition={condition}
@@ -401,171 +432,69 @@ function ConditionModal({
 							{parentsNodeArray.length > 0 && (
 								<option value="completion">Finalización</option>
 							)}
+							{moodleGroups.length > 0 && <option value="group">Grupo</option>}
+							{moodleGroupings.length > 0 && (
+								<option value="grouping">Agrupamiento</option>
+							)}
 							<option value="userProfile">Perfil de usuario</option>
 							<option value="conditionsGroup">Conjunto de condiciones</option>
 						</Form.Select>
 					) : null)}
 				{editing && selectedOption === "date" && (
-					<Form.Group>
-						<Form.Select
-							ref={conditionQuery}
-							defaultValue={conditionEdit?.query}
-						>
-							<option value="dateFrom">Desde</option>
-							<option value="dateTo">Hasta</option>
-						</Form.Select>
-						<Form.Control
-							ref={conditionOperator}
-							type="date"
-							onChange={handleDateChange}
-							defaultValue={
-								conditionEdit && conditionEdit.type === "date"
-									? conditionEdit.op
-									: new Date().toISOString().substr(0, 10)
-							}
-						/>
-					</Form.Group>
+					<DateForm
+						conditionQuery={conditionQuery}
+						conditionOperator={conditionOperator}
+						conditionEdit={conditionEdit}
+						handleDateChange={handleDateChange}
+					/>
 				)}
 				{editing && selectedOption === "qualification" && (
-					<Form.Group>
-						<Form.Select
-							ref={conditionOperator}
-							defaultValue={conditionEdit?.op}
-						>
-							<option value="fullCourse">Total del curso</option>
-							{parentsNodeArray.length > 0 &&
-								parentsNodeArray.map((node) => (
-									<option key={node.id}>{node.title}</option>
-								))}
-						</Form.Select>
-						<Form.Check
-							id="objectiveCheckbox"
-							type="checkbox"
-							label="debe ser >="
-							onChange={checkInputs}
-							defaultChecked={
-								conditionEdit && conditionEdit.objective
-									? true
-									: false || !conditionEdit
-							}
-						/>
-						<Form.Control
-							ref={conditionObjective}
-							type="number"
-							min="0"
-							max="10"
-							defaultValue={
-								conditionEdit && conditionEdit.objective !== undefined
-									? conditionEdit.objective
-									: 5
-							}
-							disabled={conditionEdit && !conditionEdit.objective}
-							onChange={checkInputs}
-						/>
-						<Form.Check
-							id="objective2Checkbox"
-							type="checkbox"
-							label="debe ser <"
-							defaultChecked={
-								conditionEdit && conditionEdit.objective2
-									? true
-									: false || false
-							}
-							onChange={checkInputs}
-						/>
-						<Form.Control
-							ref={conditionObjective2}
-							type="number"
-							min="0"
-							max="10"
-							defaultValue={
-								conditionEdit && conditionEdit.objective2 !== undefined
-									? conditionEdit.objective2
-									: 5
-							}
-							disabled={!conditionEdit || !conditionEdit.objective2}
-							onChange={checkInputs}
-						/>
-					</Form.Group>
+					<QualificationForm
+						conditionOperator={conditionOperator}
+						conditionQuery={conditionQuery}
+						conditionObjective={conditionObjective}
+						conditionObjective2={conditionObjective2}
+						conditionEdit={conditionEdit}
+						parentsNodeArray={parentsNodeArray}
+						checkInputs={checkInputs}
+					/>
 				)}
 				{editing && selectedOption === "completion" && (
-					<Form.Group>
-						<Form.Select
-							ref={conditionOperator}
-							defaultValue={conditionEdit?.op}
-						>
-							{parentsNodeArray.length > 0 &&
-								parentsNodeArray.map((node) => (
-									<option key={node.id}>{node.title}</option>
-								))}
-						</Form.Select>
-						<Form.Select
-							ref={conditionQuery}
-							defaultValue={conditionEdit?.query}
-						>
-							<option value="completed">debe estar completa</option>
-							<option value="notCompleted">no debe estar completa</option>
-							<option value="completedApproved">
-								debe estar completa y aprobada
-							</option>
-							<option value="completedSuspended">
-								debe estar completa y suspendida
-							</option>
-						</Form.Select>
-					</Form.Group>
+					<CompletionForm
+						parentsNodeArray={parentsNodeArray}
+						conditionOperator={conditionOperator}
+						conditionQuery={conditionQuery}
+						conditionEdit={conditionEdit}
+					/>
+				)}
+				{editing && selectedOption === "group" && (
+					<GroupForm
+						conditionOperator={conditionOperator}
+						moodleGroups={moodleGroups}
+						conditionEdit={conditionEdit}
+					/>
+				)}
+				{editing && selectedOption === "grouping" && (
+					<GroupingForm
+						conditionOperator={conditionOperator}
+						conditionEdit={conditionEdit}
+						moodleGroupings={moodleGroupings}
+					/>
 				)}
 				{editing && selectedOption === "userProfile" && (
-					<Form.Group>
-						<Form.Select
-							ref={conditionOperator}
-							defaultValue={conditionEdit?.op}
-						>
-							<option value="firstName">Nombre</option>
-							<option value="lastName">Apellido</option>
-							<option value="city">Ciudad</option>
-							<option value="department">Departamento</option>
-							<option value="address">Dirección</option>
-							<option value="emailAddress">Dirección de correo</option>
-							<option value="institution">Institución</option>
-							<option value="idNumber">Número de ID</option>
-							<option value="country">País</option>
-							<option value="telephone">Teléfono</option>
-							<option value="mobilePhone">Teléfono Movil</option>
-						</Form.Select>
-						<Form.Select
-							ref={conditionQuery}
-							defaultValue={conditionEdit?.query}
-						>
-							<option value="equals">es igual a</option>
-							<option value="contains">contiene</option>
-							<option value="notContains">no contiene</option>
-							<option value="startsWith">comienza con</option>
-							<option value="endsWith">termina en</option>
-							<option value="empty">está vacío</option>
-							<option value="notEmpty">no está vacío</option>
-						</Form.Select>
-						<Form.Control
-							ref={conditionObjective}
-							onChange={handleUserProfileChange}
-							defaultValue={
-								conditionEdit?.type === "userProfile"
-									? conditionEdit?.objective
-									: ""
-							}
-							type="text"
-						/>
-					</Form.Group>
+					<UserProfileForm
+						conditionOperator={conditionOperator}
+						conditionQuery={conditionQuery}
+						conditionObjective={conditionObjective}
+						conditionEdit={conditionEdit}
+						handleUserProfileChange={handleUserProfileChange}
+					/>
 				)}
 				{editing && selectedOption === "conditionsGroup" && (
-					<Form.Group>
-						<Form.Select
-							ref={conditionOperator}
-							defaultValue={conditionEdit?.op}
-						>
-							<option value="&">Se deben cumplir todas</option>
-							<option value="|">Solo debe cumplirse una</option>
-						</Form.Select>
-					</Form.Group>
+					<ConditionsGroupForm
+						conditionOperator={conditionOperator}
+						conditionEdit={conditionEdit}
+					/>
 				)}
 				{!editing && (
 					<Button className="mb-5" variant="light" onClick={addConditionToMain}>
