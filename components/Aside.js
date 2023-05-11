@@ -69,18 +69,6 @@ export default function Aside({ className, closeBtn, svgExists }) {
 
 	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
 
-	const conditionTypes = [
-		{ id: 0, value: "qualification", name: "Calificación", default: "true" },
-		{ id: 1, value: "finalization", name: "Finalización", default: "true" },
-		{ id: 2, value: "userProfile", name: "Perfil de usuario", default: "true" },
-	];
-
-	const qualificationOperand = [
-		{ id: 0, value: ">=", name: "Mayor o igual", default: "true" },
-		{ id: 1, value: "<", name: "Menor", default: "true" },
-		{ id: 2, value: "between", name: "Entre", default: "true" },
-	];
-
 	const [moodleResource, setMoodleResource] = useState([
 		{ id: 0, value: "quiz", name: "Cuestionario", type: "element" },
 		{ id: 1, value: "assign", name: "Tarea", type: "element" },
@@ -200,6 +188,28 @@ export default function Aside({ className, closeBtn, svgExists }) {
 					{ id: 2, name: "Medalla 3" },
 				]);
 				break;
+			case "addgroup":
+				setSecondOptions([
+					{ id: "group-1", name: "Grupo A" },
+					{ id: "group-2", name: "Grupo B" },
+					{ id: "group-3", name: "Grupo C" },
+					{ id: "group-4", name: "Grupo D" },
+					{ id: "group-5", name: "Grupo E" },
+					{ id: "group-6", name: "Grupo F" },
+					{ id: "group-7", name: "Grupo G" },
+				]);
+				break;
+			case "remgroup":
+				setSecondOptions([
+					{ id: "group-1", name: "Grupo A" },
+					{ id: "group-2", name: "Grupo B" },
+					{ id: "group-3", name: "Grupo C" },
+					{ id: "group-4", name: "Grupo D" },
+					{ id: "group-5", name: "Grupo E" },
+					{ id: "group-6", name: "Grupo F" },
+					{ id: "group-7", name: "Grupo G" },
+				]);
+				break;
 			case "generic":
 				setSecondOptions([{ id: 0, name: "Genérico" }]);
 				break;
@@ -210,22 +220,26 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	}, [selectedOption]);
 
 	const handleSelect = (event) => {
-		setShowSpinner(true);
-
 		let input = optionsDOM.current;
-		setSelectedOption(event.target.value);
-		setAllowResourceSelection(false);
 
-		let refresh = refreshIconDOM.current;
-		refresh.classList.add("d-none");
-		input.disabled = true;
+		if (selectedOption !== "mail") {
+			setShowSpinner(true);
+			setSelectedOption(event.target.value);
+			setAllowResourceSelection(false);
 
-		setTimeout(() => {
-			refresh.classList.remove("d-none");
-			input.disabled = false;
-			setShowSpinner(false);
-			setAllowResourceSelection(true);
-		}, 2000);
+			let refresh = refreshIconDOM.current;
+			refresh.classList.add("d-none");
+			input.disabled = true;
+
+			setTimeout(() => {
+				refresh.classList.remove("d-none");
+				input.disabled = false;
+				setShowSpinner(false);
+				setAllowResourceSelection(true);
+			}, 2000);
+		} else {
+			setSelectedOption(event.target.value);
+		}
 	};
 
 	useEffect(() => {
@@ -239,12 +253,12 @@ export default function Aside({ className, closeBtn, svgExists }) {
 		}
 	}, [currentBlocksData]);
 
+	console.log(selectedOption);
+
 	useEffect(() => {
 		if (blockSelected) {
 			const title = titleDOM.current;
 			const type = typeDOM.current;
-			const selectElement = relationSelectDOM.current;
-			const optionToSelect = selectElement?.querySelector('option[value=""]');
 
 			if (title) {
 				title.value = blockSelected.title;
@@ -254,19 +268,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 				type.value = blockSelected.type;
 			}
 
-			if (optionToSelect) {
-				optionToSelect.selected = true;
-				setMatchingConditions();
-				setExpandedCondition(false);
-				setShowConditions(false);
-				setSelectedOption(blockSelected.type);
-
-				const condition = conditionsDOM.current;
-
-				if (condition) {
-					condition.value = blockSelected.conditions;
-				}
-			}
+			setSelectedOption(blockSelected.type);
 		}
 	}, [blockSelected]);
 
@@ -338,35 +340,6 @@ export default function Aside({ className, closeBtn, svgExists }) {
 		}));
 	};
 
-	const [showConditions, setShowConditions] = useState(false);
-	const [matchingConditions, setMatchingConditions] = useState();
-
-	const handleBlockSelect = (event) => {
-		const blockId = event.target.value;
-		if (blockId === "") {
-			setShowChildSelect(false);
-			setSelectedChild(null);
-			setConditions([]);
-		} else {
-			if (blockSelected.conditions) {
-				const matchingConditions = blockSelected.conditions.filter(
-					(condition) => condition.unlockId === blockId
-				);
-				setExpandedCondition(true);
-				setShowConditions(true);
-				setMatchingConditions(matchingConditions);
-			} else {
-				setExpandedCondition(true);
-				setShowConditions(true);
-				setMatchingConditions();
-			}
-		}
-	};
-
-	const handleChildSelect = (event) => {
-		const childId = event.target.value;
-		setSelectedChild(childId);
-	};
 	return (
 		<aside className={`${className} ${styles.aside}`}>
 			{/* TODO: FocusTrap this */}
@@ -481,7 +454,9 @@ export default function Aside({ className, closeBtn, svgExists }) {
 									</Form.Select>
 								</Form.Group>
 
-								{blockSelected.type != "fragment" ? (
+								{blockSelected.type != "fragment" &&
+								blockSelected.type !== "mail" &&
+								selectedOption !== "mail" ? (
 									<div className="mb-3">
 										<div className="d-flex gap-2">
 											<Form.Label htmlFor={optionsID} className="mb-1">
@@ -555,103 +530,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 								</Form.Group>
 							</div>
 						</div>
-						{blockSelected.children && (
-							<div>
-								<div className="mb-2">
-									<div
-										className="d-flex gap-2"
-										role="button"
-										onClick={() => {
-											setExpandedRelations(!expandedRelations);
-											setExpandedCondition(false);
-										}}
-									>
-										<div className="fw-bold">Relaciones</div>
-										<div>
-											<div role="button">
-												{!expandedRelations ? (
-													<FontAwesomeIcon icon={faCaretUp} />
-												) : (
-													<FontAwesomeIcon icon={faCaretDown} />
-												)}
-											</div>
-										</div>
-									</div>
 
-									<div
-										className={[
-											styles.uniadaptiveDetails,
-											expandedRelations ? styles.active : null,
-											reducedAnimations && styles.noAnimation,
-										].join(" ")}
-									>
-										<Form.Select
-											ref={relationSelectDOM}
-											className="mb-3"
-											onChange={handleBlockSelect}
-											defaultValue={""}
-										>
-											<option value="" disabled>
-												Escoge una relación
-											</option>
-
-											{blockSelected.children &&
-												blockSelected.children.map((childId) => {
-													const selectedChild = reactFlowInstance
-														.getNodes()
-														.find((child) => child.id === childId);
-
-													return (
-														<option
-															key={selectedChild.id}
-															value={selectedChild.id}
-														>
-															{selectedChild.title}
-														</option>
-													);
-												})}
-										</Form.Select>
-										{showConditions && (
-											<div className="mb-2">
-												<div
-													className="d-flex gap-2"
-													role="button"
-													onClick={() =>
-														setExpandedCondition(!expandedCondition)
-													}
-												>
-													<div className="fw-bold">Condición</div>
-													<div>
-														<div role="button">
-															{!expandedCondition ? (
-																<FontAwesomeIcon icon={faCaretUp} />
-															) : (
-																<FontAwesomeIcon icon={faCaretDown} />
-															)}
-														</div>
-													</div>
-												</div>
-												{matchingConditions &&
-													matchingConditions.map((condition) => {
-														if (condition.type === "qualification") {
-															return (
-																<Qualification
-																	condition={condition}
-																	conditionTypes={conditionTypes}
-																	qualificationOperand={qualificationOperand}
-																	titleID={titleID}
-																	titleDOM={titleDOM}
-																	expandedCondition={expandedCondition}
-																/>
-															);
-														}
-													})}
-											</div>
-										)}
-									</div>
-								</div>
-							</div>
-						)}
 						<Button onClick={updateBlock} disabled={!allowResourceSelection}>
 							Guardar
 						</Button>
