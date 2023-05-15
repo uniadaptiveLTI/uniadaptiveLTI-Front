@@ -42,6 +42,7 @@ export default function App({ Component, pageProps }) {
 			highContrast: false,
 			showDetails: false,
 			snapping: true,
+			snappingInFragment: false,
 			reducedAnimations: false,
 			autoHideAside: true,
 			autoExpandMSGBox: false,

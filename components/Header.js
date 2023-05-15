@@ -16,6 +16,7 @@ import {
 	Popover,
 	OverlayTrigger,
 } from "react-bootstrap";
+import { useReactFlow } from "reactflow";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
 	faBell,
@@ -36,7 +37,6 @@ import {
 	MSGContext,
 	SettingsContext,
 	OnlineContext,
-	ReactFlowInstanceContext,
 } from "@components/pages/_app";
 import { toast } from "react-toastify";
 import { notImplemented } from "@components/pages/_app";
@@ -98,9 +98,7 @@ function Header({ closeBtn }, ref) {
 
 	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
 
-	const { reactFlowInstance, setReactFlowInstance } = useContext(
-		ReactFlowInstanceContext
-	);
+	const { reactFlowInstance } = useReactFlow();
 	const { currentBlocksData, setCurrentBlocksData } =
 		useContext(BlocksDataContext);
 	const { isOffline } = useContext(OnlineContext);
@@ -108,6 +106,10 @@ function Header({ closeBtn }, ref) {
 
 	const parsedSettings = JSON.parse(settings);
 	let { reducedAnimations } = parsedSettings;
+
+	useEffect(() => {
+		if (process.env.DEV_MODE) globalThis.rf = reactFlowInstance;
+	}, []);
 
 	/**
 	 * Updates the version of an object in an array of versions.
@@ -923,7 +925,11 @@ function Header({ closeBtn }, ref) {
 												fontFamily: "monospace",
 											}}
 										>
-											{JSON.stringify(reactFlowInstance.getNodes(), null, "\t")}
+											{JSON.stringify(
+												reactFlowInstance?.getNodes(),
+												null,
+												"\t"
+											)}
 										</code>
 									</details>
 								</div>

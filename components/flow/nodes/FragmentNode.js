@@ -1,5 +1,5 @@
 import { useCallback, useContext, useState } from "react";
-import { NodeResizer, NodeToolbar } from "reactflow";
+import { NodeResizer, NodeToolbar, useReactFlow } from "reactflow";
 import { Button } from "react-bootstrap";
 import styles from "@components/styles/BlockContainer.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -17,33 +17,25 @@ import {
 	BlocksDataContext,
 	ExpandedAsideContext,
 	MapInfoContext,
-	ReactFlowInstanceContext,
 	SettingsContext,
 	VersionInfoContext,
 	notImplemented,
 } from "@components/pages/_app";
 import { useEffect } from "react";
 import {
-	getBlockById,
-	getBlockByNodeDOM,
 	getEdgeBetweenNodeIds,
 	getNodeById,
 	getNodesByProperty,
 	getUpdatedArrayById,
-	getUpdatedBlocksDataFromFlow,
 } from "@components/components/Utils";
 import FocusTrap from "focus-trap-react";
 
 function FragmentNode({ id, xPos, yPos, type, data }) {
-	const onChange = useCallback((evt) => {
-		//console.log(evt.target.value);
-	}, []);
-
 	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
 	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
 	const { selectedEditVersion, setSelectedEditVersion } =
 		useContext(VersionInfoContext);
-	const { reactFlowInstance } = useContext(ReactFlowInstanceContext);
+	const reactFlowInstance = useReactFlow();
 	const { currentBlocksData, setCurrentBlocksData } =
 		useContext(BlocksDataContext);
 	const { settings, setSettings } = useContext(SettingsContext);
@@ -53,6 +45,7 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 		data.innerNodes
 	);
 	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
+	const [expanded, setExpanded] = useState(data.expanded);
 
 	const handleEdit = () => {
 		const blockData = {
@@ -90,49 +83,61 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 	useEffect(() => {
 		const currentInnerNodes = getInnerNodes();
 
-		const style = getNodeById(id, reactFlowInstance).style;
+		const currentNode = getNodeById(id, reactFlowInstance);
+		const styles = currentNode.style
+			? currentNode.style
+			: { height: 68, width: 68 };
 
-		console.log(data.innerNodes, currentInnerNodes, style);
 		if (currentInnerNodes) {
-			for (const [index, childNode] of currentInnerNodes.entries()) {
-				if (!data.expanded) {
-					const newInnerNodes = currentInnerNodes.map((node) => {
-						{
-							node.hidden = true;
-							node.position = { x: 0, y: 0 };
-							return node;
-						}
-					});
-					reactFlowInstance.setNodes(
-						getUpdatedArrayById(newInnerNodes, reactFlowInstance.getNodes())
-					);
+			if (!expanded) {
+				const newInnerNodes = currentInnerNodes.map((node) => {
+					{
+						node.hidden = true;
+						node.position = { x: 0, y: 0 };
+						return node;
+					}
+				});
 
-					style.width = style.height = 68;
+				styles.width = styles.height = 68;
+
+				reactFlowInstance.setNodes(
+					getUpdatedArrayById(
+						[...newInnerNodes, { ...currentNode, style: styles }],
+						reactFlowInstance.getNodes()
+					)
+				);
+			} else {
+				const maxPositions = { x: 0, y: 0 };
+				const newInnerNodes = currentInnerNodes.map((node, index) => {
+					{
+						const nodeX = data.innerNodes[index].position.x;
+						const nodeY = data.innerNodes[index].position.y;
+						node.hidden = false;
+						node.position = {
+							x: nodeX,
+							y: nodeY,
+						};
+						maxPositions.x < nodeX ? (maxPositions.x = nodeX) : null;
+						maxPositions.y < nodeY ? (maxPositions.y = nodeY) : null;
+
+						return node;
+					}
+				});
+
+				if (maxPositions.x == 0 && maxPositions.y == 0) {
+					styles.width = 68;
+					styles.height = 68;
 				} else {
-					const maxPositions = { x: 0, y: 0 };
-					const newInnerNodes = currentInnerNodes.map((node, index) => {
-						{
-							const nodeX = data.innerNodes[index].position.x;
-							const nodeY = data.innerNodes[index].position.y;
-							node.hidden = false;
-							node.position = {
-								x: nodeX,
-								y: nodeY,
-							};
-							maxPositions.x < nodeX ? (maxPositions.x = nodeX) : null;
-							maxPositions.y < nodeY ? (maxPositions.y = nodeY) : null;
-
-							return node;
-						}
-					});
-
-					reactFlowInstance.setNodes(
-						getUpdatedArrayById(newInnerNodes, reactFlowInstance.getNodes())
-					);
-
-					style.width = maxPositions.x + 68;
-					style.height = maxPositions.y + 68;
+					styles.width = maxPositions.x;
+					styles.height = maxPositions.y;
 				}
+
+				reactFlowInstance.setNodes(
+					getUpdatedArrayById(
+						[...newInnerNodes, { ...currentNode, style: styles }],
+						reactFlowInstance.getNodes()
+					)
+				);
 			}
 
 			for (const childNode1 of currentInnerNodes) {
@@ -151,7 +156,7 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 								"[data-testid=rf__edge-" + edge.id + "]"
 							);
 							if (edgeDOM) {
-								if (!data.expanded) {
+								if (!expanded) {
 									edgeDOM.style.visibility = "hidden";
 								} else {
 									edgeDOM.style.visibility = "visible";
@@ -162,12 +167,12 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 				}
 			}
 		}
-	}, [data.expanded]);
+	}, [expanded]);
 
-	/*const restrictedChildren = (width, height) => {
-		const result = originalChildrenStatus.map((children) => {
-			let cwidth = children.x;
-			let cheight = children.y;
+	const restrictedChildren = (width, height) => {
+		const result = getInnerNodes().map((children) => {
+			let cwidth = children.position.x;
+			let cheight = children.position.y;
 
 			if (cwidth > width) {
 				cwidth = width;
@@ -175,7 +180,7 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 			if (cheight > height) {
 				cheight = height;
 			}
-			return { ...children, x: cwidth, y: cheight };
+			return { ...children, position: { x: cwidth, y: cheight } };
 		});
 		return result;
 	};
@@ -189,8 +194,8 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 		let updatedChildrenBlockData = [];
 		for (const [index, childNode] of originalChildrenStatus.entries()) {
 			const newNode = getNodeById(childNode.id, reactFlowInstance);
-			newNode.position.x = restrictedChildrenArray[index].x;
-			newNode.position.y = restrictedChildrenArray[index].y;
+			newNode.position.x = restrictedChildrenArray[index].position.x;
+			newNode.position.y = restrictedChildrenArray[index].position.y;
 
 			updatedChildrenBlockData.push({
 				id: childNode.id,
@@ -201,11 +206,10 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 
 		const updatedInfo = {
 			id: id,
-			innerNodes: restrictedChildrenArray,
-			style: { width: newWidth, height: newHeight },
+			data: {
+				innerNodes: restrictedChildrenArray,
+			},
 		};
-
-		setOriginalChildrenStatus(updatedChildrenBlockData);
 
 		reactFlowInstance.setNodes(
 			getUpdatedArrayById(
@@ -215,7 +219,7 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 		);
 	};
 
-	const getCurrentChildrenPositions = () => {
+	/*const getCurrentChildrenPositions = () => {
 		const children = getInnerNodes();
 		const innerNodes = [];
 		if (children) {
@@ -268,12 +272,12 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 	};
 	return (
 		<>
-			{data.expanded && (
+			{expanded && (
 				<NodeResizer
-					minWidth={100}
-					minHeight={100}
-					/*onResizeStart={getCurrentChildrenPositions}
-					onResizeEnd={handleResizeEnd}*/
+					minWidth={125}
+					minHeight={175}
+					/*onResizeStart={getCurrentChildrenPositions}*/
+					onResizeEnd={handleResizeEnd}
 				/>
 			)}
 			<NodeToolbar position="left" offset={25}>
@@ -286,34 +290,43 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 					<div className={styles.blockToolbar}>
 						<Button
 							variant="dark"
-							onClick={() => (data.expanded = !data.expanded)}
+							onClick={() => {
+								data.expanded = !data.expanded;
+								setExpanded(!expanded);
+							}}
 						>
-							{data.expanded ? (
+							{expanded ? (
 								<FontAwesomeIcon icon={faCompress} />
 							) : (
 								<FontAwesomeIcon icon={faExpand} />
 							)}
 							<span className="visually-hidden">
-								{data.expanded ? "Contraer" : "Expandir"} fragmento
+								{expanded ? "Contraer" : "Expandir"} fragmento
 							</span>
 						</Button>
 						<Button variant="dark" onClick={handleEdit}>
 							<FontAwesomeIcon icon={faEdit} />
 							<span className="visually-hidden">Editar fragmento</span>
 						</Button>
-						<Button variant="dark" onClick={notImplemented}>
-							<FontAwesomeIcon icon={faUpRightAndDownLeftFromCenter} />
-							<span className="visually-hidden">Redimensionar fragmento</span>
-						</Button>
+						{expanded && (
+							<>
+								<Button variant="dark" onClick={notImplemented}>
+									<FontAwesomeIcon icon={faUpRightAndDownLeftFromCenter} />
+									<span className="visually-hidden">
+										Redimensionar fragmento
+									</span>
+								</Button>
 
-						<Button variant="dark" onClick={notImplemented}>
-							<FontAwesomeIcon icon={faSquarePlus} />
-							<span className="visually-hidden">Añadir bloque</span>
-						</Button>
-						<Button variant="dark" onClick={notImplemented}>
-							<FontAwesomeIcon icon={faSquareMinus} />
-							<span className="visually-hidden">Eliminar bloque</span>
-						</Button>
+								<Button variant="dark" onClick={notImplemented}>
+									<FontAwesomeIcon icon={faSquarePlus} />
+									<span className="visually-hidden">Añadir bloque</span>
+								</Button>
+								<Button variant="dark" onClick={notImplemented}>
+									<FontAwesomeIcon icon={faSquareMinus} />
+									<span className="visually-hidden">Eliminar bloque</span>
+								</Button>
+							</>
+						)}
 					</div>
 				</FocusTrap>
 			</NodeToolbar>
@@ -327,7 +340,7 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 					" " +
 					(reducedAnimations && styles.noAnimation + " noAnimation") +
 					" " +
-					(data.expanded && "expandedFragment")
+					(expanded && "expandedFragment")
 				}
 				/*onClick={(e) => {
 					if (e.detail === 1)
@@ -337,7 +350,7 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 				}}*/
 				aria-label={getAriaLabel} //FIXME: Doesn't work
 			>
-				{!data.expanded && (
+				{!expanded && (
 					<span className={styles.blockInfo + " " + styles.top}>
 						{data.label}
 					</span>
@@ -345,7 +358,7 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 				<div>
 					<FontAwesomeIcon icon={faCubes} />
 				</div>
-				{!data.expanded && (
+				{!expanded && (
 					<span className={styles.blockInfo + " " + styles.bottom}>
 						Fragmento
 					</span>

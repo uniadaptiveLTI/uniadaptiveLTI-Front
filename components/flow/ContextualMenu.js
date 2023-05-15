@@ -1,13 +1,10 @@
 import styles from "@components/styles/ContextualMenu.module.css";
 import { forwardRef, useContext, useState, useLayoutEffect } from "react";
-import {
-	ExpandedAsideContext,
-	ReactFlowInstanceContext,
-} from "@components/pages/_app";
+import { ExpandedAsideContext } from "@components/pages/_app";
+import { useReactFlow } from "reactflow";
 import CMNodeMenu from "./contextualmenu/CMNodeMenu";
 import CMPaneMenu from "./contextualmenu/CMPaneMenu";
 import CMSelectionMenu from "./contextualmenu/CMSelectionMenu";
-import { getNodesByNodesDOM } from "../Utils";
 
 export default forwardRef(function ContextualMenu(
 	{
@@ -32,9 +29,6 @@ export default forwardRef(function ContextualMenu(
 	},
 	ref
 ) {
-	const { reactFlowInstance, setReactFlowInstance } = useContext(
-		ReactFlowInstanceContext
-	);
 	const { expanded: expandedAside } = useContext(ExpandedAsideContext);
 
 	const asideBounds = expandedAside

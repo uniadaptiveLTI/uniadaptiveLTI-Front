@@ -1,7 +1,7 @@
 import Header from "./Header";
 import Aside from "./Aside";
 import Footer from "./Footer";
-
+import { ReactFlowProvider } from "reactflow";
 import { Container } from "react-bootstrap";
 import { useState, useRef, useLayoutEffect } from "react";
 import {
@@ -104,63 +104,68 @@ export default function Layout({ children }) {
 								>
 									<MainDOMContext.Provider value={{ mainDOM, setMainDOM }}>
 										<MSGContext.Provider value={{ msg, setMSG }}>
-											<Container
-												className="g-0"
-												fluid
-												style={{ minHeight: 100 + "vh" }}
-											>
-												<div className="row g-0" style={{ height: 100 + "vh" }}>
-													<Aside
-														className={
-															expandedAside
-																? "col-12 col-sm-4 col-md-3 col-xl-2"
-																: "d-none"
-														}
-													/>
-													<Container
-														fluid
-														className={
-															expandedAside
-																? "col-12 col-sm-8 col-md-9 col-xl-10 g-0"
-																: "g-0"
-														}
-														style={{
-															display: "flex",
-															flexDirection: "column",
-														}}
+											<ReactFlowProvider>
+												<Container
+													className="g-0"
+													fluid
+													style={{ minHeight: 100 + "vh" }}
+												>
+													<div
+														className="row g-0"
+														style={{ height: 100 + "vh" }}
 													>
+														<Aside
+															className={
+																expandedAside
+																	? "col-12 col-sm-4 col-md-3 col-xl-2"
+																	: "d-none"
+															}
+														/>
 														<Container
-															className="g-0"
 															fluid
-															style={{ flex: "1 0 auto" }}
+															className={
+																expandedAside
+																	? "col-12 col-sm-8 col-md-9 col-xl-10 g-0"
+																	: "g-0"
+															}
+															style={{
+																display: "flex",
+																flexDirection: "column",
+															}}
 														>
-															<Header ref={headerDOM} />
-
-															<main
-																id="main"
-																ref={mainDOMRef}
-																style={{
-																	height: `calc(100vh - ${mainHeightOffset}px)`,
-																	overflow: "overlay",
-																	scrollBehavior: "smooth",
-																	position: "relative",
-																	boxShadow: "inset 0 0 10px #ccc",
-																}}
+															<Container
+																className="g-0"
+																fluid
+																style={{ flex: "1 0 auto" }}
 															>
-																{children}
-															</main>
-															<Footer
-																msg={msg}
-																className={
-																	expandedAside
-																		? "col-12 col-sm-8 col-md-9 col-xl-10 g-0"
-																		: "col-12 g-0"
-																}
-															/>
+																<Header ref={headerDOM} />
+
+																<main
+																	id="main"
+																	ref={mainDOMRef}
+																	style={{
+																		height: `calc(100vh - ${mainHeightOffset}px)`,
+																		overflow: "overlay",
+																		scrollBehavior: "smooth",
+																		position: "relative",
+																		boxShadow: "inset 0 0 10px #ccc",
+																	}}
+																>
+																	{children}
+																</main>
+																<Footer
+																	msg={msg}
+																	className={
+																		expandedAside
+																			? "col-12 col-sm-8 col-md-9 col-xl-10 g-0"
+																			: "col-12 g-0"
+																	}
+																/>
+															</Container>
 														</Container>
-													</Container>
-												</div>
-											</Container>
+													</div>
+												</Container>
+											</ReactFlowProvider>
 										</MSGContext.Provider>
 									</MainDOMContext.Provider>
 								</BlocksDataContext.Provider>

@@ -12,6 +12,7 @@ import ReactFlow, {
 	useNodesState,
 	useEdgesState,
 	ControlButton,
+	useReactFlow,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import ActionNode from "./flow/nodes/ActionNode.js";
@@ -20,7 +21,6 @@ import {
 	BlockInfoContext,
 	ExpandedAsideContext,
 	PlatformContext,
-	ReactFlowInstanceContext,
 	SettingsContext,
 } from "@components/pages/_app.js";
 import FinalNode from "./flow/nodes/FinalNode.js";
@@ -44,7 +44,7 @@ import {
 	getNodesByNodesDOM,
 	getUpdatedArrayById,
 	addEventListeners,
-	thereIsReservedNodesDOMInArray,
+	thereIsReservedNodesInArray,
 	getNodeDOMById,
 	getNodeById,
 } from "./Utils.js";
@@ -88,15 +88,13 @@ const nodeTypes = {
 const OverviewFlow = ({ map }, ref) => {
 	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
 	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
-	const { reactFlowInstance, setReactFlowInstance } = useContext(
-		ReactFlowInstanceContext
-	);
 	const { settings, setSettings } = useContext(SettingsContext);
 
 	const parsedSettings = JSON.parse(settings);
 	let { autoHideAside, snapping } = parsedSettings;
 
 	//Flow States
+	const reactFlowInstance = useReactFlow();
 	const [newInitialNodes, setNewInitialNodes] = useState([]);
 	const [newInitialEdges, setNewInitialEdges] = useState([]);
 	const [minimap, setMinimap] = useState(true);
@@ -163,7 +161,6 @@ const OverviewFlow = ({ map }, ref) => {
 	const [edges, setEdges, onEdgesChange] = useEdgesState(newInitialEdges);
 
 	const draggedNodePosition = useRef(null);
-	const draggedNodesPosition = useRef(null);
 
 	const reactFlowWrapper = useRef(null);
 
@@ -357,7 +354,6 @@ const OverviewFlow = ({ map }, ref) => {
 
 	const onInit = (reactFlowInstance) => {
 		console.log("Blockflow loaded:", reactFlowInstance);
-		setReactFlowInstance(reactFlowInstance);
 	};
 
 	const handleNodeDragStart = (event, node) => {
@@ -375,56 +371,32 @@ const OverviewFlow = ({ map }, ref) => {
 		} else {
 			setSnapToGrid(false);
 		}
-
-		draggedNodePosition.current = node.position;
 	};
 
 	const onSelectionDragStart = (event, nodes) => {
 		setShowContextualMenu(false);
-		draggedNodesPosition.current = nodes[0].position;
 	};
 
-	const onSelectionDragStop = (event, nodes) => {
-		if (
-			draggedNodesPosition.current &&
-			(draggedNodesPosition.current.x !== nodes[0].position.x ||
-				draggedNodesPosition.current.y !== nodes[0].position.y)
-		) {
-			//FIXME:LOOK IF NECESSARY
-			const selectionBlock = nodes.map((b) => ({
-				b,
-			}));
-			reactFlowInstance.setNodes(
-				getUpdatedArrayById(selectionBlock, reactFlowInstance.getNodes())
-			);
-		}
-	};
+	const onSelectionDragStop = (event, nodes) => {};
 
 	const onNodeDragStop = (event, node) => {
-		if (node) {
-			if (
-				draggedNodePosition.current.x !== node.position.x ||
-				draggedNodePosition.current.y !== node.position.y
-			) {
-				reactFlowInstance.setNodes(
-					getUpdatedArrayById(node, reactFlowInstance.getNodes())
-				);
+		reactFlowInstance.setNodes(
+			getUpdatedArrayById(node, reactFlowInstance.getNodes())
+		);
 
-				if (node.parentNode) {
-					const parent = getNodeById(node.parentNode, reactFlowInstance);
-					parent.data.innerNodes.map((innerNode) => {
-						if (innerNode.id == node.id) {
-							innerNode.position = node.position;
-							return innerNode;
-						} else {
-							return innerNode;
-						}
-					});
+		if (node.parentNode) {
+			const parent = getNodeById(node.parentNode, reactFlowInstance);
+			parent.data.innerNodes.map((innerNode) => {
+				if (innerNode.id == node.id) {
+					innerNode.position = node.position;
+					return innerNode;
+				} else {
+					return innerNode;
 				}
-
-				setSnapToGrid(true);
-			}
+			});
 		}
+
+		setSnapToGrid(true);
 	};
 
 	const onPaneClick = () => {
@@ -584,11 +556,25 @@ const OverviewFlow = ({ map }, ref) => {
 		e.preventDefault();
 		setCMX(e.clientX - bounds.left);
 		setCMY(e.clientY - bounds.top);
-		setCMBlockData(node);
-		if (node.type == "start" || node.type == "end") {
-			setCMContainsReservedNodes(true);
+		let selectedCount = 0;
+		const currentNodes = reactFlowInstance.getNodes();
+		currentNodes.map((node) => (node.selected ? selectedCount++ : null));
+		console.log(selectedCount);
+		if (selectedCount <= 1) {
+			setCMBlockData(node);
+			if (node.type == "start" || node.type == "end") {
+				setCMContainsReservedNodes(true);
+			}
+			setContextMenuOrigin("block");
+		} else {
+			const selectedNodes = currentNodes.filter(
+				(node) => node.selected == true
+			);
+			setContextMenuOrigin("nodesselection");
+			setCMBlockData(selectedNodes);
+			setCMContainsReservedNodes(thereIsReservedNodesInArray(selectedNodes));
 		}
-		setContextMenuOrigin("block");
+
 		setShowContextualMenu(true);
 	};
 
@@ -610,16 +596,16 @@ const OverviewFlow = ({ map }, ref) => {
 		setCMContainsReservedNodes(false);
 		const bounds = reactFlowWrapper.current?.getBoundingClientRect();
 		e.preventDefault();
-		const selectedNodes = [
-			...document.querySelectorAll(".react-flow__node.selected"),
-		]; //TODO: Get using .getNodes()
+		const selectedNodes = reactFlowInstance
+			.getNodes()
+			.filter((node) => node.selected == true);
 		setCMX(e.clientX - bounds.left);
 		setCMY(e.clientY - bounds.top);
 		setContextMenuOrigin("nodesselection");
 
 		console.log(selectedNodes, reactFlowInstance);
-		setCMBlockData(getNodesByNodesDOM(selectedNodes, reactFlowInstance));
-		setCMContainsReservedNodes(thereIsReservedNodesDOMInArray(selectedNodes));
+		setCMBlockData(selectedNodes);
+		setCMContainsReservedNodes(thereIsReservedNodesInArray(selectedNodes));
 		setShowContextualMenu(true);
 	};
 
@@ -628,17 +614,30 @@ const OverviewFlow = ({ map }, ref) => {
 			const deletedBlockArray = reactFlowInstance
 				.getNodes()
 				.filter((b) => b.id !== blocks.id);
-			const deletedRelatedChildrenArray = deleteRelatedChildrenById(
+			const deletedRelatedChildrenArray = filterRelatedChildrenById(
 				blocks.id,
 				deletedBlockArray
 			);
-
-			const deleteRelatedConditionsArray = deleteRelatedConditionsById(
+			const deleteRelatedConditionsArray = filterRelatedConditionsById(
 				blocks.id,
 				deletedRelatedChildrenArray
 			);
-
-			reactFlowInstance.setNodes(deleteRelatedConditionsArray);
+			console.log(blocks.type);
+			if (blocks.type == "fragment" && blocks.data.innerNodes.length > 0) {
+				const withoutFragmentChildren = [
+					...deleteBlocks(
+						addFragmentChildrenFromFragment(blocks, deletedRelatedChildrenArray)
+					),
+				];
+				//Delete fragment from finalMap, as its added back by the deleteBlocks function
+				const withoutFragment = withoutFragmentChildren.filter(
+					(b) => b.id !== blocks.id
+				);
+				reactFlowInstance.setNodes(withoutFragment);
+			} else {
+				reactFlowInstance.setNodes(deleteRelatedConditionsArray);
+			}
+			return deleteRelatedConditionsArray;
 		} else {
 			if (blocks.length > 0) {
 				let updatedBlocksArray = reactFlowInstance.getNodes().slice();
@@ -647,28 +646,29 @@ const OverviewFlow = ({ map }, ref) => {
 					const id = b.id;
 
 					updatedBlocksArray = updatedBlocksArray.filter((b) => b.id !== id);
-					updatedBlocksArray = deleteRelatedChildrenById(
+					updatedBlocksArray = filterRelatedChildrenById(
 						id,
 						updatedBlocksArray
 					);
-					updatedBlocksArray = deleteRelatedConditionsById(
+					updatedBlocksArray = filterRelatedConditionsById(
 						id,
 						updatedBlocksArray
 					);
 				});
 
 				reactFlowInstance.setNodes(updatedBlocksArray);
+				return updatedBlocksArray;
 			}
 		}
 	};
 
 	/**
-	 * Deletes children with the given id from an array of objects.
-	 * @param {string} id - The id of the child to delete.
+	 * Filters out children with the given id from an array of objects.
+	 * @param {string} id - The id of the child to filter.
 	 * @param {Object[]} arr - The array of objects to search for children.
 	 * @returns {Object[]} - The updated array of objects with the specified child removed.
 	 */
-	const deleteRelatedChildrenById = (id, arr) => {
+	const filterRelatedChildrenById = (id, arr) => {
 		return arr.map((b) => {
 			if (b.children?.includes(id)) {
 				const updatedChildren = b.children.filter((childId) => childId !== id);
@@ -677,7 +677,7 @@ const OverviewFlow = ({ map }, ref) => {
 					children: updatedChildren.length ? updatedChildren : undefined,
 				};
 			} else if (b.children?.length) {
-				return { ...b, children: deleteRelatedChildrenById(id, b.children) };
+				return { ...b, children: filterRelatedChildrenById(id, b.children) };
 			} else {
 				return b;
 			}
@@ -685,12 +685,12 @@ const OverviewFlow = ({ map }, ref) => {
 	};
 
 	/**
-	 * Deletes conditions with the given unlockId from an array of objects.
-	 * @param {string} unlockId - The unlockId of the condition to delete.
+	 * Filters out conditions with the given unlockId from an array of objects.
+	 * @param {string} unlockId - The unlockId of the condition to filter.
 	 * @param {Object[]} arr - The array of objects to search for conditions.
-	 * @returns {Object[]} - The updated array of objects with the specified condition removed.
+	 * @returns {Object[]} - The updated array of objects with the specified condition filtered.
 	 */
-	const deleteRelatedConditionsById = (unlockId, arr) => {
+	const filterRelatedConditionsById = (unlockId, arr) => {
 		return arr.map((b) => {
 			if (b.conditions?.length) {
 				const updatedConditions = b.conditions.filter(
@@ -703,12 +703,23 @@ const OverviewFlow = ({ map }, ref) => {
 			} else if (b.children?.length) {
 				return {
 					...b,
-					children: deleteRelatedConditionsById(unlockId, b.children),
+					children: filterRelatedConditionsById(unlockId, b.children),
 				};
 			} else {
 				return b;
 			}
 		});
+	};
+
+	const addFragmentChildrenFromFragment = (fragment, arr) => {
+		const parentNode = fragment.id;
+		const fragmentChildren = reactFlowInstance
+			.getNodes()
+			.filter((node) => node.parentNode == parentNode);
+		const filteredArr = arr.filter((oNode) =>
+			fragmentChildren.map((cNode) => cNode.id).includes(oNode.id)
+		);
+		return [...filteredArr, ...fragmentChildren];
 	};
 
 	//TODO: REVISAR
@@ -861,16 +872,30 @@ const OverviewFlow = ({ map }, ref) => {
 				};
 			} else {
 				//TODO: Check if ID already exists
-				if (blockData.type != "fragment") {
+				if (blockData.type == "emptyfragment") {
 					newBlockCreated = {
-						...blockData,
-						position: {
-							x: blockData.position.x + asideOffset + flowPos.x,
-							y: blockData.position.y + asideOffset + flowPos.y,
+						id: uniqueId(),
+						position: { x: flowPos.x, y: flowPos.y },
+						type: "fragment",
+						style: { height: 68, width: 68 },
+						data: {
+							label: "Nuevo fragmento",
+							innerNodes: [],
+							expanded: false,
 						},
 					};
 				} else {
-					newBlockCreated = blockData;
+					if (blockData.type != "fragment") {
+						newBlockCreated = {
+							...blockData,
+							position: {
+								x: blockData.position.x + asideOffset + flowPos.x,
+								y: blockData.position.y + asideOffset + flowPos.y,
+							},
+						};
+					} else {
+						newBlockCreated = { ...blockData };
+					}
 				}
 			}
 		} else {
@@ -906,8 +931,8 @@ const OverviewFlow = ({ map }, ref) => {
 		if (Object.keys(newBlockCreated).length !== 0) {
 			let newcurrentBlocksData = reactFlowInstance.getNodes();
 			newcurrentBlocksData.push(newBlockCreated);
-			return newcurrentBlocksData;
 			reactFlowInstance.setNodes([...newcurrentBlocksData]);
+			return newcurrentBlocksData;
 		}
 	};
 
@@ -946,6 +971,15 @@ const OverviewFlow = ({ map }, ref) => {
 			.getNodes()
 			.filter((node) => node.selected == true);
 
+		//Delete the original nodes to put them after the fragment, so appear after the fragment and extendParent takes effect
+		const filteredNodes = deleteBlocks(
+			reactFlowInstance
+				.getNodes()
+				.filter((oNode) =>
+					selectedNodes.map((pNode) => pNode.id).includes(oNode.id)
+				)
+		);
+
 		let minX = Infinity;
 		let minY = Infinity;
 		let maxX = 0;
@@ -964,11 +998,9 @@ const OverviewFlow = ({ map }, ref) => {
 			});
 		}
 
-		console.log(selectedNodes);
-		console.log(minX, minY, maxX, maxY);
-		console.log(innerNodes);
 		const newFragmentID = uniqueId();
-		const currentNodesWithFragment = createBlock({
+
+		const newFragment = {
 			id: newFragmentID,
 			position: { x: minX, y: minY },
 			type: "fragment",
@@ -979,16 +1011,20 @@ const OverviewFlow = ({ map }, ref) => {
 				innerNodes: innerNodes,
 				expanded: true,
 			},
-		});
+		};
+
 		const parentedNodes = selectedNodes.map((node) => {
 			node.parentNode = newFragmentID;
 			node.expandParent = true;
 			return node;
 		});
 
-		reactFlowInstance.setNodes(
-			getUpdatedArrayById(parentedNodes, currentNodesWithFragment)
-		);
+		console.log(filteredNodes);
+		reactFlowInstance.setNodes([
+			...filteredNodes,
+			newFragment,
+			...parentedNodes,
+		]);
 	};
 
 	const handleDeleteBlock = (blockData) => {

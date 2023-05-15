@@ -5,6 +5,7 @@ import {
 	faPaste,
 	faSquare,
 	faPersonRunning,
+	faDiagramProject,
 } from "@fortawesome/free-solid-svg-icons";
 import styles from "@components/styles/ContextualMenu.module.css";
 import { Button } from "react-bootstrap";
@@ -49,6 +50,23 @@ const Menu = (
 						<div>
 							Crear nuevo bloque de acción...
 							<span>SHIFT+ALT+B</span>
+						</div>
+					</div>
+				</Button>
+			</li>
+			<li>
+				<Button
+					variant="light"
+					onClick={() => createBlock({ type: "emptyfragment" })}
+					disabled={!EnableCreate}
+				>
+					<div>
+						<div className={"fa-layers " + styles.layeredIcon}>
+							<FontAwesomeIcon icon={faDiagramProject} />
+						</div>
+						<div>
+							Crear nuevo fragmento vacío
+							<span>SHIFT+F</span>
 						</div>
 					</div>
 				</Button>

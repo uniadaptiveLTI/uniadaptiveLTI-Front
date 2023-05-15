@@ -52,34 +52,6 @@ export const isBlockArrayEqual = (blockArray1, blockArray2) => {
 	return true;
 };
 
-/**
- * Checks if there are any reserved blocks in an array of DOM elements
- * @param {HTMLElement[]} nodeDOMArray - An array of DOM elements
- * @returns {boolean} True if there is at least one reserved block, false otherwise
- */
-export function thereIsReservedNodesDOMInArray(nodeDOMArray) {
-	// Get the CSS selectors for the reserved block types
-	let classes = getReservedNodeDOMClassesFromTypes();
-	// Join the selectors with a comma
-	let matchString = classes.join(", ");
-	// Check if any element in the array matches any of the selectors
-	const isReserved = nodeDOMArray.some((dom) =>
-		dom.matches(":is(" + matchString + ")")
-	);
-	return isReserved;
-}
-
-/**
- * Converts an array of reserved block types to an array of CSS selectors
- * @returns {string[]} An array of CSS selectors for the reserved block types
- */
-function getReservedNodeDOMClassesFromTypes() {
-	// Prefix each type with the class name "react-flow__node-"
-	const nodes = ReservedBlockTypes.map((type) => "react-flow__node-" + type);
-	// Add a dot before each selector
-	const classes = nodes.map((node) => "." + node);
-	return classes;
-}
 //Nodes
 
 export const getNodeById = (id, reactFlowInstance) => {
@@ -129,6 +101,12 @@ export const getNodesByProperty = (
 		?.filter((node) => node[property] == value);
 };
 
+export function thereIsReservedNodesInArray(nodeArray) {
+	let isReserved = false;
+	isReserved = nodeArray.some((node) => ReservedBlockTypes.includes(node.type));
+	return isReserved;
+}
+
 // Edges
 
 export const getEdgeBetweenNodeIds = (id1, id2, reactflowInstance) => {
@@ -142,6 +120,35 @@ export const getNodeDOMById = (id) => {
 		(node) => node.dataset.id == id
 	);
 };
+
+/**
+ * Checks if there are any reserved blocks in an array of DOM elements
+ * @param {HTMLElement[]} nodeDOMArray - An array of DOM elements
+ * @returns {boolean} True if there is at least one reserved block, false otherwise
+ */
+export function thereIsReservedNodesDOMInArray(nodeDOMArray) {
+	// Get the CSS selectors for the reserved block types
+	let classes = getReservedNodeDOMClassesFromTypes();
+	// Join the selectors with a comma
+	let matchString = classes.join(", ");
+	// Check if any element in the array matches any of the selectors
+	const isReserved = nodeDOMArray.some((dom) =>
+		dom.matches(":is(" + matchString + ")")
+	);
+	return isReserved;
+}
+
+/**
+ * Converts an array of reserved block types to an array of CSS selectors
+ * @returns {string[]} An array of CSS selectors for the reserved block types
+ */
+function getReservedNodeDOMClassesFromTypes() {
+	// Prefix each type with the class name "react-flow__node-"
+	const nodes = ReservedBlockTypes.map((type) => "react-flow__node-" + type);
+	// Add a dot before each selector
+	const classes = nodes.map((node) => "." + node);
+	return classes;
+}
 
 //Generic
 

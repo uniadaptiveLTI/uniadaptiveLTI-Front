@@ -10,6 +10,7 @@ function UserSettings({}, ref) {
 		highContrast,
 		reducedAnimations,
 		snapping,
+		snappingInFragment,
 		showDetails,
 		autoHideAside,
 		autoExpandMSGBox,
@@ -31,6 +32,9 @@ function UserSettings({}, ref) {
 			case "switch-snapping":
 				snapping = !snapping;
 				break;
+			case "switch-snappingInFragment":
+				snappingInFragment = !snappingInFragment;
+				break;
 			case "switch-showDetails":
 				showDetails = !showDetails;
 				break;
@@ -48,6 +52,7 @@ function UserSettings({}, ref) {
 		newSettings.highContrast = highContrast;
 		newSettings.reducedAnimations = reducedAnimations;
 		newSettings.snapping = snapping;
+		newSettings.snappingInFragment = snappingInFragment;
 		newSettings.showDetails = showDetails;
 		newSettings.autoExpandMSGBox = autoExpandMSGBox;
 		newSettings.autoHideMSGBox = autoHideMSGBox;
@@ -81,6 +86,14 @@ function UserSettings({}, ref) {
 					label="Autoajustar bloques a la cuadricula"
 					defaultChecked={snapping}
 					onClick={handleSettingChange}
+				/>
+				<Form.Check
+					type="switch"
+					id="switch-snappingInFragment"
+					label="Autoajustar a la cuadricula en fragmentos"
+					defaultChecked={snapping}
+					onClick={handleSettingChange}
+					style={{ height: snapping ? "inherit" : "0" }}
 				/>
 				<Form.Check
 					type="switch"

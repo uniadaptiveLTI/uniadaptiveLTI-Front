@@ -6,6 +6,7 @@ import {
 	faRotateRight,
 	faCompress,
 } from "@fortawesome/free-solid-svg-icons";
+import { useReactFlow } from "reactflow";
 import { Container, Button, Form, Spinner } from "react-bootstrap";
 import Qualification from "./flow/conditions/Qualification.js";
 import { useState, useContext, useEffect, useRef, useId, version } from "react";
@@ -18,7 +19,6 @@ import {
 	VersionJsonContext,
 	SettingsContext,
 	BlocksDataContext,
-	ReactFlowInstanceContext,
 } from "../pages/_app.js";
 import { getUpdatedArrayById } from "./Utils.js";
 import { ActionBlocks } from "./flow/nodes/ActionNode.js";
@@ -63,9 +63,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	const { versionJson, setVersionJson } = useContext(VersionJsonContext);
 	const { currentBlocksData, setCurrentBlocksData } =
 		useContext(BlocksDataContext);
-	const { reactFlowInstance, setReactFlowInstance } = useContext(
-		ReactFlowInstanceContext
-	);
+	const reactFlowInstance = useReactFlow();
 
 	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
 
