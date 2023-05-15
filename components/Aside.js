@@ -31,6 +31,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	const [expandedCondition, setExpandedCondition] = useState(false);
 
 	const [selectedOption, setSelectedOption] = useState("");
+	const [lmsResource, setLmsResource] = useState("");
 	const [showSpinner, setShowSpinner] = useState(false);
 	const [allowResourceSelection, setAllowResourceSelection] = useState(true);
 
@@ -47,25 +48,25 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	//References
 	const titleDOM = useRef(null);
 	const optionsDOM = useRef(null);
-	const conditionsDOM = useRef(null);
 	const typeDOM = useRef(null);
+	const lmsResourceDOM = useRef(null);
 	const mapTitleDOM = useRef(null);
 	const versionTitleDOM = useRef(null);
 	const refreshIconDOM = useRef(null);
-	const relationSelectDOM = useRef(null);
 	//IDs
 	const titleID = useId();
 	const optionsID = useId();
+	const lmsResourceId = useId();
 	const contentID = useId();
 	//TODO: Add the rest
 
 	const [secondOptions, setSecondOptions] = useState([]);
 	const { versionJson, setVersionJson } = useContext(VersionJsonContext);
-	const { currentBlocksData, setCurrentBlocksData } =
-		useContext(BlocksDataContext);
 	const reactFlowInstance = useReactFlow();
 
 	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
+
+	const validTypes = ["badge", "mail", "addgroup", "remgroup"];
 
 	const [moodleResource, setMoodleResource] = useState([
 		{ id: 0, value: "quiz", name: "Cuestionario", type: "element" },
@@ -118,72 +119,72 @@ export default function Aside({ className, closeBtn, svgExists }) {
 				break;
 			case "assign":
 				setSecondOptions([
-					{ id: 0, name: "Tarea 1" },
-					{ id: 1, name: "Tarea 2" },
-					{ id: 2, name: "Tarea 3" },
+					{ id: 3, name: "Tarea 1" },
+					{ id: 4, name: "Tarea 2" },
+					{ id: 5, name: "Tarea 3" },
 				]);
 				break;
 			case "workshop":
 				setSecondOptions([
-					{ id: 0, name: "Taller 1" },
-					{ id: 1, name: "Taller 2" },
-					{ id: 2, name: "Taller 3" },
+					{ id: 6, name: "Taller 1" },
+					{ id: 7, name: "Taller 2" },
+					{ id: 8, name: "Taller 3" },
 				]);
 				break;
 			case "choice":
 				setSecondOptions([
-					{ id: 0, name: "Consulta 1" },
-					{ id: 1, name: "Consulta 2" },
-					{ id: 2, name: "Consulta 3" },
+					{ id: 9, name: "Consulta 1" },
+					{ id: 10, name: "Consulta 2" },
+					{ id: 11, name: "Consulta 3" },
 				]);
 				break;
 			case "forum":
 				setSecondOptions([
-					{ id: 0, name: "Foro 1" },
-					{ id: 1, name: "Foro 2" },
-					{ id: 2, name: "Foro 3" },
+					{ id: 12, name: "Foro 1" },
+					{ id: 13, name: "Foro 2" },
+					{ id: 14, name: "Foro 3" },
 				]);
 				break;
 			case "resource":
 				setSecondOptions([
-					{ id: 0, name: "Archivo 1" },
-					{ id: 1, name: "Archivo 2" },
-					{ id: 2, name: "Archivo 3" },
+					{ id: 15, name: "Archivo 1" },
+					{ id: 16, name: "Archivo 2" },
+					{ id: 17, name: "Archivo 3" },
 				]);
 				break;
 			case "folder":
 				setSecondOptions([
-					{ id: 0, name: "Carpeta 1" },
-					{ id: 1, name: "Carpeta 2" },
-					{ id: 2, name: "Carpeta 3" },
+					{ id: 18, name: "Carpeta 1" },
+					{ id: 19, name: "Carpeta 2" },
+					{ id: 20, name: "Carpeta 3" },
 				]);
 				break;
 			case "label":
 				setSecondOptions([
-					{ id: 0, name: "Etiqueta 1" },
-					{ id: 1, name: "Etiqueta 2" },
-					{ id: 2, name: "Etiqueta 3" },
+					{ id: 21, name: "Etiqueta 1" },
+					{ id: 22, name: "Etiqueta 2" },
+					{ id: 23, name: "Etiqueta 3" },
 				]);
 				break;
 			case "page":
 				setSecondOptions([
-					{ id: 0, name: "Página 1" },
-					{ id: 1, name: "Página 2" },
-					{ id: 2, name: "Página 3" },
+					{ id: 24, name: "Página 1" },
+					{ id: 25, name: "Página 2" },
+					{ id: 26, name: "Página 3" },
 				]);
 				break;
 			case "url":
 				setSecondOptions([
-					{ id: 0, name: "Url 1" },
-					{ id: 1, name: "Url 2" },
-					{ id: 2, name: "Url 3" },
+					{ id: 27, name: "Url 1" },
+					{ id: 28, name: "Url 2" },
+					{ id: 29, name: "Url 3" },
 				]);
 				break;
 			case "badge":
 				setSecondOptions([
-					{ id: 0, name: "Medalla 1" },
-					{ id: 1, name: "Medalla 2" },
-					{ id: 2, name: "Medalla 3" },
+					{ id: 30, name: "Medalla 1" },
+					{ id: 31, name: "Medalla 2" },
+					{ id: 32, name: "Medalla 3" },
 				]);
 				break;
 			case "addgroup":
@@ -217,8 +218,18 @@ export default function Aside({ className, closeBtn, svgExists }) {
 		}
 	}, [selectedOption]);
 
+	useEffect(() => {
+		if (secondOptions.length > 0) {
+			const lmsResourceCurrent = lmsResourceDOM.current;
+			if (lmsResourceCurrent) {
+				lmsResourceCurrent.value = blockSelected.data.lmsResource;
+			}
+			setLmsResource(blockSelected.data.lmsResource);
+		}
+	}, [secondOptions]);
+
 	const handleSelect = (event) => {
-		let input = optionsDOM.current;
+		let input = lmsResourceDOM.current;
 
 		if (selectedOption !== "mail") {
 			setShowSpinner(true);
@@ -240,8 +251,10 @@ export default function Aside({ className, closeBtn, svgExists }) {
 		}
 	};
 
-	useEffect(() => {
+	/*useEffect(() => {
+		alert("AUGH");
 		if (blockSelected) {
+			alert("AUGH");
 			let newBlock = currentBlocksData.find(
 				(block) => block.id == blockSelected.id
 			);
@@ -249,21 +262,20 @@ export default function Aside({ className, closeBtn, svgExists }) {
 				setBlockSelected(newBlock);
 			}
 		}
-	}, [currentBlocksData]);
-
-	console.log(selectedOption);
+	}, [reactFlowInstance]);*/
 
 	useEffect(() => {
+		console.log(blockSelected);
 		if (blockSelected) {
-			const title = titleDOM.current;
-			const type = typeDOM.current;
+			const titleCurrent = titleDOM.current;
+			const typeCurrent = typeDOM.current;
 
-			if (title) {
-				title.value = blockSelected.title;
+			if (titleCurrent) {
+				titleCurrent.value = blockSelected.data.label;
 			}
 
-			if (type) {
-				type.value = blockSelected.type;
+			if (typeCurrent) {
+				typeCurrent.value = blockSelected.type;
 			}
 
 			setSelectedOption(blockSelected.type);
@@ -274,41 +286,32 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	 * Updates the selected block with the values from the specified DOM elements.
 	 */
 	const updateBlock = () => {
-		console.log(blockSelected);
+		console.log(blockSelected.type);
+
+		const updatedData = {
+			...blockSelected,
+			id: blockSelected.id,
+			type: typeDOM.current.value,
+			data: {
+				label: titleDOM.current.value,
+				lmsResource: lmsResourceDOM.current.value,
+			},
+		};
+
+		if (!validTypes.includes(blockSelected.type)) {
+			updatedData.data = {
+				...updatedData.data,
+				children: blockSelected.data.children,
+				identation: blockSelected.data.identation,
+				unit: blockSelected.data.unit,
+				order: blockSelected.data.order,
+			};
+		}
+
 		reactFlowInstance.setNodes(
-			getUpdatedArrayById(
-				{
-					...blockSelected,
-					...{
-						id: blockSelected.id,
-						type: typeDOM.current.value,
-						data: {
-							label: titleDOM.current.value,
-							resource: optionsDOM.current.value,
-							children: blockSelected.children,
-							identation: blockSelected.identation,
-						},
-					},
-				},
-				reactFlowInstance.getNodes()
-			)
+			getUpdatedArrayById(updatedData, reactFlowInstance.getNodes())
 		);
 
-		/*setCurrentBlocksData(
-			getUpdatedBlocksData(
-				{
-					id: blockSelected.id,
-					x: blockSelected.x,
-					y: blockSelected.y,
-					type: typeDOM.current.value,
-					title: titleDOM.current.value,
-					resource: optionsDOM.current.value,
-					children: blockSelected.children,
-					identation: blockSelected.identation,
-				},
-				currentBlocksData
-			)
-		);*/
 		if (autoHideAside) {
 			setExpandedAside(false);
 		}
@@ -457,7 +460,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 								selectedOption !== "mail" ? (
 									<div className="mb-3">
 										<div className="d-flex gap-2">
-											<Form.Label htmlFor={optionsID} className="mb-1">
+											<Form.Label htmlFor={lmsResourceId} className="mb-1">
 												Recurso en el LMS
 											</Form.Label>
 											<div className="d-flex">
@@ -476,13 +479,14 @@ export default function Aside({ className, closeBtn, svgExists }) {
 											</div>
 										</div>
 										<Form.Select
-											ref={optionsDOM}
-											id={optionsID}
+											ref={lmsResourceDOM}
+											id={lmsResourceId}
 											className="w-100"
+											defaultValue={lmsResource}
 										>
 											{allowResourceSelection &&
 												secondOptions.map((option) => (
-													<option key={option.id} value={option.name}>
+													<option key={option.id} value={option.id}>
 														{option.name}
 													</option>
 												))}
