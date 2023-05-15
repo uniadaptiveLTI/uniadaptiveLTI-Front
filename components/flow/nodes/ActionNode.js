@@ -133,15 +133,15 @@ function ActionNode({
 	}
 
 	const handleEdit = () => {
+		console.log(data);
 		const blockData = {
 			id: id,
-			x: xPos,
-			y: yPos,
+			position: { x: xPos, y: yPos },
 			type: type,
-			title: data.label,
-			children: children,
-			identation: data.identation,
-			conditions: data.conditions,
+			data: {
+				label: data.label,
+				lmsResource: data.lmsResource,
+			},
 		};
 		if (expandedAside != true) {
 			if (type != "start" && type != "end") setExpandedAside(true);

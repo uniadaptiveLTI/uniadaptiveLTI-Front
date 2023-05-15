@@ -47,16 +47,20 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 	const handleEdit = () => {
 		const blockData = {
 			id: id,
-			x: xPos,
-			y: yPos,
+			position: { x: xPos, y: yPos },
 			type: type,
-			title: data.label,
-			children: data.children,
-			identation: data.identation,
-			conditions: data.conditions,
-			order: data.order,
-			unit: data.unit,
+			data: {
+				label: data.label,
+				lmsResource: data.lmsResource,
+				children: data.children,
+				identation: data.identation,
+				order: data.order,
+				unit: data.unit,
+				conditions: data.conditions,
+			},
 		};
+
+		console.log(data);
 
 		if (expandedAside != true) {
 			if (type != "start" && type != "end") setExpandedAside(true);
