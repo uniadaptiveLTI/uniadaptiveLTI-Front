@@ -91,9 +91,11 @@ function UserSettings({}, ref) {
 					type="switch"
 					id="switch-snappingInFragment"
 					label="Autoajustar a la cuadricula en fragmentos"
-					defaultChecked={snapping}
+					defaultChecked={snappingInFragment}
 					onClick={handleSettingChange}
-					style={{ height: snapping ? "inherit" : "0" }}
+					style={{
+						display: snapping ? "block" : "none",
+					}}
 				/>
 				<Form.Check
 					type="switch"

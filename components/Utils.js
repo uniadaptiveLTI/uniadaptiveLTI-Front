@@ -183,3 +183,7 @@ export function capitalizeFirstLetter(string) {
 }
 
 export const uniqueId = () => parseInt(Date.now() * Math.random()).toString();
+
+export function nearestPowerOfTwo(n) {
+	return Math.pow(2, Math.round(Math.log(n) / Math.log(2)));
+}

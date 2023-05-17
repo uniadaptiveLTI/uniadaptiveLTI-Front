@@ -12,10 +12,12 @@ export default function SimpleActionDialog({
 	callback,
 }) {
 	function handleClose(actionClicked) {
-		if (callback instanceof Function) {
-			callback();
-		} else {
-			console.warn("Callback isn't a function");
+		if (callback && actionClicked) {
+			if (callback instanceof Function) {
+				callback();
+			} else {
+				console.warn("Callback isn't a function");
+			}
 		}
 		toggleDialog();
 	}

@@ -4,6 +4,11 @@
 
 .react-flow__controls {
 	border: var(--blockflow-controls-border) !important;
+	position: absolute;
+	bottom: 15px;
+	left: 15px;
+	display: flex;
+	flex-direction: column;
 }
 
 .react-flow__controls button {

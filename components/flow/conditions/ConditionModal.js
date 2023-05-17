@@ -11,6 +11,7 @@ import DateForm from "./form-components/DateForm";
 import ConditionsGroupForm from "./form-components/ConditionsGroupForm";
 import GroupForm from "./form-components/GroupForm";
 import GroupingForm from "./form-components/GroupingForm";
+import { uniqueId } from "@components/components/Utils";
 
 function ConditionModal({
 	blockData,
@@ -181,8 +182,7 @@ function ConditionModal({
 				break;
 		}
 
-		const uniqueId = parseInt(Date.now() * Math.random()).toString();
-		formData.id = uniqueId;
+		formData.id = uniqueId();
 
 		const updatedBlockData = deepCopy(blockData);
 

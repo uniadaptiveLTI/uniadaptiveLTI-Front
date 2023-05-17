@@ -91,7 +91,7 @@ const OverviewFlow = ({ map }, ref) => {
 	const { settings, setSettings } = useContext(SettingsContext);
 
 	const parsedSettings = JSON.parse(settings);
-	let { autoHideAside, snapping } = parsedSettings;
+	let { autoHideAside, snapping, snappingInFragment } = parsedSettings;
 
 	//Flow States
 	const reactFlowInstance = useReactFlow();
@@ -194,16 +194,7 @@ const OverviewFlow = ({ map }, ref) => {
 		};
 
 		return (
-			<div
-				className="react-flow__controls"
-				style={{
-					position: "absolute",
-					bottom: "5px",
-					left: "5px",
-					display: "flex",
-					flexDirection: "column",
-				}}
-			>
+			<div className="react-flow__controls">
 				<Button title="Zoom in" onClick={zoomIn} variant="light">
 					<FontAwesomeIcon icon={faMagnifyingGlassPlus} />
 				</Button>
@@ -366,8 +357,11 @@ const OverviewFlow = ({ map }, ref) => {
 				const nodeDOM = getNodeDOMById(node.id);
 				nodeDOM.classList.add("insideFragment");
 			}
-
-			setSnapToGrid(!inFragment);
+			if (snappingInFragment) {
+				setSnapToGrid(true);
+			} else {
+				setSnapToGrid(!inFragment);
+			}
 		} else {
 			setSnapToGrid(false);
 		}
@@ -1115,16 +1109,13 @@ const OverviewFlow = ({ map }, ref) => {
 	};
 
 	const handleShow = () => {
-		const selectedNodes = document.querySelectorAll(
-			".react-flow__node.selected"
-		);
+		const selectedNodes = reactFlowInstance
+			.getNodes()
+			.filter((node) => node.selected == true);
 
 		let newCMBlockData = undefined;
 		if (selectedNodes.length == 1) {
-			newCMBlockData = getBlockByNodeDOM(
-				selectedNodes[0],
-				reactFlowInstance.getNodes()
-			);
+			newCMBlockData = selectedNodes[0];
 		}
 
 		if (newCMBlockData || cMBlockData) {
@@ -1223,6 +1214,8 @@ const OverviewFlow = ({ map }, ref) => {
 				showContextualMenu={showContextualMenu}
 				blockData={cMBlockData}
 				containsReservedNodes={cMContainsReservedNodes}
+				relationStarter={relationStarter}
+				setRelationStarter={setRelationStarter}
 				setShowContextualMenu={setShowContextualMenu}
 				setShowConditionsModal={setShowConditionsModal}
 				x={cMX}

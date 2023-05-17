@@ -1,4 +1,4 @@
-import { useCallback, useContext, useState } from "react";
+import { useCallback, useContext, useState, useEffect } from "react";
 import { NodeResizer, NodeToolbar, useReactFlow } from "reactflow";
 import { Button } from "react-bootstrap";
 import styles from "@components/styles/BlockContainer.module.css";
@@ -21,7 +21,6 @@ import {
 	VersionInfoContext,
 	notImplemented,
 } from "@components/pages/_app";
-import { useEffect } from "react";
 import {
 	getEdgeBetweenNodeIds,
 	getNodeById,
@@ -29,6 +28,8 @@ import {
 	getUpdatedArrayById,
 } from "@components/components/Utils";
 import FocusTrap from "focus-trap-react";
+import FragmentResizer from "@components/components/dialogs/FragmentResizer";
+import FragmentAdder from "@components/components/dialogs/FragmentAdder";
 
 function FragmentNode({ id, xPos, yPos, type, data }) {
 	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
@@ -45,6 +46,10 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 		data.innerNodes
 	);
 	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
+	const [showResizer, setShowResizer] = useState(false);
+	const [showAdder, setShowAdder] = useState(false);
+	const [showRemover, setShowRemover] = useState(false);
+
 	const [expanded, setExpanded] = useState(data.expanded);
 
 	const handleEdit = () => {
@@ -124,13 +129,8 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 					}
 				});
 
-				if (maxPositions.x == 0 && maxPositions.y == 0) {
-					styles.width = 68;
-					styles.height = 68;
-				} else {
-					styles.width = maxPositions.x;
-					styles.height = maxPositions.y;
-				}
+				styles.width = maxPositions.x + 68;
+				styles.height = maxPositions.y + 68;
 
 				reactFlowInstance.setNodes(
 					getUpdatedArrayById(
@@ -214,6 +214,39 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 		reactFlowInstance.setNodes(
 			getUpdatedArrayById(
 				[updatedInfo, ...updatedChildrenBlockData],
+				reactFlowInstance.getNodes()
+			)
+		);
+	};
+
+	const resizeFragment = (height, width) => {
+		const currentNode = getNodeById(id, reactFlowInstance);
+		const style = { height: height * 175, width: width * 125 };
+		currentNode.style = style;
+		currentNode.height = style.height;
+		currentNode.width = style.width;
+
+		const restrictedChildrenArray = restrictedChildren(
+			style.width - 125,
+			style.height - 175
+		);
+
+		let updatedChildrenBlockData = [];
+		for (const [index, childNode] of originalChildrenStatus.entries()) {
+			const newNode = getNodeById(childNode.id, reactFlowInstance);
+			newNode.position.x = restrictedChildrenArray[index].position.x;
+			newNode.position.y = restrictedChildrenArray[index].position.y;
+
+			updatedChildrenBlockData.push({
+				id: childNode.id,
+				x: restrictedChildrenArray[index].x,
+				y: restrictedChildrenArray[index].y,
+			});
+		}
+
+		reactFlowInstance.setNodes(
+			getUpdatedArrayById(
+				[currentNode, ...updatedChildrenBlockData],
 				reactFlowInstance.getNodes()
 			)
 		);
@@ -310,14 +343,14 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 						</Button>
 						{expanded && (
 							<>
-								<Button variant="dark" onClick={notImplemented}>
+								<Button variant="dark" onClick={() => setShowResizer(true)}>
 									<FontAwesomeIcon icon={faUpRightAndDownLeftFromCenter} />
 									<span className="visually-hidden">
 										Redimensionar fragmento
 									</span>
 								</Button>
 
-								<Button variant="dark" onClick={notImplemented}>
+								<Button variant="dark" onClick={() => setShowAdder(true)}>
 									<FontAwesomeIcon icon={faSquarePlus} />
 									<span className="visually-hidden">Añadir bloque</span>
 								</Button>
@@ -364,6 +397,17 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 					</span>
 				)}
 			</div>
+			<FragmentResizer
+				showDialog={showResizer}
+				setShowResizer={setShowResizer}
+				id={id}
+				callback={resizeFragment}
+			/>
+			<FragmentAdder
+				showDialog={showAdder}
+				setShowAdder={setShowAdder}
+				id={id}
+			/>
 		</>
 	);
 }

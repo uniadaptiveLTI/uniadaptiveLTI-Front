@@ -1,6 +1,6 @@
 {
-	"name": [],
-	"courseId": [],
+	"name": "Course Name",
+	"courseId": 0,
 	"platform": "moodle",
 	"units": [],
 	"groups": [],

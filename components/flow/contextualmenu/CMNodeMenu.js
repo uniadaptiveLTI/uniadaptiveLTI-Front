@@ -17,7 +17,7 @@ const Menu = (
 		handleShow,
 		relationStarter,
 		blockData,
-		setBlockOrigin,
+		setRelationStarter,
 		setShowContextualMenu,
 		handleDeleteBlock,
 		handleNewRelation,
@@ -56,7 +56,7 @@ const Menu = (
 						<Button
 							variant="light"
 							onClick={() => {
-								setBlockOrigin();
+								setRelationStarter();
 								setShowContextualMenu(false);
 							}}
 							disabled={!EnableCreateRelation}
@@ -96,7 +96,7 @@ const Menu = (
 						<Button
 							variant="light"
 							onClick={() => {
-								setBlockOrigin(blockData);
+								setRelationStarter(blockData);
 								setShowContextualMenu(false);
 							}}
 							disabled={!EnableCreateRelation}
@@ -166,7 +166,7 @@ export default function CMBlockMenu({
 	handleShow,
 	relationStarter,
 	blockData,
-	setBlockOrigin,
+	setRelationStarter,
 	setShowContextualMenu,
 	handleDeleteBlock,
 	handleNewRelation,
@@ -194,7 +194,7 @@ export default function CMBlockMenu({
 				handleShow={handleShow}
 				relationStarter={relationStarter}
 				blockData={blockData}
-				setBlockOrigin={setBlockOrigin}
+				setRelationStarter={setRelationStarter}
 				setShowContextualMenu={setShowContextualMenu}
 				handleDeleteBlock={handleDeleteBlock}
 				handleNewRelation={handleNewRelation}
@@ -213,7 +213,7 @@ export default function CMBlockMenu({
 			handleShow={handleShow}
 			relationStarter={relationStarter}
 			blockData={blockData}
-			setBlockOrigin={setBlockOrigin}
+			setRelationStarter={setRelationStarter}
 			setShowContextualMenu={setShowContextualMenu}
 			handleDeleteBlock={handleDeleteBlock}
 			handleNewRelation={handleNewRelation}

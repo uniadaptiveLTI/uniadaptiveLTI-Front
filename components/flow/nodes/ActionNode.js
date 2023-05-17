@@ -10,16 +10,10 @@ import {
 	PlatformContext,
 } from "@components/pages/_app";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-	faAward,
-	faCube,
-	faEdit,
-	faEnvelope,
-	faUserPlus,
-	faUserMinus,
-} from "@fortawesome/free-solid-svg-icons";
+import { faEdit } from "@fortawesome/free-solid-svg-icons";
 import FocusTrap from "focus-trap-react";
 import { Button } from "react-bootstrap";
+import { getTypeIcon } from "./NodeIcons";
 
 export const ActionBlocks = ["badge", "mail", "addgroup", "remgroup"];
 
@@ -94,44 +88,6 @@ function ActionNode({
 	const { highContrast, reducedAnimations } = parsedSettings;
 	const { platform } = useContext(PlatformContext);
 
-	function getTypeIcon(type) {
-		switch (type) {
-			//Moodle + Sakai
-
-			//Moodle
-			case "badge":
-				return platform == "moodle" ? (
-					<FontAwesomeIcon icon={faAward} className={"moodleIcon"} />
-				) : (
-					<FontAwesomeIcon icon={faAward} />
-				);
-			case "mail":
-				return platform == "moodle" ? (
-					<FontAwesomeIcon icon={faEnvelope} className={"moodleIcon"} />
-				) : (
-					<FontAwesomeIcon icon={faEnvelope} />
-				);
-			case "addgroup":
-				return platform == "moodle" ? (
-					<FontAwesomeIcon icon={faUserPlus} className={"moodleIcon"} />
-				) : (
-					<FontAwesomeIcon icon={faUserPlus} />
-				);
-			case "remgroup":
-				return platform == "moodle" ? (
-					<FontAwesomeIcon icon={faUserMinus} className={"moodleIcon"} />
-				) : (
-					<FontAwesomeIcon icon={faUserMinus} />
-				);
-
-			//Sakai
-
-			//LTI
-			default:
-				return <FontAwesomeIcon icon={faCube} />;
-		}
-	}
-
 	const handleEdit = () => {
 		console.log(data);
 		const blockData = {
@@ -189,7 +145,7 @@ function ActionNode({
 					{data.label}
 				</span>
 
-				<div>{getTypeIcon(type)}</div>
+				<div>{getTypeIcon(type, platform)}</div>
 				<span className={styles.blockInfo + " " + styles.bottom}>
 					{getHumanDesc(type)}
 				</span>
