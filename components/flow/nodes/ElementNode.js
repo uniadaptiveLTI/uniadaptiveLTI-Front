@@ -1,9 +1,9 @@
 import { useCallback, useContext } from "react";
-import { Handle, Position, NodeToolbar } from "reactflow";
+import { Handle, Position, NodeToolbar, useReactFlow } from "reactflow";
 import { Badge, Button } from "react-bootstrap";
 import styles from "@components/styles/BlockContainer.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit } from "@fortawesome/free-solid-svg-icons";
+import { faEdit, faRightFromBracket } from "@fortawesome/free-solid-svg-icons";
 import {
 	BlockInfoContext,
 	ExpandedAsideContext,
@@ -14,6 +14,7 @@ import {
 } from "@components/pages/_app";
 import FocusTrap from "focus-trap-react";
 import { getTypeIcon } from "./NodeIcons";
+import { getNodeById, getUpdatedArrayById } from "@components/components/Utils";
 
 function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 	const onChange = useCallback((evt) => {
@@ -28,6 +29,7 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 	const { platform } = useContext(PlatformContext);
 
 	const { settings, setSettings } = useContext(SettingsContext);
+	const reactFlowInstance = useReactFlow();
 	const parsedSettings = JSON.parse(settings);
 	const { highContrast, showDetails, reducedAnimations } = parsedSettings;
 
@@ -141,6 +143,31 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 		return humanType;
 	};
 
+	const extractSelf = () => {
+		const fragment = getNodeById(
+			getNodeById(id, reactFlowInstance).parentNode,
+			reactFlowInstance
+		);
+		const childToRemove = getNodeById(id, reactFlowInstance);
+
+		delete childToRemove.parentNode;
+		delete childToRemove.expandParent;
+		childToRemove.position = childToRemove.positionAbsolute;
+
+		fragment.data.innerNodes = fragment.data.innerNodes.filter(
+			(node) => node.id != childToRemove.id
+		);
+		fragment.zIndex = -1;
+		reactFlowInstance.setNodes(
+			getUpdatedArrayById(fragment, [
+				...reactFlowInstance
+					.getNodes()
+					.filter((node) => childToRemove.id != node.id),
+				childToRemove,
+			])
+		);
+	};
+
 	return (
 		<>
 			<Handle
@@ -163,10 +190,20 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 					}}
 				>
 					<div className={styles.blockToolbar}>
-						<Button variant="dark" onClick={handleEdit}>
+						<Button variant="dark" onClick={handleEdit} title="Editar elemento">
 							<FontAwesomeIcon icon={faEdit} />
 							<span className="visually-hidden">Editar elemento</span>
 						</Button>
+						{getNodeById(id, reactFlowInstance).parentNode && (
+							<Button
+								variant="dark"
+								onClick={extractSelf}
+								title="Sacar del fragmento"
+							>
+								<FontAwesomeIcon icon={faRightFromBracket} />
+								<span className="visually-hidden">Sacar del fragmento</span>
+							</Button>
+						)}
 					</div>
 				</FocusTrap>
 			</NodeToolbar>

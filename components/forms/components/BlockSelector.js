@@ -14,13 +14,13 @@ import { getTypeIcon } from "@components/components/flow/nodes/NodeIcons";
 import styles from "@components/styles/BlockSelector.module.css";
 
 export default forwardRef(function BlockSelector(
-	{ blockArray, defaultValue, placeholder, onChange, size = 16 },
+	{ nodeArray, defaultValue, placeholder, autoFocus, onChange, size = 16 },
 	ref
 ) {
 	const reactFlowInstance = useReactFlow();
-	const defaultArray = blockArray ? blockArray : reactFlowInstance.getNodes();
+	const defaultArray = nodeArray ? nodeArray : reactFlowInstance.getNodes();
 	const { platform } = useContext(PlatformContext);
-	const [selectedType, setSelectedType] = useState(defaultArray[0].type);
+	const [selectedType, setSelectedType] = useState(defaultArray[0]?.type);
 	const styleSize = size ? styles["x" + size] : styles.x16;
 	const localRef = useRef(null);
 	useImperativeHandle(ref, () => ({
@@ -40,8 +40,9 @@ export default forwardRef(function BlockSelector(
 				ref={localRef}
 				defaultValue={defaultValue}
 				placeholder=""
+				autoFocus={autoFocus}
 				onChange={(e) => {
-					onChange = e;
+					onChange(e);
 					setSelectedType(
 						getNodeById(localRef.current.value, reactFlowInstance)?.type
 					);

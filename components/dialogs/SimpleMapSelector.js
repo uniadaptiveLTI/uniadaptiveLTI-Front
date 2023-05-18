@@ -58,7 +58,7 @@ export default function SimpleActionDialog({
 				<Button variant="secondary" onClick={toggleDialog}>
 					Cancelar
 				</Button>
-				<Button variant={"primary"} onClick={() => handleClose(true)}>
+				<Button variant={"primary"} onClick={() => handleClose(true)} autoFocus>
 					{action ? action : "Ok"}
 				</Button>
 			</Modal.Footer>

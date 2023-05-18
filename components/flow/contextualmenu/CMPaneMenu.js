@@ -5,7 +5,7 @@ import {
 	faPaste,
 	faSquare,
 	faPersonRunning,
-	faDiagramProject,
+	faObjectGroup,
 } from "@fortawesome/free-solid-svg-icons";
 import styles from "@components/styles/ContextualMenu.module.css";
 import { Button } from "react-bootstrap";
@@ -27,7 +27,7 @@ const Menu = (
 						<FontAwesomeIcon icon={faSquarePlus} />
 						<div>
 							Crear nuevo bloque...
-							<span>SHIFT+B</span>
+							<span>CTRL/Cmd+B</span>
 						</div>
 					</div>
 				</Button>
@@ -49,7 +49,7 @@ const Menu = (
 						</div>
 						<div>
 							Crear nuevo bloque de acción...
-							<span>SHIFT+ALT+B</span>
+							<span>CTRL/Cmd+ALT/Opt+B</span>
 						</div>
 					</div>
 				</Button>
@@ -62,11 +62,11 @@ const Menu = (
 				>
 					<div>
 						<div className={"fa-layers " + styles.layeredIcon}>
-							<FontAwesomeIcon icon={faDiagramProject} />
+							<FontAwesomeIcon icon={faObjectGroup} />
 						</div>
 						<div>
 							Crear nuevo fragmento vacío
-							<span>SHIFT+F</span>
+							<span>CTRL/Cmd+F</span>
 						</div>
 					</div>
 				</Button>

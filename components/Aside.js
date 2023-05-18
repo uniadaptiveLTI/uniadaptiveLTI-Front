@@ -342,6 +342,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	};
 
 	return (
+		//TODO: ADD AN OPTION TO EDIT DATA.UNIT AND DATA.ORDER OF A BLOCK
 		<aside className={`${className} ${styles.aside}`}>
 			{/* TODO: FocusTrap this */}
 			<div className={"text-center p-2"}>

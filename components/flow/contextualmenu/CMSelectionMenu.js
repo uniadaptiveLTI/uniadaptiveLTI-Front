@@ -1,7 +1,7 @@
 import FocusTrap from "focus-trap-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-	faDiagramProject,
+	faObjectGroup,
 	faScissors,
 	faClipboard,
 	faTrashCan,
@@ -33,10 +33,10 @@ const Menu = (
 					disabled={!EnableCreateFragment}
 				>
 					<div>
-						<FontAwesomeIcon icon={faDiagramProject} />
+						<FontAwesomeIcon icon={faObjectGroup} />
 						<div>
 							Crear fragmento
-							<span>SHIFT+F</span>
+							<span>CTRL/Cmd+F</span>
 						</div>
 					</div>
 				</Button>

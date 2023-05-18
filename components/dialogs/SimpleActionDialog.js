@@ -34,6 +34,7 @@ export default function SimpleActionDialog({
 				<Button
 					variant={type == "delete" ? "danger" : "primary"}
 					onClick={() => handleClose(true)}
+					autoFocus
 				>
 					{action ? action : "Ok"}
 				</Button>

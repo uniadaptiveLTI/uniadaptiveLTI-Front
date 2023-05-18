@@ -187,3 +187,7 @@ export const uniqueId = () => parseInt(Date.now() * Math.random()).toString();
 export function nearestPowerOfTwo(n) {
 	return Math.pow(2, Math.round(Math.log(n) / Math.log(2)));
 }
+
+export function orderByLabelAlphabetically(array) {
+	return [...array].sort((a, b) => a.data.label.localeCompare(b.data.label));
+}

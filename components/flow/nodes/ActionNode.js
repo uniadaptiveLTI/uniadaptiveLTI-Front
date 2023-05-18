@@ -1,5 +1,5 @@
 import { useCallback, useContext } from "react";
-import { Handle, Position, NodeToolbar } from "reactflow";
+import { Handle, Position, NodeToolbar, useReactFlow } from "reactflow";
 import styles from "@components/styles/BlockContainer.module.css";
 import {
 	BlockInfoContext,
@@ -10,10 +10,11 @@ import {
 	PlatformContext,
 } from "@components/pages/_app";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit } from "@fortawesome/free-solid-svg-icons";
+import { faEdit, faRightFromBracket } from "@fortawesome/free-solid-svg-icons";
 import FocusTrap from "focus-trap-react";
 import { Button } from "react-bootstrap";
 import { getTypeIcon } from "./NodeIcons";
+import { getNodeById, getUpdatedArrayById } from "@components/components/Utils";
 
 export const ActionBlocks = ["badge", "mail", "addgroup", "remgroup"];
 
@@ -83,6 +84,7 @@ function ActionNode({
 	const { selectedEditVersion, setSelectedEditVersion } =
 		useContext(VersionInfoContext);
 
+	const reactFlowInstance = useReactFlow();
 	const { settings } = useContext(SettingsContext);
 	const parsedSettings = JSON.parse(settings);
 	const { highContrast, reducedAnimations } = parsedSettings;
@@ -107,6 +109,31 @@ function ActionNode({
 		setBlockSelected(blockData);
 	};
 
+	const extractSelf = () => {
+		const fragment = getNodeById(
+			getNodeById(id, reactFlowInstance).parentNode,
+			reactFlowInstance
+		);
+		const childToRemove = getNodeById(id, reactFlowInstance);
+
+		delete childToRemove.parentNode;
+		delete childToRemove.expandParent;
+		childToRemove.position = childToRemove.positionAbsolute;
+
+		fragment.data.innerNodes = fragment.data.innerNodes.filter(
+			(node) => node.id != childToRemove.id
+		);
+		fragment.zIndex = -1;
+		reactFlowInstance.setNodes(
+			getUpdatedArrayById(fragment, [
+				...reactFlowInstance
+					.getNodes()
+					.filter((node) => childToRemove.id != node.id),
+				childToRemove,
+			])
+		);
+	};
+
 	return (
 		<>
 			<Handle
@@ -123,10 +150,20 @@ function ActionNode({
 					}}
 				>
 					<div className={styles.blockToolbar}>
-						<Button variant="dark" onClick={handleEdit}>
+						<Button variant="dark" onClick={handleEdit} title="Editar acción">
 							<FontAwesomeIcon icon={faEdit} />
 							<span className="visually-hidden">Editar acción</span>
 						</Button>
+						{getNodeById(id, reactFlowInstance).parentNode && (
+							<Button
+								variant="dark"
+								onClick={extractSelf}
+								title="Sacar del fragmento"
+							>
+								<FontAwesomeIcon icon={faRightFromBracket} />
+								<span className="visually-hidden">Sacar del fragmento</span>
+							</Button>
+						)}
 					</div>
 				</FocusTrap>
 			</NodeToolbar>

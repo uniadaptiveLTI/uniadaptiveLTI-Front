@@ -78,6 +78,10 @@
 	width: 64px;
 }
 
+.react-flow__node.passthrough {
+	pointer-events: none !important;
+}
+
 .react-flow__node-start, .react-flow__node-end {
 	border-radius: 100%;
 }
@@ -284,10 +288,15 @@ FALLBACK
 	background-color: #3f3fc3;
 }
 
+.react-flow__node-fragment:has(.expandedFragment).passthrough {
+	background-color:#00008b10;
+	border-color: #00006d25;
+}
+
 .react-flow__node-fragment:has(.expandedFragment) {
-	background-color:#00008b20;
-	border-color: #00006d20;
-	transition: 0.2s, margin 0ms, background-color 0.5s, transform 0s;
+	background-color:#00008b32;
+	border-color: #00006d32;
+	transition: 0.2s, margin 0ms, background-color 0.5s, transform 0s, border 0s;
 }
 
 .react-flow__node-fragment:has(.expandedFragment) svg{
@@ -427,6 +436,10 @@ FALLBACK
 .react-flow__node-fragment:has(.expandedFragment.highContrast) {
 	background-color:transparent !important;
 	border-color: black;
+}
+
+.react-flow__node-fragment:has(.expandedFragment.highContrast).passthrough {
+	border: dashed;
 }
 
 .react-flow__node-fragment:has(.expandedFragment.highContrast):hover {

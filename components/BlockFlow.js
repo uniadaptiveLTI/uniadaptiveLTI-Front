@@ -47,6 +47,7 @@ import {
 	thereIsReservedNodesInArray,
 	getNodeDOMById,
 	getNodeById,
+	getNodesByProperty,
 } from "./Utils.js";
 import { toast } from "react-toastify";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -101,6 +102,9 @@ const OverviewFlow = ({ map }, ref) => {
 	const [interactive, setInteractive] = useState(true);
 	const [snapToGrid, setSnapToGrid] = useState(true);
 	const [deletedEdge, setDeletedEdge] = useState([]);
+	const [fragmentPassthrough, setFragmentPassthrough] = useState(false);
+	const dragRef = useRef(null);
+	const [target, setTarget] = useState(null);
 
 	//ContextMenu Ref, States, Constants
 	const contextMenuDOM = useRef(null);
@@ -347,8 +351,9 @@ const OverviewFlow = ({ map }, ref) => {
 		console.log("Blockflow loaded:", reactFlowInstance);
 	};
 
-	const handleNodeDragStart = (event, node) => {
+	const onNodeDragStart = (event, node) => {
 		setShowContextualMenu(false);
+		dragRef.current = node;
 
 		if (snapping) {
 			let inFragment = node.parentNode ? true : false;
@@ -365,6 +370,22 @@ const OverviewFlow = ({ map }, ref) => {
 		} else {
 			setSnapToGrid(false);
 		}
+	};
+
+	const onNodeDrag = (event, node) => {
+		const centerX = node.position.x + node.width / 2;
+		const centerY = node.position.y + node.height / 2;
+
+		const targetNode = nodes.find(
+			(n) =>
+				centerX > n.position.x &&
+				centerX < n.position.x + n.width &&
+				centerY > n.position.y &&
+				centerY < n.position.y + n.height &&
+				n.id !== node.id
+		);
+
+		setTarget(targetNode);
 	};
 
 	const onSelectionDragStart = (event, nodes) => {
@@ -390,6 +411,31 @@ const OverviewFlow = ({ map }, ref) => {
 			});
 		}
 
+		if (target?.type == "fragment") {
+			//Adds node to target fragment
+			const relPos = {
+				x: node.position.x - target.position.x,
+				y: node.position.y - target.position.y,
+			};
+			const newInnerNode = { id: node.id, position: relPos };
+			target.data.innerNodes = [...target.data.innerNodes, newInnerNode];
+
+			node.position = relPos;
+			node.parentNode = target.id;
+			node.expandParent = true;
+
+			reactFlowInstance.setNodes(
+				getUpdatedArrayById(target, [
+					...reactFlowInstance
+						.getNodes()
+						.filter((nodes) => nodes.id != node.id),
+					node,
+				])
+			);
+		}
+
+		setTarget(null);
+		dragRef.current = null;
 		setSnapToGrid(true);
 	};
 
@@ -965,60 +1011,89 @@ const OverviewFlow = ({ map }, ref) => {
 			.getNodes()
 			.filter((node) => node.selected == true);
 
-		//Delete the original nodes to put them after the fragment, so appear after the fragment and extendParent takes effect
-		const filteredNodes = deleteBlocks(
-			reactFlowInstance
-				.getNodes()
-				.filter((oNode) =>
-					selectedNodes.map((pNode) => pNode.id).includes(oNode.id)
-				)
-		);
+		if (selectedNodes.length > 0) {
+			//Delete the original nodes to put them after the fragment, so appear after the fragment and extendParent takes effect
+			const filteredNodes = deleteBlocks(
+				reactFlowInstance
+					.getNodes()
+					.filter((oNode) =>
+						selectedNodes.map((pNode) => pNode.id).includes(oNode.id)
+					)
+			);
 
-		let minX = Infinity;
-		let minY = Infinity;
-		let maxX = 0;
-		let maxY = 0;
-		const innerNodes = [];
-		for (const node of selectedNodes) {
-			minX = Math.min(minX, node.position.x);
-			minY = Math.min(minY, node.position.y);
-			maxX = Math.max(maxX, node.position.x);
-			maxY = Math.max(maxY, node.position.y);
-		}
-		for (const node of selectedNodes) {
-			innerNodes.push({
-				id: node.id,
-				position: { x: node.position.x - minX, y: node.position.y - minY },
+			let minX = Infinity;
+			let minY = Infinity;
+			let maxX = 0;
+			let maxY = 0;
+			const innerNodes = [];
+			for (const node of selectedNodes) {
+				minX = Math.min(minX, node.position.x);
+				minY = Math.min(minY, node.position.y);
+				maxX = Math.max(maxX, node.position.x);
+				maxY = Math.max(maxY, node.position.y);
+			}
+			for (const node of selectedNodes) {
+				innerNodes.push({
+					id: node.id,
+					position: { x: node.position.x - minX, y: node.position.y - minY },
+				});
+			}
+
+			const newFragmentID = uniqueId();
+
+			const newFragment = {
+				id: newFragmentID,
+				position: { x: minX, y: minY },
+				type: "fragment",
+				style: { height: maxY - minY + 68, width: maxX - minX + 68 },
+				zIndex: -1,
+				data: {
+					label: "Nuevo Fragmento",
+					innerNodes: innerNodes,
+					expanded: true,
+				},
+			};
+
+			const parentedNodes = selectedNodes.map((node) => {
+				node.parentNode = newFragmentID;
+				node.expandParent = true;
+				return node;
 			});
+
+			reactFlowInstance.setNodes([
+				...filteredNodes,
+				newFragment,
+				...parentedNodes,
+			]);
+		} else {
+			//No blocks selected
+			const bounds = document
+				.getElementById("reactFlowWrapper")
+				?.getBoundingClientRect();
+
+			const viewPortCenter = reactFlowInstance.project({
+				x: bounds.width / 2,
+				y: bounds.height / 2,
+			});
+
+			const newFragment = {
+				id: uniqueId(),
+				position: viewPortCenter,
+				type: "fragment",
+				style: { height: 68, width: 68 },
+				zIndex: -1,
+				data: {
+					label: "Nuevo Fragmento",
+					innerNodes: [],
+					expanded: true,
+				},
+			};
+
+			reactFlowInstance.setNodes([
+				newFragment,
+				...reactFlowInstance.getNodes(),
+			]);
 		}
-
-		const newFragmentID = uniqueId();
-
-		const newFragment = {
-			id: newFragmentID,
-			position: { x: minX, y: minY },
-			type: "fragment",
-			style: { height: maxY - minY + 68, width: maxX - minX + 68 },
-			zIndex: -1,
-			data: {
-				label: "Nuevo Fragmento",
-				innerNodes: innerNodes,
-				expanded: true,
-			},
-		};
-
-		const parentedNodes = selectedNodes.map((node) => {
-			node.parentNode = newFragmentID;
-			node.expandParent = true;
-			return node;
-		});
-
-		console.log(filteredNodes);
-		reactFlowInstance.setNodes([
-			...filteredNodes,
-			newFragment,
-			...parentedNodes,
-		]);
 	};
 
 	const handleDeleteBlock = (blockData) => {
@@ -1136,36 +1211,84 @@ const OverviewFlow = ({ map }, ref) => {
 		}
 	};
 
+	useEffect(() => {
+		const fragments = getNodesByProperty(
+			reactFlowInstance,
+			"type",
+			"fragment"
+		).filter((fragment) => fragment.data.expanded == true);
+		const fragmentDOMArray = [];
+		fragments.map((fragment) =>
+			fragmentDOMArray.push(getNodeDOMById(fragment.id))
+		);
+		if (fragmentPassthrough) {
+			fragmentDOMArray.map((fragmentDOM) =>
+				fragmentDOM.classList.add("passthrough")
+			);
+		} else {
+			fragmentDOMArray.map((fragmentDOM) =>
+				fragmentDOM.classList.remove("passthrough")
+			);
+		}
+	}, [fragmentPassthrough]);
+
 	useHotkeys("ctrl+c", () => {
 		handleBlockCopy();
 	});
-	useHotkeys("shift+b", () => createBlock());
-	useHotkeys("shift+alt+b", () => createBlock({ type: "action" }));
+	useHotkeys("ctrl+b", (e) => {
+		e.preventDefault();
+		createBlock();
+	});
+	useHotkeys("ctrl+alt+b", (e) => createBlock({ type: "action" }));
 	useHotkeys("ctrl+v", () => handleBlockPaste());
 	useHotkeys("ctrl+x", () => handleBlockCut());
 	useHotkeys("ctrl+z", () => {
 		notImplemented("deshacer/rehacer");
 		console.log("UNDO");
 	});
-	useHotkeys(["ctrl+shift+z", "ctrl+y"], () => {
+	useHotkeys(["ctrl+shift+z", "ctrl+y"], (e) => {
 		notImplemented("deshacer/rehacer");
 		console.log("REDO");
 	});
-	useHotkeys("shift+r", () => handleNewRelation(relationStarter));
-	useHotkeys("shift+f", () => {
+	useHotkeys("ctrl+r", (e) => {
+		e.preventDefault();
+		handleNewRelation(relationStarter);
+	});
+	useHotkeys("ctrl+f", (e) => {
+		e.preventDefault();
 		handleFragmentCreation();
 	});
-	useHotkeys("shift+e", () => {
+	useHotkeys("ctrl+e", (e) => {
+		e.preventDefault();
 		handleShow();
 	});
+	useHotkeys(
+		"alt",
+		() => {
+			setFragmentPassthrough(true);
+		},
+		{ keydown: true, keyup: false }
+	);
+	useHotkeys(
+		"alt",
+		() => {
+			setFragmentPassthrough(false);
+		},
+		{ keydown: false, keyup: true }
+	);
 
 	return (
-		<div ref={reactFlowWrapper} style={{ height: "100%", width: "100%" }}>
+		<div
+			ref={reactFlowWrapper}
+			id="reactFlowWrapper"
+			style={{ height: "100%", width: "100%" }}
+		>
 			<ReactFlow
 				ref={ref}
 				nodes={nodes}
 				edges={edgesWithUpdatedTypes}
-				onNodeDragStart={handleNodeDragStart}
+				onNodeDragStart={onNodeDragStart}
+				onNodeDrag={onNodeDrag}
 				onNodeDragStop={onNodeDragStop}
 				onSelectionDragStart={onSelectionDragStart}
 				onSelectionDragStop={onSelectionDragStop}

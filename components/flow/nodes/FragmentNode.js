@@ -9,8 +9,9 @@ import {
 	faCompress,
 	faEdit,
 	faUpRightAndDownLeftFromCenter,
-	faSquarePlus,
-	faSquareMinus,
+	faRightToBracket,
+	faRightFromBracket,
+	faObjectUngroup,
 } from "@fortawesome/free-solid-svg-icons";
 import {
 	BlockInfoContext,
@@ -19,7 +20,6 @@ import {
 	MapInfoContext,
 	SettingsContext,
 	VersionInfoContext,
-	notImplemented,
 } from "@components/pages/_app";
 import {
 	getEdgeBetweenNodeIds,
@@ -29,7 +29,7 @@ import {
 } from "@components/components/Utils";
 import FocusTrap from "focus-trap-react";
 import FragmentResizer from "@components/components/dialogs/FragmentResizer";
-import FragmentAdder from "@components/components/dialogs/FragmentAdder";
+import FragmentEditor from "@components/components/dialogs/FragmentEditor";
 
 function FragmentNode({ id, xPos, yPos, type, data }) {
 	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
@@ -47,7 +47,8 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 	);
 	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
 	const [showResizer, setShowResizer] = useState(false);
-	const [showAdder, setShowAdder] = useState(false);
+	const [showEditor, setShowEditor] = useState(false);
+	const [editorMode, setEditorMode] = useState("add");
 	const [showRemover, setShowRemover] = useState(false);
 
 	const [expanded, setExpanded] = useState(data.expanded);
@@ -180,7 +181,7 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 			if (cheight > height) {
 				cheight = height;
 			}
-			return { ...children, position: { x: cwidth, y: cheight } };
+			return { id: children.id, position: { x: cwidth, y: cheight } };
 		});
 		return result;
 	};
@@ -191,29 +192,14 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 
 		const restrictedChildrenArray = restrictedChildren(newWidth, newHeight);
 
-		let updatedChildrenBlockData = [];
-		for (const [index, childNode] of originalChildrenStatus.entries()) {
-			const newNode = getNodeById(childNode.id, reactFlowInstance);
-			newNode.position.x = restrictedChildrenArray[index].position.x;
-			newNode.position.y = restrictedChildrenArray[index].position.y;
-
-			updatedChildrenBlockData.push({
-				id: childNode.id,
-				x: restrictedChildrenArray[index].x,
-				y: restrictedChildrenArray[index].y,
-			});
-		}
-
 		const updatedInfo = {
 			id: id,
-			data: {
-				innerNodes: restrictedChildrenArray,
-			},
+			data: { ...data, innerNodes: restrictedChildrenArray },
 		};
 
 		reactFlowInstance.setNodes(
 			getUpdatedArrayById(
-				[updatedInfo, ...updatedChildrenBlockData],
+				[updatedInfo, ...restrictedChildrenArray],
 				reactFlowInstance.getNodes()
 			)
 		);
@@ -252,35 +238,24 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 		);
 	};
 
-	/*const getCurrentChildrenPositions = () => {
-		const children = getInnerNodes();
-		const innerNodes = [];
-		if (children) {
-			for (const childNode of children) {
-				const nodeDOM = document.querySelector(
-					"[data-id=" + childNode.id + "]"
-				);
-				const newBlock = getBlockByNodeDOM(
-					nodeDOM,
-					reactFlowInstance.getNodes()
-				);
-				const matchingInnerNode = getNodesByProperty(
-					reactFlowInstance,
-					"parentNode",
-					id
-				).find((innerNode) => innerNode.id == newBlock.id);
-				newBlock.x = matchingInnerNode.position.x;
-				newBlock.y = matchingInnerNode.position.y;
+	const dismantleSelf = () => {
+		const currentNode = getNodeById(id, reactFlowInstance);
+		const innerNodes = getInnerNodes();
 
-				innerNodes.push({
-					id: newBlock.id,
-					x: newBlock.x,
-					y: newBlock.y,
-				});
-			}
-		}
-		setOriginalChildrenStatus(innerNodes);
-	};*/
+		const updatedInnerNodes = innerNodes.map((node) => {
+			node.parentNode = undefined;
+			node.expandParent = false;
+			node.position = node.positionAbsolute;
+			return node;
+		});
+
+		reactFlowInstance.setNodes(
+			getUpdatedArrayById(
+				updatedInnerNodes,
+				reactFlowInstance.getNodes().filter((node) => node.id != id)
+			)
+		);
+	};
 
 	const getAriaLabel = () => {
 		let end = "";
@@ -327,6 +302,7 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 								data.expanded = !data.expanded;
 								setExpanded(!expanded);
 							}}
+							title={expanded ? "Contraer fragmento" : "Expandir fragmento"}
 						>
 							{expanded ? (
 								<FontAwesomeIcon icon={faCompress} />
@@ -334,30 +310,83 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 								<FontAwesomeIcon icon={faExpand} />
 							)}
 							<span className="visually-hidden">
-								{expanded ? "Contraer" : "Expandir"} fragmento
+								{expanded ? "Contraer fragmento" : "Expandir fragmento"}
 							</span>
 						</Button>
-						<Button variant="dark" onClick={handleEdit}>
+						<Button
+							variant="dark"
+							onClick={handleEdit}
+							title="Editar fragmento"
+						>
 							<FontAwesomeIcon icon={faEdit} />
 							<span className="visually-hidden">Editar fragmento</span>
 						</Button>
 						{expanded && (
 							<>
-								<Button variant="dark" onClick={() => setShowResizer(true)}>
+								<Button
+									variant="dark"
+									onClick={() => setShowResizer(true)}
+									title="Redimensionar fragmento"
+								>
 									<FontAwesomeIcon icon={faUpRightAndDownLeftFromCenter} />
 									<span className="visually-hidden">
 										Redimensionar fragmento
 									</span>
 								</Button>
 
-								<Button variant="dark" onClick={() => setShowAdder(true)}>
-									<FontAwesomeIcon icon={faSquarePlus} />
-									<span className="visually-hidden">Añadir bloque</span>
-								</Button>
-								<Button variant="dark" onClick={notImplemented}>
-									<FontAwesomeIcon icon={faSquareMinus} />
-									<span className="visually-hidden">Eliminar bloque</span>
-								</Button>
+								{
+									//If there is valid nodes outside the fragment
+									reactFlowInstance.getNodes().filter((node) => {
+										if (
+											node.type == "fragment" ||
+											node.type == "start" ||
+											node.type == "end" ||
+											node.id == id ||
+											node.parentNode != undefined
+										) {
+											return false;
+										} else {
+											return true;
+										}
+									}).length > 0 && (
+										<Button
+											variant="dark"
+											onClick={() => {
+												setEditorMode("add");
+												setShowEditor(true);
+											}}
+											title="Añadir bloque"
+										>
+											<FontAwesomeIcon icon={faRightToBracket} />
+											<span className="visually-hidden">Añadir bloque</span>
+										</Button>
+									)
+								}
+								{data.innerNodes.length > 0 && (
+									<>
+										<Button
+											variant="dark"
+											onClick={() => {
+												setEditorMode("remove");
+												setShowEditor(true);
+											}}
+											title="Eliminar bloque"
+										>
+											<FontAwesomeIcon icon={faRightFromBracket} />
+											<span className="visually-hidden">Eliminar bloque</span>
+										</Button>
+										<Button
+											variant="dark"
+											onClick={() => {
+												dismantleSelf();
+											}}
+											title="Desagrupar"
+										>
+											<FontAwesomeIcon icon={faObjectUngroup} />
+											<span className="visually-hidden">Desagrupar</span>
+										</Button>
+									</>
+								)}
 							</>
 						)}
 					</div>
@@ -390,6 +419,17 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 				)}
 				<div>
 					<FontAwesomeIcon icon={faCubes} />
+					{expanded && process.env.DEV_MODE && (
+						<pre
+							style={{
+								position: "absolute",
+								color: "black",
+								fontSize: "0.75em",
+							}}
+						>
+							{JSON.stringify(data.innerNodes, null, " ")}
+						</pre>
+					)}
 				</div>
 				{!expanded && (
 					<span className={styles.blockInfo + " " + styles.bottom}>
@@ -403,9 +443,10 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 				id={id}
 				callback={resizeFragment}
 			/>
-			<FragmentAdder
-				showDialog={showAdder}
-				setShowAdder={setShowAdder}
+			<FragmentEditor
+				showDialog={showEditor}
+				setShowEditor={setShowEditor}
+				mode={editorMode}
 				id={id}
 			/>
 		</>

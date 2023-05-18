@@ -25,6 +25,7 @@ export default function FragmentResizer({
 		if (callback && actionClicked) {
 			if (callback instanceof Function) {
 				callback(Math.min(height, maxHeight), Math.min(width, maxWidth));
+				reactFlowInstance.fitView();
 			} else {
 				console.warn("Callback isn't a function");
 			}
@@ -59,25 +60,7 @@ export default function FragmentResizer({
 				<Form>
 					<div>
 						<div>
-							Verticalmente podrá contener{" "}
-							{!snappingInFragment && "aproximadamente"}
-							<Form.Control
-								ref={heightControl}
-								defaultValue={height}
-								type="number"
-								min={1}
-								max={maxHeight}
-								onChange={(e) => setHeight(e.target.value)}
-								onInput={(e) =>
-									(e.target.value = Math.min(e.target.value, maxHeight))
-								}
-								style={{ display: "inline-block", maxWidth: "4em" }}
-							/>{" "}
-							bloques.
-						</div>
-						<div>
-							Horizontalmente podrá contener{" "}
-							{!snappingInFragment && "aproximadamente"}
+							Contendrá{" "}
 							<Form.Control
 								ref={widthControl}
 								defaultValue={width}
@@ -90,11 +73,28 @@ export default function FragmentResizer({
 								}
 								style={{ display: "inline-block", maxWidth: "4em" }}
 							/>{" "}
-							bloques.
+							bloques horizontales. {!snappingInFragment && "(Aproximadamente)"}
+						</div>
+						<div>
+							Contendrá{" "}
+							<Form.Control
+								ref={heightControl}
+								defaultValue={height}
+								type="number"
+								min={1}
+								max={maxHeight}
+								onChange={(e) => setHeight(e.target.value)}
+								onInput={(e) =>
+									(e.target.value = Math.min(e.target.value, maxHeight))
+								}
+								style={{ display: "inline-block", maxWidth: "4em" }}
+								autoFocus
+							/>{" "}
+							bloques verticales. {!snappingInFragment && "(Aproximadamente)"}
 						</div>
 					</div>
 					<Form.Text>
-						Dimensiones finales: {height} x {width}
+						Dimensiones finales: {width} x {height}
 					</Form.Text>
 				</Form>
 			</Modal.Body>
