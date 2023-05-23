@@ -1,0 +1,50 @@
+.selectionContainer {
+    display: grid; 
+  grid-template-columns: 1fr 1fr 1fr; 
+  grid-template-rows: 1fr 1fr 1fr; 
+  gap: 1em 1em; 
+  grid-template-areas: 
+    ". . ."
+    ". . ."
+    ". . ."; 
+  justify-content: center; 
+  align-content: space-evenly; 
+  justify-items: center; 
+}
+
+.cardContainer{
+    display:inline-block;
+    justify-content: center;
+    align-items: center;
+}
+
+.nodeCard {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: column;
+    border: var(--main-ui-borders);
+    padding: 1em;
+    min-width: 125px;
+    max-width: 125px;
+    min-height: 150px;
+    text-align: center;
+    cursor: pointer;
+}
+.nodeCard:hover .block, .nodeCard:active .block, .nodeCard:focus-within .block {
+    filter:brightness(1.25);
+}
+
+.block{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 68px;
+    width: 68px;
+    transition: 0.2s
+}
+
+.block svg, .block img {
+    height: 32px;
+    width:32px;
+}

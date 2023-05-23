@@ -7,7 +7,7 @@ import {
 	useImperativeHandle,
 } from "react";
 import { Form, InputGroup } from "react-bootstrap";
-import { useReactFlow } from "reactflow";
+import { useReactFlow, useNodes } from "reactflow";
 import { getNodeById, nearestPowerOfTwo } from "@components/components/Utils";
 import { PlatformContext } from "@components/pages/_app";
 import { getTypeIcon } from "@components/components/flow/nodes/NodeIcons";
@@ -18,7 +18,8 @@ export default forwardRef(function BlockSelector(
 	ref
 ) {
 	const reactFlowInstance = useReactFlow();
-	const defaultArray = nodeArray ? nodeArray : reactFlowInstance.getNodes();
+	const rfNodes = useNodes();
+	const defaultArray = nodeArray ? nodeArray : rfNodes;
 	const { platform } = useContext(PlatformContext);
 	const [selectedType, setSelectedType] = useState(defaultArray[0]?.type);
 	const styleSize = size ? styles["x" + size] : styles.x16;
@@ -43,9 +44,7 @@ export default forwardRef(function BlockSelector(
 				autoFocus={autoFocus}
 				onChange={(e) => {
 					onChange(e);
-					setSelectedType(
-						getNodeById(localRef.current.value, reactFlowInstance)?.type
-					);
+					setSelectedType(getNodeById(localRef.current.value, rfNodes)?.type);
 				}}
 			>
 				{defaultArray.map((node) => (

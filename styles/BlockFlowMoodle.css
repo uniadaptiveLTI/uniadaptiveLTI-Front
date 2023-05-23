@@ -140,7 +140,14 @@
 	background-color: #17e1a0;
 }
 
-/* Accesibility */
+/* NodeSelector */
+
+.nodeSelectionItem .moodleIcon {
+    color: black;
+    filter: invert() brightness(2)
+}
+
+/* -- Accesibility -- */
 
 .react-flow__node:has(.highContrast):has(.moodleIcon) .moodleIcon{
     filter: var(--high-contrast-icons-moodle-filter) !important

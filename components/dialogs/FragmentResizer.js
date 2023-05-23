@@ -1,7 +1,7 @@
 import { useContext, useState, useRef, useEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import { getNodeById } from "../Utils";
-import { useReactFlow } from "reactflow";
+import { useReactFlow, useNodes } from "reactflow";
 import { SettingsContext } from "@components/pages/_app";
 
 export default function FragmentResizer({
@@ -11,7 +11,8 @@ export default function FragmentResizer({
 	callback,
 }) {
 	const reactFlowInstance = useReactFlow();
-	const fragment = getNodeById(id, reactFlowInstance);
+	const rfNodes = useNodes();
+	const fragment = getNodeById(id, rfNodes);
 	const { settings, setSettings } = useContext(SettingsContext);
 	const parsedSettings = JSON.parse(settings);
 	const { snappingInFragment } = parsedSettings;

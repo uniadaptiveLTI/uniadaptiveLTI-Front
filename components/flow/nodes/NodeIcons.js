@@ -17,7 +17,11 @@ import {
 	faUserPlus,
 	faUserMinus,
 	faCaretDown,
+	faFileCode,
 	faCubes,
+	faAlignJustify,
+	faFileText,
+	faSquareCheck,
 } from "@fortawesome/free-solid-svg-icons";
 import Image from "next/image";
 
@@ -161,7 +165,7 @@ export function getTypeIcon(type, platform, desiredSize = 32) {
 					className={[styles.moodleIcon, "moodleIcon"].join(" ")}
 				/>
 			) : (
-				<FontAwesomeIcon icon={faFileLines} />
+				<FontAwesomeIcon icon={faFileText} />
 			);
 		case "badge":
 			return platform == "moodle" ? (
@@ -171,13 +175,15 @@ export function getTypeIcon(type, platform, desiredSize = 32) {
 			);
 		//Sakai
 		case "exam":
-			return null;
+			return <FontAwesomeIcon icon={faSquareCheck} />;
 		case "contents":
-			return null;
+			return <FontAwesomeIcon icon={faFileLines} />;
 		case "text":
-			return null;
+			return <FontAwesomeIcon icon={faAlignJustify} />;
 		case "html":
-			return null;
+			return <FontAwesomeIcon icon={faFileCode} />;
+		case "resources":
+			return <FontAwesomeIcon icon={faFile} />;
 		//LTI
 		case "start":
 			return (
@@ -209,3 +215,110 @@ export function getTypeIcon(type, platform, desiredSize = 32) {
 			);
 	}
 }
+
+export const getTypeStaticColor = (type, platform) => {
+	if (typeof type == "object")
+		//Used for minimap
+		type = type.type;
+	//TODO: Add the rest
+	switch (platform) {
+		case "moodle":
+			switch (type) {
+				case "quiz":
+					return "#5D63F6";
+				case "assign":
+					return "#5D63F6";
+				case "forum":
+					return "#11A676";
+				case "resource":
+					return "#A378FF";
+				case "folder":
+					return "#399BE2";
+				case "url":
+					return "#EB66A2";
+				case "workshop":
+					return "#A378FF";
+				case "choice":
+					return "#F7634D";
+				case "label":
+					return "#F7634D";
+				case "page":
+					return "#A378FF";
+				case "badge":
+					return "#11A676";
+				case "mail":
+					return "#399BE2";
+				case "addgroup":
+					return "#11A676";
+				case "remgroup":
+					return "#F7634D";
+				case "generic":
+					return "#11A676";
+				//LTI
+				case "start":
+					return "#363638";
+				case "end":
+					return "#363638";
+				case "fragment":
+					return "#00008b";
+				default:
+					return "#11A676";
+			}
+		default: {
+			switch (type) {
+				//Moodle + Sakai
+				case "quiz":
+					return "#eb9408";
+				case "assign":
+					return "#0dcaf0";
+				case "forum":
+					return "#800080";
+				case "resource":
+					return "#0d6efd";
+				case "folder":
+					return "#ffc107";
+				case "url":
+					return "#5f9ea0";
+				case "mail":
+					return "#5f9ea0";
+				case "addgroup":
+					return "#198754";
+				case "remgroup":
+					return "#dc3545";
+				//Moodle
+				case "workshop":
+					return "#15a935";
+				case "choice":
+					return "#dc3545";
+				case "label":
+					return "#a91568";
+				case "page":
+					return "#6c757d";
+				case "badge":
+					return "#198754";
+				case "generic":
+					return "#1f1e42";
+				//Sakai
+				case "exam":
+					return "#dc3545";
+				case "contents":
+					return "#15a935";
+				case "text":
+					return "#6c757d";
+				case "html":
+					return "#a91568";
+				case "resources":
+					return "#eb9408";
+				//LTI
+				case "start":
+					return "#363638";
+				case "end":
+					return "#363638";
+				case "fragment":
+					return "#00008b";
+				default:
+					return "#ffc107";
+			}
+		}
+	}
+};

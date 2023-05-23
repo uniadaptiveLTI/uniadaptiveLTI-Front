@@ -91,30 +91,20 @@ function ActionNode({
 	const { platform } = useContext(PlatformContext);
 
 	const handleEdit = () => {
-		console.log(data);
-		const blockData = {
-			id: id,
-			position: { x: xPos, y: yPos },
-			type: type,
-			data: {
-				label: data.label,
-				lmsResource: data.lmsResource,
-			},
-		};
+		const blockData = getNodeById(id, reactFlowInstance.getNodes());
 		if (expandedAside != true) {
-			if (type != "start" && type != "end") setExpandedAside(true);
+			setExpandedAside(true);
 		}
-
 		setSelectedEditVersion("");
 		setBlockSelected(blockData);
 	};
 
 	const extractSelf = () => {
 		const fragment = getNodeById(
-			getNodeById(id, reactFlowInstance).parentNode,
+			getNodeById(id, reactFlowInstance.getNodes()).parentNode,
 			reactFlowInstance
 		);
-		const childToRemove = getNodeById(id, reactFlowInstance);
+		const childToRemove = getNodeById(id, reactFlowInstance.getNodes());
 
 		delete childToRemove.parentNode;
 		delete childToRemove.expandParent;
@@ -154,7 +144,7 @@ function ActionNode({
 							<FontAwesomeIcon icon={faEdit} />
 							<span className="visually-hidden">Editar acción</span>
 						</Button>
-						{getNodeById(id, reactFlowInstance).parentNode && (
+						{getNodeById(id, reactFlowInstance.getNodes()).parentNode && (
 							<Button
 								variant="dark"
 								onClick={extractSelf}
@@ -182,6 +172,20 @@ function ActionNode({
 					{data.label}
 				</span>
 
+				{process.env.DEV_MODE == true && (
+					<div
+						style={{
+							position: "absolute",
+							color: "black",
+							left: "8em",
+							top: "0",
+							fontSize: "0.65em",
+						}}
+					>
+						<div>{`id:${id}`}</div>
+						<div>{`conditions:${JSON.stringify(data.conditions)}`}</div>
+					</div>
+				)}
 				<div>{getTypeIcon(type, platform)}</div>
 				<span className={styles.blockInfo + " " + styles.bottom}>
 					{getHumanDesc(type)}

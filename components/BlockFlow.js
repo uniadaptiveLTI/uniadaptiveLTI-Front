@@ -7,11 +7,9 @@ import React, {
 } from "react";
 import ReactFlow, {
 	MiniMap,
-	Controls,
 	Background,
 	useNodesState,
 	useEdgesState,
-	ControlButton,
 	useReactFlow,
 } from "reactflow";
 import "reactflow/dist/style.css";
@@ -41,18 +39,22 @@ import { Button } from "react-bootstrap";
 import {
 	uniqueId,
 	getNodeByNodeDOM,
-	getNodesByNodesDOM,
 	getUpdatedArrayById,
 	addEventListeners,
 	thereIsReservedNodesInArray,
 	getNodeDOMById,
 	getNodeById,
 	getNodesByProperty,
+	getChildrenNodesFromFragmentID,
+	deduplicateById,
 } from "./Utils.js";
 import { toast } from "react-toastify";
 import { useHotkeys } from "react-hotkeys-hook";
 import ContextualMenu from "./flow/ContextualMenu.js";
 import ConditionModal from "./flow/conditions/ConditionModal.js";
+import { getTypeStaticColor } from "./flow/nodes/NodeIcons.js";
+import { getBlockFlowTypes } from "./flow/nodes/TypeDefinitions.js";
+import NodeSelector from "./dialogs/NodeSelector.js";
 
 const minimapStyle = {
 	height: 120,
@@ -160,6 +162,9 @@ const OverviewFlow = ({ map }, ref) => {
 
 	//Conditions Modal
 	const [showConditionsModal, setShowConditionsModal] = useState(false);
+	//NodeSelector
+	const [showNodeSelector, setShowNodeSelector] = useState(false);
+	const [nodeSelectorType, setNodeSelectorType] = useState(false);
 
 	const [nodes, setNodes, onNodesChange] = useNodesState(newInitialNodes);
 	const [edges, setEdges, onEdgesChange] = useEdgesState(newInitialEdges);
@@ -245,108 +250,6 @@ const OverviewFlow = ({ map }, ref) => {
 		);
 	};
 
-	const nodeColor = (node) => {
-		//TODO: Add the rest
-		switch (platform) {
-			case "moodle":
-				switch (node.type) {
-					case "quiz":
-						return "#5D63F6";
-					case "assign":
-						return "#5D63F6";
-					case "forum":
-						return "#11A676";
-					case "resource":
-						return "#A378FF";
-					case "folder":
-						return "#399BE2";
-					case "url":
-						return "#EB66A2";
-					case "workshop":
-						return "#A378FF";
-					case "choice":
-						return "#F7634D";
-					case "label":
-						return "#F7634D";
-					case "page":
-						return "#A378FF";
-					case "badge":
-						return "#11A676";
-					case "mail":
-						return "#399BE2";
-					case "addgroup":
-						return "#11A676";
-					case "remgroup":
-						return "#F7634D";
-					case "generic":
-						return "#11A676";
-					//LTI
-					case "start":
-						return "#363638";
-					case "end":
-						return "#363638";
-					case "fragment":
-						return "#00008b";
-					default:
-						return "#11A676";
-				}
-			default: {
-				switch (node.type) {
-					//Moodle + Sakai
-					case "quiz":
-						return "#eb9408";
-					case "assign":
-						return "#0dcaf0";
-					case "forum":
-						return "#800080";
-					case "resource":
-						return "#0d6efd";
-					case "folder":
-						return "#ffc107";
-					case "url":
-						return "#5f9ea0";
-					case "mail":
-						return "#5f9ea0";
-					case "addgroup":
-						return "#198754";
-					case "remgroup":
-						return "#dc3545";
-					//Moodle
-					case "workshop":
-						return "#15a935";
-					case "choice":
-						return "#dc3545";
-					case "label":
-						return "#a91568";
-					case "page":
-						return "#6c757d";
-					case "badge":
-						return "#198754";
-					case "generic":
-						return "#1f1e42";
-					//Sakai
-					case "exam":
-						return "#dc3545";
-					case "contents":
-						return "#15a935";
-					case "text":
-						return "#6c757d";
-					case "html":
-						return "#a91568";
-					//LTI
-					case "start":
-						return "#363638";
-					case "end":
-						return "#363638";
-					case "fragment":
-						return "#00008b";
-					default:
-						return "#ffc107";
-				}
-			}
-		}
-	};
-
 	const onInit = (reactFlowInstance) => {
 		console.log("Blockflow loaded:", reactFlowInstance);
 	};
@@ -400,7 +303,7 @@ const OverviewFlow = ({ map }, ref) => {
 		);
 
 		if (node.parentNode) {
-			const parent = getNodeById(node.parentNode, reactFlowInstance);
+			const parent = getNodeById(node.parentNode, reactFlowInstance.getNodes());
 			parent.data.innerNodes.map((innerNode) => {
 				if (innerNode.id == node.id) {
 					innerNode.position = node.position;
@@ -572,19 +475,20 @@ const OverviewFlow = ({ map }, ref) => {
 	// this could also be done with a custom edge for example
 	const edgesWithUpdatedTypes = edges
 		? edges.map((edge) => {
-				if (edge.sourceHandle) {
-					const edgeType = nodes.find((node) => node.type === "custom").data
-						.selects[edge.sourceHandle];
-					edge.type = edgeType;
-				}
+				if (edge) {
+					if (edge.sourceHandle) {
+						const edgeType = nodes.find((node) => node.type === "custom").data
+							.selects[edge.sourceHandle];
+						edge.type = edgeType;
+					}
 
-				//FIXME: Does nothing
-				if (edge.conditions != undefined) {
-					for (let condition of cedge.conditions) {
-						edge.label = "" + condition.operand + condition.objective;
+					//FIXME: Does nothing
+					if (edge.conditions != undefined) {
+						for (let condition of cedge.conditions) {
+							edge.label = "" + condition.operand + condition.objective;
+						}
 					}
 				}
-
 				return edge;
 		  })
 		: edges;
@@ -785,30 +689,28 @@ const OverviewFlow = ({ map }, ref) => {
 	const handleBlockCopy = (blockData = []) => {
 		setShowContextualMenu(false);
 
-		let blockDataSet;
+		const blockDataSet = [];
 		if (blockData.length == 1) {
-			blockDataSet = new Set(blockData);
-		} else {
-			blockDataSet = new Set();
+			blockDataSet.push(...blockData);
 		}
 
-		const selectedNodes = [
-			...document.querySelectorAll(".react-flow__node.selected"),
-		];
+		const selected = deduplicateById([...blockDataSet, ...selectedNodes]);
 
-		for (const node of selectedNodes) {
-			const id = node.dataset?.id;
-			if (id) {
-				const blockDataMap = new Map(
-					reactFlowInstance.getNodes().map((block) => [block.id, block])
+		const childrenArray = [];
+		selected.forEach((node) => {
+			if (node.type == "fragment") {
+				const fragmentID = node.id;
+				const children = getChildrenNodesFromFragmentID(
+					fragmentID,
+					reactFlowInstance
 				);
-				const block = blockDataMap.get(id);
-				if (block) {
-					blockDataSet.add(block);
-				}
+				childrenArray.push(...children);
 			}
-		}
-		const blockDataArray = [...blockDataSet];
+		});
+
+		const completeSelection = deduplicateById([...childrenArray, ...selected]);
+
+		const blockDataArray = [...selected, ...childrenArray];
 
 		if (blockDataArray.length > 0) {
 			setCopiedBlocks(blockDataArray);
@@ -828,23 +730,36 @@ const OverviewFlow = ({ map }, ref) => {
 			const newBlocksToPaste = [...copiedBlocks];
 
 			const originalIDs = newBlocksToPaste.map((block) => block.id);
-
 			const newIDs = newBlocksToPaste.map((block) => uniqueId());
-			const originalX = newBlocksToPaste.map((block) => block.x);
-			const originalY = newBlocksToPaste.map((block) => block.y);
+			const fragmentIDChanges = [];
+			const originalX = newBlocksToPaste.map((block) => block.position.x);
+			const originalY = newBlocksToPaste.map((block) => block.position.y);
 			const firstOneInX = Math.min(...originalX);
 			const firstOneInY = Math.min(...originalY);
 			const newX = originalX.map((x) => -firstOneInX + x);
 			const newY = originalY.map((y) => -firstOneInY + y);
+			//FIXME: COPIADO DE FRAGMENTOS
+			console.log(originalIDs);
+			console.log(newIDs);
 			const newBlocks = newBlocksToPaste.map((block, index) => {
+				let newID;
+				let originalID;
+
 				let filteredChildren = block.children
-					?.map((child) => newIDs[originalIDs.indexOf(child)])
+					?.map((child) => {
+						newID = newIDs[originalIDs.indexOf(child)];
+						originalID = child;
+						return newID;
+					})
 					.filter((child) => child !== undefined);
+
+				console.log(newID);
+				console.log(originalID);
+
 				return {
 					...block,
 					id: newIDs[index],
-					x: newX[index],
-					y: newY[index],
+					position: { x: newX[index], y: newY[index] },
 					children:
 						filteredChildren?.length === 0 ? undefined : filteredChildren,
 					conditions: undefined,
@@ -858,18 +773,15 @@ const OverviewFlow = ({ map }, ref) => {
 	};
 
 	const handleBlockCut = (blockData = []) => {
-		const selectedNodes = document.querySelectorAll(
-			".react-flow__node.selected"
-		);
+		const selectedNodes = reactFlowInstance
+			.getNodes()
+			.filter((n) => n.selected == true);
 		handleBlockCopy(blockData);
 		if (selectedNodes.length > 1) {
 			handleDeleteBlockSelection();
 		} else {
 			if (selectedNodes.length == 1) {
-				blockData = getBlockByNodeDOM(
-					selectedNodes[0],
-					reactFlowInstance.getNodes()
-				);
+				blockData = selectedNodes[0];
 			}
 			handleDeleteBlock(blockData);
 		}
@@ -880,8 +792,8 @@ const OverviewFlow = ({ map }, ref) => {
 		const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
 
 		const preferredPosition = contextMenuDOM
-			? { x: currentMousePosition.x, y: currentMousePosition.y }
-			: { x: cMX, y: cMY };
+			? { x: cMX, y: cMY }
+			: { x: currentMousePosition.x, y: currentMousePosition.y };
 
 		let flowPos = reactFlowInstance.project({
 			x: preferredPosition.x - reactFlowBounds.left,
@@ -897,46 +809,55 @@ const OverviewFlow = ({ map }, ref) => {
 		let newBlockCreated;
 
 		if (blockData) {
-			if (blockData.type == "action") {
-				//Doesn't check plataform as both Moodle and Sakai have this common action
-				newBlockCreated = {
-					id: uniqueId(),
-					position: { x: flowPos.x, y: flowPos.y },
-					type: "mail",
-					data: {
-						label: "Nuevo bloque de acción",
-						children: undefined,
-						order: 100,
-						unit: 1,
-					},
-				};
-			} else {
-				//TODO: Check if ID already exists
-				if (blockData.type == "emptyfragment") {
+			if (blockData.data == undefined) {
+				//If data isn't defined (Alternative blocks)
+				if (blockData.type == "ActionNode") {
+					//Doesn't check plataform as both Moodle and Sakai have this common action
 					newBlockCreated = {
 						id: uniqueId(),
 						position: { x: flowPos.x, y: flowPos.y },
-						type: "fragment",
-						style: { height: 68, width: 68 },
+						type: "mail",
 						data: {
-							label: "Nuevo fragmento",
-							innerNodes: [],
-							expanded: false,
+							label: "Nuevo bloque de acción",
+							children: undefined,
+							order: 100,
+							unit: 1,
 						},
 					};
 				} else {
-					if (blockData.type != "fragment") {
+					//TODO: Check if ID already exists
+					if (blockData.type == "emptyfragment") {
 						newBlockCreated = {
-							...blockData,
-							position: {
-								x: blockData.position.x + asideOffset + flowPos.x,
-								y: blockData.position.y + asideOffset + flowPos.y,
+							id: uniqueId(),
+							position: { x: flowPos.x, y: flowPos.y },
+							type: "fragment",
+							style: { height: 68, width: 68 },
+							data: {
+								label: "Nuevo fragmento",
+								innerNodes: [],
+								expanded: false,
 							},
 						};
 					} else {
-						newBlockCreated = { ...blockData };
+						if (blockData.type != "fragment") {
+							newBlockCreated = {
+								...blockData,
+								position: {
+									x: blockData.position.x + asideOffset + flowPos.x,
+									y: blockData.position.y + asideOffset + flowPos.y,
+								},
+							};
+						} else {
+							newBlockCreated = { ...blockData };
+						}
 					}
 				}
+			} else {
+				//If data is defined (NodeSelector)
+				newBlockCreated = {
+					...blockData,
+					position: { x: flowPos.x, y: flowPos.y },
+				};
 			}
 		} else {
 			if (platform == "moodle") {
@@ -972,6 +893,9 @@ const OverviewFlow = ({ map }, ref) => {
 			let newcurrentBlocksData = reactFlowInstance.getNodes();
 			newcurrentBlocksData.push(newBlockCreated);
 			reactFlowInstance.setNodes([...newcurrentBlocksData]);
+			if (!Object.keys(newBlockCreated).length > 1) {
+				getNodeDOMById(newBlockCreated.id).focus();
+			}
 			return newcurrentBlocksData;
 		}
 	};
@@ -1109,7 +1033,7 @@ const OverviewFlow = ({ map }, ref) => {
 		);
 		const blockDataArray = [];
 		for (let node of selectedNodes) {
-			blockDataArray.push(getNodeByNodeDOM(node, reactFlowInstance));
+			blockDataArray.push(getNodeByNodeDOM(node, reactFlowInstance.getNodes()));
 		}
 		deleteBlocks(blockDataArray);
 	};
@@ -1211,11 +1135,17 @@ const OverviewFlow = ({ map }, ref) => {
 		}
 	};
 
+	const handleShowNodeSelector = (type) => {
+		setShowContextualMenu(false);
+		setNodeSelectorType(type);
+		setShowNodeSelector(true);
+	};
+
 	useEffect(() => {
 		const fragments = getNodesByProperty(
-			reactFlowInstance,
 			"type",
-			"fragment"
+			"fragment",
+			reactFlowInstance.getNodes()
 		).filter((fragment) => fragment.data.expanded == true);
 		const fragmentDOMArray = [];
 		fragments.map((fragment) =>
@@ -1236,10 +1166,17 @@ const OverviewFlow = ({ map }, ref) => {
 		handleBlockCopy();
 	});
 	useHotkeys("ctrl+b", (e) => {
+		//FIXME: POSITION
 		e.preventDefault();
-		createBlock();
+		setNodeSelectorType("ElementNode");
+		setShowNodeSelector(true);
 	});
-	useHotkeys("ctrl+alt+b", (e) => createBlock({ type: "action" }));
+	useHotkeys("ctrl+alt+b", (e) => {
+		//FIXME: POSITION
+		e.preventDefault();
+		setNodeSelectorType("ActionNode");
+		setShowNodeSelector(true);
+	});
 	useHotkeys("ctrl+v", () => handleBlockPaste());
 	useHotkeys("ctrl+x", () => handleBlockCut());
 	useHotkeys("ctrl+z", () => {
@@ -1323,7 +1260,7 @@ const OverviewFlow = ({ map }, ref) => {
 			>
 				{minimap && (
 					<MiniMap
-						nodeColor={nodeColor}
+						nodeColor={(node) => getTypeStaticColor(node, platform)}
 						style={minimapStyle}
 						zoomable
 						pannable
@@ -1332,28 +1269,31 @@ const OverviewFlow = ({ map }, ref) => {
 
 				<Background color="#aaa" gap={16} />
 			</ReactFlow>
-			<ContextualMenu
-				ref={contextMenuDOM}
-				showContextualMenu={showContextualMenu}
-				blockData={cMBlockData}
-				containsReservedNodes={cMContainsReservedNodes}
-				relationStarter={relationStarter}
-				setRelationStarter={setRelationStarter}
-				setShowContextualMenu={setShowContextualMenu}
-				setShowConditionsModal={setShowConditionsModal}
-				x={cMX}
-				y={cMY}
-				contextMenuOrigin={contextMenuOrigin}
-				createBlock={createBlock}
-				handleFragmentCreation={handleFragmentCreation}
-				handleBlockCopy={handleBlockCopy}
-				handleBlockPaste={handleBlockPaste}
-				handleNewRelation={handleNewRelation}
-				handleBlockCut={handleBlockCut}
-				handleDeleteBlock={handleDeleteBlock}
-				handleDeleteBlockSelection={handleDeleteBlockSelection}
-				handleShow={handleShow}
-			/>
+			{showContextualMenu && (
+				<ContextualMenu
+					ref={contextMenuDOM}
+					showContextualMenu={showContextualMenu}
+					blockData={cMBlockData}
+					containsReservedNodes={cMContainsReservedNodes}
+					relationStarter={relationStarter}
+					setRelationStarter={setRelationStarter}
+					setShowContextualMenu={setShowContextualMenu}
+					setShowConditionsModal={setShowConditionsModal}
+					x={cMX}
+					y={cMY}
+					contextMenuOrigin={contextMenuOrigin}
+					createBlock={createBlock}
+					handleShowNodeSelector={handleShowNodeSelector}
+					handleFragmentCreation={handleFragmentCreation}
+					handleBlockCopy={handleBlockCopy}
+					handleBlockPaste={handleBlockPaste}
+					handleNewRelation={handleNewRelation}
+					handleBlockCut={handleBlockCut}
+					handleDeleteBlock={handleDeleteBlock}
+					handleDeleteBlockSelection={handleDeleteBlockSelection}
+					handleShow={handleShow}
+				/>
+			)}
 			<CustomControls />
 			{showConditionsModal && (
 				<ConditionModal
@@ -1362,6 +1302,14 @@ const OverviewFlow = ({ map }, ref) => {
 					blocksData={reactFlowInstance.getNodes()}
 					showConditionsModal={showConditionsModal}
 					setShowConditionsModal={setShowConditionsModal}
+				/>
+			)}
+			{showNodeSelector && (
+				<NodeSelector
+					showDialog={showNodeSelector}
+					toggleDialog={() => setShowNodeSelector(false)}
+					type={nodeSelectorType}
+					callback={createBlock}
 				/>
 			)}
 		</div>

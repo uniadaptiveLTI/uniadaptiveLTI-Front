@@ -3,6 +3,7 @@
 	"courseId": 0,
 	"platform": "moodle",
 	"units": [],
+	"badges": [],
 	"groups": [],
 	"grupings": []
 }

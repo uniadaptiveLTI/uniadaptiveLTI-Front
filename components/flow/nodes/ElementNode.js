@@ -34,27 +34,10 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 	const { highContrast, showDetails, reducedAnimations } = parsedSettings;
 
 	const handleEdit = () => {
-		const blockData = {
-			id: id,
-			position: { x: xPos, y: yPos },
-			type: type,
-			data: {
-				label: data.label,
-				lmsResource: data.lmsResource,
-				children: data.children,
-				identation: data.identation,
-				order: data.order,
-				unit: data.unit,
-				conditions: data.conditions,
-			},
-		};
-
-		console.log(data);
-
+		const blockData = getNodeById(id, reactFlowInstance.getNodes());
 		if (expandedAside != true) {
-			if (type != "start" && type != "end") setExpandedAside(true);
+			setExpandedAside(true);
 		}
-
 		setSelectedEditVersion("");
 		setBlockSelected(blockData);
 	};
@@ -145,10 +128,10 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 
 	const extractSelf = () => {
 		const fragment = getNodeById(
-			getNodeById(id, reactFlowInstance).parentNode,
-			reactFlowInstance
+			getNodeById(id, reactFlowInstance.getNodes()).parentNode,
+			reactFlowInstance.getNodes()
 		);
-		const childToRemove = getNodeById(id, reactFlowInstance);
+		const childToRemove = getNodeById(id, reactFlowInstance.getNodes());
 
 		delete childToRemove.parentNode;
 		delete childToRemove.expandParent;
@@ -194,7 +177,7 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 							<FontAwesomeIcon icon={faEdit} />
 							<span className="visually-hidden">Editar elemento</span>
 						</Button>
-						{getNodeById(id, reactFlowInstance).parentNode && (
+						{getNodeById(id, reactFlowInstance.getNodes()).parentNode && (
 							<Button
 								variant="dark"
 								onClick={extractSelf}

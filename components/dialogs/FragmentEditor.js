@@ -35,7 +35,7 @@ export default function FragmentEditor({
 			: orderByLabelAlphabetically(
 					reactFlowInstance.getNodes().filter((node) => node.parentNode == id)
 			  );
-	const fragment = getNodeById(id, reactFlowInstance);
+	const fragment = getNodeById(id, reactFlowInstance.getNodes());
 	const [selectedID, setSelectedID] = useState(selectableBlocks[0]?.id);
 
 	function handleClose(actionClicked) {
@@ -55,8 +55,8 @@ export default function FragmentEditor({
 	}
 
 	function addNewChildren() {
-		const fragment = getNodeById(id, reactFlowInstance);
-		const newChild = getNodeById(selectedID, reactFlowInstance);
+		const fragment = getNodeById(id, reactFlowInstance.getNodes());
+		const newChild = getNodeById(selectedID, reactFlowInstance.getNodes());
 
 		const nodeCenterOffset = { x: 34, y: 34 };
 		const fragmentCenter = {
@@ -93,8 +93,8 @@ export default function FragmentEditor({
 	}
 
 	function removeChildren() {
-		const fragment = getNodeById(id, reactFlowInstance);
-		const childToRemove = getNodeById(selectedID, reactFlowInstance);
+		const fragment = getNodeById(id, reactFlowInstance.getNodes());
+		const childToRemove = getNodeById(selectedID, reactFlowInstance.getNodes());
 		const bounds = document
 			.getElementById("reactFlowWrapper")
 			?.getBoundingClientRect();

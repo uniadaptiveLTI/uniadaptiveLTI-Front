@@ -12,7 +12,13 @@ import { Button } from "react-bootstrap";
 import { useRef, forwardRef } from "react";
 
 const Menu = (
-	{ createBlock, handleBlockPaste, EnableCreate, EnablePaste },
+	{
+		handleShowNodeSelector,
+		createBlock,
+		handleBlockPaste,
+		EnableCreate,
+		EnablePaste,
+	},
 	ref
 ) => {
 	return (
@@ -20,7 +26,7 @@ const Menu = (
 			<li>
 				<Button
 					variant="light"
-					onClick={() => createBlock()}
+					onClick={() => handleShowNodeSelector("ElementNode")}
 					disabled={!EnableCreate}
 				>
 					<div>
@@ -35,7 +41,7 @@ const Menu = (
 			<li>
 				<Button
 					variant="light"
-					onClick={() => createBlock({ type: "action" })}
+					onClick={() => handleShowNodeSelector("ActionNode")}
 					disabled={!EnableCreate}
 				>
 					<div>
@@ -95,6 +101,7 @@ const MenuWithRefs = forwardRef(Menu);
 
 export default function CMPaneMenu({
 	createBlock,
+	handleShowNodeSelector,
 	handleBlockPaste,
 	EnableCreate = false,
 	EnablePaste = false,
@@ -112,6 +119,7 @@ export default function CMPaneMenu({
 			<MenuWithRefs
 				ref={ref}
 				createBlock={createBlock}
+				handleShowNodeSelector={handleShowNodeSelector}
 				handleBlockPaste={handleBlockPaste}
 				EnableCreate={EnableCreate}
 				EnablePaste={EnablePaste}

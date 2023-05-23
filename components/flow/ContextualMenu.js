@@ -17,9 +17,10 @@ export default forwardRef(function ContextualMenu(
 		setShowContextualMenu,
 		contextMenuOrigin,
 		containsReservedNodes,
+		createBlock,
 		handleBlockCopy,
 		handleBlockPaste,
-		createBlock,
+		handleShowNodeSelector,
 		handleFragmentCreation,
 		handleNewRelation,
 		handleBlockCut,
@@ -72,58 +73,55 @@ export default forwardRef(function ContextualMenu(
 
 	return (
 		<>
-			{showContextualMenu && (
-				<>
-					<div
-						ref={ref}
-						style={{
-							top: `${y}px`,
-							left: `${x + (asideBounds && asideBounds.width)}px`,
-						}}
-						className={styles.cM + " "}
-					>
-						{contextMenuOrigin == "pane" && (
-							<CMPaneMenu
-								createBlock={createBlock}
-								handleBlockPaste={handleBlockPaste}
-								EnableCreate={enableCreate}
-								EnablePaste={enablePaste}
-							/>
-						)}
-						{contextMenuOrigin == "block" && (
-							<CMNodeMenu
-								handleShow={handleShow}
-								relationStarter={relationStarter}
-								blockData={blockData}
-								setRelationStarter={setRelationStarter}
-								setShowContextualMenu={setShowContextualMenu}
-								handleDeleteBlock={handleDeleteBlock}
-								handleNewRelation={handleNewRelation}
-								handleBlockCopy={handleBlockCopy}
-								handleBlockCut={handleBlockCut}
-								EnableEditPreconditions={enableEditPreconditions}
-								EnableCreateRelation={enableCreateRelation}
-								EnableCut={enableCut}
-								EnableCopy={enableCopy}
-								EnableDelete={enableDelete}
-							/>
-						)}
-						{contextMenuOrigin == "nodesselection" && (
-							<CMSelectionMenu
-								handleFragmentCreation={handleFragmentCreation}
-								handleDeleteBlockSelection={handleDeleteBlockSelection}
-								handleBlockCut={handleBlockCut}
-								handleBlockCopy={handleBlockCopy}
-								blocksData={blockData}
-								EnableCreateFragment={enableCreateFragment}
-								EnableCut={enableCut}
-								EnableCopy={enableCopy}
-								EnableDelete={enableDelete}
-							/>
-						)}
-					</div>
-				</>
-			)}
+			<div
+				ref={ref}
+				style={{
+					top: `${y}px`,
+					left: `${x + (asideBounds && asideBounds.width)}px`,
+				}}
+				className={styles.cM + " "}
+			>
+				{contextMenuOrigin == "pane" && (
+					<CMPaneMenu
+						createBlock={createBlock}
+						handleShowNodeSelector={handleShowNodeSelector}
+						handleBlockPaste={handleBlockPaste}
+						EnableCreate={enableCreate}
+						EnablePaste={enablePaste}
+					/>
+				)}
+				{contextMenuOrigin == "block" && (
+					<CMNodeMenu
+						handleShow={handleShow}
+						relationStarter={relationStarter}
+						blockData={blockData}
+						setRelationStarter={setRelationStarter}
+						setShowContextualMenu={setShowContextualMenu}
+						handleDeleteBlock={handleDeleteBlock}
+						handleNewRelation={handleNewRelation}
+						handleBlockCopy={handleBlockCopy}
+						handleBlockCut={handleBlockCut}
+						EnableEditPreconditions={enableEditPreconditions}
+						EnableCreateRelation={enableCreateRelation}
+						EnableCut={enableCut}
+						EnableCopy={enableCopy}
+						EnableDelete={enableDelete}
+					/>
+				)}
+				{contextMenuOrigin == "nodesselection" && (
+					<CMSelectionMenu
+						handleFragmentCreation={handleFragmentCreation}
+						handleDeleteBlockSelection={handleDeleteBlockSelection}
+						handleBlockCut={handleBlockCut}
+						handleBlockCopy={handleBlockCopy}
+						blocksData={blockData}
+						EnableCreateFragment={enableCreateFragment}
+						EnableCut={enableCut}
+						EnableCopy={enableCopy}
+						EnableDelete={enableDelete}
+					/>
+				)}
+			</div>
 		</>
 	);
 });

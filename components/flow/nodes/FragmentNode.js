@@ -1,5 +1,11 @@
-import { useCallback, useContext, useState, useEffect } from "react";
-import { NodeResizer, NodeToolbar, useReactFlow } from "reactflow";
+import {
+	useCallback,
+	useContext,
+	useState,
+	useEffect,
+	useLayoutEffect,
+} from "react";
+import { NodeResizer, NodeToolbar, useReactFlow, useEdges } from "reactflow";
 import { Button } from "react-bootstrap";
 import styles from "@components/styles/BlockContainer.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -22,7 +28,7 @@ import {
 	VersionInfoContext,
 } from "@components/pages/_app";
 import {
-	getEdgeBetweenNodeIds,
+	getNodeDOMById,
 	getNodeById,
 	getNodesByProperty,
 	getUpdatedArrayById,
@@ -37,8 +43,6 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 	const { selectedEditVersion, setSelectedEditVersion } =
 		useContext(VersionInfoContext);
 	const reactFlowInstance = useReactFlow();
-	const { currentBlocksData, setCurrentBlocksData } =
-		useContext(BlocksDataContext);
 	const { settings, setSettings } = useContext(SettingsContext);
 	const parsedSettings = JSON.parse(settings);
 	const { highContrast, showDetails, reducedAnimations } = parsedSettings;
@@ -54,42 +58,36 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 	const [expanded, setExpanded] = useState(data.expanded);
 
 	const handleEdit = () => {
-		const blockData = {
-			id: id,
-			x: xPos,
-			y: yPos,
-			type: type,
-			title: data.label,
-			children: data.children,
-		};
+		const blockData = getNodeById(id, reactFlowInstance.getNodes());
 		setExpandedAside(true);
 		setSelectedEditVersion("");
 		setBlockSelected(blockData);
 	};
 
 	const getInnerNodes = () => {
-		return getNodesByProperty(reactFlowInstance, "parentNode", id);
+		return getNodesByProperty("parentNode", id, reactFlowInstance.getNodes());
 	};
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		//Asigns children on creation/render
 		const changesArray = [];
 		data.innerNodes.map((innerNode) => {
-			const node = getNodeById(innerNode.id, reactFlowInstance);
-			node.parentNode = id;
-			node.expandParent = true; //FIXME: Propiety applies, but it doesn't work
-			node.position = innerNode.position;
-			changesArray.push(node);
+			const node = getNodeById(innerNode.id, reactFlowInstance.getNodes());
+			if (node) {
+				node.parentNode = id;
+				node.expandParent = true; //FIXME: Propiety applies, but it doesn't work
+				node.position = innerNode.position;
+				changesArray.push(node);
+			}
 		});
 		reactFlowInstance.setNodes(
 			getUpdatedArrayById(changesArray, reactFlowInstance.getNodes())
 		);
 	}, []);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		const currentInnerNodes = getInnerNodes();
-
-		const currentNode = getNodeById(id, reactFlowInstance);
+		const currentNode = getNodeById(id, reactFlowInstance.getNodes());
 		const styles = currentNode.style
 			? currentNode.style
 			: { height: 68, width: 68 };
@@ -98,17 +96,29 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 			if (!expanded) {
 				const newInnerNodes = currentInnerNodes.map((node) => {
 					{
-						node.hidden = true;
 						node.position = { x: 0, y: 0 };
 						return node;
 					}
+				});
+
+				const updatedNodes = reactFlowInstance.getNodes().map((node) => {
+					const matchingNode = newInnerNodes.find(
+						(innerNode) => innerNode.id === node.id
+					);
+					if (matchingNode) {
+						return {
+							...node,
+							...matchingNode,
+						};
+					}
+					return node;
 				});
 
 				styles.width = styles.height = 68;
 
 				reactFlowInstance.setNodes(
 					getUpdatedArrayById(
-						[...newInnerNodes, { ...currentNode, style: styles }],
+						[...updatedNodes, { ...currentNode, style: styles }],
 						reactFlowInstance.getNodes()
 					)
 				);
@@ -118,7 +128,6 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 					{
 						const nodeX = data.innerNodes[index].position.x;
 						const nodeY = data.innerNodes[index].position.y;
-						node.hidden = false;
 						node.position = {
 							x: nodeX,
 							y: nodeY,
@@ -130,45 +139,65 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 					}
 				});
 
+				const updatedNodes = reactFlowInstance.getNodes().map((node) => {
+					const matchingNode = newInnerNodes.find(
+						(innerNode) => innerNode.id === node.id
+					);
+					if (matchingNode) {
+						return {
+							...node,
+							...matchingNode,
+						};
+					}
+					return node;
+				});
+
 				styles.width = maxPositions.x + 68;
 				styles.height = maxPositions.y + 68;
 
 				reactFlowInstance.setNodes(
 					getUpdatedArrayById(
-						[...newInnerNodes, { ...currentNode, style: styles }],
+						[...updatedNodes, { ...currentNode, style: styles }],
 						reactFlowInstance.getNodes()
 					)
 				);
-			}
 
-			for (const childNode1 of currentInnerNodes) {
-				const childId1 = childNode1.id;
-				for (const childNode2 of currentInnerNodes) {
-					const childId2 = childNode2.id;
-					const edge = getEdgeBetweenNodeIds(
-						childId1,
-						childId2,
-						reactFlowInstance
-					);
-					if (edge) {
-						//Timeout so the edges get the time to generate
-						setTimeout(() => {
-							const edgeDOM = document.querySelector(
-								"[data-testid=rf__edge-" + edge.id + "]"
-							);
-							if (edgeDOM) {
-								if (!expanded) {
-									edgeDOM.style.visibility = "hidden";
-								} else {
-									edgeDOM.style.visibility = "visible";
-								}
-							}
-						}, 10);
-					}
-				}
+				newInnerNodes.map(
+					(node) => (getNodeDOMById(node.id).style.visibility = "visible")
+				);
 			}
 		}
 	}, [expanded]);
+
+	useEffect(() => {
+		if (expanded) {
+			getInnerNodes().map(
+				(node) => (getNodeDOMById(node.id).style.visibility = "visible")
+			);
+		} else {
+			getInnerNodes().map(
+				(node) => (getNodeDOMById(node.id).style.visibility = "hidden")
+			);
+		}
+
+		reactFlowInstance.setEdges(
+			reactFlowInstance.getEdges().map((edge) => {
+				if (
+					getInnerNodes().some((innerNode) => innerNode.id == edge.source) &&
+					getInnerNodes().some((innerNode) => innerNode.id == edge.target)
+				) {
+					if (expanded) {
+						edge.hidden = false;
+						return edge;
+					} else {
+						edge.hidden = true;
+						return edge;
+					}
+				}
+				return edge;
+			})
+		);
+	}, [getInnerNodes()]);
 
 	const restrictedChildren = (width, height) => {
 		const result = getInnerNodes().map((children) => {
@@ -206,7 +235,7 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 	};
 
 	const resizeFragment = (height, width) => {
-		const currentNode = getNodeById(id, reactFlowInstance);
+		const currentNode = getNodeById(id, reactFlowInstance.getNodes());
 		const style = { height: height * 175, width: width * 125 };
 		currentNode.style = style;
 		currentNode.height = style.height;
@@ -219,7 +248,7 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 
 		let updatedChildrenBlockData = [];
 		for (const [index, childNode] of originalChildrenStatus.entries()) {
-			const newNode = getNodeById(childNode.id, reactFlowInstance);
+			const newNode = getNodeById(childNode.id, reactFlowInstance.getNodes());
 			newNode.position.x = restrictedChildrenArray[index].position.x;
 			newNode.position.y = restrictedChildrenArray[index].position.y;
 
@@ -239,7 +268,7 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 	};
 
 	const dismantleSelf = () => {
-		const currentNode = getNodeById(id, reactFlowInstance);
+		const currentNode = getNodeById(id, reactFlowInstance.getNodes());
 		const innerNodes = getInnerNodes();
 
 		const updatedInnerNodes = innerNodes.map((node) => {
@@ -284,7 +313,6 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 				<NodeResizer
 					minWidth={125}
 					minHeight={175}
-					/*onResizeStart={getCurrentChildrenPositions}*/
 					onResizeEnd={handleResizeEnd}
 				/>
 			)}

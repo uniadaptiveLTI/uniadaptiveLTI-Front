@@ -237,7 +237,24 @@ FALLBACK
 
 /* Sakai */
 
-/*FIXME: HACER LOS DE SAKAI*/
+/* Exam */
+.react-flow__node-exam {
+	background-color: #dc3545;
+}
+
+.react-flow__node-exam:hover, .react-flow__node-exam:focus-visible, .react-flow__node-exam:active {
+	background-color: #bf2534;
+}
+
+
+/* Simple Text */
+.react-flow__node-text {
+	background-color: #6c757d;
+}
+
+.react-flow__node-text:hover, .react-flow__node-text:focus-visible, .react-flow__node-text:active {
+	background-color: #525a61;
+}
 
 /* Contents */
 .react-flow__node-contents {
@@ -255,6 +272,15 @@ FALLBACK
 
 .react-flow__node-html:hover, .react-flow__node-html:focus-visible, .react-flow__node-html:active {
 	background-color: #bf1a78;
+}
+
+/* Resources */
+.react-flow__node-resources{
+    background-color: #eb9408;
+}
+
+.react-flow__node-resources:hover, .react-flow__node-resources:focus-visible, .react-flow__node-resources:active{
+    background-color: #c9810e;
 }
 
 /* LTI */
@@ -330,6 +356,11 @@ FALLBACK
 }
 }
 
+/* NodeSelector */
+
+.nodeSelectionItem img, .nodeSelectionItem svg {
+    color: white;
+}
 
 /* Accesibility */
 

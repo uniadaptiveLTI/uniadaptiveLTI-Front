@@ -20,8 +20,9 @@ import {
 	SettingsContext,
 	BlocksDataContext,
 } from "../pages/_app.js";
-import { getUpdatedArrayById } from "./Utils.js";
+import { getUpdatedArrayById, orderByPropertyAlphabetically } from "./Utils.js";
 import { ActionBlocks } from "./flow/nodes/ActionNode.js";
+import { getMoodleTypes, getSakaiTypes } from "./flow/nodes/TypeDefinitions.js";
 
 export default function Aside({ className, closeBtn, svgExists }) {
 	const [expandedContent, setExpandedContent] = useState(true);
@@ -68,45 +69,11 @@ export default function Aside({ className, closeBtn, svgExists }) {
 
 	const validTypes = ["badge", "mail", "addgroup", "remgroup"];
 
-	const [moodleResource, setMoodleResource] = useState([
-		{ id: 0, value: "quiz", name: "Cuestionario", type: "element" },
-		{ id: 1, value: "assign", name: "Tarea", type: "element" },
-		{ id: 3, value: "workshop", name: "Taller", type: "element" },
-		{ id: 4, value: "choice", name: "Consulta", type: "element" },
-		{ id: 5, value: "forum", name: "Foro", type: "element" },
-		{ id: 6, value: "resource", name: "Archivo", type: "element" },
-		{ id: 7, value: "folder", name: "Carpeta", type: "element" },
-		{ id: 8, value: "label", name: "Etiqueta", type: "element" },
-		{ id: 9, value: "page", name: "Página", type: "element" },
-		{ id: 10, value: "url", name: "URL", type: "element" },
-		{ id: 11, value: "badge", name: "Dar medalla", type: "action" },
-		{ id: 12, value: "mail", name: "Enviar correo", type: "action" },
-		{ id: 13, value: "addgroup", name: "Añadir a grupo", type: "action" },
-		{ id: 14, value: "remgroup", name: "Eliminar grupo", type: "action" },
-		{ id: 15, value: "generic", name: "Genérico", type: "element" },
-		//{ id: 12, value: "fragment", name: "Fragmento", type: "element"}
-	]);
-
-	const [sakaiResource, setSakaiResource] = useState([
-		{ id: 0, value: "quiz", name: "Exámenes" },
-		{ id: 1, value: "assign", name: "Tareas" },
-		{ id: 3, value: "forum", name: "Foro" },
-		{ id: 4, value: "resources", name: "Recursos" },
-		{ id: 5, value: "resource", name: "Archivo" },
-		{ id: 6, value: "folder", name: "Carpeta" },
-		{ id: 7, value: "url", name: "URL" },
-		{ id: 8, value: "page", name: "Página" },
-		{
-			id: 9,
-			value: "resource",
-			name: "Documento de texto simple",
-		},
-		{ id: 10, value: "html-page", name: "Página HTML" },
-		{ id: 11, value: "mail", name: "Enviar correo", type: "action" },
-		{ id: 12, value: "addgroup", name: "Añadir a grupo", type: "action" },
-		{ id: 13, value: "remgroup", name: "Eliminar grupo", type: "action" },
-		//{ id: 14, value: "fragment", name: "Fragmento", type: "element"}
-	]);
+	const moodleResource = orderByPropertyAlphabetically(
+		getMoodleTypes(),
+		"name"
+	);
+	const sakaiResource = orderByPropertyAlphabetically(getSakaiTypes(), "name");
 
 	useEffect(() => {
 		switch (selectedOption) {
@@ -301,10 +268,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 		if (!validTypes.includes(blockSelected.type)) {
 			updatedData.data = {
 				...updatedData.data,
-				children: blockSelected.data.children,
-				identation: blockSelected.data.identation,
-				unit: blockSelected.data.unit,
-				order: blockSelected.data.order,
+				...blockSelected.data,
 			};
 		}
 
@@ -428,9 +392,9 @@ export default function Aside({ className, closeBtn, svgExists }) {
 											? moodleResource.map((option) => {
 													if (
 														(ActionBlocks.includes(blockSelected.type) &&
-															option.type == "action") ||
+															option.nodeType == "ActionNode") ||
 														(!ActionBlocks.includes(blockSelected.type) &&
-															option.type == "element")
+															option.nodeType == "ElementNode")
 													) {
 														return (
 															<option key={option.id} value={option.value}>
@@ -442,9 +406,9 @@ export default function Aside({ className, closeBtn, svgExists }) {
 											: sakaiResource.map((option) => {
 													if (
 														(ActionBlocks.includes(blockSelected.type) &&
-															option.type == "action") ||
+															option.nodeType == "ActionNode") ||
 														(!ActionBlocks.includes(blockSelected.type) &&
-															option.type == "element")
+															option.nodeType == "ElementNode")
 													) {
 														return (
 															<option key={option.id} value={option.value}>
