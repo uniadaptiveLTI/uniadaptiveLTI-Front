@@ -6,11 +6,11 @@ export const getBlockById = (id, blocksData) => {
 	return blocksData.find((block) => block.id == id);
 };
 
-export const getBlockByNodeDOM = (node, blocksData) => {
+/*export const getBlockByNodeDOM = (node, blocksData) => {
 	return blocksData.find((block) => block.id == node.dataset.id);
-};
+};*/
 
-export const getBlocksByNodesDOM = (nodes, blocksData) => {
+/*export const getBlocksByNodesDOM = (nodes, blocksData) => {
 	const blockArray = [];
 	nodes.forEach((node) => {
 		const block = getBlockByNodeDOM(node, blocksData);
@@ -23,7 +23,7 @@ export const getBlocksByNodesDOM = (nodes, blocksData) => {
 
 export const getUpdatedBlocksDataFromFlow = (blocksData, reactflowInstance) => {
 	return getUpdatedArrayById(reactflowInstance.getNodes(), blocksData);
-};
+};*/
 
 export const isBlockEqual = (block1, block2) => {
 	return JSON.stringify(block1) == JSON.stringify(block2);
@@ -54,36 +54,46 @@ export const isBlockArrayEqual = (blockArray1, blockArray2) => {
 
 //Nodes
 
-export const getNodeById = (id, reactFlowInstance) => {
-	return reactFlowInstance.getNodes()?.find((node) => node.id == id);
+export const getNodeById = (id, nodeArray) => {
+	if (Array.isArray(nodeArray)) {
+		return nodeArray.find((node) => node.id == id);
+	} else {
+		return undefined;
+	}
 };
 
-export const getNodeByBlock = (block, reactFlowInstance) => {
-	return reactFlowInstance.getNodes()?.find((node) => node.id == block.id);
+export const getNodeByBlock = (block, nodeArray) => {
+	if (Array.isArray(nodeArray)) {
+		return nodeArray.find((node) => block.id == id);
+	} else {
+		return undefined;
+	}
 };
 
-export const getNodesByBlocks = (blocks, reactFlowInstance) => {
-	const nodeArray = [];
+/*export const getNodesByBlocks = (blocks, nodeArray) => {
+	const finalNodeArray = [];
 	blocks.forEach((block) => {
-		const node = getBlockByNodeDOM(block, reactFlowInstance);
+		const node = getBlockByNodeDOM(block, nodeArray);
 		if (node) {
-			nodeArray.push(node);
+			finalNodeArray.push(node);
 		}
 	});
-	return nodeArray;
+	return finalNodeArray;
+};*/
+
+export const getNodeByNodeDOM = (nodeDOM, nodeArray) => {
+	console.log("gnbnD", nodeDOM, nodeArray);
+	if (Array.isArray(nodeArray)) {
+		return nodeArray.find((node) => node.id == nodeDOM.dataset.id);
+	} else {
+		return undefined;
+	}
 };
 
-export const getNodeByNodeDOM = (nodeDOM, reactFlowInstance) => {
-	console.log("gnbnD", nodeDOM, reactFlowInstance);
-	return reactFlowInstance
-		.getNodes()
-		.find((node) => node.id == nodeDOM.dataset.id);
-};
-
-export const getNodesByNodesDOM = (nodesDOM, reactFlowInstance) => {
+export const getNodesByNodesDOM = (nodesDOM, nodeArray) => {
 	const blockArray = [];
 	nodesDOM.forEach((nodeDOM) => {
-		const block = getNodeByNodeDOM(nodeDOM, reactFlowInstance);
+		const block = getNodeByNodeDOM(nodeDOM, nodeArray);
 		if (block) {
 			blockArray.push(block);
 		}
@@ -92,13 +102,15 @@ export const getNodesByNodesDOM = (nodesDOM, reactFlowInstance) => {
 };
 
 export const getNodesByProperty = (
-	reactflowInstance,
 	property = "parentNode",
-	value = undefined
+	value = undefined,
+	nodeArray
 ) => {
-	return reactflowInstance
-		.getNodes()
-		?.filter((node) => node[property] == value);
+	if (Array.isArray(nodeArray)) {
+		return nodeArray.filter((node) => node[property] == value);
+	} else {
+		return undefined;
+	}
 };
 
 export function thereIsReservedNodesInArray(nodeArray) {
@@ -106,12 +118,6 @@ export function thereIsReservedNodesInArray(nodeArray) {
 	isReserved = nodeArray.some((node) => ReservedBlockTypes.includes(node.type));
 	return isReserved;
 }
-
-// Edges
-
-export const getEdgeBetweenNodeIds = (id1, id2, reactflowInstance) => {
-	return reactflowInstance.getEdge(`${id1}-${id2}`);
-};
 
 //NodesDOM
 
@@ -150,6 +156,12 @@ function getReservedNodeDOMClassesFromTypes() {
 	return classes;
 }
 
+//Specific
+
+export const getChildrenNodesFromFragmentID = (fragmentID, nodeArray) => {
+	return getNodesByProperty("parentNode", fragmentID, nodeArray);
+};
+
 //Generic
 
 /**
@@ -161,10 +173,12 @@ function getReservedNodeDOMClassesFromTypes() {
 export const getUpdatedArrayById = (updatedEntry, originalArray) => {
 	const newBlocks = Array.isArray(updatedEntry) ? updatedEntry : [updatedEntry];
 
-	return originalArray.map((oldEntry) => {
-		const newBlock = newBlocks.find((entry) => entry.id === oldEntry.id);
-		return newBlock ? { ...oldEntry, ...newBlock } : oldEntry;
-	});
+	if (originalArray.length > 0) {
+		return originalArray.map((oldEntry) => {
+			const newBlock = newBlocks.find((entry) => entry.id === oldEntry.id);
+			return newBlock ? { ...oldEntry, ...newBlock } : oldEntry;
+		});
+	}
 };
 
 /**
@@ -189,5 +203,32 @@ export function nearestPowerOfTwo(n) {
 }
 
 export function orderByLabelAlphabetically(array) {
-	return [...array].sort((a, b) => a.data.label.localeCompare(b.data.label));
+	return orderByPropertyAlphabetically(array, "data", "label");
+}
+
+export function orderByPropertyAlphabetically(array, property, subproperty) {
+	if (subproperty) {
+		return [...array].sort((a, b) =>
+			a[property][subproperty].localeCompare(b[property][subproperty])
+		);
+	} else {
+		return [...array].sort((a, b) => a[property].localeCompare(b[property]));
+	}
+}
+
+export function inArrayById(obj, arr) {
+	return arr.some((x) => x.id === obj.id);
+}
+
+export function arrayInsideArrayById(arr1, arr2) {
+	return arr1.map((obj) => inArrayById(obj, arr2)).every(Boolean);
+}
+
+export function deduplicateById(arr) {
+	return arr.reduce((accumulator, current) => {
+		if (!accumulator.some((item) => item.id === current.id)) {
+			accumulator.push(current);
+		}
+		return accumulator;
+	}, []);
 }
