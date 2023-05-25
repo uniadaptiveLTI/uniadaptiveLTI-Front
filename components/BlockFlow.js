@@ -255,6 +255,7 @@ const OverviewFlow = ({ map }, ref) => {
 
 	const onInit = (reactFlowInstance) => {
 		console.log("Blockflow loaded:", reactFlowInstance);
+		reactFlowInstance.fitView();
 	};
 
 	const onNodeDragStart = (event, node) => {
@@ -447,7 +448,9 @@ const OverviewFlow = ({ map }, ref) => {
 		}
 	}, [deletedEdge]);
 
-	const onLoad = () => {};
+	const onLoad = () => {
+		reactFlowInstance.fitView();
+	};
 
 	useEffect(() => {
 		setNewInitialNodes(map);
