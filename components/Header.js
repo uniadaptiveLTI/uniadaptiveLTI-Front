@@ -501,7 +501,7 @@ function Header({ closeBtn }, ref) {
 	}, [mapSelected]);
 
 	useEffect(() => {
-		if (selectedVersion && reactFlowInstance) {
+		if (selectedVersion) {
 			if (selectedVersion.id != versionJson.id) {
 				resetEdit();
 				setCurrentBlocksData(selectedVersion.blocksData);

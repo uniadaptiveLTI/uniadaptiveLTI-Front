@@ -945,14 +945,6 @@
   resolved "https://registry.yarnpkg.com/@testing-library/user-event/-/user-event-14.4.3.tgz#af975e367743fa91989cd666666aec31a8f50591"
   integrity sha512-kCUc5MEwaEMakkO5x7aoD+DLi02ehmEM2QCGWvNqAS1dV/fAvORWEjnjsEIvml59M7Y5kCkWN6fCCyPOe8OL6Q==
 
-"@tinymce/tinymce-react@^4.3.0":
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/@tinymce/tinymce-react/-/tinymce-react-4.3.0.tgz#5e2f5a58526a1bba9710f54f5fcf16abd4c742a1"
-  integrity sha512-iB4cUsYfcJL4NGuKhqCGYuTmFTje3nPxyPv1HxprTsp/YMGuuiiSNWrv3zwI31QX5Cn8qeq9MrMDnbxuRugHyg==
-  dependencies:
-    prop-types "^15.6.2"
-    tinymce "^6.3.1"
-
 "@tootallnate/once@2":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@tootallnate/once/-/once-2.0.0.tgz#f544a148d3ab35801c1f633a7441fd87c2e484bf"
@@ -4857,15 +4849,17 @@ text-table@^0.2.0:
   resolved "https://registry.yarnpkg.com/text-table/-/text-table-0.2.0.tgz#7f5ee823ae805207c00af2df4a84ec3fcfa570b4"
   integrity sha512-N+8UisAXDGk8PFXP4HAzVR9nbfmVJ3zYLAWiTIoqC5v5isinhr+r5uaO8+7r3BMfuNIufIsA7RdpVgacC2cSpw==
 
+tinymce-react@^1.3.2:
+  version "1.3.2"
+  resolved "https://registry.yarnpkg.com/tinymce-react/-/tinymce-react-1.3.2.tgz#7afacfe11c53df89201272b90d8b792e6bebf64e"
+  integrity sha512-+jpB/d5PKUwhQyVAx4+W6xmBinmj6TK2tvPEyUQ6EZe9+dyoCgnlUH8I35FcotLx2cxO4yi9Du1NWsHqWJw29g==
+  dependencies:
+    uuid "^3.0.1"
+
 titleize@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/titleize/-/titleize-3.0.0.tgz#71c12eb7fdd2558aa8a44b0be83b8a76694acd53"
   integrity sha512-KxVu8EYHDPBdUYdKZdKtU2aj2XfEx9AfjXxE/Aj0vT06w2icA09Vus1rh6eSu1y01akYg6BjIK/hxyLJINoMLQ==
-
-tinymce@^6.3.1:
-  version "6.4.2"
-  resolved "https://registry.yarnpkg.com/tinymce/-/tinymce-6.4.2.tgz#dd0a6d1d229ba6d1bf11cc88e418eb29315f6080"
-  integrity sha512-te+4c8PoAwTKPMBQtMQehnSZlOO9Ay5tDgaRFJKBehYb6SlX2PYZ0v3oe/cmiv5EfqdwZLkEMXk2MNOeApZZLg==
 
 tmpl@1.0.5:
   version "1.0.5"
@@ -5028,6 +5022,11 @@ use-undoable@^3.3.12:
   version "3.3.12"
   resolved "https://registry.yarnpkg.com/use-undoable/-/use-undoable-3.3.12.tgz#c60067dadd8e34921c68d223f1a571a0bea24810"
   integrity sha512-xFBmHaxJaeTXQDHQvCgvHhxKyKhz9g1vw2rviYlXvNJvJvPysHD3jnvSt6SoAWrpDwKbDwndfFPsBMpQGU7xrw==
+
+uuid@^3.0.1:
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.4.0.tgz#b23e4358afa8a202fe7a100af1f5f883f02007ee"
+  integrity sha512-HjSDRw6gZE5JMggctHBcjVak08+KEVhSIiDzFnT9S9aegmp85S/bReBVTb4QTFaRNptJ9kuYaNhnbNEOkbKb/A==
 
 v8-to-istanbul@^9.0.1:
   version "9.1.0"
