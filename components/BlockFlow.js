@@ -370,13 +370,40 @@ const OverviewFlow = ({ map }, ref) => {
 		const sourceNodeId = event.source.split("__")[0];
 		const targetNodeId = event.target.split("__")[0];
 
-		const sourceNode = map.find((node) => node.id === sourceNodeId);
+		const sourceNode = reactFlowInstance
+			.getNodes()
+			.find((nodes) => nodes.id == sourceNodeId);
+
+		const targetNode = reactFlowInstance
+			.getNodes()
+			.find((nodes) => nodes.id == targetNodeId);
 
 		if (sourceNode) {
 			if (Array.isArray(sourceNode.children)) {
 				sourceNode.children.push(targetNodeId);
 			} else {
 				sourceNode.children = [targetNodeId];
+			}
+		}
+
+		if (targetNode) {
+			const newCondition = {
+				id: parseInt(Date.now() * Math.random()).toString(),
+				type: "completion",
+				op: sourceNode.id,
+				query: "completed",
+			};
+			console.log(targetNode.data.conditions);
+			if (!targetNode.data.conditions) {
+				console.log("CONDICIONES SIN DEFINIR");
+				targetNode.data.conditions = {
+					type: "conditionsGroup",
+					id: parseInt(Date.now() * Math.random()).toString(),
+					op: "&",
+					conditions: [newCondition],
+				};
+			} else {
+				targetNode.data.conditions.conditions.push(newCondition);
 			}
 		}
 
@@ -390,8 +417,14 @@ const OverviewFlow = ({ map }, ref) => {
 			},
 		]);
 
-		reactFlowInstance.setNodes(
+		console.log(targetNode);
+
+		setNodes(
 			getUpdatedArrayById({ ...sourceNode }, reactFlowInstance.getNodes())
+		);
+
+		setNodes(
+			getUpdatedArrayById({ ...targetNode }, reactFlowInstance.getNodes())
 		);
 	};
 
@@ -410,7 +443,49 @@ const OverviewFlow = ({ map }, ref) => {
 		deleteBlocks(nodes);
 	};
 
+	function deleteConditionById(conditions, op) {
+		for (let i = 0; i < conditions.length; i++) {
+			const condition = conditions[i];
+			if (condition.op === op) {
+				conditions.splice(i, 1);
+				if (conditions.length === 0) {
+					conditions = undefined;
+				}
+				return true;
+			} else if (condition.conditions) {
+				if (deleteConditionById(condition.conditions, op)) {
+					if (condition.conditions.length === 0) {
+						condition.conditions = undefined;
+					}
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	const onEdgesDelete = (nodes) => {
+		const blockNodeSource = reactFlowInstance
+			?.getNodes()
+			.find((obj) => obj.id === nodes[0].source);
+
+		var blockNodeTarget = reactFlowInstance
+			?.getNodes()
+			.find((obj) => obj.id === nodes[0].target);
+
+		const updatedBlockNodeSource = { ...blockNodeSource };
+		updatedBlockNodeSource.data.children =
+			updatedBlockNodeSource.data.children.filter(
+				(childId) => !childId.includes(blockNodeTarget.id)
+			);
+
+		blockNodeTarget = updatedBlockNodeSource;
+
+		deleteConditionById(
+			blockNodeTarget.data.conditions.conditions,
+			blockNodeSource.id
+		);
+
 		setDeletedEdge(nodes[0]);
 	};
 
@@ -443,7 +518,7 @@ const OverviewFlow = ({ map }, ref) => {
 					);
 				}
 			}
-
+			console.log(updatedBlocksArray);
 			reactFlowInstance.setNodes(updatedBlocksArray);
 		}
 	}, [deletedEdge]);

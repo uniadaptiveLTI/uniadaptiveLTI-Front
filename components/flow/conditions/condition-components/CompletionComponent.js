@@ -1,3 +1,4 @@
+import React from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -16,9 +17,6 @@ const CompletionComponent = ({
 	setConditionEdit,
 	deleteCondition,
 }) => {
-	/*const top = conditionsList[0] === condition;
-	const bottom = conditionsList[conditionsList.length - 1] === condition;*/
-
 	return (
 		<Container
 			className="mb-3 mt-3"
@@ -46,16 +44,20 @@ const CompletionComponent = ({
 							<FontAwesomeIcon icon={faTrashCan} />
 						</div>
 					</Button>
-					<Button variant="light" onClick={() => upCondition(condition)}>
-						<div>
-							<FontAwesomeIcon icon={faArrowUp} />
-						</div>
-					</Button>
-					<Button variant="light" onClick={() => downCondition(condition)}>
-						<div>
-							<FontAwesomeIcon icon={faArrowDown} />
-						</div>
-					</Button>
+					{conditionsList.length > 1 && (
+						<>
+							<Button variant="light" onClick={() => upCondition(condition)}>
+								<div>
+									<FontAwesomeIcon icon={faArrowUp} />
+								</div>
+							</Button>
+							<Button variant="light" onClick={() => downCondition(condition)}>
+								<div>
+									<FontAwesomeIcon icon={faArrowDown} />
+								</div>
+							</Button>
+						</>
+					)}
 				</Col>
 			</Row>
 		</Container>

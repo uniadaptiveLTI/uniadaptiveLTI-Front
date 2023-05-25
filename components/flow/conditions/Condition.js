@@ -92,6 +92,7 @@ function Condition({
 			return (
 				<ConditionsGroupComponent
 					condition={condition}
+					conditionsList={conditionsList}
 					setConditionEdit={setConditionEdit}
 					upCondition={upCondition}
 					downCondition={downCondition}

@@ -15,6 +15,7 @@ const conditionsGroupOperatorList = [
 
 const ConditionsGroupComponent = ({
 	condition,
+	conditionsList,
 	deleteCondition,
 	upCondition,
 	downCondition,
@@ -66,6 +67,7 @@ const ConditionsGroupComponent = ({
 						<div className="mb-3">
 							<Condition
 								condition={innerCondition}
+								conditionsList={conditionsList}
 								deleteCondition={deleteCondition}
 								upCondition={upCondition}
 								addCondition={addCondition}

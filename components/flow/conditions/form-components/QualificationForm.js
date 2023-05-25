@@ -14,13 +14,6 @@ function QualificationForm(props) {
 
 	return (
 		<Form.Group>
-			<Form.Select ref={conditionOperator} defaultValue={conditionEdit?.op}>
-				<option value="fullCourse">Total del curso</option>
-				{parentsNodeArray.length > 0 &&
-					parentsNodeArray.map((node) => (
-						<option key={node.id}>{node.data.label}</option>
-					))}
-			</Form.Select>
 			<Form.Check
 				id="objectiveCheckbox"
 				type="checkbox"

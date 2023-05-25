@@ -546,6 +546,7 @@ function ConditionModal({
 				}
 			}
 		}
+		console.log(blockData);
 		setSelectedOption("");
 		setConditionEdit(undefined);
 		setEditing(undefined);
@@ -738,7 +739,9 @@ function ConditionModal({
 				)}
 				{editing &&
 					(conditionEdit === undefined ||
-					conditionEdit.type !== "conditionsGroup" ? (
+					(conditionEdit.type !== "conditionsGroup" &&
+						conditionEdit.type !== "completion" &&
+						conditionEdit.type !== "qualification") ? (
 						<Form.Select
 							id="condition-select"
 							onChange={handleSelectChange}
@@ -749,10 +752,6 @@ function ConditionModal({
 								Escoge un tipo de condición...
 							</option>
 							<option value="date">Fecha</option>
-							<option value="qualification">Calificación</option>
-							{parentsNodeArray.length > 0 && (
-								<option value="completion">Finalización</option>
-							)}
 							{moodleGroups.length > 0 && <option value="group">Grupo</option>}
 							{moodleGroupings.length > 0 && (
 								<option value="grouping">Agrupamiento</option>
