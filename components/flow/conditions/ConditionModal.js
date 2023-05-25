@@ -65,6 +65,314 @@ function ConditionModal({
 
 	const parentsNodeArray = getParentsNode(blocksData, blockData.id);
 
+	const findParentObject = (id, json) => {
+		if (json.conditions) {
+			for (let i = 0; i < json.conditions.length; i++) {
+				const condition = json.conditions[i];
+
+				if (condition.id === id) {
+					return json;
+				}
+
+				if (condition.conditions) {
+					const parent = findParentObject(id, condition);
+					if (parent) {
+						return parent;
+					}
+				}
+			}
+		}
+
+		return null;
+	};
+
+	const updateJsonById = (json, id, updatedJson) => {
+		if (json.id === id) {
+			return { ...json, ...updatedJson };
+		}
+
+		if (json.conditions && Array.isArray(json.conditions)) {
+			const updatedConditions = json.conditions.map((condition) =>
+				updateJsonById(condition, id, updatedJson)
+			);
+
+			return { ...json, conditions: updatedConditions };
+		}
+
+		return json;
+	};
+
+	function insertBeforeSourceId(sourceId, targetJson, json) {
+		let insertIndex = -1;
+		const updatedConditions = json.conditions.reduce(
+			(acc, condition, index) => {
+				if (condition.id === sourceId) {
+					insertIndex = index;
+					return [...acc, targetJson, condition];
+				}
+				return [...acc, condition];
+			},
+			[]
+		);
+
+		if (insertIndex === -1) {
+			updatedConditions.push(targetJson);
+		}
+
+		const updatedJson = {
+			...json,
+			conditions: updatedConditions,
+		};
+
+		return updatedJson;
+	}
+
+	function insertAfterSourceId(sourceId, targetJson, json) {
+		let insertIndex = -1;
+		const updatedConditions = json.conditions.reduce(
+			(acc, condition, index) => {
+				if (condition.id === sourceId) {
+					insertIndex = index;
+					return [...acc, condition, targetJson];
+				}
+				return [...acc, condition];
+			},
+			[]
+		);
+
+		if (insertIndex === -1) {
+			updatedConditions.push(targetJson);
+		}
+
+		const updatedJson = {
+			...json,
+			conditions: updatedConditions,
+		};
+
+		return updatedJson;
+	}
+
+	function upCondition(condition) {
+		let parentObject;
+
+		if (findParentObject(condition.id, blockData.data.conditions) == null) {
+			parentObject = blockData.data.conditions;
+		} else {
+			parentObject = findParentObject(condition.id, blockData.data.conditions);
+		}
+
+		const blockDataCopy = deepCopy(blockData);
+
+		const conditionsList = parentObject.conditions;
+		const index = conditionsList.findIndex((item) => item.id === condition.id);
+		var updatedArray = [...conditionsList];
+
+		if (index === 0) {
+			if (parentObject.id == blockData.data.conditions.id) {
+				console.log("PADRE MAIN, VOY A LO MAS BAJO");
+				const movedJson = updatedArray.shift();
+				updatedArray.push(movedJson);
+
+				// GUARDAR EL updatedArray como conditions de blockData.data.conditions -> blockData.data.conditions.conditions
+			} else {
+				let parentOfParent;
+				if (
+					findParentObject(parentObject.id, blockData.data.conditions) == null
+				) {
+					console.log("MI ABUELO ES EL MAIN");
+
+					parentOfParent = blockData.data.conditions;
+				} else {
+					console.log("MI ABUELO NO ES EL MAIN");
+
+					parentOfParent = findParentObject(
+						parentObject.id,
+						blockData.data.conditions
+					);
+				}
+
+				deleteConditionById(blockData.data.conditions.conditions, condition.id);
+
+				const updatedJson = insertBeforeSourceId(
+					parentObject.id,
+					condition,
+					parentOfParent
+				);
+
+				if (updatedJson.id == blockData.data.conditions.id) {
+					updatedArray = updatedJson.conditions;
+				} else {
+					updatedArray = updateJsonById(
+						blockDataCopy.data.conditions,
+						updatedJson.id,
+						updatedJson
+					).conditions;
+				}
+			}
+		} else if (index > 0) {
+			const movedJson = updatedArray.splice(index, 1)[0];
+			const upperJson = updatedArray[index - 1];
+
+			if (upperJson.type === "conditionsGroup") {
+				if (!upperJson.conditions) {
+					upperJson.conditions = [];
+				}
+				const existingIndex = upperJson.conditions.findIndex(
+					(item) => item.id === movedJson.id
+				);
+				if (existingIndex === -1) {
+					upperJson.conditions.push(movedJson);
+				}
+			} else {
+				updatedArray.splice(index - 1, 0, movedJson);
+			}
+
+			if (parentObject.id != blockData.data.conditions.id) {
+				updatedArray = updateConditionsById(
+					blockDataCopy.data.conditions,
+					parentObject.id,
+					updatedArray
+				).conditions;
+			}
+		}
+
+		const updatedBlockData = {
+			...blockData,
+			data: {
+				...blockData.data,
+				conditions: {
+					...blockData.data.conditions,
+					conditions: updatedArray,
+				},
+			},
+		};
+
+		setBlockData(updatedBlockData);
+	}
+
+	const downCondition = (condition) => {
+		let parentObject;
+
+		if (findParentObject(condition.id, blockData.data.conditions) == null) {
+			parentObject = blockData.data.conditions;
+		} else {
+			parentObject = findParentObject(condition.id, blockData.data.conditions);
+		}
+
+		const blockDataCopy = deepCopy(blockData);
+
+		const conditionsList = parentObject.conditions;
+		const index = conditionsList.findIndex((item) => item.id === condition.id);
+		var updatedArray = [...conditionsList];
+
+		if (index === updatedArray.length - 1) {
+			if (parentObject.id == blockData.data.conditions.id) {
+				console.log("ME VOY ARRIBA DEL TODO");
+				const movedJson = updatedArray.pop();
+				updatedArray.unshift(movedJson);
+			} else {
+				console.log("ME SALGO FUERA DE MI GRUPO");
+
+				let parentOfParent;
+				if (
+					findParentObject(parentObject.id, blockData.data.conditions) == null
+				) {
+					console.log("MI ABUELO ES EL MAIN");
+
+					parentOfParent = blockData.data.conditions;
+				} else {
+					console.log("MI ABUELO NO ES EL MAIN");
+
+					parentOfParent = findParentObject(
+						parentObject.id,
+						blockData.data.conditions
+					);
+				}
+
+				deleteConditionById(blockData.data.conditions.conditions, condition.id);
+
+				const updatedJson = insertAfterSourceId(
+					parentObject.id,
+					condition,
+					parentOfParent
+				);
+
+				if (updatedJson.id == blockData.data.conditions.id) {
+					updatedArray = updatedJson.conditions;
+				} else {
+					updatedArray = updateJsonById(
+						blockDataCopy.data.conditions,
+						updatedJson.id,
+						updatedJson
+					).conditions;
+				}
+			}
+		} else {
+			console.log("NO SOY EL MAS BAJO");
+
+			const movedJson = updatedArray.splice(index, 1)[0];
+			const bottomJson = updatedArray[index];
+
+			if (bottomJson.type === "conditionsGroup") {
+				if (!bottomJson.conditions) {
+					bottomJson.conditions = [];
+				}
+				const existingIndex = bottomJson.conditions.findIndex(
+					(item) => item.id === movedJson.id
+				);
+
+				if (existingIndex === -1) {
+					bottomJson.conditions.unshift(movedJson);
+				}
+			} else {
+				updatedArray.splice(index + 1, 0, movedJson);
+			}
+
+			if (parentObject.id != blockData.data.conditions.id) {
+				updatedArray = updateConditionsById(
+					blockDataCopy.data.conditions,
+					parentObject.id,
+					updatedArray
+				).conditions;
+			}
+		}
+
+		const updatedBlockData = {
+			...blockData,
+			data: {
+				...blockData.data,
+				conditions: {
+					...blockData.data.conditions,
+					conditions: updatedArray,
+				},
+			},
+		};
+
+		setBlockData(updatedBlockData);
+	};
+
+	const updateConditionsById = (json, id, updatedConditions) => {
+		if (json.id === id) {
+			return {
+				...json,
+				conditions: updatedConditions,
+			};
+		}
+
+		if (json.conditions && Array.isArray(json.conditions)) {
+			const updatedConditionsArray = json.conditions.map((condition) =>
+				updateConditionsById(condition, id, updatedConditions)
+			);
+
+			return {
+				...json,
+				conditions: updatedConditionsArray,
+			};
+		}
+
+		return json;
+	};
+
 	const addCondition = (conditionId) => {
 		if (blockData.data.conditions.id != conditionId) {
 			const foundCondition = findConditionById(
@@ -177,6 +485,16 @@ function ConditionModal({
 				formData.objective = conditionObjective.current.value;
 				break;
 			case "conditionsGroup":
+				break;
+			case "role":
+				break;
+			case "courseCompletion":
+				break;
+			case "badgeList":
+				break;
+			case "completion":
+				break;
+			case "skills":
 				break;
 			default:
 				break;
@@ -404,6 +722,9 @@ function ConditionModal({
 								return (
 									<Condition
 										condition={condition}
+										conditionsList={blockData.data.conditions.conditions}
+										upCondition={upCondition}
+										downCondition={downCondition}
 										deleteCondition={deleteCondition}
 										addCondition={addCondition}
 										setSelectedOption={setSelectedOption}

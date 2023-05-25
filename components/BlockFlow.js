@@ -55,6 +55,7 @@ import ConditionModal from "./flow/conditions/ConditionModal.js";
 import { getTypeStaticColor } from "./flow/nodes/NodeIcons.js";
 import { getBlockFlowTypes } from "./flow/nodes/TypeDefinitions.js";
 import NodeSelector from "./dialogs/NodeSelector.js";
+import CriteriaModal from "./flow/badges/CriteriaModal.js";
 
 const minimapStyle = {
 	height: 120,
@@ -89,6 +90,8 @@ const nodeTypes = {
 };
 
 const OverviewFlow = ({ map }, ref) => {
+	const validTypes = ["badge", "mail", "addgroup", "remgroup"];
+
 	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
 	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
 	const { settings, setSettings } = useContext(SettingsContext);
@@ -1121,7 +1124,6 @@ const OverviewFlow = ({ map }, ref) => {
 			if (selectedNodes.length == 1) {
 				setCMBlockData(newCMBlockData);
 			}
-
 			setShowConditionsModal(true);
 			setShowContextualMenu(false);
 		} else {
@@ -1296,13 +1298,26 @@ const OverviewFlow = ({ map }, ref) => {
 			)}
 			<CustomControls />
 			{showConditionsModal && (
-				<ConditionModal
-					blockData={cMBlockData}
-					setBlockData={setCMBlockData}
-					blocksData={reactFlowInstance.getNodes()}
-					showConditionsModal={showConditionsModal}
-					setShowConditionsModal={setShowConditionsModal}
-				/>
+				<>
+					{!validTypes.includes(cMBlockData.type) ? (
+						<ConditionModal
+							blockData={cMBlockData}
+							setBlockData={setCMBlockData}
+							blocksData={reactFlowInstance.getNodes()}
+							showConditionsModal={showConditionsModal}
+							setShowConditionsModal={setShowConditionsModal}
+						/>
+					) : (
+						<CriteriaModal
+							blockData={cMBlockData}
+							setBlockData={setCMBlockData}
+							blocksData={reactFlowInstance.getNodes()}
+							showConditionsModal={showConditionsModal}
+							setShowConditionsModal={setShowConditionsModal}
+						/>
+					)}
+					{/* Rest of your code */}
+				</>
 			)}
 			{showNodeSelector && (
 				<NodeSelector

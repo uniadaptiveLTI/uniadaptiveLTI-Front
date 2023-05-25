@@ -100,10 +100,25 @@
 							"x": 375,
 							"y": -175
 						},
-						"type": "addgroup",
+						"type": "remgroup",
 						"data": {
 							"label": "Conocimiento",
-							"lmsResource" : "group-3"
+							"lmsResource" : "group-3",
+							"conditions" : {
+								"type": "conditionsGroup",
+								"id": "784378163420978",
+								"op": "|",
+								"conditions" : [{
+									"id": "6439787364123",
+									"type": "role",
+									"roleList": [
+										{"id": "98123", "name": "Gestor"},
+										{"id": "78134", "name": "Profesor"},
+										{"id": "89422", "name": "Profesor sin permisos de edición"}],
+									"op": "&",
+									"description" : "Esta es la descripción"
+								}]
+							}
 						}
 					},
 					{

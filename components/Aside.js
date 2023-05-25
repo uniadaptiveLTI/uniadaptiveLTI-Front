@@ -196,9 +196,11 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	}, [secondOptions]);
 
 	const handleSelect = (event) => {
+		// FIXME Del cambio de calquier tipo a mail el icono refresh no se mapea por lo que no puede pillar las referencia
 		let input = lmsResourceDOM.current;
+		let type = typeDOM.current.value;
 
-		if (selectedOption !== "mail") {
+		if (type !== "mail") {
 			setShowSpinner(true);
 			setSelectedOption(event.target.value);
 			setAllowResourceSelection(false);
@@ -208,9 +210,9 @@ export default function Aside({ className, closeBtn, svgExists }) {
 			input.disabled = true;
 
 			setTimeout(() => {
+				setShowSpinner(false);
 				refresh.classList.remove("d-none");
 				input.disabled = false;
-				setShowSpinner(false);
 				setAllowResourceSelection(true);
 			}, 2000);
 		} else {
@@ -255,13 +257,15 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	const updateBlock = () => {
 		console.log(blockSelected.type);
 
+		let type = typeDOM.current.value;
+
 		const updatedData = {
 			...blockSelected,
 			id: blockSelected.id,
 			type: typeDOM.current.value,
 			data: {
 				label: titleDOM.current.value,
-				lmsResource: lmsResourceDOM.current.value,
+				lmsResource: type !== "mail" ? lmsResourceDOM.current.value : type,
 			},
 		};
 
@@ -403,7 +407,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 														);
 													}
 											  })
-											: sakaiResource.map((option) => {
+											: sakaiResource((option) => {
 													if (
 														(ActionBlocks.includes(blockSelected.type) &&
 															option.nodeType == "ActionNode") ||
