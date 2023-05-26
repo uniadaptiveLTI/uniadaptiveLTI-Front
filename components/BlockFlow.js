@@ -11,6 +11,7 @@ import ReactFlow, {
 	useNodesState,
 	useEdgesState,
 	useReactFlow,
+	useNodesInitialized,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import ActionNode from "./flow/nodes/ActionNode.js";
@@ -110,6 +111,8 @@ const OverviewFlow = ({ map }, ref) => {
 	const [fragmentPassthrough, setFragmentPassthrough] = useState(false);
 	const dragRef = useRef(null);
 	const [target, setTarget] = useState(null);
+	const [prevMap, setPrevMap] = useState();
+	const nodesInitialized = useNodesInitialized();
 
 	//ContextMenu Ref, States, Constants
 	const contextMenuDOM = useRef(null);
@@ -255,7 +258,10 @@ const OverviewFlow = ({ map }, ref) => {
 
 	const onInit = (reactFlowInstance) => {
 		console.log("Blockflow loaded:", reactFlowInstance);
-		reactFlowInstance.fitView();
+		if (map != prevMap) {
+			reactFlowInstance.fitView();
+			setPrevMap(map);
+		}
 	};
 
 	const onNodeDragStart = (event, node) => {
@@ -524,8 +530,27 @@ const OverviewFlow = ({ map }, ref) => {
 	}, [deletedEdge]);
 
 	const onLoad = () => {
-		reactFlowInstance.fitView();
+		if (map != prevMap) {
+			reactFlowInstance.fitView();
+			setPrevMap(map);
+		}
 	};
+
+	useEffect(() => {
+		//Makes fragment children invsible if it isn't expanded, on load
+		if (nodesInitialized)
+			for (const node of map) {
+				if (node.parentNode) {
+					const parentFragment = getNodeById(
+						node.parentNode,
+						reactFlowInstance.getNodes()
+					);
+					if (!parentFragment.data.expanded) {
+						getNodeDOMById(node.id).style.visibility = "hidden";
+					}
+				}
+			}
+	}, [nodesInitialized]);
 
 	useEffect(() => {
 		setNewInitialNodes(map);
@@ -1312,7 +1337,6 @@ const OverviewFlow = ({ map }, ref) => {
 				onNodesChange={onNodesChange}
 				onEdgesChange={onEdgesChange}
 				onNodesDelete={onNodesDelete}
-				onEdgesDelete={onEdgesDelete}
 				onNodeClick={onNodeClick}
 				onPaneClick={onPaneClick}
 				onConnect={onConnect}
@@ -1328,7 +1352,7 @@ const OverviewFlow = ({ map }, ref) => {
 				snapGrid={[125, 175]}
 				//connectionLineComponent={}
 				snapToGrid={snapToGrid}
-				deleteKeyCode={["Backspace", "Delete", "d"]}
+				deleteKeyCode={["Backspace", "Delete"]}
 				multiSelectionKeyCode={["Shift"]}
 				selectionKeyCode={["Shift"]}
 				zoomOnDoubleClick={false}

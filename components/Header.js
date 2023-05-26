@@ -185,7 +185,6 @@ function Header({ closeBtn }, ref) {
 	 */
 	const handleNewMap = (e, data) => {
 		const uniqueId = () => parseInt(Date.now() * Math.random()).toString();
-		const endId = uniqueId();
 		const emptyNewMap = {
 			id: maps.length,
 			name: "Nuevo Mapa " + maps.length,
@@ -198,21 +197,23 @@ function Header({ closeBtn }, ref) {
 					blocksData: [
 						{
 							id: uniqueId(),
-							x: 0,
-							y: 0,
+							position: { x: 0, y: 0 },
 							type: "start",
-							title: "Inicio",
 							selectable: false,
 							deletable: false,
+							data: {
+								label: "Inicio",
+							},
 						},
 						{
-							id: endId,
-							x: 125,
-							y: 0,
+							id: uniqueId(),
+							position: { x: 125, y: 0 },
 							type: "end",
-							title: "Final",
 							selectable: false,
 							deletable: false,
+							data: {
+								label: "Final",
+							},
 						},
 					],
 				},
@@ -236,7 +237,6 @@ function Header({ closeBtn }, ref) {
 	 * Handles the creation of a new version.
 	 */
 	const handleNewVersion = (e, data) => {
-		const endId = uniqueId();
 		const selectedMap = getMapById(selectMapDOM.current.value);
 		const emptyNewVersion = {
 			id: selectedMap.versions.length,
@@ -246,21 +246,23 @@ function Header({ closeBtn }, ref) {
 			blocksData: [
 				{
 					id: uniqueId(),
-					x: 0,
-					y: 0,
+					position: { x: 0, y: 0 },
 					type: "start",
-					title: "Inicio",
 					selectable: false,
 					deletable: false,
+					data: {
+						label: "Inicio",
+					},
 				},
 				{
-					id: endId,
-					x: 125,
-					y: 0,
+					id: uniqueId(),
+					position: { x: 125, y: 0 },
 					type: "end",
-					title: "Final",
 					selectable: false,
 					deletable: false,
+					data: {
+						label: "Final",
+					},
 				},
 			],
 		};
