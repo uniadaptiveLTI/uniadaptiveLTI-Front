@@ -76,6 +76,13 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	const sakaiResource = orderByPropertyAlphabetically(getSakaiTypes(), "name");
 
 	useEffect(() => {
+
+		setTimeout(() => {
+			console.log("LA VIDA ES UNA TOMBOLA");
+		
+
+		console.log("TOM TOM TOMBOLA");
+
 		switch (selectedOption) {
 			case "quiz":
 				setSecondOptions([
@@ -183,6 +190,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 				setSecondOptions([]);
 				break;
 		}
+	}, 2000);
 	}, [selectedOption]);
 
 	useEffect(() => {
@@ -206,6 +214,8 @@ export default function Aside({ className, closeBtn, svgExists }) {
 			let refresh = refreshIconDOM.current;
 			refresh.classList.add("d-none");
 			input.disabled = true;
+
+			console.log("UN TREH");
 
 			setTimeout(() => {
 				refresh.classList.remove("d-none");

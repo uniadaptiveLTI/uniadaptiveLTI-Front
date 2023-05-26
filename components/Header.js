@@ -444,49 +444,80 @@ function Header({ closeBtn }, ref) {
 		reader.readAsText(file);
 	};
 
+
 	useEffect(() => {
 		try {
-			fetch("resources/devmaps.json")
-				.then((response) => response.json())
-				.then((data) => {
-					setMaps([emptyMap, ...data]);
-					setLoadedMaps(true);
-				})
-				.catch((e) => {
-					const error = new Error(
-						"No se pudieron obtener los datos del curso desde el LMS."
-					);
-					error.log = e;
-					throw error;
-				});
-			fetch("resources/devmeta.json")
-				.then((response) => response.json())
-				.then((data) => {
-					setPlatform(data.platform);
-					setMetaData({ ...data, courseSource: process.env.BACK_URL });
-					setLoadedMetaData(true);
-				})
-				.catch((e) => {
-					const error = new Error(
-						"No se pudieron obtener los metadatos del curso desde el LMS."
-					);
-					error.log = e;
-					throw error;
-				});
-			fetch("resources/devuser.json")
-				.then((response) => response.json())
-				.then((data) => {
-					setUserData(data);
-					setLoadedUserData(true);
-				})
-				.catch((e) => {
-					const error = new Error(
-						"No se pudieron obtener los datos del usuario desde el LMS."
-					);
-					error.log = e;
-					throw error;
-				});
-		} catch (e) {
+			// fetch("resources/devmaps.json")
+			// 	.then((response) => response.json())
+			// 	.then((data) => {
+			// 		setMaps([emptyMap, ...data]);
+			// 		setLoadedMaps(true);
+			// 	})
+			// 	.catch((e) => {
+			// 		const error = new Error(
+			// 			"No se pudieron obtener los datos del curso desde el LMS."
+			// 		);
+			// 		error.log = e;
+			// 		throw error;
+			// 	});
+				
+			// 	fetch("resources/devmeta.json")
+			// 		.then((response) => response.json())
+			// 		.then((data) => {
+			// 			setPlatform(data.platform);
+			// 			setMetaData({ ...data, courseSource: process.env.BACK_URL });
+			// 			setLoadedMetaData(true);
+			// 		})
+			// 		.catch((e) => {
+			// 			const error = new Error(
+			// 				"No se pudieron obtener los metadatos del curso desde el LMS."
+			// 			);
+			// 			error.log = e;
+			// 			throw error;
+			// 		});
+
+			// 	fetch("resources/devuser.json")
+			// 		.then((response) => response.json())
+			// 		.then((data) => {
+			// 			setUserData(data);
+			// 			setLoadedUserData(true);
+			// 		})
+			// 		.catch((e) => {
+			// 			const error = new Error(
+			// 				"No se pudieron obtener los datos del usuario desde el LMS."
+			// 			);
+			// 			error.log = e;
+			// 			throw error;
+			// 		});
+			//	}
+
+			fetch("http://127.0.0.1:8000/lti/get_session")
+			.then(
+				(response) => response.json())
+			.then((data) => {
+				console.log(data);
+				// Usuario
+				setUserData(data[0]);
+				setLoadedUserData(true);
+				
+				//Metadata
+				setPlatform(data[1].platform);
+				setMetaData({ ...data[1], courseSource: process.env.BACK_URL });
+				setLoadedMetaData(true);
+
+				//maps
+				setMaps([emptyMap, ...data[2].maps]);
+				setLoadedMaps(true);
+			})
+			.catch((e) => {
+				const error = new Error(
+					"No se pudieron obtener los datos del curso desde el LMS."
+				);
+				error.log = e;
+				throw error;
+			});
+		}
+		  catch (e) {
 			toast(e, defaultToastError);
 			console.error(e, e.log);
 		}
@@ -834,7 +865,7 @@ function Header({ closeBtn }, ref) {
 										<Container className="d-flex flex-column">
 											<div>
 												{loadedUserData
-													? userData.name + " " + userData.lastname
+													? userData.name 
 													: "Cargando..."}
 											</div>
 											<div>
@@ -842,17 +873,17 @@ function Header({ closeBtn }, ref) {
 											</div>
 										</Container>
 										<div className="mx-auto d-flex align-items-center">
-											{loadedUserData && userData.profileURL && (
-												<Image
+											{loadedUserData && userData.profile_url && (
+												<img
 													alt="Imagen de perfil"
-													src={userData.profileURL}
+													src={userData.profile_url}
 													className={styles.userProfile}
 													width={48}
 													height={48}
 													onClick={
 														process.env.DEV_MODE ? devPlataformChange : null
 													}
-												></Image>
+												></img>
 											)}
 										</div>
 									</div>
