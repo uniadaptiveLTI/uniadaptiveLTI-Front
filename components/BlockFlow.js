@@ -270,16 +270,20 @@ const OverviewFlow = ({ map }, ref) => {
 		dragRef.current = node;
 
 		if (snapping) {
-			let inFragment = node.parentNode ? true : false;
+			if (node.parentNode) {
+				let inFragment = node.parentNode ? true : false;
 
-			if (inFragment) {
-				const nodeDOM = getNodeDOMById(node.id);
-				nodeDOM.classList.add("insideFragment");
-			}
-			if (snappingInFragment) {
-				setSnapToGrid(true);
+				if (inFragment) {
+					const nodeDOM = getNodeDOMById(node.id);
+					nodeDOM.classList.add("insideFragment");
+				}
+				if (snappingInFragment) {
+					setSnapToGrid(true);
+				} else {
+					setSnapToGrid(!inFragment);
+				}
 			} else {
-				setSnapToGrid(!inFragment);
+				setSnapToGrid(false);
 			}
 		} else {
 			setSnapToGrid(false);
@@ -1042,88 +1046,105 @@ const OverviewFlow = ({ map }, ref) => {
 			.getNodes()
 			.filter((node) => node.selected == true);
 
-		if (selectedNodes.length > 0) {
-			//Delete the original nodes to put them after the fragment, so appear after the fragment and extendParent takes effect
-			const filteredNodes = deleteBlocks(
-				reactFlowInstance
-					.getNodes()
-					.filter((oNode) =>
-						selectedNodes.map((pNode) => pNode.id).includes(oNode.id)
-					)
-			);
+		if (
+			!selectedNodes.filter(
+				(node) => node.type == "fragment" || node.parentNode != undefined
+			).length > 0
+		) {
+			if (selectedNodes.length > 0) {
+				//Delete the original nodes to put them after the fragment, so appear after the fragment and extendParent takes effect
+				const filteredNodes = deleteBlocks(
+					reactFlowInstance
+						.getNodes()
+						.filter((oNode) =>
+							selectedNodes.map((pNode) => pNode.id).includes(oNode.id)
+						)
+				);
 
-			let minX = Infinity;
-			let minY = Infinity;
-			let maxX = 0;
-			let maxY = 0;
-			const innerNodes = [];
-			for (const node of selectedNodes) {
-				minX = Math.min(minX, node.position.x);
-				minY = Math.min(minY, node.position.y);
-				maxX = Math.max(maxX, node.position.x);
-				maxY = Math.max(maxY, node.position.y);
-			}
-			for (const node of selectedNodes) {
-				innerNodes.push({
-					id: node.id,
-					position: { x: node.position.x - minX, y: node.position.y - minY },
+				let minX = Infinity;
+				let minY = Infinity;
+				let maxX = 0;
+				let maxY = 0;
+				const innerNodes = [];
+				for (const node of selectedNodes) {
+					minX = Math.min(minX, node.position.x);
+					minY = Math.min(minY, node.position.y);
+					maxX = Math.max(maxX, node.position.x);
+					maxY = Math.max(maxY, node.position.y);
+				}
+				for (const node of selectedNodes) {
+					innerNodes.push({
+						id: node.id,
+						position: { x: node.position.x - minX, y: node.position.y - minY },
+					});
+				}
+
+				const newFragmentID = uniqueId();
+
+				const newFragment = {
+					id: newFragmentID,
+					position: { x: minX, y: minY },
+					type: "fragment",
+					style: { height: maxY - minY + 68, width: maxX - minX + 68 },
+					zIndex: -1,
+					data: {
+						label: "Nuevo Fragmento",
+						innerNodes: innerNodes,
+						expanded: true,
+					},
+				};
+
+				const parentedNodes = selectedNodes.map((node) => {
+					node.parentNode = newFragmentID;
+					node.expandParent = true;
+					return node;
 				});
+
+				reactFlowInstance.setNodes([
+					...filteredNodes,
+					newFragment,
+					...parentedNodes,
+				]);
+			} else {
+				//No blocks selected
+				const bounds = document
+					.getElementById("reactFlowWrapper")
+					?.getBoundingClientRect();
+
+				const viewPortCenter = reactFlowInstance.project({
+					x: bounds.width / 2,
+					y: bounds.height / 2,
+				});
+
+				const newFragment = {
+					id: uniqueId(),
+					position: viewPortCenter,
+					type: "fragment",
+					style: { height: 68, width: 68 },
+					zIndex: -1,
+					data: {
+						label: "Nuevo Fragmento",
+						innerNodes: [],
+						expanded: true,
+					},
+				};
+
+				reactFlowInstance.setNodes([
+					newFragment,
+					...reactFlowInstance.getNodes(),
+				]);
 			}
-
-			const newFragmentID = uniqueId();
-
-			const newFragment = {
-				id: newFragmentID,
-				position: { x: minX, y: minY },
-				type: "fragment",
-				style: { height: maxY - minY + 68, width: maxX - minX + 68 },
-				zIndex: -1,
-				data: {
-					label: "Nuevo Fragmento",
-					innerNodes: innerNodes,
-					expanded: true,
-				},
-			};
-
-			const parentedNodes = selectedNodes.map((node) => {
-				node.parentNode = newFragmentID;
-				node.expandParent = true;
-				return node;
-			});
-
-			reactFlowInstance.setNodes([
-				...filteredNodes,
-				newFragment,
-				...parentedNodes,
-			]);
 		} else {
-			//No blocks selected
-			const bounds = document
-				.getElementById("reactFlowWrapper")
-				?.getBoundingClientRect();
-
-			const viewPortCenter = reactFlowInstance.project({
-				x: bounds.width / 2,
-				y: bounds.height / 2,
-			});
-
-			const newFragment = {
-				id: uniqueId(),
-				position: viewPortCenter,
-				type: "fragment",
-				style: { height: 68, width: 68 },
-				zIndex: -1,
-				data: {
-					label: "Nuevo Fragmento",
-					innerNodes: [],
-					expanded: true,
-				},
-			};
-
-			reactFlowInstance.setNodes([
-				newFragment,
-				...reactFlowInstance.getNodes(),
-			]);
+			toast(
+				"No se pueden crear fragmentos con fragmentos en su interior, o con bloques que formen parte de otro",
+				{
+					hideProgressBar: false,
+					autoClose: 2000,
+					type: "error",
+					position: "bottom-center",
+					theme: "light",
+				}
+			);
 		}
 	};
 

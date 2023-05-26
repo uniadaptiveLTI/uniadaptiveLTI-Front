@@ -59,9 +59,10 @@ export default forwardRef(function ContextualMenu(
 
 			if (blockData) {
 				if (Array.isArray(blockData)) {
-					const blocks = blockData;
-					const fragment = blocks.find((block) => block.type == "fragment");
-					if (fragment) {
+					const invalidNodes = blockData.filter(
+						(node) => node.type == "fragment" || node.parentNode != undefined
+					);
+					if (invalidNodes.length > 0) {
 						setEnableCreateFragment(false);
 					} else {
 						setEnableCreateFragment(true);
