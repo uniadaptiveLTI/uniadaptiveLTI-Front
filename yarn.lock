@@ -4849,6 +4849,13 @@ text-table@^0.2.0:
   resolved "https://registry.yarnpkg.com/text-table/-/text-table-0.2.0.tgz#7f5ee823ae805207c00af2df4a84ec3fcfa570b4"
   integrity sha512-N+8UisAXDGk8PFXP4HAzVR9nbfmVJ3zYLAWiTIoqC5v5isinhr+r5uaO8+7r3BMfuNIufIsA7RdpVgacC2cSpw==
 
+tinymce-react@^1.3.2:
+  version "1.3.2"
+  resolved "https://registry.yarnpkg.com/tinymce-react/-/tinymce-react-1.3.2.tgz#7afacfe11c53df89201272b90d8b792e6bebf64e"
+  integrity sha512-+jpB/d5PKUwhQyVAx4+W6xmBinmj6TK2tvPEyUQ6EZe9+dyoCgnlUH8I35FcotLx2cxO4yi9Du1NWsHqWJw29g==
+  dependencies:
+    uuid "^3.0.1"
+
 titleize@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/titleize/-/titleize-3.0.0.tgz#71c12eb7fdd2558aa8a44b0be83b8a76694acd53"
@@ -5015,6 +5022,11 @@ use-undoable@^3.3.12:
   version "3.3.12"
   resolved "https://registry.yarnpkg.com/use-undoable/-/use-undoable-3.3.12.tgz#c60067dadd8e34921c68d223f1a571a0bea24810"
   integrity sha512-xFBmHaxJaeTXQDHQvCgvHhxKyKhz9g1vw2rviYlXvNJvJvPysHD3jnvSt6SoAWrpDwKbDwndfFPsBMpQGU7xrw==
+
+uuid@^3.0.1:
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.4.0.tgz#b23e4358afa8a202fe7a100af1f5f883f02007ee"
+  integrity sha512-HjSDRw6gZE5JMggctHBcjVak08+KEVhSIiDzFnT9S9aegmp85S/bReBVTb4QTFaRNptJ9kuYaNhnbNEOkbKb/A==
 
 v8-to-istanbul@^9.0.1:
   version "9.1.0"

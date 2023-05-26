@@ -9,12 +9,6 @@ function CompletionForm({
 }) {
 	return (
 		<Form.Group>
-			<Form.Select ref={conditionOperator} defaultValue={conditionEdit?.op}>
-				{parentsNodeArray.length > 0 &&
-					parentsNodeArray.map((node) => (
-						<option key={node.id}>{node.data.label}</option>
-					))}
-			</Form.Select>
 			<Form.Select ref={conditionQuery} defaultValue={conditionEdit?.query}>
 				<option value="completed">debe estar completa</option>
 				<option value="notCompleted">no debe estar completa</option>

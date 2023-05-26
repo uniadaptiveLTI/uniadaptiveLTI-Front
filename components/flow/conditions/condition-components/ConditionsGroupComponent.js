@@ -15,7 +15,10 @@ const conditionsGroupOperatorList = [
 
 const ConditionsGroupComponent = ({
 	condition,
+	conditionsList,
 	deleteCondition,
+	upCondition,
+	downCondition,
 	addCondition,
 	setConditionEdit,
 	swapConditionGroup,
@@ -28,6 +31,7 @@ const ConditionsGroupComponent = ({
 			<Row>
 				<Col>
 					<div>Tipo: Conjunto de condiciones</div>
+					<div>Id: {condition.id}</div>
 					<div>
 						<strong>
 							{
@@ -63,8 +67,11 @@ const ConditionsGroupComponent = ({
 						<div className="mb-3">
 							<Condition
 								condition={innerCondition}
+								conditionsList={conditionsList}
 								deleteCondition={deleteCondition}
+								upCondition={upCondition}
 								addCondition={addCondition}
+								downCondition={downCondition}
 								setConditionEdit={setConditionEdit}
 								swapConditionGroup={swapConditionGroup}
 							/>

@@ -11,6 +11,7 @@ import ReactFlow, {
 	useNodesState,
 	useEdgesState,
 	useReactFlow,
+	useNodesInitialized,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import ActionNode from "./flow/nodes/ActionNode.js";
@@ -20,6 +21,7 @@ import {
 	ExpandedAsideContext,
 	PlatformContext,
 	SettingsContext,
+	notImplemented,
 } from "@components/pages/_app.js";
 import FinalNode from "./flow/nodes/FinalNode.js";
 import InitialNode from "./flow/nodes/InitialNode.js";
@@ -55,6 +57,7 @@ import ConditionModal from "./flow/conditions/ConditionModal.js";
 import { getTypeStaticColor } from "./flow/nodes/NodeIcons.js";
 import { getBlockFlowTypes } from "./flow/nodes/TypeDefinitions.js";
 import NodeSelector from "./dialogs/NodeSelector.js";
+import CriteriaModal from "./flow/badges/CriteriaModal.js";
 
 const minimapStyle = {
 	height: 120,
@@ -89,6 +92,8 @@ const nodeTypes = {
 };
 
 const OverviewFlow = ({ map }, ref) => {
+	const validTypes = ["badge", "mail", "addgroup", "remgroup"];
+
 	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
 	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
 	const { settings, setSettings } = useContext(SettingsContext);
@@ -107,6 +112,8 @@ const OverviewFlow = ({ map }, ref) => {
 	const [fragmentPassthrough, setFragmentPassthrough] = useState(false);
 	const dragRef = useRef(null);
 	const [target, setTarget] = useState(null);
+	const [prevMap, setPrevMap] = useState();
+	const nodesInitialized = useNodesInitialized();
 
 	//ContextMenu Ref, States, Constants
 	const contextMenuDOM = useRef(null);
@@ -252,6 +259,10 @@ const OverviewFlow = ({ map }, ref) => {
 
 	const onInit = (reactFlowInstance) => {
 		console.log("Blockflow loaded:", reactFlowInstance);
+		if (map != prevMap) {
+			reactFlowInstance.fitView();
+			setPrevMap(map);
+		}
 	};
 
 	const onNodeDragStart = (event, node) => {
@@ -259,16 +270,20 @@ const OverviewFlow = ({ map }, ref) => {
 		dragRef.current = node;
 
 		if (snapping) {
-			let inFragment = node.parentNode ? true : false;
+			if (node.parentNode) {
+				let inFragment = node.parentNode ? true : false;
 
-			if (inFragment) {
-				const nodeDOM = getNodeDOMById(node.id);
-				nodeDOM.classList.add("insideFragment");
-			}
-			if (snappingInFragment) {
-				setSnapToGrid(true);
+				if (inFragment) {
+					const nodeDOM = getNodeDOMById(node.id);
+					nodeDOM.classList.add("insideFragment");
+				}
+				if (snappingInFragment) {
+					setSnapToGrid(true);
+				} else {
+					setSnapToGrid(!inFragment);
+				}
 			} else {
-				setSnapToGrid(!inFragment);
+				setSnapToGrid(false);
 			}
 		} else {
 			setSnapToGrid(false);
@@ -366,13 +381,40 @@ const OverviewFlow = ({ map }, ref) => {
 		const sourceNodeId = event.source.split("__")[0];
 		const targetNodeId = event.target.split("__")[0];
 
-		const sourceNode = map.find((node) => node.id === sourceNodeId);
+		const sourceNode = reactFlowInstance
+			.getNodes()
+			.find((nodes) => nodes.id == sourceNodeId);
+
+		const targetNode = reactFlowInstance
+			.getNodes()
+			.find((nodes) => nodes.id == targetNodeId);
 
 		if (sourceNode) {
 			if (Array.isArray(sourceNode.children)) {
 				sourceNode.children.push(targetNodeId);
 			} else {
 				sourceNode.children = [targetNodeId];
+			}
+		}
+
+		if (targetNode) {
+			const newCondition = {
+				id: parseInt(Date.now() * Math.random()).toString(),
+				type: "completion",
+				op: sourceNode.id,
+				query: "completed",
+			};
+			console.log(targetNode.data.conditions);
+			if (!targetNode.data.conditions) {
+				console.log("CONDICIONES SIN DEFINIR");
+				targetNode.data.conditions = {
+					type: "conditionsGroup",
+					id: parseInt(Date.now() * Math.random()).toString(),
+					op: "&",
+					conditions: [newCondition],
+				};
+			} else {
+				targetNode.data.conditions.conditions.push(newCondition);
 			}
 		}
 
@@ -386,8 +428,14 @@ const OverviewFlow = ({ map }, ref) => {
 			},
 		]);
 
-		reactFlowInstance.setNodes(
+		console.log(targetNode);
+
+		setNodes(
 			getUpdatedArrayById({ ...sourceNode }, reactFlowInstance.getNodes())
+		);
+
+		setNodes(
+			getUpdatedArrayById({ ...targetNode }, reactFlowInstance.getNodes())
 		);
 	};
 
@@ -406,7 +454,49 @@ const OverviewFlow = ({ map }, ref) => {
 		deleteBlocks(nodes);
 	};
 
+	function deleteConditionById(conditions, op) {
+		for (let i = 0; i < conditions.length; i++) {
+			const condition = conditions[i];
+			if (condition.op === op) {
+				conditions.splice(i, 1);
+				if (conditions.length === 0) {
+					conditions = undefined;
+				}
+				return true;
+			} else if (condition.conditions) {
+				if (deleteConditionById(condition.conditions, op)) {
+					if (condition.conditions.length === 0) {
+						condition.conditions = undefined;
+					}
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	const onEdgesDelete = (nodes) => {
+		const blockNodeSource = reactFlowInstance
+			?.getNodes()
+			.find((obj) => obj.id === nodes[0].source);
+
+		var blockNodeTarget = reactFlowInstance
+			?.getNodes()
+			.find((obj) => obj.id === nodes[0].target);
+
+		const updatedBlockNodeSource = { ...blockNodeSource };
+		updatedBlockNodeSource.data.children =
+			updatedBlockNodeSource.data.children.filter(
+				(childId) => !childId.includes(blockNodeTarget.id)
+			);
+
+		blockNodeTarget = updatedBlockNodeSource;
+
+		deleteConditionById(
+			blockNodeTarget.data.conditions.conditions,
+			blockNodeSource.id
+		);
+
 		setDeletedEdge(nodes[0]);
 	};
 
@@ -439,12 +529,33 @@ const OverviewFlow = ({ map }, ref) => {
 					);
 				}
 			}
-
+			console.log(updatedBlocksArray);
 			reactFlowInstance.setNodes(updatedBlocksArray);
 		}
 	}, [deletedEdge]);
 
-	const onLoad = () => {};
+	const onLoad = () => {
+		if (map != prevMap) {
+			reactFlowInstance.fitView();
+			setPrevMap(map);
+		}
+	};
+
+	useEffect(() => {
+		//Makes fragment children invsible if it isn't expanded, on load
+		if (nodesInitialized)
+			for (const node of map) {
+				if (node.parentNode) {
+					const parentFragment = getNodeById(
+						node.parentNode,
+						reactFlowInstance.getNodes()
+					);
+					if (!parentFragment.data.expanded) {
+						getNodeDOMById(node.id).style.visibility = "hidden";
+					}
+				}
+			}
+	}, [nodesInitialized]);
 
 	useEffect(() => {
 		setNewInitialNodes(map);
@@ -935,88 +1046,105 @@ const OverviewFlow = ({ map }, ref) => {
 			.getNodes()
 			.filter((node) => node.selected == true);
 
-		if (selectedNodes.length > 0) {
-			//Delete the original nodes to put them after the fragment, so appear after the fragment and extendParent takes effect
-			const filteredNodes = deleteBlocks(
-				reactFlowInstance
-					.getNodes()
-					.filter((oNode) =>
-						selectedNodes.map((pNode) => pNode.id).includes(oNode.id)
-					)
-			);
+		if (
+			!selectedNodes.filter(
+				(node) => node.type == "fragment" || node.parentNode != undefined
+			).length > 0
+		) {
+			if (selectedNodes.length > 0) {
+				//Delete the original nodes to put them after the fragment, so appear after the fragment and extendParent takes effect
+				const filteredNodes = deleteBlocks(
+					reactFlowInstance
+						.getNodes()
+						.filter((oNode) =>
+							selectedNodes.map((pNode) => pNode.id).includes(oNode.id)
+						)
+				);
 
-			let minX = Infinity;
-			let minY = Infinity;
-			let maxX = 0;
-			let maxY = 0;
-			const innerNodes = [];
-			for (const node of selectedNodes) {
-				minX = Math.min(minX, node.position.x);
-				minY = Math.min(minY, node.position.y);
-				maxX = Math.max(maxX, node.position.x);
-				maxY = Math.max(maxY, node.position.y);
-			}
-			for (const node of selectedNodes) {
-				innerNodes.push({
-					id: node.id,
-					position: { x: node.position.x - minX, y: node.position.y - minY },
+				let minX = Infinity;
+				let minY = Infinity;
+				let maxX = 0;
+				let maxY = 0;
+				const innerNodes = [];
+				for (const node of selectedNodes) {
+					minX = Math.min(minX, node.position.x);
+					minY = Math.min(minY, node.position.y);
+					maxX = Math.max(maxX, node.position.x);
+					maxY = Math.max(maxY, node.position.y);
+				}
+				for (const node of selectedNodes) {
+					innerNodes.push({
+						id: node.id,
+						position: { x: node.position.x - minX, y: node.position.y - minY },
+					});
+				}
+
+				const newFragmentID = uniqueId();
+
+				const newFragment = {
+					id: newFragmentID,
+					position: { x: minX, y: minY },
+					type: "fragment",
+					style: { height: maxY - minY + 68, width: maxX - minX + 68 },
+					zIndex: -1,
+					data: {
+						label: "Nuevo Fragmento",
+						innerNodes: innerNodes,
+						expanded: true,
+					},
+				};
+
+				const parentedNodes = selectedNodes.map((node) => {
+					node.parentNode = newFragmentID;
+					node.expandParent = true;
+					return node;
 				});
+
+				reactFlowInstance.setNodes([
+					...filteredNodes,
+					newFragment,
+					...parentedNodes,
+				]);
+			} else {
+				//No blocks selected
+				const bounds = document
+					.getElementById("reactFlowWrapper")
+					?.getBoundingClientRect();
+
+				const viewPortCenter = reactFlowInstance.project({
+					x: bounds.width / 2,
+					y: bounds.height / 2,
+				});
+
+				const newFragment = {
+					id: uniqueId(),
+					position: viewPortCenter,
+					type: "fragment",
+					style: { height: 68, width: 68 },
+					zIndex: -1,
+					data: {
+						label: "Nuevo Fragmento",
+						innerNodes: [],
+						expanded: true,
+					},
+				};
+
+				reactFlowInstance.setNodes([
+					newFragment,
+					...reactFlowInstance.getNodes(),
+				]);
 			}
-
-			const newFragmentID = uniqueId();
-
-			const newFragment = {
-				id: newFragmentID,
-				position: { x: minX, y: minY },
-				type: "fragment",
-				style: { height: maxY - minY + 68, width: maxX - minX + 68 },
-				zIndex: -1,
-				data: {
-					label: "Nuevo Fragmento",
-					innerNodes: innerNodes,
-					expanded: true,
-				},
-			};
-
-			const parentedNodes = selectedNodes.map((node) => {
-				node.parentNode = newFragmentID;
-				node.expandParent = true;
-				return node;
-			});
-
-			reactFlowInstance.setNodes([
-				...filteredNodes,
-				newFragment,
-				...parentedNodes,
-			]);
 		} else {
-			//No blocks selected
-			const bounds = document
-				.getElementById("reactFlowWrapper")
-				?.getBoundingClientRect();
-
-			const viewPortCenter = reactFlowInstance.project({
-				x: bounds.width / 2,
-				y: bounds.height / 2,
-			});
-
-			const newFragment = {
-				id: uniqueId(),
-				position: viewPortCenter,
-				type: "fragment",
-				style: { height: 68, width: 68 },
-				zIndex: -1,
-				data: {
-					label: "Nuevo Fragmento",
-					innerNodes: [],
-					expanded: true,
-				},
-			};
-
-			reactFlowInstance.setNodes([
-				newFragment,
-				...reactFlowInstance.getNodes(),
-			]);
+			toast(
+				"No se pueden crear fragmentos con fragmentos en su interior, o con bloques que formen parte de otro",
+				{
+					hideProgressBar: false,
+					autoClose: 2000,
+					type: "error",
+					position: "bottom-center",
+					theme: "light",
+				}
+			);
 		}
 	};
 
@@ -1121,7 +1249,6 @@ const OverviewFlow = ({ map }, ref) => {
 			if (selectedNodes.length == 1) {
 				setCMBlockData(newCMBlockData);
 			}
-
 			setShowConditionsModal(true);
 			setShowContextualMenu(false);
 		} else {
@@ -1232,7 +1359,6 @@ const OverviewFlow = ({ map }, ref) => {
 				onNodesChange={onNodesChange}
 				onEdgesChange={onEdgesChange}
 				onNodesDelete={onNodesDelete}
-				onEdgesDelete={onEdgesDelete}
 				onNodeClick={onNodeClick}
 				onPaneClick={onPaneClick}
 				onConnect={onConnect}
@@ -1248,7 +1374,7 @@ const OverviewFlow = ({ map }, ref) => {
 				snapGrid={[125, 175]}
 				//connectionLineComponent={}
 				snapToGrid={snapToGrid}
-				deleteKeyCode={["Backspace", "Delete", "d"]}
+				deleteKeyCode={["Backspace", "Delete"]}
 				multiSelectionKeyCode={["Shift"]}
 				selectionKeyCode={["Shift"]}
 				zoomOnDoubleClick={false}
@@ -1296,13 +1422,26 @@ const OverviewFlow = ({ map }, ref) => {
 			)}
 			<CustomControls />
 			{showConditionsModal && (
-				<ConditionModal
-					blockData={cMBlockData}
-					setBlockData={setCMBlockData}
-					blocksData={reactFlowInstance.getNodes()}
-					showConditionsModal={showConditionsModal}
-					setShowConditionsModal={setShowConditionsModal}
-				/>
+				<>
+					{!validTypes.includes(cMBlockData.type) ? (
+						<ConditionModal
+							blockData={cMBlockData}
+							setBlockData={setCMBlockData}
+							blocksData={reactFlowInstance.getNodes()}
+							showConditionsModal={showConditionsModal}
+							setShowConditionsModal={setShowConditionsModal}
+						/>
+					) : (
+						<CriteriaModal
+							blockData={cMBlockData}
+							setBlockData={setCMBlockData}
+							blocksData={reactFlowInstance.getNodes()}
+							showConditionsModal={showConditionsModal}
+							setShowConditionsModal={setShowConditionsModal}
+						/>
+					)}
+					{/* Rest of your code */}
+				</>
 			)}
 			{showNodeSelector && (
 				<NodeSelector

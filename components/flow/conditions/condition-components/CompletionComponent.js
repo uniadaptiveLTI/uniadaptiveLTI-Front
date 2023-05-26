@@ -1,9 +1,18 @@
+import React from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faTrashCan } from "@fortawesome/free-solid-svg-icons";
+import {
+	faArrowDown,
+	faArrowUp,
+	faEdit,
+	faTrashCan,
+} from "@fortawesome/free-solid-svg-icons";
 
 const CompletionComponent = ({
 	condition,
+	conditionsList,
+	upCondition,
+	downCondition,
 	completionQueryList,
 	setConditionEdit,
 	deleteCondition,
@@ -35,6 +44,20 @@ const CompletionComponent = ({
 							<FontAwesomeIcon icon={faTrashCan} />
 						</div>
 					</Button>
+					{conditionsList.length > 1 && (
+						<>
+							<Button variant="light" onClick={() => upCondition(condition)}>
+								<div>
+									<FontAwesomeIcon icon={faArrowUp} />
+								</div>
+							</Button>
+							<Button variant="light" onClick={() => downCondition(condition)}>
+								<div>
+									<FontAwesomeIcon icon={faArrowDown} />
+								</div>
+							</Button>
+						</>
+					)}
 				</Col>
 			</Row>
 		</Container>

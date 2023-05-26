@@ -161,10 +161,6 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 						reactFlowInstance.getNodes()
 					)
 				);
-
-				newInnerNodes.map(
-					(node) => (getNodeDOMById(node.id).style.visibility = "visible")
-				);
 			}
 		}
 	}, [expanded]);
@@ -197,7 +193,7 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 				return edge;
 			})
 		);
-	}, [getInnerNodes()]);
+	}, [expanded]);
 
 	const restrictedChildren = (width, height) => {
 		const result = getInnerNodes().map((children) => {

@@ -17,6 +17,9 @@ import ConditionsGroupComponent from "./condition-components/ConditionsGroupComp
 
 function Condition({
 	condition,
+	conditionsList,
+	upCondition,
+	downCondition,
 	deleteCondition,
 	addCondition,
 	setConditionEdit,
@@ -42,6 +45,9 @@ function Condition({
 			return (
 				<QualificationComponent
 					condition={condition}
+					conditionsList={conditionsList}
+					upCondition={upCondition}
+					downCondition={downCondition}
 					setConditionEdit={setConditionEdit}
 					deleteCondition={deleteCondition}
 				/>
@@ -50,6 +56,9 @@ function Condition({
 			return (
 				<CompletionComponent
 					condition={condition}
+					conditionsList={conditionsList}
+					upCondition={upCondition}
+					downCondition={downCondition}
 					completionQueryList={completionQueryList}
 					setConditionEdit={setConditionEdit}
 					deleteCondition={deleteCondition}
@@ -83,7 +92,10 @@ function Condition({
 			return (
 				<ConditionsGroupComponent
 					condition={condition}
+					conditionsList={conditionsList}
 					setConditionEdit={setConditionEdit}
+					upCondition={upCondition}
+					downCondition={downCondition}
 					deleteCondition={deleteCondition}
 					addCondition={addCondition}
 					swapConditionGroup={swapConditionGroup}
