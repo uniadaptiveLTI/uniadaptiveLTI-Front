@@ -381,62 +381,72 @@ const OverviewFlow = ({ map }, ref) => {
 		const sourceNodeId = event.source.split("__")[0];
 		const targetNodeId = event.target.split("__")[0];
 
-		const sourceNode = reactFlowInstance
-			.getNodes()
-			.find((nodes) => nodes.id == sourceNodeId);
+		console.log(sourceNodeId);
+		console.log(targetNodeId);
 
-		const targetNode = reactFlowInstance
-			.getNodes()
-			.find((nodes) => nodes.id == targetNodeId);
+		const nodeFound = reactFlowInstance
+			.getEdges()
+			.find((node) => node.id === sourceNodeId + "-" + targetNodeId);
 
-		if (sourceNode) {
-			if (Array.isArray(sourceNode.children)) {
-				sourceNode.children.push(targetNodeId);
-			} else {
-				sourceNode.children = [targetNodeId];
+		console.log();
+
+		if (!nodeFound) {
+			console.log("NO EXISTE");
+			const sourceNode = reactFlowInstance
+				.getNodes()
+				.find((nodes) => nodes.id == sourceNodeId);
+
+			const targetNode = reactFlowInstance
+				.getNodes()
+				.find((nodes) => nodes.id == targetNodeId);
+
+			if (sourceNode) {
+				if (Array.isArray(sourceNode.children)) {
+					sourceNode.children.push(targetNodeId);
+				} else {
+					sourceNode.children = [targetNodeId];
+				}
 			}
-		}
 
-		if (targetNode) {
-			const newCondition = {
-				id: parseInt(Date.now() * Math.random()).toString(),
-				type: "completion",
-				op: sourceNode.id,
-				query: "completed",
-			};
-			console.log(targetNode.data.conditions);
-			if (!targetNode.data.conditions) {
-				console.log("CONDICIONES SIN DEFINIR");
-				targetNode.data.conditions = {
-					type: "conditionsGroup",
+			if (targetNode) {
+				const newCondition = {
 					id: parseInt(Date.now() * Math.random()).toString(),
-					op: "&",
-					conditions: [newCondition],
+					type: "completion",
+					op: sourceNode.id,
+					query: "completed",
 				};
-			} else {
-				targetNode.data.conditions.conditions.push(newCondition);
+				console.log(targetNode.data.conditions);
+				if (!targetNode.data.conditions) {
+					console.log("CONDICIONES SIN DEFINIR");
+					targetNode.data.conditions = {
+						type: "conditionsGroup",
+						id: parseInt(Date.now() * Math.random()).toString(),
+						op: "&",
+						conditions: [newCondition],
+					};
+				} else {
+					targetNode.data.conditions.conditions.push(newCondition);
+				}
 			}
+
+			//FIXME: Check if line already drawn
+			setEdges([
+				...edges,
+				{
+					id: sourceNodeId + "-" + targetNodeId,
+					source: sourceNodeId,
+					target: targetNodeId,
+				},
+			]);
+
+			setNodes(
+				getUpdatedArrayById({ ...sourceNode }, reactFlowInstance.getNodes())
+			);
+
+			setNodes(
+				getUpdatedArrayById({ ...targetNode }, reactFlowInstance.getNodes())
+			);
 		}
-
-		//FIXME: Check if line already drawn
-		setEdges([
-			...edges,
-			{
-				id: sourceNodeId + "-" + targetNodeId,
-				source: sourceNodeId,
-				target: targetNodeId,
-			},
-		]);
-
-		console.log(targetNode);
-
-		setNodes(
-			getUpdatedArrayById({ ...sourceNode }, reactFlowInstance.getNodes())
-		);
-
-		setNodes(
-			getUpdatedArrayById({ ...targetNode }, reactFlowInstance.getNodes())
-		);
 	};
 
 	useEffect(() => {
@@ -476,7 +486,7 @@ const OverviewFlow = ({ map }, ref) => {
 	}
 
 	const onEdgesDelete = (nodes) => {
-		const blockNodeSource = reactFlowInstance
+		var blockNodeSource = reactFlowInstance
 			?.getNodes()
 			.find((obj) => obj.id === nodes[0].source);
 
@@ -484,18 +494,22 @@ const OverviewFlow = ({ map }, ref) => {
 			?.getNodes()
 			.find((obj) => obj.id === nodes[0].target);
 
+		console.log(blockNodeTarget.data);
+
 		const updatedBlockNodeSource = { ...blockNodeSource };
 		updatedBlockNodeSource.data.children =
 			updatedBlockNodeSource.data.children.filter(
 				(childId) => !childId.includes(blockNodeTarget.id)
 			);
 
-		blockNodeTarget = updatedBlockNodeSource;
+		blockNodeSource = updatedBlockNodeSource;
 
 		deleteConditionById(
 			blockNodeTarget.data.conditions.conditions,
 			blockNodeSource.id
 		);
+
+		console.log(blockNodeTarget.data.conditions);
 
 		setDeletedEdge(nodes[0]);
 	};
@@ -529,7 +543,6 @@ const OverviewFlow = ({ map }, ref) => {
 					);
 				}
 			}
-			console.log(updatedBlocksArray);
 			reactFlowInstance.setNodes(updatedBlocksArray);
 		}
 	}, [deletedEdge]);
@@ -1359,6 +1372,7 @@ const OverviewFlow = ({ map }, ref) => {
 				onNodesChange={onNodesChange}
 				onEdgesChange={onEdgesChange}
 				onNodesDelete={onNodesDelete}
+				onEdgesDelete={onEdgesDelete}
 				onNodeClick={onNodeClick}
 				onPaneClick={onPaneClick}
 				onConnect={onConnect}
@@ -1428,6 +1442,7 @@ const OverviewFlow = ({ map }, ref) => {
 							blockData={cMBlockData}
 							setBlockData={setCMBlockData}
 							blocksData={reactFlowInstance.getNodes()}
+							onEdgesDelete={onEdgesDelete}
 							showConditionsModal={showConditionsModal}
 							setShowConditionsModal={setShowConditionsModal}
 						/>

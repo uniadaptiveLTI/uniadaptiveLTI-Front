@@ -1,7 +1,7 @@
 import React from "react";
 import { Form } from "react-bootstrap";
 
-function QualificationForm(props) {
+function CourseQualificationForm(props) {
 	const {
 		conditionOperator,
 		conditionQuery,
@@ -78,4 +78,4 @@ function QualificationForm(props) {
 	);
 }
 
-export default QualificationForm;
+export default CourseQualificationForm;

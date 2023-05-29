@@ -9,6 +9,13 @@ function CompletionForm({
 }) {
 	return (
 		<Form.Group>
+			<Form.Control
+				ref={conditionOperator}
+				defaultValue={conditionEdit?.op}
+				type="text"
+				hidden
+			/>
+
 			<Form.Select ref={conditionQuery} defaultValue={conditionEdit?.query}>
 				<option value="completed">debe estar completa</option>
 				<option value="notCompleted">no debe estar completa</option>

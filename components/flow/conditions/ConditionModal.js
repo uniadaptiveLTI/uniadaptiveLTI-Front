@@ -12,14 +12,19 @@ import ConditionsGroupForm from "./form-components/ConditionsGroupForm";
 import GroupForm from "./form-components/GroupForm";
 import GroupingForm from "./form-components/GroupingForm";
 import { uniqueId } from "@components/components/Utils";
+import CourseQualificationForm from "./form-components/CourseQualificationForm";
+import { useReactFlow } from "reactflow";
 
 function ConditionModal({
 	blockData,
 	setBlockData,
 	blocksData,
+	onEdgesDelete,
 	showConditionsModal,
 	setShowConditionsModal,
 }) {
+	const reactFlowInstance = useReactFlow();
+
 	const handleClose = () => {
 		setBlockData();
 		setShowConditionsModal(false);
@@ -446,7 +451,33 @@ function ConditionModal({
 	const deleteCondition = (conditionId) => {
 		const blockDataCopy = deepCopy(blockData);
 
+		const foundCondition = findConditionById(
+			conditionId,
+			blockData.data.conditions.conditions
+		);
+
+		if (
+			foundCondition.type == "completion" ||
+			foundCondition.type == "qualification"
+		) {
+			const nodes = reactFlowInstance.getEdges();
+
+			const nodesUpdated = nodes.filter(
+				(node) => node.id === foundCondition.op + "-" + blockData.id
+			);
+
+			onEdgesDelete(nodesUpdated);
+
+			reactFlowInstance.setEdges(
+				nodes.filter(
+					(node) => node.id !== foundCondition.op + "-" + blockData.id
+				)
+			);
+		}
+
 		deleteConditionById(blockDataCopy.data.conditions.conditions, conditionId);
+
+		console.log(blockDataCopy.data.conditions);
 
 		setBlockData(blockDataCopy);
 	};
@@ -466,6 +497,14 @@ function ConditionModal({
 				formData.query = conditionQuery.current.value;
 				break;
 			case "qualification":
+				if (!conditionObjective.current.disabled) {
+					formData.objective = conditionObjective.current.value;
+				}
+				if (!conditionObjective2.current.disabled) {
+					formData.objective2 = conditionObjective2.current.value;
+				}
+				break;
+			case "courseQualification":
 				if (!conditionObjective.current.disabled) {
 					formData.objective = conditionObjective.current.value;
 				}
@@ -665,6 +704,8 @@ function ConditionModal({
 
 	useEffect(() => {
 		if (conditionEdit) {
+			console.log(conditionEdit);
+
 			if (conditionEdit.type !== "userProfile") {
 				setUserProfileObjective(true);
 			}
@@ -752,6 +793,9 @@ function ConditionModal({
 								Escoge un tipo de condición...
 							</option>
 							<option value="date">Fecha</option>
+							<option value="courseQualification">
+								Calificación total del curso
+							</option>
 							{moodleGroups.length > 0 && <option value="group">Grupo</option>}
 							{moodleGroupings.length > 0 && (
 								<option value="grouping">Agrupamiento</option>
@@ -760,6 +804,22 @@ function ConditionModal({
 							<option value="conditionsGroup">Conjunto de condiciones</option>
 						</Form.Select>
 					) : null)}
+
+				{editing &&
+					conditionEdit?.type &&
+					(conditionEdit.type == "completion" ||
+						conditionEdit.type == "qualification") && (
+						<Form.Select
+							id="condition-select"
+							onChange={handleSelectChange}
+							defaultValue={conditionEdit?.type ? conditionEdit?.type : ""}
+							required
+						>
+							<option value="completion">Finalización</option>
+							<option value="qualification">Calificación</option>
+						</Form.Select>
+					)}
+
 				{editing && selectedOption === "date" && (
 					<DateForm
 						conditionQuery={conditionQuery}
@@ -779,6 +839,19 @@ function ConditionModal({
 						checkInputs={checkInputs}
 					/>
 				)}
+
+				{editing && selectedOption === "courseQualification" && (
+					<CourseQualificationForm
+						conditionOperator={conditionOperator}
+						conditionQuery={conditionQuery}
+						conditionObjective={conditionObjective}
+						conditionObjective2={conditionObjective2}
+						conditionEdit={conditionEdit}
+						parentsNodeArray={parentsNodeArray}
+						checkInputs={checkInputs}
+					/>
+				)}
+
 				{editing && selectedOption === "completion" && (
 					<CompletionForm
 						parentsNodeArray={parentsNodeArray}
@@ -787,6 +860,7 @@ function ConditionModal({
 						conditionEdit={conditionEdit}
 					/>
 				)}
+
 				{editing && selectedOption === "group" && (
 					<GroupForm
 						conditionOperator={conditionOperator}

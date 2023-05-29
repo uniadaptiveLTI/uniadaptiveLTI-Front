@@ -1,7 +1,6 @@
 import React from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useReactFlow } from "reactflow";
 import {
 	faArrowDown,
 	faArrowUp,
@@ -9,7 +8,7 @@ import {
 	faTrashCan,
 } from "@fortawesome/free-solid-svg-icons";
 
-function QualificationComponent({
+function CourseQualificationComponent({
 	condition,
 	conditionsList,
 	upCondition,
@@ -17,11 +16,6 @@ function QualificationComponent({
 	setConditionEdit,
 	deleteCondition,
 }) {
-	const reactFlowInstance = useReactFlow();
-	const nodes = reactFlowInstance.getNodes();
-
-	const node = nodes.find((node) => node.id === condition.op);
-
 	return (
 		<Container
 			className="mb-3 mt-3"
@@ -29,37 +23,34 @@ function QualificationComponent({
 		>
 			<Row>
 				<Col>
-					<div>Tipo: Calificación</div>
+					<div>Tipo: Calificación total del curso</div>
 					<div>
 						{condition.objective && !condition.objective2 && (
 							<div>
-								La puntuación debe ser{" "}
+								La puntuación <strong>total del curso</strong> debe ser{" "}
 								<strong>
 									{">="} {condition.objective}
-								</strong>{" "}
-								en <strong>{node.data.label}</strong>
+								</strong>
 							</div>
 						)}
 						{!condition.objective && condition.objective2 && (
 							<div>
-								La puntuación debe ser{" "}
+								La puntuación <strong>total del curso</strong> debe ser{" "}
 								<strong>
 									{"<"} {condition.objective2}
-								</strong>{" "}
-								en <strong>{node.data.label}</strong>
+								</strong>
 							</div>
 						)}
 						{condition.objective && condition.objective2 && (
 							<div>
-								La puntuación debe ser{" "}
+								La puntuación <strong>total del curso</strong> debe ser{" "}
 								<strong>
 									{">="} {condition.objective}
 								</strong>{" "}
 								y{" "}
 								<strong>
 									{"<"} {condition.objective2}
-								</strong>{" "}
-								en <strong>{node.data.label}</strong>
+								</strong>
 							</div>
 						)}
 					</div>
@@ -95,4 +86,4 @@ function QualificationComponent({
 	);
 }
 
-export default QualificationComponent;
+export default CourseQualificationComponent;
