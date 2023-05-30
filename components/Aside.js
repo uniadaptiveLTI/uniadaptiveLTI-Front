@@ -70,6 +70,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	const lmsVisibilityDOM = useRef(null);
 	const unitDOM = useRef(null);
 	const orderDOM = useRef(null);
+	const identationDOM = useRef(null);
 	//IDs
 	const titleDOMId = useId();
 	const optionsID = useId();
@@ -78,6 +79,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	const unitDOMId = useId();
 	const lmsVisibilityDOMId = useId();
 	const orderDOMId = useId();
+	const identationDOMId = useId();
 	//TODO: Add the rest
 
 	const [secondOptions, setSecondOptions] = useState([]);
@@ -259,6 +261,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 			const lmsVisibilityCurrent = lmsVisibilityDOM.current;
 			const unitCurrent = unitDOM.current;
 			const orderCurrent = orderDOM.current;
+			const identationCurrent = identationDOM.current;
 
 			if (titleCurrent) {
 				titleCurrent.value = blockSelected.data.label;
@@ -280,6 +283,10 @@ export default function Aside({ className, closeBtn, svgExists }) {
 				orderCurrent.value = blockSelected.data.order;
 			}
 
+			if (identationCurrent) {
+				identationCurrent.value = blockSelected.data.identation;
+			}
+
 			setSelectedOption(blockSelected.type);
 		}
 	}, [blockSelected]);
@@ -295,8 +302,9 @@ export default function Aside({ className, closeBtn, svgExists }) {
 
 		if (!ActionBlocks.includes(blockSelected.type)) {
 			let limitedOrder = orderDOM.current.value;
-
 			limitedOrder = Math.min(Math.max(limitedOrder, 1), 999);
+			let limitedIdentation = identationDOM.current.value;
+			limitedIdentation = Math.min(Math.max(limitedIdentation, 0), 999);
 
 			newData = {
 				label: titleDOM.current.value,
@@ -304,6 +312,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 				lmsVisibility: lmsVisibilityDOM.current.value,
 				unit: unitDOM.current.value,
 				order: limitedOrder,
+				identation: limitedIdentation,
 			};
 		} else {
 			newData = {
@@ -634,6 +643,19 @@ export default function Aside({ className, closeBtn, svgExists }) {
 												defaultValue={blockSelected.data.order}
 												ref={orderDOM}
 												id={orderDOMId}
+											></Form.Control>
+										</Form.Group>
+										<Form.Group className="mb-2">
+											<Form.Label htmlFor={identationDOMId}>
+												Identación en la unidad
+											</Form.Label>
+											<Form.Control
+												type="number"
+												min={0}
+												max={999}
+												defaultValue={blockSelected.data.identation}
+												ref={identationDOM}
+												id={identationDOMId}
 											></Form.Control>
 										</Form.Group>
 									</>
