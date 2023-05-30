@@ -15,8 +15,11 @@ import FocusTrap from "focus-trap-react";
 import { Button } from "react-bootstrap";
 import { getTypeIcon } from "./NodeIcons";
 import { getNodeById, getUpdatedArrayById } from "@components/components/Utils";
+import { NodeTypes } from "./TypeDefinitions";
 
-export const ActionBlocks = ["badge", "mail", "addgroup", "remgroup"];
+export const ActionBlocks = NodeTypes.map((node) => {
+	if (node.nodeType == "ActionNode") return node.type;
+});
 
 const getHumanDesc = (type) => {
 	let humanType = "";

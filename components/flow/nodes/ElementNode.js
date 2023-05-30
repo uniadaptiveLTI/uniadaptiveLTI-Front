@@ -224,7 +224,7 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 				<span className={styles.blockInfo + " " + styles.bottom}>
 					{getHumanDesc(type)}
 				</span>
-				{data.unit && (
+				{!isNaN(data.unit) && (
 					<Badge
 						bg="light"
 						className={
@@ -238,10 +238,10 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 						}
 						title="Unidad"
 					>
-						{data.unit}
+						{Number(data.unit) + 1}
 					</Badge>
 				)}
-				{data.order && (
+				{!isNaN(data.order) && (
 					<Badge
 						bg="warning"
 						className={
@@ -253,7 +253,7 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 							" " +
 							(highContrast && styles.highContrast)
 						}
-						title="Posición en Moodle"
+						title="Posición en la unidad"
 					>
 						{data.order}
 					</Badge>

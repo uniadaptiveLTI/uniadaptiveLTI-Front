@@ -14,6 +14,8 @@ import GroupComponent from "./condition-components/GroupComponent";
 import GroupingComponent from "./condition-components/GroupingComponent";
 import UserProfileComponent from "./condition-components/UserProfileComponent";
 import ConditionsGroupComponent from "./condition-components/ConditionsGroupComponent";
+import CourseQualificationForm from "./form-components/CourseQualificationForm";
+import CourseQualificationComponent from "./condition-components/CourseQualificationComponent";
 
 function Condition({
 	condition,
@@ -44,6 +46,17 @@ function Condition({
 		case "qualification":
 			return (
 				<QualificationComponent
+					condition={condition}
+					conditionsList={conditionsList}
+					upCondition={upCondition}
+					downCondition={downCondition}
+					setConditionEdit={setConditionEdit}
+					deleteCondition={deleteCondition}
+				/>
+			);
+		case "courseQualification":
+			return (
+				<CourseQualificationComponent
 					condition={condition}
 					conditionsList={conditionsList}
 					upCondition={upCondition}

@@ -6,25 +6,6 @@ export const getBlockById = (id, blocksData) => {
 	return blocksData.find((block) => block.id == id);
 };
 
-/*export const getBlockByNodeDOM = (node, blocksData) => {
-	return blocksData.find((block) => block.id == node.dataset.id);
-};*/
-
-/*export const getBlocksByNodesDOM = (nodes, blocksData) => {
-	const blockArray = [];
-	nodes.forEach((node) => {
-		const block = getBlockByNodeDOM(node, blocksData);
-		if (block) {
-			blockArray.push(block);
-		}
-	});
-	return blockArray;
-};
-
-export const getUpdatedBlocksDataFromFlow = (blocksData, reactflowInstance) => {
-	return getUpdatedArrayById(reactflowInstance.getNodes(), blocksData);
-};*/
-
 export const isBlockEqual = (block1, block2) => {
 	return JSON.stringify(block1) == JSON.stringify(block2);
 };
@@ -70,17 +51,6 @@ export const getNodeByBlock = (block, nodeArray) => {
 	}
 };
 
-/*export const getNodesByBlocks = (blocks, nodeArray) => {
-	const finalNodeArray = [];
-	blocks.forEach((block) => {
-		const node = getBlockByNodeDOM(block, nodeArray);
-		if (node) {
-			finalNodeArray.push(node);
-		}
-	});
-	return finalNodeArray;
-};*/
-
 export const getNodeByNodeDOM = (nodeDOM, nodeArray) => {
 	console.log("gnbnD", nodeDOM, nodeArray);
 	if (Array.isArray(nodeArray)) {
@@ -101,13 +71,16 @@ export const getNodesByNodesDOM = (nodesDOM, nodeArray) => {
 	return blockArray;
 };
 
-export const getNodesByProperty = (
-	property = "parentNode",
-	value = undefined,
-	nodeArray
-) => {
-	if (Array.isArray(nodeArray)) {
-		return nodeArray.filter((node) => node[property] == value);
+/**
+ * Filters an array by the value of a specific property
+ * @param {String} property - The property to filter
+ * @param {any} value - The wanted value
+ * @param {Object[]} array - The array
+ * @returns {Object[]|undefined} - Returns the array filtered, or undefined was not one.
+ */
+export const getByProperty = (property, value, array) => {
+	if (Array.isArray(array)) {
+		return array.filter((item) => item[property] === value);
 	} else {
 		return undefined;
 	}
@@ -158,8 +131,14 @@ function getReservedNodeDOMClassesFromTypes() {
 
 //Specific
 
+/**
+ * Returns the children of a given fragment id. - A shorthand of getByProperty
+ * @param {String} fragmentID - ID of a Fragment node
+ * @param {Object[]} nodeArray - A node array
+ * @returns {Object[]|undefined} - Returns the filtered node array with only the children of the given fragment
+ */
 export const getChildrenNodesFromFragmentID = (fragmentID, nodeArray) => {
-	return getNodesByProperty("parentNode", fragmentID, nodeArray);
+	return getByProperty("parentNode", fragmentID, nodeArray);
 };
 
 //Generic
@@ -178,6 +157,8 @@ export const getUpdatedArrayById = (updatedEntry, originalArray) => {
 			const newBlock = newBlocks.find((entry) => entry.id === oldEntry.id);
 			return newBlock ? { ...oldEntry, ...newBlock } : oldEntry;
 		});
+	} else {
+		return [];
 	}
 };
 

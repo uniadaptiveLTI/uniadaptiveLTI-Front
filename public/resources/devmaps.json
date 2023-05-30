@@ -16,10 +16,9 @@
 							"y": 0
 						},
 						"type": "start",
-						"selectable": false,
 						"deletable": false,
 						"data": {
-							"label": "Inicio",
+							"label": "Entrada",
 							"children": ["dev0A1"]
 						}
 					},
@@ -30,10 +29,9 @@
 							"y": 0
 						},
 						"type": "end",
-						"selectable": false,
 						"deletable": false,
 						"data": {
-							"label": "Final"
+							"label": "Salida"
 						}
 					},
 					{
@@ -47,9 +45,23 @@
 							"label": "Objetivos del curso",
 							"lmsResource": 16,
 							"children": ["dev1A1"],
-							"identation": 1,
+							"identation": 0,
 							"order": 1,
-							"unit": 1
+							"unit": 0,
+							"conditions": {
+								"type": "conditionsGroup",
+								"id": "7988975532341243",
+								"op": "&",
+								"conditions": [
+									{
+										"type": "qualification",
+										"id": "678934534421326",
+										"op": "dev-2A1",
+										"objective": "2"
+									}
+								]
+							},
+							"lmsVisibility": "show_unconditionally"
 						}
 					},
 					{
@@ -63,31 +75,20 @@
 							"label": "Aerodinámica",
 							"lmsResource": 2,
 							"children": ["dev2A1", "dev3A1", "dev9A1"],
-							"identation": 2,
+							"identation": 1,
 							"order": 2,
-							"unit": 1,
+							"unit": 0,
+							"lmsVisibility": "hidden_until_access",
 							"conditions": {
 								"type": "conditionsGroup",
-								"id": "3123551512354",
+								"id": "342753142678324167",
 								"op": "&",
 								"conditions": [
 									{
 										"type": "qualification",
-										"id": "1326689252709",
-										"op": "fullCourse",
+										"id": "09843275842213423",
+										"op": "dev0A1",
 										"objective": "2"
-									},
-									{
-										"type": "qualification",
-										"id": "7841278214890",
-										"op": "fullCourse",
-										"objective": "3"
-									},
-									{
-										"type": "qualification",
-										"id": "8795742484563",
-										"op": "fullCourse",
-										"objective": "10"
 									}
 								]
 							}
@@ -129,7 +130,8 @@
 										"description": "Esta es la descripción"
 									}
 								]
-							}
+							},
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -143,9 +145,23 @@
 							"label": "Web de Aerodinámica Avanzada",
 							"lmsResource": 29,
 							"children": ["dev4A1"],
-							"identation": 2,
+							"identation": 1,
 							"order": 3,
-							"unit": 1
+							"unit": 0,
+							"conditions": {
+								"type": "conditionsGroup",
+								"id": "68924334612375132878973",
+								"op": "&",
+								"conditions": [
+									{
+										"type": "qualification",
+										"id": "897043247612387965",
+										"op": "dev1A1",
+										"objective": "2"
+									}
+								]
+							},
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -159,28 +175,23 @@
 							"label": "Ejercicios de la Web",
 							"lmsResource": 5,
 							"children": ["dev5A1", "dev6A1"],
-							"identation": 2,
+							"identation": 1,
 							"order": 4,
-							"unit": 1,
+							"unit": 0,
 							"conditions": {
 								"type": "conditionsGroup",
-								"id": "784378163420978",
+								"id": "623471233557821349",
 								"op": "&",
 								"conditions": [
 									{
 										"type": "qualification",
-										"id": "89674351236523",
-										"op": "fullCourse",
-										"objective": "2"
-									},
-									{
-										"type": "qualification",
-										"id": "1532657364123",
-										"op": "fullCourse",
+										"id": "4342243163224778853",
+										"op": "dev3A1",
 										"objective": "2"
 									}
 								]
-							}
+							},
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -194,20 +205,14 @@
 							"label": "Física de fluidos",
 							"lmsResource": 1,
 							"children": ["dev7A1", "dev8A1", "dev13A1"],
-							"identation": 3,
+							"identation": 2,
 							"order": 8,
-							"unit": 1,
+							"unit": 0,
 							"conditions": {
 								"type": "conditionsGroup",
 								"id": "100236670156",
 								"op": "|",
 								"conditions": [
-									{
-										"type": "qualification",
-										"id": "1326689252709",
-										"op": "dev4A1",
-										"objective2": "5"
-									},
 									{
 										"type": "conditionsGroup",
 										"id": "100236670128",
@@ -215,9 +220,9 @@
 										"conditions": [
 											{
 												"type": "qualification",
-												"id": "1321231241559",
-												"op": "fullCourse",
-												"objective": "10"
+												"id": "16423454681559",
+												"op": "dev4A1",
+												"objective": "2"
 											}
 										]
 									},
@@ -229,13 +234,20 @@
 											{
 												"type": "qualification",
 												"id": "131234681559",
-												"op": "fullCourse",
+												"op": "dev6A1",
 												"objective": "2"
 											}
 										]
+									},
+									{
+										"type": "qualification",
+										"id": "21346464457424327",
+										"op": "dev10A1",
+										"objective": "2"
 									}
 								]
-							}
+							},
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -249,9 +261,29 @@
 							"label": "Ejercicios de ampliación",
 							"lmsResource": 3,
 							"children": ["dev5A1"],
-							"identation": 3,
+							"identation": 2,
 							"order": 8,
-							"unit": 1
+							"unit": 0,
+							"conditions": {
+								"type": "conditionsGroup",
+								"id": "68924375132878957895673",
+								"op": "&",
+								"conditions": [
+									{
+										"type": "qualification",
+										"id": "768932413245654132",
+										"op": "dev4A1",
+										"objective": "2"
+									},
+									{
+										"type": "qualification",
+										"id": "78748123409421875",
+										"op": "dev12A1",
+										"objective": "2"
+									}
+								]
+							},
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -263,7 +295,8 @@
 						"type": "badge",
 						"data": {
 							"label": "Mecánica de fluidos",
-							"lmsResource": 31
+							"lmsResource": 31,
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -274,12 +307,38 @@
 						},
 						"type": "page",
 						"data": {
-							"label": "Física cuantica",
+							"label": "Física cuántica",
 							"lmsResource": 26,
+							"lmsVisibility": "hidden_until_access",
 							"children": ["dev-1A1"],
-							"identation": 1,
+							"identation": 0,
 							"order": 14,
-							"unit": 3
+							"unit": 2,
+							"conditions": {
+								"type": "conditionsGroup",
+								"id": "68924375132878973",
+								"op": "&",
+								"conditions": [
+									{
+										"type": "qualification",
+										"id": "8970434247612387965",
+										"op": "dev5A1",
+										"objective": "2"
+									},
+									{
+										"type": "qualification",
+										"id": "8969434247612387965",
+										"op": "dev16A1",
+										"objective": "2"
+									},
+									{
+										"type": "qualification",
+										"id": "89704342412512387965",
+										"op": "dev15A1",
+										"objective": "2"
+									}
+								]
+							}
 						}
 					},
 					{
@@ -290,12 +349,26 @@
 						},
 						"type": "folder",
 						"data": {
-							"label": "Aerodínamica, refuerzo",
+							"label": "Aerodinámica, refuerzo",
 							"lmsResource": 19,
+							"lmsVisibility": "hidden_until_access",
 							"children": ["dev10A1"],
-							"identation": 2,
+							"identation": 1,
 							"order": 5,
-							"unit": 1
+							"unit": 0,
+							"conditions": {
+								"type": "conditionsGroup",
+								"id": "6892437513287698973",
+								"op": "&",
+								"conditions": [
+									{
+										"type": "qualification",
+										"id": "8970432447612387965",
+										"op": "dev1A1",
+										"objective": "2"
+									}
+								]
+							}
 						}
 					},
 					{
@@ -306,12 +379,13 @@
 						},
 						"type": "quiz",
 						"data": {
-							"label": "Aerodínamica, refuerzo",
+							"label": "Aerodinámica, refuerzo",
 							"lmsResource": 0,
+							"lmsVisibility": "hidden_until_access",
 							"children": ["dev11A1", "dev12A1", "dev5A1"],
-							"identation": 2,
+							"identation": 1,
 							"order": 6,
-							"unit": 1,
+							"unit": 0,
 							"conditions": {
 								"type": "conditionsGroup",
 								"id": "98437432194690",
@@ -320,13 +394,7 @@
 									{
 										"type": "qualification",
 										"id": "64819193482345",
-										"op": "fullCourse",
-										"objective": "2"
-									},
-									{
-										"type": "qualification",
-										"id": "1245689934223",
-										"op": "fullCourse",
+										"op": "dev9A1",
 										"objective": "2"
 									}
 								]
@@ -355,10 +423,24 @@
 						"data": {
 							"label": "Trabajo de recuperación",
 							"lmsResource": 5,
+							"lmsVisibility": "hidden_until_access",
 							"children": ["dev6A1"],
-							"identation": 3,
+							"identation": 2,
 							"order": 7,
-							"unit": 1
+							"unit": 0,
+							"conditions": {
+								"type": "conditionsGroup",
+								"id": "9544138437432194690",
+								"op": "&",
+								"conditions": [
+									{
+										"type": "qualification",
+										"id": "648191624693482345",
+										"op": "dev10A1",
+										"objective": "2"
+									}
+								]
+							}
 						}
 					},
 					{
@@ -412,9 +494,10 @@
 						"data": {
 							"label": "Ayuda física de fluidos",
 							"children": ["dev14A1"],
-							"identation": 3,
+							"identation": 2,
 							"order": 10,
-							"unit": 2
+							"unit": 1,
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -429,9 +512,10 @@
 						"data": {
 							"label": "Preguntas fluidos",
 							"children": ["dev15A1"],
-							"identation": 3,
+							"identation": 2,
 							"order": 11,
-							"unit": 2
+							"unit": 1,
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -446,9 +530,9 @@
 						"data": {
 							"label": "Recuperación fluidos",
 							"children": ["dev7A1", "dev8A1", "dev16A1"],
-							"identation": 3,
+							"identation": 2,
 							"order": 12,
-							"unit": 2,
+							"unit": 1,
 							"conditions": {
 								"type": "conditionsGroup",
 								"id": "66789554263476",
@@ -473,7 +557,8 @@
 										"objective": "2"
 									}
 								]
-							}
+							},
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -487,9 +572,23 @@
 							"label": "Trabajo de recuperación",
 							"lmsResource": 5,
 							"children": ["dev7A1", "dev8A1"],
-							"identation": 4,
+							"identation": 3,
 							"order": 13,
-							"unit": 2
+							"unit": 1,
+							"conditions": {
+								"type": "conditionsGroup",
+								"id": "456426231736855865",
+								"op": "&",
+								"conditions": [
+									{
+										"type": "qualification",
+										"id": "978434243341234324",
+										"op": "dev15A1",
+										"objective": "2",
+										"lmsVisibility": "hidden_until_access"
+									}
+								]
+							}
 						}
 					}
 				]
@@ -507,10 +606,9 @@
 							"y": 0
 						},
 						"type": "start",
-						"selectable": false,
 						"deletable": false,
 						"data": {
-							"label": "Inicio"
+							"label": "Entrada"
 						}
 					},
 					{
@@ -520,10 +618,9 @@
 							"y": 0
 						},
 						"type": "end",
-						"selectable": false,
 						"deletable": false,
 						"data": {
-							"label": "Final"
+							"label": "Salida"
 						}
 					}
 				]
@@ -547,10 +644,9 @@
 							"y": 175
 						},
 						"type": "start",
-						"selectable": false,
 						"deletable": false,
 						"data": {
-							"label": "Inicio",
+							"label": "Entrada",
 							"children": ["dev0B1"]
 						}
 					},
@@ -561,10 +657,9 @@
 							"y": 525
 						},
 						"type": "end",
-						"selectable": false,
 						"deletable": false,
 						"data": {
-							"label": "Final"
+							"label": "Salida"
 						}
 					},
 					{
@@ -577,9 +672,10 @@
 						"data": {
 							"label": "Ecuaciones",
 							"children": ["dev1B1"],
-							"identation": 1,
+							"identation": 0,
 							"order": 1,
-							"unit": 1
+							"unit": 0,
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -592,9 +688,9 @@
 						"data": {
 							"label": "Examen Tema 1",
 							"children": ["dev2B1", "dev4B1"],
-							"identation": 2,
+							"identation": 1,
 							"order": 2,
-							"unit": 1,
+							"unit": 0,
 							"conditions": {
 								"type": "conditionsGroup",
 								"id": "781267123670427",
@@ -613,7 +709,8 @@
 										"objective": "2"
 									}
 								]
-							}
+							},
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -626,9 +723,10 @@
 						"data": {
 							"label": "Ecuaciones",
 							"children": ["dev3B1"],
-							"identation": 2,
+							"identation": 1,
 							"order": 3,
-							"unit": 1
+							"unit": 0,
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -652,9 +750,10 @@
 						"data": {
 							"label": "Web raices cuadradas",
 							"children": ["dev5B1"],
-							"identation": 1,
+							"identation": 0,
 							"order": 4,
-							"unit": 1
+							"unit": 0,
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -667,9 +766,10 @@
 						"data": {
 							"label": "Foro de discusión",
 							"children": ["dev6B1"],
-							"identation": 2,
+							"identation": 1,
 							"order": 5,
-							"unit": 1
+							"unit": 0,
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -682,9 +782,10 @@
 						"data": {
 							"label": "Cuestionario de raices",
 							"children": ["dev7B1", "dev8B1"],
-							"identation": 1,
+							"identation": 0,
 							"order": 6,
-							"unit": 2
+							"unit": 1,
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -696,9 +797,10 @@
 						"type": "assign",
 						"data": {
 							"label": "Ejercicio de raices",
-							"identation": 1,
+							"identation": 0,
 							"order": 7,
-							"unit": 2
+							"unit": 1,
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -711,9 +813,10 @@
 						"data": {
 							"label": "Preguntas sobre raices",
 							"children": ["dev9B1"],
-							"identation": 1,
+							"identation": 0,
 							"order": 8,
-							"unit": 2
+							"unit": 1,
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -726,9 +829,10 @@
 						"data": {
 							"label": "Web informativa",
 							"children": ["dev-1B1"],
-							"identation": 2,
+							"identation": 1,
 							"order": 9,
-							"unit": 3
+							"unit": 2,
+							"lmsVisibility": "hidden_until_access"
 						}
 					}
 				]
@@ -746,10 +850,9 @@
 							"y": 700
 						},
 						"type": "start",
-						"selectable": false,
 						"deletable": false,
 						"data": {
-							"label": "Inicio",
+							"label": "Entrada",
 							"children": ["dev0B2"]
 						}
 					},
@@ -760,10 +863,9 @@
 							"y": 700
 						},
 						"type": "end",
-						"selectable": false,
 						"deletable": false,
 						"data": {
-							"label": "Final"
+							"label": "Salida"
 						}
 					},
 					{
@@ -776,9 +878,10 @@
 						"data": {
 							"label": "Ecuaciones",
 							"children": ["dev1B2"],
-							"identation": 1,
+							"identation": 0,
 							"order": 1,
-							"unit": 1
+							"unit": 0,
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -791,9 +894,9 @@
 						"data": {
 							"label": "Examen Tema 1",
 							"children": ["dev2B2", "dev5B2"],
-							"identation": 2,
+							"identation": 1,
 							"order": 2,
-							"unit": 1,
+							"unit": 0,
 							"conditions": {
 								"type": "conditionsGroup",
 								"id": "77665544331122",
@@ -812,7 +915,8 @@
 										"objective": "2"
 									}
 								]
-							}
+							},
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -825,9 +929,10 @@
 						"data": {
 							"label": "Carpeta Ecuaciones",
 							"children": ["dev10B2", "dev11B2"],
-							"identation": 2,
+							"identation": 1,
 							"order": 3,
-							"unit": 1
+							"unit": 0,
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -840,9 +945,10 @@
 						"data": {
 							"label": "Cuestionario de raices",
 							"children": ["dev6B2", "dev7B2"],
-							"identation": 1,
+							"identation": 0,
 							"order": 8,
-							"unit": 2
+							"unit": 1,
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -855,9 +961,10 @@
 						"data": {
 							"label": "Ejercicio de raices",
 							"children": ["dev-1B2"],
-							"identation": 1,
+							"identation": 0,
 							"order": 9,
-							"unit": 2
+							"unit": 1,
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -872,9 +979,10 @@
 						"data": {
 							"label": "Preguntas y respuestas",
 							"children": ["dev40B2", "dev41B2"],
-							"identation": 1,
+							"identation": 0,
 							"order": 10,
-							"unit": 2
+							"unit": 1,
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -887,23 +995,26 @@
 						"data": {
 							"label": "Carpeta Ecuaciones 2",
 							"children": ["dev12B2", "dev13B2"],
-							"identation": 2,
+							"identation": 1,
 							"order": 4,
-							"unit": 1
+							"unit": 0,
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
 						"id": "dev11B2",
 						"position": {
 							"x": 500,
-							"y": 700
+							"y": 700,
+							"lmsVisibility": "hidden_until_access"
 						},
 						"type": "folder",
 						"data": {
 							"label": "Carpeta Ecuaciones 3",
-							"identation": 2,
+							"identation": 1,
 							"order": 5,
-							"unit": 1
+							"unit": 0,
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -915,9 +1026,10 @@
 						"type": "folder",
 						"data": {
 							"label": "Insignia Ecuaciones 4",
-							"identation": 2,
+							"identation": 1,
 							"order": 6,
-							"unit": 1
+							"unit": 0,
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -929,9 +1041,10 @@
 						"type": "folder",
 						"data": {
 							"label": "Carpeta Ecuaciones 5",
-							"identation": 2,
+							"identation": 1,
 							"order": 7,
-							"unit": 1
+							"unit": 0,
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -943,9 +1056,10 @@
 						"type": "page",
 						"data": {
 							"label": "Web informativa 2",
-							"identation": 2,
+							"identation": 1,
 							"order": 11,
-							"unit": 2
+							"unit": 1,
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -957,9 +1071,10 @@
 						"type": "page",
 						"data": {
 							"label": "Web informativa 3",
-							"identation": 2,
+							"identation": 1,
 							"order": 12,
-							"unit": 2
+							"unit": 1,
+							"lmsVisibility": "hidden_until_access"
 						}
 					}
 				]
@@ -977,10 +1092,9 @@
 							"y": 175
 						},
 						"type": "start",
-						"selectable": false,
 						"deletable": false,
 						"data": {
-							"label": "Inicio",
+							"label": "Entrada",
 							"children": ["dev0B3"]
 						}
 					},
@@ -991,10 +1105,9 @@
 							"y": 525
 						},
 						"type": "end",
-						"selectable": false,
 						"deletable": false,
 						"data": {
-							"label": "Final"
+							"label": "Salida"
 						}
 					},
 					{
@@ -1007,9 +1120,10 @@
 						"data": {
 							"label": "Ecuaciones",
 							"children": ["dev1B3"],
-							"identation": 1,
+							"identation": 0,
 							"order": 1,
-							"unit": 1
+							"unit": 0,
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -1022,9 +1136,9 @@
 						"data": {
 							"label": "Examen Tema 1",
 							"children": ["dev2B3", "dev3B3"],
-							"identation": 2,
+							"identation": 1,
 							"order": 2,
-							"unit": 1,
+							"unit": 0,
 							"conditions": {
 								"type": "conditionsGroup",
 								"id": "44885577221100",
@@ -1043,7 +1157,8 @@
 										"objective": "2"
 									}
 								]
-							}
+							},
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -1055,9 +1170,10 @@
 						"type": "folder",
 						"data": {
 							"label": "Carpeta Ecuaciones",
-							"identation": 2,
+							"identation": 1,
 							"order": 3,
-							"unit": 1
+							"unit": 0,
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -1070,9 +1186,10 @@
 						"data": {
 							"label": "Web raices cuadradas",
 							"children": ["dev4B3"],
-							"identation": 1,
+							"identation": 0,
 							"order": 4,
-							"unit": 1
+							"unit": 0,
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -1085,9 +1202,10 @@
 						"data": {
 							"label": "Foro de discusión",
 							"children": ["dev5B3"],
-							"identation": 2,
+							"identation": 1,
 							"order": 5,
-							"unit": 1
+							"unit": 0,
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -1100,9 +1218,10 @@
 						"data": {
 							"label": "Cuestionario de raices",
 							"children": ["dev6B3", "dev7B3"],
-							"identation": 1,
+							"identation": 0,
 							"order": 6,
-							"unit": 1
+							"unit": 0,
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -1114,9 +1233,10 @@
 						"type": "assign",
 						"data": {
 							"label": "Ejercicio de raices",
-							"identation": 1,
+							"identation": 0,
 							"order": 7,
-							"unit": 1
+							"unit": 0,
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -1129,9 +1249,10 @@
 						"data": {
 							"label": "Preguntas de Matemáticas",
 							"children": ["dev8B3"],
-							"identation": 1,
+							"identation": 0,
 							"order": 8,
-							"unit": 1
+							"unit": 0,
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -1144,9 +1265,10 @@
 						"data": {
 							"label": "Web informativa",
 							"children": ["dev40B3", "dev41B3"],
-							"identation": 2,
+							"identation": 1,
 							"order": 9,
-							"unit": 1
+							"unit": 0,
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -1158,9 +1280,9 @@
 						"type": "page",
 						"data": {
 							"label": "Web informativa 2",
-							"identation": 2,
+							"identation": 1,
 							"order": 10,
-							"unit": 2
+							"unit": 1
 						}
 					},
 					{
@@ -1173,9 +1295,10 @@
 						"data": {
 							"label": "Web informativa 3",
 							"children": ["dev44B3", "dev45B3"],
-							"identation": 2,
+							"identation": 1,
 							"order": 11,
-							"unit": 2
+							"unit": 1,
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -1188,9 +1311,10 @@
 						"data": {
 							"label": "Web informativa 6",
 							"children": ["dev46B3", "dev47B3"],
-							"identation": 2,
+							"identation": 1,
 							"order": 12,
-							"unit": 2
+							"unit": 1,
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -1202,9 +1326,10 @@
 						"type": "page",
 						"data": {
 							"label": "Web informativa 7",
-							"identation": 2,
+							"identation": 1,
 							"order": 13,
-							"unit": 2
+							"unit": 1,
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -1217,9 +1342,10 @@
 						"data": {
 							"label": "Web informativa 8",
 							"children": ["dev48B3", "dev49B3"],
-							"identation": 2,
+							"identation": 1,
 							"order": 14,
-							"unit": 2
+							"unit": 1,
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -1231,9 +1357,10 @@
 						"type": "page",
 						"data": {
 							"label": "Web informativa 9",
-							"identation": 2,
+							"identation": 1,
 							"order": 15,
-							"unit": 2
+							"unit": 1,
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -1246,9 +1373,10 @@
 						"data": {
 							"label": "Web informativa 10",
 							"children": ["dev-1B3"],
-							"identation": 2,
+							"identation": 1,
 							"order": 16,
-							"unit": 2
+							"unit": 1,
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -1260,9 +1388,10 @@
 						"type": "page",
 						"data": {
 							"label": "Web informativa 11",
-							"identation": 2,
+							"identation": 1,
 							"order": 17,
-							"unit": 2
+							"unit": 1,
+							"lmsVisibility": "hidden_until_access"
 						}
 					}
 				]
@@ -1286,10 +1415,9 @@
 							"y": 0
 						},
 						"type": "start",
-						"selectable": false,
 						"deletable": false,
 						"data": {
-							"label": "Inicio"
+							"label": "Entrada"
 						}
 					},
 					{
@@ -1299,10 +1427,9 @@
 							"y": 0
 						},
 						"type": "end",
-						"selectable": false,
 						"deletable": false,
 						"data": {
-							"label": "Final"
+							"label": "Salida"
 						}
 					}
 				]
@@ -1322,10 +1449,9 @@
 							"y": 0
 						},
 						"type": "start",
-						"selectable": false,
 						"deletable": false,
 						"data": {
-							"label": "Inicio"
+							"label": "Entrada"
 						}
 					},
 					{
@@ -1335,10 +1461,9 @@
 							"y": 0
 						},
 						"type": "end",
-						"selectable": false,
 						"deletable": false,
 						"data": {
-							"label": "Final"
+							"label": "Salida"
 						}
 					}
 				]

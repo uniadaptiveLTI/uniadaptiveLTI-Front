@@ -7,6 +7,7 @@ import {
 	faEdit,
 	faTrashCan,
 } from "@fortawesome/free-solid-svg-icons";
+import { useReactFlow } from "reactflow";
 
 const CompletionComponent = ({
 	condition,
@@ -17,6 +18,11 @@ const CompletionComponent = ({
 	setConditionEdit,
 	deleteCondition,
 }) => {
+	const reactFlowInstance = useReactFlow();
+	const nodes = reactFlowInstance.getNodes();
+
+	const node = nodes.find((node) => node.id === condition.op);
+
 	return (
 		<Container
 			className="mb-3 mt-3"
@@ -26,14 +32,14 @@ const CompletionComponent = ({
 				<Col>
 					<div>Tipo: Finalización</div>
 					<div>
-						La actividad <strong>{condition.op}</strong>{" "}
+						La actividad <strong>{node.data.label}</strong>{" "}
 						{
 							completionQueryList.find((item) => item.value === condition.query)
 								?.name
 						}
 					</div>
 				</Col>
-				<Col class="col d-flex align-items-center gap-2">
+				<Col className="col d-flex align-items-center gap-2">
 					<Button variant="light" onClick={() => setConditionEdit(condition)}>
 						<div>
 							<FontAwesomeIcon icon={faEdit} />

@@ -37,6 +37,7 @@ import {
 	MSGContext,
 	SettingsContext,
 	OnlineContext,
+	UnitContext,
 } from "@components/pages/_app";
 import { toast } from "react-toastify";
 import { notImplemented } from "@components/pages/_app";
@@ -93,6 +94,7 @@ function Header({ closeBtn }, ref) {
 	const { selectedEditVersion, setSelectedEditVersion } =
 		useContext(VersionInfoContext);
 	const { msg, setMSG } = useContext(MSGContext);
+	const { units, setUnits } = useContext(UnitContext);
 
 	const { versionJson, setVersionJson } = useContext(VersionJsonContext);
 
@@ -202,7 +204,7 @@ function Header({ closeBtn }, ref) {
 							selectable: false,
 							deletable: false,
 							data: {
-								label: "Inicio",
+								label: "Entrada",
 							},
 						},
 						{
@@ -212,7 +214,7 @@ function Header({ closeBtn }, ref) {
 							selectable: false,
 							deletable: false,
 							data: {
-								label: "Final",
+								label: "Salida",
 							},
 						},
 					],
@@ -229,6 +231,59 @@ function Header({ closeBtn }, ref) {
 				  }
 				: emptyNewMap,
 		];
+		setMaps(newMaps);
+		toast(`Mapa: "Nuevo Mapa ${maps.length}" creado`, defaultToastSuccess);
+	};
+
+	const handleImportedMap = () => {
+		const uniqueId = () => parseInt(Date.now() * Math.random()).toString();
+
+		const emptyNewMap = {
+			id: maps.length,
+			name: "Nuevo Mapa " + maps.length,
+			versions: [
+				{
+					id: 0,
+					name: "Última versión",
+					lastUpdate: new Date().toLocaleDateString(),
+					default: "true",
+					blocksData: [
+						{
+							id: uniqueId(),
+							position: { x: 0, y: 0 },
+							type: "start",
+							selectable: false,
+							deletable: false,
+							data: {
+								label: "Entrada",
+							},
+						},
+						{
+							id: uniqueId(),
+							position: { x: 125, y: 0 },
+							type: "end",
+							selectable: false,
+							deletable: false,
+							data: {
+								label: "Salida",
+							},
+						},
+					],
+				},
+			],
+		};
+
+		const newMaps = [
+			...maps,
+			data
+				? {
+						...data,
+						id: maps.length,
+						name: "Nuevo Mapa " + maps.length,
+				  }
+				: emptyNewMap,
+		];
+
 		setMaps(newMaps);
 		toast(`Mapa: "Nuevo Mapa ${maps.length}" creado`, defaultToastSuccess);
 	};
@@ -251,7 +306,7 @@ function Header({ closeBtn }, ref) {
 					selectable: false,
 					deletable: false,
 					data: {
-						label: "Inicio",
+						label: "Entrada",
 					},
 				},
 				{
@@ -261,7 +316,7 @@ function Header({ closeBtn }, ref) {
 					selectable: false,
 					deletable: false,
 					data: {
-						label: "Final",
+						label: "Salida",
 					},
 				},
 			],
@@ -505,6 +560,7 @@ function Header({ closeBtn }, ref) {
 				//Metadata
 				setPlatform(data[1].platform);
 				setMetaData({ ...data[1], courseSource: process.env.BACK_URL });
+				setUnits(data[1].units);
 				setLoadedMetaData(true);
 
 				//maps
@@ -739,6 +795,9 @@ function Header({ closeBtn }, ref) {
 									<Dropdown.Item onClick={handleNewMap}>
 										Nuevo mapa vacío
 									</Dropdown.Item>
+									<Dropdown.Item onClick={handleImportedMap}>
+										Nuevo mapa desde {capitalizeFirstLetter(platform)}
+									</Dropdown.Item>
 									{mapSelected.id >= 0 && (
 										<>
 											<Dropdown.Item onClick={handleNewVersion}>
@@ -804,9 +863,11 @@ function Header({ closeBtn }, ref) {
 											</Dropdown.Item>
 										</Dropdown.Menu>
 									</Dropdown>
+									{/*FIXME: COLOR, remove variant*/}
 									<Button
 										className={` d-flex align-items-center p-2 ${styles.actionButtons} ${saveButtonColor}`}
 										disabled={isOffline || !loadedMaps}
+										variant="light"
 										aria-label="Guardar versión actual"
 										onClick={notImplemented}
 									>
