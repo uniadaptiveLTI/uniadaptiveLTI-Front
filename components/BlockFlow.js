@@ -2,6 +2,7 @@ import React, {
 	forwardRef,
 	useContext,
 	useEffect,
+	useMemo,
 	useRef,
 	useState,
 } from "react";
@@ -19,6 +20,7 @@ import ActionNode from "./flow/nodes/ActionNode.js";
 import ElementNode from "./flow/nodes/ElementNode.js";
 import {
 	BlockInfoContext,
+	ErrorListContext,
 	ExpandedAsideContext,
 	PlatformContext,
 	SettingsContext,
@@ -50,6 +52,7 @@ import {
 	getByProperty,
 	getChildrenNodesFromFragmentID,
 	deduplicateById,
+	errorListCheck,
 } from "./Utils.js";
 import { toast } from "react-toastify";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -59,6 +62,7 @@ import { getTypeStaticColor } from "./flow/nodes/NodeIcons.js";
 import { getBlockFlowTypes } from "./flow/nodes/TypeDefinitions.js";
 import NodeSelector from "./dialogs/NodeSelector.js";
 import CriteriaModal from "./flow/badges/CriteriaModal.js";
+import AnimatedEdge from "./flow/edges/AnimatedEdge.js";
 
 const minimapStyle = {
 	height: 120,
@@ -95,6 +99,7 @@ const nodeTypes = {
 const OverviewFlow = ({ map }, ref) => {
 	const validTypes = ["badge", "mail", "addgroup", "remgroup"];
 
+	const { errorList, setErrorList } = useContext(ErrorListContext);
 	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
 	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
 	const { settings, setSettings } = useContext(SettingsContext);
@@ -676,7 +681,17 @@ const OverviewFlow = ({ map }, ref) => {
 		setShowContextualMenu(true);
 	};
 
+	useEffect(() => {
+		if (errorList) {
+			console.log(errorList);
+		}
+	}, [errorList]);
+
 	const deleteBlocks = (blocks) => {
+		console.log("AUGH");
+		console.log(blocks);
+		errorListCheck(blocks, errorList, setErrorList, true);
+
 		if (!Array.isArray(blocks)) {
 			const deletedBlockArray = reactFlowInstance
 				.getNodes()
@@ -1011,6 +1026,8 @@ const OverviewFlow = ({ map }, ref) => {
 				};
 			}
 		}
+
+		errorListCheck(newBlockCreated, errorList, setErrorList);
 
 		setShowContextualMenu(false);
 
@@ -1355,6 +1372,36 @@ const OverviewFlow = ({ map }, ref) => {
 		{ keydown: false, keyup: true }
 	);
 
+	const [elements, setElements] = useState([]);
+	const [clickedEdgeId, setClickedEdgeId] = useState(null);
+
+	const onElementClick = (event, element) => {
+		if (element && element.type === "edge") {
+			console.log(element);
+			setClickedEdgeId(element.id);
+		} else if (element && element.type === "node") {
+			const newNodeId = `new-node-${Date.now()}`;
+			const newElements = [
+				...elements,
+				{
+					id: newNodeId,
+					type: "default",
+					position: { x: element.position.x + 200, y: element.position.y },
+				},
+				addEdge({ source: element.id, target: newNodeId }),
+			];
+			setElements(newElements);
+		} else {
+			setClickedEdgeId(null);
+		}
+	};
+
+	const edgeTypes = useMemo(() => {
+		return {
+			animated: AnimatedEdge(clickedEdgeId),
+		};
+	}, [clickedEdgeId]);
+
 	return (
 		<div
 			ref={reactFlowWrapper}
@@ -1399,6 +1446,9 @@ const OverviewFlow = ({ map }, ref) => {
 				edgesFocusable={interactive}
 				elementsSelectable={interactive}
 				selectionMode={SelectionMode.Partial}
+				//onElementsRemove={setElements}
+				onElementClick={onElementClick}
+				edgeTypes={edgeTypes}
 			>
 				{minimap && (
 					<MiniMap

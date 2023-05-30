@@ -34,6 +34,10 @@
     background-color: var(--error-background-color)
 }
 
+.actionButtons.success, .actionButtons.success:hover{
+    background-color: var(--success-background-color)
+}
+
 .actionButtons.primary, .actionButtons.primary:hover{
     background-color: var(--primary-background-color)
 }

@@ -38,10 +38,16 @@ import {
 	SettingsContext,
 	OnlineContext,
 	UnitContext,
+	ErrorListContext,
 } from "@components/pages/_app";
 import { toast } from "react-toastify";
 import { notImplemented } from "@components/pages/_app";
-import { capitalizeFirstLetter, isBlockArrayEqual, uniqueId } from "./Utils";
+import {
+	capitalizeFirstLetter,
+	errorListCheck,
+	isBlockArrayEqual,
+	uniqueId,
+} from "./Utils";
 import download from "downloadjs";
 
 const defaultToastSuccess = {
@@ -59,6 +65,8 @@ const defaultToastError = {
 };
 
 function Header({ closeBtn }, ref) {
+	const { errorList, setErrorList } = useContext(ErrorListContext);
+
 	const [showModalVersions, setShowModalVersions] = useState(false);
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
 	const [showMapSelectorModal, setShowMapSelectorModal] = useState(false);
@@ -158,8 +166,8 @@ function Header({ closeBtn }, ref) {
 		setVersions(selectedMap.versions);
 		if (selectedMap.versions) {
 			setSelectedVersion(selectedMap.versions[0]);
-			setCurrentBlocksData(selectedMap.versions[0].blocksData);
 			console.log(selectedMap.versions[0].blocksData);
+			setCurrentBlocksData(selectedMap.versions[0].blocksData);
 		}
 		if (selectedMap.id == -1) {
 			setCurrentBlocksData();
@@ -562,6 +570,13 @@ function Header({ closeBtn }, ref) {
 		if (selectedVersion) {
 			if (selectedVersion.id != versionJson.id) {
 				resetEdit();
+				errorListCheck(
+					selectedVersion.blocksData,
+					errorList,
+					setErrorList,
+					false
+				);
+				console.log(selectedVersion.blocksData);
 				setCurrentBlocksData(selectedVersion.blocksData);
 				resetMapSesion();
 			}
@@ -869,7 +884,9 @@ function Header({ closeBtn }, ref) {
 
 							<Button
 								variant="dark"
-								className={`d-flex align-items-center p-2 ${styles.actionButtons} ${styles.error}`}
+								className={`d-flex align-items-center p-2 ${
+									styles.actionButtons
+								} ${errorList?.length > 0 ? styles.error : styles.success}`}
 							>
 								<FontAwesomeIcon
 									icon={faBell}

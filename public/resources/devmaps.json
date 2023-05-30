@@ -535,25 +535,13 @@
 							"unit": 1,
 							"conditions": {
 								"type": "conditionsGroup",
-								"id": "66789554263476",
+								"id": "89898998898912342",
 								"op": "&",
 								"conditions": [
 									{
-										"type": "22374819276399",
-										"id": "33211882379017",
-										"op": "fullCourse",
-										"objective": "2"
-									},
-									{
 										"type": "qualification",
-										"id": "45566778891238",
-										"op": "fullCourse",
-										"objective": "2"
-									},
-									{
-										"type": "qualification",
-										"id": "92172368816234",
-										"op": "fullCourse",
+										"id": "56566565657889712367",
+										"op": "dev14A1",
 										"objective": "2"
 									}
 								]

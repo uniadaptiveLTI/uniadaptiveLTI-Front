@@ -213,3 +213,49 @@ export function deduplicateById(arr) {
 		return accumulator;
 	}, []);
 }
+
+export function errorListCheck(data, errorList, setErrorList, deleteFromList) {
+	let errorArray = errorList;
+	if (!errorArray) {
+		errorArray = [];
+	}
+
+	if (!Array.isArray(data)) {
+		const isContained = errorArray.some((str) => str.includes(data.id));
+		if (isContained) {
+			const newErrorList = errorArray.filter((str) => str !== data.id);
+			if (deleteFromList) {
+				setErrorList(newErrorList);
+			}
+		} else {
+			if (!data.data.lmsResource || data.data.lmsResource == "") {
+				setErrorList([...errorArray, data.id]);
+			}
+		}
+	} else {
+		if (deleteFromList) {
+			const updatedErrorList = errorArray.filter((str) => {
+				const json = data.find((item) => item.id === str);
+
+				if (json) {
+					if (json.data.lmsResource && json.data.lmsResource !== "") {
+						return true;
+					}
+				} else {
+					return true;
+				}
+
+				return false;
+			});
+			setErrorList(updatedErrorList);
+		} else {
+			data.forEach((item) => {
+				if (!errorArray.includes(item.id)) {
+					errorArray.push(item.id);
+				}
+			});
+
+			setErrorList(errorArray);
+		}
+	}
+}
