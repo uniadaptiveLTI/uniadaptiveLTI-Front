@@ -100,7 +100,7 @@ const OverviewFlow = ({ map }, ref) => {
 	const { settings, setSettings } = useContext(SettingsContext);
 
 	const parsedSettings = JSON.parse(settings);
-	let { autoHideAside, snapping, snappingInFragment } = parsedSettings;
+	const { autoHideAside, snapping, snappingInFragment } = parsedSettings;
 
 	//Flow States
 	const reactFlowInstance = useReactFlow();
@@ -283,8 +283,6 @@ const OverviewFlow = ({ map }, ref) => {
 				} else {
 					setSnapToGrid(!inFragment);
 				}
-			} else {
-				setSnapToGrid(false);
 			}
 		} else {
 			setSnapToGrid(false);
