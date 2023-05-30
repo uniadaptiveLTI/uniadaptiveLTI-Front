@@ -18,7 +18,7 @@
 						"type": "start",
 						"deletable": false,
 						"data": {
-							"label": "Inicio",
+							"label": "Entrada",
 							"children": ["dev0A1"]
 						}
 					},
@@ -31,7 +31,7 @@
 						"type": "end",
 						"deletable": false,
 						"data": {
-							"label": "Final"
+							"label": "Salida"
 						}
 					},
 					{
@@ -608,7 +608,7 @@
 						"type": "start",
 						"deletable": false,
 						"data": {
-							"label": "Inicio"
+							"label": "Entrada"
 						}
 					},
 					{
@@ -620,7 +620,7 @@
 						"type": "end",
 						"deletable": false,
 						"data": {
-							"label": "Final"
+							"label": "Salida"
 						}
 					}
 				]
@@ -646,7 +646,7 @@
 						"type": "start",
 						"deletable": false,
 						"data": {
-							"label": "Inicio",
+							"label": "Entrada",
 							"children": ["dev0B1"]
 						}
 					},
@@ -659,7 +659,7 @@
 						"type": "end",
 						"deletable": false,
 						"data": {
-							"label": "Final"
+							"label": "Salida"
 						}
 					},
 					{
@@ -852,7 +852,7 @@
 						"type": "start",
 						"deletable": false,
 						"data": {
-							"label": "Inicio",
+							"label": "Entrada",
 							"children": ["dev0B2"]
 						}
 					},
@@ -865,7 +865,7 @@
 						"type": "end",
 						"deletable": false,
 						"data": {
-							"label": "Final"
+							"label": "Salida"
 						}
 					},
 					{
@@ -1094,7 +1094,7 @@
 						"type": "start",
 						"deletable": false,
 						"data": {
-							"label": "Inicio",
+							"label": "Entrada",
 							"children": ["dev0B3"]
 						}
 					},
@@ -1107,7 +1107,7 @@
 						"type": "end",
 						"deletable": false,
 						"data": {
-							"label": "Final"
+							"label": "Salida"
 						}
 					},
 					{
@@ -1417,7 +1417,7 @@
 						"type": "start",
 						"deletable": false,
 						"data": {
-							"label": "Inicio"
+							"label": "Entrada"
 						}
 					},
 					{
@@ -1429,7 +1429,7 @@
 						"type": "end",
 						"deletable": false,
 						"data": {
-							"label": "Final"
+							"label": "Salida"
 						}
 					}
 				]
@@ -1451,7 +1451,7 @@
 						"type": "start",
 						"deletable": false,
 						"data": {
-							"label": "Inicio"
+							"label": "Entrada"
 						}
 					},
 					{
@@ -1463,7 +1463,7 @@
 						"type": "end",
 						"deletable": false,
 						"data": {
-							"label": "Final"
+							"label": "Salida"
 						}
 					}
 				]

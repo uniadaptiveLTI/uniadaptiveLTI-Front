@@ -204,7 +204,7 @@ function Header({ closeBtn }, ref) {
 							selectable: false,
 							deletable: false,
 							data: {
-								label: "Inicio",
+								label: "Entrada",
 							},
 						},
 						{
@@ -214,7 +214,7 @@ function Header({ closeBtn }, ref) {
 							selectable: false,
 							deletable: false,
 							data: {
-								label: "Final",
+								label: "Salida",
 							},
 						},
 					],
@@ -231,6 +231,59 @@ function Header({ closeBtn }, ref) {
 				  }
 				: emptyNewMap,
 		];
+		setMaps(newMaps);
+		toast(`Mapa: "Nuevo Mapa ${maps.length}" creado`, defaultToastSuccess);
+	};
+
+	const handleImportedMap = () => {
+		const uniqueId = () => parseInt(Date.now() * Math.random()).toString();
+
+		const emptyNewMap = {
+			id: maps.length,
+			name: "Nuevo Mapa " + maps.length,
+			versions: [
+				{
+					id: 0,
+					name: "Última versión",
+					lastUpdate: new Date().toLocaleDateString(),
+					default: "true",
+					blocksData: [
+						{
+							id: uniqueId(),
+							position: { x: 0, y: 0 },
+							type: "start",
+							selectable: false,
+							deletable: false,
+							data: {
+								label: "Entrada",
+							},
+						},
+						{
+							id: uniqueId(),
+							position: { x: 125, y: 0 },
+							type: "end",
+							selectable: false,
+							deletable: false,
+							data: {
+								label: "Salida",
+							},
+						},
+					],
+				},
+			],
+		};
+
+		const newMaps = [
+			...maps,
+			data
+				? {
+						...data,
+						id: maps.length,
+						name: "Nuevo Mapa " + maps.length,
+				  }
+				: emptyNewMap,
+		];
+
 		setMaps(newMaps);
 		toast(`Mapa: "Nuevo Mapa ${maps.length}" creado`, defaultToastSuccess);
 	};
@@ -253,7 +306,7 @@ function Header({ closeBtn }, ref) {
 					selectable: false,
 					deletable: false,
 					data: {
-						label: "Inicio",
+						label: "Entrada",
 					},
 				},
 				{
@@ -263,7 +316,7 @@ function Header({ closeBtn }, ref) {
 					selectable: false,
 					deletable: false,
 					data: {
-						label: "Final",
+						label: "Salida",
 					},
 				},
 			],
@@ -710,6 +763,9 @@ function Header({ closeBtn }, ref) {
 								<Dropdown.Menu>
 									<Dropdown.Item onClick={handleNewMap}>
 										Nuevo mapa vacío
+									</Dropdown.Item>
+									<Dropdown.Item onClick={handleImportedMap}>
+										Nuevo mapa desde {capitalizeFirstLetter(platform)}
 									</Dropdown.Item>
 									{mapSelected.id >= 0 && (
 										<>
