@@ -42,7 +42,7 @@ export default forwardRef(function NodeSelector(
 		const typeColor = getTypeStaticColor(type, platform);
 		const typeIcon = getTypeIcon(type, platform, 32);
 		return (
-			<div className={styles.cardContainer + " nodeSelectionItem"}>
+			<div key={type} className={styles.cardContainer + " nodeSelectionItem"}>
 				<div
 					className={styles.nodeCard}
 					role="button"

@@ -776,9 +776,11 @@ function Header({ closeBtn }, ref) {
 											</Dropdown.Item>
 										</Dropdown.Menu>
 									</Dropdown>
+									{/*FIXME: COLOR, remove variant*/}
 									<Button
 										className={` d-flex align-items-center p-2 ${styles.actionButtons} ${saveButtonColor}`}
 										disabled={isOffline || !loadedMaps}
+										variant="light"
 										aria-label="Guardar versión actual"
 										onClick={notImplemented}
 									>

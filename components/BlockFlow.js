@@ -314,6 +314,7 @@ const OverviewFlow = ({ map }, ref) => {
 	const onSelectionDragStop = (event, nodes) => {};
 
 	const onNodeDragStop = (event, node) => {
+		node.dragging = false;
 		reactFlowInstance.setNodes(
 			getUpdatedArrayById(node, reactFlowInstance.getNodes())
 		);
@@ -914,6 +915,8 @@ const OverviewFlow = ({ map }, ref) => {
 	const createBlock = (blockData) => {
 		//TODO: Block selector
 		const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
+		const aside = document.getElementById("aside");
+		const asideBounds = aside ? aside?.getBoundingClientRect() : { width: 0 };
 
 		const preferredPosition = contextMenuDOM
 			? { x: cMX, y: cMY }
