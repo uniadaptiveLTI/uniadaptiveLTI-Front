@@ -12,6 +12,7 @@ import ReactFlow, {
 	useEdgesState,
 	useReactFlow,
 	useNodesInitialized,
+	SelectionMode,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import ActionNode from "./flow/nodes/ActionNode.js";
@@ -614,7 +615,6 @@ const OverviewFlow = ({ map }, ref) => {
 		let selectedCount = 0;
 		const currentNodes = reactFlowInstance.getNodes();
 		currentNodes.map((node) => (node.selected ? selectedCount++ : null));
-		console.log(selectedCount);
 		if (selectedCount <= 1) {
 			setCMBlockData(node);
 			if (node.type == "start" || node.type == "end") {
@@ -1383,6 +1383,7 @@ const OverviewFlow = ({ map }, ref) => {
 				nodesFocusable={interactive}
 				edgesFocusable={interactive}
 				elementsSelectable={interactive}
+				selectionMode={SelectionMode.Partial}
 			>
 				{minimap && (
 					<MiniMap

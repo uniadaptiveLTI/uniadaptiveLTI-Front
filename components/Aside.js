@@ -5,10 +5,16 @@ import {
 	faCaretUp,
 	faRotateRight,
 	faCompress,
+	faCircleQuestion,
 } from "@fortawesome/free-solid-svg-icons";
 import { useReactFlow } from "reactflow";
-import { Container, Button, Form, Spinner } from "react-bootstrap";
-import Qualification from "./flow/conditions/Qualification.js";
+import {
+	Tooltip,
+	Button,
+	Form,
+	Spinner,
+	OverlayTrigger,
+} from "react-bootstrap";
 import { useState, useContext, useEffect, useRef, useId, version } from "react";
 import {
 	PlatformContext,
@@ -19,17 +25,23 @@ import {
 	VersionJsonContext,
 	SettingsContext,
 	BlocksDataContext,
+	UnitContext,
 } from "../pages/_app.js";
-import { getUpdatedArrayById, orderByPropertyAlphabetically } from "./Utils.js";
+import {
+	capitalizeFirstLetter,
+	getUpdatedArrayById,
+	orderByPropertyAlphabetically,
+} from "./Utils.js";
 import { ActionBlocks } from "./flow/nodes/ActionNode.js";
 import { getMoodleTypes, getSakaiTypes } from "./flow/nodes/TypeDefinitions.js";
 
 export default function Aside({ className, closeBtn, svgExists }) {
+	const shownTypes = [
+		{ value: "show_unconditionally", name: "Mostrar siempre sin acceso" },
+		{ value: "hidden_until_access", name: "Ocultar hasta tener acceso" },
+	];
 	const [expandedContent, setExpandedContent] = useState(true);
-	const [expandedAttr, setExpandedAttr] = useState(true);
 	const [expandedInteract, setExpandedInteract] = useState(true);
-	const [expandedRelations, setExpandedRelations] = useState(true);
-	const [expandedCondition, setExpandedCondition] = useState(false);
 
 	const [selectedOption, setSelectedOption] = useState("");
 	const [lmsResource, setLmsResource] = useState("");
@@ -42,6 +54,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	const { selectedEditVersion, setSelectedEditVersion } =
 		useContext(VersionInfoContext);
 	const { settings, setSettings } = useContext(SettingsContext);
+	const { units, setUnits } = useContext(UnitContext);
 
 	const parsedSettings = JSON.parse(settings);
 	let { reducedAnimations, autoHideAside } = parsedSettings;
@@ -49,16 +62,22 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	//References
 	const titleDOM = useRef(null);
 	const optionsDOM = useRef(null);
-	const typeDOM = useRef(null);
+	const resourceDOM = useRef(null);
 	const lmsResourceDOM = useRef(null);
 	const mapTitleDOM = useRef(null);
 	const versionTitleDOM = useRef(null);
 	const refreshIconDOM = useRef(null);
+	const lmsVisibilityDOM = useRef(null);
+	const unitDOM = useRef(null);
+	const orderDOM = useRef(null);
 	//IDs
-	const titleID = useId();
+	const titleDOMId = useId();
 	const optionsID = useId();
-	const lmsResourceId = useId();
-	const contentID = useId();
+	const lmsResourceDOMId = useId();
+	const resourceDOMId = useId();
+	const unitDOMId = useId();
+	const lmsVisibilityDOMId = useId();
+	const orderDOMId = useId();
 	//TODO: Add the rest
 
 	const [secondOptions, setSecondOptions] = useState([]);
@@ -66,8 +85,6 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	const reactFlowInstance = useReactFlow();
 
 	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
-
-	const validTypes = ["badge", "mail", "addgroup", "remgroup"];
 
 	const moodleResource = orderByPropertyAlphabetically(
 		getMoodleTypes(),
@@ -79,6 +96,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 		switch (selectedOption) {
 			case "quiz":
 				setSecondOptions([
+					{ id: -1, name: "Vacío" },
 					{ id: 0, name: "Cuestionario 1" },
 					{ id: 1, name: "Cuestionario 2" },
 					{ id: 2, name: "Cuestionario 3" },
@@ -198,7 +216,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	const handleSelect = (event) => {
 		// FIXME Del cambio de calquier tipo a mail el icono refresh no se mapea por lo que no puede pillar las referencia
 		let input = lmsResourceDOM.current;
-		let type = typeDOM.current.value;
+		let type = resourceDOM.current.value;
 
 		if (type !== "mail") {
 			setShowSpinner(true);
@@ -237,14 +255,29 @@ export default function Aside({ className, closeBtn, svgExists }) {
 		console.log(blockSelected);
 		if (blockSelected) {
 			const titleCurrent = titleDOM.current;
-			const typeCurrent = typeDOM.current;
+			const resourceCurrent = resourceDOM.current;
+			const lmsVisibilityCurrent = lmsVisibilityDOM.current;
+			const unitCurrent = unitDOM.current;
+			const orderCurrent = orderDOM.current;
 
 			if (titleCurrent) {
 				titleCurrent.value = blockSelected.data.label;
 			}
 
-			if (typeCurrent) {
-				typeCurrent.value = blockSelected.type;
+			if (resourceCurrent) {
+				resourceCurrent.value = blockSelected.type;
+			}
+
+			if (lmsVisibilityCurrent) {
+				lmsVisibilityCurrent.value = blockSelected.data.lmsVisibility;
+			}
+
+			if (unitCurrent) {
+				unitCurrent.value = blockSelected.data.unit;
+			}
+
+			if (orderCurrent) {
+				orderCurrent.value = blockSelected.data.order;
 			}
 
 			setSelectedOption(blockSelected.type);
@@ -257,24 +290,38 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	const updateBlock = () => {
 		console.log(blockSelected.type);
 
-		let type = typeDOM.current.value;
+		let type = resourceDOM.current.value;
+		let newData;
+
+		if (!ActionBlocks.includes(blockSelected.type)) {
+			let limitedOrder = orderDOM.current.value;
+
+			limitedOrder = Math.min(Math.max(limitedOrder, 1), 999);
+
+			newData = {
+				label: titleDOM.current.value,
+				lmsResource: lmsResourceDOM.current.value,
+				lmsVisibility: lmsVisibilityDOM.current.value,
+				unit: unitDOM.current.value,
+				order: limitedOrder,
+			};
+		} else {
+			newData = {
+				label: titleDOM.current.value,
+				lmsResource: type !== "mail" ? lmsResourceDOM.current.value : type,
+			};
+		}
+
+		console.log(newData);
 
 		const updatedData = {
 			...blockSelected,
 			id: blockSelected.id,
-			type: typeDOM.current.value,
-			data: {
-				label: titleDOM.current.value,
-				lmsResource: type !== "mail" ? lmsResourceDOM.current.value : type,
-			},
+			type: resourceDOM.current.value,
+			data: newData,
 		};
 
-		if (!validTypes.includes(blockSelected.type)) {
-			updatedData.data = {
-				...updatedData.data,
-				...blockSelected.data,
-			};
-		}
+		console.log(updatedData, blockSelected);
 
 		reactFlowInstance.setNodes(
 			getUpdatedArrayById(updatedData, reactFlowInstance.getNodes())
@@ -310,7 +357,6 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	};
 
 	return (
-		//TODO: ADD AN OPTION TO EDIT DATA.UNIT AND DATA.ORDER OF A BLOCK
 		<aside className={`${className} ${styles.aside}`}>
 			{/* TODO: FocusTrap this */}
 			<div className={"text-center p-2"}>
@@ -369,87 +415,124 @@ export default function Aside({ className, closeBtn, svgExists }) {
 								].join(" ")}
 							>
 								<Form.Group className="mb-3">
-									<Form.Label htmlFor={titleID} className="mb-1">
-										Nombre del contenido
+									<Form.Label htmlFor={titleDOMId} className="mb-1">
+										Nombre del{" "}
+										{blockSelected.type == "fragment" ? "fragmento" : "bloque"}
 									</Form.Label>
 									<Form.Control
 										ref={titleDOM}
-										id={titleID}
+										id={titleDOMId}
 										type="text"
 										className="w-100"
 									></Form.Control>
 								</Form.Group>
-								<Form.Group className="mb-3">
-									<Form.Label htmlFor={contentID} className="mb-1">
-										{ActionBlocks.includes(blockSelected.type)
-											? "Acción a realizar"
-											: "Tipo de contenido"}
-									</Form.Label>
-									<Form.Select
-										ref={typeDOM}
-										id={contentID}
-										className="w-100"
-										defaultValue={selectedOption}
-										onChange={handleSelect}
-									>
-										{platform == "moodle"
-											? moodleResource.map((option) => {
-													if (
-														(ActionBlocks.includes(blockSelected.type) &&
-															option.nodeType == "ActionNode") ||
-														(!ActionBlocks.includes(blockSelected.type) &&
-															option.nodeType == "ElementNode")
-													) {
-														return (
-															<option key={option.id} value={option.value}>
-																{option.name}
-															</option>
-														);
-													}
-											  })
-											: sakaiResource((option) => {
-													if (
-														(ActionBlocks.includes(blockSelected.type) &&
-															option.nodeType == "ActionNode") ||
-														(!ActionBlocks.includes(blockSelected.type) &&
-															option.nodeType == "ElementNode")
-													) {
-														return (
-															<option key={option.id} value={option.value}>
-																{option.name}
-															</option>
-														);
-													}
-											  })}
-									</Form.Select>
-								</Form.Group>
+								{blockSelected.type != "fragment" && (
+									<Form.Group className="mb-3">
+										<Form.Label htmlFor={resourceDOMId} className="mb-1">
+											{ActionBlocks.includes(blockSelected.type)
+												? "Acción a realizar"
+												: "Tipo de recurso"}
+										</Form.Label>
+										<Form.Select
+											ref={resourceDOM}
+											id={resourceDOMId}
+											className="w-100"
+											defaultValue={selectedOption}
+											onChange={handleSelect}
+										>
+											{platform == "moodle"
+												? moodleResource.map((option) => {
+														if (
+															(ActionBlocks.includes(blockSelected.type) &&
+																option.nodeType == "ActionNode") ||
+															(!ActionBlocks.includes(blockSelected.type) &&
+																option.nodeType == "ElementNode")
+														) {
+															return (
+																<option key={option.id} value={option.value}>
+																	{option.name}
+																</option>
+															);
+														}
+												  })
+												: sakaiResource((option) => {
+														if (
+															(ActionBlocks.includes(blockSelected.type) &&
+																option.nodeType == "ActionNode") ||
+															(!ActionBlocks.includes(blockSelected.type) &&
+																option.nodeType == "ElementNode")
+														) {
+															return (
+																<option key={option.id} value={option.value}>
+																	{option.name}
+																</option>
+															);
+														}
+												  })}
+										</Form.Select>
+									</Form.Group>
+								)}
 
-								{blockSelected.type != "fragment" &&
-								blockSelected.type !== "mail" &&
-								selectedOption !== "mail" ? (
+								{!(
+									blockSelected.type == "fragment" ||
+									blockSelected.type == "mail" ||
+									selectedOption == "mail"
+								) && (
 									<div className="mb-3">
 										<div className="d-flex gap-2">
-											<Form.Label htmlFor={lmsResourceId} className="mb-1">
-												Recurso en el LMS
-											</Form.Label>
-											<div className="d-flex">
-												<div ref={refreshIconDOM} id="refresh-icon">
-													<FontAwesomeIcon icon={faRotateRight} />
+											<div className="d-flex align-items-center justify-content-between w-100">
+												<div className="d-flex align-items-center justify-content-between">
+													<Form.Label
+														htmlFor={lmsResourceDOMId}
+														className="mb-1"
+													>
+														Recurso en el LMS
+													</Form.Label>
+													<div className="ms-2">
+														{!showSpinner && (
+															<div ref={refreshIconDOM} id="refresh-icon">
+																<FontAwesomeIcon icon={faRotateRight} />
+															</div>
+														)}
+														{showSpinner && (
+															<div>
+																<Spinner
+																	animation="border"
+																	role="status"
+																	size="sm"
+																>
+																	<span className="visually-hidden">
+																		Loading...
+																	</span>
+																</Spinner>
+															</div>
+														)}
+													</div>
 												</div>
 												<div>
-													{showSpinner && (
-														<Spinner animation="border" role="status" size="sm">
-															<span className="visually-hidden">
-																Loading...
-															</span>
-														</Spinner>
-													)}
+													<OverlayTrigger
+														placement="right"
+														overlay={
+															<Tooltip>{`Solo se mostrarán elementos existentes en ${capitalizeFirstLetter(
+																platform
+															)}. Para crear un elemento nuevo en ${capitalizeFirstLetter(
+																platform
+															)}, presione este botón.`}</Tooltip>
+														}
+														trigger={["hover", "focus"]}
+													>
+														<Button
+															className={`btn-light d-flex align-items-center p-0 m-0 ${styles.actionButtons}`}
+														>
+															<FontAwesomeIcon icon={faCircleQuestion} />
+														</Button>
+													</OverlayTrigger>
 												</div>
 											</div>
 										</div>
 										<Form.Select
 											ref={lmsResourceDOM}
-											id={lmsResourceId}
+											id={lmsResourceDOMId}
 											className="w-100"
 											defaultValue={lmsResource}
 										>
@@ -461,46 +544,102 @@ export default function Aside({ className, closeBtn, svgExists }) {
 												))}
 										</Form.Select>
 									</div>
-								) : (
-									<></>
 								)}
 							</div>
 						</Form.Group>
-
-						<div className="mb-2">
-							<div
-								className="d-flex gap-2"
-								role="button"
-								onClick={() => setExpandedInteract(!expandedInteract)}
-							>
-								<div className="fw-bold">Interacción</div>
-								<div>
-									<div role="button">
-										{!expandedInteract ? (
-											<FontAwesomeIcon icon={faCaretUp} />
-										) : (
-											<FontAwesomeIcon icon={faCaretDown} />
-										)}
+						{!(
+							ActionBlocks.includes(blockSelected.type) ||
+							blockSelected.type == "fragment"
+						) && (
+							<div className="mb-2">
+								<div
+									className="d-flex gap-2"
+									role="button"
+									onClick={() => setExpandedInteract(!expandedInteract)}
+								>
+									<div className="fw-bold">Interacción</div>
+									<div>
+										<div role="button">
+											{!expandedInteract ? (
+												<FontAwesomeIcon icon={faCaretUp} />
+											) : (
+												<FontAwesomeIcon icon={faCaretDown} />
+											)}
+										</div>
 									</div>
 								</div>
-							</div>
 
-							<div
-								className={[
-									styles.uniadaptiveDetails,
-									expandedInteract ? styles.active : null,
-									reducedAnimations && styles.noAnimation,
-								].join(" ")}
-							>
-								<Form.Group>
-									<Form.Label className="mb-1">Visibilidad</Form.Label>
-									<Form.Select>
-										<option>Ocultar hasta tener acceso</option>
-										<option>Mostrar siempre sin acceso</option>
-									</Form.Select>
-								</Form.Group>
+								<div
+									className={[
+										styles.uniadaptiveDetails,
+										expandedInteract ? styles.active : null,
+										reducedAnimations && styles.noAnimation,
+									].join(" ")}
+								>
+									<Form.Group className="mb-2">
+										<Form.Label htmlFor={lmsVisibilityDOMId}>
+											Visibilidad
+										</Form.Label>
+										<Form.Select
+											ref={lmsVisibilityDOM}
+											id={lmsVisibilityDOMId}
+											defaultValue={blockSelected.data.lmsVisibility}
+										>
+											{orderByPropertyAlphabetically(shownTypes, "name").map(
+												(option) => (
+													<option key={option.value} value={option.value}>
+														{option.name}
+													</option>
+												)
+											)}
+											{/*<option>Ocultar hasta tener acceso</option>
+											<option>Mostrar siempre sin acceso</option>*/}
+										</Form.Select>
+									</Form.Group>
+
+									<>
+										<Form.Group className="mb-2">
+											<Form.Label htmlFor={orderDOMId}>Unidad</Form.Label>
+											<Form.Select
+												ref={unitDOM}
+												id={unitDOMId}
+												defaultValue={blockSelected.data.unit}
+											>
+												{units &&
+													orderByPropertyAlphabetically(
+														[...units].map((unit) => {
+															if (!unit.name.match(/^\d/)) {
+																unit.name =
+																	unit.position + 1 + "- " + unit.name;
+																unit.value = unit.position + 1;
+															}
+															return unit;
+														}),
+														"name"
+													).map((unit) => (
+														<option key={unit.id} value={unit.position}>
+															{unit.name}
+														</option>
+													))}
+											</Form.Select>
+										</Form.Group>
+										<Form.Group className="mb-2">
+											<Form.Label htmlFor={orderDOMId}>
+												Posición en la unidad
+											</Form.Label>
+											<Form.Control
+												type="number"
+												min={1}
+												max={999}
+												defaultValue={blockSelected.data.order}
+												ref={orderDOM}
+												id={orderDOMId}
+											></Form.Control>
+										</Form.Group>
+									</>
+								</div>
 							</div>
-						</div>
+						)}
 
 						<Button onClick={updateBlock} disabled={!allowResourceSelection}>
 							Guardar

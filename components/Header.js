@@ -37,6 +37,7 @@ import {
 	MSGContext,
 	SettingsContext,
 	OnlineContext,
+	UnitContext,
 } from "@components/pages/_app";
 import { toast } from "react-toastify";
 import { notImplemented } from "@components/pages/_app";
@@ -93,6 +94,7 @@ function Header({ closeBtn }, ref) {
 	const { selectedEditVersion, setSelectedEditVersion } =
 		useContext(VersionInfoContext);
 	const { msg, setMSG } = useContext(MSGContext);
+	const { units, setUnits } = useContext(UnitContext);
 
 	const { versionJson, setVersionJson } = useContext(VersionJsonContext);
 
@@ -466,6 +468,7 @@ function Header({ closeBtn }, ref) {
 				.then((data) => {
 					setPlatform(data.platform);
 					setMetaData({ ...data, courseSource: process.env.BACK_URL });
+					setUnits(data.units);
 					setLoadedMetaData(true);
 				})
 				.catch((e) => {
