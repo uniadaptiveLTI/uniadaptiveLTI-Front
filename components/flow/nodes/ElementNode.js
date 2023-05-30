@@ -238,7 +238,7 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 						}
 						title="Unidad"
 					>
-						{data.unit}
+						{Number(data.unit) + 1}
 					</Badge>
 				)}
 				{data.order && (
@@ -253,7 +253,7 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 							" " +
 							(highContrast && styles.highContrast)
 						}
-						title="Posición en Moodle"
+						title="Posición en la unidad"
 					>
 						{data.order}
 					</Badge>
