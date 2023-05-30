@@ -47,7 +47,7 @@ import {
 	thereIsReservedNodesInArray,
 	getNodeDOMById,
 	getNodeById,
-	getNodesByProperty,
+	getByProperty,
 	getChildrenNodesFromFragmentID,
 	deduplicateById,
 } from "./Utils.js";
@@ -1283,7 +1283,7 @@ const OverviewFlow = ({ map }, ref) => {
 	};
 
 	useEffect(() => {
-		const fragments = getNodesByProperty(
+		const fragments = getByProperty(
 			"type",
 			"fragment",
 			reactFlowInstance.getNodes()

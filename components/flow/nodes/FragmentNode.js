@@ -30,7 +30,7 @@ import {
 import {
 	getNodeDOMById,
 	getNodeById,
-	getNodesByProperty,
+	getByProperty,
 	getUpdatedArrayById,
 } from "@components/components/Utils";
 import FocusTrap from "focus-trap-react";
@@ -65,7 +65,7 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 	};
 
 	const getInnerNodes = () => {
-		return getNodesByProperty("parentNode", id, reactFlowInstance.getNodes());
+		return getByProperty("parentNode", id, reactFlowInstance.getNodes());
 	};
 
 	useLayoutEffect(() => {
