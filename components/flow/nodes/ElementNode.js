@@ -224,7 +224,7 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 				<span className={styles.blockInfo + " " + styles.bottom}>
 					{getHumanDesc(type)}
 				</span>
-				{data.unit && (
+				{!isNaN(data.unit) && (
 					<Badge
 						bg="light"
 						className={
@@ -241,7 +241,7 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 						{Number(data.unit) + 1}
 					</Badge>
 				)}
-				{data.order && (
+				{!isNaN(data.order) && (
 					<Badge
 						bg="warning"
 						className={

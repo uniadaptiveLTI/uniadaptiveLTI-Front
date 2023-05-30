@@ -48,7 +48,7 @@
 							"lmsResource": 16,
 							"children": ["dev1A1"],
 							"order": 1,
-							"unit": 1,
+							"unit": 0,
 							"conditions": {
 								"type": "conditionsGroup",
 								"id": "7988975532341243",
@@ -77,7 +77,7 @@
 							"lmsResource": 2,
 							"children": ["dev2A1", "dev3A1", "dev9A1"],
 							"order": 2,
-							"unit": 1,
+							"unit": 0,
 							"lmsVisibility": "hidden_until_access",
 							"conditions": {
 								"type": "conditionsGroup",
@@ -146,7 +146,7 @@
 							"lmsResource": 29,
 							"children": ["dev4A1"],
 							"order": 3,
-							"unit": 1,
+							"unit": 0,
 							"conditions": {
 								"type": "conditionsGroup",
 								"id": "68924334612375132878973",
@@ -175,7 +175,7 @@
 							"lmsResource": 5,
 							"children": ["dev5A1", "dev6A1"],
 							"order": 4,
-							"unit": 1,
+							"unit": 0,
 							"conditions": {
 								"type": "conditionsGroup",
 								"id": "623471233557821349",
@@ -204,7 +204,7 @@
 							"lmsResource": 1,
 							"children": ["dev7A1", "dev8A1", "dev13A1"],
 							"order": 8,
-							"unit": 1,
+							"unit": 0,
 							"conditions": {
 								"type": "conditionsGroup",
 								"id": "100236670156",
@@ -259,7 +259,7 @@
 							"lmsResource": 3,
 							"children": ["dev5A1"],
 							"order": 8,
-							"unit": 1,
+							"unit": 0,
 							"conditions": {
 								"type": "conditionsGroup",
 								"id": "68924375132878957895673",
@@ -308,7 +308,7 @@
 							"lmsVisibility": "hidden_until_access",
 							"children": ["dev-1A1"],
 							"order": 14,
-							"unit": 3,
+							"unit": 2,
 							"conditions": {
 								"type": "conditionsGroup",
 								"id": "68924375132878973",
@@ -349,7 +349,7 @@
 							"lmsVisibility": "hidden_until_access",
 							"children": ["dev10A1"],
 							"order": 5,
-							"unit": 1,
+							"unit": 0,
 							"conditions": {
 								"type": "conditionsGroup",
 								"id": "6892437513287698973",
@@ -378,7 +378,7 @@
 							"lmsVisibility": "hidden_until_access",
 							"children": ["dev11A1", "dev12A1", "dev5A1"],
 							"order": 6,
-							"unit": 1,
+							"unit": 0,
 							"conditions": {
 								"type": "conditionsGroup",
 								"id": "98437432194690",
@@ -419,7 +419,7 @@
 							"lmsVisibility": "hidden_until_access",
 							"children": ["dev6A1"],
 							"order": 7,
-							"unit": 1,
+							"unit": 0,
 							"conditions": {
 								"type": "conditionsGroup",
 								"id": "9544138437432194690",
@@ -487,7 +487,7 @@
 							"label": "Ayuda física de fluidos",
 							"children": ["dev14A1"],
 							"order": 10,
-							"unit": 2,
+							"unit": 1,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -504,7 +504,7 @@
 							"label": "Preguntas fluidos",
 							"children": ["dev15A1"],
 							"order": 11,
-							"unit": 2,
+							"unit": 1,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -521,7 +521,7 @@
 							"label": "Recuperación fluidos",
 							"children": ["dev7A1", "dev8A1", "dev16A1"],
 							"order": 12,
-							"unit": 2,
+							"unit": 1,
 							"conditions": {
 								"type": "conditionsGroup",
 								"id": "66789554263476",
@@ -562,7 +562,7 @@
 							"lmsResource": 5,
 							"children": ["dev7A1", "dev8A1"],
 							"order": 13,
-							"unit": 2,
+							"unit": 1,
 							"conditions": {
 								"type": "conditionsGroup",
 								"id": "456426231736855865",
@@ -665,7 +665,7 @@
 							"label": "Ecuaciones",
 							"children": ["dev1B1"],
 							"order": 1,
-							"unit": 1,
+							"unit": 0,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -680,7 +680,7 @@
 							"label": "Examen Tema 1",
 							"children": ["dev2B1", "dev4B1"],
 							"order": 2,
-							"unit": 1,
+							"unit": 0,
 							"conditions": {
 								"type": "conditionsGroup",
 								"id": "781267123670427",
@@ -714,7 +714,7 @@
 							"label": "Ecuaciones",
 							"children": ["dev3B1"],
 							"order": 3,
-							"unit": 1,
+							"unit": 0,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -740,7 +740,7 @@
 							"label": "Web raices cuadradas",
 							"children": ["dev5B1"],
 							"order": 4,
-							"unit": 1,
+							"unit": 0,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -755,7 +755,7 @@
 							"label": "Foro de discusión",
 							"children": ["dev6B1"],
 							"order": 5,
-							"unit": 1,
+							"unit": 0,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -770,7 +770,7 @@
 							"label": "Cuestionario de raices",
 							"children": ["dev7B1", "dev8B1"],
 							"order": 6,
-							"unit": 2,
+							"unit": 1,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -784,7 +784,7 @@
 						"data": {
 							"label": "Ejercicio de raices",
 							"order": 7,
-							"unit": 2,
+							"unit": 1,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -799,7 +799,7 @@
 							"label": "Preguntas sobre raices",
 							"children": ["dev9B1"],
 							"order": 8,
-							"unit": 2,
+							"unit": 1,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -814,7 +814,7 @@
 							"label": "Web informativa",
 							"children": ["dev-1B1"],
 							"order": 9,
-							"unit": 3,
+							"unit": 2,
 							"lmsVisibility": "hidden_until_access"
 						}
 					}
@@ -864,7 +864,7 @@
 							"label": "Ecuaciones",
 							"children": ["dev1B2"],
 							"order": 1,
-							"unit": 1,
+							"unit": 0,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -879,7 +879,7 @@
 							"label": "Examen Tema 1",
 							"children": ["dev2B2", "dev5B2"],
 							"order": 2,
-							"unit": 1,
+							"unit": 0,
 							"conditions": {
 								"type": "conditionsGroup",
 								"id": "77665544331122",
@@ -913,7 +913,7 @@
 							"label": "Carpeta Ecuaciones",
 							"children": ["dev10B2", "dev11B2"],
 							"order": 3,
-							"unit": 1,
+							"unit": 0,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -928,7 +928,7 @@
 							"label": "Cuestionario de raices",
 							"children": ["dev6B2", "dev7B2"],
 							"order": 8,
-							"unit": 2,
+							"unit": 1,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -943,7 +943,7 @@
 							"label": "Ejercicio de raices",
 							"children": ["dev-1B2"],
 							"order": 9,
-							"unit": 2,
+							"unit": 1,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -960,7 +960,7 @@
 							"label": "Preguntas y respuestas",
 							"children": ["dev40B2", "dev41B2"],
 							"order": 10,
-							"unit": 2,
+							"unit": 1,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -975,7 +975,7 @@
 							"label": "Carpeta Ecuaciones 2",
 							"children": ["dev12B2", "dev13B2"],
 							"order": 4,
-							"unit": 1,
+							"unit": 0,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -990,7 +990,7 @@
 						"data": {
 							"label": "Carpeta Ecuaciones 3",
 							"order": 5,
-							"unit": 1,
+							"unit": 0,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -1004,7 +1004,7 @@
 						"data": {
 							"label": "Insignia Ecuaciones 4",
 							"order": 6,
-							"unit": 1,
+							"unit": 0,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -1018,7 +1018,7 @@
 						"data": {
 							"label": "Carpeta Ecuaciones 5",
 							"order": 7,
-							"unit": 1,
+							"unit": 0,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -1032,7 +1032,7 @@
 						"data": {
 							"label": "Web informativa 2",
 							"order": 11,
-							"unit": 2,
+							"unit": 1,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -1046,7 +1046,7 @@
 						"data": {
 							"label": "Web informativa 3",
 							"order": 12,
-							"unit": 2,
+							"unit": 1,
 							"lmsVisibility": "hidden_until_access"
 						}
 					}
@@ -1096,7 +1096,7 @@
 							"label": "Ecuaciones",
 							"children": ["dev1B3"],
 							"order": 1,
-							"unit": 1,
+							"unit": 0,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -1111,7 +1111,7 @@
 							"label": "Examen Tema 1",
 							"children": ["dev2B3", "dev3B3"],
 							"order": 2,
-							"unit": 1,
+							"unit": 0,
 							"conditions": {
 								"type": "conditionsGroup",
 								"id": "44885577221100",
@@ -1144,7 +1144,7 @@
 						"data": {
 							"label": "Carpeta Ecuaciones",
 							"order": 3,
-							"unit": 1,
+							"unit": 0,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -1159,7 +1159,7 @@
 							"label": "Web raices cuadradas",
 							"children": ["dev4B3"],
 							"order": 4,
-							"unit": 1,
+							"unit": 0,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -1174,7 +1174,7 @@
 							"label": "Foro de discusión",
 							"children": ["dev5B3"],
 							"order": 5,
-							"unit": 1,
+							"unit": 0,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -1189,7 +1189,7 @@
 							"label": "Cuestionario de raices",
 							"children": ["dev6B3", "dev7B3"],
 							"order": 6,
-							"unit": 1,
+							"unit": 0,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -1203,7 +1203,7 @@
 						"data": {
 							"label": "Ejercicio de raices",
 							"order": 7,
-							"unit": 1,
+							"unit": 0,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -1218,7 +1218,7 @@
 							"label": "Preguntas de Matemáticas",
 							"children": ["dev8B3"],
 							"order": 8,
-							"unit": 1,
+							"unit": 0,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -1233,7 +1233,7 @@
 							"label": "Web informativa",
 							"children": ["dev40B3", "dev41B3"],
 							"order": 9,
-							"unit": 1,
+							"unit": 0,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -1247,7 +1247,7 @@
 						"data": {
 							"label": "Web informativa 2",
 							"order": 10,
-							"unit": 2
+							"unit": 1
 						}
 					},
 					{
@@ -1261,7 +1261,7 @@
 							"label": "Web informativa 3",
 							"children": ["dev44B3", "dev45B3"],
 							"order": 11,
-							"unit": 2,
+							"unit": 1,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -1276,7 +1276,7 @@
 							"label": "Web informativa 6",
 							"children": ["dev46B3", "dev47B3"],
 							"order": 12,
-							"unit": 2,
+							"unit": 1,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -1290,7 +1290,7 @@
 						"data": {
 							"label": "Web informativa 7",
 							"order": 13,
-							"unit": 2,
+							"unit": 1,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -1305,7 +1305,7 @@
 							"label": "Web informativa 8",
 							"children": ["dev48B3", "dev49B3"],
 							"order": 14,
-							"unit": 2,
+							"unit": 1,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -1319,7 +1319,7 @@
 						"data": {
 							"label": "Web informativa 9",
 							"order": 15,
-							"unit": 2,
+							"unit": 1,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -1334,7 +1334,7 @@
 							"label": "Web informativa 10",
 							"children": ["dev-1B3"],
 							"order": 16,
-							"unit": 2,
+							"unit": 1,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -1348,7 +1348,7 @@
 						"data": {
 							"label": "Web informativa 11",
 							"order": 17,
-							"unit": 2,
+							"unit": 1,
 							"lmsVisibility": "hidden_until_access"
 						}
 					}
