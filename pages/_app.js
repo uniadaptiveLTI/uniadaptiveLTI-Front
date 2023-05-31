@@ -14,6 +14,7 @@ import Layout from "../components/Layout";
 export const MSGContext = createContext();
 export const BlockInfoContext = createContext();
 export const UnitContext = createContext();
+export const ErrorListContext = createContext();
 export const MapInfoContext = createContext("");
 export const VersionInfoContext = createContext();
 export const MapContext = createContext();
@@ -51,6 +52,8 @@ export default function App({ Component, pageProps }) {
 		})
 	);
 	const [reactFlowInstance, setReactFlowInstance] = useState();
+	const [errorList, setErrorList] = useState();
+
 	const { isOnline, isOffline } = useIsOnline();
 
 	useEffect(() => {
@@ -77,10 +80,12 @@ export default function App({ Component, pageProps }) {
 				<ReactFlowInstanceContext.Provider
 					value={{ reactFlowInstance, setReactFlowInstance }}
 				>
-					<Layout>
-						<ToastContainer />
-						<Component {...pageProps} />
-					</Layout>
+					<ErrorListContext.Provider value={{ errorList, setErrorList }}>
+						<Layout>
+							<ToastContainer />
+							<Component {...pageProps} />
+						</Layout>
+					</ErrorListContext.Provider>
 				</ReactFlowInstanceContext.Provider>
 			</SettingsContext.Provider>
 		</OnlineContext.Provider>

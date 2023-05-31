@@ -3,7 +3,7 @@ import Aside from "./Aside";
 import Footer from "./Footer";
 import { ReactFlowProvider } from "reactflow";
 import { Container } from "react-bootstrap";
-import { useState, useRef, useLayoutEffect } from "react";
+import { useState, useRef, useLayoutEffect, useEffect } from "react";
 import {
 	PlatformContext,
 	BlockInfoContext,

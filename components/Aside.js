@@ -17,6 +17,7 @@ import {
 } from "react-bootstrap";
 import { useState, useContext, useEffect, useRef, useId, version } from "react";
 import {
+	ErrorListContext,
 	PlatformContext,
 	BlockInfoContext,
 	ExpandedAsideContext,
@@ -31,11 +32,14 @@ import {
 	capitalizeFirstLetter,
 	getUpdatedArrayById,
 	orderByPropertyAlphabetically,
+	errorListCheck,
 } from "./Utils.js";
 import { ActionBlocks } from "./flow/nodes/ActionNode.js";
 import { getMoodleTypes, getSakaiTypes } from "./flow/nodes/TypeDefinitions.js";
 
 export default function Aside({ className, closeBtn, svgExists }) {
+	const { errorList, setErrorList } = useContext(ErrorListContext);
+
 	const shownTypes = [
 		{ value: "show_unconditionally", name: "Mostrar siempre sin acceso" },
 		{ value: "hidden_until_access", name: "Ocultar hasta tener acceso" },
@@ -250,19 +254,6 @@ export default function Aside({ className, closeBtn, svgExists }) {
 		}
 	};
 
-	/*useEffect(() => {
-		alert("AUGH");
-		if (blockSelected) {
-			alert("AUGH");
-			let newBlock = currentBlocksData.find(
-				(block) => block.id == blockSelected.id
-			);
-			if (newBlock) {
-				setBlockSelected(newBlock);
-			}
-		}
-	}, [reactFlowInstance]);*/
-
 	useEffect(() => {
 		console.log(blockSelected);
 		if (blockSelected) {
@@ -305,33 +296,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	 * Updates the selected block with the values from the specified DOM elements.
 	 */
 	const updateBlock = () => {
-		console.log(blockSelected.type);
-
-		let type = resourceDOM.current.value;
-		let newData;
-
-		if (!ActionBlocks.includes(blockSelected.type)) {
-			let limitedOrder = orderDOM.current.value;
-			limitedOrder = Math.min(Math.max(limitedOrder, 1), 999);
-			let limitedIdentation = identationDOM.current.value;
-			limitedIdentation = Math.min(Math.max(limitedIdentation, 0), 999);
-
-			newData = {
-				label: titleDOM.current.value,
-				lmsResource: lmsResourceDOM.current.value,
-				lmsVisibility: lmsVisibilityDOM.current.value,
-				unit: unitDOM.current.value,
-				order: limitedOrder,
-				identation: limitedIdentation,
-			};
-		} else {
-			newData = {
-				label: titleDOM.current.value,
-				lmsResource: type !== "mail" ? lmsResourceDOM.current.value : type,
-			};
-		}
-
-		console.log(newData);
+		let type = typeDOM.current.value;
 
 		const updatedData = {
 			...blockSelected,
@@ -339,6 +304,8 @@ export default function Aside({ className, closeBtn, svgExists }) {
 			type: resourceDOM.current.value,
 			data: newData,
 		};
+
+		errorListCheck(updatedData, errorList, setErrorList);
 
 		console.log(updatedData, blockSelected);
 
