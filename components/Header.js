@@ -49,6 +49,7 @@ import {
 	uniqueId,
 } from "./Utils";
 import download from "downloadjs";
+import { NodeTypes } from "./flow/nodes/TypeDefinitions";
 
 const defaultToastSuccess = {
 	hideProgressBar: false,
@@ -166,7 +167,7 @@ function Header({ closeBtn }, ref) {
 		setVersions(selectedMap.versions);
 		if (selectedMap.versions) {
 			setSelectedVersion(selectedMap.versions[0]);
-			console.log(selectedMap.versions[0].blocksData);
+			//console.log(selectedMap.versions[0].blocksData);
 			setCurrentBlocksData(selectedMap.versions[0].blocksData);
 		}
 		if (selectedMap.id == -1) {
@@ -239,61 +240,129 @@ function Header({ closeBtn }, ref) {
 				  }
 				: emptyNewMap,
 		];
+		//aquí
+
+		// try {
+		// 	const encodedSelectedOption = encodeURIComponent(selectedOption);
+		// 	const encodedCourse = encodeURIComponent(course);
+
+		// 	setShowSpinner(true);
+		// 	setAllowResourceSelection(false);
+		// 	const response = await fetch(`http://127.0.0.1:8000/lti/get_modules_by_type?type=${encodedSelectedOption}&course=${encodedCourse}`);
+			
+		// 	if (!response.ok) {
+		// 		throw new Error('Request failed');
+		// 	}
+		// 	const data = await response.json();
+		// 	setResourceOptions(data);
+		// 	setShowSpinner(false);
+		// 	setAllowResourceSelection(true);
+		// } catch (e) {
+		// 	const error = new Error(
+		// 			"No se pudo crear el mapa."
+		// 	);
+		// 	error.log = e;
+		// 	throw error;
+		// }
+
 		setMaps(newMaps);
 		toast(`Mapa: "Nuevo Mapa ${maps.length}" creado`, defaultToastSuccess);
 	};
 
-	const handleImportedMap = () => {
+		const handleImportedMap = async () => {
 		const uniqueId = () => parseInt(Date.now() * Math.random()).toString();
+		//try {
+			const metaData = JSON.parse(localStorage.getItem('meta_data'));
+			const encodedCourse = encodeURIComponent(metaData.course_id);
+			const response = await fetch(`http://127.0.0.1:8000/lti/get_modules?course=${encodedCourse}`);
+			
+			if (!response.ok) {
+				throw new Error('Request failed');
+			}
+			const data = await response.json();
 
-		const emptyNewMap = {
-			id: maps.length,
-			name: "Nuevo Mapa " + maps.length,
-			versions: [
-				{
-					id: 0,
-					name: "Última versión",
-					lastUpdate: new Date().toLocaleDateString(),
-					default: "true",
-					blocksData: [
-						{
-							id: uniqueId(),
-							position: { x: 0, y: 0 },
-							type: "start",
-							selectable: false,
-							deletable: false,
-							data: {
-								label: "Entrada",
+			console.log("JSON RECIBIDO: ",data)
+
+			let newX = 125;
+			let newY = 0;
+			const validTypes = []
+			NodeTypes.map(node=> validTypes.push(node.type));
+			const nodes = []
+			data.map(node=> {
+				if(validTypes.includes(node.modname)){
+					const newNode = {}
+					newNode.id = ""+uniqueId();
+					newNode.type = node.modname
+					newNode.position = {x:newX,y:newY}
+					newNode.data = {
+						label: node.name,
+						indent: node.indent,
+						unit: node.unit,
+						children: [],
+						order: node.order,
+						lmsResource: node.id,
+						lmsVisibility: node.visible,
+					}
+
+					newX += 125;
+					nodes.push(newNode)
+				}
+			})
+			console.log("JSON FILTRADO Y ADAPTADO: ",nodes)
+
+			const platformNewMap = {
+				id: maps.length,
+				name: "Nuevo Mapa " + maps.length,
+				versions: [
+					{
+						id: 0,
+						name: "Última versión",
+						lastUpdate: new Date().toLocaleDateString(),
+						default: "true",
+						blocksData: [
+							{
+								id: uniqueId(),
+								position: { x: 0, y: 0 },
+								type: "start",
+								selectable: false,
+								deletable: false,
+								data: {
+									label: "Entrada",
+								},
 							},
-						},
-						{
-							id: uniqueId(),
-							position: { x: 125, y: 0 },
-							type: "end",
-							selectable: false,
-							deletable: false,
-							data: {
-								label: "Salida",
+							...nodes,
+							{
+								id: uniqueId(),
+								position: { x: newX, y: 0 },
+								type: "end",
+								selectable: false,
+								deletable: false,
+								data: {
+									label: "Salida",
+								},
 							},
-						},
-					],
-				},
-			],
-		};
+						],
+					},
+				],
+			};
+	
+			const newMaps = [
+				...maps,
+					  platformNewMap
+			];
 
-		const newMaps = [
-			...maps,
-			data
-				? {
-						...data,
-						id: maps.length,
-						name: "Nuevo Mapa " + maps.length,
-				  }
-				: emptyNewMap,
-		];
+			console.log("JSON CONVERTIDO EN UN MAPA: ",platformNewMap)
+	
+			setMaps(newMaps);
+			toast(`Mapa: "Nuevo Mapa ${maps.length}" creado`, defaultToastSuccess);
 
-		setMaps(newMaps);
-		toast(`Mapa: "Nuevo Mapa ${maps.length}" creado`, defaultToastSuccess);
+		/*} catch (e) {
+			const error = new Error(
+					"No se pudieron obtener los datos del curso desde el LMS."
+			);
+			error.log = e;
+			throw error;
+		}*/
 	};
 
 	/**
@@ -560,7 +629,7 @@ function Header({ closeBtn }, ref) {
 			.then(
 				(response) => response.json())
 			.then((data) => {
-				console.log(data);
+				console.log("DATOS DEL LMS: ",data);
 				// Usuario
 				setUserData(data[0]);
 				setLoadedUserData(true);
@@ -570,7 +639,8 @@ function Header({ closeBtn }, ref) {
 				setMetaData({ ...data[1], courseSource: process.env.BACK_URL });
 				setUnits(data[1].units);
 				setLoadedMetaData(true);
-
+				localStorage.setItem('meta_data', JSON.stringify(data[1]));
+				
 				//maps
 				setMaps([emptyMap, ...data[2].maps]);
 				setLoadedMaps(true);
@@ -607,7 +677,7 @@ function Header({ closeBtn }, ref) {
 					setErrorList,
 					false
 				);
-				console.log(selectedVersion.blocksData);
+				//console.log(selectedVersion.blocksData);
 				setCurrentBlocksData(selectedVersion.blocksData);
 				resetMapSesion();
 			}

@@ -40,7 +40,7 @@ function FinalNode({ id, data, isConnectable }) {
 						style={{ transform: "rotate(90deg)" }}
 					/>
 				</div>
-				<span className={styles.blockInfo + " " + styles.bottom}>Fin</span>
+				<span className={styles.blockInfo + " " + styles.bottom}>Salida</span>
 			</div>
 		</>
 	);

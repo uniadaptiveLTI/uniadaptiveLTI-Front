@@ -36,6 +36,7 @@ import {
 } from "./Utils.js";
 import { ActionBlocks } from "./flow/nodes/ActionNode.js";
 import { getMoodleTypes, getSakaiTypes } from "./flow/nodes/TypeDefinitions.js";
+import axios from "axios";
 
 export default function Aside({ className, closeBtn, svgExists }) {
 	const { errorList, setErrorList } = useContext(ErrorListContext);
@@ -86,7 +87,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	const identationDOMId = useId();
 	//TODO: Add the rest
 
-	const [secondOptions, setSecondOptions] = useState([]);
+	const [resourceOptions, setResourceOptions] = useState([]);
 	const { versionJson, setVersionJson } = useContext(VersionJsonContext);
 	const reactFlowInstance = useReactFlow();
 
@@ -98,164 +99,73 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	);
 	const sakaiResource = orderByPropertyAlphabetically(getSakaiTypes(), "name");
 
+	
+
+	const fetchData = async (selectedOption, course) => {
+		try {
+			const encodedSelectedOption = encodeURIComponent(selectedOption);
+			const encodedCourse = encodeURIComponent(course);
+
+			setShowSpinner(true);
+			setAllowResourceSelection(false);
+			const response = await fetch(`http://127.0.0.1:8000/lti/get_modules_by_type?type=${encodedSelectedOption}&course=${encodedCourse}`);
+			
+			if (!response.ok) {
+				throw new Error('Request failed');
+			}
+			const data = await response.json();
+			setResourceOptions(data);
+			setShowSpinner(false);
+			setAllowResourceSelection(true);
+		} catch (e) {
+			const error = new Error(
+					"No se pudieron obtener los datos del curso desde el LMS."
+			);
+			error.log = e;
+			throw error;
+		}
+	  };
+	
 	useEffect(() => {
 
-		setTimeout(() => {
-			console.log("LA VIDA ES UNA TOMBOLA");
-		
-
-		console.log("TOM TOM TOMBOLA");
-
+	const metaData = JSON.parse(localStorage.getItem('meta_data'));
 		switch (selectedOption) {
-			case "quiz":
-				setSecondOptions([
-					{ id: -1, name: "Vacío" },
-					{ id: 0, name: "Cuestionario 1" },
-					{ id: 1, name: "Cuestionario 2" },
-					{ id: 2, name: "Cuestionario 3" },
-				]);
-				break;
-			case "assign":
-				setSecondOptions([
-					{ id: 3, name: "Tarea 1" },
-					{ id: 4, name: "Tarea 2" },
-					{ id: 5, name: "Tarea 3" },
-				]);
-				break;
-			case "workshop":
-				setSecondOptions([
-					{ id: 6, name: "Taller 1" },
-					{ id: 7, name: "Taller 2" },
-					{ id: 8, name: "Taller 3" },
-				]);
-				break;
-			case "choice":
-				setSecondOptions([
-					{ id: 9, name: "Consulta 1" },
-					{ id: 10, name: "Consulta 2" },
-					{ id: 11, name: "Consulta 3" },
-				]);
-				break;
-			case "forum":
-				setSecondOptions([
-					{ id: 12, name: "Foro 1" },
-					{ id: 13, name: "Foro 2" },
-					{ id: 14, name: "Foro 3" },
-				]);
-				break;
-			case "resource":
-				setSecondOptions([
-					{ id: 15, name: "Archivo 1" },
-					{ id: 16, name: "Archivo 2" },
-					{ id: 17, name: "Archivo 3" },
-				]);
-				break;
-			case "folder":
-				setSecondOptions([
-					{ id: 18, name: "Carpeta 1" },
-					{ id: 19, name: "Carpeta 2" },
-					{ id: 20, name: "Carpeta 3" },
-				]);
-				break;
-			case "label":
-				setSecondOptions([
-					{ id: 21, name: "Etiqueta 1" },
-					{ id: 22, name: "Etiqueta 2" },
-					{ id: 23, name: "Etiqueta 3" },
-				]);
-				break;
-			case "page":
-				setSecondOptions([
-					{ id: 24, name: "Página 1" },
-					{ id: 25, name: "Página 2" },
-					{ id: 26, name: "Página 3" },
-				]);
-				break;
-			case "url":
-				setSecondOptions([
-					{ id: 27, name: "Url 1" },
-					{ id: 28, name: "Url 2" },
-					{ id: 29, name: "Url 3" },
-				]);
-				break;
-			case "badge":
-				setSecondOptions([
-					{ id: 30, name: "Medalla 1" },
-					{ id: 31, name: "Medalla 2" },
-					{ id: 32, name: "Medalla 3" },
-				]);
-				break;
-			case "addgroup":
-				setSecondOptions([
-					{ id: "group-1", name: "Grupo A" },
-					{ id: "group-2", name: "Grupo B" },
-					{ id: "group-3", name: "Grupo C" },
-					{ id: "group-4", name: "Grupo D" },
-					{ id: "group-5", name: "Grupo E" },
-					{ id: "group-6", name: "Grupo F" },
-					{ id: "group-7", name: "Grupo G" },
-				]);
-				break;
-			case "remgroup":
-				setSecondOptions([
-					{ id: "group-1", name: "Grupo A" },
-					{ id: "group-2", name: "Grupo B" },
-					{ id: "group-3", name: "Grupo C" },
-					{ id: "group-4", name: "Grupo D" },
-					{ id: "group-5", name: "Grupo E" },
-					{ id: "group-6", name: "Grupo F" },
-					{ id: "group-7", name: "Grupo G" },
-				]);
-				break;
 			case "generic":
-				setSecondOptions([{ id: 0, name: "Genérico" }]);
+				setResourceOptions([{ id: 0, name: "Genérico" }]);
 				break;
 			default:
-				setSecondOptions([]);
+				//FIXME: No sucede
+				if(!selectedOption){
+					setResourceOptions([]);
+				} else {
+					fetchData(selectedOption,metaData.course_id);
+				}
+				
 				break;
 		}
-	}, 2000);
 	}, [selectedOption]);
 
 	useEffect(() => {
-		if (secondOptions.length > 0) {
+		if (resourceOptions.length > 0) {
 			const lmsResourceCurrent = lmsResourceDOM.current;
 			if (lmsResourceCurrent) {
 				lmsResourceCurrent.value = blockSelected.data.lmsResource;
 			}
 			setLmsResource(blockSelected.data.lmsResource);
 		}
-	}, [secondOptions]);
+	}, [resourceOptions]);
 
 	const handleSelect = (event) => {
 		// FIXME Del cambio de calquier tipo a mail el icono refresh no se mapea por lo que no puede pillar las referencia
 		let input = lmsResourceDOM.current;
 		let type = resourceDOM.current.value;
 
-		if (type !== "mail") {
-			setShowSpinner(true);
 			setSelectedOption(event.target.value);
-			setAllowResourceSelection(false);
-
-			let refresh = refreshIconDOM.current;
-			refresh.classList.add("d-none");
-			input.disabled = true;
-
-			console.log("UN TREH");
-
-			setTimeout(() => {
-				setShowSpinner(false);
-				refresh.classList.remove("d-none");
-				input.disabled = false;
-				setAllowResourceSelection(true);
-			}, 2000);
-		} else {
-			setSelectedOption(event.target.value);
-		}
+		
 	};
 
 	useEffect(() => {
-		console.log(blockSelected);
+		//console.log(blockSelected);
 		if (blockSelected) {
 			const titleCurrent = titleDOM.current;
 			const resourceCurrent = resourceDOM.current;
@@ -296,7 +206,32 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	 * Updates the selected block with the values from the specified DOM elements.
 	 */
 	const updateBlock = () => {
-		let type = typeDOM.current.value;
+
+		let type = resourceDOM.current.value;
+		let newData;
+
+		if (!ActionBlocks.includes(blockSelected.type)) {
+			let limitedOrder = orderDOM.current.value;
+			limitedOrder = Math.min(Math.max(limitedOrder, 1), 999);
+			let limitedIdentation = identationDOM.current.value;
+			limitedIdentation = Math.min(Math.max(limitedIdentation, 0), 999);
+
+			newData = {
+				label: titleDOM.current.value,
+				lmsResource: lmsResourceDOM.current.value,
+				lmsVisibility: lmsVisibilityDOM.current.value,
+				unit: unitDOM.current.value,
+				order: limitedOrder,
+				identation: limitedIdentation,
+			};
+		} else {
+			newData = {
+				label: titleDOM.current.value,
+				lmsResource: type !== "mail" ? lmsResourceDOM.current.value : type,
+			};
+		}
+
+		//console.log(newData);
 
 		const updatedData = {
 			...blockSelected,
@@ -305,9 +240,9 @@ export default function Aside({ className, closeBtn, svgExists }) {
 			data: newData,
 		};
 
-		errorListCheck(updatedData, errorList, setErrorList);
+		errorListCheck(updatedData, errorList, setErrorList, true);
 
-		console.log(updatedData, blockSelected);
+		//console.log(updatedData, blockSelected);
 
 		reactFlowInstance.setNodes(
 			getUpdatedArrayById(updatedData, reactFlowInstance.getNodes())
@@ -520,14 +455,21 @@ export default function Aside({ className, closeBtn, svgExists }) {
 											ref={lmsResourceDOM}
 											id={lmsResourceDOMId}
 											className="w-100"
-											defaultValue={lmsResource}
+											defaultValue={lmsResource == ""? lmsResource : "-1"}
+											disabled={!resourceOptions}
 										>
 											{allowResourceSelection &&
-												secondOptions.map((option) => (
+											
+												(<>
+												<option key = '-1' hidden value> </option>
+												{
+												resourceOptions.map((option) => (
 													<option key={option.id} value={option.id}>
 														{option.name}
 													</option>
-												))}
+													))}
+													</>
+													)}
 										</Form.Select>
 									</div>
 								)}

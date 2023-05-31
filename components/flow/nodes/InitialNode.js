@@ -40,7 +40,7 @@ function InitialNode({ id, data, isConnectable }) {
 						style={{ transform: "rotate(-90deg)" }}
 					/>
 				</div>
-				<span className={styles.blockInfo + " " + styles.bottom}>Inicio</span>
+				<span className={styles.blockInfo + " " + styles.bottom}>Entrada</span>
 			</div>
 		</>
 	);

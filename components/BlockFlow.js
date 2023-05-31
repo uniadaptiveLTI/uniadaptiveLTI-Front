@@ -683,12 +683,11 @@ const OverviewFlow = ({ map }, ref) => {
 
 	useEffect(() => {
 		if (errorList) {
-			console.log(errorList);
+			//console.log(errorList);
 		}
 	}, [errorList]);
 
 	const deleteBlocks = (blocks) => {
-		console.log("AUGH");
 		console.log(blocks);
 		errorListCheck(blocks, errorList, setErrorList, true);
 
