@@ -50,6 +50,7 @@ import {
 } from "./Utils";
 import download from "downloadjs";
 import { NodeTypes } from "./flow/nodes/TypeDefinitions";
+import ExportModal from "./dialogs/ExportModal";
 
 const defaultToastSuccess = {
 	hideProgressBar: false,
@@ -71,6 +72,7 @@ function Header({ closeBtn }, ref) {
 	const [showModalVersions, setShowModalVersions] = useState(false);
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
 	const [showMapSelectorModal, setShowMapSelectorModal] = useState(false);
+	const [showExportModal, setShowExportModal] = useState(false);
 	const selectMapDOM = useRef(null);
 	const selectVersionDOM = useRef(null);
 	const [versions, setVersions] = useState([]);
@@ -93,6 +95,7 @@ function Header({ closeBtn }, ref) {
 	const toggleDeleteModal = () => setShowDeleteModal(!showDeleteModal);
 	const toggleMapSelectorModal = () =>
 		setShowMapSelectorModal(!showMapSelectorModal);
+	const toggleExportModal = () => setShowExportModal(!showExportModal);
 
 	const closeModalVersiones = () => setShowModalVersions(false);
 	const openModalVersiones = () => setShowModalVersions(true);
@@ -240,121 +243,96 @@ function Header({ closeBtn }, ref) {
 				  }
 				: emptyNewMap,
 		];
-		//aquí
-
-		// try {
-		// 	const encodedSelectedOption = encodeURIComponent(selectedOption);
-		// 	const encodedCourse = encodeURIComponent(course);
-
-		// 	setShowSpinner(true);
-		// 	setAllowResourceSelection(false);
-		// 	const response = await fetch(`http://127.0.0.1:8000/lti/get_modules_by_type?type=${encodedSelectedOption}&course=${encodedCourse}`);
-			
-		// 	if (!response.ok) {
-		// 		throw new Error('Request failed');
-		// 	}
-		// 	const data = await response.json();
-		// 	setResourceOptions(data);
-		// 	setShowSpinner(false);
-		// 	setAllowResourceSelection(true);
-		// } catch (e) {
-		// 	const error = new Error(
-		// 			"No se pudo crear el mapa."
-		// 	);
-		// 	error.log = e;
-		// 	throw error;
-		// }
 
 		setMaps(newMaps);
 		toast(`Mapa: "Nuevo Mapa ${maps.length}" creado`, defaultToastSuccess);
 	};
 
-		const handleImportedMap = async () => {
+	const handleImportedMap = async () => {
 		const uniqueId = () => parseInt(Date.now() * Math.random()).toString();
 		//try {
-			const metaData = JSON.parse(localStorage.getItem('meta_data'));
-			const encodedCourse = encodeURIComponent(metaData.course_id);
-			const response = await fetch(`http://127.0.0.1:8000/lti/get_modules?course=${encodedCourse}`);
-			
-			if (!response.ok) {
-				throw new Error('Request failed');
+		const metaData = JSON.parse(localStorage.getItem("meta_data"));
+		const encodedCourse = encodeURIComponent(metaData.course_id);
+		const response = await fetch(
+			`http://${process.env.BACK_URL}/lti/get_modules?course=${encodedCourse}`
+		);
+
+		if (!response.ok) {
+			throw new Error("Request failed");
+		}
+		const data = await response.json();
+
+		console.log("JSON RECIBIDO: ", data);
+
+		let newX = 125;
+		let newY = 0;
+		const validTypes = [];
+		NodeTypes.map((node) => validTypes.push(node.type));
+		const nodes = [];
+		data.map((node) => {
+			if (validTypes.includes(node.modname)) {
+				const newNode = {};
+				newNode.id = "" + uniqueId();
+				newNode.type = node.modname;
+				newNode.position = { x: newX, y: newY };
+				newNode.data = {
+					label: node.name,
+					indent: node.indent,
+					unit: node.unit,
+					children: [],
+					order: node.order,
+					lmsResource: node.id,
+					lmsVisibility: node.visible,
+				};
+
+				newX += 125;
+				nodes.push(newNode);
 			}
-			const data = await response.json();
+		});
+		console.log("JSON FILTRADO Y ADAPTADO: ", nodes);
 
-			console.log("JSON RECIBIDO: ",data)
-
-			let newX = 125;
-			let newY = 0;
-			const validTypes = []
-			NodeTypes.map(node=> validTypes.push(node.type));
-			const nodes = []
-			data.map(node=> {
-				if(validTypes.includes(node.modname)){
-					const newNode = {}
-					newNode.id = ""+uniqueId();
-					newNode.type = node.modname
-					newNode.position = {x:newX,y:newY}
-					newNode.data = {
-						label: node.name,
-						indent: node.indent,
-						unit: node.unit,
-						children: [],
-						order: node.order,
-						lmsResource: node.id,
-						lmsVisibility: node.visible,
-					}
-
-					newX += 125;
-					nodes.push(newNode)
-				}
-			})
-			console.log("JSON FILTRADO Y ADAPTADO: ",nodes)
-
-			const platformNewMap = {
-				id: maps.length,
-				name: "Nuevo Mapa " + maps.length,
-				versions: [
-					{
-						id: 0,
-						name: "Última versión",
-						lastUpdate: new Date().toLocaleDateString(),
-						default: "true",
-						blocksData: [
-							{
-								id: uniqueId(),
-								position: { x: 0, y: 0 },
-								type: "start",
-								selectable: false,
-								deletable: false,
-								data: {
-									label: "Entrada",
-								},
+		const platformNewMap = {
+			id: maps.length,
+			name: "Nuevo Mapa " + maps.length,
+			versions: [
+				{
+					id: 0,
+					name: "Última versión",
+					lastUpdate: new Date().toLocaleDateString(),
+					default: "true",
+					blocksData: [
+						{
+							id: uniqueId(),
+							position: { x: 0, y: 0 },
+							type: "start",
+							selectable: false,
+							deletable: false,
+							data: {
+								label: "Entrada",
 							},
-							...nodes,
-							{
-								id: uniqueId(),
-								position: { x: newX, y: 0 },
-								type: "end",
-								selectable: false,
-								deletable: false,
-								data: {
-									label: "Salida",
-								},
+						},
+						...nodes,
+						{
+							id: uniqueId(),
+							position: { x: newX, y: 0 },
+							type: "end",
+							selectable: false,
+							deletable: false,
+							data: {
+								label: "Salida",
 							},
-						],
-					},
-				],
-			};
-	
-			const newMaps = [
-				...maps,
-					  platformNewMap
-			];
+						},
+					],
+				},
+			],
+		};
 
-			console.log("JSON CONVERTIDO EN UN MAPA: ",platformNewMap)
-	
-			setMaps(newMaps);
-			toast(`Mapa: "Nuevo Mapa ${maps.length}" creado`, defaultToastSuccess);
+		const newMaps = [...maps, platformNewMap];
+
+		console.log("JSON CONVERTIDO EN UN MAPA: ", platformNewMap);
+
+		setMaps(newMaps);
+		toast(`Mapa: "Nuevo Mapa ${maps.length}" creado`, defaultToastSuccess);
 
 		/*} catch (e) {
 			const error = new Error(
@@ -578,82 +556,79 @@ function Header({ closeBtn }, ref) {
 		reader.readAsText(file);
 	};
 
-
 	useEffect(() => {
 		try {
-			// fetch("resources/devmaps.json")
-			// 	.then((response) => response.json())
-			// 	.then((data) => {
-			// 		setMaps([emptyMap, ...data]);
-			// 		setLoadedMaps(true);
-			// 	})
-			// 	.catch((e) => {
-			// 		const error = new Error(
-			// 			"No se pudieron obtener los datos del curso desde el LMS."
-			// 		);
-			// 		error.log = e;
-			// 		throw error;
-			// 	});
-				
-			// 	fetch("resources/devmeta.json")
-			// 		.then((response) => response.json())
-			// 		.then((data) => {
-			// 			setPlatform(data.platform);
-			// 			setMetaData({ ...data, courseSource: process.env.BACK_URL });
-			// 			setLoadedMetaData(true);
-			// 		})
-			// 		.catch((e) => {
-			// 			const error = new Error(
-			// 				"No se pudieron obtener los metadatos del curso desde el LMS."
-			// 			);
-			// 			error.log = e;
-			// 			throw error;
-			// 		});
+			if (process.env.DEV_FILES) {
+				fetch("resources/devmaps.json")
+					.then((response) => response.json())
+					.then((data) => {
+						setMaps([emptyMap, ...data]);
+						setLoadedMaps(true);
+					})
+					.catch((e) => {
+						const error = new Error(
+							"No se pudieron obtener los datos del curso desde el LMS."
+						);
+						error.log = e;
+						throw error;
+					});
+				fetch("resources/devmeta.json")
+					.then((response) => response.json())
+					.then((data) => {
+						setPlatform(data.platform);
+						setMetaData({ ...data, courseSource: process.env.BACK_URL });
+						setUnits(data.units);
+						setLoadedMetaData(true);
+					})
+					.catch((e) => {
+						const error = new Error(
+							"No se pudieron obtener los metadatos del curso desde el LMS."
+						);
+						error.log = e;
+						throw error;
+					});
+				fetch("resources/devuser.json")
+					.then((response) => response.json())
+					.then((data) => {
+						setUserData(data);
+						setLoadedUserData(true);
+					})
+					.catch((e) => {
+						const error = new Error(
+							"No se pudieron obtener los datos del usuario desde el LMS."
+						);
+						error.log = e;
+						throw error;
+					});
+			} else {
+				fetch(`http://${process.env.BACK_URL}/lti/get_session`)
+					.then((response) => response.json())
+					.then((data) => {
+						console.log("DATOS DEL LMS: ", data);
+						// Usuario
+						setUserData(data[0]);
+						setLoadedUserData(true);
 
-			// 	fetch("resources/devuser.json")
-			// 		.then((response) => response.json())
-			// 		.then((data) => {
-			// 			setUserData(data);
-			// 			setLoadedUserData(true);
-			// 		})
-			// 		.catch((e) => {
-			// 			const error = new Error(
-			// 				"No se pudieron obtener los datos del usuario desde el LMS."
-			// 			);
-			// 			error.log = e;
-			// 			throw error;
-			// 		});
-			//	}
+						//Metadata
+						setPlatform(data[1].platform);
+						setMetaData({ ...data[1], courseSource: process.env.BACK_URL }); //FIXME: This should be the course website in moodle
+						setUnits(data[1].units);
+						setLoadedMetaData(true);
+						localStorage.setItem("meta_data", JSON.stringify(data[1]));
 
-			fetch("http://127.0.0.1:8000/lti/get_session")
-			.then(
-				(response) => response.json())
-			.then((data) => {
-				console.log("DATOS DEL LMS: ",data);
-				// Usuario
-				setUserData(data[0]);
-				setLoadedUserData(true);
-				
-				//Metadata
-				setPlatform(data[1].platform);
-				setMetaData({ ...data[1], courseSource: process.env.BACK_URL });
-				setUnits(data[1].units);
-				setLoadedMetaData(true);
-				localStorage.setItem('meta_data', JSON.stringify(data[1]));
-				
-				//maps
-				setMaps([emptyMap, ...data[2].maps]);
-				setLoadedMaps(true);
-			})
-			.catch((e) => {
-				const error = new Error(
-					"No se pudieron obtener los datos del curso desde el LMS."
-				);
-				error.log = e;
-				throw error;
-			});
-		}
-		  catch (e) {
+						//maps
+						setMaps([emptyMap, ...data[2].maps]);
+						setLoadedMaps(true);
+					})
+					.catch((e) => {
+						const error = new Error(
+							"No se pudieron obtener los datos del curso desde el LMS."
+						);
+						error.log = e;
+						throw error;
+					});
+			}
+		} catch (e) {
 			toast(e, defaultToastError);
 			console.error(e, e.log);
 		}
@@ -988,6 +963,10 @@ function Header({ closeBtn }, ref) {
 								className={`d-flex align-items-center p-2 ${
 									styles.actionButtons
 								} ${errorList?.length > 0 ? styles.error : styles.success}`}
+								onClick={() => {
+									if (mapSelected && mapSelected.id > -1)
+										setShowExportModal(true);
+								}}
 							>
 								<FontAwesomeIcon
 									icon={faBell}
@@ -1014,9 +993,7 @@ function Header({ closeBtn }, ref) {
 									<div className="d-flex flex-row">
 										<Container className="d-flex flex-column">
 											<div>
-												{loadedUserData
-													? userData.name 
-													: "Cargando..."}
+												{loadedUserData ? userData.name : "Cargando..."}
 											</div>
 											<div>
 												{loadedMetaData && capitalizeFirstLetter(platform)}
@@ -1139,24 +1116,40 @@ function Header({ closeBtn }, ref) {
 			) : (
 				<></>
 			)}
-			<SimpleActionDialog
-				showDialog={showDeleteModal}
-				toggleDialog={toggleDeleteModal}
-				title={modalTitle}
-				body={modalBody}
-				action=""
-				cancel=""
-				type="delete"
-				callback={modalCallback}
-			/>
-			<SimpleMapSelector
-				showDialog={showMapSelectorModal}
-				toggleDialog={toggleMapSelectorModal}
-				title={"Clonar versión a..."}
-				maps={maps}
-				callback={handleNewVersionIn}
-				selectedVersion={selectedVersion}
-			/>
+			{showDeleteModal && (
+				<SimpleActionDialog
+					showDialog={showDeleteModal}
+					toggleDialog={toggleDeleteModal}
+					title={modalTitle}
+					body={modalBody}
+					action=""
+					cancel=""
+					type="delete"
+					callback={modalCallback}
+				/>
+			)}
+			{showMapSelectorModal && (
+				<SimpleMapSelector
+					showDialog={showMapSelectorModal}
+					toggleDialog={toggleMapSelectorModal}
+					title={"Clonar versión a..."}
+					maps={maps}
+					callback={handleNewVersionIn}
+					selectedVersion={selectedVersion}
+				/>
+			)}
+			{showExportModal && (
+				<ExportModal
+					showDialog={showExportModal}
+					toggleDialog={toggleExportModal}
+					metadata={metaData}
+					userdata={userData}
+					errorList={errorList}
+					callback={() => {
+						alert("TEST");
+					}}
+				/>
+			)}
 		</header>
 	);
 }

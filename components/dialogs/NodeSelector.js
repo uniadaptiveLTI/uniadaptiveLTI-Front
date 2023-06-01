@@ -37,10 +37,17 @@ export default forwardRef(function NodeSelector(
 	}
 
 	function SelectionElement(selectedElement) {
-		const { type, name } = selectedElement;
+		const { nodeType, type, name } = selectedElement;
 
 		const typeColor = getTypeStaticColor(type, platform);
 		const typeIcon = getTypeIcon(type, platform, 32);
+		const data = {};
+		if (nodeType == "ElementNode") {
+			data.label = name;
+			data.children = [];
+		} else {
+			data.label = name;
+		}
 		return (
 			<div key={type} className={styles.cardContainer + " nodeSelectionItem"}>
 				<div
@@ -48,12 +55,12 @@ export default forwardRef(function NodeSelector(
 					role="button"
 					tabIndex={0}
 					onClick={() => {
-						callback({ id: uniqueId(), type: type, data: { label: name } });
+						callback({ id: uniqueId(), type: type, data: { ...data } });
 						toggleDialog();
 					}}
 					onKeyDown={(e) => {
 						if (e.code == "Enter") {
-							callback({ id: uniqueId(), type: type, data: { label: name } });
+							callback({ id: uniqueId(), type: type, data: { ...data } });
 							toggleDialog();
 						}
 					}}

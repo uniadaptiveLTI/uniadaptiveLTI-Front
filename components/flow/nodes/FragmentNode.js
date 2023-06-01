@@ -461,18 +461,22 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 					</span>
 				)}
 			</div>
-			<FragmentResizer
-				showDialog={showResizer}
-				setShowResizer={setShowResizer}
-				id={id}
-				callback={resizeFragment}
-			/>
-			<FragmentEditor
-				showDialog={showEditor}
-				setShowEditor={setShowEditor}
-				mode={editorMode}
-				id={id}
-			/>
+			{showResizer && (
+				<FragmentResizer
+					showDialog={showResizer}
+					setShowResizer={setShowResizer}
+					id={id}
+					callback={resizeFragment}
+				/>
+			)}
+			{showEditor && (
+				<FragmentEditor
+					showDialog={showEditor}
+					setShowEditor={setShowEditor}
+					mode={editorMode}
+					id={id}
+				/>
+			)}
 		</>
 	);
 }

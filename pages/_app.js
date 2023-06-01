@@ -74,6 +74,12 @@ export default function App({ Component, pageProps }) {
 		}
 	}, [isOnline]);
 
+	if (process.env.DEV_FILES) {
+		console.warn(
+			"DEV_FILES is true, communication with the backend is disabled."
+		);
+	}
+
 	return (
 		<OnlineContext.Provider value={{ isOnline, isOffline }}>
 			<SettingsContext.Provider value={{ settings, setSettings }}>

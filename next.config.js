@@ -7,7 +7,7 @@ const nextConfig = {
 		 */
 
 		//URL that points to the UNIAdaptive LTI Backend
-		BACK_URL: "",
+		BACK_URL: "127.0.0.1:8000",
 
 		/**
 		 * Branding
@@ -32,6 +32,8 @@ const nextConfig = {
 
 		// Displays additional information on the interface for debugging purposes
 		DEV_MODE: false,
+		// Uses local files instead of communicate with the back for testing purposes
+		DEV_FILES: true,
 	},
 };
 

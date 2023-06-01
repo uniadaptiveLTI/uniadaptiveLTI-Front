@@ -35,8 +35,11 @@ import {
 	errorListCheck,
 } from "./Utils.js";
 import { ActionBlocks } from "./flow/nodes/ActionNode.js";
-import { getMoodleTypes, getSakaiTypes } from "./flow/nodes/TypeDefinitions.js";
-import axios from "axios";
+import {
+	NodeTypes,
+	getMoodleTypes,
+	getSakaiTypes,
+} from "./flow/nodes/TypeDefinitions.js";
 
 export default function Aside({ className, closeBtn, svgExists }) {
 	const { errorList, setErrorList } = useContext(ErrorListContext);
@@ -99,8 +102,6 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	);
 	const sakaiResource = orderByPropertyAlphabetically(getSakaiTypes(), "name");
 
-	
-
 	const fetchData = async (selectedOption, course) => {
 		try {
 			const encodedSelectedOption = encodeURIComponent(selectedOption);
@@ -108,39 +109,91 @@ export default function Aside({ className, closeBtn, svgExists }) {
 
 			setShowSpinner(true);
 			setAllowResourceSelection(false);
-			const response = await fetch(`http://127.0.0.1:8000/lti/get_modules_by_type?type=${encodedSelectedOption}&course=${encodedCourse}`);
-			
+			const response = await fetch(
+				`http://${process.env.BACK_URL}/lti/get_modules_by_type?type=${encodedSelectedOption}&course=${encodedCourse}`
+			);
+
 			if (!response.ok) {
-				throw new Error('Request failed');
+				throw new Error("Request failed");
 			}
 			const data = await response.json();
-			setResourceOptions(data);
 			setShowSpinner(false);
 			setAllowResourceSelection(true);
+			return data;
 		} catch (e) {
 			const error = new Error(
-					"No se pudieron obtener los datos del curso desde el LMS."
+				"No se pudieron obtener los datos del curso desde el LMS."
 			);
 			error.log = e;
 			throw error;
 		}
-	  };
-	
-	useEffect(() => {
+	};
 
-	const metaData = JSON.parse(localStorage.getItem('meta_data'));
+	useEffect(() => {
+		const metaData = JSON.parse(localStorage.getItem("meta_data"));
 		switch (selectedOption) {
 			case "generic":
 				setResourceOptions([{ id: 0, name: "Genérico" }]);
 				break;
 			default:
 				//FIXME: No sucede
-				if(!selectedOption){
+				if (!selectedOption) {
 					setResourceOptions([]);
 				} else {
-					fetchData(selectedOption,metaData.course_id);
+					if (process.env.DEV_FILES) {
+						const data = [
+							{
+								id: 0,
+								name: `${capitalizeFirstLetter(
+									NodeTypes.filter((node) => node.type == selectedOption)[0]
+										.name
+								)} A`,
+							},
+							{
+								id: 1,
+								name: `${capitalizeFirstLetter(
+									NodeTypes.filter((node) => node.type == selectedOption)[0]
+										.name
+								)} B`,
+							},
+							{
+								id: 2,
+								name: `${capitalizeFirstLetter(
+									NodeTypes.filter((node) => node.type == selectedOption)[0]
+										.name
+								)} C`,
+							},
+							{
+								id: 3,
+								name: `${capitalizeFirstLetter(
+									NodeTypes.filter((node) => node.type == selectedOption)[0]
+										.name
+								)} D`,
+							},
+						];
+						const filteredData = [];
+						console.log(data);
+						console.log(getUsedResources());
+						data.forEach((resource) => {
+							if (!getUsedResources().includes(resource.id)) {
+								filteredData.push(resource);
+							}
+						});
+						console.log(filteredData);
+						setResourceOptions(filteredData);
+					} else {
+						fetchData(selectedOption, metaData.course_id).then((data) => {
+							const filteredData = [];
+							data.forEach((resource) => {
+								if (!getUsedResources().includes(resource.id)) {
+									filteredData.push(resource);
+								}
+							});
+							setResourceOptions(filteredData);
+						});
+					}
 				}
-				
+
 				break;
 		}
 	}, [selectedOption]);
@@ -157,11 +210,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 
 	const handleSelect = (event) => {
 		// FIXME Del cambio de calquier tipo a mail el icono refresh no se mapea por lo que no puede pillar las referencia
-		let input = lmsResourceDOM.current;
-		let type = resourceDOM.current.value;
-
-			setSelectedOption(event.target.value);
-		
+		setSelectedOption(event.target.value);
 	};
 
 	useEffect(() => {
@@ -206,7 +255,6 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	 * Updates the selected block with the values from the specified DOM elements.
 	 */
 	const updateBlock = () => {
-
 		let type = resourceDOM.current.value;
 		let newData;
 
@@ -221,7 +269,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 				lmsResource: lmsResourceDOM.current.value,
 				lmsVisibility: lmsVisibilityDOM.current.value,
 				unit: unitDOM.current.value,
-				order: limitedOrder,
+				order: limitedOrder - 1,
 				identation: limitedIdentation,
 			};
 		} else {
@@ -275,6 +323,17 @@ export default function Aside({ className, closeBtn, svgExists }) {
 			lastUpdate: selectedEditVersion.lastUpdate,
 			default: selectedEditVersion.default,
 		}));
+	};
+
+	const getUsedResources = () => {
+		const nodes = reactFlowInstance.getNodes();
+		const usedResources = [];
+		nodes.map((node) => {
+			if (node.data.lmsResource) {
+				usedResources.push(node.data.lmsResource);
+			}
+		});
+		return usedResources;
 	};
 
 	return (
@@ -455,21 +514,21 @@ export default function Aside({ className, closeBtn, svgExists }) {
 											ref={lmsResourceDOM}
 											id={lmsResourceDOMId}
 											className="w-100"
-											defaultValue={lmsResource == ""? lmsResource : "-1"}
+											defaultValue={lmsResource == "" ? lmsResource : "-1"}
 											disabled={!resourceOptions}
 										>
-											{allowResourceSelection &&
-											
-												(<>
-												<option key = '-1' hidden value> </option>
-												{
-												resourceOptions.map((option) => (
-													<option key={option.id} value={option.id}>
-														{option.name}
+											{allowResourceSelection && (
+												<>
+													<option key="-1" hidden value>
+														{"Vacío"}
 													</option>
+													{resourceOptions.map((resource) => (
+														<option key={resource.id} value={resource.id}>
+															{resource.name}
+														</option>
 													))}
-													</>
-													)}
+												</>
+											)}
 										</Form.Select>
 									</div>
 								)}
@@ -538,7 +597,9 @@ export default function Aside({ className, closeBtn, svgExists }) {
 														[...units].map((unit) => {
 															if (!unit.name.match(/^\d/)) {
 																unit.name =
-																	unit.position + 1 + "- " + unit.name;
+																	platform == "moodle"
+																		? unit.position + "- " + unit.name
+																		: unit.position + 1 + "- " + unit.name;
 																unit.value = unit.position + 1;
 															}
 															return unit;

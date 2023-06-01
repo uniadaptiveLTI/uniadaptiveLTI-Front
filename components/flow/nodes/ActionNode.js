@@ -10,9 +10,13 @@ import {
 	PlatformContext,
 } from "@components/pages/_app";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faRightFromBracket } from "@fortawesome/free-solid-svg-icons";
+import {
+	faEdit,
+	faRightFromBracket,
+	faExclamation,
+} from "@fortawesome/free-solid-svg-icons";
 import FocusTrap from "focus-trap-react";
-import { Button } from "react-bootstrap";
+import { Button, Badge } from "react-bootstrap";
 import { getTypeIcon } from "./NodeIcons";
 import { getNodeById, getUpdatedArrayById } from "@components/components/Utils";
 import { NodeTypes } from "./TypeDefinitions";
@@ -193,6 +197,30 @@ function ActionNode({
 				<span className={styles.blockInfo + " " + styles.bottom}>
 					{getHumanDesc(type)}
 				</span>
+				{!data.lmsResource && (
+					<Badge
+						bg="danger"
+						className={
+							styles.badge +
+							" " +
+							styles.badgeError +
+							" " +
+							(reducedAnimations && styles.noAnimation) +
+							" " +
+							styles.showBadges +
+							" " +
+							(highContrast && styles.highContrast)
+						}
+						title="Unidad"
+					>
+						{
+							<FontAwesomeIcon
+								icon={faExclamation}
+								style={{ color: "#ffffff" }}
+							/>
+						}
+					</Badge>
+				)}
 			</div>
 		</>
 	);

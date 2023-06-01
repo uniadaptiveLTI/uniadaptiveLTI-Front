@@ -1,9 +1,21 @@
 import { useCallback, useContext } from "react";
-import { Handle, Position, NodeToolbar, useReactFlow } from "reactflow";
+import {
+	Handle,
+	Position,
+	NodeToolbar,
+	useReactFlow,
+	useNodes,
+} from "reactflow";
 import { Badge, Button } from "react-bootstrap";
 import styles from "@components/styles/BlockContainer.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faRightFromBracket } from "@fortawesome/free-solid-svg-icons";
+import {
+	faEdit,
+	faRightFromBracket,
+	faEye,
+	faEyeSlash,
+	faExclamation,
+} from "@fortawesome/free-solid-svg-icons";
 import {
 	BlockInfoContext,
 	ExpandedAsideContext,
@@ -32,6 +44,22 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 	const reactFlowInstance = useReactFlow();
 	const parsedSettings = JSON.parse(settings);
 	const { highContrast, showDetails, reducedAnimations } = parsedSettings;
+	const rfNodes = useNodes();
+
+	const getParentExpanded = () => {
+		const nodes = rfNodes;
+		const parentID = getNodeById(id, nodes).parentNode;
+
+		if (parentID) {
+			//If is part of a fragment
+			const parent = getNodeById(parentID, nodes);
+
+			return parent.data.expanded;
+		} else {
+			//Treat as expanded
+			return true;
+		}
+	};
 
 	const handleEdit = () => {
 		const blockData = getNodeById(id, reactFlowInstance.getNodes());
@@ -224,28 +252,38 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 				<span className={styles.blockInfo + " " + styles.bottom}>
 					{getHumanDesc(type)}
 				</span>
-				{!isNaN(data.unit) && (
+				{/*TODO: DO THIS CORRECTLY, ADD TO FRAGMENT, AND HIDE THIS WHEN HIDDEN, DO THIS IN BADGES TOO*/}
+				{!data.lmsResource && (
 					<Badge
-						bg="light"
+						bg="danger"
 						className={
 							styles.badge +
 							" " +
+							styles.badgeError +
+							" " +
 							(reducedAnimations && styles.noAnimation) +
 							" " +
-							(showDetails && styles.showBadges) +
+							styles.showBadges +
 							" " +
 							(highContrast && styles.highContrast)
 						}
 						title="Unidad"
 					>
-						{Number(data.unit) + 1}
+						{
+							<FontAwesomeIcon
+								icon={faExclamation}
+								style={{ color: "#ffffff" }}
+							/>
+						}
 					</Badge>
 				)}
-				{!isNaN(data.order) && (
+				{data.lmsVisibility && getParentExpanded() && (
 					<Badge
-						bg="warning"
+						bg="primary"
 						className={
-							styles.badgeTwo +
+							styles.badge +
+							" " +
+							styles.badgeVisibility +
 							" " +
 							(reducedAnimations && styles.noAnimation) +
 							" " +
@@ -253,9 +291,60 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 							" " +
 							(highContrast && styles.highContrast)
 						}
-						title="Posición en la unidad"
+						title="Visibilidad"
 					>
-						{data.order}
+						{platform == "moodle" || platform == "sakai" ? (
+							data.lmsVisibility == "show_unconditionally" ? (
+								<FontAwesomeIcon icon={faEye} style={{ color: "#ffffff" }} />
+							) : (
+								<FontAwesomeIcon
+									icon={faEyeSlash}
+									style={{ color: "#ffffff" }}
+								/>
+							)
+						) : data.lmsVisibility == "show_unconditionally" ? (
+							<FontAwesomeIcon icon={faEye} style={{ color: "#ffffff" }} />
+						) : (
+							<FontAwesomeIcon icon={faEyeSlash} style={{ color: "#ffffff" }} />
+						)}
+					</Badge>
+				)}
+				{!isNaN(data.unit) && getParentExpanded() && (
+					<Badge
+						bg="light"
+						className={
+							styles.badge +
+							" " +
+							styles.badgeUnit +
+							" " +
+							(reducedAnimations && styles.noAnimation) +
+							" " +
+							(showDetails && styles.showBadges) +
+							" " +
+							(highContrast && styles.highContrast)
+						}
+						title="Sección"
+					>
+						{platform == "moodle" ? Number(data.unit) : Number(data.unit) + 1}
+					</Badge>
+				)}
+				{!isNaN(data.order) && getParentExpanded() && (
+					<Badge
+						bg="warning"
+						className={
+							styles.badge +
+							" " +
+							styles.badgePos +
+							" " +
+							(reducedAnimations && styles.noAnimation) +
+							" " +
+							(showDetails && styles.showBadges) +
+							" " +
+							(highContrast && styles.highContrast)
+						}
+						title="Posición en la sección"
+					>
+						{data.order + 1}
 					</Badge>
 				)}
 			</div>

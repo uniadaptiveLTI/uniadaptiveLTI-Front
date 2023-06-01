@@ -249,16 +249,15 @@ export function errorListCheck(data, errorList, setErrorList, deleteFromList) {
 			});
 			setErrorList(updatedErrorList);
 		} else {
-				data.forEach((item) => {
-					if(!(item.type == "start" || item.type == "end")){
-						if (!item.data.lmsResource || item.data.lmsResource == "") {
-							if (!errorArray.includes(item.id)) {
-								errorArray.push(item.id);
-							}
+			data.forEach((item) => {
+				if (!(item.type == "start" || item.type == "end")) {
+					if (!item.data.lmsResource || item.data.lmsResource == "") {
+						if (!errorArray.includes(item.id)) {
+							errorArray.push(item.id);
 						}
+					}
 				}
-				});
-			
+			});
 
 			setErrorList(errorArray);
 		}

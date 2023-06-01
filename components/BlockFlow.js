@@ -987,7 +987,7 @@ const OverviewFlow = ({ map }, ref) => {
 								},
 							};
 						} else {
-							newBlockCreated = { ...blockData };
+							newBlockCreated = { ...{ ...blockData } };
 						}
 					}
 				}

@@ -3,9 +3,10 @@
 	"courseId": 0,
 	"platform": "moodle",
 	"units": [
-		{ "id": 0, "position": 0, "name": "Física" },
-		{ "id": 1, "position": 2, "name": "Física Avanzada" },
-		{ "id": 2, "position": 1, "name": "Física Cuántica" }
+		{ "id": 1, "position": 0, "name": "General" },
+		{ "id": 2, "position": 1, "name": "Física" },
+		{ "id": 3, "position": 3, "name": "Física Avanzada" },
+		{ "id": 4, "position": 2, "name": "Física Cuántica" }
 	],
 	"badges": [],
 	"groups": [],
