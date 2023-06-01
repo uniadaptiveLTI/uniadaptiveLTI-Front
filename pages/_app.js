@@ -13,7 +13,6 @@ import Layout from "../components/Layout";
 
 export const MSGContext = createContext();
 export const BlockInfoContext = createContext();
-export const UnitContext = createContext();
 export const ErrorListContext = createContext();
 export const MapInfoContext = createContext("");
 export const VersionInfoContext = createContext();
@@ -28,6 +27,7 @@ export const BlocksDataContext = createContext();
 export const MainDOMContext = createContext();
 export const OnlineContext = createContext();
 export const ReactFlowInstanceContext = createContext();
+export const MetaDataContext = createContext();
 
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";

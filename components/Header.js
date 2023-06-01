@@ -37,7 +37,7 @@ import {
 	MSGContext,
 	SettingsContext,
 	OnlineContext,
-	UnitContext,
+	MetaDataContext,
 	ErrorListContext,
 } from "@components/pages/_app";
 import { toast } from "react-toastify";
@@ -82,7 +82,7 @@ function Header({ closeBtn }, ref) {
 	const [loadedMaps, setLoadedMaps] = useState();
 	const emptyMap = { id: -1, name: "Seleccionar un mapa" };
 	const [maps, setMaps] = useState([emptyMap]);
-	const [metaData, setMetaData] = useState({});
+	const { metaData, setMetaData } = useContext(MetaDataContext);
 	const [userData, setUserData] = useState({});
 
 	const [selectedVersion, setSelectedVersion] = useState();
@@ -106,7 +106,6 @@ function Header({ closeBtn }, ref) {
 	const { selectedEditVersion, setSelectedEditVersion } =
 		useContext(VersionInfoContext);
 	const { msg, setMSG } = useContext(MSGContext);
-	const { units, setUnits } = useContext(UnitContext);
 
 	const { versionJson, setVersionJson } = useContext(VersionJsonContext);
 
@@ -577,7 +576,6 @@ function Header({ closeBtn }, ref) {
 					.then((data) => {
 						setPlatform(data.platform);
 						setMetaData({ ...data, courseSource: process.env.BACK_URL });
-						setUnits(data.units);
 						setLoadedMetaData(true);
 					})
 					.catch((e) => {
@@ -612,7 +610,6 @@ function Header({ closeBtn }, ref) {
 						//Metadata
 						setPlatform(data[1].platform);
 						setMetaData({ ...data[1], courseSource: process.env.BACK_URL }); //FIXME: This should be the course website in moodle
-						setUnits(data[1].units);
 						setLoadedMetaData(true);
 						localStorage.setItem("meta_data", JSON.stringify(data[1]));
 

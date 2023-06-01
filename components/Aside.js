@@ -26,7 +26,7 @@ import {
 	VersionJsonContext,
 	SettingsContext,
 	BlocksDataContext,
-	UnitContext,
+	MetaDataContext,
 } from "../pages/_app.js";
 import {
 	capitalizeFirstLetter,
@@ -62,7 +62,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	const { selectedEditVersion, setSelectedEditVersion } =
 		useContext(VersionInfoContext);
 	const { settings, setSettings } = useContext(SettingsContext);
-	const { units, setUnits } = useContext(UnitContext);
+	const { metaData, setMetaData } = useContext(MetaDataContext);
 
 	const parsedSettings = JSON.parse(settings);
 	let { reducedAnimations, autoHideAside } = parsedSettings;
@@ -503,6 +503,14 @@ export default function Aside({ className, closeBtn, svgExists }) {
 													>
 														<Button
 															className={`btn-light d-flex align-items-center p-0 m-0 ${styles.actionButtons}`}
+															onClick={() =>
+																window.open(
+																	metaData.courseSource.startsWith("http")
+																		? metaData.courseSource
+																		: "https://" + metaData.courseSource,
+																	"_blank"
+																)
+															}
 														>
 															<FontAwesomeIcon icon={faCircleQuestion} />
 														</Button>
@@ -592,9 +600,9 @@ export default function Aside({ className, closeBtn, svgExists }) {
 												id={unitDOMId}
 												defaultValue={blockSelected.data.unit}
 											>
-												{units &&
+												{metaData.units &&
 													orderByPropertyAlphabetically(
-														[...units].map((unit) => {
+														[...metaData.units].map((unit) => {
 															if (!unit.name.match(/^\d/)) {
 																unit.name =
 																	platform == "moodle"

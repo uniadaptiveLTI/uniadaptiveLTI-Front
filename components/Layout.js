@@ -14,11 +14,12 @@ import {
 	BlocksDataContext,
 	MainDOMContext,
 	MSGContext,
-	UnitContext,
+	MetaDataContext,
 } from "../pages/_app.js";
 
 export default function Layout({ children }) {
 	const [platform, setPlatform] = useState("moodle"); //default to moodle in testing phase
+	const [metaData, setMetaData] = useState();
 	const [units, setUnits] = useState();
 
 	const [blockSelected, setBlockSelected] = useState("");
@@ -88,7 +89,7 @@ export default function Layout({ children }) {
 
 	return (
 		<PlatformContext.Provider value={{ platform, setPlatform }}>
-			<UnitContext.Provider value={{ units, setUnits }}>
+			<MetaDataContext.Provider value={{ metaData, setMetaData }}>
 				<BlockInfoContext.Provider value={{ blockSelected, setBlockSelected }}>
 					<MapInfoContext.Provider
 						value={{ mapSelected, setMapSelected, activeMap, setActiveMap }}
@@ -177,7 +178,7 @@ export default function Layout({ children }) {
 						</VersionInfoContext.Provider>
 					</MapInfoContext.Provider>
 				</BlockInfoContext.Provider>
-			</UnitContext.Provider>
+			</MetaDataContext.Provider>
 		</PlatformContext.Provider>
 	);
 }
