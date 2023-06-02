@@ -22,12 +22,9 @@ const config = {
 		"/node_modules/",
 		"^.+\\.module\\.(css|sass|scss)$",
 	],
-	testMatch: [
-		"<rootDir>/tests/**/*.test.js",
-		"<rootDir>/components/__tests__/**/*.test.js",
-	],
+	testMatch: ["<rootDir>/**/*.test.js", "<rootDir>/__tests__/**/*.test.js"],
 	moduleNameMapper: {
-		"^@/components/(.*)$": "<rootDir>/components/$1",
+		"^@/components/(.*)$": "<rootDir>/$1",
 	},
 };
 

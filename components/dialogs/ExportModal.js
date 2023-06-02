@@ -44,7 +44,7 @@ export default forwardRef(function NodeSelector(
 
 	/**
 	 * {
-	 * courseSource
+	 * return_url
 	 * userID
 	 * mapID
 	 * version:{}
