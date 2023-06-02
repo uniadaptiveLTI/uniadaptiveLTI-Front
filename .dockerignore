@@ -7,6 +7,7 @@ node_modules
 
 # Ignore Next.js build output
 .next
+build
 out
 
 # Ignore logs
