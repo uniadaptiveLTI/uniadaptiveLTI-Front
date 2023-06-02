@@ -141,46 +141,46 @@ export default function Aside({ className, closeBtn, svgExists }) {
 					setResourceOptions([]);
 				} else {
 					if (process.env.DEV_FILES) {
-						const data = [
-							{
-								id: 0,
-								name: `${capitalizeFirstLetter(
-									NodeTypes.filter((node) => node.type == selectedOption)[0]
-										.name
-								)} A`,
-							},
-							{
-								id: 1,
-								name: `${capitalizeFirstLetter(
-									NodeTypes.filter((node) => node.type == selectedOption)[0]
-										.name
-								)} B`,
-							},
-							{
-								id: 2,
-								name: `${capitalizeFirstLetter(
-									NodeTypes.filter((node) => node.type == selectedOption)[0]
-										.name
-								)} C`,
-							},
-							{
-								id: 3,
-								name: `${capitalizeFirstLetter(
-									NodeTypes.filter((node) => node.type == selectedOption)[0]
-										.name
-								)} D`,
-							},
-						];
-						const filteredData = [];
-						console.log(data);
-						console.log(getUsedResources());
-						data.forEach((resource) => {
-							if (!getUsedResources().includes(resource.id)) {
-								filteredData.push(resource);
-							}
-						});
-						console.log(filteredData);
-						setResourceOptions(filteredData);
+						setResourceOptions([]);
+						setTimeout(() => {
+							const data = [
+								{
+									id: 0,
+									name: `${capitalizeFirstLetter(
+										NodeTypes.filter((node) => node.type == selectedOption)[0]
+											.name
+									)} A`,
+								},
+								{
+									id: 1,
+									name: `${capitalizeFirstLetter(
+										NodeTypes.filter((node) => node.type == selectedOption)[0]
+											.name
+									)} B`,
+								},
+								{
+									id: 2,
+									name: `${capitalizeFirstLetter(
+										NodeTypes.filter((node) => node.type == selectedOption)[0]
+											.name
+									)} C`,
+								},
+								{
+									id: 3,
+									name: `${capitalizeFirstLetter(
+										NodeTypes.filter((node) => node.type == selectedOption)[0]
+											.name
+									)} D`,
+								},
+							];
+							const filteredData = [];
+							data.forEach((resource) => {
+								if (!getUsedResources().includes(resource.id)) {
+									filteredData.push(resource);
+								}
+							});
+							setResourceOptions(filteredData);
+						}, 1000);
 					} else {
 						fetchData(selectedOption, metaData.course_id).then((data) => {
 							const filteredData = [];
@@ -470,12 +470,12 @@ export default function Aside({ className, closeBtn, svgExists }) {
 													</Form.Label>
 													<div className="ms-2">
 														{!showSpinner && (
-															<div ref={refreshIconDOM} id="refresh-icon">
+															<div ref={refreshIconDOM}>
 																<FontAwesomeIcon icon={faRotateRight} />
 															</div>
 														)}
 														{showSpinner && (
-															<div>
+															<div ref={refreshIconDOM}>
 																<Spinner
 																	animation="border"
 																	role="status"

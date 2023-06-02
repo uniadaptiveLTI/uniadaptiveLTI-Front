@@ -1,6 +1,7 @@
 {
-	"name": "mockup-uniadaptive",
-	"version": "0.1.0",
+	"name": "uniadaptivelti-front",
+	"version": "0.2.0",
+	"description": "UniadaptiveLTI Front End",
 	"private": true,
 	"scripts": {
 		"dev": "next dev",
