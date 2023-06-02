@@ -505,9 +505,9 @@ export default function Aside({ className, closeBtn, svgExists }) {
 															className={`btn-light d-flex align-items-center p-0 m-0 ${styles.actionButtons}`}
 															onClick={() =>
 																window.open(
-																	metaData.courseSource.startsWith("http")
-																		? metaData.courseSource
-																		: "https://" + metaData.courseSource,
+																	metaData.return_url.startsWith("http")
+																		? metaData.return_url
+																		: "https://" + metaData.return_url,
 																	"_blank"
 																)
 															}

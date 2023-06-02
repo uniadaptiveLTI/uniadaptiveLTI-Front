@@ -212,7 +212,6 @@ function Header({ closeBtn }, ref) {
 							id: uniqueId(),
 							position: { x: 0, y: 0 },
 							type: "start",
-							selectable: false,
 							deletable: false,
 							data: {
 								label: "Entrada",
@@ -222,7 +221,6 @@ function Header({ closeBtn }, ref) {
 							id: uniqueId(),
 							position: { x: 125, y: 0 },
 							type: "end",
-							selectable: false,
 							deletable: false,
 							data: {
 								label: "Salida",
@@ -304,7 +302,6 @@ function Header({ closeBtn }, ref) {
 							id: uniqueId(),
 							position: { x: 0, y: 0 },
 							type: "start",
-							selectable: false,
 							deletable: false,
 							data: {
 								label: "Entrada",
@@ -315,7 +312,6 @@ function Header({ closeBtn }, ref) {
 							id: uniqueId(),
 							position: { x: newX, y: 0 },
 							type: "end",
-							selectable: false,
 							deletable: false,
 							data: {
 								label: "Salida",
@@ -357,7 +353,6 @@ function Header({ closeBtn }, ref) {
 					id: uniqueId(),
 					position: { x: 0, y: 0 },
 					type: "start",
-					selectable: false,
 					deletable: false,
 					data: {
 						label: "Entrada",
@@ -367,7 +362,6 @@ function Header({ closeBtn }, ref) {
 					id: uniqueId(),
 					position: { x: 125, y: 0 },
 					type: "end",
-					selectable: false,
 					deletable: false,
 					data: {
 						label: "Salida",
@@ -575,7 +569,7 @@ function Header({ closeBtn }, ref) {
 					.then((response) => response.json())
 					.then((data) => {
 						setPlatform(data.platform);
-						setMetaData({ ...data, courseSource: process.env.BACK_URL });
+						setMetaData({ ...data, return_url: process.env.BACK_URL });
 						setLoadedMetaData(true);
 					})
 					.catch((e) => {
@@ -609,7 +603,7 @@ function Header({ closeBtn }, ref) {
 
 						//Metadata
 						setPlatform(data[1].platform);
-						setMetaData({ ...data[1], courseSource: process.env.BACK_URL }); //FIXME: This should be the course website in moodle
+						setMetaData({ ...data[1], return_url: process.env.BACK_URL }); //FIXME: This should be the course website in moodle
 						setLoadedMetaData(true);
 						localStorage.setItem("meta_data", JSON.stringify(data[1]));
 
