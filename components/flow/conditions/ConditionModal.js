@@ -456,12 +456,14 @@ function ConditionModal({
 			blockData.data.conditions.conditions
 		);
 
+		console.log(foundCondition);
+
+		const nodes = reactFlowInstance.getEdges();
+
 		if (
 			foundCondition.type == "completion" ||
 			foundCondition.type == "qualification"
 		) {
-			const nodes = reactFlowInstance.getEdges();
-
 			const nodesUpdated = nodes.filter(
 				(node) => node.id === foundCondition.op + "-" + blockData.id
 			);
@@ -473,6 +475,20 @@ function ConditionModal({
 					(node) => node.id !== foundCondition.op + "-" + blockData.id
 				)
 			);
+		} else if (foundCondition.type == "conditionsGroup") {
+			const targetTypes = ["qualification", "completion"];
+			const matchingObjects = [];
+
+			searchJsonForTypes(foundCondition, targetTypes, matchingObjects);
+
+			const filteredNodes = nodes.filter(
+				(node) =>
+					!matchingObjects.some(
+						(condition) => node.id === condition.op + "-" + blockData.id
+					)
+			);
+
+			reactFlowInstance.setEdges(filteredNodes);
 		}
 
 		deleteConditionById(blockDataCopy.data.conditions.conditions, conditionId);
@@ -481,6 +497,18 @@ function ConditionModal({
 
 		setBlockData(blockDataCopy);
 	};
+
+	function searchJsonForTypes(jsonData, targetTypes, results) {
+		if (targetTypes.includes(jsonData.type)) {
+			results.push(jsonData);
+		}
+
+		if (jsonData.conditions && Array.isArray(jsonData.conditions)) {
+			for (const condition of jsonData.conditions) {
+				searchJsonForTypes(condition, targetTypes, results);
+			}
+		}
+	}
 
 	const cancelEditCondition = () => {
 		setSelectedOption("");
