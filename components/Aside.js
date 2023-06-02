@@ -83,7 +83,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	const titleDOMId = useId();
 	const optionsID = useId();
 	const lmsResourceDOMId = useId();
-	const resourceDOMId = useId();
+	const typeDOMId = useId();
 	const unitDOMId = useId();
 	const lmsVisibilityDOMId = useId();
 	const orderDOMId = useId();
@@ -179,6 +179,30 @@ export default function Aside({ className, closeBtn, svgExists }) {
 									filteredData.push(resource);
 								}
 							});
+
+							if (blockSelected.data) {
+								console.log("tiene datos");
+								if (blockSelected.data.lmsResource) {
+									console.log("tiene recurso");
+									if (blockSelected.data.lmsResource > -1) {
+										const lmsRes = blockSelected.data.lmsResource;
+										console.log("tiene recurso y es " + lmsRes);
+										const storedRes = data.find(
+											(resource) => resource.id == lmsRes
+										);
+										console.log(
+											"el recurso que concuerda con el almacenado es " +
+												storedRes
+										);
+
+										if (storedRes) {
+											filteredData.push(storedRes);
+										}
+									}
+								}
+							}
+
+							console.log(filteredData);
 							setResourceOptions(filteredData);
 						}, 1000);
 					} else {
@@ -189,6 +213,21 @@ export default function Aside({ className, closeBtn, svgExists }) {
 									filteredData.push(resource);
 								}
 							});
+							if (blockSelected.data) {
+								if (blockSelected.data.lmsResource) {
+									if (blockSelected.data.lmsResource > -1) {
+										const lmsRes = blockSelected.data.lmsResource;
+										const storedRes = data.find(
+											(resource) => resource.id == lmsRes
+										);
+										console.log(storedRes, lmsRes);
+
+										if (storedRes) {
+											filteredData.push(storedRes);
+										}
+									}
+								}
+							}
 							setResourceOptions(filteredData);
 						});
 					}
@@ -196,7 +235,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 
 				break;
 		}
-	}, [selectedOption]);
+	}, [selectedOption, blockSelected.id]);
 
 	useEffect(() => {
 		if (resourceOptions.length > 0) {
@@ -217,8 +256,9 @@ export default function Aside({ className, closeBtn, svgExists }) {
 		//console.log(blockSelected);
 		if (blockSelected) {
 			const titleCurrent = titleDOM.current;
-			const resourceCurrent = resourceDOM.current;
+			const typeCurrent = resourceDOM.current;
 			const lmsVisibilityCurrent = lmsVisibilityDOM.current;
+			const lmsResourceCurrent = lmsResourceDOM.current;
 			const unitCurrent = unitDOM.current;
 			const orderCurrent = orderDOM.current;
 			const identationCurrent = identationDOM.current;
@@ -227,8 +267,12 @@ export default function Aside({ className, closeBtn, svgExists }) {
 				titleCurrent.value = blockSelected.data.label;
 			}
 
-			if (resourceCurrent) {
-				resourceCurrent.value = blockSelected.type;
+			if (typeCurrent) {
+				typeCurrent.value = blockSelected.type;
+			}
+
+			if (lmsResourceCurrent) {
+				lmsResourceCurrent.value = blockSelected.data.lmsResource;
 			}
 
 			if (lmsVisibilityCurrent) {
@@ -265,6 +309,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 			limitedIdentation = Math.min(Math.max(limitedIdentation, 0), 999);
 
 			newData = {
+				...blockSelected.data,
 				label: titleDOM.current.value,
 				lmsResource: lmsResourceDOM.current.value,
 				lmsVisibility: lmsVisibilityDOM.current.value,
@@ -408,14 +453,14 @@ export default function Aside({ className, closeBtn, svgExists }) {
 								</Form.Group>
 								{blockSelected.type != "fragment" && (
 									<Form.Group className="mb-3">
-										<Form.Label htmlFor={resourceDOMId} className="mb-1">
+										<Form.Label htmlFor={typeDOMId} className="mb-1">
 											{ActionBlocks.includes(blockSelected.type)
 												? "Acción a realizar"
 												: "Tipo de recurso"}
 										</Form.Label>
 										<Form.Select
 											ref={resourceDOM}
-											id={resourceDOMId}
+											id={typeDOMId}
 											className="w-100"
 											defaultValue={selectedOption}
 											onChange={handleSelect}

@@ -179,6 +179,22 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 		);
 	};
 
+	const hasDuplicatedResource = () => {
+		const currentRes = data.lmsResource;
+		let duplicates = -1; //Only one resource per node
+		reactFlowInstance.getNodes().forEach((node) => {
+			const data = node.data;
+			if (data) {
+				if (data.lmsResource) {
+					if (data.lmsResource == currentRes) {
+						duplicates++;
+					}
+				}
+			}
+		});
+		return duplicates > 0;
+	};
+
 	return (
 		<>
 			<Handle
@@ -253,7 +269,7 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 					{getHumanDesc(type)}
 				</span>
 				{/*TODO: DO THIS CORRECTLY, ADD TO FRAGMENT, AND HIDE THIS WHEN HIDDEN, DO THIS IN BADGES TOO*/}
-				{!data.lmsResource && (
+				{(data.lmsResource == undefined || hasDuplicatedResource()) && (
 					<Badge
 						bg="danger"
 						className={
