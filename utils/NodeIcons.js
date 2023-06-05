@@ -1,4 +1,4 @@
-import styles from "@components/styles/BlockContainer.module.css";
+import styles from "@root/styles/BlockContainer.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
 	faCube,

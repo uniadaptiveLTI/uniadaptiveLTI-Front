@@ -1,6 +1,6 @@
 import { useState, useRef, useId, useContext } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
-import { MapContext, MapInfoContext } from "@components/pages/_app";
+import { MapContext, MapInfoContext } from "@root/pages/_app";
 
 export default function SimpleActionDialog({
 	showDialog,

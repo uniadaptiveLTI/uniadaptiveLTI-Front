@@ -8,10 +8,10 @@ import {
 } from "react";
 import { Form, InputGroup } from "react-bootstrap";
 import { useReactFlow, useNodes } from "reactflow";
-import { getNodeById, nearestPowerOfTwo } from "@components/components/Utils";
-import { PlatformContext } from "@components/pages/_app";
-import { getTypeIcon } from "@components/components/flow/nodes/NodeIcons";
-import styles from "@components/styles/BlockSelector.module.css";
+import { getNodeById, nearestPowerOfTwo } from "@utils/Utils";
+import { PlatformContext } from "@root/pages/_app";
+import { getTypeIcon } from "@root/utils/NodeIcons";
+import styles from "@root/styles/BlockSelector.module.css";
 
 export default forwardRef(function BlockSelector(
 	{ nodeArray, defaultValue, placeholder, autoFocus, onChange, size = 16 },

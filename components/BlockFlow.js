@@ -25,7 +25,7 @@ import {
 	PlatformContext,
 	SettingsContext,
 	notImplemented,
-} from "@components/pages/_app.js";
+} from "@root/pages/_app.js";
 import FinalNode from "./flow/nodes/FinalNode.js";
 import InitialNode from "./flow/nodes/InitialNode.js";
 import FragmentNode from "./flow/nodes/FragmentNode.js";
@@ -53,16 +53,15 @@ import {
 	getChildrenNodesFromFragmentID,
 	deduplicateById,
 	errorListCheck,
-} from "./Utils.js";
+} from "@utils/Utils.js";
 import { toast } from "react-toastify";
 import { useHotkeys } from "react-hotkeys-hook";
-import ContextualMenu from "./flow/ContextualMenu.js";
-import ConditionModal from "./flow/conditions/ConditionModal.js";
-import { getTypeStaticColor } from "./flow/nodes/NodeIcons.js";
-import { getBlockFlowTypes } from "./flow/nodes/TypeDefinitions.js";
-import NodeSelector from "./dialogs/NodeSelector.js";
-import CriteriaModal from "./flow/badges/CriteriaModal.js";
-import AnimatedEdge from "./flow/edges/AnimatedEdge.js";
+import ContextualMenu from "@flow/ContextualMenu.js";
+import ConditionModal from "@conditions/ConditionModal.js";
+import { getTypeStaticColor } from "@utils/NodeIcons.js";
+import NodeSelector from "@dialogs/NodeSelector.js";
+import CriteriaModal from "@flow/badges/CriteriaModal.js";
+import AnimatedEdge from "@edges/AnimatedEdge.js";
 
 const minimapStyle = {
 	height: 120,
@@ -335,26 +334,28 @@ const OverviewFlow = ({ map }, ref) => {
 		}
 
 		if (target?.type == "fragment") {
-			//Adds node to target fragment
-			const relPos = {
-				x: node.position.x - target.position.x,
-				y: node.position.y - target.position.y,
-			};
-			const newInnerNode = { id: node.id, position: relPos };
-			target.data.innerNodes = [...target.data.innerNodes, newInnerNode];
+			if (target.data.expanded) {
+				//Adds node to target fragment
+				const relPos = {
+					x: node.position.x - target.position.x,
+					y: node.position.y - target.position.y,
+				};
+				const newInnerNode = { id: node.id, position: relPos };
+				target.data.innerNodes = [...target.data.innerNodes, newInnerNode];
 
-			node.position = relPos;
-			node.parentNode = target.id;
-			node.expandParent = true;
+				node.position = relPos;
+				node.parentNode = target.id;
+				node.expandParent = true;
 
-			reactFlowInstance.setNodes(
-				getUpdatedArrayById(target, [
-					...reactFlowInstance
-						.getNodes()
-						.filter((nodes) => nodes.id != node.id),
-					node,
-				])
-			);
+				reactFlowInstance.setNodes(
+					getUpdatedArrayById(target, [
+						...reactFlowInstance
+							.getNodes()
+							.filter((nodes) => nodes.id != node.id),
+						node,
+					])
+				);
+			}
 		}
 
 		setTarget(null);

@@ -7,7 +7,7 @@ import {
 } from "react";
 import { NodeResizer, NodeToolbar, useReactFlow, useEdges } from "reactflow";
 import { Button } from "react-bootstrap";
-import styles from "@components/styles/BlockContainer.module.css";
+import styles from "@root/styles/BlockContainer.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
 	faCubes,
@@ -26,16 +26,16 @@ import {
 	MapInfoContext,
 	SettingsContext,
 	VersionInfoContext,
-} from "@components/pages/_app";
+} from "@root/pages/_app";
 import {
 	getNodeDOMById,
 	getNodeById,
 	getByProperty,
 	getUpdatedArrayById,
-} from "@components/components/Utils";
+} from "@utils/Utils";
 import FocusTrap from "focus-trap-react";
-import FragmentResizer from "@components/components/dialogs/FragmentResizer";
-import FragmentEditor from "@components/components/dialogs/FragmentEditor";
+import FragmentResizer from "@root/components/dialogs/FragmentResizer";
+import FragmentEditor from "@root/components/dialogs/FragmentEditor";
 
 function FragmentNode({ id, xPos, yPos, type, data }) {
 	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);

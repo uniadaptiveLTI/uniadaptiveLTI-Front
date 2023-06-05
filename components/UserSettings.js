@@ -1,4 +1,4 @@
-import { SettingsContext } from "@components/pages/_app";
+import { SettingsContext } from "@root/pages/_app";
 import { forwardRef, useContext, useEffect } from "react";
 import { Form, Dropdown } from "react-bootstrap";
 

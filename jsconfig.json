@@ -1,7 +1,14 @@
 {
   "compilerOptions": {
     "paths": {
-      "@components/*": ["./*"]
+      "@root/*": ["./*"],
+      "@components/*": ["./components/*"],
+      "@dialogs/*": ["./components/dialogs/*"],
+      "@flow/*": ["./components/flow/*"],
+      "@nodes/*": ["./components/flow/nodes/*"],
+      "@edges/*": ["./components/flow/edges/*"],
+      "@conditions/*": ["./components/flow/conditions/*"],
+      "@utils/*": ["./utils/*"]
     }
   }
 }

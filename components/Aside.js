@@ -1,4 +1,4 @@
-import styles from "@components/styles/Aside.module.css";
+import styles from "@root/styles/Aside.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
 	faCaretDown,
@@ -33,13 +33,13 @@ import {
 	getUpdatedArrayById,
 	orderByPropertyAlphabetically,
 	errorListCheck,
-} from "./Utils.js";
-import { ActionBlocks } from "./flow/nodes/ActionNode.js";
+} from "@utils/Utils.js";
+import { ActionBlocks } from "@nodes/ActionNode.js";
 import {
 	NodeTypes,
 	getMoodleTypes,
 	getSakaiTypes,
-} from "./flow/nodes/TypeDefinitions.js";
+} from "@utils/TypeDefinitions.js";
 
 export default function Aside({ className, closeBtn, svgExists }) {
 	const { errorList, setErrorList } = useContext(ErrorListContext);
@@ -235,7 +235,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 
 				break;
 		}
-	}, [selectedOption, blockSelected.id]);
+	}, [selectedOption, blockSelected]);
 
 	useEffect(() => {
 		if (resourceOptions.length > 0) {

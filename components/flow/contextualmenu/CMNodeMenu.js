@@ -7,7 +7,7 @@ import {
 	faTrashCan,
 	faEdit,
 } from "@fortawesome/free-solid-svg-icons";
-import styles from "@components/styles/ContextualMenu.module.css";
+import styles from "@root/styles/ContextualMenu.module.css";
 import { Button } from "react-bootstrap";
 import { ActionBlocks } from "../nodes/ActionNode";
 import { useRef, forwardRef } from "react";

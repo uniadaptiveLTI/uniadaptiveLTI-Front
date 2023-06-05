@@ -1,5 +1,5 @@
 /*// Import the function to be tested
-import { getByProperty } from "@components/components/Utils";
+import { getByProperty } from "@utils";
 
 // Describe the test suite
 describe("getByProperty", () => {

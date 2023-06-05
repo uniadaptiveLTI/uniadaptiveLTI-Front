@@ -1,10 +1,8 @@
 import { forwardRef, useContext, useState } from "react";
-import { Modal, Button, Container, Col, Row } from "react-bootstrap";
-import { PlatformContext } from "@components/pages/_app";
-import { NodeTypes } from "../flow/nodes/TypeDefinitions";
-import { orderByPropertyAlphabetically, uniqueId, getNodeById } from "../Utils";
-import { getTypeIcon, getTypeStaticColor } from "../flow/nodes/NodeIcons";
-import styles from "@components/styles/NodeSelector.module.css";
+import { Modal, Button } from "react-bootstrap";
+import { PlatformContext } from "@root/pages/_app";
+import { getNodeById } from "@utils/Utils.js";
+import { getTypeIcon } from "@utils/NodeIcons";
 import { useReactFlow } from "reactflow";
 import { useEffect } from "react";
 

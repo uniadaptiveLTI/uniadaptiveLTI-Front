@@ -1,4 +1,4 @@
-import styles from "@components/styles/Header.module.css";
+import styles from "@root/styles/Header.module.css";
 import { useState, useContext, useEffect, forwardRef, useRef } from "react";
 import SimpleActionDialog from "./dialogs/SimpleActionDialog";
 import SimpleMapSelector from "./dialogs/SimpleMapSelector";
@@ -39,18 +39,18 @@ import {
 	OnlineContext,
 	MetaDataContext,
 	ErrorListContext,
-} from "@components/pages/_app";
+} from "@root/pages/_app";
 import { toast } from "react-toastify";
-import { notImplemented } from "@components/pages/_app";
+import { notImplemented } from "@root/pages/_app";
 import {
 	capitalizeFirstLetter,
 	errorListCheck,
 	isBlockArrayEqual,
 	uniqueId,
-} from "./Utils";
+} from "@utils/Utils.js";
 import download from "downloadjs";
-import { NodeTypes } from "./flow/nodes/TypeDefinitions";
-import ExportModal from "./dialogs/ExportModal";
+import { NodeTypes } from "@utils/TypeDefinitions";
+import ExportModal from "@components/dialogs/ExportModal";
 
 const defaultToastSuccess = {
 	hideProgressBar: false,

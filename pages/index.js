@@ -1,7 +1,7 @@
 import Head from "next/head";
 import { useContext } from "react";
 import { BlocksDataContext } from "./_app";
-import BlockFlow from "@components/components/BlockFlow";
+import BlockFlow from "@root/components/BlockFlow";
 
 export default function Home() {
 	const { currentBlocksData, setCurrentBlocksData } =

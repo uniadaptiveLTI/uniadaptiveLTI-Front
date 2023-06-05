@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import React from "react";
 import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
-import SimpleActionDialog from "@components/components/dialogs/SimpleActionDialog";
+import SimpleActionDialog from "@root/components/dialogs/SimpleActionDialog";
 import { useState } from "react";
 
 const SimpleActionDialogWrapper = () => {

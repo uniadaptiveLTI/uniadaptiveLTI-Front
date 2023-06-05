@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import styles from "@components/styles/ConditionModal.module.css";
+import styles from "@root/styles/ConditionModal.module.css";
 import { Modal, Button, Form, Row, Col, Container } from "react-bootstrap";
 import Condition from "./Condition";
 import { faEdit, faPlus, faShuffle } from "@fortawesome/free-solid-svg-icons";
@@ -11,7 +11,7 @@ import DateForm from "./form-components/DateForm";
 import ConditionsGroupForm from "./form-components/ConditionsGroupForm";
 import GroupForm from "./form-components/GroupForm";
 import GroupingForm from "./form-components/GroupingForm";
-import { uniqueId } from "@components/components/Utils";
+import { uniqueId } from "@utils/Utils";
 import CourseQualificationForm from "./form-components/CourseQualificationForm";
 import { useReactFlow } from "reactflow";
 

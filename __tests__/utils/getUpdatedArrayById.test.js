@@ -1,5 +1,5 @@
 // Import the function to be tested
-import { getUpdatedArrayById } from "@components/components/Utils";
+import { getUpdatedArrayById } from "@utils";
 
 // Describe the test suite
 describe("getUpdatedArrayById", () => {

@@ -1,6 +1,6 @@
 import { useCallback, useContext } from "react";
 import { Handle, Position, NodeToolbar, useReactFlow } from "reactflow";
-import styles from "@components/styles/BlockContainer.module.css";
+import styles from "@root/styles/BlockContainer.module.css";
 import {
 	BlockInfoContext,
 	ExpandedAsideContext,
@@ -8,7 +8,7 @@ import {
 	SettingsContext,
 	VersionInfoContext,
 	PlatformContext,
-} from "@components/pages/_app";
+} from "@root/pages/_app";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
 	faEdit,
@@ -17,9 +17,9 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import FocusTrap from "focus-trap-react";
 import { Button, Badge } from "react-bootstrap";
-import { getTypeIcon } from "./NodeIcons";
-import { getNodeById, getUpdatedArrayById } from "@components/components/Utils";
-import { NodeTypes } from "./TypeDefinitions";
+import { getTypeIcon } from "@utils/NodeIcons";
+import { getNodeById, getUpdatedArrayById } from "@utils/Utils";
+import { NodeTypes } from "@utils/TypeDefinitions";
 
 export const ActionBlocks = NodeTypes.map((node) => {
 	if (node.nodeType == "ActionNode") return node.type;

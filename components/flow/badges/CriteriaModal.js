@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
-import styles from "@components/styles/ConditionModal.module.css";
+import styles from "@root/styles/ConditionModal.module.css";
 //import { Editor } from "@tinymce/tinymce-react";
-import { uniqueId } from "@components/components/Utils";
+import { uniqueId } from "@utils/Utils";
 import {
 	Modal,
 	Button,

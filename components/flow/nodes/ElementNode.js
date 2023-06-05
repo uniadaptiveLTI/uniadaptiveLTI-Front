@@ -7,7 +7,7 @@ import {
 	useNodes,
 } from "reactflow";
 import { Badge, Button } from "react-bootstrap";
-import styles from "@components/styles/BlockContainer.module.css";
+import styles from "@root/styles/BlockContainer.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
 	faEdit,
@@ -23,10 +23,11 @@ import {
 	SettingsContext,
 	VersionInfoContext,
 	PlatformContext,
-} from "@components/pages/_app";
+} from "@root/pages/_app";
 import FocusTrap from "focus-trap-react";
-import { getTypeIcon } from "./NodeIcons";
-import { getNodeById, getUpdatedArrayById } from "@components/components/Utils";
+import { getTypeIcon } from "@utils/NodeIcons";
+import { getNodeById, getUpdatedArrayById } from "@utils/Utils";
+import { useState } from "react";
 
 function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 	const onChange = useCallback((evt) => {
@@ -44,6 +45,7 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 	const reactFlowInstance = useReactFlow();
 	const parsedSettings = JSON.parse(settings);
 	const { highContrast, showDetails, reducedAnimations } = parsedSettings;
+	const [hasErrors, setHasErrors] = useState(false);
 	const rfNodes = useNodes();
 
 	const getParentExpanded = () => {
@@ -185,7 +187,7 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 		reactFlowInstance.getNodes().forEach((node) => {
 			const data = node.data;
 			if (data) {
-				if (data.lmsResource) {
+				if (data.lmsResource != undefined) {
 					if (data.lmsResource == currentRes) {
 						duplicates++;
 					}
@@ -194,6 +196,38 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 		});
 		return duplicates > 0;
 	};
+
+	const hasDuplicatedOrderInSection = () => {
+		const currentSection = data.unit;
+		const currentOrder = data.order;
+		let duplicates = -1; //Only one resource per node
+		reactFlowInstance.getNodes().forEach((node) => {
+			const data = node.data;
+			if (data) {
+				if (data.order != undefined && data.unit != undefined) {
+					if (data.order == currentOrder && data.unit == currentSection) {
+						duplicates++;
+					}
+				}
+			}
+		});
+
+		return duplicates > 0;
+	};
+
+	const getSelfErrors = () => {
+		const hasErrors =
+			data.lmsResource == undefined ||
+			hasDuplicatedResource() ||
+			data.lmsVisibility == undefined ||
+			data.unit == undefined ||
+			data.order == undefined ||
+			hasDuplicatedOrderInSection();
+		setHasErrors(hasErrors);
+		return hasErrors;
+	};
+
+	const getSelfWarnings = () => {};
 
 	return (
 		<>
@@ -269,7 +303,12 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 					{getHumanDesc(type)}
 				</span>
 				{/*TODO: DO THIS CORRECTLY, ADD TO FRAGMENT, AND HIDE THIS WHEN HIDDEN, DO THIS IN BADGES TOO*/}
-				{(data.lmsResource == undefined || hasDuplicatedResource()) && (
+				{(data.lmsResource == undefined ||
+					hasDuplicatedResource() ||
+					data.lmsVisibility == undefined ||
+					data.unit == undefined ||
+					data.order == undefined ||
+					hasDuplicatedOrderInSection()) && (
 					<Badge
 						bg="danger"
 						className={
