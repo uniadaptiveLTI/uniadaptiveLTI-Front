@@ -1,5 +1,5 @@
-/*// Import the function to be tested
-import { getByProperty } from "@utils";
+// Import the function to be tested
+import { getByProperty } from "@utils/Utils";
 
 // Describe the test suite
 describe("getByProperty", () => {
@@ -50,4 +50,3 @@ describe("getByProperty", () => {
 		).toBeUndefined();
 	});
 });
-*/
