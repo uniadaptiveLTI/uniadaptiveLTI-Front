@@ -9,7 +9,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import styles from "@root/styles/ContextualMenu.module.css";
 import { Button } from "react-bootstrap";
-import { ActionBlocks } from "../nodes/ActionNode";
+import { ActionNodes } from "@utils/Nodes";
 import { useRef, forwardRef } from "react";
 
 const Menu = (
@@ -90,7 +90,7 @@ const Menu = (
 					)
 				)
 			) : (
-				[...ActionBlocks, "end", "fragment"].includes(blockData.type) ==
+				[...ActionNodes, "end", "fragment"].includes(blockData.type) ==
 					false && (
 					<li>
 						<Button

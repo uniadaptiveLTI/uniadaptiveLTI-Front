@@ -8,7 +8,8 @@ import {
 } from "react";
 import { Form, InputGroup } from "react-bootstrap";
 import { useReactFlow, useNodes } from "reactflow";
-import { getNodeById, nearestPowerOfTwo } from "@utils/Utils";
+import { nearestPowerOfTwo } from "@utils/Utils";
+import { getNodeById } from "@utils/Nodes";
 import { PlatformContext } from "@root/pages/_app";
 import { getTypeIcon } from "@root/utils/NodeIcons";
 import styles from "@root/styles/BlockSelector.module.css";

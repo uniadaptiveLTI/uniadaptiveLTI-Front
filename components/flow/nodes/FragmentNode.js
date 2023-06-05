@@ -20,27 +20,22 @@ import {
 	faObjectUngroup,
 } from "@fortawesome/free-solid-svg-icons";
 import {
-	BlockInfoContext,
-	BlocksDataContext,
+	NodeInfoContext,
 	ExpandedAsideContext,
 	MapInfoContext,
 	SettingsContext,
 	VersionInfoContext,
 } from "@root/pages/_app";
-import {
-	getNodeDOMById,
-	getNodeById,
-	getByProperty,
-	getUpdatedArrayById,
-} from "@utils/Utils";
+import { getByProperty, getUpdatedArrayById } from "@utils/Utils";
+import { getNodeDOMById, getNodeById } from "@utils/Nodes";
 import FocusTrap from "focus-trap-react";
 import FragmentResizer from "@root/components/dialogs/FragmentResizer";
 import FragmentEditor from "@root/components/dialogs/FragmentEditor";
 
 function FragmentNode({ id, xPos, yPos, type, data }) {
-	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
+	const { nodeSelected, setNodeSelected } = useContext(NodeInfoContext);
 	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
-	const { selectedEditVersion, setSelectedEditVersion } =
+	const { editVersionSelected, setEditVersionSelected } =
 		useContext(VersionInfoContext);
 	const reactFlowInstance = useReactFlow();
 	const { settings, setSettings } = useContext(SettingsContext);
@@ -60,8 +55,8 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 	const handleEdit = () => {
 		const blockData = getNodeById(id, reactFlowInstance.getNodes());
 		setExpandedAside(true);
-		setSelectedEditVersion("");
-		setBlockSelected(blockData);
+		setEditVersionSelected("");
+		setNodeSelected(blockData);
 	};
 
 	const getInnerNodes = () => {

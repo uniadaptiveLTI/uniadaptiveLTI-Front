@@ -4,7 +4,7 @@ import {
 	getNodeById,
 	getUpdatedArrayById,
 	orderByLabelAlphabetically,
-} from "@utils/Utils.js";
+} from "@utils/Nodes";
 import { useReactFlow } from "reactflow";
 import BlockSelector from "../forms/components/BlockSelector";
 

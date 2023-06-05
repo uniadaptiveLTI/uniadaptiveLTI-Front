@@ -12,7 +12,7 @@ import React, { createContext, useState, useEffect } from "react";
 import Layout from "../components/Layout";
 
 export const MSGContext = createContext();
-export const BlockInfoContext = createContext();
+export const NodeInfoContext = createContext();
 export const ErrorListContext = createContext();
 export const MapInfoContext = createContext("");
 export const VersionInfoContext = createContext();

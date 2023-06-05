@@ -1,6 +1,6 @@
 import { useContext, useState, useRef, useEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
-import { getNodeById } from "@utils/Utils.js";
+import { getNodeById } from "@utils/Nodes";
 import { useReactFlow, useNodes } from "reactflow";
 import { SettingsContext } from "@root/pages/_app";
 

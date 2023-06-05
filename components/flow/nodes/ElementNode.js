@@ -17,7 +17,7 @@ import {
 	faExclamation,
 } from "@fortawesome/free-solid-svg-icons";
 import {
-	BlockInfoContext,
+	NodeInfoContext,
 	ExpandedAsideContext,
 	MapInfoContext,
 	SettingsContext,
@@ -26,7 +26,8 @@ import {
 } from "@root/pages/_app";
 import FocusTrap from "focus-trap-react";
 import { getTypeIcon } from "@utils/NodeIcons";
-import { getNodeById, getUpdatedArrayById } from "@utils/Utils";
+import { getUpdatedArrayById } from "@utils/Utils";
+import { getNodeById } from "@utils/Nodes";
 import { useState } from "react";
 
 function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
@@ -35,9 +36,9 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 	}, []);
 
 	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
-	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
+	const { nodeSelected, setNodeSelected } = useContext(NodeInfoContext);
 	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
-	const { selectedEditVersion, setSelectedEditVersion } =
+	const { editVersionSelected, setEditVersionSelected } =
 		useContext(VersionInfoContext);
 	const { platform } = useContext(PlatformContext);
 
@@ -68,8 +69,8 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 		if (expandedAside != true) {
 			setExpandedAside(true);
 		}
-		setSelectedEditVersion("");
-		setBlockSelected(blockData);
+		setEditVersionSelected("");
+		setNodeSelected(blockData);
 	};
 
 	const getAriaLabel = () => {

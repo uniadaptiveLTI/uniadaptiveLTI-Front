@@ -19,22 +19,21 @@ import { useState, useContext, useEffect, useRef, useId, version } from "react";
 import {
 	ErrorListContext,
 	PlatformContext,
-	BlockInfoContext,
+	NodeInfoContext,
 	ExpandedAsideContext,
 	MapInfoContext,
 	VersionInfoContext,
 	VersionJsonContext,
 	SettingsContext,
-	BlocksDataContext,
 	MetaDataContext,
 } from "../pages/_app.js";
 import {
 	capitalizeFirstLetter,
 	getUpdatedArrayById,
 	orderByPropertyAlphabetically,
-	errorListCheck,
-} from "@utils/Utils.js";
-import { ActionBlocks } from "@nodes/ActionNode.js";
+} from "@utils/Utils";
+import { ActionNodes } from "@utils/Nodes";
+import { errorListCheck } from "@utils/ErrorHandling";
 import {
 	NodeTypes,
 	getMoodleTypes,
@@ -57,9 +56,9 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	const [allowResourceSelection, setAllowResourceSelection] = useState(true);
 
 	const { platform, setPlatform } = useContext(PlatformContext);
-	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
+	const { nodeSelected, setNodeSelected } = useContext(NodeInfoContext);
 	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
-	const { selectedEditVersion, setSelectedEditVersion } =
+	const { editVersionSelected, setEditVersionSelected } =
 		useContext(VersionInfoContext);
 	const { settings, setSettings } = useContext(SettingsContext);
 	const { metaData, setMetaData } = useContext(MetaDataContext);
@@ -180,12 +179,12 @@ export default function Aside({ className, closeBtn, svgExists }) {
 								}
 							});
 
-							if (blockSelected.data) {
+							if (nodeSelected.data) {
 								console.log("tiene datos");
-								if (blockSelected.data.lmsResource) {
+								if (nodeSelected.data.lmsResource) {
 									console.log("tiene recurso");
-									if (blockSelected.data.lmsResource > -1) {
-										const lmsRes = blockSelected.data.lmsResource;
+									if (nodeSelected.data.lmsResource > -1) {
+										const lmsRes = nodeSelected.data.lmsResource;
 										console.log("tiene recurso y es " + lmsRes);
 										const storedRes = data.find(
 											(resource) => resource.id == lmsRes
@@ -213,10 +212,10 @@ export default function Aside({ className, closeBtn, svgExists }) {
 									filteredData.push(resource);
 								}
 							});
-							if (blockSelected.data) {
-								if (blockSelected.data.lmsResource) {
-									if (blockSelected.data.lmsResource > -1) {
-										const lmsRes = blockSelected.data.lmsResource;
+							if (nodeSelected.data) {
+								if (nodeSelected.data.lmsResource) {
+									if (nodeSelected.data.lmsResource > -1) {
+										const lmsRes = nodeSelected.data.lmsResource;
 										const storedRes = data.find(
 											(resource) => resource.id == lmsRes
 										);
@@ -235,15 +234,15 @@ export default function Aside({ className, closeBtn, svgExists }) {
 
 				break;
 		}
-	}, [selectedOption, blockSelected]);
+	}, [selectedOption, nodeSelected]);
 
 	useEffect(() => {
 		if (resourceOptions.length > 0) {
 			const lmsResourceCurrent = lmsResourceDOM.current;
 			if (lmsResourceCurrent) {
-				lmsResourceCurrent.value = blockSelected.data.lmsResource;
+				lmsResourceCurrent.value = nodeSelected.data.lmsResource;
 			}
-			setLmsResource(blockSelected.data.lmsResource);
+			setLmsResource(nodeSelected.data.lmsResource);
 		}
 	}, [resourceOptions]);
 
@@ -253,8 +252,8 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	};
 
 	useEffect(() => {
-		//console.log(blockSelected);
-		if (blockSelected) {
+		//console.log(nodeSelected);
+		if (nodeSelected) {
 			const titleCurrent = titleDOM.current;
 			const typeCurrent = resourceDOM.current;
 			const lmsVisibilityCurrent = lmsVisibilityDOM.current;
@@ -264,36 +263,36 @@ export default function Aside({ className, closeBtn, svgExists }) {
 			const identationCurrent = identationDOM.current;
 
 			if (titleCurrent) {
-				titleCurrent.value = blockSelected.data.label;
+				titleCurrent.value = nodeSelected.data.label;
 			}
 
 			if (typeCurrent) {
-				typeCurrent.value = blockSelected.type;
+				typeCurrent.value = nodeSelected.type;
 			}
 
 			if (lmsResourceCurrent) {
-				lmsResourceCurrent.value = blockSelected.data.lmsResource;
+				lmsResourceCurrent.value = nodeSelected.data.lmsResource;
 			}
 
 			if (lmsVisibilityCurrent) {
-				lmsVisibilityCurrent.value = blockSelected.data.lmsVisibility;
+				lmsVisibilityCurrent.value = nodeSelected.data.lmsVisibility;
 			}
 
 			if (unitCurrent) {
-				unitCurrent.value = blockSelected.data.unit;
+				unitCurrent.value = nodeSelected.data.unit;
 			}
 
 			if (orderCurrent) {
-				orderCurrent.value = blockSelected.data.order;
+				orderCurrent.value = nodeSelected.data.order;
 			}
 
 			if (identationCurrent) {
-				identationCurrent.value = blockSelected.data.identation;
+				identationCurrent.value = nodeSelected.data.identation;
 			}
 
-			setSelectedOption(blockSelected.type);
+			setSelectedOption(nodeSelected.type);
 		}
-	}, [blockSelected]);
+	}, [nodeSelected]);
 
 	/**
 	 * Updates the selected block with the values from the specified DOM elements.
@@ -302,14 +301,14 @@ export default function Aside({ className, closeBtn, svgExists }) {
 		let type = resourceDOM.current.value;
 		let newData;
 
-		if (!ActionBlocks.includes(blockSelected.type)) {
+		if (!ActionNodes.includes(nodeSelected.type)) {
 			let limitedOrder = orderDOM.current.value;
 			limitedOrder = Math.min(Math.max(limitedOrder, 1), 999);
 			let limitedIdentation = identationDOM.current.value;
 			limitedIdentation = Math.min(Math.max(limitedIdentation, 0), 999);
 
 			newData = {
-				...blockSelected.data,
+				...nodeSelected.data,
 				label: titleDOM.current.value,
 				lmsResource: lmsResourceDOM.current.value,
 				lmsVisibility: lmsVisibilityDOM.current.value,
@@ -327,15 +326,15 @@ export default function Aside({ className, closeBtn, svgExists }) {
 		//console.log(newData);
 
 		const updatedData = {
-			...blockSelected,
-			id: blockSelected.id,
+			...nodeSelected,
+			id: nodeSelected.id,
 			type: resourceDOM.current.value,
 			data: newData,
 		};
 
 		errorListCheck(updatedData, errorList, setErrorList, true);
 
-		//console.log(updatedData, blockSelected);
+		//console.log(updatedData, nodeSelected);
 
 		reactFlowInstance.setNodes(
 			getUpdatedArrayById(updatedData, reactFlowInstance.getNodes())
@@ -363,10 +362,10 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	const updateVersion = () => {
 		setVersionJson((prevVersionJson) => ({
 			...prevVersionJson,
-			id: selectedEditVersion.id,
+			id: editVersionSelected.id,
 			name: versionTitleDOM.current.value,
-			lastUpdate: selectedEditVersion.lastUpdate,
-			default: selectedEditVersion.default,
+			lastUpdate: editVersionSelected.lastUpdate,
+			default: editVersionSelected.default,
 		}));
 	};
 
@@ -407,8 +406,8 @@ export default function Aside({ className, closeBtn, svgExists }) {
 				<div id={mapSelected?.id}></div>
 			</div>
 
-			{blockSelected &&
-			!(blockSelected.type == "start" || blockSelected.type == "end") ? (
+			{nodeSelected &&
+			!(nodeSelected.type == "start" || nodeSelected.type == "end") ? (
 				<Form
 					action="#"
 					method=""
@@ -442,7 +441,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 								<Form.Group className="mb-3">
 									<Form.Label htmlFor={titleDOMId} className="mb-1">
 										Nombre del{" "}
-										{blockSelected.type == "fragment" ? "fragmento" : "bloque"}
+										{nodeSelected.type == "fragment" ? "fragmento" : "bloque"}
 									</Form.Label>
 									<Form.Control
 										ref={titleDOM}
@@ -451,10 +450,10 @@ export default function Aside({ className, closeBtn, svgExists }) {
 										className="w-100"
 									></Form.Control>
 								</Form.Group>
-								{blockSelected.type != "fragment" && (
+								{nodeSelected.type != "fragment" && (
 									<Form.Group className="mb-3">
 										<Form.Label htmlFor={typeDOMId} className="mb-1">
-											{ActionBlocks.includes(blockSelected.type)
+											{ActionNodes.includes(nodeSelected.type)
 												? "Acción a realizar"
 												: "Tipo de recurso"}
 										</Form.Label>
@@ -468,9 +467,9 @@ export default function Aside({ className, closeBtn, svgExists }) {
 											{platform == "moodle"
 												? moodleResource.map((option) => {
 														if (
-															(ActionBlocks.includes(blockSelected.type) &&
+															(ActionNodes.includes(nodeSelected.type) &&
 																option.nodeType == "ActionNode") ||
-															(!ActionBlocks.includes(blockSelected.type) &&
+															(!ActionNodes.includes(nodeSelected.type) &&
 																option.nodeType == "ElementNode")
 														) {
 															return (
@@ -482,9 +481,9 @@ export default function Aside({ className, closeBtn, svgExists }) {
 												  })
 												: sakaiResource((option) => {
 														if (
-															(ActionBlocks.includes(blockSelected.type) &&
+															(ActionNodes.includes(nodeSelected.type) &&
 																option.nodeType == "ActionNode") ||
-															(!ActionBlocks.includes(blockSelected.type) &&
+															(!ActionNodes.includes(nodeSelected.type) &&
 																option.nodeType == "ElementNode")
 														) {
 															return (
@@ -499,8 +498,8 @@ export default function Aside({ className, closeBtn, svgExists }) {
 								)}
 
 								{!(
-									blockSelected.type == "fragment" ||
-									blockSelected.type == "mail" ||
+									nodeSelected.type == "fragment" ||
+									nodeSelected.type == "mail" ||
 									selectedOption == "mail"
 								) && (
 									<div className="mb-3">
@@ -588,8 +587,8 @@ export default function Aside({ className, closeBtn, svgExists }) {
 							</div>
 						</Form.Group>
 						{!(
-							ActionBlocks.includes(blockSelected.type) ||
-							blockSelected.type == "fragment"
+							ActionNodes.includes(nodeSelected.type) ||
+							nodeSelected.type == "fragment"
 						) && (
 							<div className="mb-2">
 								<div
@@ -623,7 +622,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 										<Form.Select
 											ref={lmsVisibilityDOM}
 											id={lmsVisibilityDOMId}
-											defaultValue={blockSelected.data.lmsVisibility}
+											defaultValue={nodeSelected.data.lmsVisibility}
 										>
 											{orderByPropertyAlphabetically(shownTypes, "name").map(
 												(option) => (
@@ -643,7 +642,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 											<Form.Select
 												ref={unitDOM}
 												id={unitDOMId}
-												defaultValue={blockSelected.data.unit}
+												defaultValue={nodeSelected.data.unit}
 											>
 												{metaData.units &&
 													orderByPropertyAlphabetically(
@@ -673,7 +672,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 												type="number"
 												min={1}
 												max={999}
-												defaultValue={blockSelected.data.order}
+												defaultValue={nodeSelected.data.order}
 												ref={orderDOM}
 												id={orderDOMId}
 											></Form.Control>
@@ -686,7 +685,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 												type="number"
 												min={0}
 												max={999}
-												defaultValue={blockSelected.data.identation}
+												defaultValue={nodeSelected.data.identation}
 												ref={identationDOM}
 												id={identationDOMId}
 											></Form.Control>
@@ -705,7 +704,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 				<></>
 			)}
 
-			{mapSelected && !(blockSelected || selectedEditVersion) ? (
+			{mapSelected && !(nodeSelected || editVersionSelected) ? (
 				<div className="container-fluid">
 					<Form.Group className="mb-3">
 						<div
@@ -751,7 +750,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 				<></>
 			)}
 
-			{selectedEditVersion ? (
+			{editVersionSelected ? (
 				<div className="container-fluid">
 					<Form.Group className="mb-3">
 						<div
@@ -785,7 +784,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 									ref={versionTitleDOM}
 									type="text"
 									className="w-100"
-									defaultValue={selectedEditVersion.name}
+									defaultValue={editVersionSelected.name}
 								></Form.Control>
 							</Form.Group>
 						</div>

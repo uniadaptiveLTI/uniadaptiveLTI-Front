@@ -19,7 +19,7 @@ import "reactflow/dist/style.css";
 import ActionNode from "./flow/nodes/ActionNode.js";
 import ElementNode from "./flow/nodes/ElementNode.js";
 import {
-	BlockInfoContext,
+	NodeInfoContext,
 	ErrorListContext,
 	ExpandedAsideContext,
 	PlatformContext,
@@ -43,17 +43,19 @@ import {
 import { Button } from "react-bootstrap";
 import {
 	uniqueId,
-	getNodeByNodeDOM,
 	getUpdatedArrayById,
 	addEventListeners,
+	getByProperty,
+	deduplicateById,
+} from "@utils/Utils";
+import {
+	getNodeByNodeDOM,
 	thereIsReservedNodesInArray,
 	getNodeDOMById,
 	getNodeById,
-	getByProperty,
 	getChildrenNodesFromFragmentID,
-	deduplicateById,
-	errorListCheck,
-} from "@utils/Utils.js";
+} from "@utils/Nodes";
+import { errorListCheck } from "@utils/ErrorHandling";
 import { toast } from "react-toastify";
 import { useHotkeys } from "react-hotkeys-hook";
 import ContextualMenu from "@flow/ContextualMenu.js";
@@ -100,7 +102,7 @@ const OverviewFlow = ({ map }, ref) => {
 
 	const { errorList, setErrorList } = useContext(ErrorListContext);
 	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
-	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
+	const { nodeSelected, setNodeSelected } = useContext(NodeInfoContext);
 	const { settings, setSettings } = useContext(SettingsContext);
 
 	const parsedSettings = JSON.parse(settings);
@@ -383,20 +385,17 @@ const OverviewFlow = ({ map }, ref) => {
 	};
 
 	const onConnect = (event) => {
-		//FIXME: Node moves back to original position on connection
 		const sourceNodeId = event.source.split("__")[0];
 		const targetNodeId = event.target.split("__")[0];
 
 		console.log(sourceNodeId);
 		console.log(targetNodeId);
 
-		const nodeFound = reactFlowInstance
+		const edgeFound = reactFlowInstance
 			.getEdges()
 			.find((node) => node.id === sourceNodeId + "-" + targetNodeId);
 
-		console.log();
-
-		if (!nodeFound) {
+		if (!edgeFound) {
 			console.log("NO EXISTE");
 			const sourceNode = reactFlowInstance
 				.getNodes()
@@ -407,10 +406,10 @@ const OverviewFlow = ({ map }, ref) => {
 				.find((nodes) => nodes.id == targetNodeId);
 
 			if (sourceNode) {
-				if (Array.isArray(sourceNode.children)) {
-					sourceNode.children.push(targetNodeId);
+				if (Array.isArray(sourceNode.data.children)) {
+					sourceNode.data.children.push(targetNodeId);
 				} else {
-					sourceNode.children = [targetNodeId];
+					sourceNode.data.children = [targetNodeId];
 				}
 			}
 
@@ -445,12 +444,13 @@ const OverviewFlow = ({ map }, ref) => {
 				},
 			]);
 
-			setNodes(
-				getUpdatedArrayById({ ...sourceNode }, reactFlowInstance.getNodes())
-			);
+			console.log(sourceNode);
 
 			setNodes(
-				getUpdatedArrayById({ ...targetNode }, reactFlowInstance.getNodes())
+				getUpdatedArrayById(
+					[sourceNode, targetNode],
+					reactFlowInstance.getNodes()
+				)
 			);
 		}
 	};
@@ -466,7 +466,7 @@ const OverviewFlow = ({ map }, ref) => {
 	}, [[reactFlowInstance?.getNodes().find((n) => n.type == "start")][0]?.id]);
 
 	const onNodesDelete = (nodes) => {
-		setBlockSelected();
+		setNodeSelected();
 		deleteBlocks(nodes);
 	};
 
@@ -1181,7 +1181,7 @@ const OverviewFlow = ({ map }, ref) => {
 
 	const handleDeleteBlock = (blockData) => {
 		setShowContextualMenu(false);
-		setBlockSelected();
+		setNodeSelected();
 		deleteBlocks(blockData);
 	};
 

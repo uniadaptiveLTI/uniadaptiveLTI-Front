@@ -27,7 +27,7 @@ import {
 	faFloppyDisk,
 } from "@fortawesome/free-solid-svg-icons";
 import {
-	BlockInfoContext,
+	NodeInfoContext,
 	ExpandedAsideContext,
 	MapInfoContext,
 	VersionJsonContext,
@@ -42,12 +42,9 @@ import {
 } from "@root/pages/_app";
 import { toast } from "react-toastify";
 import { notImplemented } from "@root/pages/_app";
-import {
-	capitalizeFirstLetter,
-	errorListCheck,
-	isBlockArrayEqual,
-	uniqueId,
-} from "@utils/Utils.js";
+import { capitalizeFirstLetter, uniqueId } from "@utils/Utils.js";
+import { isNodeArrayEqual } from "@utils/Nodes";
+import { errorListCheck } from "@utils/ErrorHandling";
 import download from "downloadjs";
 import { NodeTypes } from "@utils/TypeDefinitions";
 import ExportModal from "@components/dialogs/ExportModal";
@@ -101,9 +98,9 @@ function Header({ closeBtn }, ref) {
 	const openModalVersiones = () => setShowModalVersions(true);
 
 	const { platform, setPlatform } = useContext(PlatformContext);
-	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
+	const { nodeSelected, setNodeSelected } = useContext(NodeInfoContext);
 	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
-	const { selectedEditVersion, setSelectedEditVersion } =
+	const { editVersionSelected, setEditVersionSelected } =
 		useContext(VersionInfoContext);
 	const { msg, setMSG } = useContext(MSGContext);
 
@@ -153,8 +150,8 @@ function Header({ closeBtn }, ref) {
 	 * Resets the edit state.
 	 */
 	function resetEdit() {
-		setBlockSelected("");
-		setSelectedEditVersion("");
+		setNodeSelected("");
+		setEditVersionSelected("");
 	}
 
 	/**
@@ -439,8 +436,8 @@ function Header({ closeBtn }, ref) {
 			setExpandedAside(true);
 		}
 		const mapId = selectMapDOM.current.value;
-		setBlockSelected("");
-		setSelectedEditVersion("");
+		setNodeSelected("");
+		setEditVersionSelected("");
 		setMapSelected(getMapById(mapId));
 	};
 
@@ -451,8 +448,8 @@ function Header({ closeBtn }, ref) {
 		if (expandedAside != true) {
 			setExpandedAside(true);
 		}
-		setBlockSelected("");
-		setSelectedEditVersion(selectedVersion);
+		setNodeSelected("");
+		setEditVersionSelected(selectedVersion);
 	};
 
 	/**
@@ -680,7 +677,7 @@ function Header({ closeBtn }, ref) {
 				return e;
 			});
 			if (rfNodes.length > 0) {
-				if (isBlockArrayEqual(rfNodes, currentBlocksData)) {
+				if (isNodeArrayEqual(rfNodes, currentBlocksData)) {
 					setSaveButtonColor(styles.primary);
 				} else {
 					setSaveButtonColor(styles.warning);

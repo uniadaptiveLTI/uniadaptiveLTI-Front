@@ -2,7 +2,7 @@ import { useCallback, useContext } from "react";
 import { Handle, Position, NodeToolbar, useReactFlow } from "reactflow";
 import styles from "@root/styles/BlockContainer.module.css";
 import {
-	BlockInfoContext,
+	NodeInfoContext,
 	ExpandedAsideContext,
 	MapInfoContext,
 	SettingsContext,
@@ -18,12 +18,8 @@ import {
 import FocusTrap from "focus-trap-react";
 import { Button, Badge } from "react-bootstrap";
 import { getTypeIcon } from "@utils/NodeIcons";
-import { getNodeById, getUpdatedArrayById } from "@utils/Utils";
-import { NodeTypes } from "@utils/TypeDefinitions";
-
-export const ActionBlocks = NodeTypes.map((node) => {
-	if (node.nodeType == "ActionNode") return node.type;
-});
+import { getUpdatedArrayById } from "@utils/Utils";
+import { getNodeById } from "@utils/Nodes";
 
 const getHumanDesc = (type) => {
 	let humanType = "";
@@ -70,25 +66,15 @@ const getAriaLabel = () => {
 	);
 };
 
-function ActionNode({
-	id,
-	xPos,
-	yPos,
-	type,
-	data,
-	children,
-	isConnectable,
-	order = 1,
-	unit = 1,
-}) {
+function ActionNode({ id, type, data, isConnectable }) {
 	const onChange = useCallback((evt) => {
 		//console.log(evt.target.value);
 	}, []);
 
 	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
-	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
+	const { nodeSelected, setNodeSelected } = useContext(NodeInfoContext);
 	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
-	const { selectedEditVersion, setSelectedEditVersion } =
+	const { editVersionSelected, setEditVersionSelected } =
 		useContext(VersionInfoContext);
 
 	const reactFlowInstance = useReactFlow();
@@ -102,8 +88,8 @@ function ActionNode({
 		if (expandedAside != true) {
 			setExpandedAside(true);
 		}
-		setSelectedEditVersion("");
-		setBlockSelected(blockData);
+		setEditVersionSelected("");
+		setNodeSelected(blockData);
 	};
 
 	const extractSelf = () => {

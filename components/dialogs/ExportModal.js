@@ -1,7 +1,7 @@
 import { forwardRef, useContext, useState } from "react";
 import { Modal, Button } from "react-bootstrap";
 import { PlatformContext } from "@root/pages/_app";
-import { getNodeById } from "@utils/Utils.js";
+import { getNodeById } from "@utils/Nodes.js";
 import { getTypeIcon } from "@utils/NodeIcons";
 import { useReactFlow } from "reactflow";
 import { useEffect } from "react";

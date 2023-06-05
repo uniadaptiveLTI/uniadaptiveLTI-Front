@@ -6,7 +6,7 @@ import { Container } from "react-bootstrap";
 import { useState, useRef, useLayoutEffect, useEffect } from "react";
 import {
 	PlatformContext,
-	BlockInfoContext,
+	NodeInfoContext,
 	MapInfoContext,
 	VersionJsonContext,
 	ExpandedAsideContext,
@@ -22,10 +22,10 @@ export default function Layout({ children }) {
 	const [metaData, setMetaData] = useState();
 	const [units, setUnits] = useState();
 
-	const [blockSelected, setBlockSelected] = useState("");
+	const [nodeSelected, setNodeSelected] = useState("");
 	const [mapSelected, setMapSelected] = useState("");
 	const [activeMap, setActiveMap] = useState("");
-	const [selectedEditVersion, setSelectedEditVersion] = useState("");
+	const [editVersionSelected, setEditVersionSelected] = useState("");
 
 	const [expandedAside, setExpandedAside] = useState(false);
 
@@ -90,12 +90,12 @@ export default function Layout({ children }) {
 	return (
 		<PlatformContext.Provider value={{ platform, setPlatform }}>
 			<MetaDataContext.Provider value={{ metaData, setMetaData }}>
-				<BlockInfoContext.Provider value={{ blockSelected, setBlockSelected }}>
+				<NodeInfoContext.Provider value={{ nodeSelected, setNodeSelected }}>
 					<MapInfoContext.Provider
 						value={{ mapSelected, setMapSelected, activeMap, setActiveMap }}
 					>
 						<VersionInfoContext.Provider
-							value={{ selectedEditVersion, setSelectedEditVersion }}
+							value={{ editVersionSelected, setEditVersionSelected }}
 						>
 							<VersionJsonContext.Provider
 								value={{ versionJson, setVersionJson }}
@@ -177,7 +177,7 @@ export default function Layout({ children }) {
 							</VersionJsonContext.Provider>
 						</VersionInfoContext.Provider>
 					</MapInfoContext.Provider>
-				</BlockInfoContext.Provider>
+				</NodeInfoContext.Provider>
 			</MetaDataContext.Provider>
 		</PlatformContext.Provider>
 	);
