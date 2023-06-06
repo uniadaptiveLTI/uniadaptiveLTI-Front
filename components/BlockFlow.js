@@ -1448,7 +1448,6 @@ const OverviewFlow = ({ map }, ref) => {
 				selectionMode={SelectionMode.Partial}
 				//onElementsRemove={setElements}
 				onElementClick={onElementClick}
-				edgeTypes={edgeTypes}
 			>
 				{minimap && (
 					<MiniMap
