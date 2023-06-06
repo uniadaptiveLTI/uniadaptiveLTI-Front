@@ -75,11 +75,26 @@ const ConditionalEdge = ({
 		}
 	};
 
+	const getSelfWidth = () => {
+		if (target == "dev9A1")
+			if (Math.max(sourceY - targetY, targetY - sourceY) < 200) {
+				return Math.max(sourceX - targetX, targetX - sourceX) + "px";
+			} else {
+				return "100%";
+			}
+	};
+
 	const [label, setLabel] = useState(getSelfCondition());
+
+	const [width, setWidth] = useState(getSelfWidth());
 
 	useEffect(() => {
 		setLabel(getSelfCondition());
 	}, [getNodeById(target, rfNodes)]);
+
+	useEffect(() => {
+		setWidth(getSelfWidth);
+	}, [getNodeById(source, rfNodes), getNodeById(target, rfNodes)]);
 
 	return (
 		<>
@@ -90,7 +105,7 @@ const ConditionalEdge = ({
 						style={{
 							position: "absolute",
 							transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
-							maxWidth: Math.max(sourceX - targetX, targetX - sourceX) + "px",
+							maxWidth: width,
 							fontSize: "0.7em",
 							textAlign: "center",
 							overflow: "hidden",
@@ -99,6 +114,7 @@ const ConditionalEdge = ({
 							color: "var(--blockflow-edge-font-color)",
 							border: "var(--blockflow-edge-border)",
 							borderRadius: "var(--blockflow-edge-border-radius)",
+							textOverflow: "ellipsis",
 						}}
 						className="nodrag nopan"
 					>
