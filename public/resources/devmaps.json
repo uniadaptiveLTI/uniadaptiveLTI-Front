@@ -103,7 +103,7 @@
 						"type": "remgroup",
 						"data": {
 							"label": "Conocimiento",
-							"lmsResource": "group-3",
+							"lmsResource": 58,
 							"conditions": {
 								"type": "conditionsGroup",
 								"id": "784378163420978",

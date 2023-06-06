@@ -29,7 +29,9 @@ import {
 } from "../pages/_app.js";
 import {
 	capitalizeFirstLetter,
+	deduplicateById,
 	getUpdatedArrayById,
+	isUnique,
 	orderByPropertyAlphabetically,
 	parseBool,
 } from "@utils/Utils";
@@ -180,6 +182,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 								}
 							});
 
+							//Adds current resource if exists
 							if (nodeSelected.data) {
 								console.log("tiene datos");
 								if (nodeSelected.data.lmsResource) {
@@ -188,14 +191,14 @@ export default function Aside({ className, closeBtn, svgExists }) {
 										const lmsRes = nodeSelected.data.lmsResource;
 										console.log("tiene recurso y es " + lmsRes);
 										const storedRes = data.find(
-											(resource) => resource.id == lmsRes
+											(resource) => resource.id === lmsRes
 										);
 										console.log(
 											"el recurso que concuerda con el almacenado es " +
-												storedRes
+												storedRes?.id
 										);
 
-										if (storedRes) {
+										if (storedRes != undefined) {
 											filteredData.push(storedRes);
 										}
 									}
@@ -203,7 +206,10 @@ export default function Aside({ className, closeBtn, svgExists }) {
 							}
 
 							console.log(filteredData);
-							setResourceOptions(filteredData);
+
+							const uniqueFilteredData = deduplicateById(filteredData);
+							uniqueFilteredData.unshift({ id: -1, name: "Vacío" });
+							setResourceOptions(uniqueFilteredData);
 						}, 1000);
 					} else {
 						fetchData(selectedOption, metaData.course_id).then((data) => {
@@ -213,22 +219,25 @@ export default function Aside({ className, closeBtn, svgExists }) {
 									filteredData.push(resource);
 								}
 							});
+							//Adds current resource if exists
 							if (nodeSelected.data) {
 								if (nodeSelected.data.lmsResource) {
 									if (nodeSelected.data.lmsResource > -1) {
 										const lmsRes = nodeSelected.data.lmsResource;
 										const storedRes = data.find(
-											(resource) => resource.id == lmsRes
+											(resource) => resource.id === lmsRes
 										);
 										console.log(storedRes, lmsRes);
 
-										if (storedRes) {
+										if (storedRes != undefined) {
 											filteredData.push(storedRes);
 										}
 									}
 								}
 							}
-							setResourceOptions(filteredData);
+							const uniqueFilteredData = deduplicateById(filteredData);
+							uniqueFilteredData.unshift({ id: -1, name: "Vacío" });
+							setResourceOptions(uniqueFilteredData);
 						});
 					}
 				}
@@ -238,10 +247,15 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	}, [selectedOption, nodeSelected]);
 
 	useEffect(() => {
+		const resourceIDs = resourceOptions.map((resource) => resource.id);
 		if (resourceOptions.length > 0) {
 			const lmsResourceCurrent = lmsResourceDOM.current;
 			if (lmsResourceCurrent) {
-				lmsResourceCurrent.value = nodeSelected.data.lmsResource;
+				lmsResourceCurrent.value = resourceIDs.includes(
+					nodeSelected.data.lmsResource
+				)
+					? nodeSelected.data.lmsResource
+					: -1;
 			}
 			setLmsResource(nodeSelected.data.lmsResource);
 		}
@@ -258,7 +272,6 @@ export default function Aside({ className, closeBtn, svgExists }) {
 			const titleCurrent = titleDOM.current;
 			const typeCurrent = resourceDOM.current;
 			const lmsVisibilityCurrent = lmsVisibilityDOM.current;
-			const lmsResourceCurrent = lmsResourceDOM.current;
 			const unitCurrent = unitDOM.current;
 			const orderCurrent = orderDOM.current;
 			const identationCurrent = identationDOM.current;
@@ -271,10 +284,6 @@ export default function Aside({ className, closeBtn, svgExists }) {
 				typeCurrent.value = nodeSelected.type;
 			}
 
-			if (lmsResourceCurrent) {
-				lmsResourceCurrent.value = nodeSelected.data.lmsResource;
-			}
-
 			if (lmsVisibilityCurrent) {
 				lmsVisibilityCurrent.value = nodeSelected.data.lmsVisibility;
 			}
@@ -284,7 +293,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 			}
 
 			if (orderCurrent) {
-				orderCurrent.value = nodeSelected.data.order;
+				orderCurrent.value = nodeSelected.data.order + 1;
 			}
 
 			if (identationCurrent) {
@@ -311,16 +320,19 @@ export default function Aside({ className, closeBtn, svgExists }) {
 			newData = {
 				...nodeSelected.data,
 				label: titleDOM.current.value,
-				lmsResource: lmsResourceDOM.current.value,
-				lmsVisibility: lmsVisibilityDOM.current.value,
-				unit: unitDOM.current.value,
+				lmsResource: Number(lmsResourceDOM.current.value),
+				lmsVisibility: lmsVisibilityDOM.current.value
+					? lmsVisibilityDOM.current.value
+					: "hidden_until_access",
+				unit: unitDOM.current.value ? unitDOM.current.value : 0, //FIXME: Only valid for moodle
 				order: limitedOrder - 1,
 				identation: limitedIdentation,
 			};
 		} else {
 			newData = {
 				label: titleDOM.current.value,
-				lmsResource: type !== "mail" ? lmsResourceDOM.current.value : type,
+				lmsResource:
+					type !== "mail" ? Number(lmsResourceDOM.current.value) : type,
 			};
 		}
 
@@ -374,10 +386,11 @@ export default function Aside({ className, closeBtn, svgExists }) {
 		const nodes = reactFlowInstance.getNodes();
 		const usedResources = [];
 		nodes.map((node) => {
-			if (node.data.lmsResource) {
+			if (node.data.lmsResource != undefined) {
 				usedResources.push(node.data.lmsResource);
 			}
 		});
+		console.log(usedResources);
 		return usedResources;
 	};
 
@@ -568,12 +581,12 @@ export default function Aside({ className, closeBtn, svgExists }) {
 											id={lmsResourceDOMId}
 											className="w-100"
 											defaultValue={lmsResource == "" ? lmsResource : "-1"}
-											disabled={!resourceOptions}
+											disabled={!resourceOptions.length > 0}
 										>
 											{allowResourceSelection && (
 												<>
 													<option key="-1" hidden value>
-														{"Vacío"}
+														{"Cargando..."}
 													</option>
 													{resourceOptions.map((resource) => (
 														<option key={resource.id} value={resource.id}>

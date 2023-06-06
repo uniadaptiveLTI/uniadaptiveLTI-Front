@@ -129,3 +129,14 @@ export function parseBool(str) {
 	}
 	return false;
 }
+
+/**
+ * Returns true if the value is unique in the array, false otherwise.
+ * @param {*} value - The value to check for uniqueness.
+ * @param {number} index - The index of the value in the array.
+ * @param {Array} self - The array itself.
+ * @returns {boolean} - Whether the value is unique or not.
+ */
+export function isUnique(value, index, self) {
+	return self.indexOf(value) === index;
+}
