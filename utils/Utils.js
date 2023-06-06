@@ -117,3 +117,15 @@ export function deduplicateById(arr) {
 		return accumulator;
 	}, []);
 }
+
+/**
+ * Parses a string and returns a boolean value.
+ * @param {string} str - The string to parse.
+ * @returns {boolean} True if the string is "true" (case-insensitive), false otherwise.
+ */
+export function parseBool(str) {
+	if (str) {
+		return str.toLowerCase() == "true" ? true : false;
+	}
+	return false;
+}

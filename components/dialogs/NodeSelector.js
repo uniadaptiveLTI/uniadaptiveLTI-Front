@@ -2,7 +2,11 @@ import { forwardRef, useContext } from "react";
 import { Modal, Button, Container, Col, Row } from "react-bootstrap";
 import { PlatformContext } from "@root/pages/_app";
 import { NodeTypes } from "@utils/TypeDefinitions";
-import { orderByPropertyAlphabetically, uniqueId } from "@utils/Utils.js";
+import {
+	orderByPropertyAlphabetically,
+	parseBool,
+	uniqueId,
+} from "@utils/Utils.js";
 import { getTypeIcon, getTypeStaticColor } from "../../utils/NodeIcons";
 import styles from "@root/styles/NodeSelector.module.css";
 
@@ -68,7 +72,9 @@ export default forwardRef(function NodeSelector(
 					<div className={styles.block} style={{ background: typeColor }}>
 						{typeIcon}
 					</div>
-					<span>{process.env.DEV_MODE ? type : name}</span>
+					<span>
+						{parseBool(process.env.NEXT_PUBLIC_DEV_MODE) ? type : name}
+					</span>
 				</div>
 			</div>
 		);

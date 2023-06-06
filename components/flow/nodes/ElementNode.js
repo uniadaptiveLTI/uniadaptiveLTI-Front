@@ -26,7 +26,7 @@ import {
 } from "@root/pages/_app";
 import FocusTrap from "focus-trap-react";
 import { getTypeIcon } from "@utils/NodeIcons";
-import { getUpdatedArrayById } from "@utils/Utils";
+import { getUpdatedArrayById, parseBool } from "@utils/Utils";
 import { getNodeById } from "@utils/Nodes";
 import { useState } from "react";
 
@@ -284,7 +284,8 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 				<span className={styles.blockInfo + " " + styles.top}>
 					{data.label}
 				</span>
-				{process.env.DEV_MODE == true && (
+
+				{parseBool(process.env.NEXT_PUBLIC_DEV_MODE) && (
 					<div
 						style={{
 							position: "absolute",

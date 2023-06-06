@@ -26,7 +26,7 @@ import {
 	SettingsContext,
 	VersionInfoContext,
 } from "@root/pages/_app";
-import { getByProperty, getUpdatedArrayById } from "@utils/Utils";
+import { getByProperty, getUpdatedArrayById, parseBool } from "@utils/Utils";
 import { getNodeDOMById, getNodeById } from "@utils/Nodes";
 import FocusTrap from "focus-trap-react";
 import FragmentResizer from "@root/components/dialogs/FragmentResizer";
@@ -438,7 +438,7 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 				)}
 				<div>
 					<FontAwesomeIcon icon={faCubes} />
-					{expanded && process.env.DEV_MODE && (
+					{expanded && parseBool(process.env.NEXT_PUBLIC_DEV_MODE) && (
 						<pre
 							style={{
 								position: "absolute",

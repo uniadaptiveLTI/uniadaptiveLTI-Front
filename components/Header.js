@@ -42,7 +42,7 @@ import {
 } from "@root/pages/_app";
 import { toast } from "react-toastify";
 import { notImplemented } from "@root/pages/_app";
-import { capitalizeFirstLetter, uniqueId } from "@utils/Utils.js";
+import { capitalizeFirstLetter, parseBool, uniqueId } from "@utils/Utils.js";
 import { isNodeArrayEqual } from "@utils/Nodes";
 import { errorListCheck } from "@utils/ErrorHandling";
 import download from "downloadjs";
@@ -118,7 +118,8 @@ function Header({ closeBtn }, ref) {
 	let { reducedAnimations } = parsedSettings;
 
 	useEffect(() => {
-		if (process.env.DEV_MODE) globalThis.rf = reactFlowInstance;
+		if (parseBool(process.env.NEXT_PUBLIC_DEV_MODE))
+			globalThis.rf = reactFlowInstance;
 	}, []);
 
 	/**
@@ -248,7 +249,7 @@ function Header({ closeBtn }, ref) {
 		const metaData = JSON.parse(localStorage.getItem("meta_data"));
 		const encodedCourse = encodeURIComponent(metaData.course_id);
 		const response = await fetch(
-			`http://${process.env.BACK_URL}/lti/get_modules?course=${encodedCourse}`
+			`http://${process.env.NEXT_PUBLIC_BACK_URL}/lti/get_modules?course=${encodedCourse}`
 		);
 
 		if (!response.ok) {
@@ -548,7 +549,7 @@ function Header({ closeBtn }, ref) {
 
 	useEffect(() => {
 		try {
-			if (process.env.DEV_FILES) {
+			if (parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
 				fetch("resources/devmaps.json")
 					.then((response) => response.json())
 					.then((data) => {
@@ -566,7 +567,10 @@ function Header({ closeBtn }, ref) {
 					.then((response) => response.json())
 					.then((data) => {
 						setPlatform(data.platform);
-						setMetaData({ ...data, return_url: process.env.BACK_URL });
+						setMetaData({
+							...data,
+							return_url: process.env.NEXT_PUBLIC_BACK_URL,
+						});
 						setLoadedMetaData(true);
 					})
 					.catch((e) => {
@@ -590,7 +594,7 @@ function Header({ closeBtn }, ref) {
 						throw error;
 					});
 			} else {
-				fetch(`http://${process.env.BACK_URL}/lti/get_session`)
+				fetch(`http://${process.env.NEXT_PUBLIC_BACK_URL}/lti/get_session`)
 					.then((response) => response.json())
 					.then((data) => {
 						console.log("DATOS DEL LMS: ", data);
@@ -600,7 +604,10 @@ function Header({ closeBtn }, ref) {
 
 						//Metadata
 						setPlatform(data[1].platform);
-						setMetaData({ ...data[1], return_url: process.env.BACK_URL }); //FIXME: This should be the course website in moodle
+						setMetaData({
+							...data[1],
+							return_url: process.env.NEXT_PUBLIC_BACK_URL,
+						}); //FIXME: This should be the course website in moodle
 						setLoadedMetaData(true);
 						localStorage.setItem("meta_data", JSON.stringify(data[1]));
 
@@ -699,7 +706,7 @@ function Header({ closeBtn }, ref) {
 			<div className="mx-auto d-flex align-items-center" role="button">
 				<img
 					onClick={() => setExpandedAside(!expandedAside)}
-					src={process.env.SMALL_LOGO_PATH}
+					src={process.env.NEXT_PUBLIC_SMALL_LOGO_PATH}
 					alt="Mostrar menú lateral"
 					className={styles.icon}
 					width={40}
@@ -996,7 +1003,9 @@ function Header({ closeBtn }, ref) {
 													width={48}
 													height={48}
 													onClick={
-														process.env.DEV_MODE ? devPlataformChange : null
+														parseBool(process.env.NEXT_PUBLIC_DEV_MODE)
+															? devPlataformChange
+															: null
 													}
 												></img>
 											)}
@@ -1053,7 +1062,7 @@ function Header({ closeBtn }, ref) {
 						Actualmente la versión seleccionada es &quot;
 						<strong>{selectedVersion.name}</strong>&quot;, modificada por última
 						vez <b>{selectedVersion.lastUpdate}</b>.
-						{process.env.DEV_MODE && (
+						{parseBool(process.env.NEXT_PUBLIC_DEV_MODE) && (
 							<>
 								<br />
 								<div

@@ -31,6 +31,7 @@ import {
 	capitalizeFirstLetter,
 	getUpdatedArrayById,
 	orderByPropertyAlphabetically,
+	parseBool,
 } from "@utils/Utils";
 import { ActionNodes } from "@utils/Nodes";
 import { errorListCheck } from "@utils/ErrorHandling";
@@ -109,7 +110,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 			setShowSpinner(true);
 			setAllowResourceSelection(false);
 			const response = await fetch(
-				`http://${process.env.BACK_URL}/lti/get_modules_by_type?type=${encodedSelectedOption}&course=${encodedCourse}`
+				`http://${process.env.NEXT_PUBLIC_BACK_URL}/lti/get_modules_by_type?type=${encodedSelectedOption}&course=${encodedCourse}`
 			);
 
 			if (!response.ok) {
@@ -139,7 +140,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 				if (!selectedOption) {
 					setResourceOptions([]);
 				} else {
-					if (process.env.DEV_FILES) {
+					if (parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
 						setResourceOptions([]);
 						setTimeout(() => {
 							const data = [
@@ -395,7 +396,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 				>
 					<img
 						alt="Logo"
-						src={process.env.LOGO_PATH}
+						src={process.env.NEXT_PUBLIC_LOGO_PATH}
 						style={{ width: "100%" }}
 					/>
 					<span className={styles.collapse + " display-6"}>

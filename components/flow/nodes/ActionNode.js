@@ -18,7 +18,7 @@ import {
 import FocusTrap from "focus-trap-react";
 import { Button, Badge } from "react-bootstrap";
 import { getTypeIcon } from "@utils/NodeIcons";
-import { getUpdatedArrayById } from "@utils/Utils";
+import { getUpdatedArrayById, parseBool } from "@utils/Utils";
 import { getNodeById } from "@utils/Nodes";
 
 const getHumanDesc = (type) => {
@@ -165,7 +165,7 @@ function ActionNode({ id, type, data, isConnectable }) {
 					{data.label}
 				</span>
 
-				{process.env.DEV_MODE == true && (
+				{parseBool(process.env.NEXT_PUBLIC_DEV_MODE) && (
 					<div
 						style={{
 							position: "absolute",
