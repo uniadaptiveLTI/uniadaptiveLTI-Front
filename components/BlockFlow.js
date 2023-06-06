@@ -64,7 +64,7 @@ import { getTypeStaticColor } from "@utils/NodeIcons.js";
 import NodeSelector from "@dialogs/NodeSelector.js";
 import CriteriaModal from "@flow/badges/CriteriaModal.js";
 import AnimatedEdge from "@edges/AnimatedEdge.js";
-
+import ConditionalEdge from "@edges/ConditionalEdge";
 const minimapStyle = {
 	height: 120,
 };
@@ -95,6 +95,10 @@ const nodeTypes = {
 	start: InitialNode,
 	end: FinalNode,
 	fragment: FragmentNode,
+};
+
+const edgeTypes = {
+	conditionalEdge: ConditionalEdge,
 };
 
 const OverviewFlow = ({ map }, ref) => {
@@ -606,7 +610,7 @@ const OverviewFlow = ({ map }, ref) => {
 	const edgesWithUpdatedTypes = edges
 		? edges.map((edge) => {
 				if (edge) {
-					if (edge.sourceHandle) {
+					/*if (edge.sourceHandle) {
 						const edgeType = nodes.find((node) => node.type === "custom").data
 							.selects[edge.sourceHandle];
 						edge.type = edgeType;
@@ -617,7 +621,8 @@ const OverviewFlow = ({ map }, ref) => {
 						for (let condition of cedge.conditions) {
 							edge.label = "" + condition.operand + condition.objective;
 						}
-					}
+					}*/
+					edge.type = "conditionalEdge";
 				}
 				return edge;
 		  })
@@ -1396,12 +1401,6 @@ const OverviewFlow = ({ map }, ref) => {
 		}
 	};
 
-	const edgeTypes = useMemo(() => {
-		return {
-			animated: AnimatedEdge(clickedEdgeId),
-		};
-	}, [clickedEdgeId]);
-
 	return (
 		<div
 			ref={reactFlowWrapper}
@@ -1433,6 +1432,7 @@ const OverviewFlow = ({ map }, ref) => {
 				fitView
 				proOptions={{ hideAttribution: true }}
 				nodeTypes={nodeTypes}
+				edgeTypes={edgeTypes}
 				snapGrid={[125, 175]}
 				//connectionLineComponent={}
 				snapToGrid={snapToGrid}

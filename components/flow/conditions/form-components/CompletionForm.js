@@ -22,7 +22,7 @@ function CompletionForm({
 				<option value="completedApproved">
 					debe estar completa y aprobada
 				</option>
-				<option value="completedSuspended">
+				<option value="completedFailed">
 					debe estar completa y suspendida
 				</option>
 			</Form.Select>

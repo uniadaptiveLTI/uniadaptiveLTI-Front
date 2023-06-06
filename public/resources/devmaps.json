@@ -48,19 +48,6 @@
 							"identation": 0,
 							"order": 0,
 							"unit": 1,
-							"conditions": {
-								"type": "conditionsGroup",
-								"id": "7988975532341243",
-								"op": "&",
-								"conditions": [
-									{
-										"type": "qualification",
-										"id": "678934534421326",
-										"op": "dev-2A1",
-										"objective": "2"
-									}
-								]
-							},
 							"lmsVisibility": "show_unconditionally"
 						}
 					},
@@ -78,20 +65,7 @@
 							"identation": 1,
 							"order": 1,
 							"unit": 1,
-							"lmsVisibility": "hidden_until_access",
-							"conditions": {
-								"type": "conditionsGroup",
-								"id": "342753142678324167",
-								"op": "&",
-								"conditions": [
-									{
-										"type": "qualification",
-										"id": "09843275842213423",
-										"op": "dev0A1",
-										"objective": "2"
-									}
-								]
-							}
+							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -154,10 +128,10 @@
 								"op": "&",
 								"conditions": [
 									{
-										"type": "qualification",
-										"id": "897043247612387965",
+										"type": "completion",
 										"op": "dev1A1",
-										"objective": "2"
+										"query": "completedApproved",
+										"id": "4342243163224778853"
 									}
 								]
 							},
@@ -178,19 +152,6 @@
 							"identation": 1,
 							"order": 3,
 							"unit": 1,
-							"conditions": {
-								"type": "conditionsGroup",
-								"id": "623471233557821349",
-								"op": "&",
-								"conditions": [
-									{
-										"type": "qualification",
-										"id": "4342243163224778853",
-										"op": "dev3A1",
-										"objective": "2"
-									}
-								]
-							},
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -214,36 +175,22 @@
 								"op": "|",
 								"conditions": [
 									{
-										"type": "conditionsGroup",
-										"id": "100236670128",
-										"op": "&",
-										"conditions": [
-											{
-												"type": "qualification",
-												"id": "16423454681559",
-												"op": "dev4A1",
-												"objective": "2"
-											}
-										]
+										"type": "completion",
+										"op": "dev4A1",
+										"query": "completedApproved",
+										"id": "434222363224778852"
 									},
 									{
-										"type": "conditionsGroup",
-										"id": "324236670128",
-										"op": "&",
-										"conditions": [
-											{
-												"type": "qualification",
-												"id": "131234681559",
-												"op": "dev6A1",
-												"objective": "2"
-											}
-										]
+										"type": "completion",
+										"op": "dev6A1",
+										"query": "completed",
+										"id": "43422443224778853"
 									},
 									{
 										"type": "qualification",
-										"id": "21346464457424327",
+										"id": "648191624693482345",
 										"op": "dev10A1",
-										"objective": "2"
+										"objective": "7"
 									}
 								]
 							},
@@ -267,19 +214,19 @@
 							"conditions": {
 								"type": "conditionsGroup",
 								"id": "68924375132878957895673",
-								"op": "&",
+								"op": "|",
 								"conditions": [
 									{
-										"type": "qualification",
-										"id": "768932413245654132",
+										"type": "completion",
 										"op": "dev4A1",
-										"objective": "2"
+										"query": "completedFailed",
+										"id": "4342223632247788542"
 									},
 									{
-										"type": "qualification",
-										"id": "78748123409421875",
-										"op": "dev12A1",
-										"objective": "2"
+										"type": "completion",
+										"op": "dev4A1",
+										"query": "completed",
+										"id": "4342223632247782852"
 									}
 								]
 							},
@@ -320,22 +267,23 @@
 								"op": "&",
 								"conditions": [
 									{
-										"type": "qualification",
-										"id": "8970434247612387965",
+										"type": "completion",
 										"op": "dev5A1",
-										"objective": "2"
+										"query": "completedApproved",
+										"id": "434222363224778852"
 									},
 									{
 										"type": "qualification",
-										"id": "8969434247612387965",
-										"op": "dev16A1",
-										"objective": "2"
-									},
-									{
-										"type": "qualification",
-										"id": "89704342412512387965",
+										"id": "6481924693482345",
 										"op": "dev15A1",
-										"objective": "2"
+										"objective": "6",
+										"objective2": "10"
+									},
+									{
+										"type": "completion",
+										"op": "dev16A1",
+										"query": "completed",
+										"id": "43422232778852"
 									}
 								]
 							}
@@ -362,10 +310,10 @@
 								"op": "&",
 								"conditions": [
 									{
-										"type": "qualification",
-										"id": "8970432447612387965",
+										"type": "completion",
 										"op": "dev1A1",
-										"objective": "2"
+										"query": "completedFailed",
+										"id": "4342243163224778853"
 									}
 								]
 							}
@@ -392,10 +340,10 @@
 								"op": "&",
 								"conditions": [
 									{
-										"type": "qualification",
-										"id": "64819193482345",
+										"type": "completion",
 										"op": "dev9A1",
-										"objective": "2"
+										"query": "completed",
+										"id": "434222363224778852"
 									}
 								]
 							}
@@ -437,7 +385,7 @@
 										"type": "qualification",
 										"id": "648191624693482345",
 										"op": "dev10A1",
-										"objective": "2"
+										"objective2": "7"
 									}
 								]
 							}
@@ -539,10 +487,10 @@
 								"op": "&",
 								"conditions": [
 									{
-										"type": "qualification",
-										"id": "56566565657889712367",
-										"op": "dev14A1",
-										"objective": "2"
+										"type": "completion",
+										"op": "dev15A1",
+										"query": "completed",
+										"id": "4342234224778852"
 									}
 								]
 							},
@@ -572,11 +520,11 @@
 										"type": "qualification",
 										"id": "978434243341234324",
 										"op": "dev15A1",
-										"objective": "2",
-										"lmsVisibility": "hidden_until_access"
+										"objective2": "6"
 									}
 								]
-							}
+							},
+							"lmsVisibility": "hidden_until_access"
 						}
 					}
 				]

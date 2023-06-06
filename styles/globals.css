@@ -49,13 +49,17 @@
   --blockflow-background-color: none;
   --blockflow-text-background-color: none;
   --blockflow-node-border: 2px solid #101011;
+  --blockflow-node-border-radius: 4px;
+  --blockflow-edge-background: #f8f8f8;
+  --blockflow-edge-border: var(--blockflow-node-border);
+  --blockflow-edge-border-radius: var(--blockflow-node-border-radius);
+  --blockflow-edge-font-color: var(--blockflow-font-color);
   --blockflow-controls-border: none;
   --blockflow-controls-button-background-color: white;
   --blockflow-controls-button-font-color: black;
   --blockflow-controls-button-border: 1px solid #eee;
   --blockflow-controls-button-svg-filter: none;
   --blockflow-handles-border-radius: 100%;
-  --blockflow-node-border-radius: 4px;
 
   --high-contrast-accent-color1: white;
   --high-contrast-accent-color2: black;

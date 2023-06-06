@@ -572,7 +572,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 											{allowResourceSelection && (
 												<>
 													<option key="-1" hidden value>
-														{"Cargando..."}
+														{"Esperando recursos..."}
 													</option>
 													{resourceOptions.map((resource) => (
 														<option key={resource.id} value={resource.id}>
