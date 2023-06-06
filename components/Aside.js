@@ -183,19 +183,12 @@ export default function Aside({ className, closeBtn, svgExists }) {
 							});
 
 							//Adds current resource if exists
-							if (nodeSelected.data) {
-								console.log("tiene datos");
+							if (nodeSelected && nodeSelected.data) {
 								if (nodeSelected.data.lmsResource) {
-									console.log("tiene recurso");
 									if (nodeSelected.data.lmsResource > -1) {
 										const lmsRes = nodeSelected.data.lmsResource;
-										console.log("tiene recurso y es " + lmsRes);
 										const storedRes = data.find(
 											(resource) => resource.id === lmsRes
-										);
-										console.log(
-											"el recurso que concuerda con el almacenado es " +
-												storedRes?.id
 										);
 
 										if (storedRes != undefined) {
@@ -204,8 +197,6 @@ export default function Aside({ className, closeBtn, svgExists }) {
 									}
 								}
 							}
-
-							console.log(filteredData);
 
 							const uniqueFilteredData = deduplicateById(filteredData);
 							uniqueFilteredData.unshift({ id: -1, name: "Vacío" });
@@ -220,14 +211,13 @@ export default function Aside({ className, closeBtn, svgExists }) {
 								}
 							});
 							//Adds current resource if exists
-							if (nodeSelected.data) {
+							if (nodeSelected && nodeSelected.data) {
 								if (nodeSelected.data.lmsResource) {
 									if (nodeSelected.data.lmsResource > -1) {
 										const lmsRes = nodeSelected.data.lmsResource;
 										const storedRes = data.find(
 											(resource) => resource.id === lmsRes
 										);
-										console.log(storedRes, lmsRes);
 
 										if (storedRes != undefined) {
 											filteredData.push(storedRes);
@@ -248,16 +238,18 @@ export default function Aside({ className, closeBtn, svgExists }) {
 
 	useEffect(() => {
 		const resourceIDs = resourceOptions.map((resource) => resource.id);
-		if (resourceOptions.length > 0) {
-			const lmsResourceCurrent = lmsResourceDOM.current;
-			if (lmsResourceCurrent) {
-				lmsResourceCurrent.value = resourceIDs.includes(
-					nodeSelected.data.lmsResource
-				)
-					? nodeSelected.data.lmsResource
-					: -1;
+		if (nodeSelected) {
+			if (resourceOptions.length > 0) {
+				const lmsResourceCurrent = lmsResourceDOM.current;
+				if (lmsResourceCurrent) {
+					lmsResourceCurrent.value = resourceIDs.includes(
+						nodeSelected.data.lmsResource
+					)
+						? nodeSelected.data.lmsResource
+						: -1;
+				}
+				setLmsResource(nodeSelected.data.lmsResource);
 			}
-			setLmsResource(nodeSelected.data.lmsResource);
 		}
 	}, [resourceOptions]);
 
@@ -267,7 +259,6 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	};
 
 	useEffect(() => {
-		//console.log(nodeSelected);
 		if (nodeSelected) {
 			const titleCurrent = titleDOM.current;
 			const typeCurrent = resourceDOM.current;
@@ -336,8 +327,6 @@ export default function Aside({ className, closeBtn, svgExists }) {
 			};
 		}
 
-		//console.log(newData);
-
 		const updatedData = {
 			...nodeSelected,
 			id: nodeSelected.id,
@@ -346,8 +335,6 @@ export default function Aside({ className, closeBtn, svgExists }) {
 		};
 
 		errorListCheck(updatedData, errorList, setErrorList, true);
-
-		//console.log(updatedData, nodeSelected);
 
 		reactFlowInstance.setNodes(
 			getUpdatedArrayById(updatedData, reactFlowInstance.getNodes())
@@ -390,7 +377,6 @@ export default function Aside({ className, closeBtn, svgExists }) {
 				usedResources.push(node.data.lmsResource);
 			}
 		});
-		console.log(usedResources);
 		return usedResources;
 	};
 
