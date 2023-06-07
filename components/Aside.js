@@ -78,7 +78,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	const versionTitleDOM = useRef(null);
 	const refreshIconDOM = useRef(null);
 	const lmsVisibilityDOM = useRef(null);
-	const unitDOM = useRef(null);
+	const sectionDOM = useRef(null);
 	const orderDOM = useRef(null);
 	const identationDOM = useRef(null);
 	//IDs
@@ -86,7 +86,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	const optionsID = useId();
 	const lmsResourceDOMId = useId();
 	const typeDOMId = useId();
-	const unitDOMId = useId();
+	const sectionDOMId = useId();
 	const lmsVisibilityDOMId = useId();
 	const orderDOMId = useId();
 	const identationDOMId = useId();
@@ -263,7 +263,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 			const titleCurrent = titleDOM.current;
 			const typeCurrent = resourceDOM.current;
 			const lmsVisibilityCurrent = lmsVisibilityDOM.current;
-			const unitCurrent = unitDOM.current;
+			const sectionCurrent = sectionDOM.current;
 			const orderCurrent = orderDOM.current;
 			const identationCurrent = identationDOM.current;
 
@@ -279,8 +279,8 @@ export default function Aside({ className, closeBtn, svgExists }) {
 				lmsVisibilityCurrent.value = nodeSelected.data.lmsVisibility;
 			}
 
-			if (unitCurrent) {
-				unitCurrent.value = nodeSelected.data.unit;
+			if (sectionCurrent) {
+				sectionCurrent.value = nodeSelected.data.section;
 			}
 
 			if (orderCurrent) {
@@ -315,7 +315,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 				lmsVisibility: lmsVisibilityDOM.current.value
 					? lmsVisibilityDOM.current.value
 					: "hidden_until_access",
-				unit: unitDOM.current.value ? unitDOM.current.value : 0, //FIXME: Only valid for moodle
+				section: sectionDOM.current.value ? sectionDOM.current.value : 0, //FIXME: Only valid for moodle
 				order: limitedOrder - 1,
 				identation: limitedIdentation,
 			};
@@ -439,7 +439,11 @@ export default function Aside({ className, closeBtn, svgExists }) {
 								].join(" ")}
 							>
 								<Form.Group className="mb-3">
-									<Form.Label htmlFor={titleDOMId} className="mb-1">
+									<Form.Label
+										htmlFor={titleDOMId}
+										className="mb-1"
+										disabled={!ActionNodes.includes(nodeSelected.type)}
+									>
 										Nombre del{" "}
 										{nodeSelected.type == "fragment" ? "fragmento" : "bloque"}
 									</Form.Label>
@@ -638,35 +642,38 @@ export default function Aside({ className, closeBtn, svgExists }) {
 
 									<>
 										<Form.Group className="mb-2">
-											<Form.Label htmlFor={orderDOMId}>Unidad</Form.Label>
+											<Form.Label htmlFor={orderDOMId}>Sección</Form.Label>
 											<Form.Select
-												ref={unitDOM}
-												id={unitDOMId}
-												defaultValue={nodeSelected.data.unit}
+												ref={sectionDOM}
+												id={sectionDOMId}
+												defaultValue={nodeSelected.data.section}
 											>
-												{metaData.units &&
+												{metaData.sections &&
 													orderByPropertyAlphabetically(
-														[...metaData.units].map((unit) => {
-															if (!unit.name.match(/^\d/)) {
-																unit.name =
+														[...metaData.sections].map((section) => {
+															if (!section.name.match(/^\d/)) {
+																section.name =
 																	platform == "moodle"
-																		? unit.position + "- " + unit.name
-																		: unit.position + 1 + "- " + unit.name;
-																unit.value = unit.position + 1;
+																		? section.position + "- " + section.name
+																		: section.position +
+																		  1 +
+																		  "- " +
+																		  section.name;
+																section.value = section.position + 1;
 															}
-															return unit;
+															return section;
 														}),
 														"name"
-													).map((unit) => (
-														<option key={unit.id} value={unit.position}>
-															{unit.name}
+													).map((section) => (
+														<option key={section.id} value={section.position}>
+															{section.name}
 														</option>
 													))}
 											</Form.Select>
 										</Form.Group>
 										<Form.Group className="mb-2">
 											<Form.Label htmlFor={orderDOMId}>
-												Posición en la unidad
+												Posición en la sección
 											</Form.Label>
 											<Form.Control
 												type="number"
@@ -679,7 +686,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 										</Form.Group>
 										<Form.Group className="mb-2">
 											<Form.Label htmlFor={identationDOMId}>
-												Identación en la unidad
+												Identación en la sección
 											</Form.Label>
 											<Form.Control
 												type="number"

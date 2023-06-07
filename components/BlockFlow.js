@@ -832,6 +832,10 @@ const OverviewFlow = ({ map }, ref) => {
 	const handleBlockCopy = (blockData = []) => {
 		setShowContextualMenu(false);
 
+		const selectedNodes = reactFlowInstance
+			.getNodes()
+			.filter((node) => node.selected == true);
+
 		const blockDataSet = [];
 		if (blockData.length == 1) {
 			blockDataSet.push(...blockData);
@@ -966,7 +970,7 @@ const OverviewFlow = ({ map }, ref) => {
 							label: "Nuevo bloque de acción",
 							children: undefined,
 							order: 100,
-							unit: 1,
+							section: 1,
 						},
 					};
 				} else {
@@ -1014,7 +1018,7 @@ const OverviewFlow = ({ map }, ref) => {
 						label: "Nuevo bloque",
 						children: undefined,
 						order: 100,
-						unit: 1,
+						section: 1,
 					},
 				};
 			} else {
@@ -1026,7 +1030,7 @@ const OverviewFlow = ({ map }, ref) => {
 						label: "Nuevo bloque",
 						children: undefined,
 						order: 100,
-						unit: 1,
+						section: 1,
 					},
 				};
 			}

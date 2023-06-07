@@ -58,7 +58,7 @@ function ConditionModal({
 		{
 			id: "1",
 			name: "Cuestionario 1",
-			unit: 1,
+			section: 1,
 			indentation: 1,
 			firstCheckboxEnabled: false,
 			secondCheckboxEnabled: false,
@@ -66,7 +66,7 @@ function ConditionModal({
 		{
 			id: "2",
 			name: "Cuestionario 2",
-			unit: 1,
+			section: 1,
 			indentation: 2,
 			firstCheckboxEnabled: false,
 			secondCheckboxEnabled: false,
@@ -74,7 +74,7 @@ function ConditionModal({
 		{
 			id: "3",
 			name: "Cuestionario 3",
-			unit: 1,
+			section: 1,
 			indentation: 3,
 			firstCheckboxEnabled: false,
 			secondCheckboxEnabled: false,
@@ -82,7 +82,7 @@ function ConditionModal({
 		{
 			id: "4",
 			name: "Tarea 1",
-			unit: 2,
+			section: 2,
 			indentation: 1,
 			firstCheckboxEnabled: false,
 			secondCheckboxEnabled: false,
@@ -90,7 +90,7 @@ function ConditionModal({
 		{
 			id: "5",
 			name: "Tarea 2",
-			unit: 2,
+			section: 2,
 			indentation: 2,
 			firstCheckboxEnabled: false,
 			secondCheckboxEnabled: false,
@@ -98,7 +98,7 @@ function ConditionModal({
 		{
 			id: "6",
 			name: "Tarea 3",
-			unit: 2,
+			section: 2,
 			indentation: 3,
 			firstCheckboxEnabled: false,
 			secondCheckboxEnabled: false,
@@ -106,7 +106,7 @@ function ConditionModal({
 		{
 			id: "7",
 			name: "Taller 1",
-			unit: 3,
+			usectionnit: 3,
 			indentation: 1,
 			firstCheckboxEnabled: false,
 			secondCheckboxEnabled: false,
@@ -114,7 +114,7 @@ function ConditionModal({
 		{
 			id: "8",
 			name: "Taller 2",
-			unit: 3,
+			section: 3,
 			indentation: 2,
 			firstCheckboxEnabled: false,
 			secondCheckboxEnabled: false,
@@ -122,7 +122,7 @@ function ConditionModal({
 		{
 			id: "9",
 			name: "Taller 3",
-			unit: 3,
+			section: 3,
 			indentation: 3,
 			firstCheckboxEnabled: false,
 			secondCheckboxEnabled: false,
@@ -130,7 +130,7 @@ function ConditionModal({
 		{
 			id: "10",
 			name: "Consulta 1",
-			unit: 4,
+			section: 4,
 			indentation: 1,
 			firstCheckboxEnabled: false,
 			secondCheckboxEnabled: false,
@@ -138,7 +138,7 @@ function ConditionModal({
 		{
 			id: "11",
 			name: "Consulta 2",
-			unit: 4,
+			section: 4,
 			indentation: 2,
 			firstCheckboxEnabled: false,
 			secondCheckboxEnabled: false,
@@ -146,7 +146,7 @@ function ConditionModal({
 		{
 			id: "12",
 			name: "Consulta 3",
-			unit: 4,
+			section: 4,
 			indentation: 3,
 			firstCheckboxEnabled: false,
 			secondCheckboxEnabled: false,
@@ -341,7 +341,7 @@ function ConditionModal({
 					{
 						id: resource.id,
 						name: resource.name,
-						unit: resource.unit,
+						section: resource.section,
 						indentation: resource.indentation,
 					},
 				]);
@@ -446,10 +446,10 @@ function ConditionModal({
 				break;
 			case "completion":
 				const sortedData = checkboxValues.sort((a, b) => {
-					if (a.unit === b.unit) {
+					if (a.section === b.section) {
 						return a.indentation - b.indentation;
 					}
-					return a.unit - b.unit;
+					return a.section - b.section;
 				});
 
 				formData.activityList = sortedData;

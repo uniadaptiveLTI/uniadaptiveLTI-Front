@@ -49,9 +49,9 @@ const getHumanDesc = (type) => {
 
 const getAriaLabel = () => {
 	/*
-	let end = blockData.unit
-		? ", forma parte de la unidad " +
-		  blockData.unit +
+	let end = blockData.section
+		? ", forma parte de la sección " +
+		  blockData.section +
 		  ", calculado desde su identación."
 		: ".";*/
 	return (
@@ -197,7 +197,7 @@ function ActionNode({ id, type, data, isConnectable }) {
 							" " +
 							(highContrast && styles.highContrast)
 						}
-						title="Unidad"
+						title="Sección"
 					>
 						{
 							<FontAwesomeIcon

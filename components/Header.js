@@ -273,7 +273,7 @@ function Header({ closeBtn }, ref) {
 				newNode.data = {
 					label: node.name,
 					indent: node.indent,
-					unit: node.unit,
+					section: node.section,
 					children: [],
 					order: node.order,
 					lmsResource: node.id,

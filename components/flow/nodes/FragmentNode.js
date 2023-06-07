@@ -279,10 +279,10 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 
 	const getAriaLabel = () => {
 		let end = "";
-		if (data.unit && data.order) {
-			end = data.unit
-				? ", forma parte de la unidad " +
-				  data.unit +
+		if (data.section && data.order) {
+			end = data.section
+				? ", forma parte de la sección " +
+				  data.section +
 				  ", con la posición " +
 				  data.order +
 				  "en el LMS."

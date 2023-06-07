@@ -47,7 +47,7 @@
 							"children": ["dev1A1"],
 							"identation": 0,
 							"order": 0,
-							"unit": 1,
+							"section": 1,
 							"lmsVisibility": "show_unconditionally"
 						}
 					},
@@ -64,7 +64,7 @@
 							"children": ["dev2A1", "dev3A1", "dev9A1"],
 							"identation": 1,
 							"order": 1,
-							"unit": 1,
+							"section": 1,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -121,7 +121,7 @@
 							"children": ["dev4A1"],
 							"identation": 1,
 							"order": 2,
-							"unit": 1,
+							"section": 1,
 							"conditions": {
 								"type": "conditionsGroup",
 								"id": "68924334612375132878973",
@@ -151,7 +151,7 @@
 							"children": ["dev5A1", "dev6A1"],
 							"identation": 1,
 							"order": 3,
-							"unit": 1,
+							"section": 1,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -168,7 +168,7 @@
 							"children": ["dev7A1", "dev8A1", "dev13A1"],
 							"identation": 2,
 							"order": 8,
-							"unit": 1,
+							"section": 1,
 							"conditions": {
 								"type": "conditionsGroup",
 								"id": "100236670156",
@@ -210,7 +210,7 @@
 							"children": ["dev5A1"],
 							"identation": 2,
 							"order": 7,
-							"unit": 1,
+							"section": 1,
 							"conditions": {
 								"type": "conditionsGroup",
 								"id": "68924375132878957895673",
@@ -260,7 +260,7 @@
 							"children": ["dev-1A1"],
 							"identation": 0,
 							"order": 0,
-							"unit": 3,
+							"section": 3,
 							"conditions": {
 								"type": "conditionsGroup",
 								"id": "68924375132878973",
@@ -303,7 +303,7 @@
 							"children": ["dev10A1"],
 							"identation": 1,
 							"order": 4,
-							"unit": 1,
+							"section": 1,
 							"conditions": {
 								"type": "conditionsGroup",
 								"id": "6892437513287698973",
@@ -333,7 +333,7 @@
 							"children": ["dev11A1", "dev12A1", "dev5A1"],
 							"identation": 1,
 							"order": 5,
-							"unit": 1,
+							"section": 1,
 							"conditions": {
 								"type": "conditionsGroup",
 								"id": "98437432194690",
@@ -375,7 +375,7 @@
 							"children": ["dev6A1"],
 							"identation": 2,
 							"order": 5,
-							"unit": 1,
+							"section": 1,
 							"conditions": {
 								"type": "conditionsGroup",
 								"id": "9544138437432194690",
@@ -444,7 +444,7 @@
 							"children": ["dev14A1"],
 							"identation": 2,
 							"order": 0,
-							"unit": 2,
+							"section": 2,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -462,7 +462,7 @@
 							"children": ["dev15A1"],
 							"identation": 2,
 							"order": 1,
-							"unit": 2,
+							"section": 2,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -480,7 +480,7 @@
 							"children": ["dev7A1", "dev8A1", "dev16A1"],
 							"identation": 2,
 							"order": 2,
-							"unit": 2,
+							"section": 2,
 							"conditions": {
 								"type": "conditionsGroup",
 								"id": "89898998898912342",
@@ -510,7 +510,7 @@
 							"children": ["dev7A1", "dev8A1"],
 							"identation": 3,
 							"order": 4,
-							"unit": 2,
+							"section": 2,
 							"conditions": {
 								"type": "conditionsGroup",
 								"id": "456426231736855865",
@@ -610,7 +610,7 @@
 							"children": ["dev1B1"],
 							"identation": 0,
 							"order": 0,
-							"unit": 1,
+							"section": 1,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -626,7 +626,7 @@
 							"children": ["dev2B1", "dev4B1"],
 							"identation": 1,
 							"order": 1,
-							"unit": 1,
+							"section": 1,
 							"conditions": {
 								"type": "conditionsGroup",
 								"id": "781267123670427",
@@ -661,7 +661,7 @@
 							"children": ["dev3B1"],
 							"identation": 1,
 							"order": 2,
-							"unit": 1,
+							"section": 1,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -688,7 +688,7 @@
 							"children": ["dev5B1"],
 							"identation": 0,
 							"order": 3,
-							"unit": 1,
+							"section": 1,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -704,7 +704,7 @@
 							"children": ["dev6B1"],
 							"identation": 1,
 							"order": 4,
-							"unit": 1,
+							"section": 1,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -720,7 +720,7 @@
 							"children": ["dev7B1", "dev8B1"],
 							"identation": 0,
 							"order": 5,
-							"unit": 2,
+							"section": 2,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -735,7 +735,7 @@
 							"label": "Ejercicio de raices",
 							"identation": 0,
 							"order": 6,
-							"unit": 2,
+							"section": 2,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -751,7 +751,7 @@
 							"children": ["dev9B1"],
 							"identation": 0,
 							"order": 7,
-							"unit": 2,
+							"section": 2,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -767,7 +767,7 @@
 							"children": ["dev-1B1"],
 							"identation": 1,
 							"order": 8,
-							"unit": 3,
+							"section": 3,
 							"lmsVisibility": "hidden_until_access"
 						}
 					}
@@ -816,7 +816,7 @@
 							"children": ["dev1B2"],
 							"identation": 0,
 							"order": 0,
-							"unit": 1,
+							"section": 1,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -832,7 +832,7 @@
 							"children": ["dev2B2", "dev5B2"],
 							"identation": 1,
 							"order": 1,
-							"unit": 1,
+							"section": 1,
 							"conditions": {
 								"type": "conditionsGroup",
 								"id": "77665544331122",
@@ -867,7 +867,7 @@
 							"children": ["dev10B2", "dev11B2"],
 							"identation": 1,
 							"order": 2,
-							"unit": 1,
+							"section": 1,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -883,7 +883,7 @@
 							"children": ["dev6B2", "dev7B2"],
 							"identation": 0,
 							"order": 7,
-							"unit": 2,
+							"section": 2,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -899,7 +899,7 @@
 							"children": ["dev-1B2"],
 							"identation": 0,
 							"order": 8,
-							"unit": 2,
+							"section": 2,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -917,7 +917,7 @@
 							"children": ["dev40B2", "dev41B2"],
 							"identation": 0,
 							"order": 9,
-							"unit": 2,
+							"section": 2,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -933,7 +933,7 @@
 							"children": ["dev12B2", "dev13B2"],
 							"identation": 1,
 							"order": 3,
-							"unit": 1,
+							"section": 1,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -949,7 +949,7 @@
 							"label": "Carpeta Ecuaciones 3",
 							"identation": 1,
 							"order": 4,
-							"unit": 1,
+							"section": 1,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -964,7 +964,7 @@
 							"label": "Insignia Ecuaciones 4",
 							"identation": 1,
 							"order": 5,
-							"unit": 1,
+							"section": 1,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -979,7 +979,7 @@
 							"label": "Carpeta Ecuaciones 5",
 							"identation": 1,
 							"order": 6,
-							"unit": 1,
+							"section": 1,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -994,7 +994,7 @@
 							"label": "Web informativa 2",
 							"identation": 1,
 							"order": 10,
-							"unit": 2,
+							"section": 2,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -1009,7 +1009,7 @@
 							"label": "Web informativa 3",
 							"identation": 1,
 							"order": 11,
-							"unit": 2,
+							"section": 2,
 							"lmsVisibility": "hidden_until_access"
 						}
 					}
@@ -1058,7 +1058,7 @@
 							"children": ["dev1B3"],
 							"identation": 0,
 							"order": 0,
-							"unit": 1,
+							"section": 1,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -1074,7 +1074,7 @@
 							"children": ["dev2B3", "dev3B3"],
 							"identation": 1,
 							"order": 0,
-							"unit": 1,
+							"section": 1,
 							"conditions": {
 								"type": "conditionsGroup",
 								"id": "44885577221100",
@@ -1108,7 +1108,7 @@
 							"label": "Carpeta Ecuaciones",
 							"identation": 1,
 							"order": 2,
-							"unit": 1,
+							"section": 1,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -1124,7 +1124,7 @@
 							"children": ["dev4B3"],
 							"identation": 0,
 							"order": 3,
-							"unit": 1,
+							"section": 1,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -1140,7 +1140,7 @@
 							"children": ["dev5B3"],
 							"identation": 1,
 							"order": 4,
-							"unit": 1,
+							"section": 1,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -1156,7 +1156,7 @@
 							"children": ["dev6B3", "dev7B3"],
 							"identation": 0,
 							"order": 5,
-							"unit": 1,
+							"section": 1,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -1171,7 +1171,7 @@
 							"label": "Ejercicio de raices",
 							"identation": 0,
 							"order": 6,
-							"unit": 1,
+							"section": 1,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -1187,7 +1187,7 @@
 							"children": ["dev8B3"],
 							"identation": 0,
 							"order": 7,
-							"unit": 1,
+							"section": 1,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -1203,7 +1203,7 @@
 							"children": ["dev40B3", "dev41B3"],
 							"identation": 1,
 							"order": 8,
-							"unit": 1,
+							"section": 1,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -1218,7 +1218,7 @@
 							"label": "Web informativa 2",
 							"identation": 1,
 							"order": 9,
-							"unit": 2
+							"section": 2
 						}
 					},
 					{
@@ -1233,7 +1233,7 @@
 							"children": ["dev44B3", "dev45B3"],
 							"identation": 1,
 							"order": 10,
-							"unit": 2,
+							"section": 2,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -1249,7 +1249,7 @@
 							"children": ["dev46B3", "dev47B3"],
 							"identation": 1,
 							"order": 11,
-							"unit": 2,
+							"section": 2,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -1264,7 +1264,7 @@
 							"label": "Web informativa 7",
 							"identation": 1,
 							"order": 12,
-							"unit": 2,
+							"section": 2,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -1280,7 +1280,7 @@
 							"children": ["dev48B3", "dev49B3"],
 							"identation": 1,
 							"order": 13,
-							"unit": 2,
+							"section": 2,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -1295,7 +1295,7 @@
 							"label": "Web informativa 9",
 							"identation": 1,
 							"order": 14,
-							"unit": 2,
+							"section": 2,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -1311,7 +1311,7 @@
 							"children": ["dev-1B3"],
 							"identation": 1,
 							"order": 15,
-							"unit": 2,
+							"section": 2,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -1326,7 +1326,7 @@
 							"label": "Web informativa 11",
 							"identation": 1,
 							"order": 16,
-							"unit": 2,
+							"section": 2,
 							"lmsVisibility": "hidden_until_access"
 						}
 					}
