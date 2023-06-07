@@ -75,10 +75,10 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 
 	const getAriaLabel = () => {
 		let end = "";
-		if (data.unit && data.order) {
-			end = data.unit
-				? ", forma parte de la unidad " +
-				  data.unit +
+		if (data.section && data.order) {
+			end = data.section
+				? ", forma parte de la sección " +
+				  data.section +
 				  ", con la posición " +
 				  data.order +
 				  "en el LMS."
@@ -199,14 +199,14 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 	};
 
 	const hasDuplicatedOrderInSection = () => {
-		const currentSection = data.unit;
+		const currentSection = data.section;
 		const currentOrder = data.order;
 		let duplicates = -1; //Only one resource per node
 		reactFlowInstance.getNodes().forEach((node) => {
 			const data = node.data;
 			if (data) {
-				if (data.order != undefined && data.unit != undefined) {
-					if (data.order == currentOrder && data.unit == currentSection) {
+				if (data.order != undefined && data.section != undefined) {
+					if (data.order == currentOrder && data.section == currentSection) {
 						duplicates++;
 					}
 				}
@@ -221,7 +221,7 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 			data.lmsResource == undefined ||
 			hasDuplicatedResource() ||
 			data.lmsVisibility == undefined ||
-			data.unit == undefined ||
+			data.section == undefined ||
 			data.order == undefined ||
 			hasDuplicatedOrderInSection();
 		setHasErrors(hasErrors);
@@ -308,7 +308,7 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 				{(data.lmsResource == undefined ||
 					hasDuplicatedResource() ||
 					data.lmsVisibility == undefined ||
-					data.unit == undefined ||
+					data.section == undefined ||
 					data.order == undefined ||
 					hasDuplicatedOrderInSection()) && (
 					<Badge
@@ -324,7 +324,7 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 							" " +
 							(highContrast && styles.highContrast)
 						}
-						title="Unidad"
+						title="Sección"
 					>
 						{
 							<FontAwesomeIcon
@@ -366,13 +366,13 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 						)}
 					</Badge>
 				)}
-				{!isNaN(data.unit) && getParentExpanded() && (
+				{!isNaN(data.section) && getParentExpanded() && (
 					<Badge
 						bg="light"
 						className={
 							styles.badge +
 							" " +
-							styles.badgeUnit +
+							styles.badgeSection +
 							" " +
 							(reducedAnimations && styles.noAnimation) +
 							" " +
@@ -382,7 +382,9 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 						}
 						title="Sección"
 					>
-						{platform == "moodle" ? Number(data.unit) : Number(data.unit) + 1}
+						{platform == "moodle"
+							? Number(data.section)
+							: Number(data.section) + 1}
 					</Badge>
 				)}
 				{!isNaN(data.order) && getParentExpanded() && (

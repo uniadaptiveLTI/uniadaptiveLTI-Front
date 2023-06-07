@@ -1,8 +1,9 @@
 {
 	"name": "Course Name",
-	"courseId": 0,
+	"instance_id": 0,
+	"course_id": 0,
 	"platform": "moodle",
-	"units": [
+	"sections": [
 		{ "id": 1, "position": 0, "name": "General" },
 		{ "id": 2, "position": 1, "name": "Física" },
 		{ "id": 3, "position": 3, "name": "Física Avanzada" },

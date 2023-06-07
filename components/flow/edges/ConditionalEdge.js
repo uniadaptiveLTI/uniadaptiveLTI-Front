@@ -31,6 +31,7 @@ const ConditionalEdge = ({
 
 	const rfNodes = useNodes();
 
+	//TODO: Make it recursive and try to join conditions.
 	const getSelfCondition = () => {
 		const targetNode = getNodeById(target, rfNodes);
 		if (targetNode && targetNode.data && targetNode.data.conditions) {
@@ -76,12 +77,11 @@ const ConditionalEdge = ({
 	};
 
 	const getSelfWidth = () => {
-		if (target == "dev9A1")
-			if (Math.max(sourceY - targetY, targetY - sourceY) < 200) {
-				return Math.max(sourceX - targetX, targetX - sourceX) + "px";
-			} else {
-				return "100%";
-			}
+		if (Math.max(sourceY - targetY, targetY - sourceY) < 200) {
+			return Math.max(sourceX - targetX, targetX - sourceX) + "px";
+		} else {
+			return "100%";
+		}
 	};
 
 	const [label, setLabel] = useState(getSelfCondition());

@@ -20,7 +20,7 @@ import {
 export default function Layout({ children }) {
 	const [platform, setPlatform] = useState("moodle"); //default to moodle in testing phase
 	const [metaData, setMetaData] = useState();
-	const [units, setUnits] = useState();
+	const [sections, setSections] = useState();
 
 	const [nodeSelected, setNodeSelected] = useState("");
 	const [mapSelected, setMapSelected] = useState("");
