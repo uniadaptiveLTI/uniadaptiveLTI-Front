@@ -70,7 +70,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	let { reducedAnimations, autoHideAside } = parsedSettings;
 
 	//References
-	const titleDOM = useRef(null);
+	const labelDOM = useRef(null);
 	const optionsDOM = useRef(null);
 	const resourceDOM = useRef(null);
 	const lmsResourceDOM = useRef(null);
@@ -82,7 +82,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	const orderDOM = useRef(null);
 	const identationDOM = useRef(null);
 	//IDs
-	const titleDOMId = useId();
+	const labelDOMId = useId();
 	const optionsID = useId();
 	const lmsResourceDOMId = useId();
 	const typeDOMId = useId();
@@ -237,21 +237,48 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	}, [selectedOption, nodeSelected]);
 
 	useEffect(() => {
-		const resourceIDs = resourceOptions.map((resource) => resource.id);
 		if (nodeSelected) {
 			if (resourceOptions.length > 0) {
+				const resourceIDs = resourceOptions.map((resource) => resource.id);
 				const lmsResourceCurrent = lmsResourceDOM.current;
+				const labelCurrent = labelDOM.current;
 				if (lmsResourceCurrent) {
-					lmsResourceCurrent.value = resourceIDs.includes(
-						nodeSelected.data.lmsResource
-					)
-						? nodeSelected.data.lmsResource
-						: -1;
+					if (resourceIDs.includes(nodeSelected.data.lmsResource)) {
+						lmsResourceCurrent.value = nodeSelected.data.lmsResource;
+					} else {
+						lmsResourceCurrent.value = -1;
+					}
 				}
 				setLmsResource(nodeSelected.data.lmsResource);
 			}
 		}
 	}, [resourceOptions]);
+
+	const syncLabel = (e) => {
+		if (nodeSelected) {
+			if (
+				!(
+					ActionNodes.includes(nodeSelected.type) ||
+					nodeSelected.type == "fragment"
+				)
+			) {
+				const resourceIDs = resourceOptions.map((resource) => resource.id);
+				const labelCurrent = labelDOM.current;
+
+				if (resourceIDs.includes(nodeSelected.data.lmsResource)) {
+					if (e.target.value < 0) {
+						labelCurrent.value = "";
+					} else {
+						labelCurrent.value = resourceOptions.find(
+							(resource) => resource.id == e.target.value
+						).name;
+					}
+				} else {
+					labelCurrent.value = "";
+				}
+			}
+		}
+	};
 
 	const handleSelect = (event) => {
 		// FIXME Del cambio de calquier tipo a mail el icono refresh no se mapea por lo que no puede pillar las referencia
@@ -260,15 +287,15 @@ export default function Aside({ className, closeBtn, svgExists }) {
 
 	useEffect(() => {
 		if (nodeSelected) {
-			const titleCurrent = titleDOM.current;
+			const labelCurrent = labelDOM.current;
 			const typeCurrent = resourceDOM.current;
 			const lmsVisibilityCurrent = lmsVisibilityDOM.current;
 			const sectionCurrent = sectionDOM.current;
 			const orderCurrent = orderDOM.current;
 			const identationCurrent = identationDOM.current;
 
-			if (titleCurrent) {
-				titleCurrent.value = nodeSelected.data.label;
+			if (labelCurrent) {
+				labelCurrent.value = nodeSelected.data.label;
 			}
 
 			if (typeCurrent) {
@@ -310,7 +337,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 
 			newData = {
 				...nodeSelected.data,
-				label: titleDOM.current.value,
+				label: labelDOM.current.value,
 				lmsResource: Number(lmsResourceDOM.current.value),
 				lmsVisibility: lmsVisibilityDOM.current.value
 					? lmsVisibilityDOM.current.value
@@ -321,7 +348,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 			};
 		} else {
 			newData = {
-				label: titleDOM.current.value,
+				label: labelDOM.current.value,
 				lmsResource:
 					type !== "mail" ? Number(lmsResourceDOM.current.value) : type,
 			};
@@ -439,19 +466,21 @@ export default function Aside({ className, closeBtn, svgExists }) {
 								].join(" ")}
 							>
 								<Form.Group className="mb-3">
-									<Form.Label
-										htmlFor={titleDOMId}
-										className="mb-1"
-										disabled={!ActionNodes.includes(nodeSelected.type)}
-									>
+									<Form.Label htmlFor={labelDOMId} className="mb-1">
 										Nombre del{" "}
 										{nodeSelected.type == "fragment" ? "fragmento" : "bloque"}
 									</Form.Label>
 									<Form.Control
-										ref={titleDOM}
-										id={titleDOMId}
+										ref={labelDOM}
+										id={labelDOMId}
 										type="text"
 										className="w-100"
+										disabled={
+											!(
+												ActionNodes.includes(nodeSelected.type) ||
+												nodeSelected.type == "fragment"
+											)
+										}
 									></Form.Control>
 								</Form.Group>
 								{nodeSelected.type != "fragment" && (
@@ -572,6 +601,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 											className="w-100"
 											defaultValue={lmsResource == "" ? lmsResource : "-1"}
 											disabled={!resourceOptions.length > 0}
+											onChange={syncLabel}
 										>
 											{allowResourceSelection && (
 												<>

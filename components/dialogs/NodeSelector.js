@@ -84,7 +84,9 @@ export default forwardRef(function NodeSelector(
 			<Modal.Header closeButton>
 				<Modal.Title>Selección de bloque</Modal.Title>
 			</Modal.Header>
-			<Modal.Body>{getFilteredBlockSelection()}</Modal.Body>
+			<Modal.Body style={{ maxHeight: "60vh", overflowY: "scroll" }}>
+				{getFilteredBlockSelection()}
+			</Modal.Body>
 			<Modal.Footer>
 				<Button variant="secondary" onClick={toggleDialog}>
 					Cancelar
