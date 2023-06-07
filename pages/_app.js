@@ -58,7 +58,7 @@ export default function App({ Component, pageProps }) {
 	const { isOnline, isOffline } = useIsOnline();
 
 	useEffect(() => {
-		let localSettings = sessionStorage.getItem("settings");
+		let localSettings = localStorage.getItem("settings");
 		if (localSettings) {
 			setSettings(localSettings);
 		}

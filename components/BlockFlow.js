@@ -24,6 +24,7 @@ import {
 	ExpandedAsideContext,
 	PlatformContext,
 	SettingsContext,
+	MetaDataContext,
 	notImplemented,
 } from "@root/pages/_app.js";
 import FinalNode from "./flow/nodes/FinalNode.js";
@@ -106,9 +107,10 @@ const OverviewFlow = ({ map }, ref) => {
 
 	const { errorList, setErrorList } = useContext(ErrorListContext);
 	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
-	const { nodeSelected, setNodeSelected } = useContext(NodeInfoContext);
-	const { settings, setSettings } = useContext(SettingsContext);
-
+	const { setNodeSelected } = useContext(NodeInfoContext);
+	const { settings } = useContext(SettingsContext);
+	const { metaData } = useContext(MetaDataContext);
+	const [clipboard, setClipboard] = useState(localStorage.getItem("clipboard"));
 	const parsedSettings = JSON.parse(settings);
 	const { autoHideAside, snapping, snappingInFragment } = parsedSettings;
 
@@ -135,7 +137,6 @@ const OverviewFlow = ({ map }, ref) => {
 	const [cMContainsReservedNodes, setCMContainsReservedNodes] = useState(false);
 	const [cMBlockData, setCMBlockData] = useState();
 	const [relationStarter, setRelationStarter] = useState();
-	const [copiedBlocks, setCopiedBlocks] = useState();
 	const [currentMousePosition, setCurrentMousePosition] = useState({
 		x: 0,
 		y: 0,
@@ -829,7 +830,7 @@ const OverviewFlow = ({ map }, ref) => {
 			}
 	}, [cMBlockData]);
 
-	const handleBlockCopy = (blockData = []) => {
+	const handleNodeCopy = (blockData = []) => {
 		setShowContextualMenu(false);
 
 		const selectedNodes = reactFlowInstance
@@ -849,7 +850,7 @@ const OverviewFlow = ({ map }, ref) => {
 				const fragmentID = node.id;
 				const children = getChildrenNodesFromFragmentID(
 					fragmentID,
-					reactFlowInstance
+					reactFlowInstance.getNodes()
 				);
 				childrenArray.push(...children);
 			}
@@ -857,12 +858,31 @@ const OverviewFlow = ({ map }, ref) => {
 
 		const completeSelection = deduplicateById([...childrenArray, ...selected]);
 
-		const blockDataArray = [...selected, ...childrenArray];
+		const cleanedSelection = completeSelection.map((node) => {
+			delete node.dragging;
+			delete node.width;
+			delete node.height;
+			delete node.positionAbsolute;
+			delete node.selected;
+			if (node.data) {
+				if (node.datalmsResource < 0) {
+					delete node.lmsResource;
+				}
+			}
+			return node;
+		});
 
-		if (blockDataArray.length > 0) {
-			setCopiedBlocks(blockDataArray);
+		const clipboardData = {
+			instance_id: metaData.instance_id,
+			course_id: metaData.course_id,
+			platform: metaData.platform, //Redundant, just in case
+			data: cleanedSelection,
+		};
 
-			toast("Se han copiado " + blockDataArray.length + " bloque(s)", {
+		localStorage.setItem("clipboard", JSON.stringify(clipboardData));
+
+		if (cleanedSelection.length > 0) {
+			toast("Se han copiado " + cleanedSelection.length + " bloque(s)", {
 				hideProgressBar: false,
 				autoClose: 2000,
 				type: "info",
@@ -872,8 +892,11 @@ const OverviewFlow = ({ map }, ref) => {
 		}
 	};
 
-	const handleBlockPaste = () => {
-		if (copiedBlocks && copiedBlocks.length > 0) {
+	const handleNodePaste = () => {
+		const clipboardData = JSON.parse(localStorage.getItem("clipboard"));
+		console.log(clipboardData);
+		if (clipboardData && clipboardData.data && clipboardData.data.length > 0) {
+			const copiedBlocks = clipboardData.data;
 			const newBlocksToPaste = [...copiedBlocks];
 
 			const originalIDs = newBlocksToPaste.map((block) => block.id);
@@ -888,6 +911,12 @@ const OverviewFlow = ({ map }, ref) => {
 			//FIXME: COPIADO DE FRAGMENTOS
 			console.log(originalIDs);
 			console.log(newIDs);
+			const shouldEmptyResource = !(
+				metaData.instance_id == clipboardData.instance_id &&
+				metaData.course_id == clipboardData.course_id &&
+				metaData.platform == clipboardData.platform
+			);
+			console.log(shouldEmptyResource);
 			const newBlocks = newBlocksToPaste.map((block, index) => {
 				let newID;
 				let originalID;
@@ -907,9 +936,15 @@ const OverviewFlow = ({ map }, ref) => {
 					...block,
 					id: newIDs[index],
 					position: { x: newX[index], y: newY[index] },
-					children:
-						filteredChildren?.length === 0 ? undefined : filteredChildren,
-					conditions: undefined,
+					data: {
+						...block.data,
+						children:
+							filteredChildren?.length === 0 ? undefined : filteredChildren,
+						conditions: undefined,
+						lmsResource: shouldEmptyResource
+							? undefined
+							: block.data.lmsResource,
+					},
 				};
 			});
 
@@ -919,11 +954,11 @@ const OverviewFlow = ({ map }, ref) => {
 		}
 	};
 
-	const handleBlockCut = (blockData = []) => {
+	const handleNodeCut = (blockData = []) => {
 		const selectedNodes = reactFlowInstance
 			.getNodes()
 			.filter((n) => n.selected == true);
-		handleBlockCopy(blockData);
+		handleNodeCopy(blockData);
 		if (selectedNodes.length > 1) {
 			handleDeleteBlockSelection();
 		} else {
@@ -1051,7 +1086,7 @@ const OverviewFlow = ({ map }, ref) => {
 		}
 	};
 
-	const createBlockBulk = (blockDataArray) => {
+	const createBlockBulk = (clipboardData) => {
 		const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
 
 		const preferredPosition = contextMenuDOM
@@ -1068,7 +1103,7 @@ const OverviewFlow = ({ map }, ref) => {
 			: 0;
 
 		flowPos.x += asideOffset;
-		const newBlocks = blockDataArray.map((blockData) => {
+		const newBlocks = clipboardData.map((blockData) => {
 			return {
 				...blockData,
 				x: blockData.x + asideOffset + flowPos.x,
@@ -1199,11 +1234,11 @@ const OverviewFlow = ({ map }, ref) => {
 		const selectedNodes = document.querySelectorAll(
 			".react-flow__node.selected"
 		);
-		const blockDataArray = [];
+		const clipboardData = [];
 		for (let node of selectedNodes) {
-			blockDataArray.push(getNodeByNodeDOM(node, reactFlowInstance.getNodes()));
+			clipboardData.push(getNodeByNodeDOM(node, reactFlowInstance.getNodes()));
 		}
-		deleteBlocks(blockDataArray);
+		deleteBlocks(clipboardData);
 	};
 
 	const handleNewRelation = (origin, end) => {
@@ -1330,7 +1365,7 @@ const OverviewFlow = ({ map }, ref) => {
 	}, [fragmentPassthrough]);
 
 	useHotkeys("ctrl+c", () => {
-		handleBlockCopy();
+		handleNodeCopy();
 	});
 	useHotkeys("ctrl+b", (e) => {
 		//FIXME: POSITION
@@ -1344,8 +1379,8 @@ const OverviewFlow = ({ map }, ref) => {
 		setNodeSelectorType("ActionNode");
 		setShowNodeSelector(true);
 	});
-	useHotkeys("ctrl+v", () => handleBlockPaste());
-	useHotkeys("ctrl+x", () => handleBlockCut());
+	useHotkeys("ctrl+v", () => handleNodePaste());
+	useHotkeys("ctrl+x", () => handleNodeCut());
 	useHotkeys("ctrl+z", () => {
 		notImplemented("deshacer/rehacer");
 		console.log("UNDO");
@@ -1480,10 +1515,10 @@ const OverviewFlow = ({ map }, ref) => {
 					createBlock={createBlock}
 					handleShowNodeSelector={handleShowNodeSelector}
 					handleFragmentCreation={handleFragmentCreation}
-					handleBlockCopy={handleBlockCopy}
-					handleBlockPaste={handleBlockPaste}
+					handleNodeCopy={handleNodeCopy}
+					handleNodePaste={handleNodePaste}
 					handleNewRelation={handleNewRelation}
-					handleBlockCut={handleBlockCut}
+					handleNodeCut={handleNodeCut}
 					handleDeleteBlock={handleDeleteBlock}
 					handleDeleteBlockSelection={handleDeleteBlockSelection}
 					handleShow={handleShow}

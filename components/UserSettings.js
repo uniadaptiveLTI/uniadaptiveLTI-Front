@@ -58,7 +58,7 @@ function UserSettings({}, ref) {
 		newSettings.autoHideMSGBox = autoHideMSGBox;
 		newSettings.autoHideAside = autoHideAside;
 		let json = JSON.stringify(newSettings);
-		sessionStorage.setItem("settings", json);
+		localStorage.setItem("settings", json);
 		setSettings(json);
 	}
 

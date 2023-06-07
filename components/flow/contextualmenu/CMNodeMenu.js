@@ -19,10 +19,10 @@ const Menu = (
 		blockData,
 		setRelationStarter,
 		setShowContextualMenu,
-		handleDeleteBlock,
+		handleNodeDeletion,
 		handleNewRelation,
-		handleBlockCopy,
-		handleBlockCut,
+		handleNodeCopy,
+		handleNodeCut,
 		EnableEditPreconditions,
 		EnableCreateRelation,
 		EnableCut,
@@ -115,7 +115,7 @@ const Menu = (
 			<li>
 				<Button
 					variant="light"
-					onClick={() => handleBlockCopy([blockData])}
+					onClick={() => handleNodeCopy([blockData])}
 					disabled={!EnableCopy}
 				>
 					<div>
@@ -130,7 +130,7 @@ const Menu = (
 			<li>
 				<Button
 					variant="light"
-					onClick={() => handleBlockCut([blockData])}
+					onClick={() => handleNodeCut([blockData])}
 					disabled={!EnableCut}
 				>
 					<div>
@@ -145,7 +145,7 @@ const Menu = (
 			<li>
 				<Button
 					variant="light"
-					onClick={() => handleDeleteBlock(blockData)}
+					onClick={() => handleNodeDeletion(blockData)}
 					disabled={!EnableDelete}
 				>
 					<div>
@@ -168,10 +168,10 @@ export default function CMBlockMenu({
 	blockData,
 	setRelationStarter,
 	setShowContextualMenu,
-	handleDeleteBlock,
+	handleNodeDeletion,
 	handleNewRelation,
-	handleBlockCopy,
-	handleBlockCut,
+	handleNodeCopy,
+	handleNodeCut,
 	EnableEditPreconditions = false,
 	EnableCreateRelation = false,
 	EnableCut = false,
@@ -196,10 +196,10 @@ export default function CMBlockMenu({
 				blockData={blockData}
 				setRelationStarter={setRelationStarter}
 				setShowContextualMenu={setShowContextualMenu}
-				handleDeleteBlock={handleDeleteBlock}
+				handleNodeDeletion={handleNodeDeletion}
 				handleNewRelation={handleNewRelation}
-				handleBlockCopy={handleBlockCopy}
-				handleBlockCut={handleBlockCut}
+				handleNodeCopy={handleNodeCopy}
+				handleNodeCut={handleNodeCut}
 				EnableEditPreconditions={EnableEditPreconditions}
 				EnableCreateRelation={EnableCreateRelation}
 				EnableCut={EnableCut}
@@ -215,10 +215,10 @@ export default function CMBlockMenu({
 			blockData={blockData}
 			setRelationStarter={setRelationStarter}
 			setShowContextualMenu={setShowContextualMenu}
-			handleDeleteBlock={handleDeleteBlock}
+			handleNodeDeletion={handleNodeDeletion}
 			handleNewRelation={handleNewRelation}
-			handleBlockCopy={handleBlockCopy}
-			handleBlockCut={handleBlockCut}
+			handleNodeCopy={handleNodeCopy}
+			handleNodeCut={handleNodeCut}
 			EnableEditPreconditions={EnableEditPreconditions}
 			EnableCreateRelation={EnableCreateRelation}
 			EnableCut={EnableCut}

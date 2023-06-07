@@ -13,9 +13,9 @@ import { useRef, forwardRef } from "react";
 const Menu = (
 	{
 		handleFragmentCreation,
-		handleDeleteBlockSelection,
-		handleBlockCopy,
-		handleBlockCut,
+		handleNodeSelectionDeletion,
+		handleNodeCopy,
+		handleNodeCut,
 		blocksData,
 		EnableCreateFragment,
 		EnableCopy,
@@ -44,7 +44,7 @@ const Menu = (
 			<li>
 				<Button
 					variant="light"
-					onClick={() => handleBlockCopy(blocksData)}
+					onClick={() => handleNodeCopy(blocksData)}
 					disabled={!EnableCopy}
 				>
 					<div>
@@ -59,7 +59,7 @@ const Menu = (
 			<li>
 				<Button
 					variant="light"
-					onClick={() => handleBlockCut(blocksData)}
+					onClick={() => handleNodeCut(blocksData)}
 					disabled={!EnableCut}
 				>
 					<div>
@@ -74,7 +74,7 @@ const Menu = (
 			<li>
 				<Button
 					variant="light"
-					onClick={() => handleDeleteBlockSelection(blocksData)}
+					onClick={() => handleNodeSelectionDeletion(blocksData)}
 					disabled={!EnableDelete}
 				>
 					<div>
@@ -93,9 +93,9 @@ const MenuWithRefs = forwardRef(Menu);
 
 export default function CMSelectionMenu({
 	handleFragmentCreation,
-	handleDeleteBlockSelection,
-	handleBlockCopy,
-	handleBlockCut,
+	handleNodeSelectionDeletion,
+	handleNodeCopy,
+	handleNodeCut,
 	blocksData,
 	EnableCreateFragment = false,
 	EnableCopy = false,
@@ -115,9 +115,9 @@ export default function CMSelectionMenu({
 			<MenuWithRefs
 				ref={ref}
 				handleFragmentCreation={handleFragmentCreation}
-				handleDeleteBlockSelection={handleDeleteBlockSelection}
-				handleBlockCopy={handleBlockCopy}
-				handleBlockCut={handleBlockCut}
+				handleNodeSelectionDeletion={handleNodeSelectionDeletion}
+				handleNodeCopy={handleNodeCopy}
+				handleNodeCut={handleNodeCut}
 				blocksData={blocksData}
 				EnableCreateFragment={EnableCreateFragment}
 				EnableCut={EnableCut}
@@ -129,9 +129,9 @@ export default function CMSelectionMenu({
 		<MenuWithRefs
 			ref={ref}
 			handleFragmentCreation={handleFragmentCreation}
-			handleDeleteBlockSelection={handleDeleteBlockSelection}
-			handleBlockCopy={handleBlockCopy}
-			handleBlockCut={handleBlockCut}
+			handleNodeSelectionDeletion={handleNodeSelectionDeletion}
+			handleNodeCopy={handleNodeCopy}
+			handleNodeCut={handleNodeCut}
 			blocksData={blocksData}
 			EnableCreateFragment={EnableCreateFragment}
 			EnableCut={EnableCut}
