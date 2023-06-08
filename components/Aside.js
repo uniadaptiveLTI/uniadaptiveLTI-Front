@@ -35,7 +35,11 @@ import {
 	orderByPropertyAlphabetically,
 	parseBool,
 } from "@utils/Utils";
-import { ActionNodes } from "@utils/Nodes";
+import {
+	ActionNodes,
+	getLastPositionInSection,
+	reorderFromSection,
+} from "@utils/Nodes";
 import { errorListCheck } from "@utils/ErrorHandling";
 import {
 	NodeTypes,
@@ -330,10 +334,18 @@ export default function Aside({ className, closeBtn, svgExists }) {
 		let newData;
 
 		if (!ActionNodes.includes(nodeSelected.type)) {
-			let limitedOrder = orderDOM.current.value;
-			limitedOrder = Math.min(Math.max(limitedOrder, 1), 999);
+			//if element node
+			const section = Number(
+				sectionDOM.current.value ? sectionDOM.current.value : 0
+			); //FIXME: Only valid for moodle maybe?
+
+			const order = orderDOM.current.value;
+			const limitedOrder = Math.min(
+				Math.max(order, 1),
+				getLastPositionInSection(section, reactFlowInstance.getNodes()) + 1
+			);
 			let limitedIdentation = identationDOM.current.value;
-			limitedIdentation = Math.min(Math.max(limitedIdentation, 0), 999);
+			limitedIdentation = Math.min(Math.max(limitedIdentation, 0), 16);
 
 			newData = {
 				...nodeSelected.data,
@@ -342,30 +354,71 @@ export default function Aside({ className, closeBtn, svgExists }) {
 				lmsVisibility: lmsVisibilityDOM.current.value
 					? lmsVisibilityDOM.current.value
 					: "hidden_until_access",
-				section: sectionDOM.current.value ? sectionDOM.current.value : 0, //FIXME: Only valid for moodle
+				section: section,
 				order: limitedOrder - 1,
 				identation: limitedIdentation,
 			};
+
+			const updatedData = {
+				...nodeSelected,
+				id: nodeSelected.id,
+				type: resourceDOM.current.value,
+				data: newData,
+			};
+
+			//if reordered
+			const aNodeWithNewOrderExists = reactFlowInstance
+				.getNodes()
+				.filter((node) => node.data.order == limitedOrder - 1)
+				? true
+				: false;
+
+			console.log(aNodeWithNewOrderExists);
+			if (
+				limitedOrder - 1 != nodeSelected.data.order &&
+				aNodeWithNewOrderExists
+			) {
+				//Change in order
+				const to = limitedOrder - 1;
+				const from = nodeSelected.data.order;
+				const reorderedArray = reorderFromSection(
+					section,
+					from,
+					to,
+					reactFlowInstance.getNodes()
+				);
+
+				console.log(reorderedArray);
+
+				reactFlowInstance.setNodes([...reorderedArray, updatedData]);
+			} else {
+				reactFlowInstance.setNodes(
+					getUpdatedArrayById(updatedData, reactFlowInstance.getNodes())
+				);
+			}
+
+			errorListCheck(updatedData, errorList, setErrorList, true);
 		} else {
+			//if action node
 			newData = {
 				label: labelDOM.current.value,
 				lmsResource:
 					type !== "mail" ? Number(lmsResourceDOM.current.value) : type,
 			};
+
+			const updatedData = {
+				...nodeSelected,
+				id: nodeSelected.id,
+				type: resourceDOM.current.value,
+				data: newData,
+			};
+
+			reactFlowInstance.setNodes(
+				getUpdatedArrayById(updatedData, reactFlowInstance.getNodes())
+			);
+
+			errorListCheck(updatedData, errorList, setErrorList, true);
 		}
-
-		const updatedData = {
-			...nodeSelected,
-			id: nodeSelected.id,
-			type: resourceDOM.current.value,
-			data: newData,
-		};
-
-		errorListCheck(updatedData, errorList, setErrorList, true);
-
-		reactFlowInstance.setNodes(
-			getUpdatedArrayById(updatedData, reactFlowInstance.getNodes())
-		);
 
 		if (autoHideAside) {
 			setExpandedAside(false);
@@ -721,7 +774,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 											<Form.Control
 												type="number"
 												min={0}
-												max={999}
+												max={16}
 												defaultValue={nodeSelected.data.identation}
 												ref={identationDOM}
 												id={identationDOMId}

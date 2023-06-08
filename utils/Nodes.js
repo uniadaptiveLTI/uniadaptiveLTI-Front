@@ -1,4 +1,9 @@
-import { getByProperty, orderByPropertyAlphabetically } from "@utils/Utils";
+import {
+	arrayMoveByIndex,
+	getByProperty,
+	getUpdatedArrayById,
+	orderByPropertyAlphabetically,
+} from "@utils/Utils";
 import { NodeTypes } from "@utils/TypeDefinitions";
 
 /**
@@ -163,10 +168,100 @@ export function thereIsReservedNodesDOMInArray(nodeDOMArray) {
  * Converts an array of reserved block types to an array of CSS selectors
  * @returns {string[]} An array of CSS selectors for the reserved block types
  */
-function getReservedNodeDOMClassesFromTypes() {
+export function getReservedNodeDOMClassesFromTypes() {
 	// Prefix each type with the class name "react-flow__node-"
 	const nodes = ReservedNodeTypes.map((type) => "react-flow__node-" + type);
 	// Add a dot before each selector
 	const classes = nodes.map((node) => "." + node);
 	return classes;
+}
+
+/**
+ * Gets the lowest section number from an array of nodes.
+ * @param {Array} nodeArray - The array of nodes to check.
+ * @returns {number} The lowest section number, or Infinity if no section is found.
+ */
+export function getLowestSection(nodeArray) {
+	return Math.min(
+		...[...nodeArray.map((node) => node.data.section)].filter(
+			(value) => value != undefined
+		)
+	);
+}
+
+/**
+ * Gets the nodes that belong to a given section from an array of nodes.
+ * @param {number} [section=0] - The section number to filter by.
+ * @param {Array} nodeArray - The array of nodes to filter.
+ * @returns {Array} The nodes that belong to the given section, or an empty array if none is found.
+ */
+export function getSectionNodes(section = 0, nodeArray) {
+	return nodeArray.filter((node) => node.data.section == section);
+}
+
+/**
+ * Gets the last position in a section from an array of nodes.
+ * @param {number} [section=0] - The section number to filter by.
+ * @param {Object[]} nodeArray - The array of nodes to search in.
+ * @returns {number} The maximum position number in the section, or -Infinity if no nodes match the section.
+ */
+export function getLastPositionInSection(section, nodeArray) {
+	const sectionNodes = getSectionNodes(section, nodeArray);
+	const maxPosition = Math.max(...sectionNodes.map((node) => node.data.order));
+	return maxPosition;
+}
+
+/**
+ * Reorders the nodes of a given section according to the from and to values.
+ * @param {number} [section=0] - The section that contains the nodes to reorder.
+ * @param {number} from - The data.order of the node that wants to be moved.
+ * @param {number} to - The data.order of the desired position for the node.
+ * @param {Array} nodeArray - The array of all nodes in the document.
+ * @param {boolean} [swap=false] - A flag that indicates if the node should be swapped with another node or inserted in a new position.
+ * @returns {Array} The updated array of nodes after reordering.
+ */
+export function reorderFromSection(
+	section = 0,
+	from,
+	to,
+	nodeArray,
+	swap = false
+) {
+	const sectionNodes = getSectionNodes(section, nodeArray);
+	//Check if the array is not empty
+	if (sectionNodes.length > 0) {
+		if (swap) {
+			const fromNode = sectionNodes.find((node) => node.data.order == from);
+			const toNode = sectionNodes.find((node) => node.data.order == to);
+			if (toNode) {
+				fromNode.data.order = to;
+				toNode.data.order = from;
+				return getUpdatedArrayById([fromNode, toNode], nodeArray);
+			} else {
+				fromNode.data.order = to;
+				return getUpdatedArrayById(fromNode, nodeArray);
+			}
+		} else {
+			//Sort the array of nodes by their data.order
+			let sortedNodes = sectionNodes.sort(
+				(a, b) => a.data.order - b.data.order
+			);
+			//Assign them a new data.order consecutive according to their position in the array
+			for (let i = 0; i < sortedNodes.length; i++) {
+				sortedNodes[i].data.order = i;
+			}
+			//Remove the node you want to move from the array
+			let movedNode = sortedNodes.splice(from, 1)[0];
+			//Insert it in the desired position
+			sortedNodes.splice(to, 0, movedNode);
+			//Assign them a new data.order consecutive according to their position in the array
+			for (let i = 0; i < sortedNodes.length; i++) {
+				sortedNodes[i].data.order = i;
+			}
+			//Return the modified array;
+			return getUpdatedArrayById(sectionNodes, nodeArray);
+		}
+	} else {
+		return [];
+	}
 }

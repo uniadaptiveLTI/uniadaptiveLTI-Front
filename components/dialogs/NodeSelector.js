@@ -9,11 +9,14 @@ import {
 } from "@utils/Utils.js";
 import { getTypeIcon, getTypeStaticColor } from "../../utils/NodeIcons";
 import styles from "@root/styles/NodeSelector.module.css";
+import { useNodes } from "reactflow";
+import { getLastPositionInSection, getLowestSection } from "@utils/Nodes";
 
 export default forwardRef(function NodeSelector(
 	{ showDialog, type, toggleDialog, callback },
 	ref
 ) {
+	const rfNodes = useNodes();
 	const { platform } = useContext(PlatformContext);
 	function handleClose(actionClicked) {
 		if (callback && actionClicked) {
@@ -40,15 +43,28 @@ export default forwardRef(function NodeSelector(
 		);
 	}
 
+	function getMaxSectionFromSelection() {
+		const selectedNodes = rfNodes.filter((node) => node.selected);
+		let maxSection = 0;
+		if (selectedNodes.length > 0) {
+			maxSection = Math.max(...selectedNodes.map((node) => node.data.section));
+		}
+
+		return maxSection > -1 ? maxSection : getLowestSection(rfNodes); //TODO: Test in sakai
+	}
+
 	function SelectionElement(selectedElement) {
 		const { nodeType, type, name } = selectedElement;
 
 		const typeColor = getTypeStaticColor(type, platform);
 		const typeIcon = getTypeIcon(type, platform, 32);
 		const data = {};
+		const section = getMaxSectionFromSelection();
 		if (nodeType == "ElementNode") {
 			data.label = name;
 			data.children = [];
+			data.section = section;
+			data.order = getLastPositionInSection(section, rfNodes) + 1;
 		} else {
 			data.label = name;
 		}

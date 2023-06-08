@@ -374,7 +374,7 @@
 							"lmsVisibility": "hidden_until_access",
 							"children": ["dev6A1"],
 							"identation": 2,
-							"order": 5,
+							"order": 6,
 							"section": 1,
 							"conditions": {
 								"type": "conditionsGroup",
@@ -509,7 +509,7 @@
 							"lmsResource": 5,
 							"children": ["dev7A1", "dev8A1"],
 							"identation": 3,
-							"order": 4,
+							"order": 3,
 							"section": 2,
 							"conditions": {
 								"type": "conditionsGroup",

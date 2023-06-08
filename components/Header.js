@@ -16,7 +16,7 @@ import {
 	Popover,
 	OverlayTrigger,
 } from "react-bootstrap";
-import { useReactFlow } from "reactflow";
+import { useReactFlow, useNodes } from "reactflow";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
 	faBell,
@@ -42,7 +42,13 @@ import {
 } from "@root/pages/_app";
 import { toast } from "react-toastify";
 import { notImplemented } from "@root/pages/_app";
-import { capitalizeFirstLetter, parseBool, uniqueId } from "@utils/Utils.js";
+import {
+	base64Decode,
+	base64Encode,
+	capitalizeFirstLetter,
+	parseBool,
+	uniqueId,
+} from "@utils/Utils.js";
 import { isNodeArrayEqual } from "@utils/Nodes";
 import { errorListCheck } from "@utils/ErrorHandling";
 import download from "downloadjs";
@@ -65,7 +71,7 @@ const defaultToastError = {
 
 function Header({ closeBtn }, ref) {
 	const { errorList, setErrorList } = useContext(ErrorListContext);
-
+	const rfNodes = useNodes();
 	const [showModalVersions, setShowModalVersions] = useState(false);
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
 	const [showMapSelectorModal, setShowMapSelectorModal] = useState(false);
@@ -520,7 +526,14 @@ function Header({ closeBtn }, ref) {
 
 	const handleBlockDataExport = () => {
 		download(
-			encodeURIComponent(JSON.stringify(reactFlowInstance.getNodes())),
+			base64Encode(
+				JSON.stringify({
+					instance_id: metaData.instance_id,
+					course_id: metaData.course_id,
+					platform: metaData.platform,
+					data: rfNodes,
+				})
+			),
 			`${mapSelected.name}-${selectedVersion.name}-${new Date()
 				.toLocaleDateString()
 				.replaceAll("/", "-")}.json`,
@@ -539,8 +552,24 @@ function Header({ closeBtn }, ref) {
 		reader.onload = function (e) {
 			let output = e.target.result;
 			//FIXME: File verification
-			const jsonBlockData = JSON.parse(decodeURIComponent(output));
-			setCurrentBlocksData(jsonBlockData);
+			const jsonObject = JSON.parse(base64Decode(output));
+			if (
+				jsonObject.instance_id == metaData.instance_id &&
+				jsonObject.course_id == metaData.course_id &&
+				jsonObject.platform == platform
+			) {
+				setCurrentBlocksData(jsonObject.data);
+			} else {
+				const jsonCleanedBlockData = jsonObject.data.map((node) => {
+					node.data = {
+						...node.data,
+						children: undefined,
+						conditions: undefined,
+						section: 0, //TODO: Test in sakai
+					};
+				});
+			}
+
 			//displayContents(output);
 		};
 

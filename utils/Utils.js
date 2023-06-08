@@ -140,3 +140,29 @@ export function parseBool(str) {
 export function isUnique(value, index, self) {
 	return self.indexOf(value) === index;
 }
+
+export function base64Encode(string = "") {
+	const buffer = Buffer.from(string, "utf-8");
+	const base64 = buffer.toString("base64");
+	return base64;
+}
+
+export function base64Decode(base64 = "") {
+	const buffer = Buffer.from(base64, "base64");
+	const string = buffer.toString("utf-8");
+	return string;
+}
+
+export function arrayMoveByIndex(from, to, array) {
+	const newArray = [...array];
+	newArray.splice(to, 0, newArray.splice(from, 1)[0]);
+	return newArray;
+}
+
+export function arrayMoveById(from, to, array) {
+	const newArray = [...array];
+	const fromIndex = newArray.findIndex((item) => item.id == from);
+	const toIndex = newArray.findIndex((item) => item.id == to);
+	newArray.splice(toIndex, 0, newArray.splice(fromIndex, 1)[0]);
+	return newArray;
+}
