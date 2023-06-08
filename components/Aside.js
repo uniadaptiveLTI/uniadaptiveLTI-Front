@@ -366,14 +366,13 @@ export default function Aside({ className, closeBtn, svgExists }) {
 				data: newData,
 			};
 
-			//if reordered
 			const aNodeWithNewOrderExists = reactFlowInstance
 				.getNodes()
 				.filter((node) => node.data.order == limitedOrder - 1)
 				? true
 				: false;
 
-			console.log(aNodeWithNewOrderExists);
+			//if reordered
 			if (
 				limitedOrder - 1 != nodeSelected.data.order &&
 				aNodeWithNewOrderExists
@@ -387,8 +386,6 @@ export default function Aside({ className, closeBtn, svgExists }) {
 					to,
 					reactFlowInstance.getNodes()
 				);
-
-				console.log(reorderedArray);
 
 				reactFlowInstance.setNodes([...reorderedArray, updatedData]);
 			} else {

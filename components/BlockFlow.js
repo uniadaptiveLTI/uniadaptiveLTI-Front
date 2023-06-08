@@ -2,6 +2,7 @@ import React, {
 	forwardRef,
 	useContext,
 	useEffect,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -11,9 +12,9 @@ import ReactFlow, {
 	Background,
 	useNodesState,
 	useEdgesState,
-	useReactFlow,
 	useNodesInitialized,
 	SelectionMode,
+	useReactFlow,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import ActionNode from "./flow/nodes/ActionNode.js";
@@ -206,12 +207,13 @@ const OverviewFlow = ({ map }, ref) => {
 				const y = startNode.position.y + startNode.height / 2;
 				reactFlowInstance.setCenter(
 					startNode.position.x + startNode.width / 2,
-					startNode.position.y + startNode.height / 2
+					startNode.position.y + startNode.height / 2,
+					{ duration: 800 }
 				);
 			}
 		};
 		const fitMap = () => {
-			reactFlowInstance.fitView();
+			reactFlowInstance.fitView({ duration: 800 });
 		};
 		const zoomIn = () => {
 			reactFlowInstance.zoomIn();
@@ -271,10 +273,6 @@ const OverviewFlow = ({ map }, ref) => {
 
 	const onInit = (reactFlowInstance) => {
 		console.log("Blockflow loaded:", reactFlowInstance);
-		if (map != prevMap) {
-			reactFlowInstance.fitView();
-			setPrevMap(map);
-		}
 	};
 
 	const onNodeDragStart = (event, node) => {
@@ -465,11 +463,6 @@ const OverviewFlow = ({ map }, ref) => {
 		setEdges(newInitialEdges);
 	}, [newInitialNodes, newInitialEdges]);
 
-	// Centers the map on a map change, if the map changed, based on the change of the id of the start block
-	useEffect(() => {
-		reactFlowInstance?.fitView();
-	}, [[reactFlowInstance?.getNodes().find((n) => n.type == "start")][0]?.id]);
-
 	const onNodesDelete = (nodes) => {
 		setNodeSelected();
 		deleteBlocks(nodes);
@@ -560,7 +553,7 @@ const OverviewFlow = ({ map }, ref) => {
 
 	const onLoad = () => {
 		if (map != prevMap) {
-			reactFlowInstance.fitView();
+			reactFlowInstance.fitView({ duration: 800 });
 			setPrevMap(map);
 		}
 	};
@@ -1416,29 +1409,11 @@ const OverviewFlow = ({ map }, ref) => {
 		{ keydown: false, keyup: true }
 	);
 
-	const [elements, setElements] = useState([]);
-	const [clickedEdgeId, setClickedEdgeId] = useState(null);
-
-	const onElementClick = (event, element) => {
-		if (element && element.type === "edge") {
-			console.log(element);
-			setClickedEdgeId(element.id);
-		} else if (element && element.type === "node") {
-			const newNodeId = `new-node-${Date.now()}`;
-			const newElements = [
-				...elements,
-				{
-					id: newNodeId,
-					type: "default",
-					position: { x: element.position.x + 200, y: element.position.y },
-				},
-				addEdge({ source: element.id, target: newNodeId }),
-			];
-			setElements(newElements);
-		} else {
-			setClickedEdgeId(null);
+	useEffect(() => {
+		if (reactFlowInstance) {
+			reactFlowInstance.fitView({ duration: 800 });
 		}
-	};
+	}, [nodesInitialized]);
 
 	return (
 		<div
@@ -1485,8 +1460,6 @@ const OverviewFlow = ({ map }, ref) => {
 				edgesFocusable={interactive}
 				elementsSelectable={interactive}
 				selectionMode={SelectionMode.Partial}
-				//onElementsRemove={setElements}
-				onElementClick={onElementClick}
 			>
 				{minimap && (
 					<MiniMap
