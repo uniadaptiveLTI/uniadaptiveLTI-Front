@@ -4,6 +4,7 @@ import { Modal, Button, Form, Row, Col, Container } from "react-bootstrap";
 import Condition from "./Condition";
 import { faEdit, faPlus, faShuffle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { getParentsNode } from "@utils/Nodes";
 import UserProfileForm from "./form-components/UserProfileForm";
 import CompletionForm from "./form-components/CompletionForm";
 import QualificationForm from "./form-components/QualificationForm";
@@ -456,8 +457,6 @@ function ConditionModal({
 			blockData.data.conditions.conditions
 		);
 
-		console.log(foundCondition);
-
 		const nodes = reactFlowInstance.getEdges();
 
 		if (
@@ -492,8 +491,6 @@ function ConditionModal({
 		}
 
 		deleteConditionById(blockDataCopy.data.conditions.conditions, conditionId);
-
-		console.log(blockDataCopy.data.conditions);
 
 		setBlockData(blockDataCopy);
 	};
@@ -613,7 +610,7 @@ function ConditionModal({
 				}
 			}
 		}
-		console.log(blockData);
+
 		setSelectedOption("");
 		setConditionEdit(undefined);
 		setEditing(undefined);
@@ -662,12 +659,6 @@ function ConditionModal({
 
 	function handleDateChange() {
 		setDateOperator(conditionOperator.current.value === "");
-	}
-
-	function getParentsNode(nodesArray, childId) {
-		return nodesArray.filter(
-			(node) => node.data.children && node.data.children.includes(childId)
-		);
 	}
 
 	function updateConditionOp(jsonObj, id, newOp) {
@@ -732,8 +723,6 @@ function ConditionModal({
 
 	useEffect(() => {
 		if (conditionEdit) {
-			console.log(conditionEdit);
-
 			if (conditionEdit.type !== "userProfile") {
 				setUserProfileObjective(true);
 			}
@@ -774,7 +763,7 @@ function ConditionModal({
 									</strong>
 								</div>
 							</Col>
-							<Col class="col d-flex align-items-center">
+							<Col className={"col d-flex align-items-center"}>
 								<Button
 									variant="light"
 									onClick={() => {
@@ -791,6 +780,7 @@ function ConditionModal({
 							{blockData.data.conditions.conditions.map((condition) => {
 								return (
 									<Condition
+										key={condition.id}
 										condition={condition}
 										conditionsList={blockData.data.conditions.conditions}
 										upCondition={upCondition}

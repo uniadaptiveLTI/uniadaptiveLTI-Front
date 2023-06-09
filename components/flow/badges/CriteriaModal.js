@@ -81,6 +81,14 @@ function ConditionModal({
 		},
 		{
 			id: "4",
+			name: "Cuestionario 4",
+			section: 1,
+			indentation: 4,
+			firstCheckboxEnabled: false,
+			secondCheckboxEnabled: false,
+		},
+		{
+			id: "5",
 			name: "Tarea 1",
 			section: 2,
 			indentation: 1,
@@ -88,7 +96,7 @@ function ConditionModal({
 			secondCheckboxEnabled: false,
 		},
 		{
-			id: "5",
+			id: "6",
 			name: "Tarea 2",
 			section: 2,
 			indentation: 2,
@@ -96,7 +104,7 @@ function ConditionModal({
 			secondCheckboxEnabled: false,
 		},
 		{
-			id: "6",
+			id: "7",
 			name: "Tarea 3",
 			section: 2,
 			indentation: 3,
@@ -104,7 +112,15 @@ function ConditionModal({
 			secondCheckboxEnabled: false,
 		},
 		{
-			id: "7",
+			id: "8",
+			name: "Tarea 3",
+			section: 2,
+			indentation: 3,
+			firstCheckboxEnabled: false,
+			secondCheckboxEnabled: false,
+		},
+		{
+			id: "9",
 			name: "Taller 1",
 			usectionnit: 3,
 			indentation: 1,
@@ -112,7 +128,7 @@ function ConditionModal({
 			secondCheckboxEnabled: false,
 		},
 		{
-			id: "8",
+			id: "10",
 			name: "Taller 2",
 			section: 3,
 			indentation: 2,
@@ -120,7 +136,7 @@ function ConditionModal({
 			secondCheckboxEnabled: false,
 		},
 		{
-			id: "9",
+			id: "11",
 			name: "Taller 3",
 			section: 3,
 			indentation: 3,
@@ -128,7 +144,7 @@ function ConditionModal({
 			secondCheckboxEnabled: false,
 		},
 		{
-			id: "10",
+			id: "12",
 			name: "Consulta 1",
 			section: 4,
 			indentation: 1,
@@ -136,7 +152,7 @@ function ConditionModal({
 			secondCheckboxEnabled: false,
 		},
 		{
-			id: "11",
+			id: "13",
 			name: "Consulta 2",
 			section: 4,
 			indentation: 2,
@@ -144,7 +160,7 @@ function ConditionModal({
 			secondCheckboxEnabled: false,
 		},
 		{
-			id: "12",
+			id: "14",
 			name: "Consulta 3",
 			section: 4,
 			indentation: 3,

@@ -34,6 +34,12 @@ export const getNodeById = (id, nodeArray) => {
 	}
 };
 
+export const getParentsNode = (nodesArray, childId) => {
+	return nodesArray.filter(
+		(node) => node.data.children && node.data.children.includes(childId)
+	);
+};
+
 /**
  * Gets a node from an array of nodes by its DOM element data-id attribute.
  * @param {Element} nodeDOM - The DOM element of the node to get.
