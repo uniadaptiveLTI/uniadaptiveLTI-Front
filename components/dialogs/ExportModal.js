@@ -103,16 +103,6 @@ export default forwardRef(function NodeSelector(
 					json.type !== "badge"
 			);
 
-		/*console.log(newArray);
-		
-		newArray.forEach((item) => {
-			createItemErrors(item, errorList, reactFlowInstance.getNodes());
-		});*/
-
-		console.log(errorList);
-
-		//getErrorList();
-
 		const errorResourceNotFound = errorList
 			.filter(
 				(entry) =>
@@ -167,12 +157,6 @@ export default forwardRef(function NodeSelector(
 				nodeName: getNodeById(error.nodeId, reactFlowInstance.getNodes()).data
 					.label,
 			}));
-
-		console.log(errorResourceNotFound);
-		console.log(errorSectionNotFound);
-		console.log(errorOrderNotFound);
-		console.log(warningChildrenNotFound);
-		console.log(warningParentNotFound);
 
 		setNodeErrorResourceList(errorResourceNotFound);
 		setNodeErrorSectionList(errorSectionNotFound);
