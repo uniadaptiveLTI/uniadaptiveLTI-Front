@@ -6,28 +6,26 @@ import "styles/BlockFlowMoodle.css";
 import "@fortawesome/fontawesome-svg-core/styles.css"; // import Font Awesome CSS
 import { config } from "@fortawesome/fontawesome-svg-core";
 config.autoAddCss = false; // Tell Font Awesome to skip adding the CSS automatically since it's being imported above
-
 import React, { createContext, useState, useEffect } from "react";
 
-import Layout from "../components/Layout";
-
-export const MSGContext = createContext();
-export const NodeInfoContext = createContext();
-export const ErrorListContext = createContext();
-export const MapInfoContext = createContext("");
-export const VersionInfoContext = createContext();
-export const MapContext = createContext();
-export const ExpandedAsideContext = createContext();
-export const VersionJsonContext = createContext();
-export const BlockJsonContext = createContext(true);
-export const DeleteEdgeContext = createContext();
-export const SettingsContext = createContext();
-export const PlatformContext = createContext("moodle");
-export const BlocksDataContext = createContext();
-export const MainDOMContext = createContext();
-export const OnlineContext = createContext();
-export const ReactFlowInstanceContext = createContext();
-export const MetaDataContext = createContext();
+export const MSGContext = createContext(); // Used for displaying messages in the footer
+export const NodeInfoContext = createContext(); // Contains the node data that is being edited
+export const ErrorListContext = createContext(); // Contains an array with error objects
+export const MapInfoContext = createContext(""); //
+export const VersionInfoContext = createContext(); //
+export const MapContext = createContext(); //
+export const ExpandedAsideContext = createContext(); // True/false if Aside is visible
+export const VersionJsonContext = createContext(); // Contains the current version
+export const BlockJsonContext = createContext(true); //
+export const DeleteEdgeContext = createContext(); //
+export const LTISettingsContext = createContext(); // Contains LTI Settings (updates on restart)
+export const SettingsContext = createContext(); // Contains user settings
+export const PlatformContext = createContext("moodle"); //Contains the LMS that is connected to (deprecated, use MetaDataContext)
+export const BlocksDataContext = createContext(); //Contains current map version's blocksdata
+export const MainDOMContext = createContext(); //
+export const OnlineContext = createContext(); //Contains true/false if online
+export const ReactFlowInstanceContext = createContext(); //Contains reactFlowInstance (deprecated)
+export const MetaDataContext = createContext(); //Contains metadata information
 
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
@@ -36,7 +34,6 @@ import { useIsOnline } from "react-use-is-online";
 import { parseBool } from "@utils/Utils";
 
 export const BACK_URL = process.env.NEXT_PUBLIC_BACK_URL;
-
 const sessionStart = Date.now();
 
 export default function App({ Component, pageProps }) {
@@ -54,6 +51,7 @@ export default function App({ Component, pageProps }) {
 	);
 	const [reactFlowInstance, setReactFlowInstance] = useState();
 	const [errorList, setErrorList] = useState();
+	const [currentBlocksData, setCurrentBlocksData] = useState();
 
 	const { isOnline, isOffline } = useIsOnline();
 
@@ -88,10 +86,12 @@ export default function App({ Component, pageProps }) {
 					value={{ reactFlowInstance, setReactFlowInstance }}
 				>
 					<ErrorListContext.Provider value={{ errorList, setErrorList }}>
-						<Layout>
+						<BlocksDataContext.Provider
+							value={{ currentBlocksData, setCurrentBlocksData }}
+						>
 							<ToastContainer />
 							<Component {...pageProps} />
-						</Layout>
+						</BlocksDataContext.Provider>
 					</ErrorListContext.Provider>
 				</ReactFlowInstanceContext.Provider>
 			</SettingsContext.Provider>
