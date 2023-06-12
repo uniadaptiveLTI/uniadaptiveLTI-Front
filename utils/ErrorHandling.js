@@ -1,3 +1,6 @@
+import { uniqueId } from "@utils/Utils";
+import { getParentsNode } from "@utils/Nodes";
+
 /**
  * Checks if a data item or an array of data items have errors and updates the error list accordingly.
  * @param {Object|Object[]} data - The data item or array of data items to check.
@@ -6,39 +9,147 @@
  * @param {boolean} deleteFromList - A flag to indicate if the errors should be deleted from the list or not.
  */
 export function errorListCheck(data, errorList, setErrorList, deleteFromList) {
-	const errorArray = errorList || [];
+	let errorArray = errorList;
+	if (!errorArray) {
+		errorArray = [];
+	}
 
-	if (!Array.isArray(data)) {
-		const isContained = errorArray.includes(data.id);
-		if (isContained) {
-			const newErrorList = errorArray.filter((str) => str !== data.id);
-			if (deleteFromList) {
-				setErrorList(newErrorList);
-			}
-		} else {
-			if (!data.data.lmsResource) {
-				setErrorList([...errorArray, data.id]);
+	if (!Array.isArray(data) || data.length <= 1) {
+		if (Array.isArray(data)) {
+			data = data[0];
+		}
+		if (data.type !== "fragment") {
+			const isContained = errorArray.some((error) => error.nodeId == data.id);
+			if (isContained) {
+				if (deleteFromList) {
+					const updatedList = errorList.filter(
+						(item) => item.nodeId !== data.id
+					);
+					setErrorList(updatedList);
+				} else {
+					const updatedList = deleteNodeFromErrorList(data, errorList);
+
+					setErrorList(updatedList);
+				}
+			} else {
+				createItemErrors(data, errorArray);
+				setErrorList(errorArray);
 			}
 		}
 	} else {
 		if (deleteFromList) {
-			const updatedErrorList = errorArray.filter((str) => {
-				const json = data.find((item) => item.id === str);
-				return json ? json.data.lmsResource : true;
+			let updatedList = [...errorList];
+
+			data.forEach((entry) => {
+				updatedList = updatedList.filter((item) => item.nodeId !== entry.id);
 			});
-			setErrorList(updatedErrorList);
+
+			setErrorList(updatedList);
 		} else {
 			data.forEach((item) => {
-				if (item.type !== "start" && item.type !== "end") {
-					if (!item.data.lmsResource) {
-						if (!errorArray.includes(item.id)) {
-							errorArray.push(item.id);
-						}
-					}
-				}
+				createItemErrors(item, errorArray);
 			});
 
 			setErrorList(errorArray);
+		}
+	}
+}
+
+export function deleteNodeFromErrorList(data, errorList) {
+	let errorListUpdated = errorList;
+
+	if (data.data.lmsResource !== undefined && data.data.lmsResource !== -1) {
+		errorListUpdated = errorListUpdated.filter(
+			(item) => item.nodeId !== data.id || item.type !== "resourceNotFound"
+		);
+	}
+
+	if (data.data.section) {
+		errorListUpdated = errorListUpdated.filter(
+			(item) => item.nodeId !== data.id || item.type !== "sectionNotFound"
+		);
+	}
+
+	if (data.data.order) {
+		errorListUpdated = errorListUpdated.filter(
+			(item) => item.nodeId !== data.id || item.type !== "orderNotFound"
+		);
+	}
+
+	return errorListUpdated;
+}
+
+export function createItemErrors(item, errorArray) {
+	if (
+		!(
+			item.type === "start" ||
+			item.type === "end" ||
+			item.type === "fragment" ||
+			item.type === "remgroup" ||
+			item.type === "addgroup" ||
+			item.type === "badge" ||
+			item.type === "mail"
+		)
+	) {
+		const errorEntry = {
+			id: uniqueId(),
+			nodeId: item.id,
+		};
+		if (!item.data.lmsResource || item.data.lmsResource === -1) {
+			const customEntry = {
+				...errorEntry,
+				seriousness: "error",
+				type: "resourceNotFound",
+			};
+
+			const errorFound = errorArray.find(
+				(obj) =>
+					obj.nodeId === customEntry.nodeId &&
+					obj.seriousness === customEntry.seriousness &&
+					obj.type === customEntry.type
+			);
+
+			if (!errorFound) {
+				errorArray.push(customEntry);
+			}
+		}
+
+		if (!item.data.section) {
+			const customEntry = {
+				...errorEntry,
+				seriousness: "error",
+				type: "sectionNotFound",
+			};
+
+			const errorFound = errorArray.find(
+				(obj) =>
+					obj.nodeId === customEntry.nodeId &&
+					obj.seriousness === customEntry.seriousness &&
+					obj.type === customEntry.type
+			);
+
+			if (!errorFound) {
+				errorArray.push(customEntry);
+			}
+		}
+
+		if (item.data.order == undefined) {
+			const customEntry = {
+				...errorEntry,
+				seriousness: "error",
+				type: "orderNotFound",
+			};
+
+			const errorFound = errorArray.find(
+				(obj) =>
+					obj.nodeId === customEntry.nodeId &&
+					obj.seriousness === customEntry.seriousness &&
+					obj.type === customEntry.type
+			);
+
+			if (!errorFound) {
+				errorArray.push(customEntry);
+			}
 		}
 	}
 }

@@ -104,11 +104,6 @@ export function arrayInsideArrayById(arr1, arr2) {
 	return arr1.map((obj) => inArrayById(obj, arr2)).every(Boolean);
 }
 
-/**
- * Removes duplicate objects from an array by their id property.
- * @param {Object[]} arr - The array to deduplicate.
- * @return {Object[]} The array without duplicate objects.
- */
 export function deduplicateById(arr) {
 	return arr.reduce((accumulator, current) => {
 		if (!accumulator.some((item) => item.id === current.id)) {

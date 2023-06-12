@@ -347,6 +347,10 @@ export default function Aside({ className, closeBtn, svgExists }) {
 			let limitedIdentation = identationDOM.current.value;
 			limitedIdentation = Math.min(Math.max(limitedIdentation, 0), 16);
 
+			console.log(lmsResourceDOM.current.value);
+
+			console.log(lmsResourceDOM.current.value);
+
 			newData = {
 				...nodeSelected.data,
 				label: labelDOM.current.value,
@@ -394,7 +398,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 				);
 			}
 
-			errorListCheck(updatedData, errorList, setErrorList, true);
+			errorListCheck(updatedData, errorList, setErrorList, false);
 		} else {
 			//if action node
 			newData = {
@@ -403,6 +407,8 @@ export default function Aside({ className, closeBtn, svgExists }) {
 					type !== "mail" ? Number(lmsResourceDOM.current.value) : type,
 			};
 
+			console.log(newData);
+
 			const updatedData = {
 				...nodeSelected,
 				id: nodeSelected.id,
@@ -410,11 +416,13 @@ export default function Aside({ className, closeBtn, svgExists }) {
 				data: newData,
 			};
 
+			errorListCheck(updatedData, errorList, setErrorList, false);
+
 			reactFlowInstance.setNodes(
 				getUpdatedArrayById(updatedData, reactFlowInstance.getNodes())
 			);
 
-			errorListCheck(updatedData, errorList, setErrorList, true);
+			errorListCheck(updatedData, errorList, setErrorList);
 		}
 
 		if (autoHideAside) {

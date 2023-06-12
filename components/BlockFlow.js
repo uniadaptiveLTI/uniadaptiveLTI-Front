@@ -683,7 +683,7 @@ const OverviewFlow = ({ map }, ref) => {
 
 	useEffect(() => {
 		if (errorList) {
-			//console.log(errorList);
+			console.log(errorList);
 		}
 	}, [errorList]);
 
@@ -703,7 +703,7 @@ const OverviewFlow = ({ map }, ref) => {
 				blocks.id,
 				deletedRelatedChildrenArray
 			);
-			console.log(blocks.type);
+
 			if (blocks.type == "fragment" && blocks.data.innerNodes.length > 0) {
 				const withoutFragmentChildren = [
 					...deleteBlocks(
@@ -1064,7 +1064,7 @@ const OverviewFlow = ({ map }, ref) => {
 			}
 		}
 
-		errorListCheck(newBlockCreated, errorList, setErrorList);
+		errorListCheck(newBlockCreated, errorList, setErrorList, false);
 
 		setShowContextualMenu(false);
 
@@ -1460,6 +1460,8 @@ const OverviewFlow = ({ map }, ref) => {
 				edgesFocusable={interactive}
 				elementsSelectable={interactive}
 				selectionMode={SelectionMode.Partial}
+				//onElementsRemove={setElements}
+				//onElementClick={onElementClick}
 			>
 				{minimap && (
 					<MiniMap

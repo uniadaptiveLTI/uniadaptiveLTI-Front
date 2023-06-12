@@ -15,6 +15,7 @@ import {
 	faEye,
 	faEyeSlash,
 	faExclamation,
+	faExclamationTriangle,
 } from "@fortawesome/free-solid-svg-icons";
 import {
 	NodeInfoContext,
@@ -334,6 +335,31 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 						}
 					</Badge>
 				)}
+				{data.lmsResource && (!data.children || data.children.length <= 0) && (
+					<Badge
+						bg="warning"
+						className={
+							styles.badge +
+							" " +
+							styles.badgeError +
+							" " +
+							(reducedAnimations && styles.noAnimation) +
+							" " +
+							styles.showBadges +
+							" " +
+							(highContrast && styles.highContrast)
+						}
+						title="Unidad"
+					>
+						{
+							<FontAwesomeIcon
+								icon={faExclamationTriangle}
+								style={{ color: "#ffffff" }}
+							/>
+						}
+					</Badge>
+				)}
+
 				{data.lmsVisibility && getParentExpanded() && (
 					<Badge
 						bg="primary"
