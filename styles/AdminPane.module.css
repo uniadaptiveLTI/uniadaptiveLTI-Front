@@ -1,0 +1,12 @@
+.detailBox {
+    border: var(--main-ui-borders);
+}
+
+.detailBox summary{
+    background-color: var(--main-ui-secondary-background);
+    
+}
+
+.detailBox[open] summary{
+    border-bottom: var(--main-ui-borders);
+}

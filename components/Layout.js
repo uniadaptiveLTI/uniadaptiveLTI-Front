@@ -11,7 +11,6 @@ import {
 	VersionJsonContext,
 	ExpandedAsideContext,
 	VersionInfoContext,
-	BlocksDataContext,
 	MainDOMContext,
 	MSGContext,
 	MetaDataContext,
@@ -30,7 +29,6 @@ export default function Layout({ children }) {
 	const [expandedAside, setExpandedAside] = useState(false);
 
 	const [versionJson, setVersionJson] = useState("");
-	const [currentBlocksData, setCurrentBlocksData] = useState();
 
 	const [headerHeight, setHeaderHeight] = useState(0);
 	const [footerHeight, setFooterHeight] = useState(0);
@@ -103,76 +101,72 @@ export default function Layout({ children }) {
 								<ExpandedAsideContext.Provider
 									value={{ expandedAside, setExpandedAside }}
 								>
-									<BlocksDataContext.Provider
-										value={{ currentBlocksData, setCurrentBlocksData }}
-									>
-										<MainDOMContext.Provider value={{ mainDOM, setMainDOM }}>
-											<MSGContext.Provider value={{ msg, setMSG }}>
-												<ReactFlowProvider>
-													<Container
-														className="g-0"
-														fluid
-														style={{ minHeight: 100 + "vh" }}
+									<MainDOMContext.Provider value={{ mainDOM, setMainDOM }}>
+										<MSGContext.Provider value={{ msg, setMSG }}>
+											<ReactFlowProvider>
+												<Container
+													className="g-0"
+													fluid
+													style={{ minHeight: 100 + "vh" }}
+												>
+													<div
+														className="row g-0"
+														style={{ height: 100 + "vh" }}
 													>
-														<div
-															className="row g-0"
-															style={{ height: 100 + "vh" }}
+														<Aside
+															className={
+																expandedAside
+																	? "col-12 col-sm-4 col-md-3 col-xl-2"
+																	: "d-none"
+															}
+														/>
+														<Container
+															fluid
+															className={
+																expandedAside
+																	? "col-12 col-sm-8 col-md-9 col-xl-10 g-0"
+																	: "g-0"
+															}
+															style={{
+																display: "flex",
+																flexDirection: "column",
+															}}
 														>
-															<Aside
-																className={
-																	expandedAside
-																		? "col-12 col-sm-4 col-md-3 col-xl-2"
-																		: "d-none"
-																}
-															/>
 															<Container
+																className="g-0"
 																fluid
-																className={
-																	expandedAside
-																		? "col-12 col-sm-8 col-md-9 col-xl-10 g-0"
-																		: "g-0"
-																}
-																style={{
-																	display: "flex",
-																	flexDirection: "column",
-																}}
+																style={{ flex: "1 0 auto" }}
 															>
-																<Container
-																	className="g-0"
-																	fluid
-																	style={{ flex: "1 0 auto" }}
-																>
-																	<Header ref={headerDOM} />
+																<Header ref={headerDOM} />
 
-																	<main
-																		id="main"
-																		ref={mainDOMRef}
-																		style={{
-																			height: `calc(100vh - ${mainHeightOffset}px)`,
-																			overflow: "overlay",
-																			scrollBehavior: "smooth",
-																			position: "relative",
-																			boxShadow: "inset 0 0 10px #ccc",
-																		}}
-																	>
-																		{children}
-																	</main>
-																	<Footer
-																		msg={msg}
-																		className={
-																			expandedAside
-																				? "col-12 col-sm-8 col-md-9 col-xl-10 g-0"
-																				: "col-12 g-0"
-																		}
-																	/>
-																</Container>
+																<main
+																	id="main"
+																	ref={mainDOMRef}
+																	style={{
+																		height: `calc(100vh - ${mainHeightOffset}px)`,
+																		overflow: "overlay",
+																		scrollBehavior: "smooth",
+																		position: "relative",
+																		boxShadow: "inset 0 0 10px #ccc",
+																	}}
+																>
+																	{children}
+																</main>
+																<Footer
+																	msg={msg}
+																	className={
+																		expandedAside
+																			? "col-12 col-sm-8 col-md-9 col-xl-10 g-0"
+																			: "col-12 g-0"
+																	}
+																/>
 															</Container>
-														</div>
-													</Container>
-												</ReactFlowProvider>
-											</MSGContext.Provider>
-										</MainDOMContext.Provider>
-									</BlocksDataContext.Provider>
+														</Container>
+													</div>
+												</Container>
+											</ReactFlowProvider>
+										</MSGContext.Provider>
+									</MainDOMContext.Provider>
 								</ExpandedAsideContext.Provider>
 							</VersionJsonContext.Provider>
 						</VersionInfoContext.Provider>

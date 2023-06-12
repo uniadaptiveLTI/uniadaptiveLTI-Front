@@ -151,16 +151,16 @@ export const NodeTypes = [
 		nodeType: "ElementNode",
 		lms: ["sakai"],
 	},
-	{
-		id: 19,
+	/*{
+		id: 19 
 		type: "contents",
 		value: "contents",
 		name: "Contenidos",
 		nodeType: "ElementNode",
 		lms: ["sakai"],
-	},
+	},*/
 	{
-		id: 20,
+		id: 19,
 		type: "text",
 		value: "text",
 		name: "Texto simple",
@@ -168,7 +168,7 @@ export const NodeTypes = [
 		lms: ["sakai"],
 	},
 	{
-		id: 21,
+		id: 20,
 		type: "html",
 		value: "html",
 		name: "Página HTML",

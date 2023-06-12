@@ -953,12 +953,12 @@ const OverviewFlow = ({ map }, ref) => {
 			.filter((n) => n.selected == true);
 		handleNodeCopy(blockData);
 		if (selectedNodes.length > 1) {
-			handleDeleteBlockSelection();
+			handleNodeSelectionDeletion();
 		} else {
 			if (selectedNodes.length == 1) {
 				blockData = selectedNodes[0];
 			}
-			handleDeleteBlock(blockData);
+			handleNodeDeletion(blockData);
 		}
 	};
 
@@ -1216,13 +1216,13 @@ const OverviewFlow = ({ map }, ref) => {
 		}
 	};
 
-	const handleDeleteBlock = (blockData) => {
+	const handleNodeDeletion = (blockData) => {
 		setShowContextualMenu(false);
 		setNodeSelected();
 		deleteBlocks(blockData);
 	};
 
-	const handleDeleteBlockSelection = () => {
+	const handleNodeSelectionDeletion = () => {
 		setShowContextualMenu(false);
 		const selectedNodes = document.querySelectorAll(
 			".react-flow__node.selected"
@@ -1492,8 +1492,8 @@ const OverviewFlow = ({ map }, ref) => {
 					handleNodePaste={handleNodePaste}
 					handleNewRelation={handleNewRelation}
 					handleNodeCut={handleNodeCut}
-					handleDeleteBlock={handleDeleteBlock}
-					handleDeleteBlockSelection={handleDeleteBlockSelection}
+					handleNodeDeletion={handleNodeDeletion}
+					handleNodeSelectionDeletion={handleNodeSelectionDeletion}
 					handleShow={handleShow}
 				/>
 			)}

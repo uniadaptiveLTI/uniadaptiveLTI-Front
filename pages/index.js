@@ -2,10 +2,10 @@ import Head from "next/head";
 import { useContext } from "react";
 import { BlocksDataContext } from "./_app";
 import BlockFlow from "@root/components/BlockFlow";
+import Layout from "../components/Layout";
 
 export default function Home() {
-	const { currentBlocksData, setCurrentBlocksData } =
-		useContext(BlocksDataContext);
+	const { currentBlocksData } = useContext(BlocksDataContext);
 	return (
 		<>
 			<Head>
@@ -31,20 +31,22 @@ export default function Home() {
 				/>
 				<link rel="manifest" href="/site.webmanifest" />
 			</Head>
-			{currentBlocksData ? (
-				<BlockFlow map={currentBlocksData}></BlockFlow>
-			) : (
-				<div
-					style={{
-						display: "flex",
-						justifyContent: "center",
-						alignItems: "center",
-						height: "100%",
-					}}
-				>
-					<h1>No se ha seleccionado ningún mapa</h1>
-				</div>
-			)}
+			<Layout>
+				{currentBlocksData ? (
+					<BlockFlow map={currentBlocksData}></BlockFlow>
+				) : (
+					<div
+						style={{
+							display: "flex",
+							justifyContent: "center",
+							alignItems: "center",
+							height: "100%",
+						}}
+					>
+						<h1>No se ha seleccionado ningún mapa</h1>
+					</div>
+				)}
+			</Layout>
 		</>
 	);
 }
