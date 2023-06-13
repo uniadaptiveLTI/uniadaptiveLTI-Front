@@ -391,70 +391,68 @@ const OverviewFlow = ({ map }, ref) => {
 		const sourceNodeId = event.source.split("__")[0];
 		const targetNodeId = event.target.split("__")[0];
 
-		console.log(sourceNodeId);
-		console.log(targetNodeId);
+		if (sourceNodeId != targetNodeId) {
+			const edgeFound = reactFlowInstance
+				.getEdges()
+				.find((node) => node.id === sourceNodeId + "-" + targetNodeId);
 
-		const edgeFound = reactFlowInstance
-			.getEdges()
-			.find((node) => node.id === sourceNodeId + "-" + targetNodeId);
+			if (!edgeFound) {
+				const sourceNode = reactFlowInstance
+					.getNodes()
+					.find((nodes) => nodes.id == sourceNodeId);
 
-		if (!edgeFound) {
-			console.log("NO EXISTE");
-			const sourceNode = reactFlowInstance
-				.getNodes()
-				.find((nodes) => nodes.id == sourceNodeId);
+				const targetNode = reactFlowInstance
+					.getNodes()
+					.find((nodes) => nodes.id == targetNodeId);
 
-			const targetNode = reactFlowInstance
-				.getNodes()
-				.find((nodes) => nodes.id == targetNodeId);
-
-			if (sourceNode) {
-				if (Array.isArray(sourceNode.data.children)) {
-					sourceNode.data.children.push(targetNodeId);
-				} else {
-					sourceNode.data.children = [targetNodeId];
+				if (sourceNode) {
+					if (Array.isArray(sourceNode.data.children)) {
+						sourceNode.data.children.push(targetNodeId);
+					} else {
+						sourceNode.data.children = [targetNodeId];
+					}
 				}
-			}
 
-			if (targetNode) {
-				const newCondition = {
-					id: parseInt(Date.now() * Math.random()).toString(),
-					type: "completion",
-					op: sourceNode.id,
-					query: "completed",
-				};
-				console.log(targetNode.data.conditions);
-				if (!targetNode.data.conditions) {
-					console.log("CONDICIONES SIN DEFINIR");
-					targetNode.data.conditions = {
-						type: "conditionsGroup",
+				if (targetNode) {
+					const newCondition = {
 						id: parseInt(Date.now() * Math.random()).toString(),
-						op: "&",
-						conditions: [newCondition],
+						type: "completion",
+						op: sourceNode.id,
+						query: "completed",
 					};
-				} else {
-					targetNode.data.conditions.conditions.push(newCondition);
+					console.log(targetNode.data.conditions);
+					if (!targetNode.data.conditions) {
+						console.log("CONDICIONES SIN DEFINIR");
+						targetNode.data.conditions = {
+							type: "conditionsGroup",
+							id: parseInt(Date.now() * Math.random()).toString(),
+							op: "&",
+							conditions: [newCondition],
+						};
+					} else {
+						targetNode.data.conditions.conditions.push(newCondition);
+					}
 				}
+
+				//FIXME: Check if line already drawn
+				setEdges([
+					...edges,
+					{
+						id: sourceNodeId + "-" + targetNodeId,
+						source: sourceNodeId,
+						target: targetNodeId,
+					},
+				]);
+
+				console.log(sourceNode);
+
+				setNodes(
+					getUpdatedArrayById(
+						[sourceNode, targetNode],
+						reactFlowInstance.getNodes()
+					)
+				);
 			}
-
-			//FIXME: Check if line already drawn
-			setEdges([
-				...edges,
-				{
-					id: sourceNodeId + "-" + targetNodeId,
-					source: sourceNodeId,
-					target: targetNodeId,
-				},
-			]);
-
-			console.log(sourceNode);
-
-			setNodes(
-				getUpdatedArrayById(
-					[sourceNode, targetNode],
-					reactFlowInstance.getNodes()
-				)
-			);
 		}
 	};
 
@@ -560,7 +558,7 @@ const OverviewFlow = ({ map }, ref) => {
 
 	useEffect(() => {
 		//Makes fragment children invsible if it isn't expanded, on load
-		if (nodesInitialized)
+		if (nodesInitialized) {
 			for (const node of map) {
 				if (node.parentNode) {
 					const parentFragment = getNodeById(
@@ -572,6 +570,10 @@ const OverviewFlow = ({ map }, ref) => {
 					}
 				}
 			}
+			if (reactFlowInstance) {
+				reactFlowInstance.fitView({ duration: 800 });
+			}
+		}
 	}, [nodesInitialized]);
 
 	useEffect(() => {
@@ -1408,12 +1410,6 @@ const OverviewFlow = ({ map }, ref) => {
 		},
 		{ keydown: false, keyup: true }
 	);
-
-	useEffect(() => {
-		if (reactFlowInstance) {
-			reactFlowInstance.fitView({ duration: 800 });
-		}
-	}, [nodesInitialized]);
 
 	return (
 		<div

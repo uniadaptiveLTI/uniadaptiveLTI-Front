@@ -335,14 +335,15 @@ export default function Aside({ className, closeBtn, svgExists }) {
 
 		if (!ActionNodes.includes(nodeSelected.type)) {
 			//if element node
-			const section = Number(
+			const newSection = Number(
 				sectionDOM.current.value ? sectionDOM.current.value : 0
 			); //FIXME: Only valid for moodle maybe?
+			const originalSection = nodeSelected.data.section;
 
-			const order = orderDOM.current.value;
+			const originalOrder = nodeSelected.data.order;
 			const limitedOrder = Math.min(
-				Math.max(order, 1),
-				getLastPositionInSection(section, reactFlowInstance.getNodes()) + 1
+				Math.max(orderDOM.current.value, 0),
+				getLastPositionInSection(newSection, reactFlowInstance.getNodes()) + 1
 			);
 			let limitedIdentation = identationDOM.current.value;
 			limitedIdentation = Math.min(Math.max(limitedIdentation, 0), 16);
@@ -358,7 +359,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 				lmsVisibility: lmsVisibilityDOM.current.value
 					? lmsVisibilityDOM.current.value
 					: "hidden_until_access",
-				section: section,
+				section: newSection,
 				order: limitedOrder - 1,
 				identation: limitedIdentation,
 			};
@@ -372,26 +373,61 @@ export default function Aside({ className, closeBtn, svgExists }) {
 
 			const aNodeWithNewOrderExists = reactFlowInstance
 				.getNodes()
-				.filter((node) => node.data.order == limitedOrder - 1)
-				? true
-				: false;
+				.filter((node) => {
+					if (
+						node.data.order == limitedOrder - 1 &&
+						node.data.section == newSection
+					) {
+						return true;
+					}
+				});
+
+			console.log(aNodeWithNewOrderExists, limitedOrder - 1);
 
 			//if reordered
 			if (
-				limitedOrder - 1 != nodeSelected.data.order &&
-				aNodeWithNewOrderExists
+				(limitedOrder - 1 != originalOrder &&
+					aNodeWithNewOrderExists.length > 0) ||
+				originalSection != newSection
 			) {
-				//Change in order
-				const to = limitedOrder - 1;
-				const from = nodeSelected.data.order;
-				const reorderedArray = reorderFromSection(
-					section,
-					from,
-					to,
-					reactFlowInstance.getNodes()
-				);
+				console.log((originalSection, newSection));
+				if (originalSection == newSection) {
+					//Change in order
+					const to = limitedOrder - 1;
+					const from = originalOrder;
+					const reorderedArray = reorderFromSection(
+						newSection,
+						from,
+						to,
+						reactFlowInstance.getNodes()
+					);
 
-				reactFlowInstance.setNodes([...reorderedArray, updatedData]);
+					reactFlowInstance.setNodes([...reorderedArray, updatedData]);
+				} else {
+					//(Section change) Add to section AND then the order
+					console.log("CAMBIO DE SECCIÓN");
+					const virtualNodes = reactFlowInstance.getNodes();
+					const forcedPos =
+						getLastPositionInSection(newSection, virtualNodes) + 1;
+					console.log(forcedPos);
+					updatedData.data.order = forcedPos;
+					virtualNodes.push(updatedData);
+					if (!(limitedOrder - 1 > forcedPos)) {
+						//If the desired position is inside the section
+						const to = limitedOrder;
+						const from = forcedPos;
+						const reorderedArray = reorderFromSection(
+							newSection,
+							from,
+							to,
+							virtualNodes
+						);
+						reactFlowInstance.setNodes([...reorderedArray, updatedData]);
+					} else {
+						//If the desired position is outside the section
+						reactFlowInstance.setNodes([...virtualNodes, updatedData]);
+					}
+				}
 			} else {
 				reactFlowInstance.setNodes(
 					getUpdatedArrayById(updatedData, reactFlowInstance.getNodes())

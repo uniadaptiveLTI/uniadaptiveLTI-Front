@@ -106,7 +106,7 @@ export default forwardRef(function NodeSelector(
 		const errorResourceNotFound = errorList
 			.filter(
 				(entry) =>
-					entry.seriousness === "error" && entry.type === "resourceNotFound"
+					entry.severity === "error" && entry.type === "resourceNotFound"
 			)
 			.map((error) => ({
 				...error,
@@ -117,7 +117,7 @@ export default forwardRef(function NodeSelector(
 		const errorSectionNotFound = errorList
 			.filter(
 				(entry) =>
-					entry.seriousness === "error" && entry.type === "sectionNotFound"
+					entry.severity === "error" && entry.type === "sectionNotFound"
 			)
 			.map((error) => ({
 				...error,
@@ -127,8 +127,7 @@ export default forwardRef(function NodeSelector(
 
 		const errorOrderNotFound = errorList
 			.filter(
-				(entry) =>
-					entry.seriousness === "error" && entry.type === "orderNotFound"
+				(entry) => entry.severity === "error" && entry.type === "orderNotFound"
 			)
 			.map((error) => ({
 				...error,
@@ -139,7 +138,7 @@ export default forwardRef(function NodeSelector(
 		const warningChildrenNotFound = errorList
 			.filter(
 				(entry) =>
-					entry.seriousness === "warning" && entry.type === "childrenNotFound"
+					entry.severity === "warning" && entry.type === "childrenNotFound"
 			)
 			.map((error) => ({
 				...error,
@@ -150,7 +149,7 @@ export default forwardRef(function NodeSelector(
 		const warningParentNotFound = errorList
 			.filter(
 				(entry) =>
-					entry.seriousness === "warning" && entry.type === "parentNotFound"
+					entry.severity === "warning" && entry.type === "parentNotFound"
 			)
 			.map((error) => ({
 				...error,

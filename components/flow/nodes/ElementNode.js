@@ -1,4 +1,4 @@
-import { useCallback, useContext } from "react";
+import { useCallback, useContext, useEffect } from "react";
 import {
 	Handle,
 	Position,
@@ -24,6 +24,7 @@ import {
 	SettingsContext,
 	VersionInfoContext,
 	PlatformContext,
+	ErrorListContext,
 } from "@root/pages/_app";
 import FocusTrap from "focus-trap-react";
 import { getTypeIcon } from "@utils/NodeIcons";
@@ -42,12 +43,14 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 	const { editVersionSelected, setEditVersionSelected } =
 		useContext(VersionInfoContext);
 	const { platform } = useContext(PlatformContext);
+	const { errorList } = useContext(ErrorListContext);
 
 	const { settings, setSettings } = useContext(SettingsContext);
 	const reactFlowInstance = useReactFlow();
 	const parsedSettings = JSON.parse(settings);
 	const { highContrast, showDetails, reducedAnimations } = parsedSettings;
 	const [hasErrors, setHasErrors] = useState(false);
+	const [hasWarnings, setHasWarnings] = useState(false);
 	const rfNodes = useNodes();
 
 	const getParentExpanded = () => {
@@ -183,7 +186,7 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 		);
 	};
 
-	const hasDuplicatedResource = () => {
+	/* const hasDuplicatedResource = () => {
 		const currentRes = data.lmsResource;
 		let duplicates = -1; //Only one resource per node
 		reactFlowInstance.getNodes().forEach((node) => {
@@ -229,7 +232,23 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 		return hasErrors;
 	};
 
-	const getSelfWarnings = () => {};
+	const getSelfWarnings = () => {}; */
+
+	const getSelfErrors = () => {
+		const relatedErrors = errorList.filter((error) => error.nodeId == id);
+		const errors = relatedErrors.filter(
+			(rerrors) => rerrors.severity == "error"
+		);
+		const warnings = relatedErrors.filter(
+			(rerrors) => rerrors.severity == "warning"
+		);
+		setHasErrors(errors.length > 0);
+		setHasWarnings(warnings.length > 0);
+	};
+
+	useEffect(() => {
+		getSelfErrors();
+	}, [data]);
 
 	return (
 		<>
@@ -305,13 +324,7 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 				<span className={styles.blockInfo + " " + styles.bottom}>
 					{getHumanDesc(type)}
 				</span>
-				{/*TODO: DO THIS CORRECTLY, ADD TO FRAGMENT, AND HIDE THIS WHEN HIDDEN, DO THIS IN BADGES TOO*/}
-				{(data.lmsResource == undefined ||
-					hasDuplicatedResource() ||
-					data.lmsVisibility == undefined ||
-					data.section == undefined ||
-					data.order == undefined ||
-					hasDuplicatedOrderInSection()) && (
+				{hasErrors && (
 					<Badge
 						bg="danger"
 						className={
@@ -325,7 +338,7 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 							" " +
 							(highContrast && styles.highContrast)
 						}
-						title="Sección"
+						title="Errores"
 					>
 						{
 							<FontAwesomeIcon
@@ -335,7 +348,7 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 						}
 					</Badge>
 				)}
-				{data.lmsResource && (!data.children || data.children.length <= 0) && (
+				{!hasErrors && hasWarnings && (
 					<Badge
 						bg="warning"
 						className={
@@ -349,7 +362,7 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 							" " +
 							(highContrast && styles.highContrast)
 						}
-						title="Unidad"
+						title="Avisos"
 					>
 						{
 							<FontAwesomeIcon

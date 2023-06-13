@@ -213,7 +213,10 @@ export function getSectionNodes(section = 0, nodeArray) {
  */
 export function getLastPositionInSection(section, nodeArray) {
 	const sectionNodes = getSectionNodes(section, nodeArray);
-	const maxPosition = Math.max(...sectionNodes.map((node) => node.data.order));
+	const maxPosition = Math.max(
+		...sectionNodes.map((node) => node.data.order),
+		-1
+	); //TODO: Test in sakai
 	return maxPosition;
 }
 
@@ -248,24 +251,40 @@ export function reorderFromSection(
 				return getUpdatedArrayById(fromNode, nodeArray);
 			}
 		} else {
+			if (from + 1 == to) {
+				from += 1;
+				to -= 1;
+				console.log("Switch");
+			}
+			console.log("to/from", to, from);
+
 			//Sort the array of nodes by their data.order
 			let sortedNodes = sectionNodes.sort(
 				(a, b) => a.data.order - b.data.order
 			);
+			console.log("SORT", sortedNodes);
 			//Assign them a new data.order consecutive according to their position in the array
 			for (let i = 0; i < sortedNodes.length; i++) {
 				sortedNodes[i].data.order = i;
 			}
+			console.log("NEW ORDER", sortedNodes);
 			//Remove the node you want to move from the array
-			let movedNode = sortedNodes.splice(from, 1)[0];
+			const movedNode = sortedNodes.splice(from, 1)[0];
+			console.log("MOVED NODE", movedNode);
 			//Insert it in the desired position
 			sortedNodes.splice(to, 0, movedNode);
+			console.log("INSERTED NODE", sortedNodes);
+			//Filter possible nulls
+			const filteredNodes = sectionNodes.filter(
+				(node) => node != null || node != undefined
+			);
 			//Assign them a new data.order consecutive according to their position in the array
-			for (let i = 0; i < sortedNodes.length; i++) {
-				sortedNodes[i].data.order = i;
+			for (let i = 0; i < filteredNodes.length; i++) {
+				filteredNodes[i].data.order = i;
 			}
+			console.log("ASSIGNED ORDER", filteredNodes);
 			//Return the modified array;
-			return getUpdatedArrayById(sectionNodes, nodeArray);
+			return getUpdatedArrayById(filteredNodes, nodeArray);
 		}
 	} else {
 		return [];

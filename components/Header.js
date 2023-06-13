@@ -748,6 +748,46 @@ function Header({ closeBtn }, ref) {
 		);
 	}
 
+	async function saveVersion() {
+		//Cleaning node data
+		const cleanedNodes = rfNodes.map((node) => {
+			const nodeCopy = { ...node };
+			delete nodeCopy.height;
+			delete nodeCopy.width;
+			delete nodeCopy.positionAbsolute;
+			delete nodeCopy.dragging;
+			delete nodeCopy.selected;
+			delete nodeCopy.targetPosition;
+			return nodeCopy;
+		});
+		try {
+			const saveData = {
+				instance_id: metaData.instance_id,
+				course_id: metaData.course_id,
+				platform: platform,
+				user_id: userData.user_id,
+				map: {
+					id: mapSelected.id,
+					name: mapSelected.name,
+					versions: {
+						...selectedVersion,
+						lastUpdate: new Date().toLocaleString("es-ES"),
+						blocksData: cleanedNodes,
+					},
+				},
+			};
+			const response = await fetch(
+				`http://${process.env.NEXT_PUBLIC_BACK_URL}/lti/store_version`,
+				{
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ saveData }),
+				}
+			);
+			console.log(response);
+		} catch (e) {}
+	}
+
 	/**
 	 * A JSX element representing a popover with information.
 	 */
@@ -953,7 +993,7 @@ function Header({ closeBtn }, ref) {
 										disabled={isOffline || !loadedMaps}
 										variant="light"
 										aria-label="Guardar versión actual"
-										onClick={notImplemented}
+										onClick={saveVersion}
 									>
 										<FontAwesomeIcon
 											icon={faFloppyDisk}

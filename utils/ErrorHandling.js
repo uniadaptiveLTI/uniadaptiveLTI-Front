@@ -98,14 +98,14 @@ export function createItemErrors(item, errorArray) {
 		if (!item.data.lmsResource || item.data.lmsResource === -1) {
 			const customEntry = {
 				...errorEntry,
-				seriousness: "error",
+				severity: "error",
 				type: "resourceNotFound",
 			};
 
 			const errorFound = errorArray.find(
 				(obj) =>
 					obj.nodeId === customEntry.nodeId &&
-					obj.seriousness === customEntry.seriousness &&
+					obj.severity === customEntry.severity &&
 					obj.type === customEntry.type
 			);
 
@@ -117,14 +117,14 @@ export function createItemErrors(item, errorArray) {
 		if (!item.data.section) {
 			const customEntry = {
 				...errorEntry,
-				seriousness: "error",
+				severity: "error",
 				type: "sectionNotFound",
 			};
 
 			const errorFound = errorArray.find(
 				(obj) =>
 					obj.nodeId === customEntry.nodeId &&
-					obj.seriousness === customEntry.seriousness &&
+					obj.severity === customEntry.severity &&
 					obj.type === customEntry.type
 			);
 
@@ -136,14 +136,14 @@ export function createItemErrors(item, errorArray) {
 		if (item.data.order == undefined) {
 			const customEntry = {
 				...errorEntry,
-				seriousness: "error",
+				severity: "error",
 				type: "orderNotFound",
 			};
 
 			const errorFound = errorArray.find(
 				(obj) =>
 					obj.nodeId === customEntry.nodeId &&
-					obj.seriousness === customEntry.seriousness &&
+					obj.severity === customEntry.severity &&
 					obj.type === customEntry.type
 			);
 
