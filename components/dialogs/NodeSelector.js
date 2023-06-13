@@ -49,7 +49,6 @@ export default forwardRef(function NodeSelector(
 		if (selectedNodes.length > 0) {
 			maxSection = Math.max(...selectedNodes.map((node) => node.data.section));
 		}
-
 		return maxSection > -1 ? maxSection : getLowestSection(rfNodes); //TODO: Test in sakai
 	}
 
