@@ -113,7 +113,8 @@ const OverviewFlow = ({ map }, ref) => {
 	const { metaData } = useContext(MetaDataContext);
 	const [clipboard, setClipboard] = useState(localStorage.getItem("clipboard"));
 	const parsedSettings = JSON.parse(settings);
-	const { autoHideAside, snapping, snappingInFragment } = parsedSettings;
+	const { autoHideAside, snapping, snappingInFragment, reducedAnimations } =
+		parsedSettings;
 
 	//Flow States
 	const reactFlowInstance = useReactFlow();
@@ -208,12 +209,12 @@ const OverviewFlow = ({ map }, ref) => {
 				reactFlowInstance.setCenter(
 					startNode.position.x + startNode.width / 2,
 					startNode.position.y + startNode.height / 2,
-					{ duration: 800 }
+					{ duration: reducedAnimations ? 0 : 800 }
 				);
 			}
 		};
 		const fitMap = () => {
-			reactFlowInstance.fitView({ duration: 800 });
+			reactFlowInstance.fitView({ duration: reducedAnimations ? 0 : 800 });
 		};
 		const zoomIn = () => {
 			reactFlowInstance.zoomIn();
@@ -551,7 +552,7 @@ const OverviewFlow = ({ map }, ref) => {
 
 	const onLoad = () => {
 		if (map != prevMap) {
-			reactFlowInstance.fitView({ duration: 800 });
+			reactFlowInstance.fitView({ duration: reducedAnimations ? 0 : 800 });
 			setPrevMap(map);
 		}
 	};
@@ -571,7 +572,7 @@ const OverviewFlow = ({ map }, ref) => {
 				}
 			}
 			if (reactFlowInstance) {
-				reactFlowInstance.fitView({ duration: 800 });
+				reactFlowInstance.fitView({ duration: reducedAnimations ? 0 : 800 });
 			}
 		}
 	}, [nodesInitialized]);
