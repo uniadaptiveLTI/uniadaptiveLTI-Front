@@ -491,10 +491,11 @@ const OverviewFlow = ({ map }, ref) => {
 	}
 
 	const onEdgesDelete = (nodes) => {
+		// debugger;
 		var blockNodeSource = reactFlowInstance
 			?.getNodes()
 			.find((obj) => obj.id === nodes[0].source);
-
+console.log(blockNodeSource);
 		var blockNodeTarget = reactFlowInstance
 			?.getNodes()
 			.find((obj) => obj.id === nodes[0].target);

@@ -101,14 +101,18 @@ export default function Aside({ className, closeBtn, svgExists }) {
 
 	
 
-	const fetchData = async (selectedOption, course) => {
+	const fetchData = async (selectedOption,platform, instance, lms, course, session) => {
 		try {
 			const encodedSelectedOption = encodeURIComponent(selectedOption);
+			const encodedPlatform = encodeURIComponent(platform);
+			const encodedInstance = encodeURIComponent(instance);
+			const encodedLMS = encodeURIComponent(lms);
 			const encodedCourse = encodeURIComponent(course);
+			const encodedSession = encodeURIComponent(session);
 
 			setShowSpinner(true);
 			setAllowResourceSelection(false);
-			const response = await fetch(`http://127.0.0.1:8000/lti/get_modules_by_type?type=${encodedSelectedOption}&course=${encodedCourse}`);
+			const response = await fetch(`http://127.0.0.1:8000/lti/get_modules_by_type?type=${encodedSelectedOption}&platform=${encodedPlatform}&instance=${encodedInstance}&lms=${encodedLMS}&course=${encodedCourse}&session=${encodedSession}`);
 			
 			if (!response.ok) {
 				throw new Error('Request failed');
@@ -128,7 +132,8 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	
 	useEffect(() => {
 
-	const metaData = JSON.parse(localStorage.getItem('meta_data'));
+		const metaData = JSON.parse(localStorage.getItem('meta_data'));
+		const metaCourse = JSON.parse(localStorage.getItem('course_data'));
 		switch (selectedOption) {
 			case "generic":
 				setResourceOptions([{ id: 0, name: "Genérico" }]);
@@ -138,7 +143,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 				if(!selectedOption){
 					setResourceOptions([]);
 				} else {
-					fetchData(selectedOption,metaData.course_id);
+					fetchData(selectedOption, metaCourse.platform, metaCourse.instance_id, metaCourse.url_lms, metaData.course_id, metaData.session_id);
 				}
 				
 				break;
@@ -376,7 +381,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 															);
 														}
 												  })
-												: sakaiResource((option) => {
+												: sakaiResource.map((option) => {
 														if (
 															(ActionBlocks.includes(blockSelected.type) &&
 																option.nodeType == "ActionNode") ||

@@ -191,17 +191,19 @@ function Header({ closeBtn }, ref) {
 		setMSG([]);
 	}
 
+	
+
 	/**
 	 * Handles the creation of a new map.
 	 */
 	const handleNewMap = (e, data) => {
-		const uniqueId = () => parseInt(Date.now() * Math.random()).toString();
+		setMetaData(JSON.parse(localStorage.getItem('meta_data')));
 		const emptyNewMap = {
 			id: maps.length,
 			name: "Nuevo Mapa " + maps.length,
 			versions: [
 				{
-					id: 0,
+					id: 0,					
 					name: "Última versión",
 					lastUpdate: new Date().toLocaleDateString(),
 					default: "true",
@@ -230,6 +232,10 @@ function Header({ closeBtn }, ref) {
 				},
 			],
 		};
+		console.log(emptyNewMap);
+		const encodedNewMap = encodeURIComponent(emptyNewMap);
+			// console.log(response);
+		
 		const newMaps = [
 			...maps,
 			data
@@ -264,18 +270,45 @@ function Header({ closeBtn }, ref) {
 		// 	error.log = e;
 		// 	throw error;
 		// }
+			
+				// fetch('http://127.0.0.1:8000/lti/new_map', {
+				// 	method: 'POST',
+				// 	headers: {
+				// 	  'Content-Type': 'application/json'
+				// 	},
+				// 	body: JSON.stringify({
+				// 	  clave1: 'valor1',
+				// 	  clave2: 'valor2'
+				// 	})
+				//   })
+				// .then(
+				// 	(response) => response.json())
+				// .then((data) => {
+				// 	console.log(data);
+				// })
+				// .catch((e) => {
+					
+				// 	throw e;
+				// });
 
 		setMaps(newMaps);
 		toast(`Mapa: "Nuevo Mapa ${maps.length}" creado`, defaultToastSuccess);
 	};
 
-		const handleImportedMap = async () => {
+	const handleImportedMap = async () => {
 		const uniqueId = () => parseInt(Date.now() * Math.random()).toString();
 		//try {
-			const metaData = JSON.parse(localStorage.getItem('meta_data'));
-			const encodedCourse = encodeURIComponent(metaData.course_id);
-			const response = await fetch(`http://127.0.0.1:8000/lti/get_modules?course=${encodedCourse}`);
-			
+			// setMetaData(JSON.parse(localStorage.getItem('meta_data')));
+			let meta_data = JSON.parse(localStorage.getItem('meta_data'));
+			let course_data = JSON.parse(localStorage.getItem('course_data'));
+			let encodeSessionId = '';
+			if(meta_data.platform === 'sakai'){
+				encodeSessionId = encodeURIComponent(meta_data.session_id);
+			}
+			const encodedInstance = encodeURIComponent(course_data.instance_id);
+			const encodedCourse = encodeURIComponent(course_data.course_id);
+			const response = await fetch(`http://127.0.0.1:8000/lti/get_modules?instance=${encodedInstance}&course=${encodedCourse}&session=${encodeSessionId}`);
+			// console.log('hola');
 			if (!response.ok) {
 				throw new Error('Request failed');
 			}
@@ -637,13 +670,16 @@ function Header({ closeBtn }, ref) {
 				//Metadata
 				setPlatform(data[1].platform);
 				setMetaData({ ...data[1], courseSource: process.env.BACK_URL });
+				// setMetaData(data[1]);
 				setUnits(data[1].units);
 				setLoadedMetaData(true);
-				localStorage.setItem('meta_data', JSON.stringify(data[1]));
 				
 				//maps
 				setMaps([emptyMap, ...data[2].maps]);
 				setLoadedMaps(true);
+
+				localStorage.setItem('meta_data', JSON.stringify(data[1]));
+				localStorage.setItem('course_data', JSON.stringify(data[2]));
 			})
 			.catch((e) => {
 				const error = new Error(
@@ -988,6 +1024,16 @@ function Header({ closeBtn }, ref) {
 								className={`d-flex align-items-center p-2 ${
 									styles.actionButtons
 								} ${errorList?.length > 0 ? styles.error : styles.success}`}
+								onClick={()=>{
+									fetch(`http://127.0.0.1:8000/lti/new_map`, {
+										method: 'POST', // or 'PUT'
+										headers:{
+											'Content-Type': 'application/json'
+											},
+										body: JSON.stringify({name:"PEPE"}) // data can be `string` or {object}!
+										
+	}).then(response => response.json()).then(data => console.log(data))
+	.catch(error => console.error(error))}}
 							>
 								<FontAwesomeIcon
 									icon={faBell}
