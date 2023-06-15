@@ -18,7 +18,6 @@ export const ExpandedAsideContext = createContext(); // True/false if Aside is v
 export const VersionJsonContext = createContext(); // Contains the current version
 export const BlockJsonContext = createContext(true); //
 export const DeleteEdgeContext = createContext(); //
-export const LTISettingsContext = createContext(); // Contains LTI Settings (updates on restart)
 export const SettingsContext = createContext(); // Contains user settings
 export const PlatformContext = createContext("moodle"); //Contains the LMS that is connected to (deprecated, use MetaDataContext)
 export const BlocksDataContext = createContext(); //Contains current map version's blocksdata
@@ -26,6 +25,7 @@ export const MainDOMContext = createContext(); //
 export const OnlineContext = createContext(); //Contains true/false if online
 export const ReactFlowInstanceContext = createContext(); //Contains reactFlowInstance (deprecated)
 export const MetaDataContext = createContext(); //Contains metadata information
+export const DevModeStatusContext = createContext(false); //Stores the dev_mode status so it can be passed to the nodes.
 
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
@@ -33,7 +33,6 @@ import { toast } from "react-toastify";
 import { useIsOnline } from "react-use-is-online";
 import { parseBool } from "@utils/Utils";
 
-export const BACK_URL = process.env.NEXT_PUBLIC_BACK_URL;
 const sessionStart = Date.now();
 
 export default function App({ Component, pageProps }) {
@@ -52,6 +51,7 @@ export default function App({ Component, pageProps }) {
 	const [reactFlowInstance, setReactFlowInstance] = useState();
 	const [errorList, setErrorList] = useState();
 	const [currentBlocksData, setCurrentBlocksData] = useState();
+	const [devModeStatus, setDevModeStatus] = useState(false);
 
 	const { isOnline, isOffline } = useIsOnline();
 
@@ -73,12 +73,6 @@ export default function App({ Component, pageProps }) {
 		}
 	}, [isOnline]);
 
-	if (parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
-		console.warn(
-			"DEV_FILES is true, communication with the backend is disabled."
-		);
-	}
-
 	return (
 		<OnlineContext.Provider value={{ isOnline, isOffline }}>
 			<SettingsContext.Provider value={{ settings, setSettings }}>
@@ -89,8 +83,12 @@ export default function App({ Component, pageProps }) {
 						<BlocksDataContext.Provider
 							value={{ currentBlocksData, setCurrentBlocksData }}
 						>
-							<ToastContainer />
-							<Component {...pageProps} />
+							<DevModeStatusContext.Provider
+								value={{ devModeStatus, setDevModeStatus }}
+							>
+								<ToastContainer />
+								<Component {...pageProps} />
+							</DevModeStatusContext.Provider>
 						</BlocksDataContext.Provider>
 					</ErrorListContext.Provider>
 				</ReactFlowInstanceContext.Provider>

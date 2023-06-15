@@ -64,7 +64,26 @@ export default function Admin({ LTISettings }) {
 			body: JSON.stringify({ password: lastPassword, settings: newSettings }),
 		});
 		const result = await response.json();
-		console.log(result);
+		if (result.ok) {
+			toast(
+				"Se han modificado los ajustes. Reinicia para aplicar los cambios.",
+				{
+					hideProgressBar: false,
+					autoClose: 4000,
+					type: "success",
+					position: "bottom-center",
+					theme: "light",
+				}
+			);
+		} else {
+			toast("Ha ocurrido un error.", {
+				hideProgressBar: false,
+				autoClose: 2000,
+				type: "error",
+				position: "bottom-center",
+				theme: "light",
+			});
+		}
 	};
 	return (
 		<div className={styles.bg}>
@@ -75,8 +94,8 @@ export default function Admin({ LTISettings }) {
 				<Container className={styles.contentContainer}>
 					{auth ? (
 						<Row>
-							<Col className={styles.navegationTabs} md="2">
-								<img alt="Logo" src={process.env.NEXT_PUBLIC_LOGO_PATH} />
+							<Col className={styles.navegationTabs} md="3" xl="2">
+								<img alt="Logo" src={LTISettings.branding.logo_path} />
 								<div className={styles.logoContainer}></div>
 								<div className={styles.buttonContainer}>
 									<Button variant="dark" onClick={() => setActiveTab(0)}>
@@ -98,8 +117,13 @@ export default function Admin({ LTISettings }) {
 								</div>
 							</Col>
 							<Col className={styles.paneContainer}>
-								{activeTab == 0 && <GeneralPane {...LTISettings} />}
-								{activeTab == 1 && <BrandingPane {...LTISettings} />}
+								{activeTab == 0 && <GeneralPane LTISettings={LTISettings} />}
+								{activeTab == 1 && (
+									<BrandingPane
+										modifySettings={modifySettings}
+										LTISettings={LTISettings}
+									/>
+								)}
 								{activeTab == 2 && (
 									<APIPane
 										modifySettings={modifySettings}

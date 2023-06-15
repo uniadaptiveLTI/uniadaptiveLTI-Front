@@ -5,18 +5,34 @@
   --main-ui-default-background: #fff;
   --main-ui-secondary-background: #f8f8f8;
   --main-ui-third-background: #212529;
+  --main-ui-button-border-radius: 4px;
+  --main-ui-input-border-radius: 4px;
 
   /*
-    Square inputs, you need to uncomment the !important on the respective selectors, below to make it work
+    Square inputs, you need to uncomment the !important on the respective selectors below to make it work
 
   --main-ui-button-border-radius: 0;
   --main-ui-input-border-radius: 0;
   */
 
   --primary-background-color: var(--bs-primary);
+  --primary-border: 1px solid var(--bs-primary);
+  --primary-border-radius: var(--bs-btn-border-radius);
+  --secondary-background-color: var(--bs-secondary);
+  --secondary-border: 1px solid var(--bs-secondary);
+  --secondary-border-radius: var(--bs-btn-border-radius);
+  --light-background-color: var(--bs-light);
+  --light-border: 1px solid #bdbebf;
+  --light-border-radius: var(--bs-btn-border-radius);
   --success-background-color: var(--bs-success);
+  --success-border: 1px solid var(--bs-success);
+  --success-border-radius: var(--bs-btn-border-radius);
   --warning-background-color: var(--bs-warning);
+  --warning-border: 1px solid var(--bs-warning);
+  --warning-border-radius: var(--bs-btn-border-radius);
   --error-background-color: var(--bs-danger);
+  --error-border: 1px solid var(--bs-danger);
+  --error-border-radius: var(--bs-btn-border-radius);
 
   --icons-black-filter: none;
   --icons-white-filter: invert();
@@ -32,7 +48,7 @@
   --header-version-dropdown-container-font-family: var(--header-font-family);
   --header-version-dropdown-container-background-color: var(--header-background-color);
   --header-user-image-border-radius: 100%;
-  --header-user-image-border: 2px solid white;
+  --header-user-image-border: 2px solid #fff;
 
   --aside-font-color: var(--main-font-color);
   --aside-font-family: var(--bs-body-font-family);
@@ -58,8 +74,8 @@
   --blockflow-edge-border-radius: var(--blockflow-node-border-radius);
   --blockflow-edge-font-color: var(--blockflow-font-color);
   --blockflow-controls-border: none;
-  --blockflow-controls-button-background-color: white;
-  --blockflow-controls-button-font-color: black;
+  --blockflow-controls-button-background-color: #fff;
+  --blockflow-controls-button-font-color: #000;
   --blockflow-controls-button-border: 1px solid #eee;
   --blockflow-controls-button-svg-filter: none;
   --blockflow-handles-border-radius: 100%;

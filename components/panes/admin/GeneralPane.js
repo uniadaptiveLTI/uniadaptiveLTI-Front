@@ -1,9 +1,8 @@
 import styles from "@root/styles/AdminPane.module.css";
-import { BACK_URL } from "pages/_app";
 import { useEffect, useState } from "react";
 import { Col, Row } from "react-bootstrap";
 
-export default function GeneralPane() {
+export default function GeneralPane({ LTISettings }) {
 	const intervals = [];
 	let [secondsPassed, setSecondsPassed] = useState(0);
 	const [frontData, setFrontData] = useState({ uptime: 0 });
@@ -49,7 +48,7 @@ export default function GeneralPane() {
 	}
 
 	async function getBackStatus() {
-		if (!process.env.NEXT_PUBLIC_DEV_FILES) {
+		if (!LTISettings.debugging.dev_files) {
 			const response = await fetch("/api/auth/", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
@@ -112,7 +111,7 @@ export default function GeneralPane() {
 
 	return (
 		<>
-			<h2>Información general</h2>
+			<h2 className="my-4">Información general</h2>
 			<details open className={styles.detailBox}>
 				<summary>Información de UNIAdaptive</summary>
 				<Row>
@@ -139,19 +138,19 @@ export default function GeneralPane() {
 							</li>
 							<li>
 								<b>URL:</b>{" "}
-								{process.env.NEXT_PUBLIC_DEV_FILES
+								{LTISettings.debugging.dev_files
 									? "USING LOCAL FILES"
-									: BACK_URL}
+									: LTISettings.back_url}
 							</li>
 							<li>
 								<b>Fecha y hora de inicio:</b>{" "}
-								{process.env.NEXT_PUBLIC_DEV_FILES
+								{LTISettings.debugging.dev_files
 									? "USING LOCAL FILES"
 									: "Ver abajo"}
 							</li>
 							<li>
 								<b>Tiempo online:</b>{" "}
-								{process.env.NEXT_PUBLIC_DEV_FILES
+								{LTISettings.debugging.dev_files
 									? "USING LOCAL FILES"
 									: "Faltan funciones en el back"}
 							</li>

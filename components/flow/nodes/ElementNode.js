@@ -31,6 +31,7 @@ import { getTypeIcon } from "@utils/NodeIcons";
 import { getUpdatedArrayById, parseBool } from "@utils/Utils";
 import { getNodeById } from "@utils/Nodes";
 import { useState } from "react";
+import { DevModeStatusContext } from "pages/_app";
 
 function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 	const onChange = useCallback((evt) => {
@@ -44,6 +45,7 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 		useContext(VersionInfoContext);
 	const { platform } = useContext(PlatformContext);
 	const { errorList } = useContext(ErrorListContext);
+	const { devModeStatus } = useContext(DevModeStatusContext);
 
 	const { settings, setSettings } = useContext(SettingsContext);
 	const reactFlowInstance = useReactFlow();
@@ -305,7 +307,7 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 					{data.label}
 				</span>
 
-				{parseBool(process.env.NEXT_PUBLIC_DEV_MODE) && (
+				{devModeStatus && (
 					<div
 						style={{
 							position: "absolute",

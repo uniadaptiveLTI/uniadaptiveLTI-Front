@@ -16,7 +16,7 @@ import {
 	MetaDataContext,
 } from "../pages/_app.js";
 
-export default function Layout({ children }) {
+export default function Layout({ LTISettings, children }) {
 	const [platform, setPlatform] = useState("moodle"); //default to moodle in testing phase
 	const [metaData, setMetaData] = useState();
 	const [sections, setSections] = useState();
@@ -137,7 +137,10 @@ export default function Layout({ children }) {
 																fluid
 																style={{ flex: "1 0 auto" }}
 															>
-																<Header ref={headerDOM} />
+																<Header
+																	LTISettings={LTISettings}
+																	ref={headerDOM}
+																/>
 
 																<main
 																	id="main"

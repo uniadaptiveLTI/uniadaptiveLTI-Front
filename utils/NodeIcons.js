@@ -1,6 +1,19 @@
 import styles from "@root/styles/BlockContainer.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
+	miAssign,
+	miQuiz,
+	miForum,
+	miResource,
+	miFolder,
+	miUrl,
+	miWorkshop,
+	miChoice,
+	miLabel,
+	miPage,
+	miFragment,
+} from "@utils/MoodleIcons";
+import {
 	faCube,
 	faClipboardQuestion,
 	faPenToSquare,
@@ -30,73 +43,37 @@ export function getTypeIcon(type, platform, desiredSize = 32) {
 		//Moodle + Sakai
 		case "quiz":
 			return platform == "moodle" ? (
-				<Image
-					src="icons/moodle/quiz.svg"
-					alt=""
-					height={desiredSize}
-					width={desiredSize}
-					className={[styles.moodleIcon, "moodleIcon"].join(" ")}
-				/>
+				<FontAwesomeIcon icon={miQuiz} className={"moodleIcon"} />
 			) : (
 				<FontAwesomeIcon icon={faClipboardQuestion} />
 			);
 		case "assign":
 			return platform == "moodle" ? (
-				<Image
-					src="icons/moodle/assign.svg"
-					alt=""
-					height={desiredSize}
-					width={desiredSize}
-					className={[styles.moodleIcon, "moodleIcon"].join(" ")}
-				/>
+				<FontAwesomeIcon icon={miAssign} className={"moodleIcon"} />
 			) : (
 				<FontAwesomeIcon icon={faPenToSquare} />
 			);
 		case "forum":
 			return platform == "moodle" ? (
-				<Image
-					src="icons/moodle/forum.svg"
-					alt=""
-					height={desiredSize}
-					width={desiredSize}
-					className={[styles.moodleIcon, "moodleIcon"].join(" ")}
-				/>
+				<FontAwesomeIcon icon={miForum} className={"moodleIcon"} />
 			) : (
 				<FontAwesomeIcon icon={faComments} />
 			);
 		case "resource":
 			return platform == "moodle" ? (
-				<Image
-					src="icons/moodle/resource.svg"
-					alt=""
-					height={desiredSize}
-					width={desiredSize}
-					className={[styles.moodleIcon, "moodleIcon"].join(" ")}
-				/>
+				<FontAwesomeIcon icon={miResource} className={"moodleIcon"} />
 			) : (
 				<FontAwesomeIcon icon={faFile} />
 			);
 		case "folder":
 			return platform == "moodle" ? (
-				<Image
-					src="icons/moodle/folder.svg"
-					alt=""
-					height={desiredSize}
-					width={desiredSize}
-					className={[styles.moodleIcon, "moodleIcon"].join(" ")}
-				/>
+				<FontAwesomeIcon icon={miFolder} className={"moodleIcon"} />
 			) : (
 				<FontAwesomeIcon icon={faFolderOpen} />
 			);
 		case "url":
 			return platform == "moodle" ? (
-				<Image
-					src="icons/moodle/url.svg"
-					alt=""
-					height={desiredSize}
-					width={desiredSize}
-					className={[styles.moodleIcon, "moodleIcon"].join(" ")}
-				/>
+				<FontAwesomeIcon icon={miUrl} className={"moodleIcon"} />
 			) : (
 				<FontAwesomeIcon icon={faLink} />
 			);
@@ -121,49 +98,25 @@ export function getTypeIcon(type, platform, desiredSize = 32) {
 		//Moodle
 		case "workshop":
 			return platform == "moodle" ? (
-				<Image
-					src="icons/moodle/workshop.svg"
-					alt=""
-					height={desiredSize}
-					width={desiredSize}
-					className={[styles.moodleIcon, "moodleIcon"].join(" ")}
-				/>
+				<FontAwesomeIcon icon={miWorkshop} className={"moodleIcon"} />
 			) : (
 				<FontAwesomeIcon icon={faHandshakeAngle} />
 			);
 		case "choice":
 			return platform == "moodle" ? (
-				<Image
-					src="icons/moodle/choice.svg"
-					alt=""
-					height={desiredSize}
-					width={desiredSize}
-					className={[styles.moodleIcon, "moodleIcon"].join(" ")}
-				/>
+				<FontAwesomeIcon icon={miChoice} className={"moodleIcon"} />
 			) : (
 				<FontAwesomeIcon icon={faQuestion} />
 			);
 		case "label":
 			return platform == "moodle" ? (
-				<Image
-					src="icons/moodle/label.svg"
-					alt=""
-					height={desiredSize}
-					width={desiredSize}
-					className={[styles.moodleIcon, "moodleIcon"].join(" ")}
-				/>
+				<FontAwesomeIcon icon={miLabel} className={"moodleIcon"} />
 			) : (
 				<FontAwesomeIcon icon={faTag} />
 			);
 		case "page":
 			return platform == "moodle" ? (
-				<Image
-					src="icons/moodle/page.svg"
-					alt=""
-					height={desiredSize}
-					width={desiredSize}
-					className={[styles.moodleIcon, "moodleIcon"].join(" ")}
-				/>
+				<FontAwesomeIcon icon={miPage} className={"moodleIcon"} />
 			) : (
 				<FontAwesomeIcon icon={faFileText} />
 			);
@@ -203,13 +156,7 @@ export function getTypeIcon(type, platform, desiredSize = 32) {
 			return <FontAwesomeIcon icon={faCubes} />;
 		default:
 			return platform == "moodle" ? (
-				<Image
-					src="icons/moodle/lti.svg"
-					alt=""
-					height={desiredSize}
-					width={desiredSize}
-					className={[styles.moodleIcon, "moodleIcon"].join(" ")}
-				/>
+				<FontAwesomeIcon icon={miFragment} className={"moodleIcon"} />
 			) : (
 				<FontAwesomeIcon icon={faCube} />
 			);

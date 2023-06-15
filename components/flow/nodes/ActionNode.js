@@ -20,6 +20,7 @@ import { Button, Badge } from "react-bootstrap";
 import { getTypeIcon } from "@utils/NodeIcons";
 import { getUpdatedArrayById, parseBool } from "@utils/Utils";
 import { getNodeById } from "@utils/Nodes";
+import { DevModeStatusContext } from "pages/_app";
 
 const getHumanDesc = (type) => {
 	let humanType = "";
@@ -76,6 +77,7 @@ function ActionNode({ id, type, data, isConnectable }) {
 	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
 	const { editVersionSelected, setEditVersionSelected } =
 		useContext(VersionInfoContext);
+	const { devModeStatus } = useContext(DevModeStatusContext);
 
 	const reactFlowInstance = useReactFlow();
 	const { settings } = useContext(SettingsContext);
@@ -165,7 +167,7 @@ function ActionNode({ id, type, data, isConnectable }) {
 					{data.label}
 				</span>
 
-				{parseBool(process.env.NEXT_PUBLIC_DEV_MODE) && (
+				{devModeStatus && (
 					<div
 						style={{
 							position: "absolute",

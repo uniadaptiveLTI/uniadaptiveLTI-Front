@@ -54,6 +54,7 @@ import { errorListCheck } from "@utils/ErrorHandling";
 import download from "downloadjs";
 import { NodeTypes } from "@utils/TypeDefinitions";
 import ExportModal from "@components/dialogs/ExportModal";
+import { DevModeStatusContext } from "pages/_app";
 
 const defaultToastSuccess = {
 	hideProgressBar: false,
@@ -69,7 +70,8 @@ const defaultToastError = {
 	position: "bottom-center",
 };
 
-function Header({ closeBtn }, ref) {
+function Header({ LTISettings }, ref) {
+	const { devModeStatus } = useContext(DevModeStatusContext);
 	const { errorList, setErrorList } = useContext(ErrorListContext);
 	const rfNodes = useNodes();
 	const [showModalVersions, setShowModalVersions] = useState(false);
@@ -122,12 +124,6 @@ function Header({ closeBtn }, ref) {
 
 	const parsedSettings = JSON.parse(settings);
 	let { reducedAnimations } = parsedSettings;
-
-	useEffect(() => {
-		if (parseBool(process.env.NEXT_PUBLIC_DEV_MODE))
-			globalThis.rf = reactFlowInstance;
-	}, []);
-
 	/**
 	 * Updates the version of an object in an array of versions.
 	 * @param {Object} newVersion - The new version object to update.
@@ -255,7 +251,7 @@ function Header({ closeBtn }, ref) {
 		const metaData = JSON.parse(localStorage.getItem("meta_data"));
 		const encodedCourse = encodeURIComponent(metaData.course_id);
 		const response = await fetch(
-			`http://${process.env.NEXT_PUBLIC_BACK_URL}/lti/get_modules?course=${encodedCourse}`
+			`http://${LTISettings.back_url}/lti/get_modules?course=${encodedCourse}`
 		);
 
 		if (!response.ok) {
@@ -578,7 +574,7 @@ function Header({ closeBtn }, ref) {
 
 	useEffect(() => {
 		try {
-			if (parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
+			if (LTISettings.debugging.dev_files) {
 				fetch("resources/devmaps.json")
 					.then((response) => response.json())
 					.then((data) => {
@@ -598,7 +594,7 @@ function Header({ closeBtn }, ref) {
 						setPlatform(data.platform);
 						setMetaData({
 							...data,
-							return_url: process.env.NEXT_PUBLIC_BACK_URL,
+							return_url: LTISettings.back_url,
 						});
 						setLoadedMetaData(true);
 					})
@@ -623,7 +619,7 @@ function Header({ closeBtn }, ref) {
 						throw error;
 					});
 			} else {
-				fetch(`http://${process.env.NEXT_PUBLIC_BACK_URL}/lti/get_session`)
+				fetch(`http://${LTISettings.back_url}/lti/get_session`)
 					.then((response) => response.json())
 					.then((data) => {
 						console.log("DATOS DEL LMS: ", data);
@@ -635,7 +631,7 @@ function Header({ closeBtn }, ref) {
 						setPlatform(data[1].platform);
 						setMetaData({
 							...data[1],
-							return_url: process.env.NEXT_PUBLIC_BACK_URL,
+							return_url: LTISettings.back_url,
 						}); //FIXME: This should be the course website in moodle
 						setLoadedMetaData(true);
 						localStorage.setItem("meta_data", JSON.stringify(data[1]));
@@ -735,7 +731,7 @@ function Header({ closeBtn }, ref) {
 			<div className="mx-auto d-flex align-items-center" role="button">
 				<img
 					onClick={() => setExpandedAside(!expandedAside)}
-					src={process.env.NEXT_PUBLIC_SMALL_LOGO_PATH}
+					src={LTISettings.branding.small_logo_path}
 					alt="Mostrar menú lateral"
 					className={styles.icon}
 					width={40}
@@ -777,7 +773,7 @@ function Header({ closeBtn }, ref) {
 				},
 			};
 			const response = await fetch(
-				`http://${process.env.NEXT_PUBLIC_BACK_URL}/lti/store_version`,
+				`http://${LTISettings.back_url}/lti/store_version`,
 				{
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
@@ -1071,11 +1067,7 @@ function Header({ closeBtn }, ref) {
 													className={styles.userProfile}
 													width={48}
 													height={48}
-													onClick={
-														parseBool(process.env.NEXT_PUBLIC_DEV_MODE)
-															? devPlataformChange
-															: null
-													}
+													onClick={devModeStatus ? devPlataformChange : null}
 												></img>
 											)}
 										</div>
@@ -1131,7 +1123,7 @@ function Header({ closeBtn }, ref) {
 						Actualmente la versión seleccionada es &quot;
 						<strong>{selectedVersion.name}</strong>&quot;, modificada por última
 						vez <b>{selectedVersion.lastUpdate}</b>.
-						{parseBool(process.env.NEXT_PUBLIC_DEV_MODE) && (
+						{devModeStatus && (
 							<>
 								<br />
 								<div
@@ -1149,11 +1141,7 @@ function Header({ closeBtn }, ref) {
 												fontFamily: "monospace",
 											}}
 										>
-											{JSON.stringify(
-												reactFlowInstance?.getNodes(),
-												null,
-												"\t"
-											)}
+											{JSON.stringify(rfNodes, null, "\t")}
 										</code>
 									</details>
 								</div>

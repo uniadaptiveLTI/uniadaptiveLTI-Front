@@ -116,6 +116,11 @@ const OverviewFlow = ({ map }, ref) => {
 	const { autoHideAside, snapping, snappingInFragment, reducedAnimations } =
 		parsedSettings;
 
+	const fitViewOptions = {
+		duration: reducedAnimations ? 0 : 800,
+		padding: 0.25,
+	};
+
 	//Flow States
 	const reactFlowInstance = useReactFlow();
 	const [newInitialNodes, setNewInitialNodes] = useState([]);
@@ -129,6 +134,7 @@ const OverviewFlow = ({ map }, ref) => {
 	const [target, setTarget] = useState(null);
 	const [prevMap, setPrevMap] = useState();
 	const nodesInitialized = useNodesInitialized();
+	const [ableToFitView, setAbleToFitView] = useState(true);
 
 	//ContextMenu Ref, States, Constants
 	const contextMenuDOM = useRef(null);
@@ -209,12 +215,12 @@ const OverviewFlow = ({ map }, ref) => {
 				reactFlowInstance.setCenter(
 					startNode.position.x + startNode.width / 2,
 					startNode.position.y + startNode.height / 2,
-					{ duration: reducedAnimations ? 0 : 800 }
+					fitViewOptions
 				);
 			}
 		};
 		const fitMap = () => {
-			reactFlowInstance.fitView({ duration: reducedAnimations ? 0 : 800 });
+			reactFlowInstance.fitView(fitViewOptions);
 		};
 		const zoomIn = () => {
 			reactFlowInstance.zoomIn();
@@ -552,7 +558,7 @@ const OverviewFlow = ({ map }, ref) => {
 
 	const onLoad = () => {
 		if (map != prevMap) {
-			reactFlowInstance.fitView({ duration: reducedAnimations ? 0 : 800 });
+			reactFlowInstance.fitView(fitViewOptions);
 			setPrevMap(map);
 		}
 	};
@@ -571,11 +577,16 @@ const OverviewFlow = ({ map }, ref) => {
 					}
 				}
 			}
-			if (reactFlowInstance) {
-				reactFlowInstance.fitView({ duration: reducedAnimations ? 0 : 800 });
+			if (reactFlowInstance && ableToFitView) {
+				reactFlowInstance.fitView(fitViewOptions);
+				setAbleToFitView(false);
 			}
 		}
 	}, [nodesInitialized]);
+
+	useEffect(() => {
+		setAbleToFitView(true);
+	}, [map]);
 
 	useEffect(() => {
 		setNewInitialNodes(map);

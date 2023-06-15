@@ -11,6 +11,7 @@ import { getTypeIcon, getTypeStaticColor } from "../../utils/NodeIcons";
 import styles from "@root/styles/NodeSelector.module.css";
 import { useNodes } from "reactflow";
 import { getLastPositionInSection, getLowestSection } from "@utils/Nodes";
+import { DevModeStatusContext } from "pages/_app";
 
 export default forwardRef(function NodeSelector(
 	{ showDialog, type, toggleDialog, callback },
@@ -18,6 +19,7 @@ export default forwardRef(function NodeSelector(
 ) {
 	const rfNodes = useNodes();
 	const { platform } = useContext(PlatformContext);
+	const { devModeStatus } = useContext(DevModeStatusContext);
 	function handleClose(actionClicked) {
 		if (callback && actionClicked) {
 			if (callback instanceof Function) {
@@ -87,9 +89,7 @@ export default forwardRef(function NodeSelector(
 					<div className={styles.block} style={{ background: typeColor }}>
 						{typeIcon}
 					</div>
-					<span>
-						{parseBool(process.env.NEXT_PUBLIC_DEV_MODE) ? type : name}
-					</span>
+					<span>{devModeStatus ? type : name}</span>
 				</div>
 			</div>
 		);
