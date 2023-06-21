@@ -1,7 +1,7 @@
 import InlineColorSelector from "@components/forms/components/InlineColorSelector";
 import InlineButtonSelector from "@components/forms/components/InlineButtonSelector";
 import styles from "@root/styles/AdminPane.module.css";
-import { getRootStyle, getAutomaticTextColorsObject } from "@utils/Utils";
+import { getRootStyle, getAutomaticTextColorsObject } from "@utils/Colors";
 import { useState, useId, useRef } from "react";
 import { Col, Row, Button, Form } from "react-bootstrap";
 

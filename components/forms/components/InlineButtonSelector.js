@@ -10,7 +10,7 @@ import {
 	getRootStyle,
 	getContrastingColor,
 	getContrastingTextColor,
-} from "@utils/Utils";
+} from "@utils/Colors";
 import InlineColorSelector from "./InlineColorSelector";
 
 export default function InlineButtonSelector({

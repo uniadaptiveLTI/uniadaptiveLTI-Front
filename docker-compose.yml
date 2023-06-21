@@ -4,6 +4,11 @@ services:
   app:
     build:
       context: .
+      image: uniadaptivelti-front
+      container_name: uniadaptivelti-front
+      restart: unless-stopped
+      networks:
+        - uniadaptive-network
       args:
         - NODE_VERSION=18
     ports:
@@ -11,3 +16,6 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
+networks:
+  uniadaptive-network:
+    driver: bridge

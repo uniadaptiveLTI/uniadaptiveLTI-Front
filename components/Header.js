@@ -1,5 +1,12 @@
 import styles from "@root/styles/Header.module.css";
-import { useState, useContext, useEffect, forwardRef, useRef } from "react";
+import {
+	useState,
+	useContext,
+	useEffect,
+	forwardRef,
+	useRef,
+	useLayoutEffect,
+} from "react";
 import SimpleActionDialog from "./dialogs/SimpleActionDialog";
 import SimpleMapSelector from "./dialogs/SimpleMapSelector";
 import UserSettings from "./UserSettings";
@@ -55,6 +62,7 @@ import download from "downloadjs";
 import { NodeTypes } from "@utils/TypeDefinitions";
 import ExportModal from "@components/dialogs/ExportModal";
 import { DevModeStatusContext } from "pages/_app";
+import UserSettingsModal from "./dialogs/UserSettingsModal";
 
 const defaultToastSuccess = {
 	hideProgressBar: false,
@@ -78,6 +86,7 @@ function Header({ LTISettings }, ref) {
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
 	const [showMapSelectorModal, setShowMapSelectorModal] = useState(false);
 	const [showExportModal, setShowExportModal] = useState(false);
+	const [showUserSettingsModal, setShowUserSettingsModal] = useState(false);
 	const selectMapDOM = useRef(null);
 	const selectVersionDOM = useRef(null);
 	const [versions, setVersions] = useState([]);
@@ -101,6 +110,8 @@ function Header({ LTISettings }, ref) {
 	const toggleMapSelectorModal = () =>
 		setShowMapSelectorModal(!showMapSelectorModal);
 	const toggleExportModal = () => setShowExportModal(!showExportModal);
+	const toggleUserSettingsModal = () =>
+		setShowUserSettingsModal(!showUserSettingsModal);
 
 	const closeModalVersiones = () => setShowModalVersions(false);
 	const openModalVersiones = () => setShowModalVersions(true);
@@ -116,7 +127,7 @@ function Header({ LTISettings }, ref) {
 
 	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
 
-	const { reactFlowInstance } = useReactFlow();
+	const reactFlowInstance = useReactFlow();
 	const { currentBlocksData, setCurrentBlocksData } =
 		useContext(BlocksDataContext);
 	const { isOffline } = useContext(OnlineContext);
@@ -163,17 +174,24 @@ function Header({ LTISettings }, ref) {
 	 */
 	function handleMapChange(e) {
 		resetEdit();
-		let id = Number(e.target.value);
-		let selectedMap = [...maps].find((e) => e.id == id);
-		setMapSelected(selectedMap);
-		setVersions(selectedMap.versions);
-		if (selectedMap.versions) {
-			setSelectedVersion(selectedMap.versions[0]);
-			//console.log(selectedMap.versions[0].blocksData);
-			setCurrentBlocksData(selectedMap.versions[0].blocksData);
+		let id;
+		if (isNaN(e)) {
+			id = Number(e.target.value);
+		} else {
+			id = e;
 		}
-		if (selectedMap.id == -1) {
-			setCurrentBlocksData();
+		let selectedMap = [...maps].find((m) => m.id == id);
+		if (selectedMap) {
+			setMapSelected(selectedMap);
+
+			if (selectedMap.versions) {
+				setVersions(selectedMap.versions);
+				setSelectedVersion(selectedMap.versions[0]);
+				setCurrentBlocksData(selectedMap.versions[0].blocksData);
+			}
+			if (selectedMap.id == -1) {
+				changeToMapSelection();
+			}
 		}
 		resetMapSesion();
 	}
@@ -197,9 +215,8 @@ function Header({ LTISettings }, ref) {
 	 * Handles the creation of a new map.
 	 */
 	const handleNewMap = (e, data) => {
-		const uniqueId = () => parseInt(Date.now() * Math.random()).toString();
 		const emptyNewMap = {
-			id: maps.length,
+			id: uniqueId(),
 			name: "Nuevo Mapa " + maps.length,
 			versions: [
 				{
@@ -572,7 +589,8 @@ function Header({ LTISettings }, ref) {
 		reader.readAsText(file);
 	};
 
-	useEffect(() => {
+	useLayoutEffect(() => {
+		//Get resources
 		try {
 			if (LTISettings.debugging.dev_files) {
 				fetch("resources/devmaps.json")
@@ -677,7 +695,7 @@ function Header({ LTISettings }, ref) {
 				resetMapSesion();
 			}
 		}
-	}, [selectedVersion, reactFlowInstance]);
+	}, [selectedVersion]);
 
 	useEffect(() => {
 		if (versions) {
@@ -853,6 +871,12 @@ function Header({ LTISettings }, ref) {
 			setPlatform("sakai");
 		} else {
 			setPlatform("moodle");
+		}
+	};
+
+	const handleToUserSettings = (key) => {
+		if (key == undefined || key == "Enter" || key == "NumpadEnter") {
+			setShowUserSettingsModal(true);
 		}
 	};
 
@@ -1038,49 +1062,34 @@ function Header({ LTISettings }, ref) {
 							fluid
 							className={!expandedAside ? "d-flex col-sm-5" : "d-flex col-sm-5"}
 						>
-							<Dropdown
-								role="menu"
-								focusFirstItemOnShow={true}
-								align={"end"}
-								drop={"start"}
-								autoClose={"outside"}
-								className={styles.userSettings}
+							<div
+								className="d-flex flex-row"
+								role="button"
+								onClick={() => handleToUserSettings()}
+								onKeyUp={(e) => handleToUserSettings(e.code)}
+								tabIndex={0}
 							>
-								<Dropdown.Toggle
-									as={UserToggle}
-									id="dropdown-custom-components"
-								>
-									<div className="d-flex flex-row">
-										<Container className="d-flex flex-column">
-											<div>
-												{loadedUserData ? userData.name : "Cargando..."}
-											</div>
-											<div>
-												{loadedMetaData && capitalizeFirstLetter(platform)}
-											</div>
-										</Container>
-										<div className="mx-auto d-flex align-items-center">
-											{loadedUserData && userData.profile_url && (
-												<img
-													alt="Imagen de perfil"
-													src={userData.profile_url}
-													className={styles.userProfile}
-													width={48}
-													height={48}
-													onClick={devModeStatus ? devPlataformChange : null}
-												></img>
-											)}
-										</div>
-									</div>
-								</Dropdown.Toggle>
-								<Dropdown.Menu as={UserMenu}>
-									<UserSettings />
-								</Dropdown.Menu>
-							</Dropdown>
+								<Container className="d-flex flex-column">
+									<div>{loadedUserData ? userData.name : "Cargando..."}</div>
+									<div>{loadedMetaData && capitalizeFirstLetter(platform)}</div>
+								</Container>
+								<div className="mx-auto d-flex align-items-center">
+									{loadedUserData && userData.profile_url && (
+										<img
+											alt="Imagen de perfil"
+											src={userData.profile_url}
+											className={styles.userProfile}
+											width={48}
+											height={48}
+											onClick={devModeStatus ? devPlataformChange : null}
+										></img>
+									)}
+								</div>
+							</div>
 						</Container>
 					</Nav>
 				</Container>
-				{mapSelected.id > -1 && (
+				{mapSelected.id > -1 && versions.length > 0 && (
 					<div
 						className={
 							styles.mapContainer +
@@ -1092,7 +1101,7 @@ function Header({ LTISettings }, ref) {
 							<SplitButton
 								ref={selectVersionDOM}
 								value={selectedVersion.id}
-								title={versions.length > 0 ? selectedVersion.name : ""}
+								title={selectedVersion.name}
 								onClick={openModalVersiones}
 								variant="none"
 								disabled={isOffline || !loadedMaps}
@@ -1202,6 +1211,13 @@ function Header({ LTISettings }, ref) {
 					callback={() => {
 						alert("TEST");
 					}}
+				/>
+			)}
+			{showUserSettingsModal && (
+				<UserSettingsModal
+					showDialog={showUserSettingsModal}
+					setShowDialog={setShowUserSettingsModal}
+					LTISettings={LTISettings}
 				/>
 			)}
 		</header>

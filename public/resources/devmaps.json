@@ -7,7 +7,7 @@
 				"id": 0,
 				"name": "Última versión",
 				"lastUpdate": "20/05/2023",
-				"default": "true",
+				"default": true,
 				"blocksData": [
 					{
 						"id": "dev-2A1",
@@ -533,7 +533,7 @@
 				"id": 1,
 				"name": "Prueba 2",
 				"lastUpdate": "08/04/2023",
-				"default": "false",
+				"default": false,
 				"blocksData": [
 					{
 						"id": "dev-2A2",
@@ -571,7 +571,7 @@
 				"id": 0,
 				"name": "Última versión",
 				"lastUpdate": "20/05/2023",
-				"default": "true",
+				"default": true,
 				"blocksData": [
 					{
 						"id": "dev-2B1",
@@ -777,7 +777,7 @@
 				"id": 1,
 				"name": "Prueba 1",
 				"lastUpdate": "08/04/2023",
-				"default": "false",
+				"default": false,
 				"blocksData": [
 					{
 						"id": "dev-2B2",
@@ -1019,7 +1019,7 @@
 				"id": 2,
 				"name": "Prueba 2",
 				"lastUpdate": "08/04/2023",
-				"default": "false",
+				"default": false,
 				"blocksData": [
 					{
 						"id": "dev-2B3",
@@ -1342,7 +1342,7 @@
 				"id": 0,
 				"name": "Última versión",
 				"lastUpdate": "20/05/2023",
-				"default": "true",
+				"default": true,
 				"blocksData": [
 					{
 						"id": "dev-2C1",
@@ -1374,7 +1374,7 @@
 				"id": 1,
 				"name": "Versión vacía",
 				"lastUpdate": "05/03/2023",
-				"default": "false",
+				"default": false,
 				"blocksData": [
 					{
 						"id": "dev-2C2",

@@ -13,6 +13,7 @@
       "@root/*": ["/*"],
       "@components/*": ["components/*"],
       "@dialogs/*": ["components/dialogs/*"],
+      "@layouts/*": ["components/layouts/*"],
       "@panes/*": ["components/panes/*"],
       "@flow/*": ["components/flow/*"],
       "@nodes/*": ["components/flow/nodes/*"],

@@ -4,8 +4,8 @@ import { Form, Dropdown } from "react-bootstrap";
 
 function UserSettings({}, ref) {
 	const { settings, setSettings } = useContext(SettingsContext);
-
 	const parsedSettings = JSON.parse(settings);
+
 	let {
 		highContrast,
 		reducedAnimations,

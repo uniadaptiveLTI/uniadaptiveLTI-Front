@@ -1,5 +1,6 @@
 {
-	"back_url": "127.0.0.1:8000",
+	"back_url": "127.0.0.1:9000",
+	"visibleAdminButton": true,
 	"branding": {
 		"faviconx16_path": "icons/branding/favicon-16x16.png",
 		"faviconx32_path": "icons/branding/favicon-32x32.png",

@@ -1,7 +1,7 @@
 import { HexColorPicker, HexColorInput } from "react-colorful";
 import { useEffect, useId, useState } from "react";
 import { Form, InputGroup, Button } from "react-bootstrap";
-import { getContrastingColor, getRootStyle } from "@utils/Utils";
+import { getContrastingColor, getRootStyle } from "@utils/Colors";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPalette } from "@fortawesome/free-solid-svg-icons";
 

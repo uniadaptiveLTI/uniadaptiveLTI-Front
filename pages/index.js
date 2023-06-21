@@ -54,7 +54,7 @@ export default function Home({ LTISettings }) {
 			</Head>
 			{LTISettings && (
 				<Layout LTISettings={LTISettings}>
-					{currentBlocksData ? (
+					{currentBlocksData != "" && currentBlocksData != undefined ? (
 						<BlockFlow map={currentBlocksData}></BlockFlow>
 					) : (
 						<div
