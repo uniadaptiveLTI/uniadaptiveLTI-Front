@@ -1,4 +1,4 @@
-import styles from "@components/styles/Aside.module.css";
+import styles from "@root/styles/Aside.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
 	faCaretDown,
@@ -19,24 +19,33 @@ import { useState, useContext, useEffect, useRef, useId, version } from "react";
 import {
 	ErrorListContext,
 	PlatformContext,
-	BlockInfoContext,
+	NodeInfoContext,
 	ExpandedAsideContext,
 	MapInfoContext,
 	VersionInfoContext,
 	VersionJsonContext,
 	SettingsContext,
-	BlocksDataContext,
-	UnitContext,
+	MetaDataContext,
 } from "../pages/_app.js";
 import {
 	capitalizeFirstLetter,
+	deduplicateById,
 	getUpdatedArrayById,
+	isUnique,
 	orderByPropertyAlphabetically,
-	errorListCheck,
-} from "./Utils.js";
-import { ActionBlocks } from "./flow/nodes/ActionNode.js";
-import { getMoodleTypes, getSakaiTypes } from "./flow/nodes/TypeDefinitions.js";
-import axios from "axios";
+	parseBool,
+} from "@utils/Utils";
+import {
+	ActionNodes,
+	getLastPositionInSection,
+	reorderFromSection,
+} from "@utils/Nodes";
+import { errorListCheck } from "@utils/ErrorHandling";
+import {
+	NodeTypes,
+	getMoodleTypes,
+	getSakaiTypes,
+} from "@utils/TypeDefinitions.js";
 
 export default function Aside({ className, closeBtn, svgExists }) {
 	const { errorList, setErrorList } = useContext(ErrorListContext);
@@ -54,18 +63,18 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	const [allowResourceSelection, setAllowResourceSelection] = useState(true);
 
 	const { platform, setPlatform } = useContext(PlatformContext);
-	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
+	const { nodeSelected, setNodeSelected } = useContext(NodeInfoContext);
 	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
-	const { selectedEditVersion, setSelectedEditVersion } =
+	const { editVersionSelected, setEditVersionSelected } =
 		useContext(VersionInfoContext);
 	const { settings, setSettings } = useContext(SettingsContext);
-	const { units, setUnits } = useContext(UnitContext);
+	const { metaData, setMetaData } = useContext(MetaDataContext);
 
 	const parsedSettings = JSON.parse(settings);
 	let { reducedAnimations, autoHideAside } = parsedSettings;
 
 	//References
-	const titleDOM = useRef(null);
+	const labelDOM = useRef(null);
 	const optionsDOM = useRef(null);
 	const resourceDOM = useRef(null);
 	const lmsResourceDOM = useRef(null);
@@ -73,15 +82,15 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	const versionTitleDOM = useRef(null);
 	const refreshIconDOM = useRef(null);
 	const lmsVisibilityDOM = useRef(null);
-	const unitDOM = useRef(null);
+	const sectionDOM = useRef(null);
 	const orderDOM = useRef(null);
 	const identationDOM = useRef(null);
 	//IDs
-	const titleDOMId = useId();
+	const labelDOMId = useId();
 	const optionsID = useId();
 	const lmsResourceDOMId = useId();
-	const resourceDOMId = useId();
-	const unitDOMId = useId();
+	const typeDOMId = useId();
+	const sectionDOMId = useId();
 	const lmsVisibilityDOMId = useId();
 	const orderDOMId = useId();
 	const identationDOMId = useId();
@@ -112,26 +121,26 @@ export default function Aside({ className, closeBtn, svgExists }) {
 
 			setShowSpinner(true);
 			setAllowResourceSelection(false);
-			const response = await fetch(`http://127.0.0.1:8000/lti/get_modules_by_type?type=${encodedSelectedOption}&platform=${encodedPlatform}&instance=${encodedInstance}&lms=${encodedLMS}&course=${encodedCourse}&session=${encodedSession}`);
-			
+			const response = await fetch(
+				`http://${process.env.NEXT_PUBLIC_BACK_URL}/lti/get_modules_by_type?type=${encodedSelectedOption}&course=${encodedCourse}&instance=${encodedInstance}&lms=${encodedLMS}&course=${encodedCourse}&session=${encodedSession}`
+			);
 			if (!response.ok) {
-				throw new Error('Request failed');
+				throw new Error("Request failed");
 			}
 			const data = await response.json();
-			setResourceOptions(data);
 			setShowSpinner(false);
 			setAllowResourceSelection(true);
+			return data;
 		} catch (e) {
 			const error = new Error(
-					"No se pudieron obtener los datos del curso desde el LMS."
+				"No se pudieron obtener los datos del curso desde el LMS."
 			);
 			error.log = e;
 			throw error;
 		}
-	  };
-	
-	useEffect(() => {
+	};
 
+	useEffect(() => {
 		const metaData = JSON.parse(localStorage.getItem('meta_data'));
 		const metaCourse = JSON.parse(localStorage.getItem('course_data'));
 		switch (selectedOption) {
@@ -140,118 +149,324 @@ export default function Aside({ className, closeBtn, svgExists }) {
 				break;
 			default:
 				//FIXME: No sucede
-				if(!selectedOption){
+				if (!selectedOption) {
 					setResourceOptions([]);
 				} else {
 					fetchData(selectedOption, metaCourse.platform, metaCourse.instance_id, metaCourse.url_lms, metaData.course_id, metaData.session_id);
+					if (parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
+						setResourceOptions([]);
+						setTimeout(() => {
+							const data = [
+								{
+									id: 0,
+									name: `${capitalizeFirstLetter(
+										NodeTypes.filter((node) => node.type == selectedOption)[0]
+											.name
+									)} A`,
+								},
+								{
+									id: 1,
+									name: `${capitalizeFirstLetter(
+										NodeTypes.filter((node) => node.type == selectedOption)[0]
+											.name
+									)} B`,
+								},
+								{
+									id: 2,
+									name: `${capitalizeFirstLetter(
+										NodeTypes.filter((node) => node.type == selectedOption)[0]
+											.name
+									)} C`,
+								},
+								{
+									id: 3,
+									name: `${capitalizeFirstLetter(
+										NodeTypes.filter((node) => node.type == selectedOption)[0]
+											.name
+									)} D`,
+								},
+							];
+							const filteredData = [];
+							data.forEach((resource) => {
+								if (!getUsedResources().includes(resource.id)) {
+									filteredData.push(resource);
+								}
+							});
+
+							//Adds current resource if exists
+							if (nodeSelected && nodeSelected.data) {
+								if (nodeSelected.data.lmsResource) {
+									if (nodeSelected.data.lmsResource > -1) {
+										const lmsRes = nodeSelected.data.lmsResource;
+										const storedRes = data.find(
+											(resource) => resource.id === lmsRes
+										);
+
+										if (storedRes != undefined) {
+											filteredData.push(storedRes);
+										}
+									}
+								}
+							}
+
+							const uniqueFilteredData = deduplicateById(filteredData);
+							uniqueFilteredData.unshift({ id: -1, name: "Vacío" });
+							setResourceOptions(uniqueFilteredData);
+						}, 1000);
+					} else {
+						fetchData(selectedOption, metaData.course_id).then((data) => {
+							const filteredData = [];
+							data.forEach((resource) => {
+								if (!getUsedResources().includes(resource.id)) {
+									filteredData.push(resource);
+								}
+							});
+							//Adds current resource if exists
+							if (nodeSelected && nodeSelected.data) {
+								if (nodeSelected.data.lmsResource) {
+									if (nodeSelected.data.lmsResource > -1) {
+										const lmsRes = nodeSelected.data.lmsResource;
+										const storedRes = data.find(
+											(resource) => resource.id === lmsRes
+										);
+
+										if (storedRes != undefined) {
+											filteredData.push(storedRes);
+										}
+									}
+								}
+							}
+							const uniqueFilteredData = deduplicateById(filteredData);
+							uniqueFilteredData.unshift({ id: -1, name: "Vacío" });
+							setResourceOptions(uniqueFilteredData);
+						});
+					}
 				}
-				
+
 				break;
 		}
-	}, [selectedOption]);
+	}, [selectedOption, nodeSelected]);
 
 	useEffect(() => {
-		if (resourceOptions.length > 0) {
-			const lmsResourceCurrent = lmsResourceDOM.current;
-			if (lmsResourceCurrent) {
-				lmsResourceCurrent.value = blockSelected.data.lmsResource;
+		if (nodeSelected) {
+			if (resourceOptions.length > 0) {
+				const resourceIDs = resourceOptions.map((resource) => resource.id);
+				const lmsResourceCurrent = lmsResourceDOM.current;
+				const labelCurrent = labelDOM.current;
+				if (lmsResourceCurrent) {
+					if (resourceIDs.includes(nodeSelected.data.lmsResource)) {
+						lmsResourceCurrent.value = nodeSelected.data.lmsResource;
+					} else {
+						lmsResourceCurrent.value = -1;
+					}
+				}
+				setLmsResource(nodeSelected.data.lmsResource);
 			}
-			setLmsResource(blockSelected.data.lmsResource);
 		}
 	}, [resourceOptions]);
 
+	const syncLabel = (e) => {
+		if (nodeSelected) {
+			if (
+				!(
+					ActionNodes.includes(nodeSelected.type) ||
+					nodeSelected.type == "fragment"
+				)
+			) {
+				const resourceIDs = resourceOptions.map((resource) => resource.id);
+				const labelCurrent = labelDOM.current;
+
+				if (resourceIDs.includes(nodeSelected.data.lmsResource)) {
+					if (e.target.value < 0) {
+						labelCurrent.value = "";
+					} else {
+						labelCurrent.value = resourceOptions.find(
+							(resource) => resource.id == e.target.value
+						).name;
+					}
+				} else {
+					labelCurrent.value = "";
+				}
+			}
+		}
+	};
+
 	const handleSelect = (event) => {
 		// FIXME Del cambio de calquier tipo a mail el icono refresh no se mapea por lo que no puede pillar las referencia
-		let input = lmsResourceDOM.current;
-		let type = resourceDOM.current.value;
-
-			setSelectedOption(event.target.value);
-		
+		setSelectedOption(event.target.value);
 	};
 
 	useEffect(() => {
-		//console.log(blockSelected);
-		if (blockSelected) {
-			const titleCurrent = titleDOM.current;
-			const resourceCurrent = resourceDOM.current;
+		if (nodeSelected) {
+			const labelCurrent = labelDOM.current;
+			const typeCurrent = resourceDOM.current;
 			const lmsVisibilityCurrent = lmsVisibilityDOM.current;
-			const unitCurrent = unitDOM.current;
+			const sectionCurrent = sectionDOM.current;
 			const orderCurrent = orderDOM.current;
 			const identationCurrent = identationDOM.current;
 
-			if (titleCurrent) {
-				titleCurrent.value = blockSelected.data.label;
+			if (labelCurrent) {
+				labelCurrent.value = nodeSelected.data.label;
 			}
 
-			if (resourceCurrent) {
-				resourceCurrent.value = blockSelected.type;
+			if (typeCurrent) {
+				typeCurrent.value = nodeSelected.type;
 			}
 
 			if (lmsVisibilityCurrent) {
-				lmsVisibilityCurrent.value = blockSelected.data.lmsVisibility;
+				lmsVisibilityCurrent.value = nodeSelected.data.lmsVisibility;
 			}
 
-			if (unitCurrent) {
-				unitCurrent.value = blockSelected.data.unit;
+			if (sectionCurrent) {
+				sectionCurrent.value = nodeSelected.data.section;
 			}
 
 			if (orderCurrent) {
-				orderCurrent.value = blockSelected.data.order;
+				orderCurrent.value = nodeSelected.data.order + 1;
 			}
 
 			if (identationCurrent) {
-				identationCurrent.value = blockSelected.data.identation;
+				identationCurrent.value = nodeSelected.data.identation;
 			}
 
-			setSelectedOption(blockSelected.type);
+			setSelectedOption(nodeSelected.type);
 		}
-	}, [blockSelected]);
+	}, [nodeSelected]);
 
 	/**
 	 * Updates the selected block with the values from the specified DOM elements.
 	 */
 	const updateBlock = () => {
-
 		let type = resourceDOM.current.value;
 		let newData;
 
-		if (!ActionBlocks.includes(blockSelected.type)) {
-			let limitedOrder = orderDOM.current.value;
-			limitedOrder = Math.min(Math.max(limitedOrder, 1), 999);
+		if (!ActionNodes.includes(nodeSelected.type)) {
+			//if element node
+			const newSection = Number(
+				sectionDOM.current.value ? sectionDOM.current.value : 0
+			); //FIXME: Only valid for moodle maybe?
+			const originalSection = nodeSelected.data.section;
+
+			const originalOrder = nodeSelected.data.order;
+			const limitedOrder = Math.min(
+				Math.max(orderDOM.current.value, 0),
+				getLastPositionInSection(newSection, reactFlowInstance.getNodes()) + 1
+			);
 			let limitedIdentation = identationDOM.current.value;
-			limitedIdentation = Math.min(Math.max(limitedIdentation, 0), 999);
+			limitedIdentation = Math.min(Math.max(limitedIdentation, 0), 16);
+
+			console.log(lmsResourceDOM.current.value);
+
+			console.log(lmsResourceDOM.current.value);
 
 			newData = {
-				label: titleDOM.current.value,
-				lmsResource: lmsResourceDOM.current.value,
-				lmsVisibility: lmsVisibilityDOM.current.value,
-				unit: unitDOM.current.value,
-				order: limitedOrder,
+				...nodeSelected.data,
+				label: labelDOM.current.value,
+				lmsResource: Number(lmsResourceDOM.current.value),
+				lmsVisibility: lmsVisibilityDOM.current.value
+					? lmsVisibilityDOM.current.value
+					: "hidden_until_access",
+				section: newSection,
+				order: limitedOrder - 1,
 				identation: limitedIdentation,
 			};
-		} else {
-			newData = {
-				label: titleDOM.current.value,
-				lmsResource: type !== "mail" ? lmsResourceDOM.current.value : type,
+
+			const updatedData = {
+				...nodeSelected,
+				id: nodeSelected.id,
+				type: resourceDOM.current.value,
+				data: newData,
 			};
+
+			const aNodeWithNewOrderExists = reactFlowInstance
+				.getNodes()
+				.filter((node) => {
+					if (
+						node.data.order == limitedOrder - 1 &&
+						node.data.section == newSection
+					) {
+						return true;
+					}
+				});
+
+			console.log(aNodeWithNewOrderExists, limitedOrder - 1);
+
+			//if reordered
+			if (
+				(limitedOrder - 1 != originalOrder &&
+					aNodeWithNewOrderExists.length > 0) ||
+				originalSection != newSection
+			) {
+				console.log((originalSection, newSection));
+				if (originalSection == newSection) {
+					//Change in order
+					const to = limitedOrder - 1;
+					const from = originalOrder;
+					const reorderedArray = reorderFromSection(
+						newSection,
+						from,
+						to,
+						reactFlowInstance.getNodes()
+					);
+
+					reactFlowInstance.setNodes([...reorderedArray, updatedData]);
+				} else {
+					//(Section change) Add to section AND then the order
+					console.log("CAMBIO DE SECCIÓN");
+					const virtualNodes = reactFlowInstance.getNodes();
+					const forcedPos =
+						getLastPositionInSection(newSection, virtualNodes) + 1;
+					console.log(forcedPos);
+					updatedData.data.order = forcedPos;
+					virtualNodes.push(updatedData);
+					if (!(limitedOrder - 1 > forcedPos)) {
+						//If the desired position is inside the section
+						const to = limitedOrder;
+						const from = forcedPos;
+						const reorderedArray = reorderFromSection(
+							newSection,
+							from,
+							to,
+							virtualNodes
+						);
+						reactFlowInstance.setNodes([...reorderedArray, updatedData]);
+					} else {
+						//If the desired position is outside the section
+						reactFlowInstance.setNodes([...virtualNodes, updatedData]);
+					}
+				}
+			} else {
+				reactFlowInstance.setNodes(
+					getUpdatedArrayById(updatedData, reactFlowInstance.getNodes())
+				);
+			}
+
+			errorListCheck(updatedData, errorList, setErrorList, false);
+		} else {
+			//if action node
+			newData = {
+				label: labelDOM.current.value,
+				lmsResource:
+					type !== "mail" ? Number(lmsResourceDOM.current.value) : type,
+			};
+
+			console.log(newData);
+
+			const updatedData = {
+				...nodeSelected,
+				id: nodeSelected.id,
+				type: resourceDOM.current.value,
+				data: newData,
+			};
+
+			errorListCheck(updatedData, errorList, setErrorList, false);
+
+			reactFlowInstance.setNodes(
+				getUpdatedArrayById(updatedData, reactFlowInstance.getNodes())
+			);
+
+			errorListCheck(updatedData, errorList, setErrorList);
 		}
-
-		//console.log(newData);
-
-		const updatedData = {
-			...blockSelected,
-			id: blockSelected.id,
-			type: resourceDOM.current.value,
-			data: newData,
-		};
-
-		errorListCheck(updatedData, errorList, setErrorList, true);
-
-		//console.log(updatedData, blockSelected);
-
-		reactFlowInstance.setNodes(
-			getUpdatedArrayById(updatedData, reactFlowInstance.getNodes())
-		);
 
 		if (autoHideAside) {
 			setExpandedAside(false);
@@ -275,11 +490,22 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	const updateVersion = () => {
 		setVersionJson((prevVersionJson) => ({
 			...prevVersionJson,
-			id: selectedEditVersion.id,
+			id: editVersionSelected.id,
 			name: versionTitleDOM.current.value,
-			lastUpdate: selectedEditVersion.lastUpdate,
-			default: selectedEditVersion.default,
+			lastUpdate: editVersionSelected.lastUpdate,
+			default: editVersionSelected.default,
 		}));
+	};
+
+	const getUsedResources = () => {
+		const nodes = reactFlowInstance.getNodes();
+		const usedResources = [];
+		nodes.map((node) => {
+			if (node.data.lmsResource != undefined) {
+				usedResources.push(node.data.lmsResource);
+			}
+		});
+		return usedResources;
 	};
 
 	return (
@@ -297,7 +523,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 				>
 					<img
 						alt="Logo"
-						src={process.env.LOGO_PATH}
+						src={process.env.NEXT_PUBLIC_LOGO_PATH}
 						style={{ width: "100%" }}
 					/>
 					<span className={styles.collapse + " display-6"}>
@@ -308,8 +534,8 @@ export default function Aside({ className, closeBtn, svgExists }) {
 				<div id={mapSelected?.id}></div>
 			</div>
 
-			{blockSelected &&
-			!(blockSelected.type == "start" || blockSelected.type == "end") ? (
+			{nodeSelected &&
+			!(nodeSelected.type == "start" || nodeSelected.type == "end") ? (
 				<Form
 					action="#"
 					method=""
@@ -341,27 +567,33 @@ export default function Aside({ className, closeBtn, svgExists }) {
 								].join(" ")}
 							>
 								<Form.Group className="mb-3">
-									<Form.Label htmlFor={titleDOMId} className="mb-1">
+									<Form.Label htmlFor={labelDOMId} className="mb-1">
 										Nombre del{" "}
-										{blockSelected.type == "fragment" ? "fragmento" : "bloque"}
+										{nodeSelected.type == "fragment" ? "fragmento" : "bloque"}
 									</Form.Label>
 									<Form.Control
-										ref={titleDOM}
-										id={titleDOMId}
+										ref={labelDOM}
+										id={labelDOMId}
 										type="text"
 										className="w-100"
+										disabled={
+											!(
+												ActionNodes.includes(nodeSelected.type) ||
+												nodeSelected.type == "fragment"
+											)
+										}
 									></Form.Control>
 								</Form.Group>
-								{blockSelected.type != "fragment" && (
+								{nodeSelected.type != "fragment" && (
 									<Form.Group className="mb-3">
-										<Form.Label htmlFor={resourceDOMId} className="mb-1">
-											{ActionBlocks.includes(blockSelected.type)
+										<Form.Label htmlFor={typeDOMId} className="mb-1">
+											{ActionNodes.includes(nodeSelected.type)
 												? "Acción a realizar"
 												: "Tipo de recurso"}
 										</Form.Label>
 										<Form.Select
 											ref={resourceDOM}
-											id={resourceDOMId}
+											id={typeDOMId}
 											className="w-100"
 											defaultValue={selectedOption}
 											onChange={handleSelect}
@@ -369,9 +601,9 @@ export default function Aside({ className, closeBtn, svgExists }) {
 											{platform == "moodle"
 												? moodleResource.map((option) => {
 														if (
-															(ActionBlocks.includes(blockSelected.type) &&
+															(ActionNodes.includes(nodeSelected.type) &&
 																option.nodeType == "ActionNode") ||
-															(!ActionBlocks.includes(blockSelected.type) &&
+															(!ActionNodes.includes(nodeSelected.type) &&
 																option.nodeType == "ElementNode")
 														) {
 															return (
@@ -383,9 +615,9 @@ export default function Aside({ className, closeBtn, svgExists }) {
 												  })
 												: sakaiResource.map((option) => {
 														if (
-															(ActionBlocks.includes(blockSelected.type) &&
+															(ActionNodes.includes(nodeSelected.type) &&
 																option.nodeType == "ActionNode") ||
-															(!ActionBlocks.includes(blockSelected.type) &&
+															(!ActionNodes.includes(nodeSelected.type) &&
 																option.nodeType == "ElementNode")
 														) {
 															return (
@@ -400,8 +632,8 @@ export default function Aside({ className, closeBtn, svgExists }) {
 								)}
 
 								{!(
-									blockSelected.type == "fragment" ||
-									blockSelected.type == "mail" ||
+									nodeSelected.type == "fragment" ||
+									nodeSelected.type == "mail" ||
 									selectedOption == "mail"
 								) && (
 									<div className="mb-3">
@@ -416,12 +648,12 @@ export default function Aside({ className, closeBtn, svgExists }) {
 													</Form.Label>
 													<div className="ms-2">
 														{!showSpinner && (
-															<div ref={refreshIconDOM} id="refresh-icon">
+															<div ref={refreshIconDOM}>
 																<FontAwesomeIcon icon={faRotateRight} />
 															</div>
 														)}
 														{showSpinner && (
-															<div>
+															<div ref={refreshIconDOM}>
 																<Spinner
 																	animation="border"
 																	role="status"
@@ -449,6 +681,14 @@ export default function Aside({ className, closeBtn, svgExists }) {
 													>
 														<Button
 															className={`btn-light d-flex align-items-center p-0 m-0 ${styles.actionButtons}`}
+															onClick={() =>
+																window.open(
+																	metaData.return_url.startsWith("http")
+																		? metaData.return_url
+																		: "https://" + metaData.return_url,
+																	"_blank"
+																)
+															}
 														>
 															<FontAwesomeIcon icon={faCircleQuestion} />
 														</Button>
@@ -460,29 +700,30 @@ export default function Aside({ className, closeBtn, svgExists }) {
 											ref={lmsResourceDOM}
 											id={lmsResourceDOMId}
 											className="w-100"
-											defaultValue={lmsResource == ""? lmsResource : "-1"}
-											disabled={!resourceOptions}
+											defaultValue={lmsResource == "" ? lmsResource : "-1"}
+											disabled={!resourceOptions.length > 0}
+											onChange={syncLabel}
 										>
-											{allowResourceSelection &&
-											
-												(<>
-												<option key = '-1' hidden value> </option>
-												{
-												resourceOptions.map((option) => (
-													<option key={option.id} value={option.id}>
-														{option.name}
+											{allowResourceSelection && (
+												<>
+													<option key="-1" hidden value>
+														{"Esperando recursos..."}
 													</option>
+													{resourceOptions.map((resource) => (
+														<option key={resource.id} value={resource.id}>
+															{resource.name}
+														</option>
 													))}
-													</>
-													)}
+												</>
+											)}
 										</Form.Select>
 									</div>
 								)}
 							</div>
 						</Form.Group>
 						{!(
-							ActionBlocks.includes(blockSelected.type) ||
-							blockSelected.type == "fragment"
+							ActionNodes.includes(nodeSelected.type) ||
+							nodeSelected.type == "fragment"
 						) && (
 							<div className="mb-2">
 								<div
@@ -516,7 +757,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 										<Form.Select
 											ref={lmsVisibilityDOM}
 											id={lmsVisibilityDOMId}
-											defaultValue={blockSelected.data.lmsVisibility}
+											defaultValue={nodeSelected.data.lmsVisibility}
 										>
 											{orderByPropertyAlphabetically(shownTypes, "name").map(
 												(option) => (
@@ -532,52 +773,57 @@ export default function Aside({ className, closeBtn, svgExists }) {
 
 									<>
 										<Form.Group className="mb-2">
-											<Form.Label htmlFor={orderDOMId}>Unidad</Form.Label>
+											<Form.Label htmlFor={orderDOMId}>Sección</Form.Label>
 											<Form.Select
-												ref={unitDOM}
-												id={unitDOMId}
-												defaultValue={blockSelected.data.unit}
+												ref={sectionDOM}
+												id={sectionDOMId}
+												defaultValue={nodeSelected.data.section}
 											>
-												{units &&
+												{metaData.sections &&
 													orderByPropertyAlphabetically(
-														[...units].map((unit) => {
-															if (!unit.name.match(/^\d/)) {
-																unit.name =
-																	unit.position + 1 + "- " + unit.name;
-																unit.value = unit.position + 1;
+														[...metaData.sections].map((section) => {
+															if (!section.name.match(/^\d/)) {
+																section.name =
+																	platform == "moodle"
+																		? section.position + "- " + section.name
+																		: section.position +
+																		  1 +
+																		  "- " +
+																		  section.name;
+																section.value = section.position + 1;
 															}
-															return unit;
+															return section;
 														}),
 														"name"
-													).map((unit) => (
-														<option key={unit.id} value={unit.position}>
-															{unit.name}
+													).map((section) => (
+														<option key={section.id} value={section.position}>
+															{section.name}
 														</option>
 													))}
 											</Form.Select>
 										</Form.Group>
 										<Form.Group className="mb-2">
 											<Form.Label htmlFor={orderDOMId}>
-												Posición en la unidad
+												Posición en la sección
 											</Form.Label>
 											<Form.Control
 												type="number"
 												min={1}
 												max={999}
-												defaultValue={blockSelected.data.order}
+												defaultValue={nodeSelected.data.order}
 												ref={orderDOM}
 												id={orderDOMId}
 											></Form.Control>
 										</Form.Group>
 										<Form.Group className="mb-2">
 											<Form.Label htmlFor={identationDOMId}>
-												Identación en la unidad
+												Identación en la sección
 											</Form.Label>
 											<Form.Control
 												type="number"
 												min={0}
-												max={999}
-												defaultValue={blockSelected.data.identation}
+												max={16}
+												defaultValue={nodeSelected.data.identation}
 												ref={identationDOM}
 												id={identationDOMId}
 											></Form.Control>
@@ -596,7 +842,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 				<></>
 			)}
 
-			{mapSelected && !(blockSelected || selectedEditVersion) ? (
+			{mapSelected && !(nodeSelected || editVersionSelected) ? (
 				<div className="container-fluid">
 					<Form.Group className="mb-3">
 						<div
@@ -642,7 +888,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 				<></>
 			)}
 
-			{selectedEditVersion ? (
+			{editVersionSelected ? (
 				<div className="container-fluid">
 					<Form.Group className="mb-3">
 						<div
@@ -676,7 +922,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 									ref={versionTitleDOM}
 									type="text"
 									className="w-100"
-									defaultValue={selectedEditVersion.name}
+									defaultValue={editVersionSelected.name}
 								></Form.Control>
 							</Form.Group>
 						</div>

@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { Form } from "react-bootstrap";
-import styles from "@components/styles/Aside.module.css";
-import { SettingsContext } from "@components/pages/_app";
+import styles from "@root/styles/Aside.module.css";
+import { SettingsContext } from "@root/pages/_app";
 
 const Qualification = ({
 	condition,

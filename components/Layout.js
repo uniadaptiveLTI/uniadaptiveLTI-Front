@@ -6,30 +6,29 @@ import { Container } from "react-bootstrap";
 import { useState, useRef, useLayoutEffect, useEffect } from "react";
 import {
 	PlatformContext,
-	BlockInfoContext,
+	NodeInfoContext,
 	MapInfoContext,
 	VersionJsonContext,
 	ExpandedAsideContext,
 	VersionInfoContext,
-	BlocksDataContext,
 	MainDOMContext,
 	MSGContext,
-	UnitContext,
+	MetaDataContext,
 } from "../pages/_app.js";
 
-export default function Layout({ children }) {
+export default function Layout({ LTISettings, children }) {
 	const [platform, setPlatform] = useState("moodle"); //default to moodle in testing phase
-	const [units, setUnits] = useState();
+	const [metaData, setMetaData] = useState();
+	const [sections, setSections] = useState();
 
-	const [blockSelected, setBlockSelected] = useState("");
+	const [nodeSelected, setNodeSelected] = useState("");
 	const [mapSelected, setMapSelected] = useState("");
 	const [activeMap, setActiveMap] = useState("");
-	const [selectedEditVersion, setSelectedEditVersion] = useState("");
+	const [editVersionSelected, setEditVersionSelected] = useState("");
 
 	const [expandedAside, setExpandedAside] = useState(false);
 
 	const [versionJson, setVersionJson] = useState("");
-	const [currentBlocksData, setCurrentBlocksData] = useState();
 
 	const [headerHeight, setHeaderHeight] = useState(0);
 	const [footerHeight, setFooterHeight] = useState(0);
@@ -88,13 +87,13 @@ export default function Layout({ children }) {
 
 	return (
 		<PlatformContext.Provider value={{ platform, setPlatform }}>
-			<UnitContext.Provider value={{ units, setUnits }}>
-				<BlockInfoContext.Provider value={{ blockSelected, setBlockSelected }}>
+			<MetaDataContext.Provider value={{ metaData, setMetaData }}>
+				<NodeInfoContext.Provider value={{ nodeSelected, setNodeSelected }}>
 					<MapInfoContext.Provider
 						value={{ mapSelected, setMapSelected, activeMap, setActiveMap }}
 					>
 						<VersionInfoContext.Provider
-							value={{ selectedEditVersion, setSelectedEditVersion }}
+							value={{ editVersionSelected, setEditVersionSelected }}
 						>
 							<VersionJsonContext.Provider
 								value={{ versionJson, setVersionJson }}
@@ -102,82 +101,81 @@ export default function Layout({ children }) {
 								<ExpandedAsideContext.Provider
 									value={{ expandedAside, setExpandedAside }}
 								>
-									<BlocksDataContext.Provider
-										value={{ currentBlocksData, setCurrentBlocksData }}
-									>
-										<MainDOMContext.Provider value={{ mainDOM, setMainDOM }}>
-											<MSGContext.Provider value={{ msg, setMSG }}>
-												<ReactFlowProvider>
-													<Container
-														className="g-0"
-														fluid
-														style={{ minHeight: 100 + "vh" }}
+									<MainDOMContext.Provider value={{ mainDOM, setMainDOM }}>
+										<MSGContext.Provider value={{ msg, setMSG }}>
+											<ReactFlowProvider>
+												<Container
+													className="g-0"
+													fluid
+													style={{ minHeight: 100 + "vh" }}
+												>
+													<div
+														className="row g-0"
+														style={{ height: 100 + "vh" }}
 													>
-														<div
-															className="row g-0"
-															style={{ height: 100 + "vh" }}
+														<Aside
+															className={
+																expandedAside
+																	? "col-12 col-sm-4 col-md-3 col-xl-2"
+																	: "d-none"
+															}
+														/>
+														<Container
+															fluid
+															className={
+																expandedAside
+																	? "col-12 col-sm-8 col-md-9 col-xl-10 g-0"
+																	: "g-0"
+															}
+															style={{
+																display: "flex",
+																flexDirection: "column",
+															}}
 														>
-															<Aside
-																className={
-																	expandedAside
-																		? "col-12 col-sm-4 col-md-3 col-xl-2"
-																		: "d-none"
-																}
-															/>
 															<Container
+																className="g-0"
 																fluid
-																className={
-																	expandedAside
-																		? "col-12 col-sm-8 col-md-9 col-xl-10 g-0"
-																		: "g-0"
-																}
-																style={{
-																	display: "flex",
-																	flexDirection: "column",
-																}}
+																style={{ flex: "1 0 auto" }}
 															>
-																<Container
-																	className="g-0"
-																	fluid
-																	style={{ flex: "1 0 auto" }}
-																>
-																	<Header ref={headerDOM} />
+																<Header
+																	LTISettings={LTISettings}
+																	ref={headerDOM}
+																/>
 
-																	<main
-																		id="main"
-																		ref={mainDOMRef}
-																		style={{
-																			height: `calc(100vh - ${mainHeightOffset}px)`,
-																			overflow: "overlay",
-																			scrollBehavior: "smooth",
-																			position: "relative",
-																			boxShadow: "inset 0 0 10px #ccc",
-																		}}
-																	>
-																		{children}
-																	</main>
-																	<Footer
-																		msg={msg}
-																		className={
-																			expandedAside
-																				? "col-12 col-sm-8 col-md-9 col-xl-10 g-0"
-																				: "col-12 g-0"
-																		}
-																	/>
-																</Container>
+																<main
+																	id="main"
+																	ref={mainDOMRef}
+																	style={{
+																		height: `calc(100vh - ${mainHeightOffset}px)`,
+																		overflow: "overlay",
+																		scrollBehavior: "smooth",
+																		position: "relative",
+																		boxShadow: "inset 0 0 10px #ccc",
+																	}}
+																>
+																	{children}
+																</main>
+																<Footer
+																	msg={msg}
+																	className={
+																		expandedAside
+																			? "col-12 col-sm-8 col-md-9 col-xl-10 g-0"
+																			: "col-12 g-0"
+																	}
+																/>
 															</Container>
-														</div>
-													</Container>
-												</ReactFlowProvider>
-											</MSGContext.Provider>
-										</MainDOMContext.Provider>
-									</BlocksDataContext.Provider>
+														</Container>
+													</div>
+												</Container>
+											</ReactFlowProvider>
+										</MSGContext.Provider>
+									</MainDOMContext.Provider>
 								</ExpandedAsideContext.Provider>
 							</VersionJsonContext.Provider>
 						</VersionInfoContext.Provider>
 					</MapInfoContext.Provider>
-				</BlockInfoContext.Provider>
-			</UnitContext.Provider>
+				</NodeInfoContext.Provider>
+			</MetaDataContext.Provider>
 		</PlatformContext.Provider>
 	);
 }

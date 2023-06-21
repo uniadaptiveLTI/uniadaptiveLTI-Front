@@ -1,16 +1,25 @@
 import { forwardRef, useContext } from "react";
 import { Modal, Button, Container, Col, Row } from "react-bootstrap";
-import { PlatformContext } from "@components/pages/_app";
-import { NodeTypes } from "../flow/nodes/TypeDefinitions";
-import { orderByPropertyAlphabetically, uniqueId } from "../Utils";
-import { getTypeIcon, getTypeStaticColor } from "../flow/nodes/NodeIcons";
-import styles from "@components/styles/NodeSelector.module.css";
+import { PlatformContext } from "@root/pages/_app";
+import { NodeTypes } from "@utils/TypeDefinitions";
+import {
+	orderByPropertyAlphabetically,
+	parseBool,
+	uniqueId,
+} from "@utils/Utils.js";
+import { getTypeIcon, getTypeStaticColor } from "../../utils/NodeIcons";
+import styles from "@root/styles/NodeSelector.module.css";
+import { useNodes } from "reactflow";
+import { getLastPositionInSection, getLowestSection } from "@utils/Nodes";
+import { DevModeStatusContext } from "pages/_app";
 
 export default forwardRef(function NodeSelector(
 	{ showDialog, type, toggleDialog, callback },
 	ref
 ) {
+	const rfNodes = useNodes();
 	const { platform } = useContext(PlatformContext);
+	const { devModeStatus } = useContext(DevModeStatusContext);
 	function handleClose(actionClicked) {
 		if (callback && actionClicked) {
 			if (callback instanceof Function) {
@@ -36,11 +45,30 @@ export default forwardRef(function NodeSelector(
 		);
 	}
 
+	function getMaxSectionFromSelection() {
+		const selectedNodes = rfNodes.filter((node) => node.selected);
+		let maxSection = 0;
+		if (selectedNodes.length > 0) {
+			maxSection = Math.max(...selectedNodes.map((node) => node.data.section));
+		}
+		return maxSection > -1 ? maxSection : getLowestSection(rfNodes); //TODO: Test in sakai
+	}
+
 	function SelectionElement(selectedElement) {
-		const { type, name } = selectedElement;
+		const { nodeType, type, name } = selectedElement;
 
 		const typeColor = getTypeStaticColor(type, platform);
 		const typeIcon = getTypeIcon(type, platform, 32);
+		const data = {};
+		const section = getMaxSectionFromSelection();
+		if (nodeType == "ElementNode") {
+			data.label = name;
+			data.children = [];
+			data.section = section;
+			data.order = getLastPositionInSection(section, rfNodes) + 1;
+		} else {
+			data.label = name;
+		}
 		return (
 			<div key={type} className={styles.cardContainer + " nodeSelectionItem"}>
 				<div
@@ -48,12 +76,12 @@ export default forwardRef(function NodeSelector(
 					role="button"
 					tabIndex={0}
 					onClick={() => {
-						callback({ id: uniqueId(), type: type, data: { label: name } });
+						callback({ id: uniqueId(), type: type, data: { ...data } });
 						toggleDialog();
 					}}
 					onKeyDown={(e) => {
 						if (e.code == "Enter") {
-							callback({ id: uniqueId(), type: type, data: { label: name } });
+							callback({ id: uniqueId(), type: type, data: { ...data } });
 							toggleDialog();
 						}
 					}}
@@ -61,7 +89,7 @@ export default forwardRef(function NodeSelector(
 					<div className={styles.block} style={{ background: typeColor }}>
 						{typeIcon}
 					</div>
-					<span>{process.env.DEV_MODE ? type : name}</span>
+					<span>{devModeStatus ? type : name}</span>
 				</div>
 			</div>
 		);
@@ -71,7 +99,9 @@ export default forwardRef(function NodeSelector(
 			<Modal.Header closeButton>
 				<Modal.Title>Selección de bloque</Modal.Title>
 			</Modal.Header>
-			<Modal.Body>{getFilteredBlockSelection()}</Modal.Body>
+			<Modal.Body style={{ maxHeight: "60vh", overflowY: "scroll" }}>
+				{getFilteredBlockSelection()}
+			</Modal.Body>
 			<Modal.Footer>
 				<Button variant="secondary" onClick={toggleDialog}>
 					Cancelar

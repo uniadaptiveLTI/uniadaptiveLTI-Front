@@ -1,5 +1,12 @@
-import styles from "@components/styles/Header.module.css";
-import { useState, useContext, useEffect, forwardRef, useRef } from "react";
+import styles from "@root/styles/Header.module.css";
+import {
+	useState,
+	useContext,
+	useEffect,
+	forwardRef,
+	useRef,
+	useLayoutEffect,
+} from "react";
 import SimpleActionDialog from "./dialogs/SimpleActionDialog";
 import SimpleMapSelector from "./dialogs/SimpleMapSelector";
 import UserSettings from "./UserSettings";
@@ -16,7 +23,7 @@ import {
 	Popover,
 	OverlayTrigger,
 } from "react-bootstrap";
-import { useReactFlow } from "reactflow";
+import { useReactFlow, useNodes } from "reactflow";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
 	faBell,
@@ -27,7 +34,7 @@ import {
 	faFloppyDisk,
 } from "@fortawesome/free-solid-svg-icons";
 import {
-	BlockInfoContext,
+	NodeInfoContext,
 	ExpandedAsideContext,
 	MapInfoContext,
 	VersionJsonContext,
@@ -37,19 +44,25 @@ import {
 	MSGContext,
 	SettingsContext,
 	OnlineContext,
-	UnitContext,
+	MetaDataContext,
 	ErrorListContext,
-} from "@components/pages/_app";
+} from "@root/pages/_app";
 import { toast } from "react-toastify";
-import { notImplemented } from "@components/pages/_app";
+import { notImplemented } from "@root/pages/_app";
 import {
+	base64Decode,
+	base64Encode,
 	capitalizeFirstLetter,
-	errorListCheck,
-	isBlockArrayEqual,
+	parseBool,
 	uniqueId,
-} from "./Utils";
+} from "@utils/Utils.js";
+import { isNodeArrayEqual } from "@utils/Nodes";
+import { errorListCheck } from "@utils/ErrorHandling";
 import download from "downloadjs";
-import { NodeTypes } from "./flow/nodes/TypeDefinitions";
+import { NodeTypes } from "@utils/TypeDefinitions";
+import ExportModal from "@components/dialogs/ExportModal";
+import { DevModeStatusContext } from "pages/_app";
+import UserSettingsModal from "./dialogs/UserSettingsModal";
 
 const defaultToastSuccess = {
 	hideProgressBar: false,
@@ -65,12 +78,15 @@ const defaultToastError = {
 	position: "bottom-center",
 };
 
-function Header({ closeBtn }, ref) {
+function Header({ LTISettings }, ref) {
+	const { devModeStatus } = useContext(DevModeStatusContext);
 	const { errorList, setErrorList } = useContext(ErrorListContext);
-
+	const rfNodes = useNodes();
 	const [showModalVersions, setShowModalVersions] = useState(false);
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
 	const [showMapSelectorModal, setShowMapSelectorModal] = useState(false);
+	const [showExportModal, setShowExportModal] = useState(false);
+	const [showUserSettingsModal, setShowUserSettingsModal] = useState(false);
 	const selectMapDOM = useRef(null);
 	const selectVersionDOM = useRef(null);
 	const [versions, setVersions] = useState([]);
@@ -80,7 +96,7 @@ function Header({ closeBtn }, ref) {
 	const [loadedMaps, setLoadedMaps] = useState();
 	const emptyMap = { id: -1, name: "Seleccionar un mapa" };
 	const [maps, setMaps] = useState([emptyMap]);
-	const [metaData, setMetaData] = useState({});
+	const { metaData, setMetaData } = useContext(MetaDataContext);
 	const [userData, setUserData] = useState({});
 
 	const [selectedVersion, setSelectedVersion] = useState();
@@ -93,23 +109,25 @@ function Header({ closeBtn }, ref) {
 	const toggleDeleteModal = () => setShowDeleteModal(!showDeleteModal);
 	const toggleMapSelectorModal = () =>
 		setShowMapSelectorModal(!showMapSelectorModal);
+	const toggleExportModal = () => setShowExportModal(!showExportModal);
+	const toggleUserSettingsModal = () =>
+		setShowUserSettingsModal(!showUserSettingsModal);
 
 	const closeModalVersiones = () => setShowModalVersions(false);
 	const openModalVersiones = () => setShowModalVersions(true);
 
 	const { platform, setPlatform } = useContext(PlatformContext);
-	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
+	const { nodeSelected, setNodeSelected } = useContext(NodeInfoContext);
 	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
-	const { selectedEditVersion, setSelectedEditVersion } =
+	const { editVersionSelected, setEditVersionSelected } =
 		useContext(VersionInfoContext);
 	const { msg, setMSG } = useContext(MSGContext);
-	const { units, setUnits } = useContext(UnitContext);
 
 	const { versionJson, setVersionJson } = useContext(VersionJsonContext);
 
 	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
 
-	const { reactFlowInstance } = useReactFlow();
+	const reactFlowInstance = useReactFlow();
 	const { currentBlocksData, setCurrentBlocksData } =
 		useContext(BlocksDataContext);
 	const { isOffline } = useContext(OnlineContext);
@@ -117,11 +135,6 @@ function Header({ closeBtn }, ref) {
 
 	const parsedSettings = JSON.parse(settings);
 	let { reducedAnimations } = parsedSettings;
-
-	useEffect(() => {
-		if (process.env.DEV_MODE) globalThis.rf = reactFlowInstance;
-	}, []);
-
 	/**
 	 * Updates the version of an object in an array of versions.
 	 * @param {Object} newVersion - The new version object to update.
@@ -151,8 +164,8 @@ function Header({ closeBtn }, ref) {
 	 * Resets the edit state.
 	 */
 	function resetEdit() {
-		setBlockSelected("");
-		setSelectedEditVersion("");
+		setNodeSelected("");
+		setEditVersionSelected("");
 	}
 
 	/**
@@ -161,17 +174,24 @@ function Header({ closeBtn }, ref) {
 	 */
 	function handleMapChange(e) {
 		resetEdit();
-		let id = Number(e.target.value);
-		let selectedMap = [...maps].find((e) => e.id == id);
-		setMapSelected(selectedMap);
-		setVersions(selectedMap.versions);
-		if (selectedMap.versions) {
-			setSelectedVersion(selectedMap.versions[0]);
-			//console.log(selectedMap.versions[0].blocksData);
-			setCurrentBlocksData(selectedMap.versions[0].blocksData);
+		let id;
+		if (isNaN(e)) {
+			id = Number(e.target.value);
+		} else {
+			id = e;
 		}
-		if (selectedMap.id == -1) {
-			setCurrentBlocksData();
+		let selectedMap = [...maps].find((m) => m.id == id);
+		if (selectedMap) {
+			setMapSelected(selectedMap);
+
+			if (selectedMap.versions) {
+				setVersions(selectedMap.versions);
+				setSelectedVersion(selectedMap.versions[0]);
+				setCurrentBlocksData(selectedMap.versions[0].blocksData);
+			}
+			if (selectedMap.id == -1) {
+				changeToMapSelection();
+			}
 		}
 		resetMapSesion();
 	}
@@ -199,7 +219,7 @@ function Header({ closeBtn }, ref) {
 	const handleNewMap = (e, data) => {
 		setMetaData(JSON.parse(localStorage.getItem('meta_data')));
 		const emptyNewMap = {
-			id: maps.length,
+			id: uniqueId(),
 			name: "Nuevo Mapa " + maps.length,
 			versions: [
 				{
@@ -212,7 +232,6 @@ function Header({ closeBtn }, ref) {
 							id: uniqueId(),
 							position: { x: 0, y: 0 },
 							type: "start",
-							selectable: false,
 							deletable: false,
 							data: {
 								label: "Entrada",
@@ -222,7 +241,6 @@ function Header({ closeBtn }, ref) {
 							id: uniqueId(),
 							position: { x: 125, y: 0 },
 							type: "end",
-							selectable: false,
 							deletable: false,
 							data: {
 								label: "Salida",
@@ -246,50 +264,6 @@ function Header({ closeBtn }, ref) {
 				  }
 				: emptyNewMap,
 		];
-		//aquí
-
-		// try {
-		// 	const encodedSelectedOption = encodeURIComponent(selectedOption);
-		// 	const encodedCourse = encodeURIComponent(course);
-
-		// 	setShowSpinner(true);
-		// 	setAllowResourceSelection(false);
-		// 	const response = await fetch(`http://127.0.0.1:8000/lti/get_modules_by_type?type=${encodedSelectedOption}&course=${encodedCourse}`);
-			
-		// 	if (!response.ok) {
-		// 		throw new Error('Request failed');
-		// 	}
-		// 	const data = await response.json();
-		// 	setResourceOptions(data);
-		// 	setShowSpinner(false);
-		// 	setAllowResourceSelection(true);
-		// } catch (e) {
-		// 	const error = new Error(
-		// 			"No se pudo crear el mapa."
-		// 	);
-		// 	error.log = e;
-		// 	throw error;
-		// }
-			
-				// fetch('http://127.0.0.1:8000/lti/new_map', {
-				// 	method: 'POST',
-				// 	headers: {
-				// 	  'Content-Type': 'application/json'
-				// 	},
-				// 	body: JSON.stringify({
-				// 	  clave1: 'valor1',
-				// 	  clave2: 'valor2'
-				// 	})
-				//   })
-				// .then(
-				// 	(response) => response.json())
-				// .then((data) => {
-				// 	console.log(data);
-				// })
-				// .catch((e) => {
-					
-				// 	throw e;
-				// });
 
 		setMaps(newMaps);
 		toast(`Mapa: "Nuevo Mapa ${maps.length}" creado`, defaultToastSuccess);
@@ -298,104 +272,86 @@ function Header({ closeBtn }, ref) {
 	const handleImportedMap = async () => {
 		const uniqueId = () => parseInt(Date.now() * Math.random()).toString();
 		//try {
-			// setMetaData(JSON.parse(localStorage.getItem('meta_data')));
-			let meta_data = JSON.parse(localStorage.getItem('meta_data'));
-			let course_data = JSON.parse(localStorage.getItem('course_data'));
-			let encodeSessionId = '';
-			if(meta_data.platform === 'sakai'){
-				encodeSessionId = encodeURIComponent(meta_data.session_id);
+		const metaData = JSON.parse(localStorage.getItem("meta_data"));
+		const encodedCourse = encodeURIComponent(metaData.course_id);
+		const response = await fetch(
+			`http://${LTISettings.back_url}/lti/get_modules?course=${encodedCourse}&course=${encodedCourse}&session=${encodeSessionId}`
+		);
+
+		if (!response.ok) {
+			throw new Error("Request failed");
+		}
+		const data = await response.json();
+
+		console.log("JSON RECIBIDO: ", data);
+
+		let newX = 125;
+		let newY = 0;
+		const validTypes = [];
+		NodeTypes.map((node) => validTypes.push(node.type));
+		const nodes = [];
+		data.map((node) => {
+			if (validTypes.includes(node.modname)) {
+				const newNode = {};
+				newNode.id = "" + uniqueId();
+				newNode.type = node.modname;
+				newNode.position = { x: newX, y: newY };
+				newNode.data = {
+					label: node.name,
+					indent: node.indent,
+					section: node.section,
+					children: [],
+					order: node.order,
+					lmsResource: node.id,
+					lmsVisibility: node.visible,
+				};
+
+				newX += 125;
+				nodes.push(newNode);
 			}
-			const encodedInstance = encodeURIComponent(course_data.instance_id);
-			const encodedCourse = encodeURIComponent(course_data.course_id);
-			const response = await fetch(`http://127.0.0.1:8000/lti/get_modules?instance=${encodedInstance}&course=${encodedCourse}&session=${encodeSessionId}`);
-			// console.log('hola');
-			if (!response.ok) {
-				throw new Error('Request failed');
-			}
-			const data = await response.json();
+		});
+		console.log("JSON FILTRADO Y ADAPTADO: ", nodes);
 
-			console.log("JSON RECIBIDO: ",data)
-
-			let newX = 125;
-			let newY = 0;
-			const validTypes = []
-			NodeTypes.map(node=> validTypes.push(node.type));
-			const nodes = []
-			data.map(node=> {
-				if(validTypes.includes(node.modname)){
-					const newNode = {}
-					newNode.id = ""+uniqueId();
-					newNode.type = node.modname
-					newNode.position = {x:newX,y:newY}
-					newNode.data = {
-						label: node.name,
-						indent: node.indent,
-						unit: node.unit,
-						children: [],
-						order: node.order,
-						lmsResource: node.id,
-						lmsVisibility: node.visible,
-					}
-
-					newX += 125;
-					nodes.push(newNode)
-				}
-			})
-			console.log("JSON FILTRADO Y ADAPTADO: ",nodes)
-
-			const platformNewMap = {
-				id: maps.length,
-				name: "Nuevo Mapa " + maps.length,
-				versions: [
-					{
-						id: 0,
-						name: "Última versión",
-						lastUpdate: new Date().toLocaleDateString(),
-						default: "true",
-						blocksData: [
-							{
-								id: uniqueId(),
-								position: { x: 0, y: 0 },
-								type: "start",
-								selectable: false,
-								deletable: false,
-								data: {
-									label: "Entrada",
-								},
+		const platformNewMap = {
+			id: maps.length,
+			name: "Nuevo Mapa " + maps.length,
+			versions: [
+				{
+					id: 0,
+					name: "Última versión",
+					lastUpdate: new Date().toLocaleDateString(),
+					default: "true",
+					blocksData: [
+						{
+							id: uniqueId(),
+							position: { x: 0, y: 0 },
+							type: "start",
+							deletable: false,
+							data: {
+								label: "Entrada",
 							},
-							...nodes,
-							{
-								id: uniqueId(),
-								position: { x: newX, y: 0 },
-								type: "end",
-								selectable: false,
-								deletable: false,
-								data: {
-									label: "Salida",
-								},
+						},
+						...nodes,
+						{
+							id: uniqueId(),
+							position: { x: newX, y: 0 },
+							type: "end",
+							deletable: false,
+							data: {
+								label: "Salida",
 							},
-						],
-					},
-				],
-			};
-	
-			const newMaps = [
-				...maps,
-					  platformNewMap
-			];
+						},
+					],
+				},
+			],
+		};
 
-			console.log("JSON CONVERTIDO EN UN MAPA: ",platformNewMap)
-	
-			setMaps(newMaps);
-			toast(`Mapa: "Nuevo Mapa ${maps.length}" creado`, defaultToastSuccess);
+		const newMaps = [...maps, platformNewMap];
 
-		/*} catch (e) {
-			const error = new Error(
-					"No se pudieron obtener los datos del curso desde el LMS."
-			);
-			error.log = e;
-			throw error;
-		}*/
+		console.log("JSON CONVERTIDO EN UN MAPA: ", platformNewMap);
+
+		setMaps(newMaps);
+		toast(`Mapa: "Nuevo Mapa ${maps.length}" creado`, defaultToastSuccess);
 	};
 
 	/**
@@ -413,7 +369,6 @@ function Header({ closeBtn }, ref) {
 					id: uniqueId(),
 					position: { x: 0, y: 0 },
 					type: "start",
-					selectable: false,
 					deletable: false,
 					data: {
 						label: "Entrada",
@@ -423,7 +378,6 @@ function Header({ closeBtn }, ref) {
 					id: uniqueId(),
 					position: { x: 125, y: 0 },
 					type: "end",
-					selectable: false,
 					deletable: false,
 					data: {
 						label: "Salida",
@@ -501,8 +455,8 @@ function Header({ closeBtn }, ref) {
 			setExpandedAside(true);
 		}
 		const mapId = selectMapDOM.current.value;
-		setBlockSelected("");
-		setSelectedEditVersion("");
+		setNodeSelected("");
+		setEditVersionSelected("");
 		setMapSelected(getMapById(mapId));
 	};
 
@@ -513,8 +467,8 @@ function Header({ closeBtn }, ref) {
 		if (expandedAside != true) {
 			setExpandedAside(true);
 		}
-		setBlockSelected("");
-		setSelectedEditVersion(selectedVersion);
+		setNodeSelected("");
+		setEditVersionSelected(selectedVersion);
 	};
 
 	/**
@@ -584,7 +538,14 @@ function Header({ closeBtn }, ref) {
 
 	const handleBlockDataExport = () => {
 		download(
-			encodeURIComponent(JSON.stringify(reactFlowInstance.getNodes())),
+			base64Encode(
+				JSON.stringify({
+					instance_id: metaData.instance_id,
+					course_id: metaData.course_id,
+					platform: metaData.platform,
+					data: rfNodes,
+				})
+			),
 			`${mapSelected.name}-${selectedVersion.name}-${new Date()
 				.toLocaleDateString()
 				.replaceAll("/", "-")}.json`,
@@ -603,93 +564,108 @@ function Header({ closeBtn }, ref) {
 		reader.onload = function (e) {
 			let output = e.target.result;
 			//FIXME: File verification
-			const jsonBlockData = JSON.parse(decodeURIComponent(output));
-			setCurrentBlocksData(jsonBlockData);
+			const jsonObject = JSON.parse(base64Decode(output));
+			if (
+				jsonObject.instance_id == metaData.instance_id &&
+				jsonObject.course_id == metaData.course_id &&
+				jsonObject.platform == platform
+			) {
+				setCurrentBlocksData(jsonObject.data);
+			} else {
+				const jsonCleanedBlockData = jsonObject.data.map((node) => {
+					node.data = {
+						...node.data,
+						children: undefined,
+						conditions: undefined,
+						section: 0, //TODO: Test in sakai
+					};
+				});
+			}
+
 			//displayContents(output);
 		};
 
 		reader.readAsText(file);
 	};
 
-
-	useEffect(() => {
+	useLayoutEffect(() => {
+		//Get resources
 		try {
-			// fetch("resources/devmaps.json")
-			// 	.then((response) => response.json())
-			// 	.then((data) => {
-			// 		setMaps([emptyMap, ...data]);
-			// 		setLoadedMaps(true);
-			// 	})
-			// 	.catch((e) => {
-			// 		const error = new Error(
-			// 			"No se pudieron obtener los datos del curso desde el LMS."
-			// 		);
-			// 		error.log = e;
-			// 		throw error;
-			// 	});
-				
-			// 	fetch("resources/devmeta.json")
-			// 		.then((response) => response.json())
-			// 		.then((data) => {
-			// 			setPlatform(data.platform);
-			// 			setMetaData({ ...data, courseSource: process.env.BACK_URL });
-			// 			setLoadedMetaData(true);
-			// 		})
-			// 		.catch((e) => {
-			// 			const error = new Error(
-			// 				"No se pudieron obtener los metadatos del curso desde el LMS."
-			// 			);
-			// 			error.log = e;
-			// 			throw error;
-			// 		});
+			if (LTISettings.debugging.dev_files) {
+				fetch("resources/devmaps.json")
+					.then((response) => response.json())
+					.then((data) => {
+						setMaps([emptyMap, ...data]);
+						setLoadedMaps(true);
+					})
+					.catch((e) => {
+						const error = new Error(
+							"No se pudieron obtener los datos del curso desde el LMS."
+						);
+						error.log = e;
+						throw error;
+					});
+				fetch("resources/devmeta.json")
+					.then((response) => response.json())
+					.then((data) => {
+						setPlatform(data.platform);
+						setMetaData({
+							...data,
+							return_url: LTISettings.back_url,
+						});
+						setLoadedMetaData(true);
+					})
+					.catch((e) => {
+						const error = new Error(
+							"No se pudieron obtener los metadatos del curso desde el LMS."
+						);
+						error.log = e;
+						throw error;
+					});
+				fetch("resources/devuser.json")
+					.then((response) => response.json())
+					.then((data) => {
+						setUserData(data);
+						setLoadedUserData(true);
+					})
+					.catch((e) => {
+						const error = new Error(
+							"No se pudieron obtener los datos del usuario desde el LMS."
+						);
+						error.log = e;
+						throw error;
+					});
+			} else {
+				fetch(`http://${LTISettings.back_url}/lti/get_session`)
+					.then((response) => response.json())
+					.then((data) => {
+						console.log("DATOS DEL LMS: ", data);
+						// Usuario
+						setUserData(data[0]);
+						setLoadedUserData(true);
 
-			// 	fetch("resources/devuser.json")
-			// 		.then((response) => response.json())
-			// 		.then((data) => {
-			// 			setUserData(data);
-			// 			setLoadedUserData(true);
-			// 		})
-			// 		.catch((e) => {
-			// 			const error = new Error(
-			// 				"No se pudieron obtener los datos del usuario desde el LMS."
-			// 			);
-			// 			error.log = e;
-			// 			throw error;
-			// 		});
-			//	}
+						//Metadata
+						setPlatform(data[1].platform);
+						setMetaData({
+							...data[1],
+							return_url: LTISettings.back_url,
+						}); //FIXME: This should be the course website in moodle
+						setLoadedMetaData(true);
+						localStorage.setItem("meta_data", JSON.stringify(data[1]));
 
-			fetch("http://127.0.0.1:8000/lti/get_session")
-			.then(
-				(response) => response.json())
-			.then((data) => {
-				console.log("DATOS DEL LMS: ",data);
-				// Usuario
-				setUserData(data[0]);
-				setLoadedUserData(true);
-				
-				//Metadata
-				setPlatform(data[1].platform);
-				setMetaData({ ...data[1], courseSource: process.env.BACK_URL });
-				// setMetaData(data[1]);
-				setUnits(data[1].units);
-				setLoadedMetaData(true);
-				
-				//maps
-				setMaps([emptyMap, ...data[2].maps]);
-				setLoadedMaps(true);
-
-				localStorage.setItem('meta_data', JSON.stringify(data[1]));
-				localStorage.setItem('course_data', JSON.stringify(data[2]));
-			})
-			.catch((e) => {
-				const error = new Error(
-					"No se pudieron obtener los datos del curso desde el LMS."
-				);
-				error.log = e;
-				throw error;
-			});
-		}
-		  catch (e) {
+						//Maps
+						setMaps([emptyMap, ...data[2].maps]);
+						setLoadedMaps(true);
+					})
+					.catch((e) => {
+						const error = new Error(
+							"No se pudieron obtener los datos del curso desde el LMS."
+						);
+						error.log = e;
+						throw error;
+					});
+			}
+		} catch (e) {
 			toast(e, defaultToastError);
 			console.error(e, e.log);
 		}
@@ -718,7 +694,7 @@ function Header({ closeBtn }, ref) {
 				resetMapSesion();
 			}
 		}
-	}, [selectedVersion, reactFlowInstance]);
+	}, [selectedVersion]);
 
 	useEffect(() => {
 		if (versions) {
@@ -750,7 +726,7 @@ function Header({ closeBtn }, ref) {
 				return e;
 			});
 			if (rfNodes.length > 0) {
-				if (isBlockArrayEqual(rfNodes, currentBlocksData)) {
+				if (isNodeArrayEqual(rfNodes, currentBlocksData)) {
 					setSaveButtonColor(styles.primary);
 				} else {
 					setSaveButtonColor(styles.warning);
@@ -772,7 +748,7 @@ function Header({ closeBtn }, ref) {
 			<div className="mx-auto d-flex align-items-center" role="button">
 				<img
 					onClick={() => setExpandedAside(!expandedAside)}
-					src={process.env.SMALL_LOGO_PATH}
+					src={LTISettings.branding.small_logo_path}
 					alt="Mostrar menú lateral"
 					className={styles.icon}
 					width={40}
@@ -783,6 +759,46 @@ function Header({ closeBtn }, ref) {
 				/>
 			</div>
 		);
+	}
+
+	async function saveVersion() {
+		//Cleaning node data
+		const cleanedNodes = rfNodes.map((node) => {
+			const nodeCopy = { ...node };
+			delete nodeCopy.height;
+			delete nodeCopy.width;
+			delete nodeCopy.positionAbsolute;
+			delete nodeCopy.dragging;
+			delete nodeCopy.selected;
+			delete nodeCopy.targetPosition;
+			return nodeCopy;
+		});
+		try {
+			const saveData = {
+				instance_id: metaData.instance_id,
+				course_id: metaData.course_id,
+				platform: platform,
+				user_id: userData.user_id,
+				map: {
+					id: mapSelected.id,
+					name: mapSelected.name,
+					versions: {
+						...selectedVersion,
+						lastUpdate: new Date().toLocaleString("es-ES"),
+						blocksData: cleanedNodes,
+					},
+				},
+			};
+			const response = await fetch(
+				`http://${LTISettings.back_url}/lti/store_version`,
+				{
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ saveData }),
+				}
+			);
+			console.log(response);
+		} catch (e) {}
 	}
 
 	/**
@@ -854,6 +870,12 @@ function Header({ closeBtn }, ref) {
 			setPlatform("sakai");
 		} else {
 			setPlatform("moodle");
+		}
+	};
+
+	const handleToUserSettings = (key) => {
+		if (key == undefined || key == "Enter" || key == "NumpadEnter") {
+			setShowUserSettingsModal(true);
 		}
 	};
 
@@ -990,7 +1012,7 @@ function Header({ closeBtn }, ref) {
 										disabled={isOffline || !loadedMaps}
 										variant="light"
 										aria-label="Guardar versión actual"
-										onClick={notImplemented}
+										onClick={saveVersion}
 									>
 										<FontAwesomeIcon
 											icon={faFloppyDisk}
@@ -1024,16 +1046,10 @@ function Header({ closeBtn }, ref) {
 								className={`d-flex align-items-center p-2 ${
 									styles.actionButtons
 								} ${errorList?.length > 0 ? styles.error : styles.success}`}
-								onClick={()=>{
-									fetch(`http://127.0.0.1:8000/lti/new_map`, {
-										method: 'POST', // or 'PUT'
-										headers:{
-											'Content-Type': 'application/json'
-											},
-										body: JSON.stringify({name:"PEPE"}) // data can be `string` or {object}!
-										
-	}).then(response => response.json()).then(data => console.log(data))
-	.catch(error => console.error(error))}}
+								onClick={() => {
+									if (mapSelected && mapSelected.id > -1)
+										setShowExportModal(true);
+								}}
 							>
 								<FontAwesomeIcon
 									icon={faBell}
@@ -1045,53 +1061,34 @@ function Header({ closeBtn }, ref) {
 							fluid
 							className={!expandedAside ? "d-flex col-sm-5" : "d-flex col-sm-5"}
 						>
-							<Dropdown
-								role="menu"
-								focusFirstItemOnShow={true}
-								align={"end"}
-								drop={"start"}
-								autoClose={"outside"}
-								className={styles.userSettings}
+							<div
+								className="d-flex flex-row"
+								role="button"
+								onClick={() => handleToUserSettings()}
+								onKeyUp={(e) => handleToUserSettings(e.code)}
+								tabIndex={0}
 							>
-								<Dropdown.Toggle
-									as={UserToggle}
-									id="dropdown-custom-components"
-								>
-									<div className="d-flex flex-row">
-										<Container className="d-flex flex-column">
-											<div>
-												{loadedUserData
-													? userData.name 
-													: "Cargando..."}
-											</div>
-											<div>
-												{loadedMetaData && capitalizeFirstLetter(platform)}
-											</div>
-										</Container>
-										<div className="mx-auto d-flex align-items-center">
-											{loadedUserData && userData.profile_url && (
-												<img
-													alt="Imagen de perfil"
-													src={userData.profile_url}
-													className={styles.userProfile}
-													width={48}
-													height={48}
-													onClick={
-														process.env.DEV_MODE ? devPlataformChange : null
-													}
-												></img>
-											)}
-										</div>
-									</div>
-								</Dropdown.Toggle>
-								<Dropdown.Menu as={UserMenu}>
-									<UserSettings />
-								</Dropdown.Menu>
-							</Dropdown>
+								<Container className="d-flex flex-column">
+									<div>{loadedUserData ? userData.name : "Cargando..."}</div>
+									<div>{loadedMetaData && capitalizeFirstLetter(platform)}</div>
+								</Container>
+								<div className="mx-auto d-flex align-items-center">
+									{loadedUserData && userData.profile_url && (
+										<img
+											alt="Imagen de perfil"
+											src={userData.profile_url}
+											className={styles.userProfile}
+											width={48}
+											height={48}
+											onClick={devModeStatus ? devPlataformChange : null}
+										></img>
+									)}
+								</div>
+							</div>
 						</Container>
 					</Nav>
 				</Container>
-				{mapSelected.id > -1 && (
+				{mapSelected.id > -1 && versions.length > 0 && (
 					<div
 						className={
 							styles.mapContainer +
@@ -1103,7 +1100,7 @@ function Header({ closeBtn }, ref) {
 							<SplitButton
 								ref={selectVersionDOM}
 								value={selectedVersion.id}
-								title={versions.length > 0 ? selectedVersion.name : ""}
+								title={selectedVersion.name}
 								onClick={openModalVersiones}
 								variant="none"
 								disabled={isOffline || !loadedMaps}
@@ -1134,7 +1131,7 @@ function Header({ closeBtn }, ref) {
 						Actualmente la versión seleccionada es &quot;
 						<strong>{selectedVersion.name}</strong>&quot;, modificada por última
 						vez <b>{selectedVersion.lastUpdate}</b>.
-						{process.env.DEV_MODE && (
+						{devModeStatus && (
 							<>
 								<br />
 								<div
@@ -1152,11 +1149,7 @@ function Header({ closeBtn }, ref) {
 												fontFamily: "monospace",
 											}}
 										>
-											{JSON.stringify(
-												reactFlowInstance?.getNodes(),
-												null,
-												"\t"
-											)}
+											{JSON.stringify(rfNodes, null, "\t")}
 										</code>
 									</details>
 								</div>
@@ -1185,24 +1178,47 @@ function Header({ closeBtn }, ref) {
 			) : (
 				<></>
 			)}
-			<SimpleActionDialog
-				showDialog={showDeleteModal}
-				toggleDialog={toggleDeleteModal}
-				title={modalTitle}
-				body={modalBody}
-				action=""
-				cancel=""
-				type="delete"
-				callback={modalCallback}
-			/>
-			<SimpleMapSelector
-				showDialog={showMapSelectorModal}
-				toggleDialog={toggleMapSelectorModal}
-				title={"Clonar versión a..."}
-				maps={maps}
-				callback={handleNewVersionIn}
-				selectedVersion={selectedVersion}
-			/>
+			{showDeleteModal && (
+				<SimpleActionDialog
+					showDialog={showDeleteModal}
+					toggleDialog={toggleDeleteModal}
+					title={modalTitle}
+					body={modalBody}
+					action=""
+					cancel=""
+					type="delete"
+					callback={modalCallback}
+				/>
+			)}
+			{showMapSelectorModal && (
+				<SimpleMapSelector
+					showDialog={showMapSelectorModal}
+					toggleDialog={toggleMapSelectorModal}
+					title={"Clonar versión a..."}
+					maps={maps}
+					callback={handleNewVersionIn}
+					selectedVersion={selectedVersion}
+				/>
+			)}
+			{showExportModal && (
+				<ExportModal
+					showDialog={showExportModal}
+					toggleDialog={toggleExportModal}
+					metadata={metaData}
+					userdata={userData}
+					errorList={errorList}
+					callback={() => {
+						alert("TEST");
+					}}
+				/>
+			)}
+			{showUserSettingsModal && (
+				<UserSettingsModal
+					showDialog={showUserSettingsModal}
+					setShowDialog={setShowUserSettingsModal}
+					LTISettings={LTISettings}
+				/>
+			)}
 		</header>
 	);
 }

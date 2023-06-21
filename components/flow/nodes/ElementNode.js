@@ -1,20 +1,37 @@
-import { useCallback, useContext } from "react";
-import { Handle, Position, NodeToolbar, useReactFlow } from "reactflow";
-import { Badge, Button } from "react-bootstrap";
-import styles from "@components/styles/BlockContainer.module.css";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faRightFromBracket } from "@fortawesome/free-solid-svg-icons";
+import { useCallback, useContext, useEffect } from "react";
 import {
-	BlockInfoContext,
+	Handle,
+	Position,
+	NodeToolbar,
+	useReactFlow,
+	useNodes,
+} from "reactflow";
+import { Badge, Button } from "react-bootstrap";
+import styles from "@root/styles/BlockContainer.module.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+	faEdit,
+	faRightFromBracket,
+	faEye,
+	faEyeSlash,
+	faExclamation,
+	faExclamationTriangle,
+} from "@fortawesome/free-solid-svg-icons";
+import {
+	NodeInfoContext,
 	ExpandedAsideContext,
 	MapInfoContext,
 	SettingsContext,
 	VersionInfoContext,
 	PlatformContext,
-} from "@components/pages/_app";
+	ErrorListContext,
+} from "@root/pages/_app";
 import FocusTrap from "focus-trap-react";
-import { getTypeIcon } from "./NodeIcons";
-import { getNodeById, getUpdatedArrayById } from "@components/components/Utils";
+import { getTypeIcon } from "@utils/NodeIcons";
+import { getUpdatedArrayById, parseBool } from "@utils/Utils";
+import { getNodeById } from "@utils/Nodes";
+import { useState } from "react";
+import { DevModeStatusContext } from "pages/_app";
 
 function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 	const onChange = useCallback((evt) => {
@@ -22,32 +39,52 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 	}, []);
 
 	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
-	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
+	const { nodeSelected, setNodeSelected } = useContext(NodeInfoContext);
 	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
-	const { selectedEditVersion, setSelectedEditVersion } =
+	const { editVersionSelected, setEditVersionSelected } =
 		useContext(VersionInfoContext);
 	const { platform } = useContext(PlatformContext);
+	const { errorList } = useContext(ErrorListContext);
+	const { devModeStatus } = useContext(DevModeStatusContext);
 
 	const { settings, setSettings } = useContext(SettingsContext);
 	const reactFlowInstance = useReactFlow();
 	const parsedSettings = JSON.parse(settings);
 	const { highContrast, showDetails, reducedAnimations } = parsedSettings;
+	const [hasErrors, setHasErrors] = useState(false);
+	const [hasWarnings, setHasWarnings] = useState(false);
+	const rfNodes = useNodes();
+
+	const getParentExpanded = () => {
+		const nodes = rfNodes;
+		const parentID = getNodeById(id, nodes).parentNode;
+
+		if (parentID) {
+			//If is part of a fragment
+			const parent = getNodeById(parentID, nodes);
+
+			return parent.data.expanded;
+		} else {
+			//Treat as expanded
+			return true;
+		}
+	};
 
 	const handleEdit = () => {
 		const blockData = getNodeById(id, reactFlowInstance.getNodes());
 		if (expandedAside != true) {
 			setExpandedAside(true);
 		}
-		setSelectedEditVersion("");
-		setBlockSelected(blockData);
+		setEditVersionSelected("");
+		setNodeSelected(blockData);
 	};
 
 	const getAriaLabel = () => {
 		let end = "";
-		if (data.unit && data.order) {
-			end = data.unit
-				? ", forma parte de la unidad " +
-				  data.unit +
+		if (data.section && data.order) {
+			end = data.section
+				? ", forma parte de la sección " +
+				  data.section +
 				  ", con la posición " +
 				  data.order +
 				  "en el LMS."
@@ -151,6 +188,70 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 		);
 	};
 
+	/* const hasDuplicatedResource = () => {
+		const currentRes = data.lmsResource;
+		let duplicates = -1; //Only one resource per node
+		reactFlowInstance.getNodes().forEach((node) => {
+			const data = node.data;
+			if (data) {
+				if (data.lmsResource != undefined) {
+					if (data.lmsResource == currentRes) {
+						duplicates++;
+					}
+				}
+			}
+		});
+		return duplicates > 0;
+	};
+
+	const hasDuplicatedOrderInSection = () => {
+		const currentSection = data.section;
+		const currentOrder = data.order;
+		let duplicates = -1; //Only one resource per node
+		reactFlowInstance.getNodes().forEach((node) => {
+			const data = node.data;
+			if (data) {
+				if (data.order != undefined && data.section != undefined) {
+					if (data.order == currentOrder && data.section == currentSection) {
+						duplicates++;
+					}
+				}
+			}
+		});
+
+		return duplicates > 0;
+	};
+
+	const getSelfErrors = () => {
+		const hasErrors =
+			data.lmsResource == undefined ||
+			hasDuplicatedResource() ||
+			data.lmsVisibility == undefined ||
+			data.section == undefined ||
+			data.order == undefined ||
+			hasDuplicatedOrderInSection();
+		setHasErrors(hasErrors);
+		return hasErrors;
+	};
+
+	const getSelfWarnings = () => {}; */
+
+	const getSelfErrors = () => {
+		const relatedErrors = errorList.filter((error) => error.nodeId == id);
+		const errors = relatedErrors.filter(
+			(rerrors) => rerrors.severity == "error"
+		);
+		const warnings = relatedErrors.filter(
+			(rerrors) => rerrors.severity == "warning"
+		);
+		setHasErrors(errors.length > 0);
+		setHasWarnings(warnings.length > 0);
+	};
+
+	useEffect(() => {
+		getSelfErrors();
+	}, [data]);
+
 	return (
 		<>
 			<Handle
@@ -205,7 +306,8 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 				<span className={styles.blockInfo + " " + styles.top}>
 					{data.label}
 				</span>
-				{process.env.DEV_MODE == true && (
+
+				{devModeStatus && (
 					<div
 						style={{
 							position: "absolute",
@@ -224,28 +326,115 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 				<span className={styles.blockInfo + " " + styles.bottom}>
 					{getHumanDesc(type)}
 				</span>
-				{!isNaN(data.unit) && (
+				{hasErrors && (
+					<Badge
+						bg="danger"
+						className={
+							styles.badge +
+							" " +
+							styles.badgeError +
+							" " +
+							(reducedAnimations && styles.noAnimation) +
+							" " +
+							styles.showBadges +
+							" " +
+							(highContrast && styles.highContrast)
+						}
+						title="Errores"
+					>
+						{
+							<FontAwesomeIcon
+								icon={faExclamation}
+								style={{ color: "#ffffff" }}
+							/>
+						}
+					</Badge>
+				)}
+				{!hasErrors && hasWarnings && (
+					<Badge
+						bg="warning"
+						className={
+							styles.badge +
+							" " +
+							styles.badgeError +
+							" " +
+							(reducedAnimations && styles.noAnimation) +
+							" " +
+							styles.showBadges +
+							" " +
+							(highContrast && styles.highContrast)
+						}
+						title="Avisos"
+					>
+						{
+							<FontAwesomeIcon
+								icon={faExclamationTriangle}
+								style={{ color: "#ffffff" }}
+							/>
+						}
+					</Badge>
+				)}
+
+				{data.lmsVisibility && getParentExpanded() && (
+					<Badge
+						bg="primary"
+						className={
+							styles.badge +
+							" " +
+							styles.badgeVisibility +
+							" " +
+							(reducedAnimations && styles.noAnimation) +
+							" " +
+							(showDetails && styles.showBadges) +
+							" " +
+							(highContrast && styles.highContrast)
+						}
+						title="Visibilidad"
+					>
+						{platform == "moodle" || platform == "sakai" ? (
+							data.lmsVisibility == "show_unconditionally" ? (
+								<FontAwesomeIcon icon={faEye} style={{ color: "#ffffff" }} />
+							) : (
+								<FontAwesomeIcon
+									icon={faEyeSlash}
+									style={{ color: "#ffffff" }}
+								/>
+							)
+						) : data.lmsVisibility == "show_unconditionally" ? (
+							<FontAwesomeIcon icon={faEye} style={{ color: "#ffffff" }} />
+						) : (
+							<FontAwesomeIcon icon={faEyeSlash} style={{ color: "#ffffff" }} />
+						)}
+					</Badge>
+				)}
+				{!isNaN(data.section) && getParentExpanded() && (
 					<Badge
 						bg="light"
 						className={
 							styles.badge +
 							" " +
+							styles.badgeSection +
+							" " +
 							(reducedAnimations && styles.noAnimation) +
 							" " +
 							(showDetails && styles.showBadges) +
 							" " +
 							(highContrast && styles.highContrast)
 						}
-						title="Unidad"
+						title="Sección"
 					>
-						{Number(data.unit) + 1}
+						{platform == "moodle"
+							? Number(data.section)
+							: Number(data.section) + 1}
 					</Badge>
 				)}
-				{!isNaN(data.order) && (
+				{!isNaN(data.order) && getParentExpanded() && (
 					<Badge
 						bg="warning"
 						className={
-							styles.badgeTwo +
+							styles.badge +
+							" " +
+							styles.badgePos +
 							" " +
 							(reducedAnimations && styles.noAnimation) +
 							" " +
@@ -253,9 +442,9 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 							" " +
 							(highContrast && styles.highContrast)
 						}
-						title="Posición en la unidad"
+						title="Posición en la sección"
 					>
-						{data.order}
+						{data.order + 1}
 					</Badge>
 				)}
 			</div>

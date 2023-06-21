@@ -1,10 +1,10 @@
 import { useCallback } from "react";
 import { Handle, Position } from "reactflow";
-import styles from "@components/styles/BlockContainer.module.css";
+import styles from "@root/styles/BlockContainer.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCaretDown } from "@fortawesome/free-solid-svg-icons";
 import { useContext } from "react";
-import { SettingsContext } from "@components/pages/_app";
+import { SettingsContext } from "@root/pages/_app";
 
 function InitialNode({ id, data, isConnectable }) {
 	const onChange = useCallback((evt) => {

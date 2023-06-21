@@ -7,7 +7,7 @@ import {
 	faPersonRunning,
 	faObjectGroup,
 } from "@fortawesome/free-solid-svg-icons";
-import styles from "@components/styles/ContextualMenu.module.css";
+import styles from "@root/styles/ContextualMenu.module.css";
 import { Button } from "react-bootstrap";
 import { useRef, forwardRef } from "react";
 
@@ -15,7 +15,7 @@ const Menu = (
 	{
 		handleShowNodeSelector,
 		createBlock,
-		handleBlockPaste,
+		handleNodePaste,
 		EnableCreate,
 		EnablePaste,
 	},
@@ -80,7 +80,7 @@ const Menu = (
 			<li>
 				<Button
 					variant="light"
-					onClick={() => handleBlockPaste()}
+					onClick={() => handleNodePaste()}
 					disabled={!EnablePaste}
 				>
 					<div>
@@ -102,7 +102,7 @@ const MenuWithRefs = forwardRef(Menu);
 export default function CMPaneMenu({
 	createBlock,
 	handleShowNodeSelector,
-	handleBlockPaste,
+	handleNodePaste,
 	EnableCreate = false,
 	EnablePaste = false,
 }) {
@@ -120,7 +120,7 @@ export default function CMPaneMenu({
 				ref={ref}
 				createBlock={createBlock}
 				handleShowNodeSelector={handleShowNodeSelector}
-				handleBlockPaste={handleBlockPaste}
+				handleNodePaste={handleNodePaste}
 				EnableCreate={EnableCreate}
 				EnablePaste={EnablePaste}
 			/>

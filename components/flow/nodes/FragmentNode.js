@@ -7,7 +7,7 @@ import {
 } from "react";
 import { NodeResizer, NodeToolbar, useReactFlow, useEdges } from "reactflow";
 import { Button } from "react-bootstrap";
-import styles from "@components/styles/BlockContainer.module.css";
+import styles from "@root/styles/BlockContainer.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
 	faCubes,
@@ -20,28 +20,25 @@ import {
 	faObjectUngroup,
 } from "@fortawesome/free-solid-svg-icons";
 import {
-	BlockInfoContext,
-	BlocksDataContext,
+	NodeInfoContext,
 	ExpandedAsideContext,
 	MapInfoContext,
 	SettingsContext,
 	VersionInfoContext,
-} from "@components/pages/_app";
-import {
-	getNodeDOMById,
-	getNodeById,
-	getByProperty,
-	getUpdatedArrayById,
-} from "@components/components/Utils";
+} from "@root/pages/_app";
+import { getByProperty, getUpdatedArrayById, parseBool } from "@utils/Utils";
+import { getNodeDOMById, getNodeById } from "@utils/Nodes";
 import FocusTrap from "focus-trap-react";
-import FragmentResizer from "@components/components/dialogs/FragmentResizer";
-import FragmentEditor from "@components/components/dialogs/FragmentEditor";
+import FragmentResizer from "@root/components/dialogs/FragmentResizer";
+import FragmentEditor from "@root/components/dialogs/FragmentEditor";
+import { DevModeStatusContext } from "pages/_app";
 
 function FragmentNode({ id, xPos, yPos, type, data }) {
-	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
+	const { nodeSelected, setNodeSelected } = useContext(NodeInfoContext);
 	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
-	const { selectedEditVersion, setSelectedEditVersion } =
+	const { editVersionSelected, setEditVersionSelected } =
 		useContext(VersionInfoContext);
+	const { devModeStatus } = useContext(DevModeStatusContext);
 	const reactFlowInstance = useReactFlow();
 	const { settings, setSettings } = useContext(SettingsContext);
 	const parsedSettings = JSON.parse(settings);
@@ -60,8 +57,8 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 	const handleEdit = () => {
 		const blockData = getNodeById(id, reactFlowInstance.getNodes());
 		setExpandedAside(true);
-		setSelectedEditVersion("");
-		setBlockSelected(blockData);
+		setEditVersionSelected("");
+		setNodeSelected(blockData);
 	};
 
 	const getInnerNodes = () => {
@@ -284,10 +281,10 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 
 	const getAriaLabel = () => {
 		let end = "";
-		if (data.unit && data.order) {
-			end = data.unit
-				? ", forma parte de la unidad " +
-				  data.unit +
+		if (data.section && data.order) {
+			end = data.section
+				? ", forma parte de la sección " +
+				  data.section +
 				  ", con la posición " +
 				  data.order +
 				  "en el LMS."
@@ -443,7 +440,7 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 				)}
 				<div>
 					<FontAwesomeIcon icon={faCubes} />
-					{expanded && process.env.DEV_MODE && (
+					{expanded && devModeStatus && (
 						<pre
 							style={{
 								position: "absolute",
@@ -461,18 +458,22 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 					</span>
 				)}
 			</div>
-			<FragmentResizer
-				showDialog={showResizer}
-				setShowResizer={setShowResizer}
-				id={id}
-				callback={resizeFragment}
-			/>
-			<FragmentEditor
-				showDialog={showEditor}
-				setShowEditor={setShowEditor}
-				mode={editorMode}
-				id={id}
-			/>
+			{showResizer && (
+				<FragmentResizer
+					showDialog={showResizer}
+					setShowResizer={setShowResizer}
+					id={id}
+					callback={resizeFragment}
+				/>
+			)}
+			{showEditor && (
+				<FragmentEditor
+					showDialog={showEditor}
+					setShowEditor={setShowEditor}
+					mode={editorMode}
+					id={id}
+				/>
+			)}
 		</>
 	);
 }

@@ -43,26 +43,50 @@
 }
 
 
-.badge, .badgeTwo {
+.badge {
 	position:absolute;
 	visibility: hidden;
 	opacity: 0;
 	color:black;
 	transition: all 0.2s;
 	transform: scaleY(0);
+	pointer-events: none;
 }
 
-.badge {
+.badgeError {
+	top: -6px;
+	left: -12px;
+	padding: 4px;
+}
+
+.badgeError svg {
+	height: 16px;
+	width: 16px;
+}
+
+.badgeVisibility {
+	top: -6px;
+	right: -12px;
+	padding: 4px;
+}
+
+.badgeVisibility svg {
+	height: 16px;
+	width: 16px;
+}
+
+
+.badgeSection {
 	bottom: -8px;
 	left: 4px;
 }
 
-.badgeTwo {
+.badgePos {
 	bottom: -8px;
 	right: 4px;
 }
 
-.container:hover .badge, .container:focus-visible ~ .badge, .container.borderAnim ~ .badge, .container:hover .badgeTwo, .container:focus-visible ~ .badgeTwo, .container.borderAnim ~ .badgeTwo {
+.container:hover .badge, .container:focus-visible ~ .badge, .container.borderAnim ~ .badge {
 	position: absolute;
 	transform: scaleY(1);
 	visibility: visible;
@@ -72,7 +96,7 @@
 
 
 
-.badge.showBadges, .badgeTwo.showBadges {
+.badge.showBadges {
 	position: absolute;
 	transform: scaleY(1);
 	visibility: visible;
@@ -92,11 +116,11 @@
 
  /* Accesibility */
 
-.badge.noAnimation, .badgeTwo.noAnimation  {
+.badge.noAnimation  {
 	transition: none;
 }
 
-.badge.highContrast, .badgeTwo.highContrast {
+.badge.highContrast {
 	filter: none;
 	background-color: var(--high-contrast-accent-color2) !important;
 	color: var(--high-contrast-accent-color1) !important;
@@ -104,7 +128,7 @@
 }
 
 @media screen and (prefers-reduced-motion: reduce) {
-	.badge, .badgeTwo {
+	.badge {
 		transition: none;
 	}
  }

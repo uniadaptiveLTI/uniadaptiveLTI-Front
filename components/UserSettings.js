@@ -1,11 +1,11 @@
-import { SettingsContext } from "@components/pages/_app";
+import { SettingsContext } from "@root/pages/_app";
 import { forwardRef, useContext, useEffect } from "react";
 import { Form, Dropdown } from "react-bootstrap";
 
 function UserSettings({}, ref) {
 	const { settings, setSettings } = useContext(SettingsContext);
-
 	const parsedSettings = JSON.parse(settings);
+
 	let {
 		highContrast,
 		reducedAnimations,
@@ -58,7 +58,7 @@ function UserSettings({}, ref) {
 		newSettings.autoHideMSGBox = autoHideMSGBox;
 		newSettings.autoHideAside = autoHideAside;
 		let json = JSON.stringify(newSettings);
-		sessionStorage.setItem("settings", json);
+		localStorage.setItem("settings", json);
 		setSettings(json);
 	}
 

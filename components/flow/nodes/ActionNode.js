@@ -1,25 +1,26 @@
 import { useCallback, useContext } from "react";
 import { Handle, Position, NodeToolbar, useReactFlow } from "reactflow";
-import styles from "@components/styles/BlockContainer.module.css";
+import styles from "@root/styles/BlockContainer.module.css";
 import {
-	BlockInfoContext,
+	NodeInfoContext,
 	ExpandedAsideContext,
 	MapInfoContext,
 	SettingsContext,
 	VersionInfoContext,
 	PlatformContext,
-} from "@components/pages/_app";
+} from "@root/pages/_app";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faRightFromBracket } from "@fortawesome/free-solid-svg-icons";
+import {
+	faEdit,
+	faRightFromBracket,
+	faExclamation,
+} from "@fortawesome/free-solid-svg-icons";
 import FocusTrap from "focus-trap-react";
-import { Button } from "react-bootstrap";
-import { getTypeIcon } from "./NodeIcons";
-import { getNodeById, getUpdatedArrayById } from "@components/components/Utils";
-import { NodeTypes } from "./TypeDefinitions";
-
-export const ActionBlocks = NodeTypes.map((node) => {
-	if (node.nodeType == "ActionNode") return node.type;
-});
+import { Button, Badge } from "react-bootstrap";
+import { getTypeIcon } from "@utils/NodeIcons";
+import { getUpdatedArrayById, parseBool } from "@utils/Utils";
+import { getNodeById } from "@utils/Nodes";
+import { DevModeStatusContext } from "pages/_app";
 
 const getHumanDesc = (type) => {
 	let humanType = "";
@@ -49,9 +50,9 @@ const getHumanDesc = (type) => {
 
 const getAriaLabel = () => {
 	/*
-	let end = blockData.unit
-		? ", forma parte de la unidad " +
-		  blockData.unit +
+	let end = blockData.section
+		? ", forma parte de la sección " +
+		  blockData.section +
 		  ", calculado desde su identación."
 		: ".";*/
 	return (
@@ -66,26 +67,17 @@ const getAriaLabel = () => {
 	);
 };
 
-function ActionNode({
-	id,
-	xPos,
-	yPos,
-	type,
-	data,
-	children,
-	isConnectable,
-	order = 1,
-	unit = 1,
-}) {
+function ActionNode({ id, type, data, isConnectable }) {
 	const onChange = useCallback((evt) => {
 		//console.log(evt.target.value);
 	}, []);
 
 	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
-	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
+	const { nodeSelected, setNodeSelected } = useContext(NodeInfoContext);
 	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
-	const { selectedEditVersion, setSelectedEditVersion } =
+	const { editVersionSelected, setEditVersionSelected } =
 		useContext(VersionInfoContext);
+	const { devModeStatus } = useContext(DevModeStatusContext);
 
 	const reactFlowInstance = useReactFlow();
 	const { settings } = useContext(SettingsContext);
@@ -98,8 +90,8 @@ function ActionNode({
 		if (expandedAside != true) {
 			setExpandedAside(true);
 		}
-		setSelectedEditVersion("");
-		setBlockSelected(blockData);
+		setEditVersionSelected("");
+		setNodeSelected(blockData);
 	};
 
 	const extractSelf = () => {
@@ -175,7 +167,7 @@ function ActionNode({
 					{data.label}
 				</span>
 
-				{process.env.DEV_MODE == true && (
+				{devModeStatus && (
 					<div
 						style={{
 							position: "absolute",
@@ -193,6 +185,30 @@ function ActionNode({
 				<span className={styles.blockInfo + " " + styles.bottom}>
 					{getHumanDesc(type)}
 				</span>
+				{!data.lmsResource && (
+					<Badge
+						bg="danger"
+						className={
+							styles.badge +
+							" " +
+							styles.badgeError +
+							" " +
+							(reducedAnimations && styles.noAnimation) +
+							" " +
+							styles.showBadges +
+							" " +
+							(highContrast && styles.highContrast)
+						}
+						title="Sección"
+					>
+						{
+							<FontAwesomeIcon
+								icon={faExclamation}
+								style={{ color: "#ffffff" }}
+							/>
+						}
+					</Badge>
+				)}
 			</div>
 		</>
 	);

@@ -2,6 +2,7 @@ import React, {
 	forwardRef,
 	useContext,
 	useEffect,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -11,21 +12,22 @@ import ReactFlow, {
 	Background,
 	useNodesState,
 	useEdgesState,
-	useReactFlow,
 	useNodesInitialized,
 	SelectionMode,
+	useReactFlow,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import ActionNode from "./flow/nodes/ActionNode.js";
 import ElementNode from "./flow/nodes/ElementNode.js";
 import {
-	BlockInfoContext,
+	NodeInfoContext,
 	ErrorListContext,
 	ExpandedAsideContext,
 	PlatformContext,
 	SettingsContext,
+	MetaDataContext,
 	notImplemented,
-} from "@components/pages/_app.js";
+} from "@root/pages/_app.js";
 import FinalNode from "./flow/nodes/FinalNode.js";
 import InitialNode from "./flow/nodes/InitialNode.js";
 import FragmentNode from "./flow/nodes/FragmentNode.js";
@@ -43,27 +45,28 @@ import {
 import { Button } from "react-bootstrap";
 import {
 	uniqueId,
-	getNodeByNodeDOM,
 	getUpdatedArrayById,
 	addEventListeners,
+	getByProperty,
+	deduplicateById,
+} from "@utils/Utils";
+import {
+	getNodeByNodeDOM,
 	thereIsReservedNodesInArray,
 	getNodeDOMById,
 	getNodeById,
-	getByProperty,
 	getChildrenNodesFromFragmentID,
-	deduplicateById,
-	errorListCheck,
-} from "./Utils.js";
+} from "@utils/Nodes";
+import { errorListCheck } from "@utils/ErrorHandling";
 import { toast } from "react-toastify";
 import { useHotkeys } from "react-hotkeys-hook";
-import ContextualMenu from "./flow/ContextualMenu.js";
-import ConditionModal from "./flow/conditions/ConditionModal.js";
-import { getTypeStaticColor } from "./flow/nodes/NodeIcons.js";
-import { getBlockFlowTypes } from "./flow/nodes/TypeDefinitions.js";
-import NodeSelector from "./dialogs/NodeSelector.js";
-import CriteriaModal from "./flow/badges/CriteriaModal.js";
-import AnimatedEdge from "./flow/edges/AnimatedEdge.js";
-
+import ContextualMenu from "@flow/ContextualMenu.js";
+import ConditionModal from "@conditions/ConditionModal.js";
+import { getTypeStaticColor } from "@utils/NodeIcons.js";
+import NodeSelector from "@dialogs/NodeSelector.js";
+import CriteriaModal from "@flow/badges/CriteriaModal.js";
+import AnimatedEdge from "@edges/AnimatedEdge.js";
+import ConditionalEdge from "@edges/ConditionalEdge";
 const minimapStyle = {
 	height: 120,
 };
@@ -96,16 +99,27 @@ const nodeTypes = {
 	fragment: FragmentNode,
 };
 
+const edgeTypes = {
+	conditionalEdge: ConditionalEdge,
+};
+
 const OverviewFlow = ({ map }, ref) => {
 	const validTypes = ["badge", "mail", "addgroup", "remgroup"];
 
 	const { errorList, setErrorList } = useContext(ErrorListContext);
 	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
-	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
-	const { settings, setSettings } = useContext(SettingsContext);
-
+	const { setNodeSelected } = useContext(NodeInfoContext);
+	const { settings } = useContext(SettingsContext);
+	const { metaData } = useContext(MetaDataContext);
+	const [clipboard, setClipboard] = useState(localStorage.getItem("clipboard"));
 	const parsedSettings = JSON.parse(settings);
-	const { autoHideAside, snapping, snappingInFragment } = parsedSettings;
+	const { autoHideAside, snapping, snappingInFragment, reducedAnimations } =
+		parsedSettings;
+
+	const fitViewOptions = {
+		duration: reducedAnimations ? 0 : 800,
+		padding: 0.25,
+	};
 
 	//Flow States
 	const reactFlowInstance = useReactFlow();
@@ -120,6 +134,7 @@ const OverviewFlow = ({ map }, ref) => {
 	const [target, setTarget] = useState(null);
 	const [prevMap, setPrevMap] = useState();
 	const nodesInitialized = useNodesInitialized();
+	const [ableToFitView, setAbleToFitView] = useState(true);
 
 	//ContextMenu Ref, States, Constants
 	const contextMenuDOM = useRef(null);
@@ -130,7 +145,6 @@ const OverviewFlow = ({ map }, ref) => {
 	const [cMContainsReservedNodes, setCMContainsReservedNodes] = useState(false);
 	const [cMBlockData, setCMBlockData] = useState();
 	const [relationStarter, setRelationStarter] = useState();
-	const [copiedBlocks, setCopiedBlocks] = useState();
 	const [currentMousePosition, setCurrentMousePosition] = useState({
 		x: 0,
 		y: 0,
@@ -200,12 +214,13 @@ const OverviewFlow = ({ map }, ref) => {
 				const y = startNode.position.y + startNode.height / 2;
 				reactFlowInstance.setCenter(
 					startNode.position.x + startNode.width / 2,
-					startNode.position.y + startNode.height / 2
+					startNode.position.y + startNode.height / 2,
+					fitViewOptions
 				);
 			}
 		};
 		const fitMap = () => {
-			reactFlowInstance.fitView();
+			reactFlowInstance.fitView(fitViewOptions);
 		};
 		const zoomIn = () => {
 			reactFlowInstance.zoomIn();
@@ -265,10 +280,6 @@ const OverviewFlow = ({ map }, ref) => {
 
 	const onInit = (reactFlowInstance) => {
 		console.log("Blockflow loaded:", reactFlowInstance);
-		if (map != prevMap) {
-			reactFlowInstance.fitView();
-			setPrevMap(map);
-		}
 	};
 
 	const onNodeDragStart = (event, node) => {
@@ -335,26 +346,28 @@ const OverviewFlow = ({ map }, ref) => {
 		}
 
 		if (target?.type == "fragment") {
-			//Adds node to target fragment
-			const relPos = {
-				x: node.position.x - target.position.x,
-				y: node.position.y - target.position.y,
-			};
-			const newInnerNode = { id: node.id, position: relPos };
-			target.data.innerNodes = [...target.data.innerNodes, newInnerNode];
+			if (target.data.expanded) {
+				//Adds node to target fragment
+				const relPos = {
+					x: node.position.x - target.position.x,
+					y: node.position.y - target.position.y,
+				};
+				const newInnerNode = { id: node.id, position: relPos };
+				target.data.innerNodes = [...target.data.innerNodes, newInnerNode];
 
-			node.position = relPos;
-			node.parentNode = target.id;
-			node.expandParent = true;
+				node.position = relPos;
+				node.parentNode = target.id;
+				node.expandParent = true;
 
-			reactFlowInstance.setNodes(
-				getUpdatedArrayById(target, [
-					...reactFlowInstance
-						.getNodes()
-						.filter((nodes) => nodes.id != node.id),
-					node,
-				])
-			);
+				reactFlowInstance.setNodes(
+					getUpdatedArrayById(target, [
+						...reactFlowInstance
+							.getNodes()
+							.filter((nodes) => nodes.id != node.id),
+						node,
+					])
+				);
+			}
 		}
 
 		setTarget(null);
@@ -382,75 +395,71 @@ const OverviewFlow = ({ map }, ref) => {
 	};
 
 	const onConnect = (event) => {
-		//FIXME: Node moves back to original position on connection
 		const sourceNodeId = event.source.split("__")[0];
 		const targetNodeId = event.target.split("__")[0];
 
-		console.log(sourceNodeId);
-		console.log(targetNodeId);
+		if (sourceNodeId != targetNodeId) {
+			const edgeFound = reactFlowInstance
+				.getEdges()
+				.find((node) => node.id === sourceNodeId + "-" + targetNodeId);
 
-		const nodeFound = reactFlowInstance
-			.getEdges()
-			.find((node) => node.id === sourceNodeId + "-" + targetNodeId);
+			if (!edgeFound) {
+				const sourceNode = reactFlowInstance
+					.getNodes()
+					.find((nodes) => nodes.id == sourceNodeId);
 
-		console.log();
+				const targetNode = reactFlowInstance
+					.getNodes()
+					.find((nodes) => nodes.id == targetNodeId);
 
-		if (!nodeFound) {
-			console.log("NO EXISTE");
-			const sourceNode = reactFlowInstance
-				.getNodes()
-				.find((nodes) => nodes.id == sourceNodeId);
-
-			const targetNode = reactFlowInstance
-				.getNodes()
-				.find((nodes) => nodes.id == targetNodeId);
-
-			if (sourceNode) {
-				if (Array.isArray(sourceNode.children)) {
-					sourceNode.children.push(targetNodeId);
-				} else {
-					sourceNode.children = [targetNodeId];
+				if (sourceNode) {
+					if (Array.isArray(sourceNode.data.children)) {
+						sourceNode.data.children.push(targetNodeId);
+					} else {
+						sourceNode.data.children = [targetNodeId];
+					}
 				}
-			}
 
-			if (targetNode) {
-				const newCondition = {
-					id: parseInt(Date.now() * Math.random()).toString(),
-					type: "completion",
-					op: sourceNode.id,
-					query: "completed",
-				};
-				console.log(targetNode.data.conditions);
-				if (!targetNode.data.conditions) {
-					console.log("CONDICIONES SIN DEFINIR");
-					targetNode.data.conditions = {
-						type: "conditionsGroup",
+				if (targetNode) {
+					const newCondition = {
 						id: parseInt(Date.now() * Math.random()).toString(),
-						op: "&",
-						conditions: [newCondition],
+						type: "completion",
+						op: sourceNode.id,
+						query: "completed",
 					};
-				} else {
-					targetNode.data.conditions.conditions.push(newCondition);
+					console.log(targetNode.data.conditions);
+					if (!targetNode.data.conditions) {
+						console.log("CONDICIONES SIN DEFINIR");
+						targetNode.data.conditions = {
+							type: "conditionsGroup",
+							id: parseInt(Date.now() * Math.random()).toString(),
+							op: "&",
+							conditions: [newCondition],
+						};
+					} else {
+						targetNode.data.conditions.conditions.push(newCondition);
+					}
 				}
+
+				//FIXME: Check if line already drawn
+				setEdges([
+					...edges,
+					{
+						id: sourceNodeId + "-" + targetNodeId,
+						source: sourceNodeId,
+						target: targetNodeId,
+					},
+				]);
+
+				console.log(sourceNode);
+
+				setNodes(
+					getUpdatedArrayById(
+						[sourceNode, targetNode],
+						reactFlowInstance.getNodes()
+					)
+				);
 			}
-
-			//FIXME: Check if line already drawn
-			setEdges([
-				...edges,
-				{
-					id: sourceNodeId + "-" + targetNodeId,
-					source: sourceNodeId,
-					target: targetNodeId,
-				},
-			]);
-
-			setNodes(
-				getUpdatedArrayById({ ...sourceNode }, reactFlowInstance.getNodes())
-			);
-
-			setNodes(
-				getUpdatedArrayById({ ...targetNode }, reactFlowInstance.getNodes())
-			);
 		}
 	};
 
@@ -459,13 +468,8 @@ const OverviewFlow = ({ map }, ref) => {
 		setEdges(newInitialEdges);
 	}, [newInitialNodes, newInitialEdges]);
 
-	// Centers the map on a map change, if the map changed, based on the change of the id of the start block
-	useEffect(() => {
-		reactFlowInstance?.fitView();
-	}, [[reactFlowInstance?.getNodes().find((n) => n.type == "start")][0]?.id]);
-
 	const onNodesDelete = (nodes) => {
-		setBlockSelected();
+		setNodeSelected();
 		deleteBlocks(nodes);
 	};
 
@@ -555,14 +559,14 @@ console.log(blockNodeSource);
 
 	const onLoad = () => {
 		if (map != prevMap) {
-			reactFlowInstance.fitView();
+			reactFlowInstance.fitView(fitViewOptions);
 			setPrevMap(map);
 		}
 	};
 
 	useEffect(() => {
 		//Makes fragment children invsible if it isn't expanded, on load
-		if (nodesInitialized)
+		if (nodesInitialized) {
 			for (const node of map) {
 				if (node.parentNode) {
 					const parentFragment = getNodeById(
@@ -574,7 +578,16 @@ console.log(blockNodeSource);
 					}
 				}
 			}
+			if (reactFlowInstance && ableToFitView) {
+				reactFlowInstance.fitView(fitViewOptions);
+				setAbleToFitView(false);
+			}
+		}
 	}, [nodesInitialized]);
+
+	useEffect(() => {
+		setAbleToFitView(true);
+	}, [map]);
 
 	useEffect(() => {
 		setNewInitialNodes(map);
@@ -606,7 +619,7 @@ console.log(blockNodeSource);
 	const edgesWithUpdatedTypes = edges
 		? edges.map((edge) => {
 				if (edge) {
-					if (edge.sourceHandle) {
+					/*if (edge.sourceHandle) {
 						const edgeType = nodes.find((node) => node.type === "custom").data
 							.selects[edge.sourceHandle];
 						edge.type = edgeType;
@@ -617,7 +630,8 @@ console.log(blockNodeSource);
 						for (let condition of cedge.conditions) {
 							edge.label = "" + condition.operand + condition.objective;
 						}
-					}
+					}*/
+					edge.type = "conditionalEdge";
 				}
 				return edge;
 		  })
@@ -684,7 +698,7 @@ console.log(blockNodeSource);
 
 	useEffect(() => {
 		if (errorList) {
-			//console.log(errorList);
+			console.log(errorList);
 		}
 	}, [errorList]);
 
@@ -704,7 +718,7 @@ console.log(blockNodeSource);
 				blocks.id,
 				deletedRelatedChildrenArray
 			);
-			console.log(blocks.type);
+
 			if (blocks.type == "fragment" && blocks.data.innerNodes.length > 0) {
 				const withoutFragmentChildren = [
 					...deleteBlocks(
@@ -824,8 +838,12 @@ console.log(blockNodeSource);
 			}
 	}, [cMBlockData]);
 
-	const handleBlockCopy = (blockData = []) => {
+	const handleNodeCopy = (blockData = []) => {
 		setShowContextualMenu(false);
+
+		const selectedNodes = reactFlowInstance
+			.getNodes()
+			.filter((node) => node.selected == true);
 
 		const blockDataSet = [];
 		if (blockData.length == 1) {
@@ -840,7 +858,7 @@ console.log(blockNodeSource);
 				const fragmentID = node.id;
 				const children = getChildrenNodesFromFragmentID(
 					fragmentID,
-					reactFlowInstance
+					reactFlowInstance.getNodes()
 				);
 				childrenArray.push(...children);
 			}
@@ -848,12 +866,31 @@ console.log(blockNodeSource);
 
 		const completeSelection = deduplicateById([...childrenArray, ...selected]);
 
-		const blockDataArray = [...selected, ...childrenArray];
+		const cleanedSelection = completeSelection.map((node) => {
+			delete node.dragging;
+			delete node.width;
+			delete node.height;
+			delete node.positionAbsolute;
+			delete node.selected;
+			if (node.data) {
+				if (node.datalmsResource < 0) {
+					delete node.lmsResource;
+				}
+			}
+			return node;
+		});
 
-		if (blockDataArray.length > 0) {
-			setCopiedBlocks(blockDataArray);
+		const clipboardData = {
+			instance_id: metaData.instance_id,
+			course_id: metaData.course_id,
+			platform: metaData.platform, //Redundant, just in case
+			data: cleanedSelection,
+		};
 
-			toast("Se han copiado " + blockDataArray.length + " bloque(s)", {
+		localStorage.setItem("clipboard", JSON.stringify(clipboardData));
+
+		if (cleanedSelection.length > 0) {
+			toast("Se han copiado " + cleanedSelection.length + " bloque(s)", {
 				hideProgressBar: false,
 				autoClose: 2000,
 				type: "info",
@@ -863,8 +900,11 @@ console.log(blockNodeSource);
 		}
 	};
 
-	const handleBlockPaste = () => {
-		if (copiedBlocks && copiedBlocks.length > 0) {
+	const handleNodePaste = () => {
+		const clipboardData = JSON.parse(localStorage.getItem("clipboard"));
+		console.log(clipboardData);
+		if (clipboardData && clipboardData.data && clipboardData.data.length > 0) {
+			const copiedBlocks = clipboardData.data;
 			const newBlocksToPaste = [...copiedBlocks];
 
 			const originalIDs = newBlocksToPaste.map((block) => block.id);
@@ -879,6 +919,12 @@ console.log(blockNodeSource);
 			//FIXME: COPIADO DE FRAGMENTOS
 			console.log(originalIDs);
 			console.log(newIDs);
+			const shouldEmptyResource = !(
+				metaData.instance_id == clipboardData.instance_id &&
+				metaData.course_id == clipboardData.course_id &&
+				metaData.platform == clipboardData.platform
+			);
+			console.log(shouldEmptyResource);
 			const newBlocks = newBlocksToPaste.map((block, index) => {
 				let newID;
 				let originalID;
@@ -898,9 +944,15 @@ console.log(blockNodeSource);
 					...block,
 					id: newIDs[index],
 					position: { x: newX[index], y: newY[index] },
-					children:
-						filteredChildren?.length === 0 ? undefined : filteredChildren,
-					conditions: undefined,
+					data: {
+						...block.data,
+						children:
+							filteredChildren?.length === 0 ? undefined : filteredChildren,
+						conditions: undefined,
+						lmsResource: shouldEmptyResource
+							? undefined
+							: block.data.lmsResource,
+					},
 				};
 			});
 
@@ -910,18 +962,18 @@ console.log(blockNodeSource);
 		}
 	};
 
-	const handleBlockCut = (blockData = []) => {
+	const handleNodeCut = (blockData = []) => {
 		const selectedNodes = reactFlowInstance
 			.getNodes()
 			.filter((n) => n.selected == true);
-		handleBlockCopy(blockData);
+		handleNodeCopy(blockData);
 		if (selectedNodes.length > 1) {
-			handleDeleteBlockSelection();
+			handleNodeSelectionDeletion();
 		} else {
 			if (selectedNodes.length == 1) {
 				blockData = selectedNodes[0];
 			}
-			handleDeleteBlock(blockData);
+			handleNodeDeletion(blockData);
 		}
 	};
 
@@ -961,7 +1013,7 @@ console.log(blockNodeSource);
 							label: "Nuevo bloque de acción",
 							children: undefined,
 							order: 100,
-							unit: 1,
+							section: 1,
 						},
 					};
 				} else {
@@ -988,7 +1040,7 @@ console.log(blockNodeSource);
 								},
 							};
 						} else {
-							newBlockCreated = { ...blockData };
+							newBlockCreated = { ...{ ...blockData } };
 						}
 					}
 				}
@@ -1009,7 +1061,7 @@ console.log(blockNodeSource);
 						label: "Nuevo bloque",
 						children: undefined,
 						order: 100,
-						unit: 1,
+						section: 1,
 					},
 				};
 			} else {
@@ -1021,13 +1073,13 @@ console.log(blockNodeSource);
 						label: "Nuevo bloque",
 						children: undefined,
 						order: 100,
-						unit: 1,
+						section: 1,
 					},
 				};
 			}
 		}
 
-		errorListCheck(newBlockCreated, errorList, setErrorList);
+		errorListCheck(newBlockCreated, errorList, setErrorList, false);
 
 		setShowContextualMenu(false);
 
@@ -1042,7 +1094,7 @@ console.log(blockNodeSource);
 		}
 	};
 
-	const createBlockBulk = (blockDataArray) => {
+	const createBlockBulk = (clipboardData) => {
 		const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
 
 		const preferredPosition = contextMenuDOM
@@ -1059,7 +1111,7 @@ console.log(blockNodeSource);
 			: 0;
 
 		flowPos.x += asideOffset;
-		const newBlocks = blockDataArray.map((blockData) => {
+		const newBlocks = clipboardData.map((blockData) => {
 			return {
 				...blockData,
 				x: blockData.x + asideOffset + flowPos.x,
@@ -1179,22 +1231,22 @@ console.log(blockNodeSource);
 		}
 	};
 
-	const handleDeleteBlock = (blockData) => {
+	const handleNodeDeletion = (blockData) => {
 		setShowContextualMenu(false);
-		setBlockSelected();
+		setNodeSelected();
 		deleteBlocks(blockData);
 	};
 
-	const handleDeleteBlockSelection = () => {
+	const handleNodeSelectionDeletion = () => {
 		setShowContextualMenu(false);
 		const selectedNodes = document.querySelectorAll(
 			".react-flow__node.selected"
 		);
-		const blockDataArray = [];
+		const clipboardData = [];
 		for (let node of selectedNodes) {
-			blockDataArray.push(getNodeByNodeDOM(node, reactFlowInstance.getNodes()));
+			clipboardData.push(getNodeByNodeDOM(node, reactFlowInstance.getNodes()));
 		}
-		deleteBlocks(blockDataArray);
+		deleteBlocks(clipboardData);
 	};
 
 	const handleNewRelation = (origin, end) => {
@@ -1321,7 +1373,7 @@ console.log(blockNodeSource);
 	}, [fragmentPassthrough]);
 
 	useHotkeys("ctrl+c", () => {
-		handleBlockCopy();
+		handleNodeCopy();
 	});
 	useHotkeys("ctrl+b", (e) => {
 		//FIXME: POSITION
@@ -1335,8 +1387,8 @@ console.log(blockNodeSource);
 		setNodeSelectorType("ActionNode");
 		setShowNodeSelector(true);
 	});
-	useHotkeys("ctrl+v", () => handleBlockPaste());
-	useHotkeys("ctrl+x", () => handleBlockCut());
+	useHotkeys("ctrl+v", () => handleNodePaste());
+	useHotkeys("ctrl+x", () => handleNodeCut());
 	useHotkeys("ctrl+z", () => {
 		notImplemented("deshacer/rehacer");
 		console.log("UNDO");
@@ -1372,36 +1424,6 @@ console.log(blockNodeSource);
 		{ keydown: false, keyup: true }
 	);
 
-	const [elements, setElements] = useState([]);
-	const [clickedEdgeId, setClickedEdgeId] = useState(null);
-
-	const onElementClick = (event, element) => {
-		if (element && element.type === "edge") {
-			console.log(element);
-			setClickedEdgeId(element.id);
-		} else if (element && element.type === "node") {
-			const newNodeId = `new-node-${Date.now()}`;
-			const newElements = [
-				...elements,
-				{
-					id: newNodeId,
-					type: "default",
-					position: { x: element.position.x + 200, y: element.position.y },
-				},
-				addEdge({ source: element.id, target: newNodeId }),
-			];
-			setElements(newElements);
-		} else {
-			setClickedEdgeId(null);
-		}
-	};
-
-	const edgeTypes = useMemo(() => {
-		return {
-			animated: AnimatedEdge(clickedEdgeId),
-		};
-	}, [clickedEdgeId]);
-
 	return (
 		<div
 			ref={reactFlowWrapper}
@@ -1433,6 +1455,7 @@ console.log(blockNodeSource);
 				fitView
 				proOptions={{ hideAttribution: true }}
 				nodeTypes={nodeTypes}
+				edgeTypes={edgeTypes}
 				snapGrid={[125, 175]}
 				//connectionLineComponent={}
 				snapToGrid={snapToGrid}
@@ -1447,8 +1470,7 @@ console.log(blockNodeSource);
 				elementsSelectable={interactive}
 				selectionMode={SelectionMode.Partial}
 				//onElementsRemove={setElements}
-				onElementClick={onElementClick}
-				edgeTypes={edgeTypes}
+				//onElementClick={onElementClick}
 			>
 				{minimap && (
 					<MiniMap
@@ -1477,12 +1499,12 @@ console.log(blockNodeSource);
 					createBlock={createBlock}
 					handleShowNodeSelector={handleShowNodeSelector}
 					handleFragmentCreation={handleFragmentCreation}
-					handleBlockCopy={handleBlockCopy}
-					handleBlockPaste={handleBlockPaste}
+					handleNodeCopy={handleNodeCopy}
+					handleNodePaste={handleNodePaste}
 					handleNewRelation={handleNewRelation}
-					handleBlockCut={handleBlockCut}
-					handleDeleteBlock={handleDeleteBlock}
-					handleDeleteBlockSelection={handleDeleteBlockSelection}
+					handleNodeCut={handleNodeCut}
+					handleNodeDeletion={handleNodeDeletion}
+					handleNodeSelectionDeletion={handleNodeSelectionDeletion}
 					handleShow={handleShow}
 				/>
 			)}

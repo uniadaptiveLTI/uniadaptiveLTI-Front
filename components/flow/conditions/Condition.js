@@ -31,7 +31,7 @@ function Condition({
 		{ value: "completed", name: "debe estar completa" },
 		{ value: "notCompleted", name: "no debe estar completa" },
 		{ value: "completedApproved", name: "debe estar completa y aprobada" },
-		{ value: "completedSuspended", name: "debe estar completa y suspendida" },
+		{ value: "completedFailed", name: "debe estar completa y suspendida" },
 	];
 
 	switch (condition.type) {

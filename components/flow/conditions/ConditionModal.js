@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
-import styles from "@components/styles/ConditionModal.module.css";
+import styles from "@root/styles/ConditionModal.module.css";
 import { Modal, Button, Form, Row, Col, Container } from "react-bootstrap";
 import Condition from "./Condition";
 import { faEdit, faPlus, faShuffle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { getParentsNode } from "@utils/Nodes";
 import UserProfileForm from "./form-components/UserProfileForm";
 import CompletionForm from "./form-components/CompletionForm";
 import QualificationForm from "./form-components/QualificationForm";
@@ -11,7 +12,7 @@ import DateForm from "./form-components/DateForm";
 import ConditionsGroupForm from "./form-components/ConditionsGroupForm";
 import GroupForm from "./form-components/GroupForm";
 import GroupingForm from "./form-components/GroupingForm";
-import { uniqueId } from "@components/components/Utils";
+import { uniqueId } from "@utils/Utils";
 import CourseQualificationForm from "./form-components/CourseQualificationForm";
 import { useReactFlow } from "reactflow";
 
@@ -456,12 +457,12 @@ function ConditionModal({
 			blockData.data.conditions.conditions
 		);
 
+		const nodes = reactFlowInstance.getEdges();
+
 		if (
 			foundCondition.type == "completion" ||
 			foundCondition.type == "qualification"
 		) {
-			const nodes = reactFlowInstance.getEdges();
-
 			const nodesUpdated = nodes.filter(
 				(node) => node.id === foundCondition.op + "-" + blockData.id
 			);
@@ -473,14 +474,38 @@ function ConditionModal({
 					(node) => node.id !== foundCondition.op + "-" + blockData.id
 				)
 			);
+		} else if (foundCondition.type == "conditionsGroup") {
+			const targetTypes = ["qualification", "completion"];
+			const matchingObjects = [];
+
+			searchJsonForTypes(foundCondition, targetTypes, matchingObjects);
+
+			const filteredNodes = nodes.filter(
+				(node) =>
+					!matchingObjects.some(
+						(condition) => node.id === condition.op + "-" + blockData.id
+					)
+			);
+
+			reactFlowInstance.setEdges(filteredNodes);
 		}
 
 		deleteConditionById(blockDataCopy.data.conditions.conditions, conditionId);
 
-		console.log(blockDataCopy.data.conditions);
-
 		setBlockData(blockDataCopy);
 	};
+
+	function searchJsonForTypes(jsonData, targetTypes, results) {
+		if (targetTypes.includes(jsonData.type)) {
+			results.push(jsonData);
+		}
+
+		if (jsonData.conditions && Array.isArray(jsonData.conditions)) {
+			for (const condition of jsonData.conditions) {
+				searchJsonForTypes(condition, targetTypes, results);
+			}
+		}
+	}
 
 	const cancelEditCondition = () => {
 		setSelectedOption("");
@@ -585,7 +610,7 @@ function ConditionModal({
 				}
 			}
 		}
-		console.log(blockData);
+
 		setSelectedOption("");
 		setConditionEdit(undefined);
 		setEditing(undefined);
@@ -634,12 +659,6 @@ function ConditionModal({
 
 	function handleDateChange() {
 		setDateOperator(conditionOperator.current.value === "");
-	}
-
-	function getParentsNode(nodesArray, childId) {
-		return nodesArray.filter(
-			(node) => node.data.children && node.data.children.includes(childId)
-		);
 	}
 
 	function updateConditionOp(jsonObj, id, newOp) {
@@ -704,8 +723,6 @@ function ConditionModal({
 
 	useEffect(() => {
 		if (conditionEdit) {
-			console.log(conditionEdit);
-
 			if (conditionEdit.type !== "userProfile") {
 				setUserProfileObjective(true);
 			}
@@ -746,7 +763,7 @@ function ConditionModal({
 									</strong>
 								</div>
 							</Col>
-							<Col class="col d-flex align-items-center">
+							<Col className={"col d-flex align-items-center"}>
 								<Button
 									variant="light"
 									onClick={() => {
@@ -763,6 +780,7 @@ function ConditionModal({
 							{blockData.data.conditions.conditions.map((condition) => {
 								return (
 									<Condition
+										key={condition.id}
 										condition={condition}
 										conditionsList={blockData.data.conditions.conditions}
 										upCondition={upCondition}

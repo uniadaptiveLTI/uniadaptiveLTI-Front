@@ -1,6 +1,6 @@
-import styles from "@components/styles/ContextualMenu.module.css";
+import styles from "@root/styles/ContextualMenu.module.css";
 import { forwardRef, useContext, useState, useLayoutEffect } from "react";
-import { ExpandedAsideContext } from "@components/pages/_app";
+import { ExpandedAsideContext } from "@root/pages/_app";
 import { useReactFlow } from "reactflow";
 import CMNodeMenu from "./contextualmenu/CMNodeMenu";
 import CMPaneMenu from "./contextualmenu/CMPaneMenu";
@@ -18,14 +18,14 @@ export default forwardRef(function ContextualMenu(
 		contextMenuOrigin,
 		containsReservedNodes,
 		createBlock,
-		handleBlockCopy,
-		handleBlockPaste,
+		handleNodeCopy,
+		handleNodePaste,
 		handleShowNodeSelector,
 		handleFragmentCreation,
 		handleNewRelation,
-		handleBlockCut,
-		handleDeleteBlock,
-		handleDeleteBlockSelection,
+		handleNodeCut,
+		handleNodeDeletion,
+		handleNodeSelectionDeletion,
 		handleShow,
 	},
 	ref
@@ -86,7 +86,7 @@ export default forwardRef(function ContextualMenu(
 					<CMPaneMenu
 						createBlock={createBlock}
 						handleShowNodeSelector={handleShowNodeSelector}
-						handleBlockPaste={handleBlockPaste}
+						handleNodePaste={handleNodePaste}
 						EnableCreate={enableCreate}
 						EnablePaste={enablePaste}
 					/>
@@ -98,10 +98,10 @@ export default forwardRef(function ContextualMenu(
 						blockData={blockData}
 						setRelationStarter={setRelationStarter}
 						setShowContextualMenu={setShowContextualMenu}
-						handleDeleteBlock={handleDeleteBlock}
+						handleNodeDeletion={handleNodeDeletion}
 						handleNewRelation={handleNewRelation}
-						handleBlockCopy={handleBlockCopy}
-						handleBlockCut={handleBlockCut}
+						handleNodeCopy={handleNodeCopy}
+						handleNodeCut={handleNodeCut}
 						EnableEditPreconditions={enableEditPreconditions}
 						EnableCreateRelation={enableCreateRelation}
 						EnableCut={enableCut}
@@ -112,9 +112,9 @@ export default forwardRef(function ContextualMenu(
 				{contextMenuOrigin == "nodesselection" && (
 					<CMSelectionMenu
 						handleFragmentCreation={handleFragmentCreation}
-						handleDeleteBlockSelection={handleDeleteBlockSelection}
-						handleBlockCut={handleBlockCut}
-						handleBlockCopy={handleBlockCopy}
+						handleNodeSelectionDeletion={handleNodeSelectionDeletion}
+						handleNodeCut={handleNodeCut}
+						handleNodeCopy={handleNodeCopy}
 						blocksData={blockData}
 						EnableCreateFragment={enableCreateFragment}
 						EnableCut={enableCut}

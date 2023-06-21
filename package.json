@@ -1,6 +1,7 @@
 {
-	"name": "mockup-uniadaptive",
-	"version": "0.1.0",
+	"name": "uniadaptivelti-front",
+	"version": "0.2.0",
+	"description": "UniadaptiveLTI Front End",
 	"private": true,
 	"scripts": {
 		"dev": "next dev",
@@ -17,7 +18,6 @@
 		"@testing-library/jest-dom": "^5.16.5",
 		"@testing-library/react": "^14.0.0",
 		"@testing-library/user-event": "^14.4.3",
-		"axios": "^1.4.0",
 		"bootstrap": "^5.2.3",
 		"bootstrap-react": "^0.5.0-alpha.14",
 		"downloadjs": "^1.4.7",
@@ -29,6 +29,7 @@
 		"next": "13.2.4",
 		"react": "18.2.0",
 		"react-bootstrap": "^2.7.2",
+		"react-colorful": "^5.6.1",
 		"react-dom": "18.2.0",
 		"react-hotkeys-hook": "^4.4.0",
 		"react-test-renderer": "^18.2.0",

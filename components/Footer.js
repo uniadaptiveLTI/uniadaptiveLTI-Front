@@ -1,5 +1,5 @@
-import { SettingsContext } from "@components/pages/_app";
-import styles from "@components/styles/Footer.module.css";
+import { SettingsContext } from "@root/pages/_app";
+import styles from "@root/styles/Footer.module.css";
 import { useEffect, useState, useContext } from "react";
 import { Container } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";

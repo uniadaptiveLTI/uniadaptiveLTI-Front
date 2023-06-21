@@ -50,7 +50,7 @@ const CompletionComponent = ({
 							<FontAwesomeIcon icon={faTrashCan} />
 						</div>
 					</Button>
-					{conditionsList.length > 1 && (
+					{conditionsList.length >= 1 && (
 						<>
 							<Button variant="light" onClick={() => upCondition(condition)}>
 								<div>
