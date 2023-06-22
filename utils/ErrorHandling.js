@@ -133,7 +133,7 @@ export function createItemErrors(item, errorArray) {
 			}
 		}
 
-		if (item.data.order == undefined) {
+		if (item.data.order == undefined || item.data.order == -Infinity) {
 			const customEntry = {
 				...errorEntry,
 				severity: "error",

@@ -1,15 +1,20 @@
 import { forwardRef, useContext, useState } from "react";
 import { Modal, Button, Container, Col, Row, Tabs, Tab } from "react-bootstrap";
-import { PlatformContext } from "@root/pages/_app";
+import {
+	PlatformContext,
+	ExpandedAsideContext,
+	NodeInfoContext,
+	VersionInfoContext,
+} from "@root/pages/_app";
 import { NodeTypes } from "@utils/TypeDefinitions";
 import {
 	orderByPropertyAlphabetically,
-	uniqueId,
 	getNodeById,
 	getParentsNode,
 } from "@utils/Nodes";
+import { uniqueId } from "@utils/Utils";
 import { getTypeIcon, getTypeStaticColor } from "@utils/NodeIcons";
-import styles from "@root/styles/NodeSelector.module.css";
+import styles from "@root/styles/ExportModal.module.css";
 import { createItemErrors } from "@utils/ErrorHandling";
 import { useReactFlow } from "reactflow";
 import { useEffect } from "react";
@@ -27,9 +32,15 @@ export default forwardRef(function NodeSelector(
 	const [key, setKey] = useState();
 
 	const { platform } = useContext(PlatformContext);
+	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
+	const { nodeSelected, setNodeSelected } = useContext(NodeInfoContext);
+	const { editVersionSelected, setEditVersionSelected } =
+		useContext(VersionInfoContext);
+
 	const reactFlowInstance = useReactFlow();
 
 	const [warningList, setWarningList] = useState();
+	const [tabsClassName, setTabsClassName] = useState();
 
 	const [nodeErrorResourceList, setNodeErrorResourceList] = useState();
 	const [nodeErrorSectionList, setNodeErrorSectionList] = useState();
@@ -69,6 +80,19 @@ export default forwardRef(function NodeSelector(
 		toggleDialog();
 	}
 
+	useEffect(() => {
+		if (key) {
+			const keyToClassMap = {
+				error: "errorTabs",
+				warning: "warningTabs",
+				success: "successTabs",
+			};
+
+			const newTabsClassName = keyToClassMap[key] || "";
+			setTabsClassName(newTabsClassName);
+		}
+	}, [key]);
+
 	/**
 	 * {
 	 * return_url
@@ -88,20 +112,11 @@ export default forwardRef(function NodeSelector(
 	useEffect(() => {
 		keyErrorCheck();
 
-		const newArray = reactFlowInstance
-			.getNodes()
-			.filter(
-				(json) =>
-					(!json.data.children ||
-						json.data.children?.length == 0 ||
-						getParentsNode(reactFlowInstance.getNodes(), json.id).length <=
-							0) &&
-					json.type !== "remgroup" &&
-					json.type !== "addgroup" &&
-					json.type !== "fragment" &&
-					json.type !== "end" &&
-					json.type !== "badge"
-			);
+		const warningList = generateWarningList(reactFlowInstance.getNodes());
+		setWarningList(warningList);
+
+		console.log("Error List: ", errorList);
+		console.log("Warning List: ", warningList);
 
 		const errorResourceNotFound = errorList
 			.filter(
@@ -135,7 +150,7 @@ export default forwardRef(function NodeSelector(
 					.label,
 			}));
 
-		const warningChildrenNotFound = errorList
+		const warningChildrenNotFound = warningList
 			.filter(
 				(entry) =>
 					entry.severity === "warning" && entry.type === "childrenNotFound"
@@ -146,7 +161,7 @@ export default forwardRef(function NodeSelector(
 					.label,
 			}));
 
-		const warningParentNotFound = errorList
+		const warningParentNotFound = warningList
 			.filter(
 				(entry) =>
 					entry.severity === "warning" && entry.type === "parentNotFound"
@@ -165,16 +180,90 @@ export default forwardRef(function NodeSelector(
 		setNodeWarningParentList(warningParentNotFound);
 	}, []);
 
+	const handleEdit = (blockData) => {
+		toggleDialog();
+		if (expandedAside != true) {
+			setExpandedAside(true);
+		}
+		setEditVersionSelected("");
+		setNodeSelected(blockData);
+	};
+
+	function generateWarningList(nodeList) {
+		const warningArray = [];
+		nodeList.forEach((json) => {
+			const errorEntry = {
+				id: uniqueId(),
+				nodeId: json.id,
+			};
+
+			if (
+				json.type !== "remgroup" &&
+				json.type !== "addgroup" &&
+				json.type !== "fragment" &&
+				json.type !== "mail" &&
+				json.type !== "badge"
+			) {
+				if (
+					(!json.data.children || json.data.children.length === 0) &&
+					json.type !== "end"
+				) {
+					const customEntry = {
+						...errorEntry,
+						seriousness: "warning",
+						type: "childrenNotFound",
+					};
+
+					const errorFound = warningArray.find(
+						(obj) =>
+							obj.nodeId === customEntry.nodeId &&
+							obj.seriousness === customEntry.seriousness &&
+							obj.type === customEntry.type
+					);
+
+					if (!errorFound) {
+						warningArray.push(customEntry);
+					}
+				}
+
+				const parentsNodeArray = getParentsNode(nodeList, json.id);
+
+				if (parentsNodeArray.length <= 0 && json.type !== "start") {
+					const customEntry = {
+						...errorEntry,
+						seriousness: "warning",
+						type: "parentNotFound",
+					};
+
+					const errorFound = warningArray.find(
+						(obj) =>
+							obj.nodeId === customEntry.nodeId &&
+							obj.seriousness === customEntry.seriousness &&
+							obj.type === customEntry.type
+					);
+
+					if (!errorFound) {
+						warningArray.push(customEntry);
+					}
+				}
+			}
+		});
+
+		return warningArray;
+	}
+
 	return (
 		<Modal show={showDialog} onHide={toggleDialog} centered>
-			<Modal.Header closeButton>
-				<Modal.Title>Exportación</Modal.Title>
-			</Modal.Header>
+			{
+				<Modal.Header closeButton>
+					<Modal.Title>Exportación</Modal.Title>
+				</Modal.Header>
+			}
 			<Modal.Body>
 				<Tabs
-					defaultActiveKey="profile"
+					defaultActiveKey="error"
 					id="fill-tab-example"
-					className="mb-3"
+					className={`${styles[`${tabsClassName}`]} mb-3`}
 					activeKey={key}
 					onSelect={(k) => setKey(k)}
 					fill
@@ -191,33 +280,72 @@ export default forwardRef(function NodeSelector(
 							}
 						>
 							{nodeErrorResourceList && nodeErrorResourceList?.length > 0 && (
-								<div>
+								<div className="mb-2">
 									<div>
 										Los siguientes bloques no poseen un recurso asociado:
 									</div>
-									{nodeErrorResourceList.map((entry) => (
-										<div key={entry.id}>{entry.nodeName}</div>
-									))}
+									{nodeErrorResourceList.map((entry) => {
+										const node = getNodeById(
+											entry.nodeId,
+											reactFlowInstance.getNodes()
+										);
+										return (
+											<div key={entry.id} onClick={() => handleEdit(node)}>
+												<a role="button" className={styles.iconError}>
+													{getTypeIcon(node.type, platform, 16)}
+												</a>{" "}
+												<a role="button" className={styles.nodeError}>
+													{entry.nodeName}
+												</a>
+											</div>
+										);
+									})}
 								</div>
 							)}
 
 							{nodeErrorSectionList && nodeErrorSectionList?.length > 0 && (
-								<div>
+								<div className="mb-2">
 									<div>
 										Los siguientes bloques no poseen una sección asignada:
 									</div>
-									{nodeErrorSectionList.map((entry) => (
-										<div key={entry.id}>{entry.nodeName}</div>
-									))}
+									{nodeErrorSectionList.map((entry) => {
+										const node = getNodeById(
+											entry.nodeId,
+											reactFlowInstance.getNodes()
+										);
+										return (
+											<div key={entry.id} onClick={() => handleEdit(node)}>
+												<a role="button" className={styles.iconError}>
+													{getTypeIcon(node.type, platform, 16)}
+												</a>{" "}
+												<a role="button" className={styles.nodeError}>
+													{entry.nodeName}
+												</a>
+											</div>
+										);
+									})}
 								</div>
 							)}
 
 							{nodeErrorOrderList && nodeErrorOrderList?.length > 0 && (
-								<div>
+								<div className="mb-2">
 									<div>Los siguientes bloques no poseen un orden asignado:</div>
-									{nodeErrorOrderList.map((entry) => (
-										<div key={entry.id}>{entry.nodeName}</div>
-									))}
+									{nodeErrorOrderList.map((entry) => {
+										const node = getNodeById(
+											entry.nodeId,
+											reactFlowInstance.getNodes()
+										);
+										return (
+											<div key={entry.id} onClick={() => handleEdit(node)}>
+												<a role="button" className={styles.iconError}>
+													{getTypeIcon(node.type, platform, 16)}
+												</a>{" "}
+												<a role="button" className={styles.nodeError}>
+													{entry.nodeName}
+												</a>
+											</div>
+										);
+									})}
 								</div>
 							)}
 
@@ -225,56 +353,89 @@ export default forwardRef(function NodeSelector(
 							{/*JSON.stringify(userdata)*/}
 						</Tab>
 					)}
-					<Tab
-						eventKey="warning"
-						className="border-warning"
-						title={
-							<div className="text-warning border-warning">
-								<FontAwesomeIcon icon={faExclamationTriangle}></FontAwesomeIcon>{" "}
-								<a>Advertencias</a>
-							</div>
-						}
-					>
-						<div>
-							{nodeWarningChildrenList &&
-								nodeWarningChildrenList?.length > 0 && (
-									<div>
-										<div>
-											Los siguientes bloques no poseen una salida a otro bloque:
+					{warningList?.length > 0 && (
+						<Tab
+							eventKey="warning"
+							className="border-warning"
+							title={
+								<div className="text-warning border-warning">
+									<FontAwesomeIcon
+										icon={faExclamationTriangle}
+									></FontAwesomeIcon>{" "}
+									<a>Advertencias</a>
+								</div>
+							}
+						>
+							<div>
+								{nodeWarningChildrenList &&
+									nodeWarningChildrenList?.length > 0 && (
+										<div className="mb-2">
+											<div>
+												Los siguientes bloques no poseen una salida a otro
+												bloque:
+											</div>
+											{nodeWarningChildrenList.map((entry) => {
+												const node = getNodeById(
+													entry.nodeId,
+													reactFlowInstance.getNodes()
+												);
+												return (
+													<div key={entry.id} onClick={() => handleEdit(node)}>
+														<a role="button" className={styles.iconWarning}>
+															{getTypeIcon(node.type, platform, 16)}
+														</a>{" "}
+														<a role="button" className={styles.nodeWarning}>
+															{entry.nodeName}
+														</a>
+													</div>
+												);
+											})}
 										</div>
-										{nodeWarningChildrenList.map((entry) => (
-											<div key={entry.id}>{entry.nodeName}</div>
-										))}
+									)}
+							</div>
+							<div>
+								{nodeWarningParentList && nodeWarningParentList?.length > 0 && (
+									<div className="mb-2">
+										<div>Los siguientes bloques no poseen un bloque padre:</div>
+										{nodeWarningParentList.map((entry) => {
+											const node = getNodeById(
+												entry.nodeId,
+												reactFlowInstance.getNodes()
+											);
+											return (
+												<div key={entry.id} onClick={() => handleEdit(node)}>
+													<a role="button" className={styles.iconWarning}>
+														{getTypeIcon(node.type, platform, 16)}
+													</a>{" "}
+													<a role="button" className={styles.nodeWarning}>
+														{entry.nodeName}
+													</a>
+												</div>
+											);
+										})}
 									</div>
 								)}
-						</div>
-						<div>
-							{nodeWarningParentList && nodeWarningParentList?.length > 0 && (
-								<div>
-									<div>Los siguientes bloques no poseen un padre:</div>
-									{nodeWarningParentList.map((entry) => (
-										<div key={entry.id}>{entry.nodeName}</div>
-									))}
-								</div>
-							)}
-						</div>
-					</Tab>
-					<Tab
-						eventKey="longer-tab"
-						title={
-							<div className="text-success border-success">
-								<FontAwesomeIcon icon={faFileExport}></FontAwesomeIcon>{" "}
-								<a>Exportación</a>
 							</div>
-						}
-					>
-						Tab content for Loooonger Tab
-					</Tab>
+						</Tab>
+					)}
+					{errorList.length > 0 && (
+						<Tab
+							eventKey="success"
+							title={
+								<div className="text-success border-success">
+									<FontAwesomeIcon icon={faFileExport}></FontAwesomeIcon>{" "}
+									<a>Exportación</a>
+								</div>
+							}
+						>
+							Tab content for Loooonger Tab
+						</Tab>
+					)}
 				</Tabs>
 			</Modal.Body>
-			<Modal.Footer>
+			<Modal.Footer closeButton>
 				<Button variant="secondary" onClick={toggleDialog}>
-					Cancelar
+					Cerrar
 				</Button>
 			</Modal.Footer>
 		</Modal>
