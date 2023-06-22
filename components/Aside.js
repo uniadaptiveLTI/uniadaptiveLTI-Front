@@ -108,9 +108,14 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	);
 	const sakaiResource = orderByPropertyAlphabetically(getSakaiTypes(), "name");
 
-	
-
-	const fetchData = async (selectedOption,platform, instance, lms, course, session) => {
+	const fetchData = async (
+		selectedOption,
+		platform,
+		instance,
+		lms,
+		course,
+		session
+	) => {
 		try {
 			const encodedSelectedOption = encodeURIComponent(selectedOption);
 			const encodedPlatform = encodeURIComponent(platform);
@@ -141,8 +146,8 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	};
 
 	useEffect(() => {
-		const metaData = JSON.parse(localStorage.getItem('meta_data'));
-		const metaCourse = JSON.parse(localStorage.getItem('course_data'));
+		const metaData = JSON.parse(localStorage.getItem("meta_data"));
+		const metaCourse = JSON.parse(localStorage.getItem("course_data"));
 		switch (selectedOption) {
 			case "generic":
 				setResourceOptions([{ id: 0, name: "Genérico" }]);
@@ -152,7 +157,6 @@ export default function Aside({ className, closeBtn, svgExists }) {
 				if (!selectedOption) {
 					setResourceOptions([]);
 				} else {
-					fetchData(selectedOption, metaCourse.platform, metaCourse.instance_id, metaCourse.url_lms, metaData.course_id, metaData.session_id);
 					if (parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
 						setResourceOptions([]);
 						setTimeout(() => {
@@ -214,7 +218,14 @@ export default function Aside({ className, closeBtn, svgExists }) {
 							setResourceOptions(uniqueFilteredData);
 						}, 1000);
 					} else {
-						fetchData(selectedOption, metaData.course_id).then((data) => {
+						fetchData(
+							selectedOption,
+							metaCourse.platform,
+							metaCourse.instance_id,
+							metaCourse.url_lms,
+							metaData.course_id,
+							metaData.session_id
+						).then((data) => {
 							const filteredData = [];
 							data.forEach((resource) => {
 								if (!getUsedResources().includes(resource.id)) {
@@ -252,7 +263,6 @@ export default function Aside({ className, closeBtn, svgExists }) {
 			if (resourceOptions.length > 0) {
 				const resourceIDs = resourceOptions.map((resource) => resource.id);
 				const lmsResourceCurrent = lmsResourceDOM.current;
-				const labelCurrent = labelDOM.current;
 				if (lmsResourceCurrent) {
 					if (resourceIDs.includes(nodeSelected.data.lmsResource)) {
 						lmsResourceCurrent.value = nodeSelected.data.lmsResource;
@@ -266,6 +276,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	}, [resourceOptions]);
 
 	const syncLabel = (e) => {
+		console.log("SYNC LABEL");
 		if (nodeSelected) {
 			if (
 				!(
@@ -273,20 +284,11 @@ export default function Aside({ className, closeBtn, svgExists }) {
 					nodeSelected.type == "fragment"
 				)
 			) {
-				const resourceIDs = resourceOptions.map((resource) => resource.id);
 				const labelCurrent = labelDOM.current;
 
-				if (resourceIDs.includes(nodeSelected.data.lmsResource)) {
-					if (e.target.value < 0) {
-						labelCurrent.value = "";
-					} else {
-						labelCurrent.value = resourceOptions.find(
-							(resource) => resource.id == e.target.value
-						).name;
-					}
-				} else {
-					labelCurrent.value = "";
-				}
+				labelCurrent.value = resourceOptions.find(
+					(resource) => resource.id == e.target.value
+				).name;
 			}
 		}
 	};

@@ -125,12 +125,3 @@
     border-radius: var(--header-user-image-border-radius);
 	border: var(--header-user-image-border);
 }
-
-.userSettings a{
-    color: var(--header-font-color);
-    text-decoration: none;
-}
-
-.userSettings a:hover{
-    text-decoration: underline;
-}

@@ -9,7 +9,6 @@ import {
 } from "react";
 import SimpleActionDialog from "./dialogs/SimpleActionDialog";
 import SimpleMapSelector from "./dialogs/SimpleMapSelector";
-import UserSettings from "./UserSettings";
 import Image from "next/image";
 import {
 	Button,
@@ -211,19 +210,17 @@ function Header({ LTISettings }, ref) {
 		setMSG([]);
 	}
 
-	
-
 	/**
 	 * Handles the creation of a new map.
 	 */
 	const handleNewMap = (e, data) => {
-		setMetaData(JSON.parse(localStorage.getItem('meta_data')));
+		setMetaData(JSON.parse(localStorage.getItem("meta_data")));
 		const emptyNewMap = {
 			id: uniqueId(),
 			name: "Nuevo Mapa " + maps.length,
 			versions: [
 				{
-					id: 0,					
+					id: 0,
 					name: "Última versión",
 					lastUpdate: new Date().toLocaleDateString(),
 					default: "true",
@@ -252,8 +249,8 @@ function Header({ LTISettings }, ref) {
 		};
 		console.log(emptyNewMap);
 		const encodedNewMap = encodeURIComponent(emptyNewMap);
-			// console.log(response);
-		
+		// console.log(response);
+
 		const newMaps = [
 			...maps,
 			data

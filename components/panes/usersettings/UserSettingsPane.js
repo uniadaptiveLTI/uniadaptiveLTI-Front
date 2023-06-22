@@ -127,17 +127,20 @@ function UserSettingsPane({ LTISettings }, ref) {
 					defaultChecked={showDetails}
 					onClick={handleSettingChange}
 				/>
+
+				<h2 ref={InterfaceRef} className="my-4">
+					Interfaz
+				</h2>
+				<h4 className="my-3">Inspector</h4>
 				<Form.Check
 					type="switch"
 					id="switch-autoHideAside"
-					label="Autocontraer el panel de edición"
+					label="Autocontraer el inspector"
 					className="my-4"
 					defaultChecked={autoHideAside}
 					onClick={handleSettingChange}
 				/>
-				<h2 ref={InterfaceRef} className="my-4">
-					Interfaz
-				</h2>
+				<h4 className="my-3">Caja de mensajes</h4>
 				<Form.Check
 					type="switch"
 					id="switch-autoExpandMSGBox"
