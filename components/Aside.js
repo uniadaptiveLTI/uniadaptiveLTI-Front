@@ -205,7 +205,6 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 										);
 
 										if (storedRes != undefined) {
-											console.log(storedRes);
 											filteredData.push(storedRes);
 										}
 									}
@@ -253,11 +252,11 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 								deduplicateById(filteredData),
 								"name"
 							);
-							uniqueFilteredData.unshift({ id: -1, name: "Vacío" });
 							uniqueFilteredData.forEach(
 								(option) =>
-									(option.bettername = option.name + ` (${option.section})`)
+									(option.bettername = `${option.name} - Sección: ${option.section}`)
 							);
+							uniqueFilteredData.unshift({ id: -1, name: "Vacío" });
 							setResourceOptions(uniqueFilteredData);
 						});
 					}
