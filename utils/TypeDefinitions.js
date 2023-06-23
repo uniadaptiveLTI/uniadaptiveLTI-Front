@@ -107,7 +107,7 @@ export const NodeTypes = [
 		id: 13,
 		type: "badge",
 		value: "badge",
-		name: "Dar medalla",
+		name: "Dar insignia",
 		nodeType: "ActionNode",
 		lms: ["moodle"],
 	},

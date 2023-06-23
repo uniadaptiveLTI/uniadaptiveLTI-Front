@@ -36,19 +36,19 @@ export default function Home({ LTISettings }) {
 				<link
 					rel="apple-touch-icon"
 					sizes="180x180"
-					href={process.env.NEXT_PUBLIC_FAVICONx180_PATH}
+					href={LTISettings.branding.faviconx180_path}
 				/>
 				<link
 					rel="icon"
 					type="image/png"
 					sizes="32x32"
-					href={process.env.NEXT_PUBLIC_FAVICONx32_PATH}
+					href={LTISettings.branding.faviconx32_path}
 				/>
 				<link
 					rel="icon"
 					type="image/png"
 					sizes="16x16"
-					href={process.env.NEXT_PUBLIC_FAVICONx16_PATH}
+					href={LTISettings.branding.faviconx16_path}
 				/>
 				<link rel="manifest" href="/site.webmanifest" />
 			</Head>

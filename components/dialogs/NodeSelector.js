@@ -11,6 +11,7 @@ import { getTypeIcon, getTypeStaticColor } from "../../utils/NodeIcons";
 import styles from "@root/styles/NodeSelector.module.css";
 import { useNodes } from "reactflow";
 import { getLastPositionInSection, getLowestSection } from "@utils/Nodes";
+import { getDefaultVisibility } from "@utils/Platform";
 import { DevModeStatusContext } from "pages/_app";
 
 export default forwardRef(function NodeSelector(
@@ -66,6 +67,8 @@ export default forwardRef(function NodeSelector(
 			data.children = [];
 			data.section = section;
 			data.order = getLastPositionInSection(section, rfNodes) + 1;
+			data.lmsVisibility = getDefaultVisibility(platform);
+			data.identation = 0;
 		} else {
 			data.label = name;
 		}

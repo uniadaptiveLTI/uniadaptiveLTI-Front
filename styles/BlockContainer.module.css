@@ -43,6 +43,16 @@
 }
 
 
+.hovedConditions {
+	background: var(--main-ui-default-background);
+	color: var(--main-font-color);
+	padding: 0.5rem 1rem;
+	border: var(--main-ui-borders);
+	position:absolute;
+	left: calc(1rem + 68px);
+	z-index: 10000 !important;
+}
+
 .badge {
 	position:absolute;
 	visibility: hidden;

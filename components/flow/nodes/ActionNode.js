@@ -1,4 +1,4 @@
-import { useCallback, useContext } from "react";
+import { useCallback, useContext, useState } from "react";
 import { Handle, Position, NodeToolbar, useReactFlow } from "reactflow";
 import styles from "@root/styles/BlockContainer.module.css";
 import {
@@ -21,29 +21,16 @@ import { getTypeIcon } from "@utils/NodeIcons";
 import { getUpdatedArrayById, parseBool } from "@utils/Utils";
 import { getNodeById } from "@utils/Nodes";
 import { DevModeStatusContext } from "pages/_app";
+import { NodeTypes } from "@utils/TypeDefinitions";
+import SimpleConditions from "../conditions/SimpleConditions";
 
 const getHumanDesc = (type) => {
+	const node = NodeTypes.find((node) => node.type == type);
 	let humanType = "";
-	switch (type) {
-		//Moodle + Sakai
-		case "mail":
-			humanType = "Enviar correo";
-			break;
-		case "addgroup":
-			humanType = "Añadir a grupo";
-			break;
-		case "remgroup":
-			humanType = "Eliminar grupo";
-			break;
-		//Moodle
-		case "badge":
-			humanType = "Dar Medalla";
-			break;
-		//Sakai
-		//LTI
-		default:
-			humanType = "Elemento de Acción";
-			break;
+	if (node) {
+		humanType = node.name;
+	} else {
+		humanType = "Acción";
 	}
 	return humanType;
 };
@@ -67,7 +54,7 @@ const getAriaLabel = () => {
 	);
 };
 
-function ActionNode({ id, type, data, isConnectable }) {
+function ActionNode({ id, type, data, selected, isConnectable }) {
 	const onChange = useCallback((evt) => {
 		//console.log(evt.target.value);
 	}, []);
@@ -81,6 +68,7 @@ function ActionNode({ id, type, data, isConnectable }) {
 
 	const reactFlowInstance = useReactFlow();
 	const { settings } = useContext(SettingsContext);
+	const [isHovered, setIsHovered] = useState(false);
 	const parsedSettings = JSON.parse(settings);
 	const { highContrast, reducedAnimations } = parsedSettings;
 	const { platform } = useContext(PlatformContext);
@@ -121,6 +109,11 @@ function ActionNode({ id, type, data, isConnectable }) {
 
 	return (
 		<>
+			{isHovered && selected && (
+				<div className={styles.hovedConditions}>
+					<SimpleConditions id={id} />
+				</div>
+			)}
 			<Handle
 				type="target"
 				position={Position.Left}
@@ -162,25 +155,13 @@ function ActionNode({ id, type, data, isConnectable }) {
 					" " +
 					(reducedAnimations && styles.noAnimation + " noAnimation")
 				}
+				aria-label={getAriaLabel} //FIXME: Doesn't work
+				onMouseEnter={() => setIsHovered(true)}
+				onMouseLeave={() => setIsHovered(false)}
 			>
 				<span className={styles.blockInfo + " " + styles.top}>
 					{data.label}
 				</span>
-
-				{devModeStatus && (
-					<div
-						style={{
-							position: "absolute",
-							color: "black",
-							left: "8em",
-							top: "0",
-							fontSize: "0.65em",
-						}}
-					>
-						<div>{`id:${id}`}</div>
-						<div>{`conditions:${JSON.stringify(data.conditions)}`}</div>
-					</div>
-				)}
 				<div>{getTypeIcon(type, platform)}</div>
 				<span className={styles.blockInfo + " " + styles.bottom}>
 					{getHumanDesc(type)}

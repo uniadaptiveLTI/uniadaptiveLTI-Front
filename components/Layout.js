@@ -114,6 +114,7 @@ export default function Layout({ LTISettings, children }) {
 														style={{ height: 100 + "vh" }}
 													>
 														<Aside
+															LTISettings={LTISettings}
 															className={
 																expandedAside
 																	? "col-12 col-sm-4 col-md-3 col-xl-2"

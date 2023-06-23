@@ -47,7 +47,7 @@ import {
 	getSakaiTypes,
 } from "@utils/TypeDefinitions.js";
 
-export default function Aside({ className, closeBtn, svgExists }) {
+export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 	const { errorList, setErrorList } = useContext(ErrorListContext);
 
 	const shownTypes = [
@@ -127,7 +127,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 			setShowSpinner(true);
 			setAllowResourceSelection(false);
 			const response = await fetch(
-				`http://${process.env.NEXT_PUBLIC_BACK_URL}/lti/get_modules_by_type?type=${encodedSelectedOption}&course=${encodedCourse}&instance=${encodedInstance}&lms=${encodedLMS}&course=${encodedCourse}&session=${encodedSession}`
+				`http://${LTISettings.back_url}/lti/get_modules_by_type?type=${encodedSelectedOption}&course=${encodedCourse}&instance=${encodedInstance}&lms=${encodedLMS}&course=${encodedCourse}&session=${encodedSession}`
 			);
 			if (!response.ok) {
 				throw new Error("Request failed");
@@ -157,7 +157,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 				if (!selectedOption) {
 					setResourceOptions([]);
 				} else {
-					if (parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
+					if (LTISettings.debugging.dev_files) {
 						setResourceOptions([]);
 						setTimeout(() => {
 							const data = [
@@ -199,7 +199,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 
 							//Adds current resource if exists
 							if (nodeSelected && nodeSelected.data) {
-								if (nodeSelected.data.lmsResource) {
+								if (nodeSelected.data.lmsResource != undefined) {
 									if (nodeSelected.data.lmsResource > -1) {
 										const lmsRes = nodeSelected.data.lmsResource;
 										const storedRes = data.find(
@@ -207,13 +207,17 @@ export default function Aside({ className, closeBtn, svgExists }) {
 										);
 
 										if (storedRes != undefined) {
+											console.log(storedRes);
 											filteredData.push(storedRes);
 										}
 									}
 								}
 							}
 
-							const uniqueFilteredData = deduplicateById(filteredData);
+							const uniqueFilteredData = orderByPropertyAlphabetically(
+								deduplicateById(filteredData),
+								"name"
+							);
 							uniqueFilteredData.unshift({ id: -1, name: "Vacío" });
 							setResourceOptions(uniqueFilteredData);
 						}, 1000);
@@ -247,7 +251,10 @@ export default function Aside({ className, closeBtn, svgExists }) {
 									}
 								}
 							}
-							const uniqueFilteredData = deduplicateById(filteredData);
+							const uniqueFilteredData = orderByPropertyAlphabetically(
+								deduplicateById(filteredData),
+								"name"
+							);
 							uniqueFilteredData.unshift({ id: -1, name: "Vacío" });
 							setResourceOptions(uniqueFilteredData);
 						});
@@ -276,7 +283,6 @@ export default function Aside({ className, closeBtn, svgExists }) {
 	}, [resourceOptions]);
 
 	const syncLabel = (e) => {
-		console.log("SYNC LABEL");
 		if (nodeSelected) {
 			if (
 				!(
@@ -356,10 +362,6 @@ export default function Aside({ className, closeBtn, svgExists }) {
 			);
 			let limitedIdentation = identationDOM.current.value;
 			limitedIdentation = Math.min(Math.max(limitedIdentation, 0), 16);
-
-			console.log(lmsResourceDOM.current.value);
-
-			console.log(lmsResourceDOM.current.value);
 
 			newData = {
 				...nodeSelected.data,
@@ -525,7 +527,7 @@ export default function Aside({ className, closeBtn, svgExists }) {
 				>
 					<img
 						alt="Logo"
-						src={process.env.NEXT_PUBLIC_LOGO_PATH}
+						src={LTISettings.branding.logo_path}
 						style={{ width: "100%" }}
 					/>
 					<span className={styles.collapse + " display-6"}>

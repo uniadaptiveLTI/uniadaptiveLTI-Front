@@ -879,44 +879,60 @@ function Header({ LTISettings }, ref) {
 	return (
 		<header ref={ref} className={styles.header}>
 			<Navbar>
-				<Container fluid>
+				<Container fluid className="flex-column flex-sm-row">
 					<Form
 						className={
 							!expandedAside
-								? "d-flex px-2 col-2 col-sm-6 col-md-8"
-								: "d-flex px-2 col-2 col-sm-6 col-md-8"
+								? "d-flex px-2 col-2 col-sm-6 col-md-8 col-12 flex-column flex-sm-row"
+								: "d-flex px-2 col-2 col-sm-6 col-md-8 col-12 flex-column flex-sm-row"
 						}
 						style={{ gap: "20px" }}
 					>
 						{!expandedAside && <CreateLogo />}
-						<Form.Select
-							ref={selectMapDOM}
-							value={mapSelected.id}
-							onChange={handleMapChange}
-							disabled={isOffline || !loadedMaps}
-							defaultValue={-1}
-						>
-							{loadedMaps &&
-								maps.map((map) => (
-									<option id={map.id} key={map.id} value={map.id}>
-										{map.name}
-									</option>
-								))}
-						</Form.Select>
+						<div style={{ flexGrow: 1 }}>
+							{metaData && (
+								<span>
+									Mapas del curso:{" "}
+									<a
+										href={
+											metaData.return_url.startsWith("http")
+												? metaData.return_url
+												: "https://" + metaData.return_url
+										}
+										target="_blank"
+									>
+										{metaData.name}
+									</a>
+								</span>
+							)}
+							<Form.Select
+								ref={selectMapDOM}
+								value={mapSelected.id}
+								onChange={handleMapChange}
+								disabled={isOffline || !loadedMaps}
+								defaultValue={-1}
+								className="mb-2 mb-sm-0"
+							>
+								{loadedMaps &&
+									maps.map((map) => (
+										<option id={map.id} key={map.id} value={map.id}>
+											{map.name}
+										</option>
+									))}
+							</Form.Select>
+						</div>
 					</Form>
 					<Nav
 						className={
 							!expandedAside
-								? "col-10 col-sm-6 col-md-4"
-								: "col-10 col-sm-6 col-md-4"
+								? "col-10 col-sm-6 col-md-4 col-12"
+								: "col-10 col-sm-6 col-md-4 col-12"
 						}
 					>
 						<Container
 							fluid
 							className={
-								!expandedAside
-									? "d-flex align-items-center justify-content-evenly col-sm-7"
-									: "d-flex align-items-center justify-content-evenly col-sm-7"
+								"d-flex align-items-center justify-content-evenly col-sm-7 flex-wrap"
 							}
 						>
 							{/*FIXME: For any reason this Dropdown triggers an hydration error*/}
@@ -1056,7 +1072,10 @@ function Header({ LTISettings }, ref) {
 						</Container>
 						<Container
 							fluid
-							className={!expandedAside ? "d-flex col-sm-5" : "d-flex col-sm-5"}
+							className={
+								(!expandedAside ? "d-flex col-sm-5" : "d-flex col-sm-5") +
+								" justify-content-center"
+							}
 						>
 							<div
 								className="d-flex flex-row"

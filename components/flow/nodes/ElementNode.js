@@ -31,9 +31,10 @@ import { getTypeIcon } from "@utils/NodeIcons";
 import { getUpdatedArrayById, parseBool } from "@utils/Utils";
 import { getNodeById } from "@utils/Nodes";
 import { useState } from "react";
-import { DevModeStatusContext } from "pages/_app";
+import { NodeTypes } from "@utils/TypeDefinitions";
+import SimpleConditions from "@flow/conditions/SimpleConditions";
 
-function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
+function ElementNode({ id, xPos, yPos, type, data, selected, isConnectable }) {
 	const onChange = useCallback((evt) => {
 		//console.log(evt.target.value);
 	}, []);
@@ -45,14 +46,13 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 		useContext(VersionInfoContext);
 	const { platform } = useContext(PlatformContext);
 	const { errorList } = useContext(ErrorListContext);
-	const { devModeStatus } = useContext(DevModeStatusContext);
-
 	const { settings, setSettings } = useContext(SettingsContext);
 	const reactFlowInstance = useReactFlow();
 	const parsedSettings = JSON.parse(settings);
 	const { highContrast, showDetails, reducedAnimations } = parsedSettings;
 	const [hasErrors, setHasErrors] = useState(false);
 	const [hasWarnings, setHasWarnings] = useState(false);
+	const [isHovered, setIsHovered] = useState(false);
 	const rfNodes = useNodes();
 
 	const getParentExpanded = () => {
@@ -103,63 +103,13 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 	};
 
 	const getHumanDesc = (type) => {
+		const node = NodeTypes.find((node) => node.type == type);
 		let humanType = "";
-		switch (type) {
-			//Moodle + Sakai
-			case "quiz":
-				humanType = "Cuestionario";
-				break;
-			case "assign":
-				humanType = "Tarea";
-				break;
-			case "forum":
-				humanType = "Foro";
-				break;
-			case "resource":
-				humanType = "Archivo";
-				break;
-			case "folder":
-				humanType = "Carpeta";
-				break;
-			case "url":
-				humanType = "URL";
-				break;
-			//Moodle
-			case "workshop":
-				humanType = "Taller";
-				break;
-			case "choice":
-				humanType = "Consulta";
-				break;
-			case "label":
-				humanType = "Etiqueta";
-				break;
-			case "page":
-				humanType = "Página";
-				break;
-			case "generic":
-				humanType = "Genérico";
-				break;
-			//Sakai
-			case "exam":
-				humanType = "Examen";
-				break;
-			case "contents":
-				humanType = "Contenidos";
-				break;
-			case "text":
-				humanType = "Texto";
-				break;
-			case "html":
-				humanType = "HTML";
-				break;
-			//LTI
-			default:
-				humanType = "Elemento";
-				break;
+		if (node) {
+			humanType = node.name;
+		} else {
+			humanType = "Elemento";
 		}
-
-		if (type == "start" || type == "end") return humanType + " del Mapa";
 		return humanType;
 	};
 
@@ -188,54 +138,6 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 		);
 	};
 
-	/* const hasDuplicatedResource = () => {
-		const currentRes = data.lmsResource;
-		let duplicates = -1; //Only one resource per node
-		reactFlowInstance.getNodes().forEach((node) => {
-			const data = node.data;
-			if (data) {
-				if (data.lmsResource != undefined) {
-					if (data.lmsResource == currentRes) {
-						duplicates++;
-					}
-				}
-			}
-		});
-		return duplicates > 0;
-	};
-
-	const hasDuplicatedOrderInSection = () => {
-		const currentSection = data.section;
-		const currentOrder = data.order;
-		let duplicates = -1; //Only one resource per node
-		reactFlowInstance.getNodes().forEach((node) => {
-			const data = node.data;
-			if (data) {
-				if (data.order != undefined && data.section != undefined) {
-					if (data.order == currentOrder && data.section == currentSection) {
-						duplicates++;
-					}
-				}
-			}
-		});
-
-		return duplicates > 0;
-	};
-
-	const getSelfErrors = () => {
-		const hasErrors =
-			data.lmsResource == undefined ||
-			hasDuplicatedResource() ||
-			data.lmsVisibility == undefined ||
-			data.section == undefined ||
-			data.order == undefined ||
-			hasDuplicatedOrderInSection();
-		setHasErrors(hasErrors);
-		return hasErrors;
-	};
-
-	const getSelfWarnings = () => {}; */
-
 	const getSelfErrors = () => {
 		const relatedErrors = errorList.filter((error) => error.nodeId == id);
 		const errors = relatedErrors.filter(
@@ -254,6 +156,11 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 
 	return (
 		<>
+			{isHovered && selected && (
+				<div className={styles.hovedConditions}>
+					<SimpleConditions id={id} />
+				</div>
+			)}
 			<Handle
 				type="target"
 				position={Position.Left}
@@ -302,26 +209,12 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 					(reducedAnimations && styles.noAnimation + " noAnimation")
 				}
 				aria-label={getAriaLabel} //FIXME: Doesn't work
+				onMouseEnter={() => setIsHovered(true)}
+				onMouseLeave={() => setIsHovered(false)}
 			>
 				<span className={styles.blockInfo + " " + styles.top}>
 					{data.label}
 				</span>
-
-				{devModeStatus && (
-					<div
-						style={{
-							position: "absolute",
-							color: "black",
-							left: "8em",
-							top: "0",
-							fontSize: "0.65em",
-						}}
-					>
-						<div>{`id:${id}`}</div>
-						<div>{`children:${data.children}`}</div>
-						<div>{`conditions:${JSON.stringify(data.conditions)}`}</div>
-					</div>
-				)}
 				<div>{getTypeIcon(type, platform)}</div>
 				<span className={styles.blockInfo + " " + styles.bottom}>
 					{getHumanDesc(type)}
@@ -374,7 +267,6 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 						}
 					</Badge>
 				)}
-
 				{data.lmsVisibility && getParentExpanded() && (
 					<Badge
 						bg="primary"
