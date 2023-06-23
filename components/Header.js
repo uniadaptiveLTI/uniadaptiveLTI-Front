@@ -90,6 +90,8 @@ function Header({ LTISettings }, ref) {
 	const selectMapDOM = useRef(null);
 	const selectVersionDOM = useRef(null);
 	const [versions, setVersions] = useState([]);
+	const [lastMapCreated, setLastMapCreated] = useState();
+	const [lastVersionCreated, setLastVersionCreated] = useState();
 
 	const [loadedUserData, setLoadedUserData] = useState();
 	const [loadedMetaData, setLoadedMetaData] = useState();
@@ -113,8 +115,8 @@ function Header({ LTISettings }, ref) {
 	const toggleUserSettingsModal = () =>
 		setShowUserSettingsModal(!showUserSettingsModal);
 
-	const closeModalVersiones = () => setShowModalVersions(false);
-	const openModalVersiones = () => setShowModalVersions(true);
+	const closeModalVersions = () => setShowModalVersions(false);
+	const openModalVersions = () => setShowModalVersions(true);
 
 	const { platform, setPlatform } = useContext(PlatformContext);
 	const { nodeSelected, setNodeSelected } = useContext(NodeInfoContext);
@@ -170,7 +172,7 @@ function Header({ LTISettings }, ref) {
 
 	/**
 	 * Handles a change in the selected map.
-	 * @param {Event} e - The change event.
+	 * @param {Event} e - The change event or an id.
 	 */
 	function handleMapChange(e) {
 		resetEdit();
@@ -263,6 +265,7 @@ function Header({ LTISettings }, ref) {
 		];
 
 		setMaps(newMaps);
+		setLastMapCreated(emptyNewMap.id);
 		toast(`Mapa: "Nuevo Mapa ${maps.length}" creado`, defaultToastSuccess);
 	};
 
@@ -359,6 +362,7 @@ function Header({ LTISettings }, ref) {
 			console.log("JSON CONVERTIDO EN UN MAPA: ", platformNewMap);
 
 			setMaps(newMaps);
+			setLastMapCreated(platformNewMap.id);
 			toast(`Mapa: ${platformNewMap.name} creado`, defaultToastSuccess);
 		} catch (e) {
 			toast(
@@ -379,7 +383,7 @@ function Header({ LTISettings }, ref) {
 	const handleNewVersion = (e, data) => {
 		const selectedMap = getMapById(selectMapDOM.current.value);
 		const emptyNewVersion = {
-			id: selectedMap.versions.length,
+			id: uniqueId(),
 			name: "Nueva Versión " + selectedMap.versions.length,
 			lastUpdate: new Date().toLocaleDateString(),
 			default: "true",
@@ -404,18 +408,18 @@ function Header({ LTISettings }, ref) {
 				},
 			],
 		};
-		const newMapVersions = [
-			...selectedMap.versions,
-			data
-				? {
-						...data,
-						id: uniqueId(),
-						lastUpdate: new Date().toLocaleDateString(),
-						name: "Nueva Versión " + selectedMap.versions.length,
-						default: false,
-				  }
-				: emptyNewVersion,
-		];
+
+		const newFullVersion = data
+			? {
+					...data,
+					id: uniqueId(),
+					lastUpdate: new Date().toLocaleDateString(),
+					name: "Nueva Versión " + selectedMap.versions.length,
+					default: false,
+			  }
+			: emptyNewVersion;
+
+		const newMapVersions = [...selectedMap.versions, newFullVersion];
 		let modifiedMap = selectedMap;
 		modifiedMap.versions = newMapVersions;
 		const mapIndex = maps.findIndex((m) => m.id == selectedMap.id);
@@ -423,6 +427,7 @@ function Header({ LTISettings }, ref) {
 		newMaps[mapIndex] = selectedMap;
 		setMaps(newMaps);
 		setVersions(modifiedMap.versions);
+		setLastVersionCreated(newFullVersion);
 		toast(
 			`Versión: "Nueva Versión ${modifiedMap.versions.length - 1}" creada`,
 			defaultToastSuccess
@@ -696,6 +701,14 @@ function Header({ LTISettings }, ref) {
 			setMaps(newMap);
 		}
 	}, [mapSelected]);
+
+	useEffect(() => {
+		if (lastMapCreated != undefined) handleMapChange(lastMapCreated);
+	}, [lastMapCreated]);
+
+	useEffect(() => {
+		if (lastVersionCreated != undefined) setSelectedVersion(lastVersionCreated);
+	}, [lastVersionCreated]);
 
 	useEffect(() => {
 		if (selectedVersion) {
@@ -1133,7 +1146,7 @@ function Header({ LTISettings }, ref) {
 								ref={selectVersionDOM}
 								value={selectedVersion.id}
 								title={selectedVersion.name}
-								onClick={openModalVersiones}
+								onClick={openModalVersions}
 								variant="none"
 								disabled={isOffline || !loadedMaps}
 							>
@@ -1153,7 +1166,7 @@ function Header({ LTISettings }, ref) {
 				)}
 			</Navbar>
 			{selectedVersion ? (
-				<Modal show={showModalVersions} onHide={closeModalVersiones}>
+				<Modal show={showModalVersions} onHide={closeModalVersions}>
 					<Modal.Header closeButton>
 						<Modal.Title>
 							Detalles de &quot;{selectedVersion.name}&quot;
@@ -1195,7 +1208,7 @@ function Header({ LTISettings }, ref) {
 						<Button variant="success" onClick={handleBlockDataExport}>
 							Exportar
 						</Button>
-						<Button variant="secondary" onClick={closeModalVersiones}>
+						<Button variant="secondary" onClick={closeModalVersions}>
 							Cerrar
 						</Button>
 						<input

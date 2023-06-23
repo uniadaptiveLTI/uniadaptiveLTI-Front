@@ -34,7 +34,16 @@ import { useState } from "react";
 import { NodeTypes } from "@utils/TypeDefinitions";
 import SimpleConditions from "@flow/conditions/SimpleConditions";
 
-function ElementNode({ id, xPos, yPos, type, data, selected, isConnectable }) {
+function ElementNode({
+	id,
+	xPos,
+	yPos,
+	type,
+	data,
+	selected,
+	dragging,
+	isConnectable,
+}) {
 	const onChange = useCallback((evt) => {
 		//console.log(evt.target.value);
 	}, []);
@@ -156,7 +165,7 @@ function ElementNode({ id, xPos, yPos, type, data, selected, isConnectable }) {
 
 	return (
 		<>
-			{isHovered && selected && (
+			{isHovered && selected && !dragging && (
 				<div className={styles.hovedConditions}>
 					<SimpleConditions id={id} />
 				</div>

@@ -54,7 +54,7 @@ const getAriaLabel = () => {
 	);
 };
 
-function ActionNode({ id, type, data, selected, isConnectable }) {
+function ActionNode({ id, type, data, selected, dragging, isConnectable }) {
 	const onChange = useCallback((evt) => {
 		//console.log(evt.target.value);
 	}, []);
@@ -109,7 +109,7 @@ function ActionNode({ id, type, data, selected, isConnectable }) {
 
 	return (
 		<>
-			{isHovered && selected && (
+			{isHovered && selected && !dragging && (
 				<div className={styles.hovedConditions}>
 					<SimpleConditions id={id} />
 				</div>
