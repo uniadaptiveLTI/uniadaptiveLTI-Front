@@ -146,8 +146,6 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 	};
 
 	useEffect(() => {
-		const metaData = JSON.parse(localStorage.getItem("meta_data"));
-		const metaCourse = JSON.parse(localStorage.getItem("course_data"));
 		switch (selectedOption) {
 			case "generic":
 				setResourceOptions([{ id: 0, name: "Genérico" }]);
@@ -224,9 +222,9 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 					} else {
 						fetchData(
 							selectedOption,
-							metaCourse.platform,
-							metaCourse.instance_id,
-							metaCourse.url_lms,
+							metaData.platform,
+							metaData.instance_id,
+							metaData.url_lms,
 							metaData.course_id,
 							metaData.session_id
 						).then((data) => {

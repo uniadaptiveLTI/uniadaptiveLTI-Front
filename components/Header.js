@@ -7,9 +7,9 @@ import {
 	useRef,
 	useLayoutEffect,
 } from "react";
-import SimpleActionDialog from "./dialogs/SimpleActionDialog";
-import SimpleMapSelector from "./dialogs/SimpleMapSelector";
-import Image from "next/image";
+import SimpleActionDialog from "@dialogs/SimpleActionDialog";
+import SimpleMapSelector from "@dialogs/SimpleMapSelector";
+import SimpleLessonSelector from "@dialogs/SimpleLessonSelector";
 import {
 	Button,
 	Container,
@@ -52,7 +52,6 @@ import {
 	base64Decode,
 	base64Encode,
 	capitalizeFirstLetter,
-	parseBool,
 	uniqueId,
 } from "@utils/Utils.js";
 import { isNodeArrayEqual } from "@utils/Nodes";
@@ -62,6 +61,7 @@ import { NodeTypes } from "@utils/TypeDefinitions";
 import ExportModal from "@components/dialogs/ExportModal";
 import { DevModeStatusContext } from "pages/_app";
 import UserSettingsModal from "./dialogs/UserSettingsModal";
+import { hasLessons } from "@utils/Platform";
 
 const defaultToastSuccess = {
 	hideProgressBar: false,
@@ -86,6 +86,7 @@ function Header({ LTISettings }, ref) {
 	const [showMapSelectorModal, setShowMapSelectorModal] = useState(false);
 	const [showExportModal, setShowExportModal] = useState(false);
 	const [showUserSettingsModal, setShowUserSettingsModal] = useState(false);
+	const [showLessonSelector, setShowLessonSelector] = useState(false);
 	const selectMapDOM = useRef(null);
 	const selectVersionDOM = useRef(null);
 	const [versions, setVersions] = useState([]);
@@ -214,7 +215,6 @@ function Header({ LTISettings }, ref) {
 	 * Handles the creation of a new map.
 	 */
 	const handleNewMap = (e, data) => {
-		setMetaData(JSON.parse(localStorage.getItem("meta_data")));
 		const emptyNewMap = {
 			id: uniqueId(),
 			name: "Nuevo Mapa " + maps.length,
@@ -266,89 +266,111 @@ function Header({ LTISettings }, ref) {
 		toast(`Mapa: "Nuevo Mapa ${maps.length}" creado`, defaultToastSuccess);
 	};
 
-	const handleImportedMap = async () => {
+	const handleImportedMap = async (lesson) => {
 		const uniqueId = () => parseInt(Date.now() * Math.random()).toString();
-		//try {
-		const metaData = JSON.parse(localStorage.getItem("meta_data"));
-		const encodedCourse = encodeURIComponent(metaData.course_id);
-		const response = await fetch(
-			`http://${LTISettings.back_url}/lti/get_modules?course=${encodedCourse}&course=${encodedCourse}&session=${encodeSessionId}`
-		);
+		try {
+			const encodedCourse = encodeURIComponent(metaData.course_id);
 
-		if (!response.ok) {
+			const response = await fetch(
+				lesson != undefined
+					? `http://${LTISettings.back_url}/lti/get_modules?course=${encodedCourse}&course=${encodedCourse}&session=${encodeSessionId}&lesson=${lesson}`
+					: `http://${LTISettings.back_url}/lti/get_modules?course=${encodedCourse}&course=${encodedCourse}&session=${encodeSessionId}`
+			);
+
+			if (!response.ok) {
+				toast(
+					`Ha ocurrido un error durante la importación del mapa`,
+					defaultToastError
+				);
+				throw new Error("Request failed");
+			}
+			const data = await response.json();
+
+			console.log("JSON RECIBIDO: ", data);
+
+			let newX = 125;
+			let newY = 0;
+			const validTypes = [];
+			NodeTypes.map((node) => validTypes.push(node.type));
+			const nodes = [];
+			data.map((node) => {
+				if (validTypes.includes(node.modname)) {
+					const newNode = {};
+					newNode.id = "" + uniqueId();
+					newNode.type = node.modname;
+					newNode.position = { x: newX, y: newY };
+					newNode.data = {
+						label: node.name,
+						indent: node.indent,
+						section: node.section,
+						children: [],
+						order: node.order,
+						lmsResource: node.id,
+						lmsVisibility: node.visible,
+					};
+
+					newX += 125;
+					nodes.push(newNode);
+				}
+			});
+			console.log("JSON FILTRADO Y ADAPTADO: ", nodes);
+
+			const platformNewMap = {
+				id: maps.length,
+				name:
+					lesson != undefined
+						? `Mapa importado desde ${
+								metaData.lessons.find((lesson) => lesson.id == lesson).name
+						  } (${maps.length})`
+						: `Mapa importado desde ${metaData.name} (${maps.length})`,
+				versions: [
+					{
+						id: 0,
+						name: "Última versión",
+						lastUpdate: new Date().toLocaleDateString(),
+						default: "true",
+						blocksData: [
+							{
+								id: uniqueId(),
+								position: { x: 0, y: 0 },
+								type: "start",
+								deletable: false,
+								data: {
+									label: "Entrada",
+								},
+							},
+							...nodes,
+							{
+								id: uniqueId(),
+								position: { x: newX, y: 0 },
+								type: "end",
+								deletable: false,
+								data: {
+									label: "Salida",
+								},
+							},
+						],
+					},
+				],
+			};
+
+			const newMaps = [...maps, platformNewMap];
+
+			console.log("JSON CONVERTIDO EN UN MAPA: ", platformNewMap);
+
+			setMaps(newMaps);
+			toast(`Mapa: ${platformNewMap.name} creado`, defaultToastSuccess);
+		} catch (e) {
+			toast(
+				`Ha ocurrido un error durante la importación del mapa`,
+				defaultToastError
+			);
 			throw new Error("Request failed");
 		}
-		const data = await response.json();
+	};
 
-		console.log("JSON RECIBIDO: ", data);
-
-		let newX = 125;
-		let newY = 0;
-		const validTypes = [];
-		NodeTypes.map((node) => validTypes.push(node.type));
-		const nodes = [];
-		data.map((node) => {
-			if (validTypes.includes(node.modname)) {
-				const newNode = {};
-				newNode.id = "" + uniqueId();
-				newNode.type = node.modname;
-				newNode.position = { x: newX, y: newY };
-				newNode.data = {
-					label: node.name,
-					indent: node.indent,
-					section: node.section,
-					children: [],
-					order: node.order,
-					lmsResource: node.id,
-					lmsVisibility: node.visible,
-				};
-
-				newX += 125;
-				nodes.push(newNode);
-			}
-		});
-		console.log("JSON FILTRADO Y ADAPTADO: ", nodes);
-
-		const platformNewMap = {
-			id: maps.length,
-			name: "Nuevo Mapa " + maps.length,
-			versions: [
-				{
-					id: 0,
-					name: "Última versión",
-					lastUpdate: new Date().toLocaleDateString(),
-					default: "true",
-					blocksData: [
-						{
-							id: uniqueId(),
-							position: { x: 0, y: 0 },
-							type: "start",
-							deletable: false,
-							data: {
-								label: "Entrada",
-							},
-						},
-						...nodes,
-						{
-							id: uniqueId(),
-							position: { x: newX, y: 0 },
-							type: "end",
-							deletable: false,
-							data: {
-								label: "Salida",
-							},
-						},
-					],
-				},
-			],
-		};
-
-		const newMaps = [...maps, platformNewMap];
-
-		console.log("JSON CONVERTIDO EN UN MAPA: ", platformNewMap);
-
-		setMaps(newMaps);
-		toast(`Mapa: "Nuevo Mapa ${maps.length}" creado`, defaultToastSuccess);
+	const handleImportedMapFromLesson = () => {
+		setShowLessonSelector(true);
 	};
 
 	/**
@@ -608,7 +630,7 @@ function Header({ LTISettings }, ref) {
 						setPlatform(data.platform);
 						setMetaData({
 							...data,
-							return_url: LTISettings.back_url,
+							back_url: LTISettings.back_url,
 						});
 						setLoadedMetaData(true);
 					})
@@ -645,10 +667,9 @@ function Header({ LTISettings }, ref) {
 						setPlatform(data[1].platform);
 						setMetaData({
 							...data[1],
-							return_url: LTISettings.back_url,
+							back_url: LTISettings.back_url,
 						}); //FIXME: This should be the course website in moodle
 						setLoadedMetaData(true);
-						localStorage.setItem("meta_data", JSON.stringify(data[1]));
 
 						//Maps
 						setMaps([emptyMap, ...data[2].maps]);
@@ -862,14 +883,6 @@ function Header({ LTISettings }, ref) {
 	);
 	UserMenu.displayName = "UserMenu";
 
-	const devPlataformChange = () => {
-		if (platform == "moodle") {
-			setPlatform("sakai");
-		} else {
-			setPlatform("moodle");
-		}
-	};
-
 	const handleToUserSettings = (key) => {
 		if (key == undefined || key == "Enter" || key == "NumpadEnter") {
 			setShowUserSettingsModal(true);
@@ -951,17 +964,21 @@ function Header({ LTISettings }, ref) {
 									<Dropdown.Item onClick={handleNewMap}>
 										Nuevo mapa vacío
 									</Dropdown.Item>
-									<Dropdown.Item onClick={handleImportedMap}>
-										Nuevo mapa desde {capitalizeFirstLetter(platform)}
-									</Dropdown.Item>
+									{!hasLessons(platform) && (
+										<Dropdown.Item onClick={() => handleImportedMap()}>
+											Nuevo mapa desde {capitalizeFirstLetter(platform)}
+										</Dropdown.Item>
+									)}
+									{hasLessons(platform) && (
+										<Dropdown.Item onClick={handleImportedMapFromLesson}>
+											Nuevo mapa desde {capitalizeFirstLetter(platform)}...
+										</Dropdown.Item>
+									)}
 									{mapSelected.id >= 0 && (
 										<>
 											<Dropdown.Item onClick={handleNewVersion}>
 												Nueva versión vacía
 											</Dropdown.Item>
-											{/*<Dropdown.Item onClick={() => handleNewMap(mapSelected)}>
-												Nuevo mapa desde el actual
-											</Dropdown.Item>*/}
 											<Dropdown.Item
 												onClick={(e) => handleNewVersion(e, selectedVersion)}
 											>
@@ -1096,7 +1113,6 @@ function Header({ LTISettings }, ref) {
 											className={styles.userProfile}
 											width={48}
 											height={48}
-											onClick={devModeStatus ? devPlataformChange : null}
 										></img>
 									)}
 								</div>
@@ -1214,6 +1230,16 @@ function Header({ LTISettings }, ref) {
 					maps={maps}
 					callback={handleNewVersionIn}
 					selectedVersion={selectedVersion}
+					action={"Importar"}
+				/>
+			)}
+			{showLessonSelector && (
+				<SimpleLessonSelector
+					showDialog={showLessonSelector}
+					setShowDialog={setShowLessonSelector}
+					callback={handleImportedMap}
+					lessons={metaData.lessons}
+					action={"Importar"}
 				/>
 			)}
 			{showExportModal && (

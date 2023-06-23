@@ -1,7 +1,8 @@
 import { getAutomaticReusableStyles, getRootStyle } from "@utils/Colors";
 import { orderByPropertyAlphabetically } from "@utils/Utils";
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useContext, useEffect, useLayoutEffect, useState } from "react";
 import { Button, Col, Container, Row } from "react-bootstrap";
+import { PlatformContext, DevModeStatusContext } from "pages/_app";
 
 function ButtonLink({ label, scrollref, className, style }) {
 	console.log(scrollref);
@@ -26,6 +27,8 @@ export default function UserSettingsLayout({ children, paneRef, LTISettings }) {
 	const [renderButtons, setRenderButtons] = useState(false);
 	const [currentPane, setCurrentPane] = useState(paneRef.current);
 	const [currentPaneRefs, setCurrentPaneRefs] = useState([]);
+	const { platform, setPlatform } = useContext(PlatformContext);
+	const { devModeStatus } = useContext(DevModeStatusContext);
 
 	useEffect(() => {
 		if (paneRef.current) {
@@ -46,6 +49,14 @@ export default function UserSettingsLayout({ children, paneRef, LTISettings }) {
 		setMainBgColor(getRootStyle("--main-ui-default-background"));
 		setRenderButtons(true);
 	}, []);
+
+	const devPlataformChange = () => {
+		if (platform == "moodle") {
+			setPlatform("sakai");
+		} else {
+			setPlatform("moodle");
+		}
+	};
 
 	return (
 		<div>
@@ -76,6 +87,15 @@ export default function UserSettingsLayout({ children, paneRef, LTISettings }) {
 										style={{ ...asideButtonStyles }}
 									/>
 								))}
+							{devModeStatus && renderButtons && (
+								<Button
+									className="py-3 mb-2"
+									onClick={devPlataformChange}
+									style={{ ...asideButtonStyles, marginTop: "auto" }}
+								>
+									Cambiar plataforma
+								</Button>
+							)}
 							{LTISettings.visibleAdminButton && renderButtons && (
 								<Button
 									className="py-3 mb-2"

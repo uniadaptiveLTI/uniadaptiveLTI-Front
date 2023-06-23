@@ -8,3 +8,14 @@ export function getDefaultVisibility(platform) {
 			return "hidden_until_access";
 	}
 }
+
+export function hasLessons(platform) {
+	switch (platform) {
+		case "moodle":
+			return false;
+		case "sakai":
+			return true;
+		default:
+			return false;
+	}
+}

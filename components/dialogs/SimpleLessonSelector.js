@@ -2,60 +2,51 @@ import { useState, useRef, useId, useContext } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import { MapContext, MapInfoContext } from "@root/pages/_app";
 
-export default function SimpleMapSelector({
+export default function SimpleLessonSelector({
 	showDialog,
-	toggleDialog,
+	setShowDialog,
 	title,
 	action,
 	callback,
-	maps,
-	selectedVersion,
+	lessons,
 }) {
 	const selectDOM = useRef(null);
 	const selectLabel = useId();
-	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
 
 	function handleClose(actionClicked) {
 		if (callback && actionClicked) {
 			if (callback instanceof Function) {
-				callback(selectedVersion, selectDOM.current.value);
+				callback();
 			} else {
 				console.warn("Callback isn't a function");
 			}
 		}
-		toggleDialog();
+		setShowDialog(false);
 	}
 	return (
-		<Modal show={showDialog} onHide={toggleDialog}>
+		<Modal show={showDialog} onHide={() => setShowDialog(false)}>
 			<Modal.Header closeButton>
-				<Modal.Title>{title ? title : "Selección del mapa"}</Modal.Title>
+				<Modal.Title>{title ? title : "Selección de Contenido"}</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
 				<Form>
 					<Form.Group className="mb-3">
 						<Form.Label htmlFor={selectLabel} className="mb-1">
-							Seleccione un mapa de los siguientes
+							Seleccione un contenido de los siguientes
 						</Form.Label>
-						<Form.Select
-							ref={selectDOM}
-							id={selectLabel}
-							className="w-100"
-							defaultValue={mapSelected.id}
-						>
-							{maps &&
-								maps
-									.filter((map) => map.id > -1)
-									.map((map) => (
-										<option key={map.id} value={map.id}>
-											{map.name}
-										</option>
-									))}
+						<Form.Select ref={selectDOM} id={selectLabel} className="w-100">
+							{lessons &&
+								lessons.map((lesson) => (
+									<option key={lesson.id} value={lesson.id}>
+										{lesson.name}
+									</option>
+								))}
 						</Form.Select>
 					</Form.Group>
 				</Form>
 			</Modal.Body>
 			<Modal.Footer>
-				<Button variant="secondary" onClick={toggleDialog}>
+				<Button variant="secondary" onClick={() => setShowDialog(false)}>
 					Cancelar
 				</Button>
 				<Button variant={"primary"} onClick={() => handleClose(true)} autoFocus>

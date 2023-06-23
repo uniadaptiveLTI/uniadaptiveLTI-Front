@@ -1,8 +1,13 @@
 {
 	"name": "Ejemplo de curso de desarrollo de UNIAdaptive",
 	"instance_id": 0,
+	"return_url": "https://real-lms.com/course",
 	"course_id": 0,
 	"platform": "moodle",
+	"lessons": [
+		{ "id:": 0, "name": "Física" },
+		{ "id:": 1, "name": "Matemática" }
+	],
 	"sections": [
 		{ "id": 1, "position": 0, "name": "General" },
 		{ "id": 2, "position": 1, "name": "Física" },
