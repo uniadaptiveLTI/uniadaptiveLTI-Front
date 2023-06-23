@@ -76,6 +76,7 @@ const reusableTypes = [
 	"success",
 	"warning",
 	"error",
+	"dev",
 ];
 export function getAutomaticReusableStyles(
 	type = "primary",
@@ -89,20 +90,27 @@ export function getAutomaticReusableStyles(
 		? getRootStyle(`--${type}-border-radius`)
 		: "0";
 	if (reusableTypes.includes(type)) {
-		return {
-			color: containsText
+		let color = "";
+		if (type != "dev") {
+			color = containsText
 				? getContrastingTextColor(bgColor)
-				: getContrastingColor(bgColor),
+				: getContrastingColor(bgColor);
+		} else {
+			color = "#fffff";
+		}
+		return {
+			color: color,
 			background: bgColor,
 			border: border,
 			borderRadius: borderRadius,
+			fontWeight: type == "dev" ? "bolder" : "inherit",
+			textShadow: type == "dev" ? "0 0 5px BLACK" : "inherit",
 		};
 	} else {
 		const errorColor = "#FF00FF";
+
 		return {
-			color: containsText
-				? getContrastingTextColor(errorColor)
-				: getContrastingColor(errorColor),
+			color: "#ffffff",
 			background: errorColor,
 			border: hasBorders ? "4px dotted white" : "none",
 			borderRadius: hasRadius ? "100%" : "0",

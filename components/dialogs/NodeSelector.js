@@ -63,7 +63,7 @@ export default forwardRef(function NodeSelector(
 		const data = {};
 		const section = getMaxSectionFromSelection();
 		if (nodeType == "ElementNode") {
-			data.label = name;
+			data.label = "Vacío";
 			data.children = [];
 			data.section = section;
 			data.order = getLastPositionInSection(section, rfNodes) + 1;

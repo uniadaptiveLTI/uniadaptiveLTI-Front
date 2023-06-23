@@ -127,7 +127,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 			setShowSpinner(true);
 			setAllowResourceSelection(false);
 			const response = await fetch(
-				`http://${LTISettings.back_url}/lti/get_modules_by_type?type=${encodedSelectedOption}&course=${encodedCourse}&instance=${encodedInstance}&lms=${encodedLMS}&course=${encodedCourse}&session=${encodedSession}`
+				`http://${LTISettings.back_url}/lti/get_modules_by_type?type=${encodedSelectedOption}&platform=${encodedPlatform}&course=${encodedCourse}&instance=${encodedInstance}&lms=${encodedLMS}&course=${encodedCourse}&session=${encodedSession}`
 			);
 			if (!response.ok) {
 				throw new Error("Request failed");
@@ -254,6 +254,10 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 								"name"
 							);
 							uniqueFilteredData.unshift({ id: -1, name: "Vacío" });
+							uniqueFilteredData.forEach(
+								(option) =>
+									(option.bettername = option.name + ` (${option.section})`)
+							);
 							setResourceOptions(uniqueFilteredData);
 						});
 					}
@@ -713,7 +717,9 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 													</option>
 													{resourceOptions.map((resource) => (
 														<option key={resource.id} value={resource.id}>
-															{resource.name}
+															{resource.bettername != undefined
+																? resource.bettername
+																: resource.name}
 														</option>
 													))}
 												</>

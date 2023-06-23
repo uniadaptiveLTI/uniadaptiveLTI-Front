@@ -33,6 +33,9 @@
   --error-background-color: var(--bs-danger);
   --error-border: 1px solid var(--bs-danger);
   --error-border-radius: var(--bs-btn-border-radius);
+  --dev-background-color: repeating-linear-gradient(45deg,gold,gold 10px,black 10px,black 20px);
+  --dev-border: 1px solid black;
+  --dev-border-radius: 0;
 
   --icons-black-filter: none;
   --icons-white-filter: invert();
@@ -92,9 +95,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    /*
-
+  /*:root {
     Example:
 
     --main-font-color: var(--bs-light);
@@ -156,8 +157,7 @@
     --high-contrast-icons-fa-filter-onhover: var(--icons-black-filter);
     --high-contrast-icons-moodle-filter: var(--icons-black-filter);
     --high-contrast-icons-moodle-filter-onhover: var(--icons-white-filter);
-    */
-  }
+  }*/
 }
 
 button {

@@ -91,7 +91,11 @@ export default function UserSettingsLayout({ children, paneRef, LTISettings }) {
 								<Button
 									className="py-3 mb-2"
 									onClick={devPlataformChange}
-									style={{ ...asideButtonStyles, marginTop: "auto" }}
+									style={{
+										...asideButtonStyles,
+										...getAutomaticReusableStyles("dev", true, true, false),
+										marginTop: "auto",
+									}}
 								>
 									Cambiar plataforma
 								</Button>

@@ -1126,6 +1126,15 @@ function Header({ LTISettings }, ref) {
 											className={styles.userProfile}
 											width={48}
 											height={48}
+											style={
+												devModeStatus
+													? {
+															background: `var(--dev-background-color)`,
+															padding: "0.30rem",
+															scale: "1.2",
+													  }
+													: null
+											}
 										></img>
 									)}
 								</div>
