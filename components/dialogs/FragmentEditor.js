@@ -1,10 +1,7 @@
 import { useState, useEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
-import {
-	getNodeById,
-	getUpdatedArrayById,
-	orderByLabelAlphabetically,
-} from "@utils/Nodes";
+import { getNodeById, orderByLabelAlphabetically } from "@utils/Nodes";
+import { getUpdatedArrayById } from "@utils/Utils";
 import { useReactFlow } from "reactflow";
 import BlockSelector from "../forms/components/BlockSelector";
 

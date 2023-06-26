@@ -45,9 +45,9 @@ import {
 	OnlineContext,
 	MetaDataContext,
 	ErrorListContext,
+	HeaderToEmptySelectorContext,
 } from "@root/pages/_app";
 import { toast } from "react-toastify";
-import { notImplemented } from "@root/pages/_app";
 import {
 	base64Decode,
 	base64Encode,
@@ -80,6 +80,16 @@ const defaultToastError = {
 function Header({ LTISettings }, ref) {
 	const { devModeStatus } = useContext(DevModeStatusContext);
 	const { errorList, setErrorList } = useContext(ErrorListContext);
+	const {
+		mapCount,
+		setMapCount,
+		setMapNames,
+		setAllowUseStatus,
+		setFuncCreateMap,
+		setFuncImportMap,
+		setFuncImportMapFromLesson,
+		setFuncMapChange,
+	} = useContext(HeaderToEmptySelectorContext);
 	const rfNodes = useNodes();
 	const [showModalVersions, setShowModalVersions] = useState(false);
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -183,6 +193,8 @@ function Header({ LTISettings }, ref) {
 			id = e;
 		}
 		let selectedMap = [...maps].find((m) => m.id == id);
+		console.log(maps);
+		console.log(selectedMap);
 		if (selectedMap) {
 			setMapSelected(selectedMap);
 
@@ -267,6 +279,7 @@ function Header({ LTISettings }, ref) {
 		setMaps(newMaps);
 		setLastMapCreated(emptyNewMap.id);
 		toast(`Mapa: "Nuevo Mapa ${maps.length}" creado`, defaultToastSuccess);
+		setMapCount((prev) => prev + 1);
 	};
 
 	const handleImportedMap = async (lesson) => {
@@ -319,7 +332,7 @@ function Header({ LTISettings }, ref) {
 			console.log("JSON FILTRADO Y ADAPTADO: ", nodes);
 
 			const platformNewMap = {
-				id: maps.length,
+				id: uniqueId(),
 				name:
 					lesson != undefined
 						? `Mapa importado desde ${
@@ -364,6 +377,7 @@ function Header({ LTISettings }, ref) {
 			setMaps(newMaps);
 			setLastMapCreated(platformNewMap.id);
 			toast(`Mapa: ${platformNewMap.name} creado`, defaultToastSuccess);
+			setMapCount((prev) => prev + 1);
 		} catch (e) {
 			toast(
 				`Ha ocurrido un error durante la importación del mapa`,
@@ -514,6 +528,7 @@ function Header({ LTISettings }, ref) {
 			setMaps((map) => map.filter((map) => map.id !== parseInt(mapId)));
 			toast(`Mapa eliminado con éxito.`, defaultToastSuccess);
 			changeToMapSelection();
+			setMapCount((prev) => prev - 1);
 		} else {
 			toast(`No puedes eliminar este mapa.`, defaultToastError);
 		}
@@ -619,8 +634,10 @@ function Header({ LTISettings }, ref) {
 				fetch("resources/devmaps.json")
 					.then((response) => response.json())
 					.then((data) => {
-						setMaps([emptyMap, ...data]);
+						const maps = [emptyMap, ...data];
+						setMaps(maps);
 						setLoadedMaps(true);
+						setMapCount(maps.length);
 					})
 					.catch((e) => {
 						const error = new Error(
@@ -677,7 +694,9 @@ function Header({ LTISettings }, ref) {
 						setLoadedMetaData(true);
 
 						//Maps
-						setMaps([emptyMap, ...data[2].maps]);
+						const maps = [emptyMap, ...data[2].maps];
+						setMaps(maps);
+						setMapCount(maps.length);
 						setLoadedMaps(true);
 					})
 					.catch((e) => {
@@ -820,6 +839,7 @@ function Header({ LTISettings }, ref) {
 					},
 				},
 			};
+
 			const response = await fetch(
 				`http://${LTISettings.back_url}/lti/store_version`,
 				{
@@ -828,8 +848,21 @@ function Header({ LTISettings }, ref) {
 					body: JSON.stringify({ saveData }),
 				}
 			);
-			console.log(response);
-		} catch (e) {}
+
+			if (response) {
+				const ok = response.ok;
+				if (ok) {
+					toast("Versión guardada con éxito", defaultToastSuccess);
+				} else {
+					throw new Error("No se pudo guardar");
+				}
+			} else {
+				throw new Error("No se pudo guardar");
+			}
+		} catch (e) {
+			toast(e, defaultToastError);
+			console.warn(e);
+		}
 	}
 
 	/**
@@ -902,6 +935,23 @@ function Header({ LTISettings }, ref) {
 		}
 	};
 
+	useEffect(() => {
+		setFuncCreateMap(() => handleNewMap);
+		setFuncImportMap(() => handleImportedMap);
+		setFuncImportMapFromLesson(() => handleImportedMapFromLesson);
+	}, []);
+
+	useEffect(() => {
+		setMapNames(
+			maps.map((map) => {
+				return { id: map.id, name: map.name };
+			})
+		);
+	}, [mapCount]);
+
+	useEffect(() => {
+		setAllowUseStatus(!(isOffline || !loadedMaps));
+	}, [isOffline, loadedMaps]);
 	return (
 		<header ref={ref} className={styles.header}>
 			<Navbar>

@@ -5,6 +5,8 @@ import { Button, Form } from "react-bootstrap";
 export default function APIPane({ modifySettings, LTISettings }) {
 	const backURLDOM = useRef(null);
 	const backURLId = useId();
+	const visibleAdminButtonDOM = useRef(null);
+	const visibleAdminButtonId = useId();
 	const devModeDOM = useRef(null);
 	const devModeId = useId();
 	const devFilesDOM = useRef(null);
@@ -20,6 +22,15 @@ export default function APIPane({ modifySettings, LTISettings }) {
 					id={backURLId}
 					defaultValue={LTISettings.back_url}
 				></Form.Control>
+				<Form.Check
+					type="switch"
+					ref={visibleAdminButtonDOM}
+					id={visibleAdminButtonId}
+					defaultChecked={LTISettings.visibleAdminButton}
+					label={
+						"Mostrar un botón de acceso al panel de administración desde los ajustes de usuario (Si es deshabilitado, solo se podrá acceder por URL)"
+					}
+				></Form.Check>
 				<h4 className="my-4">Opciones de desarrollo</h4>
 				<p>
 					Estas opciones afectan a todo el servidor y no están diseñadas para
@@ -51,6 +62,7 @@ export default function APIPane({ modifySettings, LTISettings }) {
 					onClick={() => {
 						modifySettings({
 							back_url: backURLDOM.current.value,
+							visibleAdminButton: visibleAdminButtonDOM.current.checked,
 							debugging: {
 								dev_mode: devModeDOM.current.checked,
 								dev_files: devFilesDOM.current.checked,

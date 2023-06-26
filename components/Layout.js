@@ -14,6 +14,7 @@ import {
 	MainDOMContext,
 	MSGContext,
 	MetaDataContext,
+	HeaderToEmptySelectorContext,
 } from "../pages/_app.js";
 
 export default function Layout({ LTISettings, children }) {
@@ -36,6 +37,15 @@ export default function Layout({ LTISettings, children }) {
 
 	const [mainDOM, setMainDOM] = useState(null);
 	const [msg, setMSG] = useState([]);
+
+	//Header to Empty
+	const [mapCount, setMapCount] = useState(0);
+	const [mapNames, setMapNames] = useState([]);
+	const [allowUseStatus, setAllowUseStatus] = useState(false);
+	const [funcCreateMap, setFuncCreateMap] = useState();
+	const [funcImportMap, setFuncImportMap] = useState();
+	const [funcImportMapFromLesson, setFuncImportMapFromLesson] = useState();
+	const [funcMapChange, setFuncMapChange] = useState();
 
 	//Referencias
 	const headerDOM = useRef(null);
@@ -98,80 +108,99 @@ export default function Layout({ LTISettings, children }) {
 							<VersionJsonContext.Provider
 								value={{ versionJson, setVersionJson }}
 							>
-								<ExpandedAsideContext.Provider
-									value={{ expandedAside, setExpandedAside }}
+								<HeaderToEmptySelectorContext.Provider
+									value={{
+										mapCount,
+										setMapCount,
+										mapNames,
+										setMapNames,
+										allowUseStatus,
+										setAllowUseStatus,
+										funcCreateMap,
+										setFuncCreateMap,
+										funcImportMap,
+										setFuncImportMap,
+										funcImportMapFromLesson,
+										setFuncImportMapFromLesson,
+										funcMapChange,
+										setFuncMapChange,
+									}}
 								>
-									<MainDOMContext.Provider value={{ mainDOM, setMainDOM }}>
-										<MSGContext.Provider value={{ msg, setMSG }}>
-											<ReactFlowProvider>
-												<Container
-													className="g-0"
-													fluid
-													style={{ minHeight: 100 + "vh" }}
-												>
-													<div
-														className="row g-0"
-														style={{ height: 100 + "vh" }}
+									<ExpandedAsideContext.Provider
+										value={{ expandedAside, setExpandedAside }}
+									>
+										<MainDOMContext.Provider value={{ mainDOM, setMainDOM }}>
+											<MSGContext.Provider value={{ msg, setMSG }}>
+												<ReactFlowProvider>
+													<Container
+														className="g-0"
+														fluid
+														style={{ minHeight: 100 + "vh" }}
 													>
-														<Aside
-															LTISettings={LTISettings}
-															className={
-																expandedAside
-																	? "col-12 col-sm-4 col-md-3 col-xl-2"
-																	: "d-none"
-															}
-														/>
-														<Container
-															fluid
-															className={
-																expandedAside
-																	? "col-12 col-sm-8 col-md-9 col-xl-10 g-0"
-																	: "g-0"
-															}
-															style={{
-																display: "flex",
-																flexDirection: "column",
-															}}
+														<div
+															className="row g-0"
+															style={{ height: 100 + "vh" }}
 														>
+															<Aside
+																LTISettings={LTISettings}
+																className={
+																	expandedAside
+																		? "col-12 col-sm-4 col-md-3 col-xl-2"
+																		: "d-none"
+																}
+															/>
 															<Container
-																className="g-0"
 																fluid
-																style={{ flex: "1 0 auto" }}
+																className={
+																	expandedAside
+																		? "col-12 col-sm-8 col-md-9 col-xl-10 g-0"
+																		: "g-0"
+																}
+																style={{
+																	display: "flex",
+																	flexDirection: "column",
+																}}
 															>
-																<Header
-																	LTISettings={LTISettings}
-																	ref={headerDOM}
-																/>
-
-																<main
-																	id="main"
-																	ref={mainDOMRef}
-																	style={{
-																		height: `calc(100vh - ${mainHeightOffset}px)`,
-																		overflow: "overlay",
-																		scrollBehavior: "smooth",
-																		position: "relative",
-																		boxShadow: "inset 0 0 10px #ccc",
-																	}}
+																<Container
+																	className="g-0"
+																	fluid
+																	style={{ flex: "1 0 auto" }}
 																>
-																	{children}
-																</main>
-																<Footer
-																	msg={msg}
-																	className={
-																		expandedAside
-																			? "col-12 col-sm-8 col-md-9 col-xl-10 g-0"
-																			: "col-12 g-0"
-																	}
-																/>
+																	<Header
+																		LTISettings={LTISettings}
+																		ref={headerDOM}
+																	/>
+
+																	<main
+																		id="main"
+																		ref={mainDOMRef}
+																		style={{
+																			height: `calc(100vh - ${mainHeightOffset}px)`,
+																			overflow: "overlay",
+																			scrollBehavior: "smooth",
+																			position: "relative",
+																			boxShadow: "inset 0 0 10px #ccc",
+																		}}
+																	>
+																		{children}
+																	</main>
+																	<Footer
+																		msg={msg}
+																		className={
+																			expandedAside
+																				? "col-12 col-sm-8 col-md-9 col-xl-10 g-0"
+																				: "col-12 g-0"
+																		}
+																	/>
+																</Container>
 															</Container>
-														</Container>
-													</div>
-												</Container>
-											</ReactFlowProvider>
-										</MSGContext.Provider>
-									</MainDOMContext.Provider>
-								</ExpandedAsideContext.Provider>
+														</div>
+													</Container>
+												</ReactFlowProvider>
+											</MSGContext.Provider>
+										</MainDOMContext.Provider>
+									</ExpandedAsideContext.Provider>
+								</HeaderToEmptySelectorContext.Provider>
 							</VersionJsonContext.Provider>
 						</VersionInfoContext.Provider>
 					</MapInfoContext.Provider>
