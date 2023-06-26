@@ -5,7 +5,6 @@ import { Button, Col, Container, Row } from "react-bootstrap";
 import { PlatformContext, DevModeStatusContext } from "pages/_app";
 
 function ButtonLink({ label, scrollref, className, style }) {
-	console.log(scrollref);
 	return (
 		<Button
 			className={className}
@@ -38,7 +37,6 @@ export default function UserSettingsLayout({ children, paneRef, LTISettings }) {
 				refs.push(paneRef.current[ref])
 			);
 			setCurrentPaneRefs(orderByPropertyAlphabetically(refs, "name"));
-			console.log(currentPaneRefs);
 		}
 	}, [paneRef.current]);
 

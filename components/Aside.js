@@ -205,7 +205,6 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 										);
 
 										if (storedRes != undefined) {
-											console.log(storedRes);
 											filteredData.push(storedRes);
 										}
 									}
@@ -250,15 +249,15 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 								}
 							}
 							const uniqueFilteredData = orderByPropertyAlphabetically(
-                                deduplicateById(filteredData),
-                                "name"
-                            );
-                            uniqueFilteredData.forEach(
-                                (option) =>
-								(option.bettername = `${option.name} - Sección: ${option.section}`)
-                            );
-                            uniqueFilteredData.unshift({ id: -1, name: "Vacío" });
-                            setResourceOptions(uniqueFilteredData);
+								deduplicateById(filteredData),
+								"name"
+							);
+							uniqueFilteredData.forEach(
+								(option) =>
+									(option.bettername = `${option.name} - Sección: ${option.section}`)
+							);
+							uniqueFilteredData.unshift({ id: -1, name: "Vacío" });
+							setResourceOptions(uniqueFilteredData);
 						});
 					}
 				}
