@@ -271,22 +271,23 @@ function Header({ LTISettings }, ref) {
 
 	const handleImportedMap = async (lesson) => {
 		const uniqueId = () => parseInt(Date.now() * Math.random()).toString();
-		try {
+		// try {
 			const encodedCourse = encodeURIComponent(metaData.course_id);
-
+			const encodedInstance = encodeURIComponent(metaData.instance_id);
+			const encodedSessionId = encodeURIComponent(metaData.session_id);
 			const response = await fetch(
 				lesson != undefined
-					? `http://${LTISettings.back_url}/lti/get_modules?course=${encodedCourse}&course=${encodedCourse}&session=${encodeSessionId}&lesson=${lesson}`
-					: `http://${LTISettings.back_url}/lti/get_modules?course=${encodedCourse}&course=${encodedCourse}&session=${encodeSessionId}`
+					? `http://${LTISettings.back_url}/lti/get_modules?instance=${encodedInstance}&course=${encodedCourse}&session=${encodedSessionId}&lesson=${lesson}`
+					: `http://${LTISettings.back_url}/lti/get_modules?instance=${encodedInstance}&course=${encodedCourse}&session=${encodedSessionId}`
 			);
 
-			if (!response.ok) {
-				toast(
-					`Ha ocurrido un error durante la importación del mapa`,
-					defaultToastError
-				);
-				throw new Error("Request failed");
-			}
+			// if (!response.ok) {
+			// 	toast(
+			// 		`Ha ocurrido un error durante la importación del mapa`,
+			// 		defaultToastError
+			// 	);
+			// 	// throw new Error("Request failed");
+			// }
 			const data = await response.json();
 
 			console.log("JSON RECIBIDO: ", data);
@@ -364,13 +365,13 @@ function Header({ LTISettings }, ref) {
 			setMaps(newMaps);
 			setLastMapCreated(platformNewMap.id);
 			toast(`Mapa: ${platformNewMap.name} creado`, defaultToastSuccess);
-		} catch (e) {
-			toast(
-				`Ha ocurrido un error durante la importación del mapa`,
-				defaultToastError
-			);
-			throw new Error("Request failed");
-		}
+		// } catch (e) {
+		// 	toast(
+		// 		`Ha ocurrido un error durante la importación del mapa`,
+		// 		defaultToastError
+		// 	);
+		// 	throw new Error("Request failed");
+		// }
 	};
 
 	const handleImportedMapFromLesson = () => {
@@ -821,7 +822,7 @@ function Header({ LTISettings }, ref) {
 				},
 			};
 			const response = await fetch(
-				`http://${LTISettings.back_url}/lti/store_version`,
+				`http://${LTISettings.back_url}/api/lti/store_version`,
 				{
 					method: "POST",
 					headers: { "Content-Type": "application/json" },

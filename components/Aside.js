@@ -127,7 +127,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 			setShowSpinner(true);
 			setAllowResourceSelection(false);
 			const response = await fetch(
-				`http://${LTISettings.back_url}/lti/get_modules_by_type?type=${encodedSelectedOption}&platform=${encodedPlatform}&course=${encodedCourse}&instance=${encodedInstance}&lms=${encodedLMS}&course=${encodedCourse}&session=${encodedSession}`
+				`http://${LTISettings.back_url}/lti/get_modules_by_type?type=${encodedSelectedOption}&platform=${encodedPlatform}&course=${encodedCourse}&lms=${encodedLMS}&course=${encodedCourse}&session=${encodedSession}`
 			);
 			if (!response.ok) {
 				throw new Error("Request failed");
@@ -224,7 +224,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 							selectedOption,
 							metaData.platform,
 							metaData.instance_id,
-							metaData.url_lms,
+							metaData.lms_url,
 							metaData.course_id,
 							metaData.session_id
 						).then((data) => {
@@ -250,15 +250,15 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 								}
 							}
 							const uniqueFilteredData = orderByPropertyAlphabetically(
-								deduplicateById(filteredData),
-								"name"
-							);
-							uniqueFilteredData.unshift({ id: -1, name: "Vacío" });
-							uniqueFilteredData.forEach(
-								(option) =>
-									(option.bettername = option.name + ` (${option.section})`)
-							);
-							setResourceOptions(uniqueFilteredData);
+                                deduplicateById(filteredData),
+                                "name"
+                            );
+                            uniqueFilteredData.forEach(
+                                (option) =>
+								(option.bettername = `${option.name} - Sección: ${option.section}`)
+                            );
+                            uniqueFilteredData.unshift({ id: -1, name: "Vacío" });
+                            setResourceOptions(uniqueFilteredData);
 						});
 					}
 				}
