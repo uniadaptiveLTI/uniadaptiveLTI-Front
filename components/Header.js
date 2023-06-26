@@ -286,11 +286,12 @@ function Header({ LTISettings }, ref) {
 		const uniqueId = () => parseInt(Date.now() * Math.random()).toString();
 		try {
 			const encodedCourse = encodeURIComponent(metaData.course_id);
-
+			const encodedInstance = encodeURIComponent(metaData.instance_id);
+			const encodedSessionId = encodeURIComponent(metaData.session_id);
 			const response = await fetch(
 				lesson != undefined
-					? `http://${LTISettings.back_url}/lti/get_modules?course=${encodedCourse}&course=${encodedCourse}&session=${encodeSessionId}&lesson=${lesson}`
-					: `http://${LTISettings.back_url}/lti/get_modules?course=${encodedCourse}&course=${encodedCourse}&session=${encodeSessionId}`
+					? `http://${LTISettings.back_url}/lti/get_modules?instance=${encodedInstance}&course=${encodedCourse}&session=${encodedSessionId}&lesson=${lesson}`
+					: `http://${LTISettings.back_url}/lti/get_modules?instance=${encodedInstance}&course=${encodedCourse}&session=${encodedSessionId}`
 			);
 
 			if (!response.ok) {
@@ -841,7 +842,7 @@ function Header({ LTISettings }, ref) {
 			};
 
 			const response = await fetch(
-				`http://${LTISettings.back_url}/lti/store_version`,
+				`http://${LTISettings.back_url}/api/lti/store_version`,
 				{
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
