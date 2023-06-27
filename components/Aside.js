@@ -254,7 +254,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 							);
 							uniqueFilteredData.forEach(
 								(option) =>
-									(option.bettername = `${option.name} - Sección: ${option.section}`)
+								hasUnorderedResources(platform)? (option.bettername = `${option.name}`) : (option.bettername = `${option.name} - Sección: ${option.section}`)
 							);
 							uniqueFilteredData.unshift({ id: -1, name: "Vacío" });
 							setResourceOptions(uniqueFilteredData);
@@ -346,136 +346,152 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 	 * Updates the selected block with the values from the specified DOM elements.
 	 */
 	const updateBlock = () => {
-		let type = resourceDOM.current.value;
-		let newData;
+		if(nodeSelected.type != "fragment"){
+			let type = resourceDOM.current.value;
+			let newData;
+			if (!ActionNodes.includes(nodeSelected.type)) {
+				//if element node
+				const newSection = Number(
+					sectionDOM.current.value ? sectionDOM.current.value : 0
+				); //FIXME: Only valid for moodle maybe?
+				const originalSection = nodeSelected.data.section;
 
-		if (!ActionNodes.includes(nodeSelected.type)) {
-			//if element node
-			const newSection = Number(
-				sectionDOM.current.value ? sectionDOM.current.value : 0
-			); //FIXME: Only valid for moodle maybe?
-			const originalSection = nodeSelected.data.section;
+				const originalOrder = nodeSelected.data.order;
+				const limitedOrder = Math.min(
+					Math.max(orderDOM.current.value, 0),
+					getLastPositionInSection(newSection, reactFlowInstance.getNodes()) + 1
+				);
+				let limitedIdentation = identationDOM.current.value;
+				limitedIdentation = Math.min(Math.max(limitedIdentation, 0), 16);
 
-			const originalOrder = nodeSelected.data.order;
-			const limitedOrder = Math.min(
-				Math.max(orderDOM.current.value, 0),
-				getLastPositionInSection(newSection, reactFlowInstance.getNodes()) + 1
-			);
-			let limitedIdentation = identationDOM.current.value;
-			limitedIdentation = Math.min(Math.max(limitedIdentation, 0), 16);
+				newData = {
+					...nodeSelected.data,
+					label: labelDOM.current.value,
+					lmsResource: Number(lmsResourceDOM.current.value),
+					lmsVisibility: lmsVisibilityDOM.current.value
+						? lmsVisibilityDOM.current.value
+						: "hidden_until_access",
+					section: newSection,
+					order: limitedOrder - 1,
+					identation: limitedIdentation,
+				};
 
-			newData = {
-				...nodeSelected.data,
-				label: labelDOM.current.value,
-				lmsResource: Number(lmsResourceDOM.current.value),
-				lmsVisibility: lmsVisibilityDOM.current.value
-					? lmsVisibilityDOM.current.value
-					: "hidden_until_access",
-				section: newSection,
-				order: limitedOrder - 1,
-				identation: limitedIdentation,
-			};
+				const updatedData = {
+					...nodeSelected,
+					id: nodeSelected.id,
+					type: resourceDOM.current.value,
+					data: newData,
+				};
 
-			const updatedData = {
-				...nodeSelected,
-				id: nodeSelected.id,
-				type: resourceDOM.current.value,
-				data: newData,
-			};
+				const aNodeWithNewOrderExists = reactFlowInstance
+					.getNodes()
+					.filter((node) => {
+						if (
+							node.data.order == limitedOrder - 1 &&
+							node.data.section == newSection
+						) {
+							return true;
+						}
+					});
 
-			const aNodeWithNewOrderExists = reactFlowInstance
-				.getNodes()
-				.filter((node) => {
-					if (
-						node.data.order == limitedOrder - 1 &&
-						node.data.section == newSection
-					) {
-						return true;
-					}
-				});
+				console.log(aNodeWithNewOrderExists, limitedOrder - 1);
 
-			console.log(aNodeWithNewOrderExists, limitedOrder - 1);
-
-			//if reordered
-			if (
-				(limitedOrder - 1 != originalOrder &&
-					aNodeWithNewOrderExists.length > 0) ||
-				originalSection != newSection
-			) {
-				console.log((originalSection, newSection));
-				if (originalSection == newSection) {
-					//Change in order
-					const to = limitedOrder - 1;
-					const from = originalOrder;
-					const reorderedArray = reorderFromSection(
-						newSection,
-						from,
-						to,
-						reactFlowInstance.getNodes()
-					);
-
-					reactFlowInstance.setNodes([...reorderedArray, updatedData]);
-				} else {
-					//(Section change) Add to section AND then the order
-					console.log("CAMBIO DE SECCIÓN");
-					const virtualNodes = reactFlowInstance.getNodes();
-					const forcedPos =
-						getLastPositionInSection(newSection, virtualNodes) + 1;
-					console.log(forcedPos);
-					updatedData.data.order = forcedPos;
-					virtualNodes.push(updatedData);
-					if (!(limitedOrder - 1 > forcedPos)) {
-						//If the desired position is inside the section
-						const to = limitedOrder;
-						const from = forcedPos;
+				//if reordered
+				if (
+					(limitedOrder - 1 != originalOrder &&
+						aNodeWithNewOrderExists.length > 0) ||
+					originalSection != newSection
+				) {
+					console.log((originalSection, newSection));
+					if (originalSection == newSection) {
+						//Change in order
+						const to = limitedOrder - 1;
+						const from = originalOrder;
 						const reorderedArray = reorderFromSection(
 							newSection,
 							from,
 							to,
-							virtualNodes
+							reactFlowInstance.getNodes()
 						);
+
 						reactFlowInstance.setNodes([...reorderedArray, updatedData]);
 					} else {
-						//If the desired position is outside the section
-						reactFlowInstance.setNodes([...virtualNodes, updatedData]);
+						//(Section change) Add to section AND then the order
+						console.log("CAMBIO DE SECCIÓN");
+						const virtualNodes = reactFlowInstance.getNodes();
+						const forcedPos =
+							getLastPositionInSection(newSection, virtualNodes) + 1;
+						console.log(forcedPos);
+						updatedData.data.order = forcedPos;
+						virtualNodes.push(updatedData);
+						if (!(limitedOrder - 1 > forcedPos)) {
+							//If the desired position is inside the section
+							const to = limitedOrder;
+							const from = forcedPos;
+							const reorderedArray = reorderFromSection(
+								newSection,
+								from,
+								to,
+								virtualNodes
+							);
+							reactFlowInstance.setNodes([...reorderedArray, updatedData]);
+						} else {
+							//If the desired position is outside the section
+							reactFlowInstance.setNodes([...virtualNodes, updatedData]);
+						}
 					}
+				} else {
+					reactFlowInstance.setNodes(
+						getUpdatedArrayById(updatedData, reactFlowInstance.getNodes())
+					);
 				}
+
+				errorListCheck(updatedData, errorList, setErrorList, false);
 			} else {
+				//if action node
+				newData = {
+					label: labelDOM.current.value,
+					lmsResource:
+						type !== "mail" ? Number(lmsResourceDOM.current.value) : type,
+				};
+
+				console.log(newData);
+
+				const updatedData = {
+					...nodeSelected,
+					id: nodeSelected.id,
+					type: resourceDOM.current.value,
+					data: newData,
+				};
+
+				errorListCheck(updatedData, errorList, setErrorList, false);
+
 				reactFlowInstance.setNodes(
 					getUpdatedArrayById(updatedData, reactFlowInstance.getNodes())
 				);
+
+				errorListCheck(updatedData, errorList, setErrorList);
 			}
 
-			errorListCheck(updatedData, errorList, setErrorList, false);
-		} else {
-			//if action node
-			newData = {
-				label: labelDOM.current.value,
-				lmsResource:
-					type !== "mail" ? Number(lmsResourceDOM.current.value) : type,
-			};
-
-			console.log(newData);
-
-			const updatedData = {
-				...nodeSelected,
-				id: nodeSelected.id,
-				type: resourceDOM.current.value,
-				data: newData,
-			};
-
-			errorListCheck(updatedData, errorList, setErrorList, false);
-
-			reactFlowInstance.setNodes(
-				getUpdatedArrayById(updatedData, reactFlowInstance.getNodes())
-			);
-
-			errorListCheck(updatedData, errorList, setErrorList);
+			if (autoHideAside) {
+				setExpandedAside(false);
+			}
+	} else {
+		const newData = {
+			...nodeSelected.data,
+			label: labelDOM.current.value
 		}
 
-		if (autoHideAside) {
-			setExpandedAside(false);
-		}
+		const updatedData = {
+			...nodeSelected,
+			id: nodeSelected.id,
+			data: newData,
+		};
+
+		reactFlowInstance.setNodes(
+			getUpdatedArrayById(updatedData, reactFlowInstance.getNodes())
+		);
+	}
 	};
 
 	/**

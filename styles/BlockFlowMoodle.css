@@ -154,11 +154,5 @@
 }
 
 .react-flow__node:has(.highContrast):has(.moodleIcon):hover .moodleIcon, .react-flow__node:has(.highContrast):has(.moodleIcon):focus-visible .moodleIcon, .react-flow__node:has(.highContrast):has(.moodleIcon):active .moodleIcon{
-    filter: var(--high-contrast-icons-moodle-filter-onhover) !important
-}
-
-/* Badge only */
-
-.react-flow__node-badge:has(.highContrast):has(.moodleIcon):hover .moodleIcon, .react-flow__node-badge:has(.highContrast):has(.moodleIcon):focus-visible .moodleIcon, .react-flow__node-badge:has(.highContrast):has(.moodleIcon):active .moodleIcon{
     filter: var(--high-contrast-icons-moodle-filter) !important
 }

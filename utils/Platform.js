@@ -19,3 +19,14 @@ export function hasLessons(platform) {
 			return false;
 	}
 }
+
+export function hasUnorderedResources(platform) {
+	switch (platform) {
+		case "moodle":
+			return false;
+		case "sakai":
+			return true;
+		default:
+			return false;
+	}
+}
