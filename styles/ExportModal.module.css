@@ -13,6 +13,14 @@
     color: #ffc107;
 }
 
+.iconError {
+    color: #dc3545;
+}
+
+.iconWarning {
+    color: #ffc107;
+}
+
 .errorTabs{
     --bs-nav-tabs-link-active-border-color: #dc3545 #dc3545 #fff!important;
 	--bs-nav-tabs-link-hover-border-color: #dee2e6 #dee2e6 #dc3545;

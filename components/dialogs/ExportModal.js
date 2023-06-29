@@ -1,4 +1,4 @@
-import { forwardRef, useContext, useState } from "react";
+import { forwardRef, useContext, useLayoutEffect, useState } from "react";
 import { Modal, Button, Container, Col, Row, Tabs, Tab } from "react-bootstrap";
 import {
 	PlatformContext,
@@ -24,9 +24,18 @@ import {
 	faFileExport,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import ExportPanel from "@panes/exportmodal/ExportPanel";
 
-export default forwardRef(function NodeSelector(
-	{ showDialog, toggleDialog, metadata, userdata, errorList, callback },
+export default forwardRef(function ExportModal(
+	{
+		showDialog,
+		toggleDialog,
+		metadata,
+		userdata,
+		errorList,
+		metaData,
+		mapName,
+	},
 	ref
 ) {
 	const [key, setKey] = useState();
@@ -80,7 +89,7 @@ export default forwardRef(function NodeSelector(
 		toggleDialog();
 	}
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (key) {
 			const keyToClassMap = {
 				error: "errorTabs",
@@ -93,25 +102,7 @@ export default forwardRef(function NodeSelector(
 		}
 	}, [key]);
 
-	/**
-	 * {
-	 * return_url
-	 * userID
-	 * mapID
-	 * version:{}
-	 * }
-	 */
-	function keyErrorCheck() {
-		if (errorList.length <= 0) {
-			setKey("warning");
-		} else {
-			setKey("error");
-		}
-	}
-
-	useEffect(() => {
-		keyErrorCheck();
-
+	useLayoutEffect(() => {
 		const warningList = generateWarningList(reactFlowInstance.getNodes());
 		setWarningList(warningList);
 
@@ -252,6 +243,17 @@ export default forwardRef(function NodeSelector(
 		return warningArray;
 	}
 
+	const [warningCount, setWarningCount] = useState(
+		warningList != undefined ? warningList.length : 0
+	);
+	const [hasWarnings, setHasWarnings] = useState(warningCount > 0);
+
+	useLayoutEffect(() => {
+		const count = warningList != undefined ? warningList.length : 0;
+		setWarningCount(count);
+		setHasWarnings(count > 0);
+	}, [warningList]);
+
 	return (
 		<Modal show={showDialog} onHide={toggleDialog} centered>
 			{
@@ -261,13 +263,36 @@ export default forwardRef(function NodeSelector(
 			}
 			<Modal.Body>
 				<Tabs
-					defaultActiveKey="error"
+					defaultActiveKey="success"
 					id="fill-tab-example"
-					className={`${styles[`${tabsClassName}`]} mb-3`}
+					className={`${
+						styles[
+							`${tabsClassName == undefined ? "successTabs" : tabsClassName}`
+						]
+					} mb-3`}
 					activeKey={key}
 					onSelect={(k) => setKey(k)}
 					fill
 				>
+					<Tab
+						eventKey="success"
+						className="border-success"
+						title={
+							<div className="text-success border-success">
+								<FontAwesomeIcon icon={faFileExport}></FontAwesomeIcon>{" "}
+								<a>Exportación</a>
+							</div>
+						}
+					>
+						<ExportPanel
+							errorList={errorList}
+							warningList={warningList}
+							changeTab={setKey}
+							metaData={metaData}
+							mapName={mapName}
+						/>
+					</Tab>
+
 					{errorList.length > 0 && (
 						<Tab
 							eventKey="error"
@@ -281,8 +306,8 @@ export default forwardRef(function NodeSelector(
 						>
 							{nodeErrorResourceList && nodeErrorResourceList?.length > 0 && (
 								<div className="mb-2">
-									<div>
-										Los siguientes bloques no poseen un recurso asociado:
+									<div className="mb-2">
+										<b>Los siguientes bloques no poseen un recurso asociado:</b>
 									</div>
 									{nodeErrorResourceList.map((entry) => {
 										const node = getNodeById(
@@ -305,8 +330,10 @@ export default forwardRef(function NodeSelector(
 
 							{nodeErrorSectionList && nodeErrorSectionList?.length > 0 && (
 								<div className="mb-2">
-									<div>
-										Los siguientes bloques no poseen una sección asignada:
+									<div className="mb-2">
+										<b>
+											Los siguientes bloques no poseen una sección asignada:
+										</b>
 									</div>
 									{nodeErrorSectionList.map((entry) => {
 										const node = getNodeById(
@@ -329,7 +356,9 @@ export default forwardRef(function NodeSelector(
 
 							{nodeErrorOrderList && nodeErrorOrderList?.length > 0 && (
 								<div className="mb-2">
-									<div>Los siguientes bloques no poseen un orden asignado:</div>
+									<div className="mb-2">
+										<b>Los siguientes bloques no poseen un orden asignado:</b>
+									</div>
 									{nodeErrorOrderList.map((entry) => {
 										const node = getNodeById(
 											entry.nodeId,
@@ -353,7 +382,8 @@ export default forwardRef(function NodeSelector(
 							{/*JSON.stringify(userdata)*/}
 						</Tab>
 					)}
-					{warningList?.length > 0 && (
+
+					{hasWarnings && (
 						<Tab
 							eventKey="warning"
 							className="border-warning"
@@ -367,12 +397,14 @@ export default forwardRef(function NodeSelector(
 							}
 						>
 							<div>
-								{nodeWarningChildrenList &&
-									nodeWarningChildrenList?.length > 0 && (
+								{nodeWarningChildrenList != undefined &&
+									nodeWarningChildrenList.length > 0 && (
 										<div className="mb-2">
-											<div>
-												Los siguientes bloques no poseen una salida a otro
-												bloque:
+											<div className="mb-2">
+												<b>
+													Los siguientes bloques no poseen una salida a otro
+													bloque:
+												</b>
 											</div>
 											{nodeWarningChildrenList.map((entry) => {
 												const node = getNodeById(
@@ -394,41 +426,31 @@ export default forwardRef(function NodeSelector(
 									)}
 							</div>
 							<div>
-								{nodeWarningParentList && nodeWarningParentList?.length > 0 && (
-									<div className="mb-2">
-										<div>Los siguientes bloques no poseen un bloque padre:</div>
-										{nodeWarningParentList.map((entry) => {
-											const node = getNodeById(
-												entry.nodeId,
-												reactFlowInstance.getNodes()
-											);
-											return (
-												<div key={entry.id} onClick={() => handleEdit(node)}>
-													<a role="button" className={styles.iconWarning}>
-														{getTypeIcon(node.type, platform, 16)}
-													</a>{" "}
-													<a role="button" className={styles.nodeWarning}>
-														{entry.nodeName}
-													</a>
-												</div>
-											);
-										})}
-									</div>
-								)}
+								{nodeWarningParentList != undefined &&
+									nodeWarningParentList.length > 0 && (
+										<div className="mb-2">
+											<div className="mb-2">
+												<b>Los siguientes bloques no poseen un bloque padre:</b>
+											</div>
+											{nodeWarningParentList.map((entry) => {
+												const node = getNodeById(
+													entry.nodeId,
+													reactFlowInstance.getNodes()
+												);
+												return (
+													<div key={entry.id} onClick={() => handleEdit(node)}>
+														<a role="button" className={styles.iconWarning}>
+															{getTypeIcon(node.type, platform, 16)}
+														</a>{" "}
+														<a role="button" className={styles.nodeWarning}>
+															{entry.nodeName}
+														</a>
+													</div>
+												);
+											})}
+										</div>
+									)}
 							</div>
-						</Tab>
-					)}
-					{errorList.length > 0 && (
-						<Tab
-							eventKey="success"
-							title={
-								<div className="text-success border-success">
-									<FontAwesomeIcon icon={faFileExport}></FontAwesomeIcon>{" "}
-									<a>Exportación</a>
-								</div>
-							}
-						>
-							Tab content for Loooonger Tab
 						</Tab>
 					)}
 				</Tabs>

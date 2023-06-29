@@ -1322,9 +1322,8 @@ function Header({ LTISettings }, ref) {
 					metadata={metaData}
 					userdata={userData}
 					errorList={errorList}
-					callback={() => {
-						alert("TEST");
-					}}
+					metaData={metaData}
+					mapName={mapSelected.name}
 				/>
 			)}
 			{showUserSettingsModal && (

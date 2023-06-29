@@ -46,6 +46,7 @@ import {
 	getMoodleTypes,
 	getSakaiTypes,
 } from "@utils/TypeDefinitions.js";
+import { hasUnorderedResources } from "@utils/Platform.js";
 
 export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 	const { errorList, setErrorList } = useContext(ErrorListContext);
