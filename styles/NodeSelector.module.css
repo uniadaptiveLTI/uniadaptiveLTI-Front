@@ -1,12 +1,40 @@
 .selectionContainer {
     display: grid; 
   grid-template-columns: 1fr 1fr 1fr; 
-  grid-template-rows: 1fr 1fr 1fr; 
+  /*grid-template-rows: 1fr 1fr 1fr;*/ 
   gap: 1em 1em; 
   grid-template-areas: 
     ". . ."
     ". . ."
     ". . ."; 
+  justify-content: center; 
+  align-content: space-evenly; 
+  justify-items: center; 
+}
+
+.selectionContainerMD {
+    display: grid; 
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr; 
+  /*grid-template-rows: 1fr 1fr 1fr 1fr 1fr; */
+  gap: 1em 1em; 
+  grid-template-areas: 
+    ". . . . ."
+    ". . . . ."
+    ". . . . ."; 
+  justify-content: center; 
+  align-content: space-evenly; 
+  justify-items: center; 
+}
+
+.selectionContainerXL {
+    display: grid; 
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr; 
+  /*grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr 1fr; */
+  gap: 1em 1em; 
+  grid-template-areas: 
+    ". . . . . . ."
+    ". . . . . . ."
+    ". . . . . . ."; 
   justify-content: center; 
   align-content: space-evenly; 
   justify-items: center; 

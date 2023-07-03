@@ -94,14 +94,13 @@ FALLBACK
 
 /* Moodle+Sakai */
 
-
-/* Quiz */
-.react-flow__node-quiz{
-    background-color: #eb9408;
+/* AddGroup */
+.react-flow__node-addgroup {
+	background-color: #198754;
 }
 
-.react-flow__node-quiz:hover, .react-flow__node-quiz:focus-visible, .react-flow__node-quiz:active{
-    background-color: #c9810e;
+.react-flow__node-addgroup:hover, .react-flow__node-addgroup:focus-visible, .react-flow__node-addgroup:active {
+	background-color: #0e683e;
 }
 
 /* Assignment */
@@ -111,6 +110,15 @@ FALLBACK
 
 .react-flow__node-assign:hover,  .react-flow__node-assign:focus-visible, .react-flow__node-assign:active{
     background-color: #1bafcd;
+}
+
+/* Quiz */
+.react-flow__node-quiz{
+    background-color: #eb9408;
+}
+
+.react-flow__node-quiz:hover, .react-flow__node-quiz:focus-visible, .react-flow__node-quiz:active{
+    background-color: #c9810e;
 }
 
 /* Resource */
@@ -159,15 +167,6 @@ FALLBACK
 	background-color: #419093;
 }
 
-/* AddGroup */
-.react-flow__node-addgroup {
-	background-color: #198754;
-}
-
-.react-flow__node-addgroup:hover, .react-flow__node-addgroup:focus-visible, .react-flow__node-addgroup:active {
-	background-color: #0e683e;
-}
-
 /* RemGroup */
 .react-flow__node-remgroup {
 	background-color: #dc3545;
@@ -175,6 +174,15 @@ FALLBACK
 
 .react-flow__node-remgroup:hover, .react-flow__node-remgroup:focus-visible, .react-flow__node-remgroup:active {
 	background-color: #bf2534;
+}
+
+/* Wiki */
+.react-flow__node-wiki {
+	background-color: #15a935;
+}
+
+.react-flow__node-wiki:hover, .react-flow__node-wiki:focus-visible, .react-flow__node-wiki:active {
+	background-color: #0f992d;
 }
 
 /* Moodle */

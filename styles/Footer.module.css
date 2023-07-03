@@ -8,6 +8,7 @@
     font-family: var(--footer-font-family);
     color: var(--footer-font-color);
     background: var(--footer-background-color);
+    user-select: none;
 }
 
 .messageBox {
@@ -19,6 +20,7 @@
     font-family: var(--footer-msgbox-font-family);
     color: var(--footer-msgbox-font-color);
     background: var(--footer-msgbox-background-color);
+    user-select: text;
 }
 
 .messageBox.expanded{

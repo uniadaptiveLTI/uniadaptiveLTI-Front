@@ -13,7 +13,6 @@ export const NodeInfoContext = createContext(); // Contains the node data that i
 export const ErrorListContext = createContext(); // Contains an array with error objects
 export const MapInfoContext = createContext(""); //
 export const VersionInfoContext = createContext(); //
-export const MapContext = createContext(); //
 export const ExpandedAsideContext = createContext(); // True/false if Aside is visible
 export const VersionJsonContext = createContext(); // Contains the current version
 export const BlockJsonContext = createContext(true); //

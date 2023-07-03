@@ -115,6 +115,7 @@
     background-color: var(--header-background-color);
     color: var(--header-font-color);
     font-family: var(--header-font-family);
+    user-select: none;
 }
 
 .header>nav {

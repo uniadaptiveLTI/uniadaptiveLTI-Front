@@ -42,6 +42,8 @@ export default function Layout({ LTISettings, children }) {
 	const [mapCount, setMapCount] = useState(0);
 	const [mapNames, setMapNames] = useState([]);
 	const [allowUseStatus, setAllowUseStatus] = useState(false);
+	const emptyMap = { id: -1, name: "Seleccionar un mapa" };
+	const [maps, setMaps] = useState([emptyMap]);
 	const [funcCreateMap, setFuncCreateMap] = useState();
 	const [funcImportMap, setFuncImportMap] = useState();
 	const [funcImportMapFromLesson, setFuncImportMapFromLesson] = useState();
@@ -116,6 +118,8 @@ export default function Layout({ LTISettings, children }) {
 										setMapNames,
 										allowUseStatus,
 										setAllowUseStatus,
+										maps,
+										setMaps,
 										funcCreateMap,
 										setFuncCreateMap,
 										funcImportMap,

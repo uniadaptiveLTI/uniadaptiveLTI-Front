@@ -67,36 +67,49 @@ import NodeSelector from "@dialogs/NodeSelector.js";
 import CriteriaModal from "@flow/badges/CriteriaModal.js";
 import AnimatedEdge from "@edges/AnimatedEdge.js";
 import ConditionalEdge from "@edges/ConditionalEdge";
+import { NodeTypes } from "@utils/TypeDefinitions.js";
 const minimapStyle = {
 	height: 120,
 };
 
 const nodeTypes = {
-	quiz: ElementNode,
-	assign: ElementNode,
-	forum: ElementNode,
-	resource: ElementNode,
-	folder: ElementNode,
-	mail: ActionNode,
 	addgroup: ActionNode,
+	assign: ElementNode,
+	folder: ElementNode,
+	forum: ElementNode,
+	mail: ActionNode,
+	quiz: ElementNode,
 	remgroup: ActionNode,
+	resource: ElementNode,
 	url: ElementNode,
+	wiki: ElementNode,
 	// Moodle
-	workshop: ElementNode,
-	choice: ElementNode,
-	label: ElementNode,
-	page: ElementNode,
 	badge: ActionNode,
+	book: ElementNode,
+	// chat: ElementNode,
+	choice: ElementNode,
+	// data: ElementNode,
+	// feedback: ElementNode,
 	generic: ElementNode,
+	glossary: ElementNode,
+	// h5pactivity: ElementNode,
+	// imscp: ElementNode,
+	label: ElementNode,
+	lesson: ElementNode,
+	// lti: ElementNode,
+	page: ElementNode,
+	// scorm: ElementNode,
+	// survey: ElementNode,
+	workshop: ElementNode,
 	// Sakai
 	exam: ElementNode,
-	contents: ElementNode,
-	text: ElementNode,
 	html: ElementNode,
+	reflist: ElementNode,
+	text: ElementNode,
 	//LTI
-	start: InitialNode,
 	end: FinalNode,
 	fragment: FragmentNode,
+	start: InitialNode,
 };
 
 const edgeTypes = {
@@ -499,7 +512,7 @@ const OverviewFlow = ({ map }, ref) => {
 		var blockNodeSource = reactFlowInstance
 			?.getNodes()
 			.find((obj) => obj.id === nodes[0].source);
-console.log(blockNodeSource);
+		console.log(blockNodeSource);
 		var blockNodeTarget = reactFlowInstance
 			?.getNodes()
 			.find((obj) => obj.id === nodes[0].target);
@@ -590,7 +603,16 @@ console.log(blockNodeSource);
 	}, [map]);
 
 	useEffect(() => {
-		setNewInitialNodes(map);
+		const filteredMap = map.map((node) => {
+			if (platform == "moodle") {
+				return NodeTypes.find((definition) => definition.type == node.type)
+					? node
+					: { ...node, type: "generic" };
+			} else {
+				return node;
+			}
+		});
+		setNewInitialNodes(filteredMap);
 
 		setNewInitialEdges(
 			map?.flatMap((parent) => {

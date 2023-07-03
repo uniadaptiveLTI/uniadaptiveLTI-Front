@@ -52,6 +52,7 @@ import {
 	base64Decode,
 	base64Encode,
 	capitalizeFirstLetter,
+	orderByPropertyAlphabetically,
 	uniqueId,
 } from "@utils/Utils.js";
 import { isNodeArrayEqual } from "@utils/Nodes";
@@ -85,6 +86,8 @@ function Header({ LTISettings }, ref) {
 		setMapCount,
 		setMapNames,
 		setAllowUseStatus,
+		maps,
+		setMaps,
 		setFuncCreateMap,
 		setFuncImportMap,
 		setFuncImportMapFromLesson,
@@ -105,9 +108,8 @@ function Header({ LTISettings }, ref) {
 
 	const [loadedUserData, setLoadedUserData] = useState();
 	const [loadedMetaData, setLoadedMetaData] = useState();
-	const [loadedMaps, setLoadedMaps] = useState();
 	const emptyMap = { id: -1, name: "Seleccionar un mapa" };
-	const [maps, setMaps] = useState([emptyMap]);
+	const [loadedMaps, setLoadedMaps] = useState(false);
 	const { metaData, setMetaData } = useContext(MetaDataContext);
 	const [userData, setUserData] = useState({});
 
@@ -228,10 +230,10 @@ function Header({ LTISettings }, ref) {
 	/**
 	 * Handles the creation of a new map.
 	 */
-	const handleNewMap = (e, data) => {
+	const handleNewMap = (e, data, localMaps = maps) => {
 		const emptyNewMap = {
 			id: uniqueId(),
-			name: "Nuevo Mapa " + maps.length,
+			name: "Nuevo Mapa " + localMaps.length,
 			versions: [
 				{
 					id: 0,
@@ -266,23 +268,23 @@ function Header({ LTISettings }, ref) {
 		// console.log(response);
 
 		const newMaps = [
-			...maps,
+			...localMaps,
 			data
 				? {
 						...data,
-						id: maps.length,
-						name: "Nuevo Mapa " + maps.length,
+						id: localMaps.length,
+						name: "Nuevo Mapa " + localMaps.length,
 				  }
 				: emptyNewMap,
 		];
 
 		setMaps(newMaps);
 		setLastMapCreated(emptyNewMap.id);
-		toast(`Mapa: "Nuevo Mapa ${maps.length}" creado`, defaultToastSuccess);
+		toast(`Mapa: "Nuevo Mapa ${localMaps.length}" creado`, defaultToastSuccess);
 		setMapCount((prev) => prev + 1);
 	};
 
-	const handleImportedMap = async (lesson) => {
+	const handleImportedMap = async (lesson, localMaps = maps) => {
 		const uniqueId = () => parseInt(Date.now() * Math.random()).toString();
 		try {
 			const encodedCourse = encodeURIComponent(metaData.course_id);
@@ -311,23 +313,43 @@ function Header({ LTISettings }, ref) {
 			NodeTypes.map((node) => validTypes.push(node.type));
 			const nodes = [];
 			data.map((node) => {
-				if (validTypes.includes(node.modname)) {
-					const newNode = {};
-					newNode.id = "" + uniqueId();
-					newNode.type = node.modname;
-					newNode.position = { x: newX, y: newY };
-					newNode.data = {
-						label: node.name,
-						indent: node.indent,
-						section: node.section,
-						children: [],
-						order: node.order,
-						lmsResource: node.id,
-						lmsVisibility: node.visible,
-					};
+				if (platform != "moodle") {
+					if (validTypes.includes(node.modname)) {
+						const newNode = {};
+						newNode.id = "" + uniqueId();
+						newNode.type = node.modname;
+						newNode.position = { x: newX, y: newY };
+						newNode.data = {
+							label: node.name,
+							indent: node.indent,
+							section: node.section,
+							children: [],
+							order: node.order, //broken order, as there is missing elements
+							lmsResource: node.id,
+							lmsVisibility: node.visible,
+						};
 
-					newX += 125;
-					nodes.push(newNode);
+						newX += 125;
+						nodes.push(newNode);
+					} else {
+						//In Moodle, unknown blocks will be translated as "generic" (in blockflow.js)
+						const newNode = {};
+						newNode.id = "" + uniqueId();
+						newNode.type = node.modname;
+						newNode.position = { x: newX, y: newY };
+						newNode.data = {
+							label: node.name,
+							indent: node.indent,
+							section: node.section,
+							children: [],
+							order: node.order,
+							lmsResource: node.id,
+							lmsVisibility: node.visible,
+						};
+
+						newX += 125;
+						nodes.push(newNode);
+					}
 				}
 			});
 			console.log("JSON FILTRADO Y ADAPTADO: ", nodes);
@@ -339,7 +361,7 @@ function Header({ LTISettings }, ref) {
 						? `Mapa importado desde ${
 								metaData.lessons.find((lesson) => lesson.id == lesson).name
 						  } (${maps.length})`
-						: `Mapa importado desde ${metaData.name} (${maps.length})`,
+						: `Mapa importado desde ${metaData.name} (${localMaps.length})`,
 				versions: [
 					{
 						id: 0,
@@ -371,7 +393,7 @@ function Header({ LTISettings }, ref) {
 				],
 			};
 
-			const newMaps = [...maps, platformNewMap];
+			const newMaps = [...localMaps, platformNewMap];
 
 			console.log("JSON CONVERTIDO EN UN MAPA: ", platformNewMap);
 

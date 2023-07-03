@@ -38,6 +38,7 @@ function EmptySelector() {
 		mapCount,
 		mapNames,
 		allowUseStatus,
+		maps,
 		funcCreateMap,
 		funcImportMap,
 		funcImportMapFromLesson,
@@ -77,7 +78,7 @@ function EmptySelector() {
 							<Col>
 								<Button
 									variant="light"
-									onClick={funcCreateMap}
+									onClick={() => funcCreateMap(null, null, maps)}
 									className="w-100"
 									style={{
 										...buttonStyles,
@@ -95,7 +96,7 @@ function EmptySelector() {
 								{hasLessons(platform) ? (
 									<Button
 										variant="light"
-										onClick={funcImportMapFromLesson}
+										onClick={() => funcImportMapFromLesson(null, maps)}
 										className="w-100"
 										style={{
 											...buttonStyles,

@@ -1,6 +1,6 @@
 import { useState, useRef, useId, useContext } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
-import { MapContext, MapInfoContext } from "@root/pages/_app";
+import { MapInfoContext } from "@root/pages/_app";
 
 export default function SimpleMapSelector({
 	showDialog,

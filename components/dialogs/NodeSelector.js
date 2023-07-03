@@ -1,4 +1,11 @@
-import { forwardRef, useContext } from "react";
+import {
+	forwardRef,
+	useContext,
+	useEffect,
+	useLayoutEffect,
+	useRef,
+	useState,
+} from "react";
 import { Modal, Button, Container, Col, Row } from "react-bootstrap";
 import { PlatformContext } from "@root/pages/_app";
 import { NodeTypes } from "@utils/TypeDefinitions";
@@ -18,9 +25,11 @@ export default forwardRef(function NodeSelector(
 	{ showDialog, type, toggleDialog, callback },
 	ref
 ) {
+	const modalRef = useRef(null);
 	const rfNodes = useNodes();
 	const { platform } = useContext(PlatformContext);
 	const { devModeStatus } = useContext(DevModeStatusContext);
+	const [widthStyle, setWidthStyle] = useState(styles.selectionContainer);
 	function handleClose(actionClicked) {
 		if (callback && actionClicked) {
 			if (callback instanceof Function) {
@@ -32,13 +41,34 @@ export default forwardRef(function NodeSelector(
 		toggleDialog();
 	}
 
+	useLayoutEffect(() => {
+		if (modalRef.current) {
+			rescaleGrid();
+		}
+	}, [modalRef.current]);
+
+	useEffect(() => {
+		rescaleGrid();
+	}, [modalRef.current?.getBoundingClientRect()]);
+
+	function rescaleGrid() {
+		const modalBounds = modalRef.current.getBoundingClientRect();
+		const mwidth = modalBounds.width;
+		let styleToLoad = null;
+		if (mwidth < 499) styleToLoad = styles.selectionContainer;
+		if (mwidth >= 499 && mwidth < 799)
+			styleToLoad = styles.selectionContainerMD;
+		if (mwidth >= 799) styleToLoad = styles.selectionContainerXL;
+		setWidthStyle(styleToLoad);
+	}
+
 	function getFilteredBlockSelection() {
 		const lmsBlocks = NodeTypes.filter((node) => node.lms.includes(platform));
 		const typeBlocks = lmsBlocks.filter((node) => node.nodeType == type);
 		const orderedSelection = orderByPropertyAlphabetically(typeBlocks, "name");
 
 		return (
-			<div className={styles.selectionContainer}>
+			<div className={widthStyle}>
 				{orderedSelection.map((selectedElement) =>
 					SelectionElement(selectedElement)
 				)}
@@ -98,11 +128,14 @@ export default forwardRef(function NodeSelector(
 		);
 	}
 	return (
-		<Modal show={showDialog} onHide={toggleDialog} centered>
+		<Modal show={showDialog} onHide={toggleDialog} size="lg" centered>
 			<Modal.Header closeButton>
 				<Modal.Title>Selección de bloque</Modal.Title>
 			</Modal.Header>
-			<Modal.Body style={{ maxHeight: "60vh", overflowY: "scroll" }}>
+			<Modal.Body
+				ref={modalRef}
+				style={{ maxHeight: "60vh", overflowY: "auto" }}
+			>
 				{getFilteredBlockSelection()}
 			</Modal.Body>
 			<Modal.Footer>
