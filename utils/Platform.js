@@ -1,3 +1,5 @@
+import { NodeTypes } from "./TypeDefinitions";
+
 export function getDefaultVisibility(platform) {
 	switch (platform) {
 		case "moodle":
@@ -60,4 +62,29 @@ export function getBackupURL(platform, metaData) {
 		default:
 			return null;
 	}
+}
+
+export function isSupportedTypeInPlatform(platform, type, excludeLTI = false) {
+	if (excludeLTI) {
+		return NodeTypes.find(
+			(definition) =>
+				definition.type == type && definition.lms.includes(platform)
+		)
+			? true
+			: false;
+	} else {
+		return NodeTypes.find(
+			(definition) =>
+				definition.type == type &&
+				(definition.lms.includes(platform) || definition.lms.includes("lti"))
+		)
+			? true
+			: false;
+	}
+}
+
+export function getSupportedTypes(platform) {
+	return NodeTypes.map((declaration) => {
+		if (declaration.includes(platform)) return declaration.type;
+	});
 }

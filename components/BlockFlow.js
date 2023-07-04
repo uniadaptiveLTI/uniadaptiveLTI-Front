@@ -68,6 +68,7 @@ import CriteriaModal from "@flow/badges/CriteriaModal.js";
 import AnimatedEdge from "@edges/AnimatedEdge.js";
 import ConditionalEdge from "@edges/ConditionalEdge";
 import { NodeTypes } from "@utils/TypeDefinitions.js";
+import { isSupportedTypeInPlatform } from "@utils/Platform.js";
 const minimapStyle = {
 	height: 120,
 };
@@ -604,13 +605,9 @@ const OverviewFlow = ({ map }, ref) => {
 
 	useEffect(() => {
 		const filteredMap = map.map((node) => {
-			if (platform == "moodle") {
-				return NodeTypes.find((definition) => definition.type == node.type)
-					? node
-					: { ...node, type: "generic" };
-			} else {
-				return node;
-			}
+			return isSupportedTypeInPlatform(platform, node.type)
+				? node
+				: { ...node, type: "generic" };
 		});
 		setNewInitialNodes(filteredMap);
 

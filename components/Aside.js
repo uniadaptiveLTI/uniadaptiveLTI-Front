@@ -46,7 +46,7 @@ import {
 	getMoodleTypes,
 	getSakaiTypes,
 } from "@utils/TypeDefinitions.js";
-import { hasUnorderedResources } from "@utils/Platform.js";
+import { getSupportedTypes, hasUnorderedResources } from "@utils/Platform.js";
 
 export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 	const { errorList, setErrorList } = useContext(ErrorListContext);
@@ -109,7 +109,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 	);
 	const sakaiResource = orderByPropertyAlphabetically(getSakaiTypes(), "name");
 
-	const fetchData = async (
+	const fetchResources = async (
 		selectedOption,
 		platform,
 		instance,
@@ -128,7 +128,13 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 			setShowSpinner(true);
 			setAllowResourceSelection(false);
 			const response = await fetch(
-				`http://${LTISettings.back_url}/lti/get_modules_by_type?type=${encodedSelectedOption}&platform=${encodedPlatform}&course=${encodedCourse}&lms=${encodedLMS}&course=${encodedCourse}&session=${encodedSession}`
+				selectedOption == "generic"
+					? `http://${
+							LTISettings.back_url
+					  }/api/lti/get_modules_by_type?type=unsupported&instance=${encodedInstance}&platform=${encodedPlatform}&course=${encodedCourse}&lms=${encodedLMS}&session=${encodedSession}&supportedTypes=${encodeURIComponent(
+							getSupportedTypes(platform)
+					  )}`
+					: `http://${LTISettings.back_url}/api/lti/get_modules_by_type?type=${encodedSelectedOption}&instance=${encodedInstance}&platform=${encodedPlatform}&course=${encodedCourse}&lms=${encodedLMS}&session=${encodedSession}`
 			);
 			if (!response.ok) {
 				throw new Error("Request failed");
@@ -147,123 +153,112 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 	};
 
 	useEffect(() => {
-		switch (selectedOption) {
-			case "generic":
-				setResourceOptions([{ id: 0, name: "Genérico" }]);
-				break;
-			default:
-				//FIXME: No sucede
-				if (!selectedOption) {
-					setResourceOptions([]);
-				} else {
-					if (LTISettings.debugging.dev_files) {
-						setResourceOptions([]);
-						setTimeout(() => {
-							const data = [
-								{
-									id: 0,
-									name: `${capitalizeFirstLetter(
-										NodeTypes.filter((node) => node.type == selectedOption)[0]
-											.name
-									)} A`,
-								},
-								{
-									id: 1,
-									name: `${capitalizeFirstLetter(
-										NodeTypes.filter((node) => node.type == selectedOption)[0]
-											.name
-									)} B`,
-								},
-								{
-									id: 2,
-									name: `${capitalizeFirstLetter(
-										NodeTypes.filter((node) => node.type == selectedOption)[0]
-											.name
-									)} C`,
-								},
-								{
-									id: 3,
-									name: `${capitalizeFirstLetter(
-										NodeTypes.filter((node) => node.type == selectedOption)[0]
-											.name
-									)} D`,
-								},
-							];
-							const filteredData = [];
-							data.forEach((resource) => {
-								if (!getUsedResources().includes(resource.id)) {
-									filteredData.push(resource);
-								}
-							});
+		//FIXME: No sucede
+		if (!selectedOption) {
+			setResourceOptions([]);
+		} else {
+			if (LTISettings.debugging.dev_files) {
+				setResourceOptions([]);
+				setTimeout(() => {
+					const data = [
+						{
+							id: 0,
+							name: `${capitalizeFirstLetter(
+								NodeTypes.filter((node) => node.type == selectedOption)[0].name
+							)} A`,
+						},
+						{
+							id: 1,
+							name: `${capitalizeFirstLetter(
+								NodeTypes.filter((node) => node.type == selectedOption)[0].name
+							)} B`,
+						},
+						{
+							id: 2,
+							name: `${capitalizeFirstLetter(
+								NodeTypes.filter((node) => node.type == selectedOption)[0].name
+							)} C`,
+						},
+						{
+							id: 3,
+							name: `${capitalizeFirstLetter(
+								NodeTypes.filter((node) => node.type == selectedOption)[0].name
+							)} D`,
+						},
+					];
+					const filteredData = [];
+					data.forEach((resource) => {
+						if (!getUsedResources().includes(resource.id)) {
+							filteredData.push(resource);
+						}
+					});
 
-							//Adds current resource if exists
-							if (nodeSelected && nodeSelected.data) {
-								if (nodeSelected.data.lmsResource != undefined) {
-									if (nodeSelected.data.lmsResource > -1) {
-										const lmsRes = nodeSelected.data.lmsResource;
-										const storedRes = data.find(
-											(resource) => resource.id === lmsRes
-										);
+					//Adds current resource if exists
+					if (nodeSelected && nodeSelected.data) {
+						if (nodeSelected.data.lmsResource != undefined) {
+							if (nodeSelected.data.lmsResource > -1) {
+								const lmsRes = nodeSelected.data.lmsResource;
+								const storedRes = data.find(
+									(resource) => resource.id === lmsRes
+								);
 
-										if (storedRes != undefined) {
-											filteredData.push(storedRes);
-										}
-									}
+								if (storedRes != undefined) {
+									filteredData.push(storedRes);
 								}
 							}
-
-							const uniqueFilteredData = orderByPropertyAlphabetically(
-								deduplicateById(filteredData),
-								"name"
-							);
-							uniqueFilteredData.unshift({ id: -1, name: "Vacío" });
-							setResourceOptions(uniqueFilteredData);
-						}, 1000);
-					} else {
-						fetchData(
-							selectedOption,
-							metaData.platform,
-							metaData.instance_id,
-							metaData.lms_url,
-							metaData.course_id,
-							metaData.session_id
-						).then((data) => {
-							const filteredData = [];
-							data.forEach((resource) => {
-								if (!getUsedResources().includes(resource.id)) {
-									filteredData.push(resource);
-								}
-							});
-							//Adds current resource if exists
-							if (nodeSelected && nodeSelected.data) {
-								if (nodeSelected.data.lmsResource) {
-									if (nodeSelected.data.lmsResource > -1) {
-										const lmsRes = nodeSelected.data.lmsResource;
-										const storedRes = data.find(
-											(resource) => resource.id === lmsRes
-										);
-
-										if (storedRes != undefined) {
-											filteredData.push(storedRes);
-										}
-									}
-								}
-							}
-							const uniqueFilteredData = orderByPropertyAlphabetically(
-								deduplicateById(filteredData),
-								"name"
-							);
-							uniqueFilteredData.forEach(
-								(option) =>
-								hasUnorderedResources(platform)? (option.bettername = `${option.name}`) : (option.bettername = `${option.name} - Sección: ${option.section}`)
-							);
-							uniqueFilteredData.unshift({ id: -1, name: "Vacío" });
-							setResourceOptions(uniqueFilteredData);
-						});
+						}
 					}
-				}
 
-				break;
+					const uniqueFilteredData = orderByPropertyAlphabetically(
+						deduplicateById(filteredData),
+						"name"
+					);
+					uniqueFilteredData.unshift({ id: -1, name: "Vacío" });
+					setResourceOptions(uniqueFilteredData);
+				}, 1000);
+			} else {
+				fetchResources(
+					selectedOption,
+					metaData.platform,
+					metaData.instance_id,
+					metaData.lms_url,
+					metaData.course_id,
+					metaData.session_id
+				).then((data) => {
+					const filteredData = [];
+					data.forEach((resource) => {
+						if (!getUsedResources().includes(resource.id)) {
+							filteredData.push(resource);
+						}
+					});
+					//Adds current resource if exists
+					if (nodeSelected && nodeSelected.data) {
+						if (nodeSelected.data.lmsResource) {
+							if (nodeSelected.data.lmsResource > -1) {
+								const lmsRes = nodeSelected.data.lmsResource;
+								const storedRes = data.find(
+									(resource) => resource.id === lmsRes
+								);
+
+								if (storedRes != undefined) {
+									filteredData.push(storedRes);
+								}
+							}
+						}
+					}
+					const uniqueFilteredData = orderByPropertyAlphabetically(
+						deduplicateById(filteredData),
+						"name"
+					);
+					uniqueFilteredData.forEach((option) =>
+						hasUnorderedResources(platform)
+							? (option.bettername = `${option.name}`)
+							: (option.bettername = `${option.name} - Sección: ${option.section}`)
+					);
+					uniqueFilteredData.unshift({ id: -1, name: "Vacío" });
+					setResourceOptions(uniqueFilteredData);
+				});
+			}
 		}
 	}, [selectedOption, nodeSelected]);
 
@@ -347,7 +342,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 	 * Updates the selected block with the values from the specified DOM elements.
 	 */
 	const updateBlock = () => {
-		if(nodeSelected.type != "fragment"){
+		if (nodeSelected.type != "fragment") {
 			let type = resourceDOM.current.value;
 			let newData;
 			if (!ActionNodes.includes(nodeSelected.type)) {
@@ -477,22 +472,22 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 			if (autoHideAside) {
 				setExpandedAside(false);
 			}
-	} else {
-		const newData = {
-			...nodeSelected.data,
-			label: labelDOM.current.value
+		} else {
+			const newData = {
+				...nodeSelected.data,
+				label: labelDOM.current.value,
+			};
+
+			const updatedData = {
+				...nodeSelected,
+				id: nodeSelected.id,
+				data: newData,
+			};
+
+			reactFlowInstance.setNodes(
+				getUpdatedArrayById(updatedData, reactFlowInstance.getNodes())
+			);
 		}
-
-		const updatedData = {
-			...nodeSelected,
-			id: nodeSelected.id,
-			data: newData,
-		};
-
-		reactFlowInstance.setNodes(
-			getUpdatedArrayById(updatedData, reactFlowInstance.getNodes())
-		);
-	}
 	};
 
 	/**

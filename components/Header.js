@@ -292,8 +292,8 @@ function Header({ LTISettings }, ref) {
 			const encodedSessionId = encodeURIComponent(metaData.session_id);
 			const response = await fetch(
 				lesson != undefined
-					? `http://${LTISettings.back_url}/lti/get_modules?instance=${encodedInstance}&course=${encodedCourse}&session=${encodedSessionId}&lesson=${lesson}`
-					: `http://${LTISettings.back_url}/lti/get_modules?instance=${encodedInstance}&course=${encodedCourse}&session=${encodedSessionId}`
+					? `http://${LTISettings.back_url}/api/lti/get_modules?instance=${encodedInstance}&course=${encodedCourse}&session=${encodedSessionId}&lesson=${lesson}`
+					: `http://${LTISettings.back_url}/api/lti/get_modules?instance=${encodedInstance}&course=${encodedCourse}&session=${encodedSessionId}`
 			);
 
 			if (!response.ok) {
@@ -700,7 +700,7 @@ function Header({ LTISettings }, ref) {
 						throw error;
 					});
 			} else {
-				fetch(`http://${LTISettings.back_url}/lti/get_session`)
+				fetch(`http://${LTISettings.back_url}/api/lti/get_session`)
 					.then((response) => response.json())
 					.then((data) => {
 						console.log("DATOS DEL LMS: ", data);
@@ -864,7 +864,7 @@ function Header({ LTISettings }, ref) {
 			};
 
 			const response = await fetch(
-				`http://${LTISettings.back_url}/lti/store_version`,
+				`http://${LTISettings.back_url}/api/lti/store_version`,
 				{
 					method: "POST",
 					headers: { "Content-Type": "application/json" },

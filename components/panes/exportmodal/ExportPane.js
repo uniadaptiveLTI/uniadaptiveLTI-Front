@@ -158,7 +158,7 @@ export default function ExportPanel({
 	async function sendNodes(nodes) {
 		try {
 			const response = await fetch(
-				`http://${LTISettings.back_url}/lti/export_version`,
+				`http://${LTISettings.back_url}/api/lti/export_version`,
 				{
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
@@ -237,12 +237,14 @@ export default function ExportPanel({
 					/>
 				)}
 			</Button>
-			<p>
-				<b>Atención: </b>{" "}
-				<a href={backupURL}>
-					se recomienda hacer una copia de seguridad del curso.
-				</a>
-			</p>
+			{backupURL && (
+				<p>
+					<b>Atención: </b>{" "}
+					<a href={backupURL} target="_blank">
+						se recomienda hacer una copia de seguridad del curso.
+					</a>
+				</p>
+			)}
 			{hasWarnings && (
 				<Alert variant={"warning"}>
 					<strong>Atención: </strong>

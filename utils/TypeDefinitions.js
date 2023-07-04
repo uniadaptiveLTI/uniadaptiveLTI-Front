@@ -85,7 +85,7 @@ export const NodeTypes = [
 		value: "generic",
 		name: "Genérico",
 		nodeType: "ElementNode",
-		lms: ["moodle"],
+		lms: ["moodle", "sakai"],
 	},
 	{
 		id: 11,
