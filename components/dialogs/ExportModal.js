@@ -24,17 +24,17 @@ import {
 	faFileExport,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import ExportPanel from "@panes/exportmodal/ExportPanel";
+import ExportPane from "@panes/exportmodal/ExportPane";
 
 export default forwardRef(function ExportModal(
 	{
 		showDialog,
 		toggleDialog,
-		metadata,
-		userdata,
-		errorList,
 		metaData,
+		userData,
+		errorList,
 		mapName,
+		LTISettings,
 	},
 	ref
 ) {
@@ -59,7 +59,7 @@ export default forwardRef(function ExportModal(
 	const [nodeWarningParentList, setNodeWarningParentList] = useState();
 
 	const formatErrorList = () => {
-		console.log(JSON.stringify(metadata));
+		console.log(JSON.stringify(metaData));
 	};
 
 	const getErrorList = () => {
@@ -284,12 +284,14 @@ export default forwardRef(function ExportModal(
 							</div>
 						}
 					>
-						<ExportPanel
+						<ExportPane
 							errorList={errorList}
 							warningList={warningList}
 							changeTab={setKey}
 							metaData={metaData}
+							userData={userData}
 							mapName={mapName}
+							LTISettings={LTISettings}
 						/>
 					</Tab>
 
@@ -378,7 +380,7 @@ export default forwardRef(function ExportModal(
 								</div>
 							)}
 
-							{/*JSON.stringify(metadata)*/}
+							{/*JSON.stringify(metaData)*/}
 							{/*JSON.stringify(userdata)*/}
 						</Tab>
 					)}

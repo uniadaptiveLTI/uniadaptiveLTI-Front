@@ -31,7 +31,7 @@ export function hasUnorderedResources(platform) {
 	}
 }
 
-export function startingSectionNumber(platform){
+export function startingSectionNumber(platform) {
 	switch (platform) {
 		case "moodle":
 			return 0;
@@ -42,10 +42,22 @@ export function startingSectionNumber(platform){
 	}
 }
 
-export function allowsPartialExport(platform){
-	switch(platform){
-		case "moodle": return true;
-		case "sakai": return true;
-		default: return false;
+export function allowsPartialExport(platform) {
+	switch (platform) {
+		case "moodle":
+			return true;
+		case "sakai":
+			return true;
+		default:
+			return false;
+	}
+}
+
+export function getBackupURL(platform, metaData) {
+	switch (platform) {
+		case "moodle":
+			return `${metaData.lms_url}/backup/backup.php?id=${metaData.course_id}`;
+		default:
+			return null;
 	}
 }

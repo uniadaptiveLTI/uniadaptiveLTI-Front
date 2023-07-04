@@ -864,7 +864,7 @@ function Header({ LTISettings }, ref) {
 			};
 
 			const response = await fetch(
-				`http://${LTISettings.back_url}/api/lti/store_version`,
+				`http://${LTISettings.back_url}/lti/store_version`,
 				{
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
@@ -1341,11 +1341,11 @@ function Header({ LTISettings }, ref) {
 				<ExportModal
 					showDialog={showExportModal}
 					toggleDialog={toggleExportModal}
-					metadata={metaData}
-					userdata={userData}
 					errorList={errorList}
 					metaData={metaData}
+					userData={userData}
 					mapName={mapSelected.name}
+					LTISettings={LTISettings}
 				/>
 			)}
 			{showUserSettingsModal && (
