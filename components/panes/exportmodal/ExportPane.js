@@ -9,6 +9,7 @@ import { useReactFlow } from "reactflow";
 import { NodeTypes } from "@utils/TypeDefinitions";
 import { PlatformContext } from "pages/_app";
 import { getBackupURL } from "@utils/Platform";
+import { ActionNodes } from "@utils/Nodes";
 
 export default function ExportPanel({
 	errorList,
@@ -129,8 +130,13 @@ export default function ExportPanel({
 			delete node.selected;
 			delete node.parentNode;
 			delete node.expandParent;
+			const type = node.type;
 			delete node.type;
-			return { ...node, ...data };
+			if (ActionNodes.includes(type)) {
+				return { ...node, ...data, actionType: type };
+			} else {
+				return { ...node, ...data };
+			}
 		});
 		let nodesAsString = JSON.stringify(nodesToExport);
 		//Replacing block Ids by the resource ids
@@ -142,7 +148,15 @@ export default function ExportPanel({
 			nodesAsString = nodesAsString.replace(regex, lmsResource);
 		});
 
-		const nodesReadyToExport = JSON.parse(nodesAsString);
+		const nodesReadyToExport = JSON.parse(nodesAsString).filter((node) => {
+			const section = metaData.sections.find(
+				(section) => section.position == node.section
+			);
+
+			if (section && currentSelectionInfo.selection.includes(section.id))
+				return true;
+		});
+
 		sendNodes(nodesReadyToExport);
 	};
 
@@ -169,6 +183,7 @@ export default function ExportPanel({
 						userPerms: userData.userperms,
 						nodes: nodes,
 						save: true,
+						selection: currentSelectionInfo.selection,
 					}),
 				}
 			);
