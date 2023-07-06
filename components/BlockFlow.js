@@ -798,8 +798,23 @@ const OverviewFlow = ({ map }, ref) => {
 		// Array of blocks that its children or conditions are being updated
 		var updatedBlocks = [];
 
+		//For each fragment in the selection, adds its children.
+		blocks.forEach((block) => {
+			if (block.type == "fragment") {
+				const innerNodes = block.data.innerNodes;
+				innerNodes.forEach((node) => {
+					const rfNode = reactFlowInstance
+						.getNodes()
+						.find((onode) => onode.id == node.id);
+					if (rfNode) {
+						blocks.push(rfNode);
+					}
+				});
+			}
+		});
+
 		// Iteration of the blocks to delete
-		for (var i = 0; i < blocks.length; i++) {
+		for (let i = 0; i < blocks.length; i++) {
 			// Get method to retreive the parents nodes from a block
 			const parentsNode = getParentsNode(
 				reactFlowInstance.getNodes(),
@@ -807,7 +822,7 @@ const OverviewFlow = ({ map }, ref) => {
 			);
 
 			// Iteration of the parents nodes
-			for (var j = 0; j < parentsNode.length; j++) {
+			for (let j = 0; j < parentsNode.length; j++) {
 				// Condition to check if one of the parents it isn't being deleted
 				if (!blocks.some((block) => block.id === parentsNode[j].id)) {
 					// Find method to check if the parent is already edited
@@ -849,45 +864,47 @@ const OverviewFlow = ({ map }, ref) => {
 			var nodeArray = reactFlowInstance.getNodes();
 
 			// Filter method to retrieve only the nodes that are the children of a block
-			const childrenNodes = nodeArray.filter((node) =>
-				blocks[i].data.children.includes(node.id.toString())
-			);
-
-			// Iteration of the children nodes
-			for (var k = 0; k < childrenNodes.length; k++) {
-				// Find method to check if the children is already edited
-				const foundChildrenNode = updatedBlocks.find(
-					(block) => block.id === childrenNodes[k].id
+			if (blocks[i].data.children) {
+				const childrenNodes = nodeArray.filter((node) =>
+					blocks[i].data.children.includes(node.id.toString())
 				);
 
-				// Condition to check if the children is already edited
-				if (foundChildrenNode) {
-					// Delete method that updates the conditions of the children node edited
-					deleteConditionById(
-						foundChildrenNode.data?.conditions?.conditions,
-						blocks[i].id
-					);
-				} else {
-					// Delete method that updates the conditions of the children node
-					deleteConditionById(
-						childrenNodes[k].data?.conditions?.conditions,
-						blocks[i].id
+				// Iteration of the children nodes
+				for (var k = 0; k < childrenNodes.length; k++) {
+					// Find method to check if the children is already edited
+					const foundChildrenNode = updatedBlocks.find(
+						(block) => block.id === childrenNodes[k].id
 					);
 
-					// Push method to store the updated node
-					updatedBlocks.push(childrenNodes[k]);
+					// Condition to check if the children is already edited
+					if (foundChildrenNode) {
+						// Delete method that updates the conditions of the children node edited
+						deleteConditionById(
+							foundChildrenNode.data?.conditions?.conditions,
+							blocks[i].id
+						);
+					} else {
+						// Delete method that updates the conditions of the children node
+						deleteConditionById(
+							childrenNodes[k].data?.conditions?.conditions,
+							blocks[i].id
+						);
+
+						// Push method to store the updated node
+						updatedBlocks.push(childrenNodes[k]);
+					}
 				}
 			}
 		}
 
 		// Update method to update the full array of nodes with the updated nodes
-		var updatedNodeArray = getUpdatedArrayById(
+		let updatedNodeArray = getUpdatedArrayById(
 			updatedBlocks,
 			reactFlowInstance.getNodes()
 		);
 
 		// Iteration to delete the nodes from the full array of nodes
-		for (var i = 0; i < blocks.length; i++) {
+		for (let i = 0; i < blocks.length; i++) {
 			updatedNodeArray = updatedNodeArray.filter(
 				(node) => node.id !== blocks[i].id
 			);
@@ -898,22 +915,6 @@ const OverviewFlow = ({ map }, ref) => {
 
 		// Check method for errors
 		errorListCheck(blocks, errorList, setErrorList, true);
-
-		// 	if (blocks.type == "fragment" && blocks.data.innerNodes.length > 0) {
-		// 		const withoutFragmentChildren = [
-		// 			...deleteBlocks(
-		// 				addFragmentChildrenFromFragment(blocks, deletedRelatedChildrenArray)
-		// 			),
-		// 		];
-		// 		//Delete fragment from finalMap, as its added back by the deleteBlocks function
-		// 		const withoutFragment = withoutFragmentChildren.filter(
-		// 			(b) => b.id !== blocks.id
-		// 		);
-		// 		reactFlowInstance.setNodes(withoutFragment);
-		// 	} else {
-		// 		reactFlowInstance.setNodes(deleteRelatedConditionsArray);
-		// 	}
-		// 	return deleteRelatedConditionsArray;
 	};
 
 	/**
