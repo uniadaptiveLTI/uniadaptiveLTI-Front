@@ -161,3 +161,35 @@ export function arrayMoveById(from, to, array) {
 	newArray.splice(toIndex, 0, newArray.splice(fromIndex, 1)[0]);
 	return newArray;
 }
+
+export function searchConditionForTypes(jsonData, targetTypes, results) {
+	if (targetTypes.includes(jsonData.type)) {
+		results.push(jsonData);
+	}
+
+	if (jsonData.conditions && Array.isArray(jsonData.conditions)) {
+		for (const condition of jsonData.conditions) {
+			searchConditionForTypes(condition, targetTypes, results);
+		}
+	}
+}
+
+export function findCompletionAndQualification(obj) {
+	let results = [];
+
+	function search(obj) {
+		if (obj.type === "completion" || obj.type === "qualification") {
+			results.push(obj);
+		}
+
+		if (obj.conditions && Array.isArray(obj.conditions)) {
+			obj.conditions.forEach((condition) => {
+				search(condition);
+			});
+		}
+	}
+
+	search(obj);
+
+	return results;
+}

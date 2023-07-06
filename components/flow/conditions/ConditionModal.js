@@ -12,7 +12,11 @@ import DateForm from "./form-components/DateForm";
 import ConditionsGroupForm from "./form-components/ConditionsGroupForm";
 import GroupForm from "./form-components/GroupForm";
 import GroupingForm from "./form-components/GroupingForm";
-import { uniqueId } from "@utils/Utils";
+import {
+	uniqueId,
+	searchConditionForTypes,
+	findCompletionAndQualification,
+} from "@utils/Utils";
 import CourseQualificationForm from "./form-components/CourseQualificationForm";
 import { useReactFlow } from "reactflow";
 
@@ -457,55 +461,60 @@ function ConditionModal({
 			blockData.data.conditions.conditions
 		);
 
-		const nodes = reactFlowInstance.getEdges();
+		const conditionCopy = deepCopy(foundCondition);
+
+		const edges = reactFlowInstance.getEdges();
 
 		if (
 			foundCondition.type == "completion" ||
 			foundCondition.type == "qualification"
 		) {
-			const nodesUpdated = nodes.filter(
-				(node) => node.id === foundCondition.op + "-" + blockData.id
+			const edgesUpdated = edges.filter(
+				(edge) => edge.id === foundCondition.op + "-" + blockData.id
 			);
 
-			onEdgesDelete(nodesUpdated);
+			// Delete the children
+			onEdgesDelete(edgesUpdated);
 
 			reactFlowInstance.setEdges(
-				nodes.filter(
-					(node) => node.id !== foundCondition.op + "-" + blockData.id
+				edges.filter(
+					(edge) => edge.id !== foundCondition.op + "-" + blockData.id
 				)
 			);
-		} else if (foundCondition.type == "conditionsGroup") {
+		} else if (
+			foundCondition.type == "conditionsGroup" &&
+			foundCondition.conditions
+		) {
 			const targetTypes = ["qualification", "completion"];
 			const matchingObjects = [];
 
-			searchJsonForTypes(foundCondition, targetTypes, matchingObjects);
+			const completionsAndQualifications =
+				findCompletionAndQualification(foundCondition);
 
-			const filteredNodes = nodes.filter(
-				(node) =>
+			const filteredChildren = edges.filter((edge) =>
+				completionsAndQualifications.some(
+					(condition) => edge.id === condition.op + "-" + blockData.id
+				)
+			);
+
+			onEdgesDelete(filteredChildren);
+
+			searchConditionForTypes(conditionCopy, targetTypes, matchingObjects);
+
+			const filteredEdges = edges.filter(
+				(edge) =>
 					!matchingObjects.some(
-						(condition) => node.id === condition.op + "-" + blockData.id
+						(condition) => edge.id === condition.op + "-" + blockData.id
 					)
 			);
 
-			reactFlowInstance.setEdges(filteredNodes);
+			reactFlowInstance.setEdges(filteredEdges);
 		}
 
 		deleteConditionById(blockDataCopy.data.conditions.conditions, conditionId);
 
 		setBlockData(blockDataCopy);
 	};
-
-	function searchJsonForTypes(jsonData, targetTypes, results) {
-		if (targetTypes.includes(jsonData.type)) {
-			results.push(jsonData);
-		}
-
-		if (jsonData.conditions && Array.isArray(jsonData.conditions)) {
-			for (const condition of jsonData.conditions) {
-				searchJsonForTypes(condition, targetTypes, results);
-			}
-		}
-	}
 
 	const cancelEditCondition = () => {
 		setSelectedOption("");

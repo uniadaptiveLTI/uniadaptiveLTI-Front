@@ -56,6 +56,7 @@ import {
 	getNodeDOMById,
 	getNodeById,
 	getChildrenNodesFromFragmentID,
+	getParentsNode,
 } from "@utils/Nodes";
 import { errorListCheck } from "@utils/ErrorHandling";
 import { toast } from "react-toastify";
@@ -435,23 +436,62 @@ const OverviewFlow = ({ map }, ref) => {
 				}
 
 				if (targetNode) {
-					const newCondition = {
-						id: parseInt(Date.now() * Math.random()).toString(),
-						type: "completion",
-						op: sourceNode.id,
-						query: "completed",
-					};
-					console.log(targetNode.data.conditions);
-					if (!targetNode.data.conditions) {
-						console.log("CONDICIONES SIN DEFINIR");
-						targetNode.data.conditions = {
-							type: "conditionsGroup",
+					if (!validTypes.includes(targetNode.type)) {
+						const newCondition = {
 							id: parseInt(Date.now() * Math.random()).toString(),
-							op: "&",
-							conditions: [newCondition],
+							type: "completion",
+							op: sourceNode.id,
+							query: "completed",
 						};
+
+						if (!targetNode.data.conditions) {
+							targetNode.data.conditions = {
+								type: "conditionsGroup",
+								id: parseInt(Date.now() * Math.random()).toString(),
+								op: "&",
+								conditions: [newCondition],
+							};
+						} else {
+							targetNode.data.conditions.conditions.push(newCondition);
+						}
 					} else {
-						targetNode.data.conditions.conditions.push(newCondition);
+						const conditions = targetNode.data.conditions.conditions;
+
+						const conditionExists = conditions.find(
+							(condition) => condition.type === "completion"
+						);
+
+						if (conditionExists) {
+							const newConditionAppend = {
+								id: sourceNode.id,
+								name: sourceNode.data.label,
+							};
+							conditionExists.activityList.push(newConditionAppend);
+						} else {
+							const newCondition = {
+								id: parseInt(Date.now() * Math.random()).toString(),
+								type: "completion",
+								activityList: [
+									{
+										id: sourceNode.id,
+										name: sourceNode.data.label,
+									},
+								],
+								op: "&",
+								query: "completed",
+							};
+
+							if (!targetNode.data.conditions) {
+								targetNode.data.conditions = {
+									type: "conditionsGroup",
+									id: parseInt(Date.now() * Math.random()).toString(),
+									op: "&",
+									conditions: [newCondition],
+								};
+							} else {
+								targetNode.data.conditions.conditions.push(newCondition);
+							}
+						}
 					}
 				}
 
@@ -483,59 +523,92 @@ const OverviewFlow = ({ map }, ref) => {
 	}, [newInitialNodes, newInitialEdges]);
 
 	const onNodesDelete = (nodes) => {
+		console.log(nodes);
 		setNodeSelected();
 		deleteBlocks(nodes);
 	};
 
 	function deleteConditionById(conditions, op) {
-		for (let i = 0; i < conditions.length; i++) {
-			const condition = conditions[i];
-			if (condition.op === op) {
-				conditions.splice(i, 1);
-				if (conditions.length === 0) {
-					conditions = undefined;
-				}
-				return true;
-			} else if (condition.conditions) {
-				if (deleteConditionById(condition.conditions, op)) {
-					if (condition.conditions.length === 0) {
-						condition.conditions = undefined;
+		if (conditions) {
+			for (let i = 0; i < conditions.length; i++) {
+				const condition = conditions[i];
+				if (condition.op === op) {
+					conditions.splice(i, 1);
+					if (conditions.length === 0) {
+						conditions = undefined;
 					}
 					return true;
+				} else if (condition.conditions) {
+					if (deleteConditionById(condition.conditions, op)) {
+						if (condition.conditions.length === 0) {
+							condition.conditions = undefined;
+						}
+						return true;
+					}
 				}
 			}
+			return false;
+		} else {
+			return false;
 		}
-		return false;
 	}
 
-	const onEdgesDelete = (nodes) => {
-		// debugger;
-		var blockNodeSource = reactFlowInstance
-			?.getNodes()
-			.find((obj) => obj.id === nodes[0].source);
-		console.log(blockNodeSource);
-		var blockNodeTarget = reactFlowInstance
-			?.getNodes()
-			.find((obj) => obj.id === nodes[0].target);
+	// FIXME: DOESNT DELETE THE CHILDREN CORRECTLY
+	const onEdgesDelete = (edges) => {
+		console.log(edges);
+		for (let i = 0; i < edges.length; i++) {
+			var blockNodeSource = reactFlowInstance
+				?.getNodes()
+				.find((obj) => obj.id === edges[i].source);
 
-		console.log(blockNodeTarget.data);
+			var blockNodeTarget = reactFlowInstance
+				?.getNodes()
+				.find((obj) => obj.id === edges[i].target);
 
-		const updatedBlockNodeSource = { ...blockNodeSource };
-		updatedBlockNodeSource.data.children =
-			updatedBlockNodeSource.data.children.filter(
-				(childId) => !childId.includes(blockNodeTarget.id)
-			);
+			const updatedBlockNodeSource = { ...blockNodeSource };
+			updatedBlockNodeSource.data.children =
+				updatedBlockNodeSource.data.children.filter(
+					(childId) => !childId.includes(blockNodeTarget.id)
+				);
 
-		blockNodeSource = updatedBlockNodeSource;
+			blockNodeSource = updatedBlockNodeSource;
 
-		deleteConditionById(
-			blockNodeTarget.data.conditions.conditions,
-			blockNodeSource.id
-		);
+			if (blockNodeTarget.data.conditions) {
+				if (!validTypes.includes(blockNodeTarget.type)) {
+					deleteConditionById(
+						blockNodeTarget.data.conditions.conditions,
+						blockNodeSource.id
+					);
+				} else {
+					let conditions = blockNodeTarget.data.conditions.conditions;
 
-		console.log(blockNodeTarget.data.conditions);
+					const conditionExists = conditions.find(
+						(condition) => condition.type === "completion"
+					);
 
-		setDeletedEdge(nodes[0]);
+					if (conditionExists) {
+						if (conditionExists.activityList.length > 1) {
+							console.log("entro a eliminar solo una");
+
+							conditionExists.activityList =
+								conditionExists.activityList.filter(
+									(item) => item.id !== blockNodeSource.id
+								);
+						} else {
+							blockNodeTarget.data.conditions.conditions = conditions.filter(
+								(item) => item.type !== "completion"
+							);
+						}
+					} else {
+						blockNodeTarget.data.conditions.conditions = conditions.filter(
+							(item) => item.type !== "completion"
+						);
+					}
+				}
+			}
+
+			setDeletedEdge(edges[i]);
+		}
 	};
 
 	useEffect(() => {
@@ -722,59 +795,125 @@ const OverviewFlow = ({ map }, ref) => {
 	}, [errorList]);
 
 	const deleteBlocks = (blocks) => {
-		console.log(blocks);
-		errorListCheck(blocks, errorList, setErrorList, true);
+		// Array of blocks that its children or conditions are being updated
+		var updatedBlocks = [];
 
-		if (!Array.isArray(blocks)) {
-			const deletedBlockArray = reactFlowInstance
-				.getNodes()
-				.filter((b) => b.id !== blocks.id);
-			const deletedRelatedChildrenArray = filterRelatedChildrenById(
-				blocks.id,
-				deletedBlockArray
-			);
-			const deleteRelatedConditionsArray = filterRelatedConditionsById(
-				blocks.id,
-				deletedRelatedChildrenArray
+		// Iteration of the blocks to delete
+		for (var i = 0; i < blocks.length; i++) {
+			// Get method to retreive the parents nodes from a block
+			const parentsNode = getParentsNode(
+				reactFlowInstance.getNodes(),
+				blocks[i].id
 			);
 
-			if (blocks.type == "fragment" && blocks.data.innerNodes.length > 0) {
-				const withoutFragmentChildren = [
-					...deleteBlocks(
-						addFragmentChildrenFromFragment(blocks, deletedRelatedChildrenArray)
-					),
-				];
-				//Delete fragment from finalMap, as its added back by the deleteBlocks function
-				const withoutFragment = withoutFragmentChildren.filter(
-					(b) => b.id !== blocks.id
-				);
-				reactFlowInstance.setNodes(withoutFragment);
-			} else {
-				reactFlowInstance.setNodes(deleteRelatedConditionsArray);
+			// Iteration of the parents nodes
+			for (var j = 0; j < parentsNode.length; j++) {
+				// Condition to check if one of the parents it isn't being deleted
+				if (!blocks.some((block) => block.id === parentsNode[j].id)) {
+					// Find method to check if the parent is already edited
+					const foundParentNode = updatedBlocks.find(
+						(block) => block.id === parentsNode[j].id
+					);
+
+					// Condition to check if the parent is already edited
+					if (foundParentNode) {
+						// Constant that updates the existing parent
+						const updatedNode = {
+							...foundParentNode,
+							data: {
+								...foundParentNode.data,
+								children: foundParentNode.data.children.filter(
+									(childId) => !childId.includes(blocks[i].id)
+								),
+							},
+						};
+
+						// Map method to update the array of the blocks updated
+						const updatedBlocksArray = updatedBlocks.map((block) =>
+							block.id === parentsNode[j].id ? updatedNode : block
+						);
+
+						updatedBlocks = updatedBlocksArray;
+					} else {
+						// Filter method to update the children
+						parentsNode[j].data.children = parentsNode[j].data.children.filter(
+							(childId) => !childId.includes(blocks[i].id)
+						);
+
+						// Push method to store the updated node
+						updatedBlocks.push(parentsNode[j]);
+					}
+				}
 			}
-			return deleteRelatedConditionsArray;
-		} else {
-			if (blocks.length > 0) {
-				let updatedBlocksArray = reactFlowInstance.getNodes().slice();
 
-				blocks.forEach((b) => {
-					const id = b.id;
+			var nodeArray = reactFlowInstance.getNodes();
 
-					updatedBlocksArray = updatedBlocksArray.filter((b) => b.id !== id);
-					updatedBlocksArray = filterRelatedChildrenById(
-						id,
-						updatedBlocksArray
+			// Filter method to retrieve only the nodes that are the children of a block
+			const childrenNodes = nodeArray.filter((node) =>
+				blocks[i].data.children.includes(node.id.toString())
+			);
+
+			// Iteration of the children nodes
+			for (var k = 0; k < childrenNodes.length; k++) {
+				// Find method to check if the children is already edited
+				const foundChildrenNode = updatedBlocks.find(
+					(block) => block.id === childrenNodes[k].id
+				);
+
+				// Condition to check if the children is already edited
+				if (foundChildrenNode) {
+					// Delete method that updates the conditions of the children node edited
+					deleteConditionById(
+						foundChildrenNode.data?.conditions?.conditions,
+						blocks[i].id
 					);
-					updatedBlocksArray = filterRelatedConditionsById(
-						id,
-						updatedBlocksArray
+				} else {
+					// Delete method that updates the conditions of the children node
+					deleteConditionById(
+						childrenNodes[k].data?.conditions?.conditions,
+						blocks[i].id
 					);
-				});
 
-				reactFlowInstance.setNodes(updatedBlocksArray);
-				return updatedBlocksArray;
+					// Push method to store the updated node
+					updatedBlocks.push(childrenNodes[k]);
+				}
 			}
 		}
+
+		// Update method to update the full array of nodes with the updated nodes
+		var updatedNodeArray = getUpdatedArrayById(
+			updatedBlocks,
+			reactFlowInstance.getNodes()
+		);
+
+		// Iteration to delete the nodes from the full array of nodes
+		for (var i = 0; i < blocks.length; i++) {
+			updatedNodeArray = updatedNodeArray.filter(
+				(node) => node.id !== blocks[i].id
+			);
+		}
+
+		// Set method to update the full array of nodes
+		reactFlowInstance.setNodes(updatedNodeArray);
+
+		// Check method for errors
+		errorListCheck(blocks, errorList, setErrorList, true);
+
+		// 	if (blocks.type == "fragment" && blocks.data.innerNodes.length > 0) {
+		// 		const withoutFragmentChildren = [
+		// 			...deleteBlocks(
+		// 				addFragmentChildrenFromFragment(blocks, deletedRelatedChildrenArray)
+		// 			),
+		// 		];
+		// 		//Delete fragment from finalMap, as its added back by the deleteBlocks function
+		// 		const withoutFragment = withoutFragmentChildren.filter(
+		// 			(b) => b.id !== blocks.id
+		// 		);
+		// 		reactFlowInstance.setNodes(withoutFragment);
+		// 	} else {
+		// 		reactFlowInstance.setNodes(deleteRelatedConditionsArray);
+		// 	}
+		// 	return deleteRelatedConditionsArray;
 	};
 
 	/**
@@ -807,18 +946,26 @@ const OverviewFlow = ({ map }, ref) => {
 	 */
 	const filterRelatedConditionsById = (unlockId, arr) => {
 		return arr.map((b) => {
-			if (b.conditions?.length) {
-				const updatedConditions = b.conditions.filter(
+			console.log(b);
+			if (b.data?.conditions?.length) {
+				const updatedConditions = b.data.conditions.filter(
 					(condition) => condition.unlockId !== unlockId
 				);
 				return {
 					...b,
-					conditions: updatedConditions.length ? updatedConditions : undefined,
+					data: {
+						conditions: updatedConditions.length
+							? updatedConditions
+							: undefined,
+					},
 				};
-			} else if (b.children?.length) {
+			} else if (b.data?.children?.length) {
 				return {
 					...b,
-					children: filterRelatedConditionsById(unlockId, b.children),
+					data: {
+						...b.data,
+						children: filterRelatedConditionsById(unlockId, b.data.children),
+					},
 				};
 			} else {
 				return b;
@@ -1253,7 +1400,7 @@ const OverviewFlow = ({ map }, ref) => {
 	const handleNodeDeletion = (blockData) => {
 		setShowContextualMenu(false);
 		setNodeSelected();
-		deleteBlocks(blockData);
+		deleteBlocks([blockData]);
 	};
 
 	const handleNodeSelectionDeletion = () => {
@@ -1265,6 +1412,8 @@ const OverviewFlow = ({ map }, ref) => {
 		for (let node of selectedNodes) {
 			clipboardData.push(getNodeByNodeDOM(node, reactFlowInstance.getNodes()));
 		}
+
+		console.log(clipboardData);
 		deleteBlocks(clipboardData);
 	};
 
@@ -1544,6 +1693,7 @@ const OverviewFlow = ({ map }, ref) => {
 							blockData={cMBlockData}
 							setBlockData={setCMBlockData}
 							blocksData={reactFlowInstance.getNodes()}
+							onEdgesDelete={onEdgesDelete}
 							showConditionsModal={showConditionsModal}
 							setShowConditionsModal={setShowConditionsModal}
 						/>

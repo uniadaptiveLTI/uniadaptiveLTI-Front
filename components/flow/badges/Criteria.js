@@ -268,6 +268,16 @@ function Criteria({
 									<FontAwesomeIcon icon={faTrashCan} />
 								</div>
 							</Button>
+							<Button
+								variant="light"
+								onClick={() => {
+									swapConditionGroup(condition);
+								}}
+							>
+								<div>
+									<FontAwesomeIcon icon={faShuffle} />
+								</div>
+							</Button>
 						</Col>
 					</Row>
 				</Container>

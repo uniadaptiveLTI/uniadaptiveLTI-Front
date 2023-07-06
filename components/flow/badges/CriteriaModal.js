@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from "@root/styles/ConditionModal.module.css";
 //import { Editor } from "@tinymce/tinymce-react";
-import { uniqueId } from "@utils/Utils";
+import { uniqueId, searchConditionForTypes } from "@utils/Utils";
 import {
 	Modal,
 	Button,
@@ -14,14 +14,18 @@ import {
 import Criteria from "./Criteria";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faShuffle, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { useReactFlow } from "reactflow";
 
 function ConditionModal({
 	blockData,
 	setBlockData,
 	blocksData,
+	onEdgesDelete,
 	showConditionsModal,
 	setShowConditionsModal,
 }) {
+	const reactFlowInstance = useReactFlow();
+
 	const conditionOperator = useRef(null);
 	const objectiveEnabler = useRef(null);
 	const conditionObjective = useRef(null);
@@ -54,120 +58,7 @@ function ConditionModal({
 		{ id: "68456", name: "Competencia 3" },
 	];
 
-	const [lmsResourceList, setLmsResourceList] = useState([
-		{
-			id: "1",
-			name: "Cuestionario 1",
-			section: 1,
-			indentation: 1,
-			firstCheckboxEnabled: false,
-			secondCheckboxEnabled: false,
-		},
-		{
-			id: "2",
-			name: "Cuestionario 2",
-			section: 1,
-			indentation: 2,
-			firstCheckboxEnabled: false,
-			secondCheckboxEnabled: false,
-		},
-		{
-			id: "3",
-			name: "Cuestionario 3",
-			section: 1,
-			indentation: 3,
-			firstCheckboxEnabled: false,
-			secondCheckboxEnabled: false,
-		},
-		{
-			id: "4",
-			name: "Cuestionario 4",
-			section: 1,
-			indentation: 4,
-			firstCheckboxEnabled: false,
-			secondCheckboxEnabled: false,
-		},
-		{
-			id: "5",
-			name: "Tarea 1",
-			section: 2,
-			indentation: 1,
-			firstCheckboxEnabled: false,
-			secondCheckboxEnabled: false,
-		},
-		{
-			id: "6",
-			name: "Tarea 2",
-			section: 2,
-			indentation: 2,
-			firstCheckboxEnabled: false,
-			secondCheckboxEnabled: false,
-		},
-		{
-			id: "7",
-			name: "Tarea 3",
-			section: 2,
-			indentation: 3,
-			firstCheckboxEnabled: false,
-			secondCheckboxEnabled: false,
-		},
-		{
-			id: "8",
-			name: "Tarea 3",
-			section: 2,
-			indentation: 3,
-			firstCheckboxEnabled: false,
-			secondCheckboxEnabled: false,
-		},
-		{
-			id: "9",
-			name: "Taller 1",
-			usectionnit: 3,
-			indentation: 1,
-			firstCheckboxEnabled: false,
-			secondCheckboxEnabled: false,
-		},
-		{
-			id: "10",
-			name: "Taller 2",
-			section: 3,
-			indentation: 2,
-			firstCheckboxEnabled: false,
-			secondCheckboxEnabled: false,
-		},
-		{
-			id: "11",
-			name: "Taller 3",
-			section: 3,
-			indentation: 3,
-			firstCheckboxEnabled: false,
-			secondCheckboxEnabled: false,
-		},
-		{
-			id: "12",
-			name: "Consulta 1",
-			section: 4,
-			indentation: 1,
-			firstCheckboxEnabled: false,
-			secondCheckboxEnabled: false,
-		},
-		{
-			id: "13",
-			name: "Consulta 2",
-			section: 4,
-			indentation: 2,
-			firstCheckboxEnabled: false,
-			secondCheckboxEnabled: false,
-		},
-		{
-			id: "14",
-			name: "Consulta 3",
-			section: 4,
-			indentation: 3,
-			firstCheckboxEnabled: false,
-			secondCheckboxEnabled: false,
-		},
-	]);
+	const [lmsResourceList, setLmsResourceList] = useState([]);
 
 	const addCondition = (conditionId) => {
 		if (blockData.data.conditions.id != conditionId) {
@@ -225,8 +116,7 @@ function ConditionModal({
 
 		const updatedLmsResourceList = lmsResourceList.map((item) => ({
 			...item,
-			firstCheckboxEnabled: false,
-			secondCheckboxEnabled: false,
+			checkboxEnabled: false,
 		}));
 
 		setLmsResourceList(updatedLmsResourceList);
@@ -238,8 +128,7 @@ function ConditionModal({
 
 		const updatedLmsResourceList = lmsResourceList.map((item) => ({
 			...item,
-			firstCheckboxEnabled: false,
-			secondCheckboxEnabled: false,
+			checkboxEnabled: false,
 		}));
 
 		setLmsResourceList(updatedLmsResourceList);
@@ -252,8 +141,7 @@ function ConditionModal({
 
 		const updatedLmsResourceList = lmsResourceList.map((item) => ({
 			...item,
-			firstCheckboxEnabled: false,
-			secondCheckboxEnabled: false,
+			checkboxEnabled: false,
 		}));
 
 		setLmsResourceList(updatedLmsResourceList);
@@ -293,11 +181,49 @@ function ConditionModal({
 	}
 
 	const deleteCondition = (conditionId) => {
+		// We found the condition to delete
+		const foundCondition = findConditionById(
+			conditionId,
+			blockData.data.conditions.conditions
+		);
+
+		// If clause to check if the condition is completion type
+		if (foundCondition.type === "completion") {
+			// Constant to retrieve the activityList of the completion condition
+			const activityList = foundCondition.activityList;
+
+			// Get method to retrieve the actual edges
+			const edges = reactFlowInstance.getEdges();
+
+			// Filter method to get all the edges using the ids inside the activityList
+			const edgesToDelete = edges.filter((edge) =>
+				activityList.some(
+					(condition) => condition.id + "-" + blockData.id === edge.id
+				)
+			);
+
+			// Method to delete the children associated with the given edges
+			onEdgesDelete(edgesToDelete);
+
+			// Filter method to get all the edges except for those that match the provided IDs
+			const filteredEdges = edges.filter(
+				(edge) =>
+					!activityList.some(
+						(condition) => edge.id === condition.id + "-" + blockData.id
+					)
+			);
+
+			// Set method to stablish the new updated edges
+			reactFlowInstance.setEdges(filteredEdges);
+		}
+
+		// Method to create a copy of the blockData
 		const blockDataCopy = deepCopy(blockData);
 
+		// Delete method to delete the condition by ID
 		deleteConditionById(blockDataCopy.data.conditions.conditions, conditionId);
 
-		console.log(blockDataCopy);
+		// Set method to set the updated blockData
 		setBlockData(blockDataCopy);
 	};
 
@@ -331,9 +257,19 @@ function ConditionModal({
 	useEffect(() => {
 		console.log(blockData);
 		if (conditionEdit) {
-			console.log(conditionEdit);
 			addCondition(conditionEdit.id);
 			setSelectedOption(conditionEdit.type);
+
+			if (conditionEdit.type == "completion") {
+				setCheckboxValues(conditionEdit.activityList);
+			}
+
+			const transformedData = conditionEdit.activityList.map((item) => ({
+				...item,
+				checkboxEnabled: item.date !== undefined ? true : false,
+			}));
+
+			setLmsResourceList(transformedData);
 		}
 	}, [conditionEdit]);
 
@@ -346,61 +282,21 @@ function ConditionModal({
 
 		const { value, checked } = event.target;
 
-		if (selectedOption === "completion") {
-			const resource = lmsResourceList.find(
-				(item) => item.id === value.toString()
-			);
-
-			if (checked) {
-				setCheckboxValues([
-					...checkboxValues,
-					{
-						id: resource.id,
-						name: resource.name,
-						section: resource.section,
-						indentation: resource.indentation,
-					},
-				]);
-			} else {
-				const updatedValues = checkboxValues.filter((val) => val.id !== value);
-				if (updatedValues.length === 0) {
-					setCheckboxValues([]);
-				} else {
-					setCheckboxValues(updatedValues);
-				}
-			}
+		if (checked) {
+			setCheckboxValues([
+				...checkboxValues,
+				{
+					id: value,
+				},
+			]);
 		} else {
-			if (checked) {
-				setCheckboxValues([
-					...checkboxValues,
-					{
-						id: value,
-					},
-				]);
+			const updatedValues = checkboxValues.filter((val) => val.id !== value);
+			if (updatedValues.length === 0) {
+				setCheckboxValues([]);
 			} else {
-				const updatedValues = checkboxValues.filter((val) => val.id !== value);
-				if (updatedValues.length === 0) {
-					setCheckboxValues([]);
-				} else {
-					setCheckboxValues(updatedValues);
-				}
+				setCheckboxValues(updatedValues);
 			}
 		}
-	};
-
-	const handleFirstCheckboxChange = (event, index) => {
-		handleCheckboxChange(event);
-
-		const updatedList = [...lmsResourceList];
-		const currentCheckbox = updatedList[index];
-		currentCheckbox.firstCheckboxEnabled =
-			!currentCheckbox.firstCheckboxEnabled;
-
-		if (!currentCheckbox.firstCheckboxEnabled) {
-			currentCheckbox.secondCheckboxEnabled = false;
-		}
-
-		setLmsResourceList(updatedList);
 	};
 
 	const handleSecondCheckboxChange = (index) => {
@@ -411,13 +307,14 @@ function ConditionModal({
 
 		for (let i = 0; i < dateInputs.length; i++) {
 			if (dateInputs[i].id === currentCheckbox.id.toString()) {
-				if (!currentCheckbox.secondCheckboxEnabled) {
+				if (!currentCheckbox.checkboxEnabled) {
 					const updatedArray = checkboxValues.map((item) => {
 						if (item.id === dateInputs[i].id) {
 							return { ...item, date: dateInputs[i].value };
 						}
 						return item;
 					});
+					console.log(updatedArray);
 					setCheckboxValues(updatedArray);
 				} else {
 					const updatedArray = checkboxValues.map((item) => {
@@ -426,17 +323,47 @@ function ConditionModal({
 						}
 						return item;
 					});
+					console.log(updatedArray);
 					setCheckboxValues(updatedArray);
 				}
 				break;
 			}
 		}
 
-		currentCheckbox.secondCheckboxEnabled =
-			!currentCheckbox.secondCheckboxEnabled;
+		currentCheckbox.checkboxEnabled = !currentCheckbox.checkboxEnabled;
 
-		if (currentCheckbox.secondCheckboxEnabled) {
-			currentCheckbox.firstCheckboxEnabled = true;
+		setLmsResourceList(updatedList);
+	};
+
+	const handleDateChange = (index) => {
+		const updatedList = [...lmsResourceList];
+		const currentCheckbox = updatedList[index];
+
+		const dateInputs = document.querySelectorAll('input[type="date"]');
+
+		for (let i = 0; i < dateInputs.length; i++) {
+			if (dateInputs[i].id === currentCheckbox.id.toString()) {
+				if (currentCheckbox.checkboxEnabled) {
+					const updatedArray = checkboxValues.map((item) => {
+						if (item.id === dateInputs[i].id) {
+							return { ...item, date: dateInputs[i].value };
+						}
+						return item;
+					});
+					console.log(updatedArray);
+					setCheckboxValues(updatedArray);
+				} else {
+					const updatedArray = checkboxValues.map((item) => {
+						if (item.id === dateInputs[i].id) {
+							return { ...item, date: undefined };
+						}
+						return item;
+					});
+					console.log(updatedArray);
+					setCheckboxValues(updatedArray);
+				}
+				break;
+			}
 		}
 
 		setLmsResourceList(updatedList);
@@ -445,9 +372,9 @@ function ConditionModal({
 	const [checkboxValues, setCheckboxValues] = useState([]);
 
 	const handleSubmit = (edition) => {
-		const formData = { id: uniqueId(), type: selectedOption };
+		const formData = { id: conditionEdit.id, type: selectedOption };
+		formData.op = conditionEdit.op;
 
-		formData.op = conditionOperator.current.value;
 		switch (selectedOption) {
 			case "role":
 				formData.roleList = checkboxValues;
@@ -461,14 +388,15 @@ function ConditionModal({
 				formData.badgeList = checkboxValues;
 				break;
 			case "completion":
-				const sortedData = checkboxValues.sort((a, b) => {
+				console.log(checkboxValues);
+				/*const sortedData = checkboxValues.sort((a, b) => {
 					if (a.section === b.section) {
 						return a.indentation - b.indentation;
 					}
 					return a.section - b.section;
-				});
+				});*/
 
-				formData.activityList = sortedData;
+				formData.activityList = checkboxValues;
 				break;
 			case "skills":
 				formData.skillsList = checkboxValues;
@@ -476,6 +404,8 @@ function ConditionModal({
 			default:
 				break;
 		}
+
+		console.log(formData);
 
 		if (edition) {
 			const updatedBlockData = {
@@ -487,17 +417,20 @@ function ConditionModal({
 						conditions: blockData.data.conditions.conditions.map(
 							(condition) => {
 								if (condition.id === formData.id) {
+									console.log("ENTRO AL IF");
 									return {
 										...condition,
 										...formData,
 									};
 								}
+								console.log("NOPE");
 								return condition;
 							}
 						),
 					},
 				},
 			};
+			console.log(updatedBlockData);
 			setBlockData(updatedBlockData);
 		} else {
 			const updatedBlockData = {
@@ -518,6 +451,16 @@ function ConditionModal({
 		setCheckboxValues([]);
 		setConditionEdit(undefined);
 		setEditing(undefined);
+	};
+
+	const shouldRenderOption = (type) => {
+		const conditions = blockData.data.conditions.conditions;
+		return !conditions.some((condition) => condition.type === type);
+	};
+
+	const allTypesUsed = () => {
+		const types = ["role", "courseCompletion", "badgeList", "skills"];
+		return types.every((type) => !shouldRenderOption(type));
 	};
 
 	return (
@@ -596,11 +539,21 @@ function ConditionModal({
 							<option value="" disabled>
 								Escoge un tipo de condición...
 							</option>
-							<option value="role">Concesión manual por rol</option>
-							<option value="courseCompletion">Finalización del curso</option>
-							<option value="badgeList">Insignias otorgadas</option>
-							<option value="completion">Finalización de la actividad</option>
-							<option value="skills">Competencias</option>
+							{shouldRenderOption("role") && (
+								<option value="role">Concesión manual por rol</option>
+							)}
+
+							{shouldRenderOption("courseCompletion") && (
+								<option value="courseCompletion">Finalización del curso</option>
+							)}
+
+							{shouldRenderOption("badgeList") && (
+								<option value="badgeList">Insignias otorgadas</option>
+							)}
+
+							{shouldRenderOption("skills") && (
+								<option value="skills">Competencias</option>
+							)}
 						</Form.Select>
 					) : null)}
 				{editing && selectedOption === "role" && (
@@ -704,47 +657,31 @@ function ConditionModal({
 						})}
 					</Form.Group>
 				)}
+				{/* FEATURE: SWAP LOGIC (& |) */}
 				{editing && selectedOption === "completion" && (
 					<Form.Group>
-						<Form.Select
-							ref={conditionOperator}
-							defaultValue={conditionEdit?.op}
-						>
-							<option value="&">
-								Todas las actividades seleccionadas están finalizadas
-							</option>
-							<option value="|">
-								Cualquier actividad seleccionada está finalizada
-							</option>
-						</Form.Select>
 						{lmsResourceList.map((option, index) => {
 							return (
 								<div key={index}>
-									<Form.Check
-										value={option.id}
-										label={option.name}
-										checked={option.firstCheckboxEnabled}
-										onChange={(event) =>
-											handleFirstCheckboxChange(event, index)
-										}
-									/>
+									<div>{option.name}</div>
 									<Row>
 										<Col>
 											<Form.Control
 												id={option.id}
 												type="date"
-												disabled={
-													!option.secondCheckboxEnabled ||
-													!option.firstCheckboxEnabled
+												disabled={!option.checkboxEnabled}
+												onChange={() => handleDateChange(index)}
+												defaultValue={
+													option.date
+														? option.date
+														: new Date().toISOString().substr(0, 10)
 												}
-												defaultValue={new Date().toISOString().substr(0, 10)}
 											/>
 										</Col>
 										<Col>
 											<Form.Check
 												label="Habilitar"
-												checked={option.secondCheckboxEnabled}
-												disabled={!option.firstCheckboxEnabled}
+												checked={option.checkboxEnabled}
 												onChange={() => handleSecondCheckboxChange(index)}
 											/>
 										</Col>
@@ -780,7 +717,7 @@ function ConditionModal({
 						})}
 					</Form.Group>
 				)}
-				{!editing && (
+				{!editing && !allTypesUsed() && (
 					<Button className="mb-5" variant="light" onClick={addConditionToMain}>
 						<div role="button">
 							<FontAwesomeIcon className={styles.cModal} icon={faPlus} />
