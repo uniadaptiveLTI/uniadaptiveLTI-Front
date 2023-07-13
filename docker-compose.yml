@@ -1,22 +1,25 @@
 version: "3.9"
 
 services:
-  app:
+  front:
     build:
       context: .
+      dockerfile: Dockerfile
       args:
         - NODE_VERSION=18
+        - NEXT_MODE=production
     image: uniadaptivelti-front
-    container_name: uniadaptivelti-front
+    container_name: uniadaptivef
+    environment:
+      NEXT_MODE: production
     restart: unless-stopped
     networks:
       - uniadaptive-network
     ports:
       - "3000:3000"
     volumes:
-      - .:/app
-      - /app/node_modules
+      - ./configuration.json:/app/configuration.json
+      
 networks:
   uniadaptive-network:
     driver: bridge
-

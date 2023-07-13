@@ -64,6 +64,7 @@ import { toast } from "react-toastify";
 import { useHotkeys } from "react-hotkeys-hook";
 import ContextualMenu from "@flow/ContextualMenu.js";
 import ConditionModal from "@conditions/ConditionModal.js";
+import GradeModal from "@conditions/GradeModal.js";
 import { getTypeStaticColor } from "@utils/NodeIcons.js";
 import NodeSelector from "@dialogs/NodeSelector.js";
 import CriteriaModal from "@flow/badges/CriteriaModal.js";
@@ -165,6 +166,8 @@ const OverviewFlow = ({ map }, ref) => {
 		x: 0,
 		y: 0,
 	});
+	const [showGradeConditionsModal, setShowGradeConditionsModal] =
+		useState(false);
 
 	useEffect(() => {
 		addEventListeners(document.body, [
@@ -1464,7 +1467,7 @@ const OverviewFlow = ({ map }, ref) => {
 		}
 	};
 
-	const handleShow = () => {
+	const handleShow = (modal) => {
 		const selectedNodes = reactFlowInstance
 			.getNodes()
 			.filter((node) => node.selected == true);
@@ -1478,7 +1481,10 @@ const OverviewFlow = ({ map }, ref) => {
 			if (selectedNodes.length == 1) {
 				setCMBlockData(newCMBlockData);
 			}
-			setShowConditionsModal(true);
+
+			if (modal == "conditions") setShowConditionsModal(true);
+			if (modal == "grades") setShowGradeConditionsModal(true);
+
 			setShowContextualMenu(false);
 		} else {
 			toast("No se pueden editar las precondiciones de la selección actual", {
@@ -1553,7 +1559,11 @@ const OverviewFlow = ({ map }, ref) => {
 	});
 	useHotkeys("ctrl+e", (e) => {
 		e.preventDefault();
-		handleShow();
+		handleShow("conditions");
+	});
+	useHotkeys("ctrl+alt+e", (e) => {
+		e.preventDefault();
+		handleShow("grades");
 	});
 	useHotkeys(
 		"alt",
@@ -1639,6 +1649,7 @@ const OverviewFlow = ({ map }, ref) => {
 					setRelationStarter={setRelationStarter}
 					setShowContextualMenu={setShowContextualMenu}
 					setShowConditionsModal={setShowConditionsModal}
+					setShowGradeConditionsModal={setShowGradeConditionsModal}
 					x={cMX}
 					y={cMY}
 					contextMenuOrigin={contextMenuOrigin}
@@ -1676,7 +1687,20 @@ const OverviewFlow = ({ map }, ref) => {
 							setShowConditionsModal={setShowConditionsModal}
 						/>
 					)}
-					{/* Rest of your code */}
+				</>
+			)}
+			{showGradeConditionsModal && (
+				<>
+					{!validTypes.includes(cMBlockData.type) && (
+						<GradeModal
+							blockData={cMBlockData}
+							setBlockData={setCMBlockData}
+							blocksData={reactFlowInstance.getNodes()}
+							onEdgesDelete={onEdgesDelete}
+							showConditionsModal={showGradeConditionsModal}
+							setShowConditionsModal={setShowGradeConditionsModal}
+						/>
+					)}
 				</>
 			)}
 			{showNodeSelector && (

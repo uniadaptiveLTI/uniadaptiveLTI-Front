@@ -10,6 +10,7 @@ import { NodeTypes } from "@utils/TypeDefinitions";
 import { PlatformContext } from "pages/_app";
 import { getBackupURL } from "@utils/Platform";
 import { ActionNodes } from "@utils/Nodes";
+import { getHTTPPrefix, getSectionIDFromPosition } from "@utils/Utils";
 
 export default function ExportPanel({
 	errorList,
@@ -119,7 +120,10 @@ export default function ExportPanel({
 			delete node.data.label;
 			delete node.data.lmsResource;
 			const data = node.data;
-			if (data.c) deleteRecursiveId(data.c);
+			if (data.c) {
+				deleteRecursiveId(data.c);
+				specifyConditionType(data.c);
+			}
 			delete node.data;
 			delete node.height;
 			delete node.width;
@@ -153,10 +157,14 @@ export default function ExportPanel({
 				(section) => section.position == node.section
 			);
 
+			//Change section position for section id
+			if (section != undefined) {
+				node.section = section.id;
+			}
+
 			if (section && currentSelectionInfo.selection.includes(section.id))
 				return true;
 		});
-
 		sendNodes(nodesReadyToExport);
 	};
 
@@ -169,10 +177,58 @@ export default function ExportPanel({
 		}
 	}
 
+	function deleteSelfBySpecificId(obj, id) {
+		if (obj.hasOwnProperty("op")) {
+			if (obj.op == id) obj = null;
+		}
+		if (obj.hasOwnProperty("conditions") && Array.isArray(obj.conditions)) {
+			obj.conditions.forEach((obj) =>
+				deleteRecursdeleteSelfBySpecificIdiveId(obj, id)
+			);
+		}
+	}
+
+	function specifyConditionType(condition) {
+		let type = "";
+		if (condition.hasOwnProperty("type")) {
+			type = condition.type;
+			delete condition.type;
+		}
+
+		console.log(type);
+		switch (type) {
+			case "qualification":
+				condition.id = condition.cm;
+				delete condition.cm;
+				break;
+			case "courseQualification":
+				condition.id = condition.courseId;
+				delete condition.courseId;
+				break;
+			case "group":
+				condition.id = condition.groupId;
+				delete condition.groupId;
+				break;
+			case "grouping":
+				condition.id = condition.groupingId;
+				delete condition.groupingId;
+				break;
+			default:
+		}
+
+		if (
+			condition.hasOwnProperty("conditions") &&
+			Array.isArray(condition.conditions)
+		) {
+			condition.conditions.forEach(specifyConditionType);
+		}
+	}
+
 	async function sendNodes(nodes) {
+		console.log(nodes);
 		try {
 			const response = await fetch(
-				`http://${LTISettings.back_url}/api/lti/export_version`,
+				`${getHTTPPrefix()}://${LTISettings.back_url}/api/lti/export_version`,
 				{
 					method: "POST",
 					headers: { "Content-Type": "application/json" },

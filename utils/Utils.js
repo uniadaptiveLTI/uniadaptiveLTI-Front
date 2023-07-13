@@ -5,12 +5,14 @@
  * @returns {Object[]} A new array with the updated entries. If an entry in the original array does not have a matching id in the updatedEntry, it is returned unchanged.
  */
 export const getUpdatedArrayById = (updatedEntry, originalArray) => {
-	const newBlocks = Array.isArray(updatedEntry) ? updatedEntry : [updatedEntry];
+	const newEntries = Array.isArray(updatedEntry)
+		? updatedEntry
+		: [updatedEntry];
 
 	if (originalArray.length > 0) {
 		return originalArray.map((oldEntry) => {
-			const newBlock = newBlocks.find((entry) => entry.id === oldEntry.id);
-			return newBlock ? { ...oldEntry, ...newBlock } : oldEntry;
+			const newEntry = newEntries.find((entry) => entry.id === oldEntry.id);
+			return newEntry ? { ...oldEntry, ...newEntry } : oldEntry;
 		});
 	} else {
 		return [];
@@ -225,4 +227,16 @@ export function updateBadgeConditions(blockNodeTarget, blockNodeSource) {
 			(item) => item.type !== "completion"
 		);
 	}
+}
+
+export function getHTTPPrefix() {
+	return parseBool(process.env.NEXT_PUBLIC_SSL) ? "https" : "http";
+}
+
+export function getSectionFromPosition(sectionArray, sectionPosition) {
+	return sectionArray.find((section) => section.position == sectionPosition);
+}
+
+export function getSectionIDFromPosition(sectionArray, sectionPosition) {
+	return getSectionFromPosition(sectionArray, sectionPosition).id;
 }

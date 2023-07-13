@@ -30,6 +30,7 @@ import {
 import {
 	capitalizeFirstLetter,
 	deduplicateById,
+	getHTTPPrefix,
 	getUpdatedArrayById,
 	isUnique,
 	orderByPropertyAlphabetically,
@@ -127,14 +128,17 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 			console.log(encodedLMS);
 			setShowSpinner(true);
 			setAllowResourceSelection(false);
+
 			const response = await fetch(
 				selectedOption == "generic"
-					? `http://${
+					? `${getHTTPPrefix()}://${
 							LTISettings.back_url
 					  }/lti/get_modules_by_type?type=unsupported&instance=${encodedInstance}&platform=${encodedPlatform}&course=${encodedCourse}&url_lms=${encodedLMS}&session=${encodedSession}&supportedTypes=${encodeURIComponent(
 							getSupportedTypes(platform)
 					  )}`
-					: `http://${LTISettings.back_url}/lti/get_modules_by_type?type=${encodedSelectedOption}&instance=${encodedInstance}&platform=${encodedPlatform}&course=${encodedCourse}&url_lms=${encodedLMS}&session=${encodedSession}`
+					: `${getHTTPPrefix()}://${
+							LTISettings.back_url
+					  }/lti/get_modules_by_type?type=${encodedSelectedOption}&instance=${encodedInstance}&platform=${encodedPlatform}&course=${encodedCourse}&url_lms=${encodedLMS}&session=${encodedSession}`
 			);
 			if (!response.ok) {
 				throw new Error("Request failed");

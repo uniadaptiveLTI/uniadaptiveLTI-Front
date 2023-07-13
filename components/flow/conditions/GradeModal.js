@@ -1,10 +1,12 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import styles from "@root/styles/ConditionModal.module.css";
 import { Modal, Button, Form, Row, Col, Container } from "react-bootstrap";
 import { faShuffle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { uniqueId } from "@utils/Utils";
 import { useReactFlow } from "reactflow";
+import { getGradable } from "@utils/TypeDefinitions";
+import { PlatformContext } from "pages/_app";
 
 function GradeModal({
 	blockData,
@@ -15,6 +17,11 @@ function GradeModal({
 	setShowConditionsModal,
 }) {
 	const reactFlowInstance = useReactFlow();
+	const { platform } = useContext(PlatformContext);
+
+	const gradeConditionType = getGradable(platform)
+		.find((declaration) => declaration.type == blockData.type)
+		.gradable.find((gradableDec) => gradableDec.lms == platform).type; //Returns the type of gradable for this node type for this platform
 
 	const handleClose = () => {
 		setBlockData();
@@ -38,7 +45,7 @@ function GradeModal({
 			<Modal.Header closeButton>
 				<Modal.Title>Calificaciones de "{blockData.data.label}"</Modal.Title>
 			</Modal.Header>
-			<Modal.Body></Modal.Body>
+			<Modal.Body>{gradeConditionType}</Modal.Body>
 			<Modal.Footer></Modal.Footer>
 		</Modal>
 	);

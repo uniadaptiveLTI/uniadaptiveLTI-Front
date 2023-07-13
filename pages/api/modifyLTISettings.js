@@ -5,18 +5,25 @@ export default function handler(req, res) {
 	const object = req.body;
 	const settings = object.settings;
 	const password = object.password;
+	const adminPassword = process.env.ADMIN_PASSWORD;
 
 	try {
-		if (password == process.env.ADMIN_PASSWORD) {
-			const filePath = path.join(process.cwd(), "configuration.json");
-			fs.writeFile(filePath, JSON.stringify(settings, null, "\t")).then(
+		if (adminPassword) {
+			if (password == adminPassword) {
+				const filePath = path.join(process.cwd(), "configuration.json");
+				fs.writeFile(filePath, JSON.stringify(settings, null, "\t")).then(
+					res.status(200).json({
+						ok: true,
+					})
+				);
+			} else {
 				res.status(200).json({
-					ok: true,
-				})
-			);
+					ok: false,
+				});
+			}
 		} else {
 			res.status(200).json({
-				ok: false,
+				ok: true,
 			});
 		}
 	} catch (e) {

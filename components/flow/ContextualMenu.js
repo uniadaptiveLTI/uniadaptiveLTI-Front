@@ -10,7 +10,7 @@ export default forwardRef(function ContextualMenu(
 	{
 		x,
 		y,
-		showContextualMenu,
+		setShowGradeConditionsModal,
 		blockData,
 		relationStarter,
 		setRelationStarter,
@@ -37,6 +37,7 @@ export default forwardRef(function ContextualMenu(
 		: 0;
 
 	const [enableEditPreconditions, setEnableEditPreconditions] = useState(true);
+	const [enableGradeConditions, setEnableGradeConditions] = useState(true);
 	const [enableCreateRelation, setEnableCreateRelation] = useState(true);
 	const [enableCreateFragment, setEnableCreateFragment] = useState(true);
 	const [enableCut, setEnableCut] = useState(true);
@@ -48,6 +49,7 @@ export default forwardRef(function ContextualMenu(
 	useLayoutEffect(() => {
 		if (containsReservedNodes) {
 			setEnableEditPreconditions(false);
+			setEnableGradeConditions(false);
 			setEnableCreateFragment(false);
 			setEnableDelete(false);
 			setEnableCut(false);
@@ -67,6 +69,8 @@ export default forwardRef(function ContextualMenu(
 					} else {
 						setEnableCreateFragment(true);
 					}
+				} else {
+					setEnableGradeConditions(true); //TODO: Add conditions for grade conditions to appear
 				}
 			}
 		}
@@ -103,6 +107,7 @@ export default forwardRef(function ContextualMenu(
 						handleNodeCopy={handleNodeCopy}
 						handleNodeCut={handleNodeCut}
 						EnableEditPreconditions={enableEditPreconditions}
+						EnableGradeConditions={enableGradeConditions}
 						EnableCreateRelation={enableCreateRelation}
 						EnableCut={enableCut}
 						EnableCopy={enableCopy}

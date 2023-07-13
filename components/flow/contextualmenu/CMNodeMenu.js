@@ -6,11 +6,14 @@ import {
 	faClipboard,
 	faTrashCan,
 	faEdit,
+	faCheckSquare,
 } from "@fortawesome/free-solid-svg-icons";
 import styles from "@root/styles/ContextualMenu.module.css";
 import { Button } from "react-bootstrap";
 import { ActionNodes } from "@utils/Nodes";
-import { useRef, forwardRef } from "react";
+import { useRef, forwardRef, useContext } from "react";
+import { getGradableTypes } from "@utils/TypeDefinitions";
+import { PlatformContext } from "pages/_app";
 
 const Menu = (
 	{
@@ -24,6 +27,7 @@ const Menu = (
 		handleNodeCopy,
 		handleNodeCut,
 		EnableEditPreconditions,
+		EnableGradeConditions,
 		EnableCreateRelation,
 		EnableCut,
 		EnableCopy,
@@ -31,13 +35,16 @@ const Menu = (
 	},
 	ref
 ) => {
+	const { platform } = useContext(PlatformContext);
+	const gradableTypes = getGradableTypes(platform);
+
 	return (
 		<div ref={ref} className={styles.cM + " "}>
 			{["fragment"].includes(blockData.type) == false && (
 				<li>
 					<Button
 						variant="light"
-						onClick={handleShow}
+						onClick={() => handleShow("conditions")}
 						disabled={!EnableEditPreconditions}
 					>
 						<div>
@@ -50,6 +57,24 @@ const Menu = (
 					</Button>
 				</li>
 			)}
+			{["fragment"].includes(blockData.type) == false &&
+				gradableTypes.includes(blockData.type) && (
+					<li>
+						<Button
+							variant="light"
+							onClick={() => handleShow("grades")}
+							disabled={!EnableGradeConditions}
+						>
+							<div>
+								<FontAwesomeIcon icon={faCheckSquare} />
+								<div>
+									Editar calificaciones
+									<span>CTRL/Cmd+ALT/Opt+E</span>
+								</div>
+							</div>
+						</Button>
+					</li>
+				)}
 			{relationStarter ? (
 				relationStarter.id == blockData.id ? (
 					<li>
@@ -173,6 +198,7 @@ export default function CMBlockMenu({
 	handleNodeCopy,
 	handleNodeCut,
 	EnableEditPreconditions = false,
+	EnableGradeConditions = false,
 	EnableCreateRelation = false,
 	EnableCut = false,
 	EnableCopy = false,
@@ -201,6 +227,7 @@ export default function CMBlockMenu({
 				handleNodeCopy={handleNodeCopy}
 				handleNodeCut={handleNodeCut}
 				EnableEditPreconditions={EnableEditPreconditions}
+				EnableGradeConditions={EnableGradeConditions}
 				EnableCreateRelation={EnableCreateRelation}
 				EnableCut={EnableCut}
 				EnableCopy={EnableCopy}

@@ -297,8 +297,12 @@ function Header({ LTISettings }, ref) {
 		console.log(localMetaData, localMaps);
 		const response = await fetch(
 			lesson != undefined
-				? `http://${LTISettings.back_url}/lti/get_modules?instance=${encodedInstance}&course=${encodedCourse}&session=${encodedSessionId}&lesson=${lesson}`
-				: `http://${LTISettings.back_url}/lti/get_modules?instance=${encodedInstance}&course=${encodedCourse}`
+				? `${getHTTPPrefix()}://${
+						LTISettings.back_url
+				  }/lti/get_modules?instance=${encodedInstance}&course=${encodedCourse}&session=${encodedSessionId}&lesson=${lesson}`
+				: `${getHTTPPrefix()}://${
+						LTISettings.back_url
+				  }/lti/get_modules?instance=${encodedInstance}&course=${encodedCourse}`
 		);
 
 		if (!response.ok) {
@@ -871,7 +875,7 @@ function Header({ LTISettings }, ref) {
 			};
 
 			const response = await fetch(
-				`http://${LTISettings.back_url}/api/lti/store_version`,
+				`${getHTTPPrefix()}://${LTISettings.back_url}/api/lti/store_version`,
 				{
 					method: "POST",
 					headers: { "Content-Type": "application/json" },

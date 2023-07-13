@@ -6,6 +6,7 @@ export const NodeTypes = [
 		name: "Añadir a grupo",
 		nodeType: "ActionNode",
 		lms: ["moodle", "sakai"],
+		gradable: [],
 	},
 	{
 		id: 1,
@@ -14,6 +15,7 @@ export const NodeTypes = [
 		name: "Tarea",
 		nodeType: "ElementNode",
 		lms: ["moodle", "sakai"],
+		gradable: [],
 	},
 	{
 		id: 2,
@@ -22,6 +24,7 @@ export const NodeTypes = [
 		name: "Dar insignia",
 		nodeType: "ActionNode",
 		lms: ["moodle"],
+		gradable: [],
 	},
 	{
 		id: 3,
@@ -30,6 +33,7 @@ export const NodeTypes = [
 		name: "Libro",
 		nodeType: "ElementNode",
 		lms: ["moodle"],
+		gradable: [],
 	},
 	{
 		id: 4,
@@ -38,6 +42,7 @@ export const NodeTypes = [
 		name: "Consulta",
 		nodeType: "ElementNode",
 		lms: ["moodle"],
+		gradable: [],
 	},
 	{
 		id: 5,
@@ -46,6 +51,7 @@ export const NodeTypes = [
 		name: "Salida",
 		nodeType: "FinalNode",
 		lms: ["lti"],
+		gradable: [],
 	},
 	{
 		id: 6,
@@ -54,6 +60,7 @@ export const NodeTypes = [
 		name: "Examen",
 		nodeType: "ElementNode",
 		lms: ["sakai"],
+		gradable: [],
 	},
 	{
 		id: 7,
@@ -62,6 +69,7 @@ export const NodeTypes = [
 		name: "Carpeta",
 		nodeType: "ElementNode",
 		lms: ["moodle", "sakai"],
+		gradable: [],
 	},
 	{
 		id: 8,
@@ -70,6 +78,7 @@ export const NodeTypes = [
 		name: "Foro",
 		nodeType: "ElementNode",
 		lms: ["moodle", "sakai"],
+		gradable: [{ lms: "moodle", type: "consolidable" }],
 	},
 	{
 		id: 9,
@@ -78,6 +87,7 @@ export const NodeTypes = [
 		name: "Fragmento",
 		nodeType: "FragmentNode",
 		lms: ["lti"],
+		gradable: [],
 	},
 	{
 		id: 10,
@@ -86,6 +96,7 @@ export const NodeTypes = [
 		name: "Genérico",
 		nodeType: "ElementNode",
 		lms: ["moodle", "sakai"],
+		gradable: [],
 	},
 	{
 		id: 11,
@@ -94,6 +105,7 @@ export const NodeTypes = [
 		name: "Glosario",
 		nodeType: "ElementNode",
 		lms: ["moodle"],
+		gradable: [{ lms: "moodle", type: "consolidable" }],
 	},
 	{
 		id: 12,
@@ -102,6 +114,7 @@ export const NodeTypes = [
 		name: "Página HTML",
 		nodeType: "ElementNode",
 		lms: ["sakai"],
+		gradable: [],
 	},
 	{
 		id: 13,
@@ -110,6 +123,7 @@ export const NodeTypes = [
 		name: "Etiqueta",
 		nodeType: "ElementNode",
 		lms: ["moodle"],
+		gradable: [],
 	},
 	{
 		id: 14,
@@ -118,6 +132,7 @@ export const NodeTypes = [
 		name: "Lección",
 		nodeType: "ElementNode",
 		lms: ["moodle"],
+		gradable: [{ lms: "moodle", type: "normal" }],
 	},
 	{
 		id: 15,
@@ -126,6 +141,7 @@ export const NodeTypes = [
 		name: "Enviar correo",
 		nodeType: "ActionNode",
 		lms: ["moodle", "sakai"],
+		gradable: [],
 	},
 	{
 		id: 16,
@@ -134,6 +150,7 @@ export const NodeTypes = [
 		name: "Página",
 		nodeType: "ElementNode",
 		lms: ["moodle"],
+		gradable: [],
 	},
 	{
 		id: 17,
@@ -142,6 +159,7 @@ export const NodeTypes = [
 		name: "Cuestionario",
 		nodeType: "ElementNode",
 		lms: ["moodle"],
+		gradable: [],
 	},
 	{
 		id: 18,
@@ -150,6 +168,7 @@ export const NodeTypes = [
 		name: "Eliminar grupo",
 		nodeType: "ActionNode",
 		lms: ["moodle", "sakai"],
+		gradable: [],
 	},
 	{
 		id: 19,
@@ -158,6 +177,7 @@ export const NodeTypes = [
 		name: "Archivo",
 		nodeType: "ElementNode",
 		lms: ["moodle", "sakai"],
+		gradable: [],
 	},
 	{
 		id: 20,
@@ -166,6 +186,7 @@ export const NodeTypes = [
 		name: "Entrada",
 		nodeType: "InitialNode",
 		lms: ["lti"],
+		gradable: [],
 	},
 	{
 		id: 21,
@@ -174,6 +195,7 @@ export const NodeTypes = [
 		name: "Texto simple",
 		nodeType: "ElementNode",
 		lms: ["sakai"],
+		gradable: [],
 	},
 	{
 		id: 22,
@@ -182,6 +204,7 @@ export const NodeTypes = [
 		name: "URL",
 		nodeType: "ElementNode",
 		lms: ["moodle", "sakai"],
+		gradable: [],
 	},
 	{
 		id: 23,
@@ -190,6 +213,7 @@ export const NodeTypes = [
 		name: "Wiki",
 		nodeType: "ElementNode",
 		lms: ["sakai"],
+		gradable: [],
 	},
 	{
 		id: 24,
@@ -198,6 +222,7 @@ export const NodeTypes = [
 		name: "Taller",
 		nodeType: "ElementNode",
 		lms: ["moodle"],
+		gradable: [{ lms: "moodle", type: "accumulative" }],
 	},
 ];
 
@@ -228,4 +253,20 @@ export const getSakaiTypes = () => {
 
 export const getLTITypes = () => {
 	return reorderIds(NodeTypes.filter((type) => type.lms.includes("lti")));
+};
+
+export const getGradable = (platform) => {
+	return NodeTypes.filter((declaration) => {
+		if (declaration.gradable.length > 0) {
+			const gradableObj = declaration.gradable.find(
+				(gradable) => gradable.lms == platform
+			);
+			if (gradableObj) return true;
+			return false;
+		}
+	});
+};
+
+export const getGradableTypes = (platform) => {
+	return getGradable(platform).map((declaration) => declaration.type);
 };
