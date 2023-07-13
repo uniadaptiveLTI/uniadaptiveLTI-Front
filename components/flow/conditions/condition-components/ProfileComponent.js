@@ -3,34 +3,30 @@ import { Container, Row, Col, Button } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faTrashCan } from "@fortawesome/free-solid-svg-icons";
 
-const userProfileOperatorList = [
-	{ value: "firstName", name: "Nombre" },
-	{ value: "lastName", name: "Apellido" },
+const profileOperatorList = [
+	{ value: "firstname", name: "Nombre" },
+	{ value: "lastname", name: "Apellido" },
 	{ value: "city", name: "Ciudad" },
 	{ value: "department", name: "Departamento" },
 	{ value: "address", name: "Dirección" },
-	{ value: "emailAddress", name: "Dirección de correo" },
+	{ value: "email", name: "Dirección de correo" },
 	{ value: "institution", name: "Institución" },
-	{ value: "idNumber", name: "Número de ID" },
+	{ value: "idnumber", name: "Número de ID" },
 	{ value: "country", name: "País" },
-	{ value: "telephone", name: "Teléfono" },
-	{ value: "mobilePhone", name: "Teléfono Movil" },
+	{ value: "phone1", name: "Teléfono" },
+	{ value: "phone2", name: "Teléfono Movil" },
 ];
-const userProfileQueryList = [
-	{ value: "equals", name: "es igual a" },
+const profileQueryList = [
+	{ value: "isequalto", name: "es igual a" },
 	{ value: "contains", name: "contiene" },
-	{ value: "notContains", name: "no contiene" },
-	{ value: "startsWith", name: "comienza con" },
-	{ value: "endsWith", name: "termina en" },
-	{ value: "empty", name: "está vacío" },
-	{ value: "notEmpty", name: "no está vacío" },
+	{ value: "doesnotcontain", name: "no contiene" },
+	{ value: "startswith", name: "comienza con" },
+	{ value: "endswith", name: "termina en" },
+	{ value: "isempty", name: "está vacío" },
+	{ value: "isnotempty", name: "no está vacío" },
 ];
 
-const UserProfileComponent = ({
-	condition,
-	setConditionEdit,
-	deleteCondition,
-}) => {
+const ProfileComponent = ({ condition, setConditionEdit, deleteCondition }) => {
 	return (
 		<Container
 			className="mb-3 mt-3"
@@ -43,17 +39,12 @@ const UserProfileComponent = ({
 						Su{" "}
 						<strong>
 							{
-								userProfileOperatorList.find(
-									(item) => item.value === condition.op
-								)?.name
+								profileOperatorList.find((item) => item.value === condition.sf)
+									?.name
 							}
 						</strong>{" "}
-						{
-							userProfileQueryList.find(
-								(item) => item.value === condition.query
-							)?.name
-						}{" "}
-						<strong>{condition.objective}</strong>
+						{profileQueryList.find((item) => item.value === condition.op)?.name}{" "}
+						<strong>{condition.v}</strong>
 					</div>
 				</Col>
 				<Col className="col d-flex align-items-center gap-2">
@@ -73,4 +64,4 @@ const UserProfileComponent = ({
 	);
 };
 
-export default UserProfileComponent;
+export default ProfileComponent;

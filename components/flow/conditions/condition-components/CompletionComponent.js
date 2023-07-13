@@ -21,7 +21,7 @@ const CompletionComponent = ({
 	const reactFlowInstance = useReactFlow();
 	const nodes = reactFlowInstance.getNodes();
 
-	const node = nodes.find((node) => node.id === condition.op);
+	const node = nodes.find((node) => node.id === condition.cm);
 
 	return (
 		<Container
@@ -33,10 +33,7 @@ const CompletionComponent = ({
 					<div>Tipo: Finalización</div>
 					<div>
 						La actividad <strong>{node.data.label}</strong>{" "}
-						{
-							completionQueryList.find((item) => item.value === condition.query)
-								?.name
-						}
+						{completionQueryList.find((item) => item.id === condition.e)?.name}
 					</div>
 				</Col>
 				<Col className="col d-flex align-items-center gap-2">

@@ -78,11 +78,11 @@
 						"data": {
 							"label": "Conocimiento",
 							"lmsResource": 58,
-							"conditions": {
+							"c": {
 								"type": "conditionsGroup",
 								"id": "784378163420978",
 								"op": "|",
-								"conditions": [
+								"c": [
 									{
 										"id": "6439787364123",
 										"type": "role",
@@ -122,14 +122,14 @@
 							"identation": 1,
 							"order": 1,
 							"section": 1,
-							"conditions": {
+							"c": {
 								"type": "conditionsGroup",
 								"id": "68924334612375132878973",
 								"op": "&",
-								"conditions": [
+								"c": [
 									{
 										"type": "completion",
-										"op": "dev1A1",
+										"cm": "dev1A1",
 										"query": "completedApproved",
 										"id": "4342243163224778853"
 									}
@@ -169,28 +169,28 @@
 							"identation": 2,
 							"order": 7,
 							"section": 1,
-							"conditions": {
+							"c": {
 								"type": "conditionsGroup",
 								"id": "100236670156",
 								"op": "|",
-								"conditions": [
+								"c": [
 									{
 										"type": "completion",
-										"op": "dev4A1",
+										"cm": "dev4A1",
 										"query": "completedApproved",
 										"id": "434222363224778852"
 									},
 									{
 										"type": "completion",
-										"op": "dev6A1",
+										"cm": "dev6A1",
 										"query": "completed",
 										"id": "43422443224778853"
 									},
 									{
 										"type": "qualification",
 										"id": "648191624693482345",
-										"op": "dev10A1",
-										"objective": "7"
+										"cm": "dev10A1",
+										"min": "7"
 									}
 								]
 							},
@@ -211,20 +211,20 @@
 							"identation": 2,
 							"order": 6,
 							"section": 1,
-							"conditions": {
+							"c": {
 								"type": "conditionsGroup",
 								"id": "68924375132878957895673",
 								"op": "|",
-								"conditions": [
+								"c": [
 									{
 										"type": "completion",
-										"op": "dev4A1",
+										"cm": "dev4A1",
 										"query": "completedFailed",
 										"id": "4342223632247788542"
 									},
 									{
 										"type": "completion",
-										"op": "dev4A1",
+										"cm": "dev4A1",
 										"query": "completed",
 										"id": "4342223632247782852"
 									}
@@ -261,27 +261,27 @@
 							"identation": 0,
 							"order": 0,
 							"section": 3,
-							"conditions": {
+							"c": {
 								"type": "conditionsGroup",
 								"id": "68924375132878973",
 								"op": "&",
-								"conditions": [
+								"c": [
 									{
 										"type": "completion",
-										"op": "dev5A1",
+										"cm": "dev5A1",
 										"query": "completedApproved",
 										"id": "434222363224778852"
 									},
 									{
 										"type": "qualification",
 										"id": "6481924693482345",
-										"op": "dev15A1",
-										"objective": "6",
-										"objective2": "10"
+										"cm": "dev15A1",
+										"min": "6",
+										"max": "10"
 									},
 									{
 										"type": "completion",
-										"op": "dev16A1",
+										"cm": "dev16A1",
 										"query": "completed",
 										"id": "43422232778852"
 									}
@@ -304,14 +304,14 @@
 							"identation": 1,
 							"order": 3,
 							"section": 1,
-							"conditions": {
+							"c": {
 								"type": "conditionsGroup",
 								"id": "6892437513287698973",
 								"op": "&",
-								"conditions": [
+								"c": [
 									{
 										"type": "completion",
-										"op": "dev1A1",
+										"cm": "dev1A1",
 										"query": "completedFailed",
 										"id": "4342243163224778853"
 									}
@@ -334,14 +334,14 @@
 							"identation": 1,
 							"order": 4,
 							"section": 1,
-							"conditions": {
+							"c": {
 								"type": "conditionsGroup",
 								"id": "98437432194690",
 								"op": "&",
-								"conditions": [
+								"c": [
 									{
 										"type": "completion",
-										"op": "dev9A1",
+										"cm": "dev9A1",
 										"query": "completed",
 										"id": "434222363224778852"
 									}
@@ -376,16 +376,16 @@
 							"identation": 2,
 							"order": 5,
 							"section": 1,
-							"conditions": {
+							"c": {
 								"type": "conditionsGroup",
 								"id": "9544138437432194690",
 								"op": "&",
-								"conditions": [
+								"c": [
 									{
 										"type": "qualification",
 										"id": "648191624693482345",
-										"op": "dev10A1",
-										"objective2": "7"
+										"cm": "dev10A1",
+										"max": "7"
 									}
 								]
 							}
@@ -481,14 +481,14 @@
 							"identation": 2,
 							"order": 2,
 							"section": 2,
-							"conditions": {
+							"c": {
 								"type": "conditionsGroup",
 								"id": "89898998898912342",
 								"op": "&",
-								"conditions": [
+								"c": [
 									{
 										"type": "completion",
-										"op": "dev15A1",
+										"cm": "dev15A1",
 										"query": "completed",
 										"id": "4342234224778852"
 									}
@@ -511,16 +511,16 @@
 							"identation": 3,
 							"order": 3,
 							"section": 2,
-							"conditions": {
+							"c": {
 								"type": "conditionsGroup",
 								"id": "456426231736855865",
 								"op": "&",
-								"conditions": [
+								"c": [
 									{
 										"type": "qualification",
 										"id": "978434243341234324",
-										"op": "dev15A1",
-										"objective2": "6"
+										"cm": "dev15A1",
+										"max": "6"
 									}
 								]
 							},
@@ -1117,22 +1117,22 @@
 							"identation": 1,
 							"order": 1,
 							"section": 1,
-							"conditions": {
+							"c": {
 								"type": "conditionsGroup",
 								"id": "781267123670427",
 								"op": "&",
-								"conditions": [
+								"c": [
 									{
 										"type": "qualification",
 										"id": "984325782581123",
-										"op": "fullCourse",
-										"objective": "2"
+										"cm": "fullCourse",
+										"min": "2"
 									},
 									{
 										"type": "qualification",
 										"id": "123658623618641",
-										"op": "fullCourse",
-										"objective": "2"
+										"cm": "fullCourse",
+										"min": "2"
 									}
 								]
 							},
@@ -1323,22 +1323,22 @@
 							"identation": 1,
 							"order": 1,
 							"section": 1,
-							"conditions": {
+							"c": {
 								"type": "conditionsGroup",
 								"id": "77665544331122",
 								"op": "&",
-								"conditions": [
+								"c": [
 									{
 										"type": "qualification",
 										"id": "22885507753719",
-										"op": "fullCourse",
-										"objective": "2"
+										"cm": "fullCourse",
+										"min": "2"
 									},
 									{
 										"type": "qualification",
 										"id": "228855077531234",
-										"op": "fullCourse",
-										"objective": "2"
+										"cm": "fullCourse",
+										"min": "2"
 									}
 								]
 							},
@@ -1565,22 +1565,22 @@
 							"identation": 1,
 							"order": 0,
 							"section": 1,
-							"conditions": {
+							"c": {
 								"type": "conditionsGroup",
 								"id": "44885577221100",
 								"op": "&",
-								"conditions": [
+								"c": [
 									{
 										"type": "qualification",
 										"id": "0987886579865",
-										"op": "fullCourse",
-										"objective": "2"
+										"cm": "fullCourse",
+										"min": "2"
 									},
 									{
 										"type": "qualification",
 										"id": "3678543556977",
-										"op": "fullCourse",
-										"objective": "2"
+										"cm": "fullCourse",
+										"min": "2"
 									}
 								]
 							},

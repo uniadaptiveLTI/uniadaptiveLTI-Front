@@ -62,8 +62,8 @@ const ConditionsGroupComponent = ({
 						</div>
 					</Button>
 				</Col>
-				{condition.conditions &&
-					condition.conditions.map((innerCondition) => (
+				{condition.c &&
+					condition.c.map((innerCondition) => (
 						<div className="mb-3">
 							<Condition
 								condition={innerCondition}

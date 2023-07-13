@@ -11,20 +11,17 @@ function CompletionForm({
 		<Form.Group>
 			<Form.Control
 				ref={conditionOperator}
-				defaultValue={conditionEdit?.op}
+				defaultValue={conditionEdit?.cm}
 				type="text"
 				hidden
 			/>
 
-			<Form.Select ref={conditionQuery} defaultValue={conditionEdit?.query}>
-				<option value="completed">debe estar completa</option>
-				<option value="notCompleted">no debe estar completa</option>
-				<option value="completedApproved">
-					debe estar completa y aprobada
-				</option>
-				<option value="completedFailed">
-					debe estar completa y suspendida
-				</option>
+			<Form.Select ref={conditionQuery} defaultValue={conditionEdit?.e}>
+				{/* The value is in that order refering to Moodle DB table schem */}
+				<option value="1">debe estar completa</option>
+				<option value="0">no debe estar completa</option>
+				<option value="2">debe estar completa y aprobada</option>
+				<option value="3">debe estar completa y suspendida</option>
 			</Form.Select>
 		</Form.Group>
 	);

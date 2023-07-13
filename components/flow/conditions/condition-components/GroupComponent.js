@@ -3,7 +3,16 @@ import { Container, Row, Col, Button } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faTrashCan } from "@fortawesome/free-solid-svg-icons";
 
-const GroupComponent = ({ condition, setConditionEdit, deleteCondition }) => {
+const GroupComponent = ({
+	condition,
+	setConditionEdit,
+	deleteCondition,
+	moodleGroups,
+}) => {
+	const group = moodleGroups.find(
+		(grouping) => grouping.id === condition?.groupId
+	);
+
 	return (
 		<Container
 			className="mb-3 mt-3"
@@ -13,14 +22,14 @@ const GroupComponent = ({ condition, setConditionEdit, deleteCondition }) => {
 				<Col>
 					<div>Tipo: Grupo</div>
 					<div>
-						{condition.op === "anyGroup" && (
+						{!group && (
 							<div>
 								Se pertenezca a <strong>cualquier grupo</strong>
 							</div>
 						)}
-						{condition.op !== "anyGroup" && (
+						{group && (
 							<div>
-								Se pertenezca al grupo <strong>{condition.op}</strong>
+								Se pertenezca al grupo <strong>{group.name}</strong>
 							</div>
 						)}
 					</div>

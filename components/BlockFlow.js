@@ -49,6 +49,7 @@ import {
 	addEventListeners,
 	getByProperty,
 	deduplicateById,
+	updateBadgeConditions,
 } from "@utils/Utils";
 import {
 	getNodeByNodeDOM,
@@ -435,27 +436,31 @@ const OverviewFlow = ({ map }, ref) => {
 					}
 				}
 
-				if (targetNode) {
+				if (
+					targetNode &&
+					sourceNode.type != "start" &&
+					sourceNode.type != "end"
+				) {
 					if (!validTypes.includes(targetNode.type)) {
 						const newCondition = {
 							id: parseInt(Date.now() * Math.random()).toString(),
 							type: "completion",
-							op: sourceNode.id,
+							cm: sourceNode.id,
 							query: "completed",
 						};
 
-						if (!targetNode.data.conditions) {
-							targetNode.data.conditions = {
+						if (!targetNode.data.c) {
+							targetNode.data.c = {
 								type: "conditionsGroup",
 								id: parseInt(Date.now() * Math.random()).toString(),
 								op: "&",
-								conditions: [newCondition],
+								c: [newCondition],
 							};
 						} else {
-							targetNode.data.conditions.conditions.push(newCondition);
+							targetNode.data.c.c.push(newCondition);
 						}
 					} else {
-						const conditions = targetNode.data.conditions.conditions;
+						const conditions = targetNode.data.c.c;
 
 						const conditionExists = conditions.find(
 							(condition) => condition.type === "completion"
@@ -481,15 +486,15 @@ const OverviewFlow = ({ map }, ref) => {
 								query: "completed",
 							};
 
-							if (!targetNode.data.conditions) {
-								targetNode.data.conditions = {
+							if (!targetNode.data.c) {
+								targetNode.data.c = {
 									type: "conditionsGroup",
 									id: parseInt(Date.now() * Math.random()).toString(),
 									op: "&",
-									conditions: [newCondition],
+									c: [newCondition],
 								};
 							} else {
-								targetNode.data.conditions.conditions.push(newCondition);
+								targetNode.data.c.c.push(newCondition);
 							}
 						}
 					}
@@ -532,16 +537,16 @@ const OverviewFlow = ({ map }, ref) => {
 		if (conditions) {
 			for (let i = 0; i < conditions.length; i++) {
 				const condition = conditions[i];
-				if (condition.op === op) {
+				if (condition.cm === op) {
 					conditions.splice(i, 1);
 					if (conditions.length === 0) {
 						conditions = undefined;
 					}
 					return true;
-				} else if (condition.conditions) {
-					if (deleteConditionById(condition.conditions, op)) {
-						if (condition.conditions.length === 0) {
-							condition.conditions = undefined;
+				} else if (condition.c) {
+					if (deleteConditionById(condition.c, op)) {
+						if (condition.c.length === 0) {
+							condition.c = undefined;
 						}
 						return true;
 					}
@@ -555,7 +560,6 @@ const OverviewFlow = ({ map }, ref) => {
 
 	// FIXME: DOESNT DELETE THE CHILDREN CORRECTLY
 	const onEdgesDelete = (edges) => {
-		console.log(edges);
 		for (let i = 0; i < edges.length; i++) {
 			var blockNodeSource = reactFlowInstance
 				?.getNodes()
@@ -573,37 +577,11 @@ const OverviewFlow = ({ map }, ref) => {
 
 			blockNodeSource = updatedBlockNodeSource;
 
-			if (blockNodeTarget.data.conditions) {
+			if (blockNodeTarget.data.c) {
 				if (!validTypes.includes(blockNodeTarget.type)) {
-					deleteConditionById(
-						blockNodeTarget.data.conditions.conditions,
-						blockNodeSource.id
-					);
+					deleteConditionById(blockNodeTarget.data.c.c, blockNodeSource.id);
 				} else {
-					let conditions = blockNodeTarget.data.conditions.conditions;
-
-					const conditionExists = conditions.find(
-						(condition) => condition.type === "completion"
-					);
-
-					if (conditionExists) {
-						if (conditionExists.activityList.length > 1) {
-							console.log("entro a eliminar solo una");
-
-							conditionExists.activityList =
-								conditionExists.activityList.filter(
-									(item) => item.id !== blockNodeSource.id
-								);
-						} else {
-							blockNodeTarget.data.conditions.conditions = conditions.filter(
-								(item) => item.type !== "completion"
-							);
-						}
-					} else {
-						blockNodeTarget.data.conditions.conditions = conditions.filter(
-							(item) => item.type !== "completion"
-						);
-					}
+					updateBadgeConditions(blockNodeTarget, blockNodeSource);
 				}
 			}
 
@@ -628,12 +606,11 @@ const OverviewFlow = ({ map }, ref) => {
 					if (blockNodeDelete.children.length === 0)
 						blockNodeDelete.children = undefined;
 
-					if (blockNodeDelete.conditions) {
-						blockNodeDelete.conditions = blockNodeDelete.conditions.filter(
+					if (blockNodeDelete.c) {
+						blockNodeDelete.c = blockNodeDelete.c.filter(
 							(condition) => condition.unlockId !== deletedEdge.target
 						);
-						if (blockNodeDelete.conditions.length === 0)
-							blockNodeDelete.conditions = undefined;
+						if (blockNodeDelete.c.length === 0) blockNodeDelete.c = undefined;
 					}
 					updatedBlocksArray = updatedBlocksArray.map((obj) =>
 						obj.id === blockNodeDelete.id ? blockNodeDelete : obj
@@ -718,8 +695,8 @@ const OverviewFlow = ({ map }, ref) => {
 					}
 
 					//FIXME: Does nothing
-					if (edge.conditions != undefined) {
-						for (let condition of cedge.conditions) {
+					if (edge.c != undefined) {
+						for (let condition of cedge.c) {
 							edge.label = "" + condition.operand + condition.objective;
 						}
 					}*/
@@ -878,17 +855,19 @@ const OverviewFlow = ({ map }, ref) => {
 
 					// Condition to check if the children is already edited
 					if (foundChildrenNode) {
-						// Delete method that updates the conditions of the children node edited
-						deleteConditionById(
-							foundChildrenNode.data?.conditions?.conditions,
-							blocks[i].id
-						);
+						if (!validTypes.includes(foundChildrenNode.type)) {
+							// Delete method that updates the conditions of the children node edited
+							deleteConditionById(foundChildrenNode.data?.c?.c, blocks[i].id);
+						} else {
+							updateBadgeConditions(foundChildrenNode, blocks[i]);
+						}
 					} else {
-						// Delete method that updates the conditions of the children node
-						deleteConditionById(
-							childrenNodes[k].data?.conditions?.conditions,
-							blocks[i].id
-						);
+						if (!validTypes.includes(childrenNodes[k].type)) {
+							// Delete method that updates the conditions of the children node
+							deleteConditionById(childrenNodes[k].data?.c?.c, blocks[i].id);
+						} else {
+							updateBadgeConditions(childrenNodes[k], blocks[i]);
+						}
 
 						// Push method to store the updated node
 						updatedBlocks.push(childrenNodes[k]);
@@ -948,16 +927,14 @@ const OverviewFlow = ({ map }, ref) => {
 	const filterRelatedConditionsById = (unlockId, arr) => {
 		return arr.map((b) => {
 			console.log(b);
-			if (b.data?.conditions?.length) {
-				const updatedConditions = b.data.conditions.filter(
+			if (b.data?.c?.length) {
+				const updatedConditions = b.data.c.filter(
 					(condition) => condition.unlockId !== unlockId
 				);
 				return {
 					...b,
 					data: {
-						conditions: updatedConditions.length
-							? updatedConditions
-							: undefined,
+						c: updatedConditions.length ? updatedConditions : undefined,
 					},
 				};
 			} else if (b.data?.children?.length) {
@@ -1115,7 +1092,7 @@ const OverviewFlow = ({ map }, ref) => {
 						...block.data,
 						children:
 							filteredChildren?.length === 0 ? undefined : filteredChildren,
-						conditions: undefined,
+						c: undefined,
 						lmsResource: shouldEmptyResource
 							? undefined
 							: block.data.lmsResource,

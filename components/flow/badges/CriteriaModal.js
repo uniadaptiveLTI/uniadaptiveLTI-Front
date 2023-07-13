@@ -61,20 +61,17 @@ function ConditionModal({
 	const [lmsResourceList, setLmsResourceList] = useState([]);
 
 	const addCondition = (conditionId) => {
-		if (blockData.data.conditions.id != conditionId) {
-			const foundCondition = findConditionById(
-				conditionId,
-				blockData.data.conditions.conditions
-			);
+		if (blockData.data.c.id != conditionId) {
+			const foundCondition = findConditionById(conditionId, blockData.data.c.c);
 			setEditing(foundCondition);
 		} else {
-			setEditing(blockData.data.conditions);
+			setEditing(blockData.data.c);
 		}
 	};
 
 	const addConditionToMain = () => {
-		if (blockData.data.conditions) {
-			addCondition(blockData.data.conditions.id);
+		if (blockData.data.c) {
+			addCondition(blockData.data.c.id);
 		} else {
 			const firstConditionGroup = {
 				type: "conditionsGroup",
@@ -96,8 +93,8 @@ function ConditionModal({
 		}
 
 		for (const condition of conditions) {
-			if (condition.conditions) {
-				const innerCondition = findConditionById(id, condition.conditions);
+			if (condition.c) {
+				const innerCondition = findConditionById(id, condition.c);
 				if (innerCondition) {
 					return innerCondition;
 				}
@@ -156,10 +153,10 @@ function ConditionModal({
 					conditions = undefined;
 				}
 				return true;
-			} else if (condition.conditions) {
-				if (deleteConditionById(condition.conditions, id)) {
-					if (condition.conditions.length === 0) {
-						condition.conditions = undefined;
+			} else if (condition.c) {
+				if (deleteConditionById(condition.c, id)) {
+					if (condition.c.length === 0) {
+						condition.c = undefined;
 					}
 					return true;
 				}
@@ -182,10 +179,7 @@ function ConditionModal({
 
 	const deleteCondition = (conditionId) => {
 		// We found the condition to delete
-		const foundCondition = findConditionById(
-			conditionId,
-			blockData.data.conditions.conditions
-		);
+		const foundCondition = findConditionById(conditionId, blockData.data.c.c);
 
 		// If clause to check if the condition is completion type
 		if (foundCondition.type === "completion") {
@@ -221,7 +215,7 @@ function ConditionModal({
 		const blockDataCopy = deepCopy(blockData);
 
 		// Delete method to delete the condition by ID
-		deleteConditionById(blockDataCopy.data.conditions.conditions, conditionId);
+		deleteConditionById(blockDataCopy.data.c.c, conditionId);
 
 		// Set method to set the updated blockData
 		setBlockData(blockDataCopy);
@@ -231,9 +225,9 @@ function ConditionModal({
 		if (jsonObj.id === id) {
 			jsonObj.op = newOp;
 			return true;
-		} else if (jsonObj.conditions) {
-			for (let i = 0; i < jsonObj.conditions.length; i++) {
-				if (updateConditionOp(jsonObj.conditions[i], id, newOp)) {
+		} else if (jsonObj.c) {
+			for (let i = 0; i < jsonObj.c.length; i++) {
+				if (updateConditionOp(jsonObj.c[i], id, newOp)) {
 					return true;
 				}
 			}
@@ -245,11 +239,7 @@ function ConditionModal({
 		const updatedBlockData = deepCopy(blockData);
 		const swapOperator = condition.op === "&" ? "|" : "&";
 
-		updateConditionOp(
-			updatedBlockData.data.conditions,
-			condition.id,
-			swapOperator
-		);
+		updateConditionOp(updatedBlockData.data.c, condition.id, swapOperator);
 		console.log(updatedBlockData);
 		setBlockData(updatedBlockData);
 	}
@@ -412,21 +402,19 @@ function ConditionModal({
 				...blockData,
 				data: {
 					...blockData.data,
-					conditions: {
-						...blockData.data.conditions,
-						conditions: blockData.data.conditions.conditions.map(
-							(condition) => {
-								if (condition.id === formData.id) {
-									console.log("ENTRO AL IF");
-									return {
-										...condition,
-										...formData,
-									};
-								}
-								console.log("NOPE");
-								return condition;
+					c: {
+						...blockData.data.c,
+						c: blockData.data.c.c.map((condition) => {
+							if (condition.id === formData.id) {
+								console.log("ENTRO AL IF");
+								return {
+									...condition,
+									...formData,
+								};
 							}
-						),
+							console.log("NOPE");
+							return condition;
+						}),
 					},
 				},
 			};
@@ -437,9 +425,9 @@ function ConditionModal({
 				...blockData,
 				data: {
 					...blockData.data,
-					conditions: {
-						...blockData.data.conditions,
-						conditions: [...blockData.data.conditions.conditions, formData],
+					c: {
+						...blockData.data.c,
+						c: [...blockData.data.c.c, formData],
 					},
 				},
 			};
@@ -454,7 +442,7 @@ function ConditionModal({
 	};
 
 	const shouldRenderOption = (type) => {
-		const conditions = blockData.data.conditions.conditions;
+		const conditions = blockData.data.c.c;
 		return !conditions.some((condition) => condition.type === type);
 	};
 
@@ -469,7 +457,7 @@ function ConditionModal({
 				<Modal.Title>Precondiciones de "{blockData.data.label}"</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
-				{blockData.data.conditions && !editing && (
+				{blockData.data.c && !editing && (
 					<Container
 						style={{
 							padding: "10px",
@@ -482,12 +470,12 @@ function ConditionModal({
 								<div>
 									A los estudiantes se les concede esta insignia cuando
 									finalizan{" "}
-									{blockData.data.conditions.op == "&" && (
+									{blockData.data.c.op == "&" && (
 										<a>
 											<strong>TODOS</strong>{" "}
 										</a>
 									)}
-									{blockData.data.conditions.op == "|" && (
+									{blockData.data.c.op == "|" && (
 										<a>
 											<strong>CUALQUIERA</strong> de{" "}
 										</a>
@@ -499,7 +487,7 @@ function ConditionModal({
 								<Button
 									variant="light"
 									onClick={() => {
-										swapConditionGroup(blockData.data.conditions);
+										swapConditionGroup(blockData.data.c);
 									}}
 								>
 									<div>
@@ -509,7 +497,7 @@ function ConditionModal({
 							</Col>
 						</Row>
 						<Container>
-							{blockData.data.conditions.conditions.map((condition) => {
+							{blockData.data.c.c.map((condition) => {
 								return (
 									<Criteria
 										condition={condition}

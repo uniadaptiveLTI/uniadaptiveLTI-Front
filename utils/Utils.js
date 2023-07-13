@@ -167,8 +167,8 @@ export function searchConditionForTypes(jsonData, targetTypes, results) {
 		results.push(jsonData);
 	}
 
-	if (jsonData.conditions && Array.isArray(jsonData.conditions)) {
-		for (const condition of jsonData.conditions) {
+	if (jsonData.c && Array.isArray(jsonData.c)) {
+		for (const condition of jsonData.c) {
 			searchConditionForTypes(condition, targetTypes, results);
 		}
 	}
@@ -182,8 +182,8 @@ export function findCompletionAndQualification(obj) {
 			results.push(obj);
 		}
 
-		if (obj.conditions && Array.isArray(obj.conditions)) {
-			obj.conditions.forEach((condition) => {
+		if (obj.c && Array.isArray(obj.c)) {
+			obj.c.forEach((condition) => {
 				search(condition);
 			});
 		}
@@ -192,4 +192,37 @@ export function findCompletionAndQualification(obj) {
 	search(obj);
 
 	return results;
+}
+
+export function updateBadgeConditions(blockNodeTarget, blockNodeSource) {
+	// Variable to store the conditions of the target node
+	let conditions = blockNodeTarget.data.c.c;
+
+	// Find method to get the condition of type completion
+	const conditionExists = conditions.find(
+		(condition) => condition.type === "completion"
+	);
+
+	// Condition to know if the condition exists
+	if (conditionExists) {
+		// Condition to check if the activity list has more than one entry
+		if (conditionExists.activityList.length > 1) {
+			console.log("entro a eliminar solo una");
+
+			// Filter method to delete the specific node from the activity list
+			conditionExists.activityList = conditionExists.activityList.filter(
+				(item) => item.id !== blockNodeSource.id
+			);
+		} else {
+			// Filter method to delete the condition type completion
+			blockNodeTarget.data.c.c = conditions.filter(
+				(item) => item.type !== "completion"
+			);
+		}
+	} else {
+		// Filter method to delete the condition type completion
+		blockNodeTarget.data.c.c = conditions.filter(
+			(item) => item.type !== "completion"
+		);
+	}
 }

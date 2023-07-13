@@ -1,11 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useContext, useRef, useState } from "react";
 import styles from "@root/styles/ConditionModal.module.css";
 import { Modal, Button, Form, Row, Col, Container } from "react-bootstrap";
 import Condition from "./Condition";
 import { faEdit, faPlus, faShuffle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { getParentsNode } from "@utils/Nodes";
-import UserProfileForm from "./form-components/UserProfileForm";
+import ProfileForm from "./form-components/ProfileForm";
 import CompletionForm from "./form-components/CompletionForm";
 import QualificationForm from "./form-components/QualificationForm";
 import DateForm from "./form-components/DateForm";
@@ -19,6 +19,7 @@ import {
 } from "@utils/Utils";
 import CourseQualificationForm from "./form-components/CourseQualificationForm";
 import { useReactFlow } from "reactflow";
+import { MetaDataContext } from "@root/pages/_app.js";
 
 function ConditionModal({
 	blockData,
@@ -55,10 +56,12 @@ function ConditionModal({
 		{ id: "grouping-7", name: "Agrupamiento G" },
 	];
 
+	const { metaData, setMetaData } = useContext(MetaDataContext);
+
 	const [editing, setEditing] = useState(undefined);
 	const [conditionEdit, setConditionEdit] = useState(undefined);
 
-	const [userProfileObjective, setUserProfileObjective] = useState(true);
+	const [profileObjective, setProfileObjective] = useState(true);
 	const [dateOperator, setDateOperator] = useState(false);
 
 	const [selectedOption, setSelectedOption] = useState(null);
@@ -76,15 +79,15 @@ function ConditionModal({
 	const parentsNodeArray = getParentsNode(blocksData, blockData.id);
 
 	const findParentObject = (id, json) => {
-		if (json.conditions) {
-			for (let i = 0; i < json.conditions.length; i++) {
-				const condition = json.conditions[i];
+		if (json.c) {
+			for (let i = 0; i < json.c.length; i++) {
+				const condition = json.c[i];
 
 				if (condition.id === id) {
 					return json;
 				}
 
-				if (condition.conditions) {
+				if (condition.c) {
 					const parent = findParentObject(id, condition);
 					if (parent) {
 						return parent;
@@ -101,12 +104,13 @@ function ConditionModal({
 			return { ...json, ...updatedJson };
 		}
 
-		if (json.conditions && Array.isArray(json.conditions)) {
-			const updatedConditions = json.conditions.map((condition) =>
+		if (json.c && Array.isArray(json.c)) {
+			console.log(json);
+			const updatedConditions = json.c.map((condition) =>
 				updateJsonById(condition, id, updatedJson)
 			);
 
-			return { ...json, conditions: updatedConditions };
+			return { ...json, c: updatedConditions };
 		}
 
 		return json;
@@ -114,16 +118,13 @@ function ConditionModal({
 
 	function insertBeforeSourceId(sourceId, targetJson, json) {
 		let insertIndex = -1;
-		const updatedConditions = json.conditions.reduce(
-			(acc, condition, index) => {
-				if (condition.id === sourceId) {
-					insertIndex = index;
-					return [...acc, targetJson, condition];
-				}
-				return [...acc, condition];
-			},
-			[]
-		);
+		const updatedConditions = json.c.reduce((acc, condition, index) => {
+			if (condition.id === sourceId) {
+				insertIndex = index;
+				return [...acc, targetJson, condition];
+			}
+			return [...acc, condition];
+		}, []);
 
 		if (insertIndex === -1) {
 			updatedConditions.push(targetJson);
@@ -131,7 +132,7 @@ function ConditionModal({
 
 		const updatedJson = {
 			...json,
-			conditions: updatedConditions,
+			c: updatedConditions,
 		};
 
 		return updatedJson;
@@ -139,16 +140,13 @@ function ConditionModal({
 
 	function insertAfterSourceId(sourceId, targetJson, json) {
 		let insertIndex = -1;
-		const updatedConditions = json.conditions.reduce(
-			(acc, condition, index) => {
-				if (condition.id === sourceId) {
-					insertIndex = index;
-					return [...acc, condition, targetJson];
-				}
-				return [...acc, condition];
-			},
-			[]
-		);
+		const updatedConditions = json.c.reduce((acc, condition, index) => {
+			if (condition.id === sourceId) {
+				insertIndex = index;
+				return [...acc, condition, targetJson];
+			}
+			return [...acc, condition];
+		}, []);
 
 		if (insertIndex === -1) {
 			updatedConditions.push(targetJson);
@@ -156,7 +154,7 @@ function ConditionModal({
 
 		const updatedJson = {
 			...json,
-			conditions: updatedConditions,
+			c: updatedConditions,
 		};
 
 		return updatedJson;
@@ -165,43 +163,38 @@ function ConditionModal({
 	function upCondition(condition) {
 		let parentObject;
 
-		if (findParentObject(condition.id, blockData.data.conditions) == null) {
-			parentObject = blockData.data.conditions;
+		if (findParentObject(condition.id, blockData.data.c) == null) {
+			parentObject = blockData.data.c;
 		} else {
-			parentObject = findParentObject(condition.id, blockData.data.conditions);
+			parentObject = findParentObject(condition.id, blockData.data.c);
 		}
 
 		const blockDataCopy = deepCopy(blockData);
 
-		const conditionsList = parentObject.conditions;
+		const conditionsList = parentObject.c;
 		const index = conditionsList.findIndex((item) => item.id === condition.id);
 		var updatedArray = [...conditionsList];
 
 		if (index === 0) {
-			if (parentObject.id == blockData.data.conditions.id) {
+			if (parentObject.id == blockData.data.c.id) {
 				console.log("PADRE MAIN, VOY A LO MAS BAJO");
 				const movedJson = updatedArray.shift();
 				updatedArray.push(movedJson);
 
-				// GUARDAR EL updatedArray como conditions de blockData.data.conditions -> blockData.data.conditions.conditions
+				// GUARDAR EL updatedArray como conditions de blockData.data.c -> blockData.data.c.c
 			} else {
 				let parentOfParent;
-				if (
-					findParentObject(parentObject.id, blockData.data.conditions) == null
-				) {
+				if (findParentObject(parentObject.id, blockData.data.c) == null) {
 					console.log("MI ABUELO ES EL MAIN");
 
-					parentOfParent = blockData.data.conditions;
+					parentOfParent = blockData.data.c;
 				} else {
 					console.log("MI ABUELO NO ES EL MAIN");
 
-					parentOfParent = findParentObject(
-						parentObject.id,
-						blockData.data.conditions
-					);
+					parentOfParent = findParentObject(parentObject.id, blockData.data.c);
 				}
 
-				deleteConditionById(blockData.data.conditions.conditions, condition.id);
+				deleteConditionById(blockData.data.c.c, condition.id);
 
 				const updatedJson = insertBeforeSourceId(
 					parentObject.id,
@@ -209,14 +202,16 @@ function ConditionModal({
 					parentOfParent
 				);
 
-				if (updatedJson.id == blockData.data.conditions.id) {
-					updatedArray = updatedJson.conditions;
+				console.log(updatedJson);
+
+				if (updatedJson.id == blockData.data.c.id) {
+					updatedArray = updatedJson.c;
 				} else {
 					updatedArray = updateJsonById(
-						blockDataCopy.data.conditions,
+						blockDataCopy.data.c,
 						updatedJson.id,
 						updatedJson
-					).conditions;
+					).c;
 				}
 			}
 		} else if (index > 0) {
@@ -224,25 +219,25 @@ function ConditionModal({
 			const upperJson = updatedArray[index - 1];
 
 			if (upperJson.type === "conditionsGroup") {
-				if (!upperJson.conditions) {
-					upperJson.conditions = [];
+				if (!upperJson.c) {
+					upperJson.c = [];
 				}
-				const existingIndex = upperJson.conditions.findIndex(
+				const existingIndex = upperJson.c.findIndex(
 					(item) => item.id === movedJson.id
 				);
 				if (existingIndex === -1) {
-					upperJson.conditions.push(movedJson);
+					upperJson.c.push(movedJson);
 				}
 			} else {
 				updatedArray.splice(index - 1, 0, movedJson);
 			}
 
-			if (parentObject.id != blockData.data.conditions.id) {
+			if (parentObject.id != blockData.data.c.id) {
 				updatedArray = updateConditionsById(
-					blockDataCopy.data.conditions,
+					blockDataCopy.data.c,
 					parentObject.id,
 					updatedArray
-				).conditions;
+				).c;
 			}
 		}
 
@@ -250,9 +245,9 @@ function ConditionModal({
 			...blockData,
 			data: {
 				...blockData.data,
-				conditions: {
-					...blockData.data.conditions,
-					conditions: updatedArray,
+				c: {
+					...blockData.data.c,
+					c: updatedArray,
 				},
 			},
 		};
@@ -263,20 +258,20 @@ function ConditionModal({
 	const downCondition = (condition) => {
 		let parentObject;
 
-		if (findParentObject(condition.id, blockData.data.conditions) == null) {
-			parentObject = blockData.data.conditions;
+		if (findParentObject(condition.id, blockData.data.c) == null) {
+			parentObject = blockData.data.c;
 		} else {
-			parentObject = findParentObject(condition.id, blockData.data.conditions);
+			parentObject = findParentObject(condition.id, blockData.data.c);
 		}
 
 		const blockDataCopy = deepCopy(blockData);
 
-		const conditionsList = parentObject.conditions;
+		const conditionsList = parentObject.c;
 		const index = conditionsList.findIndex((item) => item.id === condition.id);
 		var updatedArray = [...conditionsList];
 
 		if (index === updatedArray.length - 1) {
-			if (parentObject.id == blockData.data.conditions.id) {
+			if (parentObject.id == blockData.data.c.id) {
 				console.log("ME VOY ARRIBA DEL TODO");
 				const movedJson = updatedArray.pop();
 				updatedArray.unshift(movedJson);
@@ -284,22 +279,17 @@ function ConditionModal({
 				console.log("ME SALGO FUERA DE MI GRUPO");
 
 				let parentOfParent;
-				if (
-					findParentObject(parentObject.id, blockData.data.conditions) == null
-				) {
+				if (findParentObject(parentObject.id, blockData.data.c) == null) {
 					console.log("MI ABUELO ES EL MAIN");
 
-					parentOfParent = blockData.data.conditions;
+					parentOfParent = blockData.data.c;
 				} else {
 					console.log("MI ABUELO NO ES EL MAIN");
 
-					parentOfParent = findParentObject(
-						parentObject.id,
-						blockData.data.conditions
-					);
+					parentOfParent = findParentObject(parentObject.id, blockData.data.c);
 				}
 
-				deleteConditionById(blockData.data.conditions.conditions, condition.id);
+				deleteConditionById(blockData.data.c.c, condition.id);
 
 				const updatedJson = insertAfterSourceId(
 					parentObject.id,
@@ -307,14 +297,14 @@ function ConditionModal({
 					parentOfParent
 				);
 
-				if (updatedJson.id == blockData.data.conditions.id) {
-					updatedArray = updatedJson.conditions;
+				if (updatedJson.id == blockData.data.c.id) {
+					updatedArray = updatedJson.c;
 				} else {
 					updatedArray = updateJsonById(
-						blockDataCopy.data.conditions,
+						blockDataCopy.data.c,
 						updatedJson.id,
 						updatedJson
-					).conditions;
+					).c;
 				}
 			}
 		} else {
@@ -324,26 +314,26 @@ function ConditionModal({
 			const bottomJson = updatedArray[index];
 
 			if (bottomJson.type === "conditionsGroup") {
-				if (!bottomJson.conditions) {
-					bottomJson.conditions = [];
+				if (!bottomJson.c) {
+					bottomJson.c = [];
 				}
-				const existingIndex = bottomJson.conditions.findIndex(
+				const existingIndex = bottomJson.c.findIndex(
 					(item) => item.id === movedJson.id
 				);
 
 				if (existingIndex === -1) {
-					bottomJson.conditions.unshift(movedJson);
+					bottomJson.c.unshift(movedJson);
 				}
 			} else {
 				updatedArray.splice(index + 1, 0, movedJson);
 			}
 
-			if (parentObject.id != blockData.data.conditions.id) {
+			if (parentObject.id != blockData.data.c.id) {
 				updatedArray = updateConditionsById(
-					blockDataCopy.data.conditions,
+					blockDataCopy.data.c,
 					parentObject.id,
 					updatedArray
-				).conditions;
+				).c;
 			}
 		}
 
@@ -351,9 +341,9 @@ function ConditionModal({
 			...blockData,
 			data: {
 				...blockData.data,
-				conditions: {
-					...blockData.data.conditions,
-					conditions: updatedArray,
+				c: {
+					...blockData.data.c,
+					c: updatedArray,
 				},
 			},
 		};
@@ -365,18 +355,18 @@ function ConditionModal({
 		if (json.id === id) {
 			return {
 				...json,
-				conditions: updatedConditions,
+				c: updatedConditions,
 			};
 		}
 
-		if (json.conditions && Array.isArray(json.conditions)) {
-			const updatedConditionsArray = json.conditions.map((condition) =>
+		if (json.c && Array.isArray(json.c)) {
+			const updatedConditionsArray = json.c.map((condition) =>
 				updateConditionsById(condition, id, updatedConditions)
 			);
 
 			return {
 				...json,
-				conditions: updatedConditionsArray,
+				c: updatedConditionsArray,
 			};
 		}
 
@@ -384,14 +374,11 @@ function ConditionModal({
 	};
 
 	const addCondition = (conditionId) => {
-		if (blockData.data.conditions.id != conditionId) {
-			const foundCondition = findConditionById(
-				conditionId,
-				blockData.data.conditions.conditions
-			);
+		if (blockData.data.c.id != conditionId) {
+			const foundCondition = findConditionById(conditionId, blockData.data.c.c);
 			setEditing(foundCondition);
 		} else {
-			setEditing(blockData.data.conditions);
+			setEditing(blockData.data.c);
 		}
 	};
 
@@ -406,8 +393,8 @@ function ConditionModal({
 		}
 
 		for (const condition of conditions) {
-			if (condition.conditions) {
-				const innerCondition = findConditionById(id, condition.conditions);
+			if (condition.c) {
+				const innerCondition = findConditionById(id, condition.c);
 				if (innerCondition) {
 					return innerCondition;
 				}
@@ -426,10 +413,10 @@ function ConditionModal({
 					conditions = undefined;
 				}
 				return true;
-			} else if (condition.conditions) {
-				if (deleteConditionById(condition.conditions, id)) {
-					if (condition.conditions.length === 0) {
-						condition.conditions = undefined;
+			} else if (condition.c) {
+				if (deleteConditionById(condition.c, id)) {
+					if (condition.c.length === 0) {
+						condition.c = undefined;
 					}
 					return true;
 				}
@@ -444,8 +431,8 @@ function ConditionModal({
 			if (condition.id === id) {
 				conditions[i] = newCondition;
 				return true;
-			} else if (condition.conditions) {
-				if (updateConditionById(condition.conditions, id, newCondition)) {
+			} else if (condition.c) {
+				if (updateConditionById(condition.c, id, newCondition)) {
 					return true;
 				}
 			}
@@ -456,10 +443,7 @@ function ConditionModal({
 	const deleteCondition = (conditionId) => {
 		const blockDataCopy = deepCopy(blockData);
 
-		const foundCondition = findConditionById(
-			conditionId,
-			blockData.data.conditions.conditions
-		);
+		const foundCondition = findConditionById(conditionId, blockData.data.c.c);
 
 		const conditionCopy = deepCopy(foundCondition);
 
@@ -470,7 +454,7 @@ function ConditionModal({
 			foundCondition.type == "qualification"
 		) {
 			const edgesUpdated = edges.filter(
-				(edge) => edge.id === foundCondition.op + "-" + blockData.id
+				(edge) => edge.id === foundCondition.cm + "-" + blockData.id
 			);
 
 			// Delete the children
@@ -478,13 +462,10 @@ function ConditionModal({
 
 			reactFlowInstance.setEdges(
 				edges.filter(
-					(edge) => edge.id !== foundCondition.op + "-" + blockData.id
+					(edge) => edge.id !== foundCondition.cm + "-" + blockData.id
 				)
 			);
-		} else if (
-			foundCondition.type == "conditionsGroup" &&
-			foundCondition.conditions
-		) {
+		} else if (foundCondition.type == "conditionsGroup" && foundCondition.c) {
 			const targetTypes = ["qualification", "completion"];
 			const matchingObjects = [];
 
@@ -493,7 +474,7 @@ function ConditionModal({
 
 			const filteredChildren = edges.filter((edge) =>
 				completionsAndQualifications.some(
-					(condition) => edge.id === condition.op + "-" + blockData.id
+					(condition) => edge.id === condition.cm + "-" + blockData.id
 				)
 			);
 
@@ -504,14 +485,14 @@ function ConditionModal({
 			const filteredEdges = edges.filter(
 				(edge) =>
 					!matchingObjects.some(
-						(condition) => edge.id === condition.op + "-" + blockData.id
+						(condition) => edge.id === condition.cm + "-" + blockData.id
 					)
 			);
 
 			reactFlowInstance.setEdges(filteredEdges);
 		}
 
-		deleteConditionById(blockDataCopy.data.conditions.conditions, conditionId);
+		deleteConditionById(blockDataCopy.data.c.c, conditionId);
 
 		setBlockData(blockDataCopy);
 	};
@@ -524,38 +505,50 @@ function ConditionModal({
 
 	const saveNewCondition = (edition) => {
 		const formData = { type: selectedOption };
-
-		formData.op = conditionOperator.current.value;
 		switch (selectedOption) {
 			case "date":
-				formData.query = conditionQuery.current.value;
+				formData.t = conditionOperator.current.value;
+				formData.d = conditionQuery.current.value;
 				break;
 			case "qualification":
+				formData.cm = conditionOperator.current.value;
+
 				if (!conditionObjective.current.disabled) {
-					formData.objective = conditionObjective.current.value;
+					formData.min = conditionObjective.current.value;
 				}
 				if (!conditionObjective2.current.disabled) {
-					formData.objective2 = conditionObjective2.current.value;
+					formData.max = conditionObjective2.current.value;
 				}
 				break;
 			case "courseQualification":
+				formData.courseId = metaData.course_id;
+
 				if (!conditionObjective.current.disabled) {
-					formData.objective = conditionObjective.current.value;
+					formData.min = conditionObjective.current.value;
 				}
 				if (!conditionObjective2.current.disabled) {
-					formData.objective2 = conditionObjective2.current.value;
+					formData.max = conditionObjective2.current.value;
 				}
 				break;
 			case "completion":
-				formData.query = conditionQuery.current.value;
+				formData.cm = conditionOperator.current.value;
+				formData.e = conditionQuery.current.value;
 				break;
 			case "group":
+				formData.groupId = conditionOperator.current.value;
 				break;
 			case "grouping":
+				formData.groupingId = conditionOperator.current.value;
 				break;
-			case "userProfile":
-				formData.query = conditionQuery.current.value;
-				formData.objective = conditionObjective.current.value;
+			case "profile":
+				let op = conditionOperator.current.value;
+
+				formData.sf = conditionQuery.current.value;
+				formData.op = op;
+
+				if (op != "isempty" && op != "isnotempty") {
+					formData.v = conditionObjective.current.value;
+				}
 				break;
 			case "conditionsGroup":
 				break;
@@ -580,28 +573,22 @@ function ConditionModal({
 		if (edition) {
 			formData.id = conditionEdit.id;
 
-			updateConditionById(
-				updatedBlockData.data.conditions.conditions,
-				formData.id,
-				formData
-			);
+			updateConditionById(updatedBlockData.data.c.c, formData.id, formData);
 
 			setBlockData(updatedBlockData);
 		} else {
 			const updatedCondition = {
 				...editing,
-				conditions: editing.conditions
-					? [...editing.conditions, formData]
-					: [formData],
+				c: editing.c ? [...editing.c, formData] : [formData],
 			};
 
-			if (!updatedBlockData.data.conditions) {
-				updatedBlockData.data.conditions = updatedCondition;
+			if (!updatedBlockData.data.c) {
+				updatedBlockData.data.c = updatedCondition;
 				setBlockData(updatedBlockData);
 			} else {
 				if (
 					updateConditionById(
-						updatedBlockData.data.conditions.conditions,
+						updatedBlockData.data.c.c,
 						updatedCondition.id,
 						updatedCondition
 					)
@@ -612,7 +599,7 @@ function ConditionModal({
 						...updatedBlockData,
 						data: {
 							...updatedBlockData.data,
-							conditions: updatedCondition,
+							c: updatedCondition,
 						},
 					};
 					setBlockData(updatedJsonObject);
@@ -638,8 +625,8 @@ function ConditionModal({
 	}
 
 	const addConditionToMain = () => {
-		if (blockData.data.conditions) {
-			addCondition(blockData.data.conditions.id);
+		if (blockData.data.c) {
+			addCondition(blockData.data.c.id);
 		} else {
 			const firstConditionGroup = {
 				type: "conditionsGroup",
@@ -654,16 +641,12 @@ function ConditionModal({
 		const updatedBlockData = deepCopy(blockData);
 		const swapOperator = condition.op === "&" ? "|" : "&";
 
-		updateConditionOp(
-			updatedBlockData.data.conditions,
-			condition.id,
-			swapOperator
-		);
+		updateConditionOp(updatedBlockData.data.c, condition.id, swapOperator);
 		setBlockData(updatedBlockData);
 	}
 
-	function handleUserProfileChange() {
-		setUserProfileObjective(conditionObjective.current.value === "");
+	function handleProfileChange() {
+		setProfileObjective(conditionObjective.current.value === "");
 	}
 
 	function handleDateChange() {
@@ -674,9 +657,9 @@ function ConditionModal({
 		if (jsonObj.id === id) {
 			jsonObj.op = newOp;
 			return true;
-		} else if (jsonObj.conditions) {
-			for (let i = 0; i < jsonObj.conditions.length; i++) {
-				if (updateConditionOp(jsonObj.conditions[i], id, newOp)) {
+		} else if (jsonObj.c) {
+			for (let i = 0; i < jsonObj.c.length; i++) {
+				if (updateConditionOp(jsonObj.c[i], id, newOp)) {
 					return true;
 				}
 			}
@@ -732,8 +715,9 @@ function ConditionModal({
 
 	useEffect(() => {
 		if (conditionEdit) {
-			if (conditionEdit.type !== "userProfile") {
-				setUserProfileObjective(true);
+			console.log(conditionEdit);
+			if (conditionEdit.type !== "profile") {
+				setProfileObjective(true);
 			}
 			addCondition(conditionEdit.id);
 			setSelectedOption(conditionEdit.type);
@@ -751,7 +735,7 @@ function ConditionModal({
 				<Modal.Title>Precondiciones de "{blockData.data.label}"</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
-				{blockData.data.conditions && !editing && (
+				{blockData.data.c && !editing && (
 					<Container
 						style={{
 							padding: "10px",
@@ -766,7 +750,7 @@ function ConditionModal({
 									<strong>
 										{
 											conditionsGroupOperatorList.find(
-												(item) => item.value === blockData.data.conditions.op
+												(item) => item.value === blockData.data.c.op
 											)?.name
 										}
 									</strong>
@@ -776,7 +760,7 @@ function ConditionModal({
 								<Button
 									variant="light"
 									onClick={() => {
-										swapConditionGroup(blockData.data.conditions);
+										swapConditionGroup(blockData.data.c);
 									}}
 								>
 									<div>
@@ -786,12 +770,12 @@ function ConditionModal({
 							</Col>
 						</Row>
 						<Container>
-							{blockData.data.conditions.conditions.map((condition) => {
+							{blockData.data.c.c.map((condition) => {
 								return (
 									<Condition
 										key={condition.id}
 										condition={condition}
-										conditionsList={blockData.data.conditions.conditions}
+										conditionsList={blockData.data.c.c}
 										upCondition={upCondition}
 										downCondition={downCondition}
 										deleteCondition={deleteCondition}
@@ -799,6 +783,8 @@ function ConditionModal({
 										setSelectedOption={setSelectedOption}
 										setConditionEdit={setConditionEdit}
 										swapConditionGroup={swapConditionGroup}
+										moodleGroups={moodleGroups}
+										moodleGroupings={moodleGroupings}
 									></Condition>
 								);
 							})}
@@ -827,7 +813,7 @@ function ConditionModal({
 							{moodleGroupings.length > 0 && (
 								<option value="grouping">Agrupamiento</option>
 							)}
-							<option value="userProfile">Perfil de usuario</option>
+							<option value="profile">Perfil de usuario</option>
 							<option value="conditionsGroup">Conjunto de condiciones</option>
 						</Form.Select>
 					) : null)}
@@ -902,13 +888,13 @@ function ConditionModal({
 						moodleGroupings={moodleGroupings}
 					/>
 				)}
-				{editing && selectedOption === "userProfile" && (
-					<UserProfileForm
+				{editing && selectedOption === "profile" && (
+					<ProfileForm
 						conditionOperator={conditionOperator}
 						conditionQuery={conditionQuery}
 						conditionObjective={conditionObjective}
 						conditionEdit={conditionEdit}
-						handleUserProfileChange={handleUserProfileChange}
+						handleProfileChange={handleProfileChange}
 					/>
 				)}
 				{editing && selectedOption === "conditionsGroup" && (
@@ -945,7 +931,7 @@ function ConditionModal({
 							disabled={
 								selectedOption === "" ||
 								!selectedOption ||
-								(selectedOption === "userProfile" && userProfileObjective) ||
+								(selectedOption === "profile" && profileObjective) ||
 								(selectedOption === "date" && dateOperator)
 							}
 						>

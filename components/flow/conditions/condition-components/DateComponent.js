@@ -40,15 +40,15 @@ const DateComponent = ({ condition, setConditionEdit, deleteCondition }) => {
 			<Row>
 				<Col>
 					<div>Tipo: Fecha</div>
-					{condition.query === "dateFrom" && (
+					{condition.d === ">=" && (
 						<div>
-							En esta fecha <strong>{transformDate(condition.op)}</strong> o
+							En esta fecha <strong>{transformDate(condition.t)}</strong> o
 							después
 						</div>
 					)}
-					{condition.query === "dateTo" && (
+					{condition.d === "<" && (
 						<div>
-							Antes del final de <strong>{transformDate(condition.op)}</strong>
+							Antes del final de <strong>{transformDate(condition.t)}</strong>
 						</div>
 					)}
 				</Col>

@@ -12,7 +12,7 @@ import QualificationComponent from "./condition-components/QualificationComponen
 import CompletionComponent from "./condition-components/CompletionComponent";
 import GroupComponent from "./condition-components/GroupComponent";
 import GroupingComponent from "./condition-components/GroupingComponent";
-import UserProfileComponent from "./condition-components/UserProfileComponent";
+import ProfileComponent from "./condition-components/ProfileComponent";
 import ConditionsGroupComponent from "./condition-components/ConditionsGroupComponent";
 import CourseQualificationForm from "./form-components/CourseQualificationForm";
 import CourseQualificationComponent from "./condition-components/CourseQualificationComponent";
@@ -26,12 +26,14 @@ function Condition({
 	addCondition,
 	setConditionEdit,
 	swapConditionGroup,
+	moodleGroups,
+	moodleGroupings,
 }) {
 	const completionQueryList = [
-		{ value: "completed", name: "debe estar completa" },
-		{ value: "notCompleted", name: "no debe estar completa" },
-		{ value: "completedApproved", name: "debe estar completa y aprobada" },
-		{ value: "completedFailed", name: "debe estar completa y suspendida" },
+		{ id: "1", name: "debe estar completa" },
+		{ id: "0", name: "no debe estar completa" },
+		{ id: "2", name: "debe estar completa y aprobada" },
+		{ id: "3", name: "debe estar completa y suspendida" },
 	];
 
 	switch (condition.type) {
@@ -83,6 +85,7 @@ function Condition({
 					condition={condition}
 					setConditionEdit={setConditionEdit}
 					deleteCondition={deleteCondition}
+					moodleGroups={moodleGroups}
 				/>
 			);
 		case "grouping":
@@ -91,11 +94,12 @@ function Condition({
 					condition={condition}
 					setConditionEdit={setConditionEdit}
 					deleteCondition={deleteCondition}
+					moodleGroupings={moodleGroupings}
 				/>
 			);
-		case "userProfile":
+		case "profile":
 			return (
-				<UserProfileComponent
+				<ProfileComponent
 					condition={condition}
 					setConditionEdit={setConditionEdit}
 					deleteCondition={deleteCondition}
@@ -112,6 +116,8 @@ function Condition({
 					deleteCondition={deleteCondition}
 					addCondition={addCondition}
 					swapConditionGroup={swapConditionGroup}
+					moodleGroups={moodleGroups}
+					moodleGroupings={moodleGroupings}
 				/>
 			);
 		default:

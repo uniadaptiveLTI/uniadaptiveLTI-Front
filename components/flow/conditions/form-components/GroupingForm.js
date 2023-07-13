@@ -8,10 +8,15 @@ const GroupingForm = ({
 }) => {
 	return (
 		<Form.Group>
-			<Form.Select ref={conditionOperator} defaultValue={conditionEdit?.op}>
+			<Form.Select
+				ref={conditionOperator}
+				defaultValue={conditionEdit?.groupingId}
+			>
 				{moodleGroupings.length > 0 &&
 					moodleGroupings.map((grouping) => (
-						<option key={grouping.id}>{grouping.name}</option>
+						<option value={grouping.id} key={grouping.id}>
+							{grouping.name}
+						</option>
 					))}
 			</Form.Select>
 		</Form.Group>

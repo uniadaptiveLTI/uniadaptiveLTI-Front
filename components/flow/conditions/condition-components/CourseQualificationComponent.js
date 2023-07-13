@@ -25,31 +25,31 @@ function CourseQualificationComponent({
 				<Col>
 					<div>Tipo: Calificación total del curso</div>
 					<div>
-						{condition.objective && !condition.objective2 && (
+						{condition.min && !condition.max && (
 							<div>
 								La puntuación <strong>total del curso</strong> debe ser{" "}
 								<strong>
-									{">="} {condition.objective}
+									{">="} {condition.min}
 								</strong>
 							</div>
 						)}
-						{!condition.objective && condition.objective2 && (
+						{!condition.min && condition.max && (
 							<div>
 								La puntuación <strong>total del curso</strong> debe ser{" "}
 								<strong>
-									{"<"} {condition.objective2}
+									{"<"} {condition.max}
 								</strong>
 							</div>
 						)}
-						{condition.objective && condition.objective2 && (
+						{condition.min && condition.max && (
 							<div>
 								La puntuación <strong>total del curso</strong> debe ser{" "}
 								<strong>
-									{">="} {condition.objective}
+									{">="} {condition.min}
 								</strong>{" "}
 								y{" "}
 								<strong>
-									{"<"} {condition.objective2}
+									{"<"} {condition.max}
 								</strong>
 							</div>
 						)}

@@ -645,7 +645,7 @@ function Header({ LTISettings }, ref) {
 					node.data = {
 						...node.data,
 						children: undefined,
-						conditions: undefined,
+						c: undefined,
 						section: 0, //TODO: Test in sakai
 					};
 				});

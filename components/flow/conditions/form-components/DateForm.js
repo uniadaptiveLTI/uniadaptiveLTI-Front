@@ -8,9 +8,9 @@ const DateForm = ({
 }) => {
 	return (
 		<Form.Group>
-			<Form.Select ref={conditionQuery} defaultValue={conditionEdit?.query}>
-				<option value="dateFrom">Desde</option>
-				<option value="dateTo">Hasta</option>
+			<Form.Select ref={conditionQuery} defaultValue={conditionEdit?.d}>
+				<option value=">=">Desde</option>
+				<option value="<">Hasta</option>
 			</Form.Select>
 			<Form.Control
 				ref={conditionOperator}
@@ -18,7 +18,7 @@ const DateForm = ({
 				onChange={handleDateChange}
 				defaultValue={
 					conditionEdit && conditionEdit.type === "date"
-						? conditionEdit.op
+						? conditionEdit.t
 						: new Date().toISOString().substr(0, 10)
 				}
 			/>

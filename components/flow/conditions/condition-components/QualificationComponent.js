@@ -20,7 +20,7 @@ function QualificationComponent({
 	const reactFlowInstance = useReactFlow();
 	const nodes = reactFlowInstance.getNodes();
 
-	const node = nodes.find((node) => node.id === condition.op);
+	const node = nodes.find((node) => node.id === condition.cm);
 
 	return (
 		<Container
@@ -31,33 +31,33 @@ function QualificationComponent({
 				<Col>
 					<div>Tipo: Calificación</div>
 					<div>
-						{condition.objective && !condition.objective2 && (
+						{condition.min && !condition.max && (
 							<div>
 								La puntuación debe ser{" "}
 								<strong>
-									{">="} {condition.objective}
+									{">="} {condition.min}
 								</strong>{" "}
 								en <strong>{node.data.label}</strong>
 							</div>
 						)}
-						{!condition.objective && condition.objective2 && (
+						{!condition.min && condition.max && (
 							<div>
 								La puntuación debe ser{" "}
 								<strong>
-									{"<"} {condition.objective2}
+									{"<"} {condition.max}
 								</strong>{" "}
 								en <strong>{node.data.label}</strong>
 							</div>
 						)}
-						{condition.objective && condition.objective2 && (
+						{condition.min && condition.max && (
 							<div>
 								La puntuación debe ser{" "}
 								<strong>
-									{">="} {condition.objective}
+									{">="} {condition.min}
 								</strong>{" "}
 								y{" "}
 								<strong>
-									{"<"} {condition.objective2}
+									{"<"} {condition.max}
 								</strong>{" "}
 								en <strong>{node.data.label}</strong>
 							</div>

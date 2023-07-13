@@ -6,7 +6,12 @@ const GroupingComponent = ({
 	condition,
 	setConditionEdit,
 	deleteCondition,
+	moodleGroupings,
 }) => {
+	const grouping = moodleGroupings.find(
+		(grouping) => grouping.id === condition.groupingId
+	);
+
 	return (
 		<Container
 			className="mb-3 mt-3"
@@ -16,7 +21,7 @@ const GroupingComponent = ({
 				<Col>
 					<div>Tipo: Agrupamiento</div>
 					<div>
-						Se pertenezca al agrupamiento <strong>{condition.op}</strong>
+						Se pertenezca al agrupamiento <strong>{grouping.name}</strong>
 					</div>
 				</Col>
 				<Col className="d-flex align-items-center gap-2">

@@ -119,7 +119,7 @@ export default function ExportPanel({
 			delete node.data.label;
 			delete node.data.lmsResource;
 			const data = node.data;
-			if (data.conditions) deleteRecursiveId(data.conditions);
+			if (data.c) deleteRecursiveId(data.c);
 			delete node.data;
 			delete node.height;
 			delete node.width;
@@ -164,8 +164,8 @@ export default function ExportPanel({
 		if (obj.hasOwnProperty("id")) {
 			delete obj.id;
 		}
-		if (obj.hasOwnProperty("conditions") && Array.isArray(obj.conditions)) {
-			obj.conditions.forEach(deleteRecursiveId);
+		if (obj.hasOwnProperty("c") && Array.isArray(obj.c)) {
+			obj.c.forEach(deleteRecursiveId);
 		}
 	}
 

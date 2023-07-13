@@ -14,21 +14,17 @@ function CourseQualificationForm(props) {
 
 	return (
 		<Form.Group>
-			<Form.Control
-				ref={conditionOperator}
-				defaultValue={conditionEdit?.op}
-				type="text"
-				hidden
-			/>
 			<Form.Check
 				id="objectiveCheckbox"
 				type="checkbox"
 				label="debe ser >="
 				onChange={checkInputs}
 				defaultChecked={
-					conditionEdit && conditionEdit.objective
+					conditionEdit && conditionEdit.min
 						? true
-						: false || !conditionEdit || conditionEdit.type !== "qualification"
+						: false ||
+						  !conditionEdit ||
+						  conditionEdit.type !== "courseQualification"
 				}
 			/>
 			<Form.Control
@@ -38,17 +34,17 @@ function CourseQualificationForm(props) {
 				max="10"
 				defaultValue={
 					conditionEdit
-						? conditionEdit.type === "qualification"
-							? conditionEdit.objective !== undefined
-								? conditionEdit.objective
+						? conditionEdit.type === "courseQualification"
+							? conditionEdit.min !== undefined
+								? conditionEdit.min
 								: 5
 							: 5
 						: 5
 				}
 				disabled={
 					conditionEdit &&
-					!conditionEdit.objective &&
-					conditionEdit.type === "qualification"
+					!conditionEdit.min &&
+					conditionEdit.type === "courseQualification"
 				}
 				onChange={checkInputs}
 			/>
@@ -57,7 +53,7 @@ function CourseQualificationForm(props) {
 				type="checkbox"
 				label="debe ser <"
 				defaultChecked={
-					conditionEdit && conditionEdit.objective2 ? true : false || false
+					conditionEdit && conditionEdit.max ? true : false || false
 				}
 				onChange={checkInputs}
 			/>
@@ -67,11 +63,11 @@ function CourseQualificationForm(props) {
 				min="0"
 				max="10"
 				defaultValue={
-					conditionEdit && conditionEdit.objective2 !== undefined
-						? conditionEdit.objective2
+					conditionEdit && conditionEdit.max !== undefined
+						? conditionEdit.max
 						: 5
 				}
-				disabled={!conditionEdit || !conditionEdit.objective2}
+				disabled={!conditionEdit || !conditionEdit.max}
 				onChange={checkInputs}
 			/>
 		</Form.Group>

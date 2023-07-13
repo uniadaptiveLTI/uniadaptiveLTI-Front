@@ -34,9 +34,9 @@ const ConditionalEdge = ({
 	//TODO: Make it recursive and try to join conditions.
 	const getSelfCondition = () => {
 		const targetNode = getNodeById(target, rfNodes);
-		if (targetNode && targetNode.data && targetNode.data.conditions) {
-			const conditions = targetNode.data.conditions;
-			const flattenedConditions = conditions.conditions.flat(Infinity);
+		if (targetNode && targetNode.data && targetNode.data.c) {
+			const conditions = targetNode.data.c;
+			const flattenedConditions = conditions.c.flat(Infinity);
 			const connectionCondition = getByProperty(
 				"op",
 				source,
