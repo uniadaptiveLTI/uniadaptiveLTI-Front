@@ -10,6 +10,7 @@ import {
 	BlocksDataContext,
 	DevModeStatusContext,
 	PlatformContext,
+	MetaDataContext,
 } from "./_app";
 import BlockFlow from "@root/components/BlockFlow";
 import Layout from "../components/Layout";
@@ -46,6 +47,7 @@ function EmptySelector() {
 	} = useContext(HeaderToEmptySelectorContext);
 	const { platform } = useContext(PlatformContext);
 	const [buttonStyles, setButtonStyles] = useState({});
+	const { metaData } = useContext(MetaDataContext);
 
 	useLayoutEffect(() => {
 		setButtonStyles(getAutomaticReusableStyles("light", true, true, false));
@@ -114,7 +116,7 @@ function EmptySelector() {
 								) : (
 									<Button
 										variant="light"
-										onClick={funcImportMap}
+										onClick={() => funcImportMap(undefined, metaData, maps)}
 										className="w-100"
 										style={{
 											...buttonStyles,

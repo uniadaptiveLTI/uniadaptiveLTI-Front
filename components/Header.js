@@ -272,7 +272,7 @@ function Header({ LTISettings }, ref) {
 			data
 				? {
 						...data,
-						id: localMaps.length,
+						id: uniqueId(),
 						name: "Nuevo Mapa " + localMaps.length,
 				  }
 				: emptyNewMap,
@@ -284,130 +284,137 @@ function Header({ LTISettings }, ref) {
 		setMapCount((prev) => prev + 1);
 	};
 
-	const handleImportedMap = async (lesson, localMaps = maps) => {
+	const handleImportedMap = async (
+		lesson,
+		localMetaData = metaData,
+		localMaps = maps
+	) => {
 		const uniqueId = () => parseInt(Date.now() * Math.random()).toString();
-		try {
-			const encodedCourse = encodeURIComponent(metaData.course_id);
-			const encodedInstance = encodeURIComponent(metaData.instance_id);
-			const encodedSessionId = encodeURIComponent(metaData.session_id);
-			const response = await fetch(
-				lesson != undefined
-					? `http://${LTISettings.back_url}/api/lti/get_modules?instance=${encodedInstance}&course=${encodedCourse}&session=${encodedSessionId}&lesson=${lesson}`
-					: `http://${LTISettings.back_url}/api/lti/get_modules?instance=${encodedInstance}&course=${encodedCourse}&session=${encodedSessionId}`
-			);
+		// try {
+		const encodedCourse = encodeURIComponent(localMetaData.course_id);
+		const encodedInstance = encodeURIComponent(localMetaData.instance_id);
+		const encodedSessionId = encodeURIComponent(localMetaData.session_id);
+		console.log(localMetaData, localMaps);
+		const response = await fetch(
+			lesson != undefined
+				? `http://${LTISettings.back_url}/lti/get_modules?instance=${encodedInstance}&course=${encodedCourse}&session=${encodedSessionId}&lesson=${lesson}`
+				: `http://${LTISettings.back_url}/lti/get_modules?instance=${encodedInstance}&course=${encodedCourse}`
+		);
 
-			if (!response.ok) {
-				toast(
-					`Ha ocurrido un error durante la importación del mapa`,
-					defaultToastError
-				);
-				throw new Error("Request failed");
-			}
-			const data = await response.json();
-
-			console.log("JSON RECIBIDO: ", data);
-
-			let newX = 125;
-			let newY = 0;
-			const validTypes = [];
-			NodeTypes.map((node) => validTypes.push(node.type));
-			const nodes = [];
-			data.map((node) => {
-				if (platform != "moodle") {
-					if (validTypes.includes(node.modname)) {
-						const newNode = {};
-						newNode.id = "" + uniqueId();
-						newNode.type = node.modname;
-						newNode.position = { x: newX, y: newY };
-						newNode.data = {
-							label: node.name,
-							indent: node.indent,
-							section: node.section,
-							children: [],
-							order: node.order, //broken order, as there is missing elements
-							lmsResource: node.id,
-							lmsVisibility: node.visible,
-						};
-
-						newX += 125;
-						nodes.push(newNode);
-					} else {
-						//In Moodle, unknown blocks will be translated as "generic" (in blockflow.js)
-						const newNode = {};
-						newNode.id = "" + uniqueId();
-						newNode.type = node.modname;
-						newNode.position = { x: newX, y: newY };
-						newNode.data = {
-							label: node.name,
-							indent: node.indent,
-							section: node.section,
-							children: [],
-							order: node.order,
-							lmsResource: node.id,
-							lmsVisibility: node.visible,
-						};
-
-						newX += 125;
-						nodes.push(newNode);
-					}
-				}
-			});
-			console.log("JSON FILTRADO Y ADAPTADO: ", nodes);
-
-			const platformNewMap = {
-				id: uniqueId(),
-				name:
-					lesson != undefined
-						? `Mapa importado desde ${
-								metaData.lessons.find((lesson) => lesson.id == lesson).name
-						  } (${maps.length})`
-						: `Mapa importado desde ${metaData.name} (${localMaps.length})`,
-				versions: [
-					{
-						id: 0,
-						name: "Última versión",
-						lastUpdate: new Date().toLocaleDateString(),
-						default: "true",
-						blocksData: [
-							{
-								id: uniqueId(),
-								position: { x: 0, y: 0 },
-								type: "start",
-								deletable: false,
-								data: {
-									label: "Entrada",
-								},
-							},
-							...nodes,
-							{
-								id: uniqueId(),
-								position: { x: newX, y: 0 },
-								type: "end",
-								deletable: false,
-								data: {
-									label: "Salida",
-								},
-							},
-						],
-					},
-				],
-			};
-
-			const newMaps = [...localMaps, platformNewMap];
-
-			console.log("JSON CONVERTIDO EN UN MAPA: ", platformNewMap);
-
-			setMaps(newMaps);
-			setLastMapCreated(platformNewMap.id);
-			toast(`Mapa: ${platformNewMap.name} creado`, defaultToastSuccess);
-			setMapCount((prev) => prev + 1);
-		} catch (e) {
+		if (!response.ok) {
 			toast(
 				`Ha ocurrido un error durante la importación del mapa`,
 				defaultToastError
 			);
 			throw new Error("Request failed");
 		}
+		const data = await response.json();
+
+		console.log("JSON RECIBIDO: ", data);
+
+		let newX = 125;
+		let newY = 0;
+		const validTypes = [];
+		NodeTypes.map((node) => validTypes.push(node.type));
+		const nodes = [];
+		console.log("DAT", data);
+		data.map((node) => {
+			if (platform != "moodle") {
+				if (validTypes.includes(node.modname)) {
+					const newNode = {};
+					newNode.id = "" + uniqueId();
+					newNode.type = node.modname;
+					newNode.position = { x: newX, y: newY };
+					newNode.data = {
+						label: node.name,
+						indent: node.indent,
+						section: node.section,
+						children: [],
+						order: node.order, //broken order, as there is missing elements
+						lmsResource: node.id,
+						lmsVisibility: node.visible,
+					};
+
+					newX += 125;
+					nodes.push(newNode);
+				}
+			} else {
+				console.log("mooooooooodle");
+				//In Moodle, unknown blocks will be translated as "generic" (in blockflow.js)
+				const newNode = {};
+				newNode.id = "" + uniqueId();
+				newNode.type = node.modname;
+				newNode.position = { x: newX, y: newY };
+				newNode.data = {
+					label: node.name,
+					indent: node.indent,
+					section: node.section,
+					children: [],
+					order: node.order,
+					lmsResource: node.id,
+					lmsVisibility: node.visible,
+				};
+
+				newX += 125;
+				nodes.push(newNode);
+			}
+		});
+		console.log("JSON FILTRADO Y ADAPTADO: ", nodes);
+
+		const platformNewMap = {
+			id: uniqueId(),
+			name:
+				lesson != undefined
+					? `Mapa importado desde ${
+							localMetaData.lessons.find((lesson) => lesson.id == lesson).name
+					  } (${localMaps.length})`
+					: `Mapa importado desde ${localMetaData.name} (${localMaps.length})`,
+			versions: [
+				{
+					id: 0,
+					name: "Última versión",
+					lastUpdate: new Date().toLocaleDateString(),
+					default: "true",
+					blocksData: [
+						{
+							id: uniqueId(),
+							position: { x: 0, y: 0 },
+							type: "start",
+							deletable: false,
+							data: {
+								label: "Entrada",
+							},
+						},
+						...nodes,
+						{
+							id: uniqueId(),
+							position: { x: newX, y: 0 },
+							type: "end",
+							deletable: false,
+							data: {
+								label: "Salida",
+							},
+						},
+					],
+				},
+			],
+		};
+
+		const newMaps = [...localMaps, platformNewMap];
+
+		console.log("JSON CONVERTIDO EN UN MAPA: ", platformNewMap);
+
+		setMaps(newMaps);
+		setLastMapCreated(platformNewMap.id);
+		toast(`Mapa: ${platformNewMap.name} creado`, defaultToastSuccess);
+		setMapCount((prev) => prev + 1);
+		// } catch (e) {
+		// 	// toast(
+		// 	// 	`Ha ocurrido un error durante la importación del mapa`,
+		// 	// 	defaultToastError
+		// 	// );
+		// 	// throw new Error("Request failed");
+		// }
 	};
 
 	const handleImportedMapFromLesson = () => {
@@ -700,7 +707,7 @@ function Header({ LTISettings }, ref) {
 						throw error;
 					});
 			} else {
-				fetch(`http://${LTISettings.back_url}/api/lti/get_session`)
+				fetch(`http://${LTISettings.back_url}/lti/get_session`)
 					.then((response) => response.json())
 					.then((data) => {
 						console.log("DATOS DEL LMS: ", data);
@@ -877,9 +884,11 @@ function Header({ LTISettings }, ref) {
 				if (ok) {
 					toast("Versión guardada con éxito", defaultToastSuccess);
 				} else {
+					toast("No se pudo guardar", defaultToastError);
 					throw new Error("No se pudo guardar");
 				}
 			} else {
+				toast("No se pudo guardar", defaultToastError);
 				throw new Error("No se pudo guardar");
 			}
 		} catch (e) {
