@@ -134,7 +134,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 					  }/api/lti/get_modules_by_type?type=unsupported&instance=${encodedInstance}&platform=${encodedPlatform}&course=${encodedCourse}&lms=${encodedLMS}&session=${encodedSession}&supportedTypes=${encodeURIComponent(
 							getSupportedTypes(platform)
 					  )}`
-					: `http://${LTISettings.back_url}/api/lti/get_modules_by_type?type=${encodedSelectedOption}&instance=${encodedInstance}&platform=${encodedPlatform}&course=${encodedCourse}&lms=${encodedLMS}&session=${encodedSession}`
+					: `http://${LTISettings.back_url}/lti/get_modules_by_type?type=${encodedSelectedOption}&instance=${encodedInstance}&platform=${encodedPlatform}&course=${encodedCourse}&lms=${encodedLMS}&session=${encodedSession}`
 			);
 			if (!response.ok) {
 				throw new Error("Request failed");
