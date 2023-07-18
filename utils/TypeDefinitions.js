@@ -159,7 +159,7 @@ export const NodeTypes = [
 		name: "Cuestionario",
 		nodeType: "ElementNode",
 		lms: ["moodle"],
-		gradable: [],
+		gradable: [{ lms: "moodle", type: "normal" }],
 	},
 	{
 		id: 18,

@@ -1,5 +1,25 @@
 import { NodeTypes } from "./TypeDefinitions";
 
+export function getVisibilityOptions(platform) {
+	switch (platform) {
+		case "moodle":
+			return [
+				{ name: "Ocultar hasta tener acceso", value: "hidden_until_access" },
+				{ name: "Mostrar siempre sin acceso", value: "show_unconditionally" },
+			];
+		case "sakai":
+			return [
+				{ name: "Ocultar hasta tener acceso", value: "hidden_until_access" },
+				{ name: "Mostrar siempre sin acceso", value: "show_unconditionally" },
+			];
+		default:
+			return [
+				{ name: "Ocultar hasta tener acceso", value: "hidden_until_access" },
+				{ name: "Mostrar siempre sin acceso", value: "show_unconditionally" },
+			];
+	}
+}
+
 export function getDefaultVisibility(platform) {
 	switch (platform) {
 		case "moodle":

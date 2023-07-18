@@ -796,41 +796,50 @@ function ConditionModal({
 					(conditionEdit.type !== "conditionsGroup" &&
 						conditionEdit.type !== "completion" &&
 						conditionEdit.type !== "qualification") ? (
-						<Form.Select
-							id="condition-select"
-							onChange={handleSelectChange}
-							defaultValue={conditionEdit?.type ? conditionEdit?.type : ""}
-							required
-						>
-							<option value="" disabled>
-								Escoge un tipo de condición...
-							</option>
-							<option value="date">Fecha</option>
-							<option value="courseQualification">
-								Calificación total del curso
-							</option>
-							{moodleGroups.length > 0 && <option value="group">Grupo</option>}
-							{moodleGroupings.length > 0 && (
-								<option value="grouping">Agrupamiento</option>
-							)}
-							<option value="profile">Perfil de usuario</option>
-							<option value="conditionsGroup">Conjunto de condiciones</option>
-						</Form.Select>
+						<>
+							<Form.Label htmlFor="condition-select">Precondición:</Form.Label>
+							<Form.Select
+								id="condition-select"
+								onChange={handleSelectChange}
+								defaultValue={conditionEdit?.type ? conditionEdit?.type : ""}
+								required
+							>
+								<option value="" disabled>
+									Escoge un tipo de condición...
+								</option>
+								<option value="date">Fecha</option>
+								<option value="courseQualification">
+									Calificación total del curso
+								</option>
+								{moodleGroups.length > 0 && (
+									<option value="group">Grupo</option>
+								)}
+								{moodleGroupings.length > 0 && (
+									<option value="grouping">Agrupamiento</option>
+								)}
+								<option value="profile">Perfil de usuario</option>
+								<option value="conditionsGroup">Conjunto de condiciones</option>
+							</Form.Select>
+							<hr />
+						</>
 					) : null)}
 
 				{editing &&
 					conditionEdit?.type &&
 					(conditionEdit.type == "completion" ||
 						conditionEdit.type == "qualification") && (
-						<Form.Select
-							id="condition-select"
-							onChange={handleSelectChange}
-							defaultValue={conditionEdit?.type ? conditionEdit?.type : ""}
-							required
-						>
-							<option value="completion">Finalización</option>
-							<option value="qualification">Calificación</option>
-						</Form.Select>
+						<>
+							<Form.Select
+								id="condition-select"
+								onChange={handleSelectChange}
+								defaultValue={conditionEdit?.type ? conditionEdit?.type : ""}
+								required
+							>
+								<option value="completion">Finalización</option>
+								<option value="qualification">Calificación</option>
+							</Form.Select>
+							<hr />
+						</>
 					)}
 
 				{editing && selectedOption === "date" && (
@@ -915,7 +924,11 @@ function ConditionModal({
 			<Modal.Footer>
 				{editing && (
 					<div>
-						<Button variant="primary" onClick={cancelEditCondition}>
+						<Button
+							variant="danger"
+							onClick={cancelEditCondition}
+							className="me-2"
+						>
 							Cancelar
 						</Button>
 						<Button

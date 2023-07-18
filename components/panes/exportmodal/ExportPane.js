@@ -162,6 +162,8 @@ export default function ExportPanel({
 				node.section = section.id;
 			}
 
+			if (node.id == "") node.id = "INVALID";
+
 			if (section && currentSelectionInfo.selection.includes(section.id))
 				return true;
 		});

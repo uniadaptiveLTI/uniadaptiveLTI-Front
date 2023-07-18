@@ -7,6 +7,7 @@ import { uniqueId } from "@utils/Utils";
 import { useReactFlow } from "reactflow";
 import { getGradable } from "@utils/TypeDefinitions";
 import { PlatformContext } from "pages/_app";
+import GradeForm from "@components/flow/conditions/form-components/GradeForm";
 
 function GradeModal({
 	blockData,
@@ -45,7 +46,10 @@ function GradeModal({
 			<Modal.Header closeButton>
 				<Modal.Title>Calificaciones de "{blockData.data.label}"</Modal.Title>
 			</Modal.Header>
-			<Modal.Body>{gradeConditionType}</Modal.Body>
+			<Modal.Body>
+				{gradeConditionType}
+				<GradeForm />
+			</Modal.Body>
 			<Modal.Footer></Modal.Footer>
 		</Modal>
 	);

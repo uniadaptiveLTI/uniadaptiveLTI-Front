@@ -47,15 +47,15 @@ import {
 	getMoodleTypes,
 	getSakaiTypes,
 } from "@utils/TypeDefinitions.js";
-import { getSupportedTypes, hasUnorderedResources } from "@utils/Platform.js";
+import {
+	getSupportedTypes,
+	getVisibilityOptions,
+	hasUnorderedResources,
+} from "@utils/Platform.js";
 
 export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 	const { errorList, setErrorList } = useContext(ErrorListContext);
 
-	const shownTypes = [
-		{ value: "show_unconditionally", name: "Mostrar siempre sin acceso" },
-		{ value: "hidden_until_access", name: "Ocultar hasta tener acceso" },
-	];
 	const [expandedContent, setExpandedContent] = useState(true);
 	const [expandedInteract, setExpandedInteract] = useState(true);
 
@@ -65,6 +65,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 	const [allowResourceSelection, setAllowResourceSelection] = useState(true);
 
 	const { platform, setPlatform } = useContext(PlatformContext);
+	const shownTypes = getVisibilityOptions(platform);
 	const { nodeSelected, setNodeSelected } = useContext(NodeInfoContext);
 	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
 	const { editVersionSelected, setEditVersionSelected } =
