@@ -188,6 +188,25 @@ function Header({ LTISettings }, ref) {
 	 * @param {Event} e - The change event or an id.
 	 */
 	function handleMapChange(e) {
+		let versionBlockList = undefined;
+		const fetchData = async () => {
+			try {
+				const response = await fetch(
+					`${getHTTPPrefix()}://${
+						LTISettings.back_url
+					}/lti/get_version?version_id=${selectedVersion.id}`
+				);
+
+				versionBlockList = await response.json();
+			} catch (error) {
+				console.error("Error:", error);
+			}
+		};
+
+		fetchData();
+
+		console.log(versionBlockList);
+
 		resetEdit();
 		setErrorList([]);
 		let id;
