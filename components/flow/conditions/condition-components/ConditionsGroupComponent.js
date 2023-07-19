@@ -84,16 +84,6 @@ const ConditionsGroupComponent = ({
 							<FontAwesomeIcon icon={faTrashCan} />
 						</div>
 					</Button>
-					<Button variant="light" onClick={() => upCondition(condition)}>
-						<div>
-							<FontAwesomeIcon icon={faArrowUp} />
-						</div>
-					</Button>
-					<Button variant="light" onClick={() => downCondition(condition)}>
-						<div>
-							<FontAwesomeIcon icon={faArrowDown} />
-						</div>
-					</Button>
 				</Col>
 				{condition.c &&
 					condition.c.map((innerCondition) => (

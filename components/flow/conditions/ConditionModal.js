@@ -112,7 +112,6 @@ function ConditionModal({
 		}
 
 		if (json.c && Array.isArray(json.c)) {
-			console.log(json);
 			const updatedConditions = json.c.map((condition) =>
 				updateJsonById(condition, id, updatedJson)
 			);
@@ -184,7 +183,6 @@ function ConditionModal({
 
 		if (index === 0) {
 			if (parentObject.id == blockData.data.c.id) {
-				console.log("PADRE MAIN, VOY A LO MAS BAJO");
 				const movedJson = updatedArray.shift();
 				updatedArray.push(movedJson);
 
@@ -192,12 +190,8 @@ function ConditionModal({
 			} else {
 				let parentOfParent;
 				if (findParentObject(parentObject.id, blockData.data.c) == null) {
-					console.log("MI ABUELO ES EL MAIN");
-
 					parentOfParent = blockData.data.c;
 				} else {
-					console.log("MI ABUELO NO ES EL MAIN");
-
 					parentOfParent = findParentObject(parentObject.id, blockData.data.c);
 				}
 
@@ -208,8 +202,6 @@ function ConditionModal({
 					condition,
 					parentOfParent
 				);
-
-				console.log(updatedJson);
 
 				if (updatedJson.id == blockData.data.c.id) {
 					updatedArray = updatedJson.c;
@@ -279,20 +271,13 @@ function ConditionModal({
 
 		if (index === updatedArray.length - 1) {
 			if (parentObject.id == blockData.data.c.id) {
-				console.log("ME VOY ARRIBA DEL TODO");
 				const movedJson = updatedArray.pop();
 				updatedArray.unshift(movedJson);
 			} else {
-				console.log("ME SALGO FUERA DE MI GRUPO");
-
 				let parentOfParent;
 				if (findParentObject(parentObject.id, blockData.data.c) == null) {
-					console.log("MI ABUELO ES EL MAIN");
-
 					parentOfParent = blockData.data.c;
 				} else {
-					console.log("MI ABUELO NO ES EL MAIN");
-
 					parentOfParent = findParentObject(parentObject.id, blockData.data.c);
 				}
 
@@ -315,8 +300,6 @@ function ConditionModal({
 				}
 			}
 		} else {
-			console.log("NO SOY EL MAS BAJO");
-
 			const movedJson = updatedArray.splice(index, 1)[0];
 			const bottomJson = updatedArray[index];
 
@@ -657,10 +640,7 @@ function ConditionModal({
 		if (param == "op") {
 			swapParameter = condition.op === "&" ? "|" : "&";
 		} else if (param == "showc") {
-			console.log("SHOW C");
-			console.log(swapParameter);
 			swapParameter = condition.showc === true ? false : true;
-			console.log(swapParameter);
 		}
 
 		updateConditionParam(
@@ -681,7 +661,6 @@ function ConditionModal({
 	}
 
 	function updateConditionParam(jsonObj, id, param, newParam) {
-		console.log(jsonObj[param]);
 		if (jsonObj.id === id) {
 			jsonObj[param] = newParam;
 			return true;
@@ -743,7 +722,6 @@ function ConditionModal({
 
 	useEffect(() => {
 		if (conditionEdit) {
-			console.log(conditionEdit);
 			if (conditionEdit.type !== "profile") {
 				setProfileObjective(true);
 			}

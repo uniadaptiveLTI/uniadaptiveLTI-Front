@@ -189,6 +189,7 @@ function Header({ LTISettings }, ref) {
 	 */
 	function handleMapChange(e) {
 		resetEdit();
+		setErrorList([]);
 		let id;
 		if (isNaN(e)) {
 			id = Number(e.target.value);

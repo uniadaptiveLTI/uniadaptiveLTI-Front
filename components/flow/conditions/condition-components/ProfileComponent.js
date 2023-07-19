@@ -91,7 +91,7 @@ const ProfileComponent = ({
 							<FontAwesomeIcon icon={faTrashCan} />
 						</div>
 					</Button>
-					{conditionsList.c.length >= 2 && (
+					{conditionsList.c.length >= 1 && (
 						<>
 							<Button variant="light" onClick={() => upCondition(condition)}>
 								<div>
