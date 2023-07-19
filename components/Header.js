@@ -196,16 +196,28 @@ function Header({ LTISettings }, ref) {
 		} else {
 			id = e;
 		}
+
 		let selectedMap = [...maps].find((m) => m.id == id);
-		console.log(maps);
-		console.log(selectedMap);
+
 		if (selectedMap) {
 			setMapSelected(selectedMap);
 
 			if (selectedMap.versions) {
-				setVersions(selectedMap.versions);
-				setSelectedVersion(selectedMap.versions[0]);
-				setCurrentBlocksData(selectedMap.versions[0].blocksData);
+				const fetchData = async () => {
+					try {
+						const response = await fetch(
+							`${getHTTPPrefix()}://${
+								LTISettings.back_url
+							}/lti/get_version?version_id=${selectedMap.versions[0].id}`
+						);
+
+						setVersions(selectedMap.versions);
+						setSelectedVersion(selectedMap.versions[0]);
+						setCurrentBlocksData(data.blocksData);
+					} catch (error) {
+						console.error("Error:", error);
+					}
+				};
 			}
 			if (selectedMap.id == -1) {
 				changeToMapSelection();
