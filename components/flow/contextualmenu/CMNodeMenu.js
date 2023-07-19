@@ -107,7 +107,7 @@ const Menu = (
 									<FontAwesomeIcon icon={faDiagramNext} />
 									<div>
 										Terminar relación
-										<span>Unir a "{relationStarter.title}"</span>
+										<span>Unir a "{relationStarter.data.label}"</span>
 									</div>
 								</div>
 							</Button>

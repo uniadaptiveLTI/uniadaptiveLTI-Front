@@ -602,7 +602,7 @@ function Header({ LTISettings }, ref) {
 			newMaps[mapIndex] = modifiedMap;
 			setMaps(newMaps);
 			setVersions(modifiedMap.versions);
-			currentBlocksData(firstVersion?.blocksData || versions[0]?.blocksData);
+			setCurrentBlocksData(firstVersion?.blocksData || versions[0]?.blocksData);
 			toast(`Versión eliminada con éxito.`, defaultToastSuccess);
 		} else {
 			toast(`No puedes eliminar esta versión.`, defaultToastError);
@@ -1170,21 +1170,23 @@ function Header({ LTISettings }, ref) {
 								</Button>
 							</OverlayTrigger>
 
-							<Button
-								variant="dark"
-								className={`d-flex align-items-center p-2 ${
-									styles.actionButtons
-								} ${errorList?.length > 0 ? styles.error : styles.success}`}
-								onClick={() => {
-									if (mapSelected && mapSelected.id > -1)
-										setShowExportModal(true);
-								}}
-							>
-								<FontAwesomeIcon
-									icon={faBell}
-									style={{ height: "20px", width: "20px" }}
-								/>
-							</Button>
+							{mapSelected.id >= 0 && (
+								<Button
+									variant="dark"
+									className={`d-flex align-items-center p-2 ${
+										styles.actionButtons
+									} ${errorList?.length > 0 ? styles.error : styles.success}`}
+									onClick={() => {
+										if (mapSelected && mapSelected.id > -1)
+											setShowExportModal(true);
+									}}
+								>
+									<FontAwesomeIcon
+										icon={faBell}
+										style={{ height: "20px", width: "20px" }}
+									/>
+								</Button>
+							)}
 						</Container>
 						<Container
 							fluid

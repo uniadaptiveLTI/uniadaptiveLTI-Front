@@ -64,7 +64,7 @@ export function deleteNodeFromErrorList(data, errorList) {
 		);
 	}
 
-	if (data.data.section) {
+	if (data.data.section != undefined && data.data.section >= 0) {
 		errorListUpdated = errorListUpdated.filter(
 			(item) => item.nodeId !== data.id || item.type !== "sectionNotFound"
 		);

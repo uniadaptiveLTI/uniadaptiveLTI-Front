@@ -1399,16 +1399,6 @@ const OverviewFlow = ({ map }, ref) => {
 	};
 
 	const handleNewRelation = (origin, end) => {
-		const currentSelectionId =
-			document.querySelectorAll(".react-flow__node.selected")[0]?.dataset.id ||
-			undefined;
-
-		end =
-			end ||
-			reactFlowInstance
-				.getNodes()
-				.find((block) => block.id === currentSelectionId);
-
 		setShowContextualMenu(false);
 
 		if (origin && end) {
@@ -1424,15 +1414,17 @@ const OverviewFlow = ({ map }, ref) => {
 				return;
 			}
 
-			const newBlocksData = [...reactFlowInstance.getNodes()];
-			const bI = newBlocksData.findIndex((block) => block.id == origin.id);
-			if (newBlocksData[bI].children) {
-				const alreadyAChildren = newBlocksData[bI].children.includes(end.id);
+			const newNodesData = reactFlowInstance.getNodes();
+			const oI = newNodesData.findIndex((node) => node.id == origin.id);
+			if (newNodesData[oI].data.children) {
+				const alreadyAChildren = newNodesData[oI].data.children.includes(
+					end.id
+				);
 				if (!alreadyAChildren) {
-					if (newBlocksData[bI].children) {
-						newBlocksData[bI].children.push(end.id);
+					if (newNodesData[oI].data.children) {
+						newNodesData[oI].data.children.push(end.id);
 					} else {
-						newBlocksData[bI].children = [end.id];
+						newNodesData[oI].data.children.push(end.id);
 					}
 				} else {
 					toast("Esta relación ya existe", {
@@ -1444,10 +1436,77 @@ const OverviewFlow = ({ map }, ref) => {
 					});
 				}
 			} else {
-				newBlocksData[bI].children = [end.id];
+				newNodesData[oI].data.children.push(end.id);
 			}
 			setRelationStarter();
-			reactFlowInstance.setNodes(newBlocksData);
+			reactFlowInstance.setNodes(newNodesData);
+			if (origin.type != "start" && origin.type != "end") {
+				if (!validTypes.includes(end.type)) {
+					const newCondition = {
+						id: parseInt(Date.now() * Math.random()).toString(),
+						type: "completion",
+						cm: origin.id,
+						query: "completed",
+					};
+
+					if (!end.data.c) {
+						end.data.c = {
+							type: "conditionsGroup",
+							id: parseInt(Date.now() * Math.random()).toString(),
+							op: "&",
+							c: [newCondition],
+						};
+					} else {
+						end.data.c.c.push(newCondition);
+					}
+				} else {
+					const conditions = end.data.c.c;
+
+					const conditionExists = conditions.find(
+						(condition) => condition.type === "completion"
+					);
+
+					if (conditionExists) {
+						const newConditionAppend = {
+							id: origin.id,
+							name: origin.data.label,
+						};
+						conditionExists.activityList.push(newConditionAppend);
+					} else {
+						const newCondition = {
+							id: parseInt(Date.now() * Math.random()).toString(),
+							type: "completion",
+							activityList: [
+								{
+									id: origin.id,
+									name: origin.data.label,
+								},
+							],
+							op: "&",
+							query: "completed",
+						};
+
+						if (!end.data.c) {
+							end.data.c = {
+								type: "conditionsGroup",
+								id: parseInt(Date.now() * Math.random()).toString(),
+								op: "&",
+								c: [newCondition],
+							};
+						} else {
+							end.data.c.c.push(newCondition);
+						}
+					}
+				}
+			}
+			setEdges([
+				...edges,
+				{
+					id: origin.id + "-" + end.id,
+					source: origin.id,
+					target: end.id,
+				},
+			]);
 		} else {
 			const starterBlock = reactFlowInstance
 				.getNodes()

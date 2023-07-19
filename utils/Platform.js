@@ -53,7 +53,7 @@ export function hasUnorderedResources(platform) {
 	}
 }
 
-export function startingSectionNumber(platform) {
+export function startingSectionID(platform) {
 	switch (platform) {
 		case "moodle":
 			return 0;
