@@ -25,7 +25,7 @@ function Condition({
 	deleteCondition,
 	addCondition,
 	setConditionEdit,
-	swapConditionGroup,
+	swapConditionParam,
 	moodleGroups,
 	moodleGroupings,
 }) {
@@ -41,8 +41,12 @@ function Condition({
 			return (
 				<DateComponent
 					condition={condition}
+					conditionsList={conditionsList}
 					setConditionEdit={setConditionEdit}
+					upCondition={upCondition}
+					downCondition={downCondition}
 					deleteCondition={deleteCondition}
+					swapConditionParam={swapConditionParam}
 				/>
 			);
 		case "qualification":
@@ -50,10 +54,11 @@ function Condition({
 				<QualificationComponent
 					condition={condition}
 					conditionsList={conditionsList}
+					setConditionEdit={setConditionEdit}
 					upCondition={upCondition}
 					downCondition={downCondition}
-					setConditionEdit={setConditionEdit}
 					deleteCondition={deleteCondition}
+					swapConditionParam={swapConditionParam}
 				/>
 			);
 		case "courseQualification":
@@ -61,10 +66,11 @@ function Condition({
 				<CourseQualificationComponent
 					condition={condition}
 					conditionsList={conditionsList}
+					setConditionEdit={setConditionEdit}
 					upCondition={upCondition}
 					downCondition={downCondition}
-					setConditionEdit={setConditionEdit}
 					deleteCondition={deleteCondition}
+					swapConditionParam={swapConditionParam}
 				/>
 			);
 		case "completion":
@@ -72,37 +78,50 @@ function Condition({
 				<CompletionComponent
 					condition={condition}
 					conditionsList={conditionsList}
+					setConditionEdit={setConditionEdit}
 					upCondition={upCondition}
 					downCondition={downCondition}
 					completionQueryList={completionQueryList}
-					setConditionEdit={setConditionEdit}
 					deleteCondition={deleteCondition}
+					swapConditionParam={swapConditionParam}
 				/>
 			);
 		case "group":
 			return (
 				<GroupComponent
 					condition={condition}
+					conditionsList={conditionsList}
 					setConditionEdit={setConditionEdit}
+					upCondition={upCondition}
+					downCondition={downCondition}
 					deleteCondition={deleteCondition}
 					moodleGroups={moodleGroups}
+					swapConditionParam={swapConditionParam}
 				/>
 			);
 		case "grouping":
 			return (
 				<GroupingComponent
 					condition={condition}
+					conditionsList={conditionsList}
 					setConditionEdit={setConditionEdit}
+					upCondition={upCondition}
+					downCondition={downCondition}
 					deleteCondition={deleteCondition}
 					moodleGroupings={moodleGroupings}
+					swapConditionParam={swapConditionParam}
 				/>
 			);
 		case "profile":
 			return (
 				<ProfileComponent
 					condition={condition}
+					conditionsList={conditionsList}
 					setConditionEdit={setConditionEdit}
+					upCondition={upCondition}
+					downCondition={downCondition}
 					deleteCondition={deleteCondition}
+					swapConditionParam={swapConditionParam}
 				/>
 			);
 		case "conditionsGroup":
@@ -115,7 +134,7 @@ function Condition({
 					downCondition={downCondition}
 					deleteCondition={deleteCondition}
 					addCondition={addCondition}
-					swapConditionGroup={swapConditionGroup}
+					swapConditionParam={swapConditionParam}
 					moodleGroups={moodleGroups}
 					moodleGroupings={moodleGroupings}
 				/>

@@ -2,7 +2,13 @@ import React, { useEffect, useContext, useRef, useState } from "react";
 import styles from "@root/styles/ConditionModal.module.css";
 import { Modal, Button, Form, Row, Col, Container } from "react-bootstrap";
 import Condition from "./Condition";
-import { faEdit, faPlus, faShuffle } from "@fortawesome/free-solid-svg-icons";
+import {
+	faEdit,
+	faEye,
+	faEyeSlash,
+	faPlus,
+	faShuffle,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { getParentsNode } from "@utils/Nodes";
 import ProfileForm from "./form-components/ProfileForm";
@@ -62,6 +68,7 @@ function ConditionModal({
 	const [conditionEdit, setConditionEdit] = useState(undefined);
 
 	const [profileObjective, setProfileObjective] = useState(true);
+	const [operatorChange, setOperatorChange] = useState("");
 	const [dateOperator, setDateOperator] = useState(false);
 
 	const [selectedOption, setSelectedOption] = useState(null);
@@ -499,12 +506,15 @@ function ConditionModal({
 
 	const cancelEditCondition = () => {
 		setSelectedOption("");
+		setOperatorChange("");
+		setProfileObjective(true);
 		setConditionEdit(undefined);
 		setEditing(undefined);
 	};
 
 	const saveNewCondition = (edition) => {
 		const formData = { type: selectedOption };
+		formData.showc = true;
 		switch (selectedOption) {
 			case "date":
 				formData.t = conditionOperator.current.value;
@@ -551,6 +561,7 @@ function ConditionModal({
 				}
 				break;
 			case "conditionsGroup":
+				formData.op = conditionOperator.current.value;
 				break;
 			case "role":
 				break;
@@ -608,6 +619,8 @@ function ConditionModal({
 		}
 
 		setSelectedOption("");
+		setOperatorChange("");
+		setProfileObjective(true);
 		setConditionEdit(undefined);
 		setEditing(undefined);
 	};
@@ -637,11 +650,25 @@ function ConditionModal({
 		}
 	};
 
-	function swapConditionGroup(condition) {
+	function swapConditionParam(condition, param) {
 		const updatedBlockData = deepCopy(blockData);
-		const swapOperator = condition.op === "&" ? "|" : "&";
+		let swapParameter = undefined;
 
-		updateConditionOp(updatedBlockData.data.c, condition.id, swapOperator);
+		if (param == "op") {
+			swapParameter = condition.op === "&" ? "|" : "&";
+		} else if (param == "showc") {
+			console.log("SHOW C");
+			console.log(swapParameter);
+			swapParameter = condition.showc === true ? false : true;
+			console.log(swapParameter);
+		}
+
+		updateConditionParam(
+			updatedBlockData.data.c,
+			condition.id,
+			param,
+			swapParameter
+		);
 		setBlockData(updatedBlockData);
 	}
 
@@ -653,13 +680,14 @@ function ConditionModal({
 		setDateOperator(conditionOperator.current.value === "");
 	}
 
-	function updateConditionOp(jsonObj, id, newOp) {
+	function updateConditionParam(jsonObj, id, param, newParam) {
+		console.log(jsonObj[param]);
 		if (jsonObj.id === id) {
-			jsonObj.op = newOp;
+			jsonObj[param] = newParam;
 			return true;
 		} else if (jsonObj.c) {
 			for (let i = 0; i < jsonObj.c.length; i++) {
-				if (updateConditionOp(jsonObj.c[i], id, newOp)) {
+				if (updateConditionParam(jsonObj.c[i], id, param, newParam)) {
 					return true;
 				}
 			}
@@ -735,7 +763,7 @@ function ConditionModal({
 				<Modal.Title>Precondiciones de "{blockData.data.label}"</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
-				{blockData.data.c && !editing && (
+				{blockData.data.c && blockData.data.c.c.length >= 1 && !editing && (
 					<Container
 						style={{
 							padding: "10px",
@@ -743,7 +771,25 @@ function ConditionModal({
 							marginBottom: "10px",
 						}}
 					>
-						<Row>
+						<Row className="align-items-center">
+							{blockData.data.c.op !== "&" && (
+								<Col className="col-1">
+									<Button
+										variant="light"
+										onClick={() =>
+											swapConditionParam(blockData.data.c, "showc")
+										}
+									>
+										<div>
+											{blockData.data.c.showc ? (
+												<FontAwesomeIcon icon={faEye} />
+											) : (
+												<FontAwesomeIcon icon={faEyeSlash} />
+											)}
+										</div>
+									</Button>
+								</Col>
+							)}
 							<Col>
 								<div>Tipo: Conjunto de condiciones</div>
 								<div>
@@ -756,11 +802,11 @@ function ConditionModal({
 									</strong>
 								</div>
 							</Col>
-							<Col className={"col d-flex align-items-center"}>
+							<Col className="col d-flex align-items-center justify-content-end gap-2">
 								<Button
 									variant="light"
 									onClick={() => {
-										swapConditionGroup(blockData.data.c);
+										swapConditionParam(blockData.data.c, "op");
 									}}
 								>
 									<div>
@@ -775,14 +821,14 @@ function ConditionModal({
 									<Condition
 										key={condition.id}
 										condition={condition}
-										conditionsList={blockData.data.c.c}
+										conditionsList={blockData.data.c}
 										upCondition={upCondition}
 										downCondition={downCondition}
 										deleteCondition={deleteCondition}
 										addCondition={addCondition}
 										setSelectedOption={setSelectedOption}
 										setConditionEdit={setConditionEdit}
-										swapConditionGroup={swapConditionGroup}
+										swapConditionParam={swapConditionParam}
 										moodleGroups={moodleGroups}
 										moodleGroupings={moodleGroupings}
 									></Condition>
@@ -905,6 +951,9 @@ function ConditionModal({
 						conditionObjective={conditionObjective}
 						conditionEdit={conditionEdit}
 						handleProfileChange={handleProfileChange}
+						operatorChange={operatorChange}
+						setOperatorChange={setOperatorChange}
+						setProfileObjective={setProfileObjective}
 					/>
 				)}
 				{editing && selectedOption === "conditionsGroup" && (
@@ -945,7 +994,10 @@ function ConditionModal({
 							disabled={
 								selectedOption === "" ||
 								!selectedOption ||
-								(selectedOption === "profile" && profileObjective) ||
+								(selectedOption === "profile" &&
+									profileObjective &&
+									operatorChange !== "isempty" &&
+									operatorChange !== "isnotempty") ||
 								(selectedOption === "date" && dateOperator)
 							}
 						>
