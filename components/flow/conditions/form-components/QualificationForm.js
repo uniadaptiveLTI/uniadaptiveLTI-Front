@@ -24,7 +24,7 @@ function QualificationForm(props) {
 				<Form.Check
 					id="objectiveCheckbox"
 					type="checkbox"
-					label="debe ser >="
+					label="Debe ser >="
 					className="me-4"
 					style={{ minWidth: "125px" }}
 					onChange={checkInputs}
@@ -63,7 +63,7 @@ function QualificationForm(props) {
 				<Form.Check
 					id="objective2Checkbox"
 					type="checkbox"
-					label="debe ser <"
+					label="Debe ser <"
 					className="me-4"
 					style={{ minWidth: "125px" }}
 					defaultChecked={

@@ -20,7 +20,7 @@ function CourseQualificationForm(props) {
 					type="checkbox"
 					className="me-4"
 					style={{ minWidth: "125px" }}
-					label="debe ser >="
+					label="Debe ser >="
 					onChange={checkInputs}
 					defaultChecked={
 						conditionEdit && conditionEdit.min
@@ -58,7 +58,7 @@ function CourseQualificationForm(props) {
 					type="checkbox"
 					className="me-4"
 					style={{ minWidth: "125px" }}
-					label="debe ser <"
+					label="Debe ser <"
 					defaultChecked={
 						conditionEdit && conditionEdit.max ? true : false || false
 					}

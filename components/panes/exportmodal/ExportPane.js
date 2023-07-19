@@ -147,7 +147,9 @@ export default function ExportPanel({
 		fullNodes.forEach((fullNode) => {
 			const originalId = fullNode.id;
 			const lmsResource =
-				fullNode.data.lmsResource == undefined ? "" : fullNode.data.lmsResource;
+				fullNode.data.lmsResource == undefined
+					? ""
+					: Number(fullNode.data.lmsResource);
 			const regex = new RegExp(originalId, "g");
 			nodesAsString = nodesAsString.replace(regex, lmsResource);
 		});
@@ -196,6 +198,8 @@ export default function ExportPanel({
 			type = condition.type;
 			delete condition.type;
 		}
+
+		condition.id = Number(condition.id);
 
 		console.log(type);
 		switch (type) {

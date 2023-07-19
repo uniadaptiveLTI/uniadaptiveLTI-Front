@@ -829,6 +829,7 @@ function ConditionModal({
 					(conditionEdit.type == "completion" ||
 						conditionEdit.type == "qualification") && (
 						<>
+							<Form.Label htmlFor="condition-select">Precondición:</Form.Label>
 							<Form.Select
 								id="condition-select"
 								onChange={handleSelectChange}
