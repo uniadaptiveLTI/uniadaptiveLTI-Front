@@ -1,4 +1,4 @@
-import React, { useId } from "react";
+import React, { useEffect, useState, useId } from "react";
 import { Form } from "react-bootstrap";
 
 function ProfileForm({
@@ -7,7 +7,22 @@ function ProfileForm({
 	conditionObjective,
 	conditionEdit,
 	handleProfileChange,
+	operatorChange,
+	setOperatorChange,
+	setProfileObjective,
 }) {
+	useEffect(() => {
+		if (conditionEdit) {
+			setOperatorChange(conditionEdit.op);
+		}
+	}, [conditionEdit]);
+
+	useEffect(() => {
+		if (conditionEdit) {
+			setOperatorChange(conditionEdit.op);
+		}
+	}, [conditionEdit]);
+
 	const cqId = useId();
 	const coId = useId();
 	const csId = useId();

@@ -5,24 +5,45 @@ import {
 	faArrowDown,
 	faArrowUp,
 	faEdit,
+	faEye,
+	faEyeSlash,
 	faTrashCan,
 } from "@fortawesome/free-solid-svg-icons";
 
 function CourseQualificationComponent({
 	condition,
 	conditionsList,
+	setConditionEdit,
 	upCondition,
 	downCondition,
-	setConditionEdit,
 	deleteCondition,
+	swapConditionParam,
 }) {
+	const mainCondition = conditionsList.c.some((c) => c.id === condition.id);
+
 	return (
 		<Container
 			className="mb-3 mt-3"
 			style={{ padding: "10px", border: "1px solid #C7C7C7" }}
 		>
-			<Row>
-				<Col>
+			<Row className="align-items-center">
+				{mainCondition && conditionsList.op === "&" && (
+					<Col className="col-1">
+						<Button
+							variant="light"
+							onClick={() => swapConditionParam(condition, "showc")}
+						>
+							<div>
+								{condition.showc ? (
+									<FontAwesomeIcon icon={faEye} />
+								) : (
+									<FontAwesomeIcon icon={faEyeSlash} />
+								)}
+							</div>
+						</Button>
+					</Col>
+				)}
+				<Col style={{ width: "531px", flex: "0 0 auto" }}>
 					<div>Tipo: Calificación total del curso</div>
 					<div>
 						{condition.min && !condition.max && (
@@ -55,7 +76,7 @@ function CourseQualificationComponent({
 						)}
 					</div>
 				</Col>
-				<Col className="col d-flex align-items-center gap-2">
+				<Col className="col d-flex align-items-center justify-content-end gap-2">
 					<Button variant="light" onClick={() => setConditionEdit(condition)}>
 						<div>
 							<FontAwesomeIcon icon={faEdit} />
@@ -66,7 +87,7 @@ function CourseQualificationComponent({
 							<FontAwesomeIcon icon={faTrashCan} />
 						</div>
 					</Button>
-					{conditionsList.length > 1 && (
+					{conditionsList.c.length > 1 && (
 						<>
 							<Button variant="light" onClick={() => upCondition(condition)}>
 								<div>

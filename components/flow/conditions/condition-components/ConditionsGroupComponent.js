@@ -6,6 +6,10 @@ import {
 	faPlus,
 	faTrashCan,
 	faShuffle,
+	faEye,
+	faEyeSlash,
+	faArrowUp,
+	faArrowDown,
 } from "@fortawesome/free-solid-svg-icons";
 
 const conditionsGroupOperatorList = [
@@ -21,17 +25,36 @@ const ConditionsGroupComponent = ({
 	downCondition,
 	addCondition,
 	setConditionEdit,
-	swapConditionGroup,
+	swapConditionParam,
+	moodleGroups,
+	moodleGroupings,
 }) => {
+	const mainCondition = conditionsList.c.some((c) => c.id === condition.id);
+
 	return (
 		<Container
 			className="mb-3 mt-3"
 			style={{ padding: "10px", border: "1px solid #C7C7C7" }}
 		>
-			<Row>
-				<Col>
+			<Row className="align-items-center">
+				{mainCondition && conditionsList.op === "&" && (
+					<Col className="col-1">
+						<Button
+							variant="light"
+							onClick={() => swapConditionParam(condition, "showc")}
+						>
+							<div>
+								{condition.showc ? (
+									<FontAwesomeIcon icon={faEye} />
+								) : (
+									<FontAwesomeIcon icon={faEyeSlash} />
+								)}
+							</div>
+						</Button>
+					</Col>
+				)}
+				<Col style={{ width: "531px", flex: "0 0 auto" }}>
 					<div>Tipo: Conjunto de condiciones</div>
-					<div>Id: {condition.id}</div>
 					<div>
 						<strong>
 							{
@@ -42,14 +65,14 @@ const ConditionsGroupComponent = ({
 						</strong>
 					</div>
 				</Col>
-				<Col className="d-flex align-items-center gap-2">
+				<Col className="d-flex align-items-center justify-content-end gap-2">
 					<Button variant="light" onClick={() => addCondition(condition.id)}>
 						<FontAwesomeIcon icon={faPlus} />
 					</Button>
 					<Button
 						variant="light"
 						onClick={() => {
-							swapConditionGroup(condition);
+							swapConditionParam(condition, "op");
 						}}
 					>
 						<div>
@@ -73,7 +96,9 @@ const ConditionsGroupComponent = ({
 								addCondition={addCondition}
 								downCondition={downCondition}
 								setConditionEdit={setConditionEdit}
-								swapConditionGroup={swapConditionGroup}
+								swapConditionParam={swapConditionParam}
+								moodleGroups={moodleGroups}
+								moodleGroupings={moodleGroupings}
 							/>
 						</div>
 					))}

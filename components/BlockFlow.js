@@ -449,7 +449,8 @@ const OverviewFlow = ({ map }, ref) => {
 							id: parseInt(Date.now() * Math.random()).toString(),
 							type: "completion",
 							cm: sourceNode.id,
-							query: "completed",
+							showc: true,
+							e: "1",
 						};
 
 						if (!targetNode.data.c) {
@@ -457,6 +458,7 @@ const OverviewFlow = ({ map }, ref) => {
 								type: "conditionsGroup",
 								id: parseInt(Date.now() * Math.random()).toString(),
 								op: "&",
+								showc: true,
 								c: [newCondition],
 							};
 						} else {
@@ -561,7 +563,6 @@ const OverviewFlow = ({ map }, ref) => {
 		}
 	}
 
-	// FIXME: DOESNT DELETE THE CHILDREN CORRECTLY
 	const onEdgesDelete = (edges) => {
 		for (let i = 0; i < edges.length; i++) {
 			var blockNodeSource = reactFlowInstance

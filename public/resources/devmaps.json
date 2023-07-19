@@ -65,7 +65,22 @@
 							"identation": 1,
 							"order": 0,
 							"section": 1,
-							"lmsVisibility": "hidden_until_access"
+							"lmsVisibility": "hidden_until_access",
+							"c": {
+								"type": "conditionsGroup",
+								"id": "9867211125367",
+								"op": "|",
+								"showc" : true,
+								"c": [
+									{
+										"type": "completion",
+										"cm": "dev0A1",
+										"e": "2",
+										"showc" : true,
+										"id": "93620462284937"
+									}
+								]
+							}
 						}
 					},
 					{
@@ -126,11 +141,13 @@
 								"type": "conditionsGroup",
 								"id": "68924334612375132878973",
 								"op": "&",
+								"showc" : true,
 								"c": [
 									{
 										"type": "completion",
 										"cm": "dev1A1",
-										"query": "completedApproved",
+										"e": "2",
+										"showc" : true,
 										"id": "4342243163224778853"
 									}
 								]
@@ -152,6 +169,21 @@
 							"identation": 1,
 							"order": 2,
 							"section": 1,
+							"c": {
+								"type": "conditionsGroup",
+								"id": "6892433461789895132878973",
+								"op": "&",
+								"showc" : true,
+								"c": [
+									{
+										"type": "completion",
+										"cm": "dev3A1",
+										"e": "2",
+										"showc" : true,
+										"id": "4123542243163224778853"
+									}
+								]
+							},
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -173,23 +205,27 @@
 								"type": "conditionsGroup",
 								"id": "100236670156",
 								"op": "|",
+								"showc" : true,
 								"c": [
 									{
 										"type": "completion",
 										"cm": "dev4A1",
-										"query": "completedApproved",
+										"e": "1",
+										"showc" : true,
 										"id": "434222363224778852"
 									},
 									{
 										"type": "completion",
 										"cm": "dev6A1",
-										"query": "completed",
+										"e": "1",
+										"showc" : true,
 										"id": "43422443224778853"
 									},
 									{
 										"type": "qualification",
 										"id": "648191624693482345",
 										"cm": "dev10A1",
+										"showc" : true,
 										"min": "7"
 									}
 								]
@@ -215,17 +251,20 @@
 								"type": "conditionsGroup",
 								"id": "68924375132878957895673",
 								"op": "|",
+								"showc" : true,
 								"c": [
 									{
 										"type": "completion",
 										"cm": "dev4A1",
-										"query": "completedFailed",
+										"e": "1",
+										"showc" : true,
 										"id": "4342223632247788542"
 									},
 									{
 										"type": "completion",
-										"cm": "dev4A1",
-										"query": "completed",
+										"cm": "dev12A1",
+										"e": "0",
+										"showc" : true,
 										"id": "4342223632247782852"
 									}
 								]
@@ -265,11 +304,13 @@
 								"type": "conditionsGroup",
 								"id": "68924375132878973",
 								"op": "&",
+								"showc" : true,
 								"c": [
 									{
 										"type": "completion",
 										"cm": "dev5A1",
-										"query": "completedApproved",
+										"e": "1",
+										"showc" : true,
 										"id": "434222363224778852"
 									},
 									{
@@ -277,12 +318,14 @@
 										"id": "6481924693482345",
 										"cm": "dev15A1",
 										"min": "6",
-										"max": "10"
+										"max": "10",
+										"showc" : true
 									},
 									{
 										"type": "completion",
 										"cm": "dev16A1",
-										"query": "completed",
+										"e": "2",
+										"showc" : true,
 										"id": "43422232778852"
 									}
 								]
@@ -308,11 +351,13 @@
 								"type": "conditionsGroup",
 								"id": "6892437513287698973",
 								"op": "&",
+								"showc" : true,
 								"c": [
 									{
 										"type": "completion",
 										"cm": "dev1A1",
-										"query": "completedFailed",
+										"e": "2",
+										"showc" : true,
 										"id": "4342243163224778853"
 									}
 								]
@@ -338,11 +383,13 @@
 								"type": "conditionsGroup",
 								"id": "98437432194690",
 								"op": "&",
+								"showc" : true,
 								"c": [
 									{
 										"type": "completion",
 										"cm": "dev9A1",
-										"query": "completed",
+										"e": "0",
+										"showc" : true,
 										"id": "434222363224778852"
 									}
 								]
@@ -380,12 +427,14 @@
 								"type": "conditionsGroup",
 								"id": "9544138437432194690",
 								"op": "&",
+								"showc" : true,
 								"c": [
 									{
 										"type": "qualification",
 										"id": "648191624693482345",
 										"cm": "dev10A1",
-										"max": "7"
+										"max": "7",
+										"showc" : true
 									}
 								]
 							}
@@ -485,11 +534,13 @@
 								"type": "conditionsGroup",
 								"id": "89898998898912342",
 								"op": "&",
+								"showc" : true,
 								"c": [
 									{
 										"type": "completion",
 										"cm": "dev15A1",
-										"query": "completed",
+										"e": "1",
+										"showc" : true,
 										"id": "4342234224778852"
 									}
 								]
@@ -515,12 +566,14 @@
 								"type": "conditionsGroup",
 								"id": "456426231736855865",
 								"op": "&",
+								"showc" : true,
 								"c": [
 									{
 										"type": "qualification",
 										"id": "978434243341234324",
 										"cm": "dev15A1",
-										"max": "6"
+										"max": "6",
+										"showc" : true
 									}
 								]
 							},

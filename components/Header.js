@@ -54,6 +54,7 @@ import {
 	capitalizeFirstLetter,
 	orderByPropertyAlphabetically,
 	uniqueId,
+	getHTTPPrefix,
 } from "@utils/Utils.js";
 import { isNodeArrayEqual } from "@utils/Nodes";
 import { errorListCheck } from "@utils/ErrorHandling";
@@ -188,6 +189,7 @@ function Header({ LTISettings }, ref) {
 	 */
 	function handleMapChange(e) {
 		resetEdit();
+		setErrorList([]);
 		let id;
 		if (isNaN(e)) {
 			id = Number(e.target.value);

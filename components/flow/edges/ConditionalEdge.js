@@ -31,21 +31,19 @@ const ConditionalEdge = ({
 
 	const rfNodes = useNodes();
 
-	//TODO: Make it recursive and try to join conditions.
+	// FIXME: GET ALL CHILDREN AND SHOW ONLY 2 CONDITIONS MAX
 	const getSelfCondition = () => {
 		const targetNode = getNodeById(target, rfNodes);
+		const sourceNode = getNodeById(source, rfNodes);
+
 		if (targetNode && targetNode.data && targetNode.data.c) {
 			const conditions = targetNode.data.c;
-			const flattenedConditions = conditions.c.flat(Infinity);
-			const connectionCondition = getByProperty(
-				"op",
-				source,
-				flattenedConditions
-			)[0];
-			if (connectionCondition) {
+			const condition = findConditionById(sourceNode.id, conditions.c);
+			const parentCondition = findParent(conditions, condition?.id);
+			if (condition) {
 				const sourceNode = getNodeById(source, rfNodes);
 				if (sourceNode && sourceNode.data && sourceNode.data.label) {
-					return getReadableCondition(connectionCondition);
+					return getReadableCondition(condition);
 				}
 			}
 		}
@@ -54,27 +52,93 @@ const ConditionalEdge = ({
 	const getReadableCondition = (condition) => {
 		switch (condition.type) {
 			case "qualification":
-				if (condition.objective && condition.objective2) {
-					return `>= ${condition.objective} y < ${condition.objective2} `;
+				if (condition.min && condition.max) {
+					return `>= ${condition.min} y < ${condition.max} `;
 				} else {
-					if (condition.objective) {
-						return `>= ${condition.objective}`;
+					if (condition.min) {
+						return `>= ${condition.min}`;
 					} else {
-						return `< ${condition.objective2}`;
+						return `< ${condition.max}`;
 					}
 				}
 			case "completion":
-				switch (condition.query) {
-					case "notCompleted":
+				switch (condition.e) {
+					case "0":
 						return `Sin completar`;
-					case "completedApproved":
+					case "1":
+						return `Completado`;
+					case "2":
 						return `Aprobado`;
-					case "completedFailed":
+					case "3":
 						return `Suspendido`;
 				}
 				break;
 		}
 	};
+
+	function findConditionById(id, conditions) {
+		if (!conditions) {
+			return null;
+		}
+
+		const foundCondition = conditions.find((condition) => condition.cm === id);
+		if (foundCondition) {
+			return foundCondition;
+		}
+
+		for (const condition of conditions) {
+			if (condition.c) {
+				const innerCondition = findConditionById(id, condition.c);
+				if (innerCondition) {
+					return innerCondition;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	function findParent(jsonObj, id) {
+		if (jsonObj.id === id) {
+			return null;
+		}
+
+		if (jsonObj.c) {
+			for (let child of jsonObj.c) {
+				if (child.id === id) {
+					return jsonObj;
+				} else if (child.type === "conditionsGroup") {
+					const parent = findParent(child, id);
+					if (parent) {
+						return parent;
+					}
+				}
+			}
+		}
+
+		return null;
+	}
+
+	function findChildren(jsonObj, id, excludedId) {
+		let children = [];
+
+		if (jsonObj.c) {
+			for (let child of jsonObj.c) {
+				if (child.id === id) {
+					continue; // Skip the child with the given ID
+				}
+				if (child.type === "conditionsGroup") {
+					const foundChildren = findChildren(child, id, excludedId);
+					if (foundChildren.length > 0) {
+						children = children.concat(foundChildren); // Found children in the child's subtree
+					}
+				}
+				children.push(child); // Add the child to the result
+			}
+		}
+
+		return children;
+	}
 
 	const getSelfWidth = () => {
 		if (Math.max(sourceY - targetY, targetY - sourceY) < 200) {
