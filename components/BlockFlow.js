@@ -1461,11 +1461,15 @@ const OverviewFlow = ({ map }, ref) => {
 						end.data.c.c.push(newCondition);
 					}
 				} else {
-					const conditions = end.data.c.c;
+					const conditions = end.data.c?.c;
 
-					const conditionExists = conditions.find(
-						(condition) => condition.type === "completion"
-					);
+					let conditionExists = false;
+
+					if (conditions != undefined) {
+						conditionExists = conditions.find(
+							(condition) => condition.type === "completion"
+						);
+					}
 
 					if (conditionExists) {
 						const newConditionAppend = {
