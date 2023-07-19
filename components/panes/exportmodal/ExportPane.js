@@ -123,6 +123,28 @@ export default function ExportPanel({
 			if (data.c) {
 				deleteRecursiveId(data.c);
 				specifyConditionType(data.c);
+				const finalshowc = [];
+				if (data.c.op == "&") {
+					delete data.c.showc;
+					if (data.c.c)
+						if (Array.isArray(data.c.c)) {
+							data.c.c.forEach((innerCondition) => {
+								finalshowc.push(innerCondition.showc);
+								deleteRecursiveShowC(innerCondition);
+							});
+						}
+					data.c.showc = finalshowc;
+				} else {
+					if (data.c.c)
+						if (Array.isArray(data.c.c)) {
+							data.c.c.forEach((innerCondition) => {
+								deleteRecursiveShowC(innerCondition);
+							});
+						}
+					data.c.show = data.c.showc;
+					delete data.c.id;
+					delete data.c.showc;
+				}
 			}
 			delete node.data;
 			delete node.height;
@@ -148,9 +170,9 @@ export default function ExportPanel({
 			const originalId = fullNode.id;
 			const lmsResource =
 				fullNode.data.lmsResource == undefined
-					? ""
+					? -1
 					: Number(fullNode.data.lmsResource);
-			const regex = new RegExp(originalId, "g");
+			const regex = new RegExp('"' + originalId + '"', "g");
 			nodesAsString = nodesAsString.replace(regex, lmsResource);
 		});
 
@@ -164,7 +186,11 @@ export default function ExportPanel({
 				node.section = section.id;
 			}
 
-			if (node.id == "") node.id = "INVALID";
+			if (node.id == "") {
+				node.id = -1;
+			} else {
+				node.id = Number(node.id);
+			}
 
 			if (section && currentSelectionInfo.selection.includes(section.id))
 				return true;
@@ -178,6 +204,15 @@ export default function ExportPanel({
 		}
 		if (obj.hasOwnProperty("c") && Array.isArray(obj.c)) {
 			obj.c.forEach(deleteRecursiveId);
+		}
+	}
+
+	function deleteRecursiveShowC(obj) {
+		if (obj.hasOwnProperty("showc")) {
+			delete obj.showc;
+		}
+		if (obj.hasOwnProperty("c") && Array.isArray(obj.c)) {
+			obj.c.forEach(deleteRecursiveShowC);
 		}
 	}
 
@@ -204,19 +239,19 @@ export default function ExportPanel({
 		console.log(type);
 		switch (type) {
 			case "qualification":
-				condition.id = condition.cm;
+				condition.id = Number(condition.cm);
 				delete condition.cm;
 				break;
 			case "courseQualification":
-				condition.id = condition.courseId;
+				condition.id = Number(condition.courseId);
 				delete condition.courseId;
 				break;
 			case "group":
-				condition.id = condition.groupId;
+				condition.id = Number(condition.groupId);
 				delete condition.groupId;
 				break;
 			case "grouping":
-				condition.id = condition.groupingId;
+				condition.id = Number(condition.groupingId);
 				delete condition.groupingId;
 				break;
 			default:
