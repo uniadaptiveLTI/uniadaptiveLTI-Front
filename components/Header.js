@@ -198,7 +198,6 @@ function Header({ LTISettings }, ref) {
 		}
 
 		let selectedMap = [...maps].find((m) => m.id == id);
-
 		if (selectedMap) {
 			setMapSelected(selectedMap);
 
@@ -212,13 +211,16 @@ function Header({ LTISettings }, ref) {
 								}/lti/get_version?version_id=${selectedMap.versions[0].id}`
 							);
 
+							const data = await response.json();
+
 							setVersions(selectedMap.versions);
 							setSelectedVersion(selectedMap.versions[0]);
-							setCurrentBlocksData(data.blocksData);
+							setCurrentBlocksData(data.blocks_data);
 						} catch (error) {
 							console.error("Error:", error);
 						}
 					};
+					fetchData();
 				} else {
 					setVersions(selectedMap.versions);
 					setSelectedVersion(selectedMap.versions[0]);
