@@ -213,9 +213,15 @@ function Header({ LTISettings }, ref) {
 
 							const data = await response.json();
 
-							setVersions(selectedMap.versions);
-							setSelectedVersion(selectedMap.versions[0]);
-							setCurrentBlocksData(data.blocks_data);
+							if (!data.invalid) {
+								setVersions(selectedMap.versions);
+								setSelectedVersion(selectedMap.versions[0]);
+								setCurrentBlocksData(data.blocks_data);
+							} else {
+								setVersions(selectedMap.versions);
+								setSelectedVersion(selectedMap.versions[0]);
+								setCurrentBlocksData(selectedMap.versions[0].blocksData);
+							}
 						} catch (error) {
 							console.error("Error:", error);
 						}
@@ -647,7 +653,7 @@ function Header({ LTISettings }, ref) {
 							LTISettings.back_url
 						}/api/lti/delete_map_by_id`,
 						{
-							method: "DELETE",
+							method: "POST",
 							headers: { "Content-Type": "application/json" },
 							body: JSON.stringify({ id: Number(mapId) }),
 						}
@@ -708,7 +714,7 @@ function Header({ LTISettings }, ref) {
 							LTISettings.back_url
 						}/api/lti/delete_version_by_id`,
 						{
-							method: "DELETE",
+							method: "POST",
 							headers: { "Content-Type": "application/json" },
 							body: JSON.stringify({ id: Number(versionId) }),
 						}
