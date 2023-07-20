@@ -95,12 +95,18 @@ export function createItemErrors(item, errorArray) {
 			id: uniqueId(),
 			nodeId: item.id,
 		};
-		if (!item.data.lmsResource || item.data.lmsResource === -1) {
+		if (
+			item.data.lmsResource === null ||
+			item.data.lmsResource === undefined ||
+			item.data.lmsResource < 0
+		) {
 			const customEntry = {
 				...errorEntry,
 				severity: "error",
 				type: "resourceNotFound",
 			};
+
+			console.log(item.data.lmsResource);
 
 			const errorFound = errorArray.find(
 				(obj) =>
@@ -114,7 +120,11 @@ export function createItemErrors(item, errorArray) {
 			}
 		}
 
-		if (!item.data.section) {
+		if (
+			item.data.section === null ||
+			item.data.section === undefined ||
+			item.data.section < 0
+		) {
 			const customEntry = {
 				...errorEntry,
 				severity: "error",
