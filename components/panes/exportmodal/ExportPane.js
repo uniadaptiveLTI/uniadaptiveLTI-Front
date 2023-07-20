@@ -1,4 +1,4 @@
-import { useLayoutEffect, useState, useRef, useContext } from "react";
+import { useLayoutEffect, useState, useContext } from "react";
 import styles from "@root/styles/ExportModal.module.css";
 import { Alert, Button } from "react-bootstrap";
 import SectionSelector from "@components/forms/components/SectionSelector";
@@ -11,6 +11,7 @@ import { PlatformContext } from "pages/_app";
 import { getBackupURL } from "@utils/Platform";
 import { ActionNodes } from "@utils/Nodes";
 import { getHTTPPrefix, getSectionIDFromPosition } from "@utils/Utils";
+import { toast } from "react-toastify";
 
 export default function ExportPanel({
 	errorList,
@@ -133,7 +134,6 @@ export default function ExportPanel({
 							});
 						}
 					data.c.showc = finalshowc;
-					deleteRecursiveId(data.c);
 				} else {
 					if (data.c.c)
 						if (Array.isArray(data.c.c)) {
@@ -145,6 +145,8 @@ export default function ExportPanel({
 					delete data.c.id;
 					delete data.c.showc;
 				}
+				deleteRecursiveId(data.c);
+				deleteRecursiveNull(data.c);
 			}
 			delete node.data;
 			delete node.height;
@@ -214,6 +216,31 @@ export default function ExportPanel({
 		if (obj.hasOwnProperty("c") && Array.isArray(obj.c)) {
 			obj.c.forEach(deleteRecursiveShowC);
 		}
+	}
+
+	function deleteRecursiveNull(obj) {
+		const is_obj = (x) => x !== null && typeof x === "object";
+		const is_arr = (x) => Array.isArray(x);
+
+		const nullish = (x) => x === null;
+
+		const clean = (x) =>
+			[x]
+				.map((x) => Object.entries(x))
+				.map((x) =>
+					x.map(([k, v]) =>
+						is_arr(v)
+							? [k, v.map((vv) => (is_obj(vv) ? clean(vv) : vv))]
+							: is_obj(v)
+							? [k, clean(v)]
+							: [k, v]
+					)
+				)
+				.map((x) => x.filter(([k, v]) => !nullish(v)))
+				.map((x) => Object.fromEntries(x))
+				.pop();
+
+		return clean(obj);
 	}
 
 	function deleteSelfBySpecificId(obj, id) {
