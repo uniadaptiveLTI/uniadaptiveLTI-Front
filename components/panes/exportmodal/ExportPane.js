@@ -121,7 +121,6 @@ export default function ExportPanel({
 			delete node.data.lmsResource;
 			const data = node.data;
 			if (data.c) {
-				deleteRecursiveId(data.c);
 				specifyConditionType(data.c);
 				const finalshowc = [];
 				if (data.c.op == "&") {
@@ -134,6 +133,7 @@ export default function ExportPanel({
 							});
 						}
 					data.c.showc = finalshowc;
+					deleteRecursiveId(data.c);
 				} else {
 					if (data.c.c)
 						if (Array.isArray(data.c.c)) {

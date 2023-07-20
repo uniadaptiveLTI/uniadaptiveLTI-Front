@@ -669,6 +669,7 @@ function Header({ LTISettings }, ref) {
 									setMapCount(maps.length);
 									setLoadedMaps(true);
 								});
+							changeToMapSelection();
 							toast(`Mapa eliminado con éxito.`, defaultToastSuccess);
 						}
 					} else {
