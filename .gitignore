@@ -31,4 +31,6 @@ yarn-error.log*
 
 # vercel
 .vercel
-configuration.json
+
+# configuration
+/configuration.json
