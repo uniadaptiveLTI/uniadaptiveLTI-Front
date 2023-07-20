@@ -203,21 +203,27 @@ function Header({ LTISettings }, ref) {
 			setMapSelected(selectedMap);
 
 			if (selectedMap.versions) {
-				const fetchData = async () => {
-					try {
-						const response = await fetch(
-							`${getHTTPPrefix()}://${
-								LTISettings.back_url
-							}/lti/get_version?version_id=${selectedMap.versions[0].id}`
-						);
+				if (!LTISettings.debugging.dev_files) {
+					const fetchData = async () => {
+						try {
+							const response = await fetch(
+								`${getHTTPPrefix()}://${
+									LTISettings.back_url
+								}/lti/get_version?version_id=${selectedMap.versions[0].id}`
+							);
 
-						setVersions(selectedMap.versions);
-						setSelectedVersion(selectedMap.versions[0]);
-						setCurrentBlocksData(data.blocksData);
-					} catch (error) {
-						console.error("Error:", error);
-					}
-				};
+							setVersions(selectedMap.versions);
+							setSelectedVersion(selectedMap.versions[0]);
+							setCurrentBlocksData(data.blocksData);
+						} catch (error) {
+							console.error("Error:", error);
+						}
+					};
+				} else {
+					setVersions(selectedMap.versions);
+					setSelectedVersion(selectedMap.versions[0]);
+					setCurrentBlocksData(selectedMap.versions[0].blocksData);
+				}
 			}
 			if (selectedMap.id == -1) {
 				changeToMapSelection();
@@ -689,7 +695,7 @@ function Header({ LTISettings }, ref) {
 					})
 					.catch((e) => {
 						const error = new Error(
-							"No se pudieron obtener los datos del curso desde el LMS."
+							"No se pudieron obtener los datos del curso desde los archivos locales."
 						);
 						error.log = e;
 						throw error;
@@ -706,7 +712,7 @@ function Header({ LTISettings }, ref) {
 					})
 					.catch((e) => {
 						const error = new Error(
-							"No se pudieron obtener los metadatos del curso desde el LMS."
+							"No se pudieron obtener los metadatos del curso desde los archivos locales."
 						);
 						error.log = e;
 						throw error;
@@ -719,7 +725,7 @@ function Header({ LTISettings }, ref) {
 					})
 					.catch((e) => {
 						const error = new Error(
-							"No se pudieron obtener los datos del usuario desde el LMS."
+							"No se pudieron obtener los datos del usuario desde los archivos locales."
 						);
 						error.log = e;
 						throw error;
