@@ -187,7 +187,7 @@ function Header({ LTISettings }, ref) {
 	 * Handles a change in the selected map.
 	 * @param {Event} e - The change event or an id.
 	 */
-	function handleMapChange(e) {
+	async function handleMapChange(e) {
 		resetEdit();
 		setErrorList([]);
 		let id;
@@ -203,30 +203,27 @@ function Header({ LTISettings }, ref) {
 
 			if (selectedMap.versions) {
 				if (!LTISettings.debugging.dev_files) {
-					const fetchData = async () => {
-						try {
-							const response = await fetch(
-								`${getHTTPPrefix()}://${
-									LTISettings.back_url
-								}/lti/get_version?version_id=${selectedMap.versions[0].id}`
-							);
+					try {
+						const response = await fetch(
+							`${getHTTPPrefix()}://${
+								LTISettings.back_url
+							}/lti/get_version?version_id=${selectedMap.versions[0].id}`
+						);
 
-							const data = await response.json();
+						const data = await response.json();
 
-							if (!data.invalid) {
-								setVersions(selectedMap.versions);
-								setSelectedVersion(selectedMap.versions[0]);
-								setCurrentBlocksData(data.blocks_data);
-							} else {
-								setVersions(selectedMap.versions);
-								setSelectedVersion(selectedMap.versions[0]);
-								setCurrentBlocksData(selectedMap.versions[0].blocksData);
-							}
-						} catch (error) {
-							console.error("Error:", error);
+						if (!data.invalid) {
+							setVersions(selectedMap.versions);
+							setSelectedVersion(selectedMap.versions[0]);
+							setCurrentBlocksData(data.blocks_data);
+						} else {
+							setVersions(selectedMap.versions);
+							setSelectedVersion(selectedMap.versions[0]);
+							setCurrentBlocksData(selectedMap.versions[0].blocksData);
 						}
-					};
-					fetchData();
+					} catch (error) {
+						console.error("Error:", error);
+					}
 				} else {
 					setVersions(selectedMap.versions);
 					setSelectedVersion(selectedMap.versions[0]);
@@ -280,7 +277,7 @@ function Header({ LTISettings }, ref) {
 			name: handleNameCollision("Nuevo Mapa " + localMaps.length),
 			versions: [
 				{
-					id: 0,
+					id: uniqueId(),
 					name: "Última versión",
 					lastUpdate: new Date().toLocaleDateString(),
 					default: "true",
@@ -421,7 +418,7 @@ function Header({ LTISettings }, ref) {
 					: `Mapa importado desde ${localMetaData.name} (${localMaps.length})`,
 			versions: [
 				{
-					id: 0,
+					id: uniqueId(),
 					name: "Última versión",
 					lastUpdate: new Date().toLocaleDateString(),
 					default: "true",
