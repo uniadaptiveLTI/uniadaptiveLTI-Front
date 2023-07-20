@@ -96,7 +96,9 @@ export default forwardRef(function NodeSelector(
 			data.label = "Vacío";
 			data.children = [];
 			data.section =
-				section == undefined ? startingSectionID(platform) : section;
+				section == undefined || section == Infinity || section == -Infinity
+					? startingSectionID(platform)
+					: section;
 			data.order = getLastPositionInSection(section, rfNodes) + 1;
 			data.lmsVisibility = getDefaultVisibility(platform);
 			data.identation = 0;
