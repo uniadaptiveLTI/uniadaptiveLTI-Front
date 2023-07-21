@@ -6,7 +6,7 @@ import { SettingsContext } from "@root/pages/_app";
 const Qualification = ({
 	condition,
 	conditionTypes,
-	qualificationOperand,
+	gradeOperand,
 	titleID,
 	titleDOM,
 	expandedCondition,
@@ -43,7 +43,7 @@ const Qualification = ({
 					Operador
 				</Form.Label>
 				<Form.Select value={condition.operand}>
-					{qualificationOperand.map((operand) => {
+					{gradeOperand.map((operand) => {
 						return (
 							<option value={operand.value} key={operand.value}>
 								{operand.name}
@@ -83,4 +83,4 @@ const Qualification = ({
 	);
 };
 
-export default Qualification;
+export default Grade;

@@ -263,9 +263,8 @@ export default function ExportPanel({
 
 		condition.id = Number(condition.id);
 
-		console.log(type);
 		switch (type) {
-			case "qualification":
+			case "grade":
 				condition.id = Number(condition.cm);
 				delete condition.cm;
 				break;

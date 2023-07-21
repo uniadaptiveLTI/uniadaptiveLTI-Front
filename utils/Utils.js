@@ -176,11 +176,11 @@ export function searchConditionForTypes(jsonData, targetTypes, results) {
 	}
 }
 
-export function findCompletionAndQualification(obj) {
+export function findCompletionAndGrade(obj) {
 	let results = [];
 
 	function search(obj) {
-		if (obj.type === "completion" || obj.type === "qualification") {
+		if (obj.type === "completion" || obj.type === "grade") {
 			results.push(obj);
 		}
 

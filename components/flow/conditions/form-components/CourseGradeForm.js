@@ -1,7 +1,7 @@
 import React from "react";
 import { Form } from "react-bootstrap";
 
-function CourseQualificationForm(props) {
+function CourseGradeForm(props) {
 	const {
 		conditionOperator,
 		conditionQuery,
@@ -25,9 +25,7 @@ function CourseQualificationForm(props) {
 					defaultChecked={
 						conditionEdit && conditionEdit.min
 							? true
-							: false ||
-							  !conditionEdit ||
-							  conditionEdit.type !== "courseQualification"
+							: false || !conditionEdit || conditionEdit.type !== "courseGrade"
 					}
 				/>
 				<Form.Control
@@ -37,7 +35,7 @@ function CourseQualificationForm(props) {
 					max="10"
 					defaultValue={
 						conditionEdit
-							? conditionEdit.type === "courseQualification"
+							? conditionEdit.type === "courseGrade"
 								? conditionEdit.min !== undefined
 									? conditionEdit.min
 									: 5
@@ -47,7 +45,7 @@ function CourseQualificationForm(props) {
 					disabled={
 						conditionEdit &&
 						!conditionEdit.min &&
-						conditionEdit.type === "courseQualification"
+						conditionEdit.type === "courseGrade"
 					}
 					onChange={checkInputs}
 				/>
@@ -82,4 +80,4 @@ function CourseQualificationForm(props) {
 	);
 }
 
-export default CourseQualificationForm;
+export default CourseGradeForm;

@@ -64,7 +64,7 @@ import { toast } from "react-toastify";
 import { useHotkeys } from "react-hotkeys-hook";
 import ContextualMenu from "@flow/ContextualMenu.js";
 import ConditionModal from "@conditions/ConditionModal.js";
-import GradeModal from "@conditions/GradeModal.js";
+import QualificationModal from "@conditions/QualificationModal.js";
 import { getTypeStaticColor } from "@utils/NodeIcons.js";
 import NodeSelector from "@dialogs/NodeSelector.js";
 import CriteriaModal from "@flow/badges/CriteriaModal.js";
@@ -1775,7 +1775,7 @@ const OverviewFlow = ({ map }, ref) => {
 			{showGradeConditionsModal && (
 				<>
 					{!validTypes.includes(cMBlockData.type) && (
-						<GradeModal
+						<QualificationModal
 							blockData={cMBlockData}
 							setBlockData={setCMBlockData}
 							blocksData={reactFlowInstance.getNodes()}

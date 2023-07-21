@@ -7,9 +7,9 @@ import { uniqueId } from "@utils/Utils";
 import { useReactFlow } from "reactflow";
 import { getGradable } from "@utils/TypeDefinitions";
 import { PlatformContext } from "pages/_app";
-import GradeForm from "@components/flow/conditions/form-components/GradeForm";
+import QualificationForm from "@components/flow/conditions/form-components/QualificationForm";
 
-function GradeModal({
+function QualificationModal({
 	blockData,
 	setBlockData,
 	blocksData,
@@ -48,11 +48,11 @@ function GradeModal({
 			</Modal.Header>
 			<Modal.Body>
 				{gradeConditionType}
-				<GradeForm />
+				<QualificationForm />
 			</Modal.Body>
 			<Modal.Footer></Modal.Footer>
 		</Modal>
 	);
 }
 
-export default GradeModal;
+export default QualificationModal;

@@ -13,7 +13,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { getParentsNode } from "@utils/Nodes";
 import ProfileForm from "./form-components/ProfileForm";
 import CompletionForm from "./form-components/CompletionForm";
-import QualificationForm from "./form-components/QualificationForm";
+import GradeForm from "./form-components/GradeForm";
 import DateForm from "./form-components/DateForm";
 import ConditionsGroupForm from "./form-components/ConditionsGroupForm";
 import GroupForm from "./form-components/GroupForm";
@@ -21,9 +21,9 @@ import GroupingForm from "./form-components/GroupingForm";
 import {
 	uniqueId,
 	searchConditionForTypes,
-	findCompletionAndQualification,
+	findCompletionAndGrade,
 } from "@utils/Utils";
-import CourseQualificationForm from "./form-components/CourseQualificationForm";
+import CourseGradeForm from "./form-components/CourseGradeForm";
 import { useReactFlow } from "reactflow";
 import { MetaDataContext } from "@root/pages/_app.js";
 
@@ -36,6 +36,7 @@ function ConditionModal({
 	setShowConditionsModal,
 }) {
 	const reactFlowInstance = useReactFlow();
+	const { metaData, setMetaData } = useContext(MetaDataContext);
 
 	const handleClose = () => {
 		setBlockData();
@@ -45,8 +46,6 @@ function ConditionModal({
 	const moodleGroups = metaData.groups;
 
 	const moodleGroupings = metaData.grupings;
-
-	const { metaData, setMetaData } = useContext(MetaDataContext);
 
 	const [editing, setEditing] = useState(undefined);
 	const [conditionEdit, setConditionEdit] = useState(undefined);
@@ -423,10 +422,7 @@ function ConditionModal({
 
 		const edges = reactFlowInstance.getEdges();
 
-		if (
-			foundCondition.type == "completion" ||
-			foundCondition.type == "qualification"
-		) {
+		if (foundCondition.type == "completion" || foundCondition.type == "grade") {
 			const edgesUpdated = edges.filter(
 				(edge) => edge.id === foundCondition.cm + "-" + blockData.id
 			);
@@ -440,14 +436,13 @@ function ConditionModal({
 				)
 			);
 		} else if (foundCondition.type == "conditionsGroup" && foundCondition.c) {
-			const targetTypes = ["qualification", "completion"];
+			const targetTypes = ["grade", "completion"];
 			const matchingObjects = [];
 
-			const completionsAndQualifications =
-				findCompletionAndQualification(foundCondition);
+			const completionsAndGrades = findCompletionAndGrade(foundCondition);
 
 			const filteredChildren = edges.filter((edge) =>
-				completionsAndQualifications.some(
+				completionsAndGrades.some(
 					(condition) => edge.id === condition.cm + "-" + blockData.id
 				)
 			);
@@ -487,7 +482,7 @@ function ConditionModal({
 				formData.t = conditionOperator.current.value;
 				formData.d = conditionQuery.current.value;
 				break;
-			case "qualification":
+			case "grade":
 				formData.cm = conditionOperator.current.value;
 
 				if (!conditionObjective.current.disabled) {
@@ -497,7 +492,7 @@ function ConditionModal({
 					formData.max = Number(conditionObjective2.current.value);
 				}
 				break;
-			case "courseQualification":
+			case "courseGrade":
 				formData.courseId = Number(metaData.course_id);
 
 				if (!conditionObjective.current.disabled) {
@@ -803,7 +798,7 @@ function ConditionModal({
 					(conditionEdit === undefined ||
 					(conditionEdit.type !== "conditionsGroup" &&
 						conditionEdit.type !== "completion" &&
-						conditionEdit.type !== "qualification") ? (
+						conditionEdit.type !== "grade") ? (
 						<>
 							<Form.Label htmlFor="condition-select">Precondición:</Form.Label>
 							<Form.Select
@@ -816,7 +811,7 @@ function ConditionModal({
 									Escoge un tipo de condición...
 								</option>
 								<option value="date">Fecha</option>
-								<option value="courseQualification">
+								<option value="courseGrade">
 									Calificación total del curso
 								</option>
 								{moodleGroups.length > 0 && (
@@ -835,7 +830,7 @@ function ConditionModal({
 				{editing &&
 					conditionEdit?.type &&
 					(conditionEdit.type == "completion" ||
-						conditionEdit.type == "qualification") && (
+						conditionEdit.type == "grade") && (
 						<>
 							<Form.Label htmlFor="condition-select">Precondición:</Form.Label>
 							<Form.Select
@@ -845,7 +840,7 @@ function ConditionModal({
 								required
 							>
 								<option value="completion">Finalización</option>
-								<option value="qualification">Calificación</option>
+								<option value="grade">Calificación</option>
 							</Form.Select>
 							<hr />
 						</>
@@ -859,8 +854,8 @@ function ConditionModal({
 						handleDateChange={handleDateChange}
 					/>
 				)}
-				{editing && selectedOption === "qualification" && (
-					<QualificationForm
+				{editing && selectedOption === "grade" && (
+					<GradeForm
 						conditionOperator={conditionOperator}
 						conditionQuery={conditionQuery}
 						conditionObjective={conditionObjective}
@@ -871,8 +866,8 @@ function ConditionModal({
 					/>
 				)}
 
-				{editing && selectedOption === "courseQualification" && (
-					<CourseQualificationForm
+				{editing && selectedOption === "courseGrade" && (
+					<CourseGradeForm
 						conditionOperator={conditionOperator}
 						conditionQuery={conditionQuery}
 						conditionObjective={conditionObjective}

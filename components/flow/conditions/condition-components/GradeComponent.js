@@ -1,6 +1,7 @@
 import React from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useReactFlow } from "reactflow";
 import {
 	faArrowDown,
 	faArrowUp,
@@ -10,7 +11,7 @@ import {
 	faTrashCan,
 } from "@fortawesome/free-solid-svg-icons";
 
-function CourseQualificationComponent({
+function GradeComponent({
 	condition,
 	conditionsList,
 	setConditionEdit,
@@ -19,6 +20,10 @@ function CourseQualificationComponent({
 	deleteCondition,
 	swapConditionParam,
 }) {
+	const reactFlowInstance = useReactFlow();
+	const nodes = reactFlowInstance.getNodes();
+
+	const node = nodes.find((node) => node.id === condition.cm);
 	const mainCondition = conditionsList.c.some((c) => c.id === condition.id);
 
 	return (
@@ -44,34 +49,37 @@ function CourseQualificationComponent({
 					</Col>
 				)}
 				<Col style={{ width: "531px", flex: "0 0 auto" }}>
-					<div>Tipo: Calificación total del curso</div>
+					<div>Tipo: Calificación</div>
 					<div>
 						{condition.min && !condition.max && (
 							<div>
-								La puntuación <strong>total del curso</strong> debe ser{" "}
+								La puntuación debe ser{" "}
 								<strong>
 									{">="} {condition.min}
-								</strong>
+								</strong>{" "}
+								en <strong>{node.data.label}</strong>
 							</div>
 						)}
 						{!condition.min && condition.max && (
 							<div>
-								La puntuación <strong>total del curso</strong> debe ser{" "}
+								La puntuación debe ser{" "}
 								<strong>
 									{"<"} {condition.max}
-								</strong>
+								</strong>{" "}
+								en <strong>{node.data.label}</strong>
 							</div>
 						)}
 						{condition.min && condition.max && (
 							<div>
-								La puntuación <strong>total del curso</strong> debe ser{" "}
+								La puntuación debe ser{" "}
 								<strong>
 									{">="} {condition.min}
 								</strong>{" "}
 								y{" "}
 								<strong>
 									{"<"} {condition.max}
-								</strong>
+								</strong>{" "}
+								en <strong>{node.data.label}</strong>
 							</div>
 						)}
 					</div>
@@ -87,7 +95,7 @@ function CourseQualificationComponent({
 							<FontAwesomeIcon icon={faTrashCan} />
 						</div>
 					</Button>
-					{conditionsList.c.length > 1 && (
+					{conditionsList.c.length >= 1 && (
 						<>
 							<Button variant="light" onClick={() => upCondition(condition)}>
 								<div>
@@ -107,4 +115,4 @@ function CourseQualificationComponent({
 	);
 }
 
-export default CourseQualificationComponent;
+export default GradeComponent;

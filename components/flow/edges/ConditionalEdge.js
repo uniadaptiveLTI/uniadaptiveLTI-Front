@@ -51,7 +51,7 @@ const ConditionalEdge = ({
 
 	const getReadableCondition = (condition) => {
 		switch (condition.type) {
-			case "qualification":
+			case "grade":
 				if (condition.min && condition.max) {
 					return `>= ${condition.min} y < ${condition.max} `;
 				} else {

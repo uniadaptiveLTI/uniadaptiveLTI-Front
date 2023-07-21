@@ -1,29 +1,91 @@
-import { useId } from "react";
+import React from "react";
 import { Form } from "react-bootstrap";
 
-export default function GradeForm() {
-	const qcid = useId();
-	const qsid = useId();
-	const mtid = useId();
-	const qmid = useId();
+function GradeForm(props) {
+	const {
+		conditionOperator,
+		conditionQuery,
+		conditionObjective,
+		conditionObjective2,
+		conditionEdit,
+		parentsNodeArray,
+		checkInputs,
+	} = props;
+
 	return (
-		<Form>
-			<div className="d-flex align-items-center">
-				<Form.Label htmlFor={qcid}>Categoría de calificaciones</Form.Label>
-				<Form.Select id={qcid}></Form.Select>
+		<Form.Group className="d-flex flex-column gap-2 m-4 me-0">
+			<Form.Control
+				ref={conditionOperator}
+				defaultValue={conditionEdit?.cm}
+				type="text"
+				hidden
+			/>
+			<div className="d-flex align-items-baseline col-12 col-lg-5 col-xl-3">
+				<Form.Check
+					id="objectiveCheckbox"
+					type="checkbox"
+					label="Debe ser >="
+					className="me-4"
+					style={{ minWidth: "125px" }}
+					onChange={checkInputs}
+					defaultChecked={
+						conditionEdit && conditionEdit.min
+							? true
+							: false || !conditionEdit || conditionEdit.type !== "grade"
+					}
+				/>
+
+				<Form.Control
+					ref={conditionObjective}
+					type="number"
+					min="0"
+					max="10"
+					defaultValue={
+						conditionEdit
+							? conditionEdit.type === "grade"
+								? conditionEdit.min !== undefined
+									? conditionEdit.min
+									: 5
+								: 5
+							: 5
+					}
+					disabled={
+						conditionEdit &&
+						!conditionEdit.min &&
+						conditionEdit.type === "grade"
+					}
+					onChange={checkInputs}
+				/>
 			</div>
-			<div className="d-flex align-items-center">
-				<Form.Label htmlFor={qsid}>Calificación para aprobar</Form.Label>
-				<Form.Control id={qsid}></Form.Control>
+			<div className="d-flex align-items-baseline col-12 col-lg-5 col-xl-3">
+				<Form.Check
+					id="objective2Checkbox"
+					type="checkbox"
+					label="Debe ser <"
+					className="me-4"
+					style={{ minWidth: "125px" }}
+					defaultChecked={
+						conditionEdit && conditionEdit.max ? true : false || false
+					}
+					onChange={checkInputs}
+				/>
+
+				<Form.Control
+					ref={conditionObjective2}
+					type="number"
+					min="0"
+					max="10"
+					defaultValue={
+						conditionEdit && conditionEdit.max !== undefined
+							? conditionEdit.max
+							: 5
+					}
+					disabled={!conditionEdit || !conditionEdit.max}
+					onChange={checkInputs}
+				/>
 			</div>
-			<div className="d-flex align-items-center">
-				<Form.Label htmlFor={mtid}>Intentos permitidos</Form.Label>
-				<Form.Control id={mtid}></Form.Control>
-			</div>
-			<div className="d-flex align-items-center">
-				<Form.Label htmlFor={qmid}>Método de calificación</Form.Label>
-				<Form.Control id={qmid}></Form.Control>
-			</div>
-		</Form>
+		</Form.Group>
 	);
 }
+
+export default GradeForm;

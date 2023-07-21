@@ -8,14 +8,14 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
 import { Button, Col, Container, Row } from "react-bootstrap";
 import DateComponent from "./condition-components/DateComponent";
-import QualificationComponent from "./condition-components/QualificationComponent";
+import GradeComponent from "./condition-components/GradeComponent";
 import CompletionComponent from "./condition-components/CompletionComponent";
 import GroupComponent from "./condition-components/GroupComponent";
 import GroupingComponent from "./condition-components/GroupingComponent";
 import ProfileComponent from "./condition-components/ProfileComponent";
 import ConditionsGroupComponent from "./condition-components/ConditionsGroupComponent";
-import CourseQualificationForm from "./form-components/CourseQualificationForm";
-import CourseQualificationComponent from "./condition-components/CourseQualificationComponent";
+import CourseGradeForm from "./form-components/CourseGradeForm";
+import CourseGradeComponent from "./condition-components/CourseGradeComponent";
 
 function Condition({
 	condition,
@@ -49,9 +49,9 @@ function Condition({
 					swapConditionParam={swapConditionParam}
 				/>
 			);
-		case "qualification":
+		case "grade":
 			return (
-				<QualificationComponent
+				<GradeComponent
 					condition={condition}
 					conditionsList={conditionsList}
 					setConditionEdit={setConditionEdit}
@@ -61,9 +61,9 @@ function Condition({
 					swapConditionParam={swapConditionParam}
 				/>
 			);
-		case "courseQualification":
+		case "courseGrade":
 			return (
-				<CourseQualificationComponent
+				<CourseGradeComponent
 					condition={condition}
 					conditionsList={conditionsList}
 					setConditionEdit={setConditionEdit}
