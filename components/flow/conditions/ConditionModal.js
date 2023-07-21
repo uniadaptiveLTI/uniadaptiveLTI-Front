@@ -514,7 +514,7 @@ function ConditionModal({
 				}
 				break;
 			case "courseQualification":
-				formData.courseId = metaData.course_id;
+				formData.courseId = Number(metaData.course_id);
 
 				if (!conditionObjective.current.disabled) {
 					formData.min = Number(conditionObjective.current.value);
@@ -525,7 +525,7 @@ function ConditionModal({
 				break;
 			case "completion":
 				formData.cm = conditionOperator.current.value;
-				formData.e = conditionQuery.current.value;
+				formData.e = Number(conditionQuery.current.value);
 				break;
 			case "group":
 				formData.groupId = Number(conditionOperator.current.value);
