@@ -30,10 +30,10 @@ function Condition({
 	moodleGroupings,
 }) {
 	const completionQueryList = [
-		{ id: "1", name: "debe estar completa" },
-		{ id: "0", name: "no debe estar completa" },
-		{ id: "2", name: "debe estar completa y aprobada" },
-		{ id: "3", name: "debe estar completa y suspendida" },
+		{ id: 1, name: "debe estar completa" },
+		{ id: 0, name: "no debe estar completa" },
+		{ id: 2, name: "debe estar completa y aprobada" },
+		{ id: 3, name: "debe estar completa y suspendida" },
 	];
 
 	switch (condition.type) {
