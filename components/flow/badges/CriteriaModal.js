@@ -370,8 +370,6 @@ function ConditionModal({
 
 		formData.op = conditionOperator.current.value;
 
-		console.log(formData);
-
 		switch (selectedOption) {
 			case "role":
 				formData.roleList = checkboxValues;
@@ -402,7 +400,7 @@ function ConditionModal({
 				break;
 		}
 
-		console.log(formData);
+		const updatedBlockData = deepCopy(blockData);
 
 		if (edition) {
 			const updatedBlockData = {
@@ -428,17 +426,28 @@ function ConditionModal({
 			console.log(updatedBlockData);
 			setBlockData(updatedBlockData);
 		} else {
-			const updatedBlockData = {
-				...blockData,
-				data: {
-					...blockData.data,
-					c: {
-						...blockData.data.c,
-						c: [...blockData.data.c.c, formData],
-					},
-				},
+			const updatedCondition = {
+				...editing,
+				c: editing.c ? [...editing.c, formData] : [formData],
 			};
-			setBlockData(updatedBlockData);
+
+			if (!updatedBlockData.data.c) {
+				updatedBlockData.data.c = updatedCondition;
+				setBlockData(updatedBlockData);
+			} else {
+				const updatedBlockData = {
+					...blockData,
+					data: {
+						...blockData.data,
+						c: {
+							...blockData.data.c,
+							c: [...blockData.data.c.c, formData],
+						},
+					},
+				};
+
+				setBlockData(updatedBlockData);
+			}
 		}
 
 		console.log(formData);
@@ -449,8 +458,12 @@ function ConditionModal({
 	};
 
 	const shouldRenderOption = (type) => {
-		const conditions = blockData.data.c.c;
-		return !conditions.some((condition) => condition.type === type);
+		const conditions = blockData.data.c?.c;
+		if (conditions) {
+			return !conditions.some((condition) => condition.type === type);
+		} else {
+			return true;
+		}
 	};
 
 	const allTypesUsed = () => {

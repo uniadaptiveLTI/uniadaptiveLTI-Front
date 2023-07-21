@@ -465,18 +465,46 @@ const OverviewFlow = ({ map }, ref) => {
 							targetNode.data.c.c.push(newCondition);
 						}
 					} else {
-						const conditions = targetNode.data.c.c;
-
-						const conditionExists = conditions.find(
-							(condition) => condition.type === "completion"
-						);
-
-						if (conditionExists) {
-							const newConditionAppend = {
-								id: sourceNode.id,
-								name: sourceNode.data.label,
+						if (!targetNode.data.c) {
+							targetNode.data.c = {
+								type: "conditionsGroup",
+								id: parseInt(Date.now() * Math.random()).toString(),
+								op: "&",
+								showc: true,
 							};
-							conditionExists.activityList.push(newConditionAppend);
+						}
+
+						console.log(targetNode.data);
+
+						const conditions = targetNode.data.c?.c;
+
+						if (conditions) {
+							const conditionExists = conditions.find(
+								(condition) => condition.type === "completion"
+							);
+
+							if (conditionExists) {
+								const newConditionAppend = {
+									id: sourceNode.id,
+									name: sourceNode.data.label,
+								};
+								conditionExists.activityList.push(newConditionAppend);
+							} else {
+								const newCondition = {
+									id: parseInt(Date.now() * Math.random()).toString(),
+									type: "completion",
+									activityList: [
+										{
+											id: sourceNode.id,
+											name: sourceNode.data.label,
+										},
+									],
+									op: "&",
+									query: "completed",
+								};
+
+								targetNode.data.c.c.push(newCondition);
+							}
 						} else {
 							const newCondition = {
 								id: parseInt(Date.now() * Math.random()).toString(),
@@ -491,16 +519,7 @@ const OverviewFlow = ({ map }, ref) => {
 								query: "completed",
 							};
 
-							if (!targetNode.data.c) {
-								targetNode.data.c = {
-									type: "conditionsGroup",
-									id: parseInt(Date.now() * Math.random()).toString(),
-									op: "&",
-									c: [newCondition],
-								};
-							} else {
-								targetNode.data.c.c.push(newCondition);
-							}
+							targetNode.data.c.c = [newCondition];
 						}
 					}
 				}
