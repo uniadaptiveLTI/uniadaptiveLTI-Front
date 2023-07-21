@@ -63,13 +63,13 @@ const ConditionalEdge = ({
 				}
 			case "completion":
 				switch (condition.e) {
-					case "0":
+					case 0:
 						return `Sin completar`;
-					case "1":
+					case 1:
 						return `Completado`;
-					case "2":
+					case 2:
 						return `Aprobado`;
-					case "3":
+					case 3:
 						return `Suspendido`;
 				}
 				break;

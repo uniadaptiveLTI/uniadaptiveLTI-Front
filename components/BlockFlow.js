@@ -450,7 +450,7 @@ const OverviewFlow = ({ map }, ref) => {
 							type: "completion",
 							cm: sourceNode.id,
 							showc: true,
-							e: "1",
+							e: 1,
 						};
 
 						if (!targetNode.data.c) {
