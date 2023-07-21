@@ -265,7 +265,8 @@ export default function ExportPanel({
 				condition.id = condition.cm;
 				if (condition.min) delete condition.cm;
 				break;
-			case "courseQualification":
+			case "courseGrade":
+				condition.type = "grade";
 				condition.id = condition.courseId;
 				delete condition.courseId;
 				break;
