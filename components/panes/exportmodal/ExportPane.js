@@ -122,7 +122,6 @@ export default function ExportPanel({
 			delete node.data.lmsResource;
 			const data = node.data;
 			if (data.c) {
-				specifyConditionType(data.c);
 				const finalshowc = [];
 				if (data.c.op == "&") {
 					delete data.c.showc;
@@ -145,7 +144,8 @@ export default function ExportPanel({
 					delete data.c.id;
 					delete data.c.showc;
 				}
-				deleteRecursiveId(data.c);
+				specifyRecursiveConditionType(data.c);
+				//deleteRecursiveId(data.c);
 				deleteRecursiveNull(data.c);
 			}
 			delete node.data;
@@ -254,40 +254,40 @@ export default function ExportPanel({
 		}
 	}
 
-	function specifyConditionType(condition) {
+	function specifyRecursiveConditionType(condition) {
 		let type = "";
 		if (condition.hasOwnProperty("type")) {
 			type = condition.type;
-			delete condition.type;
 		}
-
-		condition.id = Number(condition.id);
 
 		switch (type) {
 			case "grade":
-				condition.id = Number(condition.cm);
-				delete condition.cm;
+				condition.id = condition.cm;
+				if (condition.min) delete condition.cm;
 				break;
 			case "courseQualification":
-				condition.id = Number(condition.courseId);
+				condition.id = condition.courseId;
 				delete condition.courseId;
 				break;
 			case "group":
-				condition.id = Number(condition.groupId);
+				if (condition.groupId) {
+					condition.id = condition.groupId;
+				} else {
+					delete condition.id;
+				}
 				delete condition.groupId;
 				break;
 			case "grouping":
-				condition.id = Number(condition.groupingId);
+				condition.id = condition.groupingId;
 				delete condition.groupingId;
 				break;
 			default:
+				delete condition.id;
+				break;
 		}
 
-		if (
-			condition.hasOwnProperty("conditions") &&
-			Array.isArray(condition.conditions)
-		) {
-			condition.conditions.forEach(specifyConditionType);
+		if (condition.hasOwnProperty("c") && Array.isArray(condition.c)) {
+			condition.c.forEach(specifyRecursiveConditionType);
 		}
 	}
 

@@ -226,6 +226,11 @@ export const NodeTypes = [
 	},
 ];
 
+/**
+ * Reorders the IDs of an array of objects.
+ * @param {Array<Object>} array - The array of objects to reorder the IDs of.
+ * @returns {Array<Object>} A new array with the IDs of the objects reordered.
+ */
 const reorderIds = (array) => {
 	const unsortedArray = [];
 	for (const [index, entry] of array.entries()) {
@@ -235,6 +240,10 @@ const reorderIds = (array) => {
 	return newArray;
 };
 
+/**
+ * Gets an array of objects representing block flow types.
+ * @returns {Array<Object>} An array of objects representing block flow types.
+ */
 export const getBlockFlowTypes = () => {
 	return NodeTypes.flatMap((node) => {
 		const type = node.type;
@@ -243,18 +252,35 @@ export const getBlockFlowTypes = () => {
 	});
 };
 
+/**
+ * Gets an array of Moodle types, with their IDs reordered.
+ * @returns {Array<Object>} An array of Moodle types, with their IDs reordered.
+ */
 export const getMoodleTypes = () => {
 	return reorderIds(NodeTypes.filter((type) => type.lms.includes("moodle")));
 };
 
+/**
+ * Gets an array of Sakai types, with their IDs reordered.
+ * @returns {Array<Object>} An array of Sakai types, with their IDs reordered.
+ */
 export const getSakaiTypes = () => {
 	return reorderIds(NodeTypes.filter((type) => type.lms.includes("sakai")));
 };
 
+/**
+ * Gets an array of LTI types, with their IDs reordered.
+ * @returns {Array<Object>} An array of LTI types, with their IDs reordered.
+ */
 export const getLTITypes = () => {
 	return reorderIds(NodeTypes.filter((type) => type.lms.includes("lti")));
 };
 
+/**
+ * Gets an array of gradable objects for a given platform.
+ * @param {string} platform - The platform to get an array of gradable objects for.
+ * @returns {Array<Object>} An array of gradable objects for the given platform.
+ */
 export const getGradable = (platform) => {
 	return NodeTypes.filter((declaration) => {
 		if (declaration.gradable.length > 0) {
@@ -267,6 +293,11 @@ export const getGradable = (platform) => {
 	});
 };
 
+/**
+ * Gets an array of gradable types for a given platform.
+ * @param {string} platform - The platform to get an array of gradable types for.
+ * @returns {Array<string>} An array of gradable types for the given platform.
+ */
 export const getGradableTypes = (platform) => {
 	return getGradable(platform).map((declaration) => declaration.type);
 };

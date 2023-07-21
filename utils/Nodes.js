@@ -290,3 +290,34 @@ export function reorderFromSection(
 		return [];
 	}
 }
+
+/**
+ * Gets the number of independent conditions in a node.
+ * @param {Object} node - The node to get the number of independent conditions from.
+ * @returns {number} The number of independent conditions in the node.
+ */
+export function getNumberOfIndependentConditions(node) {
+	const recursiveTypeGet = (c, array = []) => {
+		if (c.c) {
+			c.c.forEach((condition) => {
+				if (condition.type != "conditionsGroup") {
+					if (
+						condition.type != "completion" &&
+						condition.type != "qualification"
+					) {
+						array.push(condition.type);
+					}
+				} else {
+					if (condition.c) {
+						array.push(...recursiveTypeGet(condition, array));
+					}
+				}
+			});
+		}
+		return array;
+	};
+	if (node.data.c) {
+		return recursiveTypeGet(node.data.c).length;
+	}
+	return 0;
+}

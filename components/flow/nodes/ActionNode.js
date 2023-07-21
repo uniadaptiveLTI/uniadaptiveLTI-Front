@@ -1,5 +1,11 @@
 import { useCallback, useContext, useState } from "react";
-import { Handle, Position, NodeToolbar, useReactFlow } from "reactflow";
+import {
+	Handle,
+	Position,
+	NodeToolbar,
+	useReactFlow,
+	useNodes,
+} from "reactflow";
 import styles from "@root/styles/BlockContainer.module.css";
 import {
 	NodeInfoContext,
@@ -14,15 +20,17 @@ import {
 	faEdit,
 	faRightFromBracket,
 	faExclamation,
+	faPlus,
 } from "@fortawesome/free-solid-svg-icons";
 import FocusTrap from "focus-trap-react";
 import { Button, Badge } from "react-bootstrap";
 import { getTypeIcon } from "@utils/NodeIcons";
 import { getUpdatedArrayById, parseBool } from "@utils/Utils";
-import { getNodeById } from "@utils/Nodes";
+import { getNodeById, getNumberOfIndependentConditions } from "@utils/Nodes";
 import { DevModeStatusContext } from "pages/_app";
 import { NodeTypes } from "@utils/TypeDefinitions";
 import SimpleConditions from "../conditions/SimpleConditions";
+import { useEffect } from "react";
 
 const getHumanDesc = (type) => {
 	const node = NodeTypes.find((node) => node.type == type);
@@ -72,6 +80,11 @@ function ActionNode({ id, type, data, selected, dragging, isConnectable }) {
 	const parsedSettings = JSON.parse(settings);
 	const { highContrast, reducedAnimations } = parsedSettings;
 	const { platform } = useContext(PlatformContext);
+	const rfNodes = useNodes();
+
+	const [hasExtraConditions, setHasExtraConditions] = useState(
+		getNumberOfIndependentConditions(getNodeById(id, rfNodes)) > 0
+	);
 
 	const handleEdit = () => {
 		const blockData = getNodeById(id, reactFlowInstance.getNodes());
@@ -106,6 +119,12 @@ function ActionNode({ id, type, data, selected, dragging, isConnectable }) {
 			])
 		);
 	};
+
+	useEffect(() => {
+		setHasExtraConditions(
+			getNumberOfIndependentConditions(getNodeById(id, rfNodes)) > 0
+		);
+	}, [JSON.stringify(data?.c)]);
 
 	return (
 		<>
@@ -166,6 +185,25 @@ function ActionNode({ id, type, data, selected, dragging, isConnectable }) {
 				<span className={styles.blockInfo + " " + styles.bottom}>
 					{getHumanDesc(type)}
 				</span>
+				{hasExtraConditions && (
+					<Badge
+						bg="success"
+						className={
+							styles.badge +
+							" " +
+							styles.badgeConditions +
+							" " +
+							(reducedAnimations && styles.noAnimation) +
+							" " +
+							styles.showBadges +
+							" " +
+							(highContrast && styles.highContrast)
+						}
+						title="Contiene condiciones independientes"
+					>
+						{<FontAwesomeIcon icon={faPlus} style={{ color: "#ffffff" }} />}
+					</Badge>
+				)}
 				{!data.lmsResource && (
 					<Badge
 						bg="danger"

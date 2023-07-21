@@ -297,10 +297,19 @@ const OverviewFlow = ({ map }, ref) => {
 		);
 	};
 
+	/**
+	 * Logs the ReactFlow instance when it is loaded.
+	 * @param {ReactFlowInstance} reactFlowInstance - The ReactFlow instance.
+	 */
 	const onInit = (reactFlowInstance) => {
 		console.log("Blockflow loaded:", reactFlowInstance);
 	};
 
+	/**
+	 * Handles the start of a node drag event.
+	 * @param {Event} event - The drag event.
+	 * @param {Node} node - The node being dragged.
+	 */
 	const onNodeDragStart = (event, node) => {
 		setShowContextualMenu(false);
 		dragRef.current = node;
@@ -324,6 +333,11 @@ const OverviewFlow = ({ map }, ref) => {
 		}
 	};
 
+	/**
+	 * Handles a node drag event.
+	 * @param {Event} event - The drag event.
+	 * @param {Node} node - The node being dragged.
+	 */
 	const onNodeDrag = (event, node) => {
 		const centerX = node.position.x + node.width / 2;
 		const centerY = node.position.y + node.height / 2;
@@ -340,12 +354,27 @@ const OverviewFlow = ({ map }, ref) => {
 		setTarget(targetNode);
 	};
 
+	/**
+	 * Handles the start of a selection drag event.
+	 * @param {Event} event - The drag event.
+	 * @param {Node[]} nodes - The nodes being dragged.
+	 */
 	const onSelectionDragStart = (event, nodes) => {
 		setShowContextualMenu(false);
 	};
 
+	/**
+	 * Handles the end of a selection drag event.
+	 * @param {Event} event - The drag event.
+	 * @param {Node[]} nodes - The nodes being dragged.
+	 */
 	const onSelectionDragStop = (event, nodes) => {};
 
+	/**
+	 * Handles the end of a node drag event.
+	 * @param {Event} event - The drag event.
+	 * @param {Node} node - The node being dragged.
+	 */
 	const onNodeDragStop = (event, node) => {
 		node.dragging = false;
 		reactFlowInstance.setNodes(
@@ -394,6 +423,9 @@ const OverviewFlow = ({ map }, ref) => {
 		setSnapToGrid(true);
 	};
 
+	/**
+	 * Handles a pane click event.
+	 */
 	const onPaneClick = () => {
 		if (autoHideAside) {
 			setExpandedAside(false);
@@ -401,6 +433,11 @@ const OverviewFlow = ({ map }, ref) => {
 		setSnapToGrid(true);
 	};
 
+	/**
+	 * Handles a node click event.
+	 * @param {Event} e - The click event.
+	 * @param {Node} node - The clicked node.
+	 */
 	const onNodeClick = (e, node) => {
 		if (node.type == "start" || node.type == "end") {
 			reactFlowInstance.setNodes(
@@ -413,6 +450,10 @@ const OverviewFlow = ({ map }, ref) => {
 		setSnapToGrid(true);
 	};
 
+	/**
+	 * Handles a connect event.
+	 * @param {Event} event - The connect event.
+	 */
 	const onConnect = (event) => {
 		const sourceNodeId = event.source.split("__")[0];
 		const targetNodeId = event.target.split("__")[0];
@@ -551,12 +592,22 @@ const OverviewFlow = ({ map }, ref) => {
 		setEdges(newInitialEdges);
 	}, [newInitialNodes, newInitialEdges]);
 
+	/**
+	 * Handles the deletion of nodes.
+	 * @param {Node[]} nodes - The nodes being deleted.
+	 */
 	const onNodesDelete = (nodes) => {
 		console.log(nodes);
 		setNodeSelected();
 		deleteBlocks(nodes);
 	};
 
+	/**
+	 * Deletes a condition by its ID.
+	 * @param {Condition[]} conditions - The conditions to search through.
+	 * @param {string} op - The ID of the condition to delete.
+	 * @returns {boolean} Whether or not the condition was deleted.
+	 */
 	function deleteConditionById(conditions, op) {
 		if (conditions) {
 			for (let i = 0; i < conditions.length; i++) {
@@ -582,6 +633,10 @@ const OverviewFlow = ({ map }, ref) => {
 		}
 	}
 
+	/**
+	 * Handles the deletion of edges.
+	 * @param {Edge[]} edges - The edges being deleted.
+	 */
 	const onEdgesDelete = (edges) => {
 		for (let i = 0; i < edges.length; i++) {
 			var blockNodeSource = reactFlowInstance
@@ -644,6 +699,9 @@ const OverviewFlow = ({ map }, ref) => {
 		}
 	}, [deletedEdge]);
 
+	/**
+	 * Handles the loading of the map.
+	 */
 	const onLoad = () => {
 		if (map != prevMap) {
 			reactFlowInstance.fitView(fitViewOptions);
@@ -729,6 +787,11 @@ const OverviewFlow = ({ map }, ref) => {
 		  })
 		: edges;
 
+	/**
+	 * Handles a node context menu event.
+	 * @param {Event} e - The context menu event.
+	 * @param {Node} node - The node for which the context menu is being opened.
+	 */
 	const onNodeContextMenu = (e, node) => {
 		setShowContextualMenu(false);
 		setCMContainsReservedNodes(false);
@@ -757,6 +820,10 @@ const OverviewFlow = ({ map }, ref) => {
 		setShowContextualMenu(true);
 	};
 
+	/**
+	 * Handles a pane context menu event.
+	 * @param {Event} e - The context menu event.
+	 */
 	const onPaneContextMenu = (e) => {
 		setShowContextualMenu(false);
 		setCMContainsReservedNodes(false);
@@ -770,6 +837,10 @@ const OverviewFlow = ({ map }, ref) => {
 		setShowContextualMenu(true);
 	};
 
+	/**
+	 * Handles a selection context menu event.
+	 * @param {Event} e - The context menu event.
+	 */
 	const onSelectionContextMenu = (e) => {
 		setShowContextualMenu(false);
 		setCMContainsReservedNodes(false);
@@ -794,6 +865,10 @@ const OverviewFlow = ({ map }, ref) => {
 		}
 	}, [errorList]);
 
+	/**
+	 * Deletes blocks and updates their parents and children.
+	 * @param {Node[]} blocks - The blocks to delete.
+	 */
 	const deleteBlocks = (blocks) => {
 		// Array of blocks that its children or conditions are being updated
 		var updatedBlocks = [];
@@ -974,6 +1049,12 @@ const OverviewFlow = ({ map }, ref) => {
 		});
 	};
 
+	/**
+	 * Adds the children of a fragment to an array.
+	 * @param {Node} fragment - The fragment whose children should be added.
+	 * @param {Node[]} arr - The array to which the children should be added.
+	 * @returns {Node[]} The updated array with the children added.
+	 */
 	const addFragmentChildrenFromFragment = (fragment, arr) => {
 		const parentNode = fragment.id;
 		const fragmentChildren = reactFlowInstance
@@ -1005,6 +1086,10 @@ const OverviewFlow = ({ map }, ref) => {
 			}
 	}, [cMBlockData]);
 
+	/**
+	 * Handles the copying of nodes.
+	 * @param {Node[]} [blockData=[]] - The nodes to copy.
+	 */
 	const handleNodeCopy = (blockData = []) => {
 		setShowContextualMenu(false);
 
@@ -1067,6 +1152,9 @@ const OverviewFlow = ({ map }, ref) => {
 		}
 	};
 
+	/**
+	 * Handles the pasting of nodes.
+	 */
 	const handleNodePaste = () => {
 		const clipboardData = JSON.parse(localStorage.getItem("clipboard"));
 		console.log(clipboardData);
@@ -1129,6 +1217,10 @@ const OverviewFlow = ({ map }, ref) => {
 		}
 	};
 
+	/**
+	 * Handles the cutting of nodes.
+	 * @param {Node[]} [blockData=[]] - The nodes to cut.
+	 */
 	const handleNodeCut = (blockData = []) => {
 		const selectedNodes = reactFlowInstance
 			.getNodes()
@@ -1144,6 +1236,11 @@ const OverviewFlow = ({ map }, ref) => {
 		}
 	};
 
+	/**
+	 * Creates a new block.
+	 * @param {Node} [blockData] - The data for the new block.
+	 * @returns {Node[]} The updated array of nodes with the new block added.
+	 */
 	const createBlock = (blockData) => {
 		//TODO: Block selector
 		const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
@@ -1261,6 +1358,10 @@ const OverviewFlow = ({ map }, ref) => {
 		}
 	};
 
+	/**
+	 * Creates multiple new blocks.
+	 * @param {Node[]} clipboardData - The data for the new blocks.
+	 */
 	const createBlockBulk = (clipboardData) => {
 		const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
 
@@ -1291,6 +1392,9 @@ const OverviewFlow = ({ map }, ref) => {
 		reactFlowInstance.setNodes(newcurrentBlocksData);
 	};
 
+	/**
+	 * Handles the creation of a new fragment.
+	 */
 	const handleFragmentCreation = () => {
 		const selectedNodes = reactFlowInstance
 			.getNodes()
@@ -1398,12 +1502,19 @@ const OverviewFlow = ({ map }, ref) => {
 		}
 	};
 
+	/**
+	 * Handles the deletion of a single node.
+	 * @param {Node} blockData - The node to delete.
+	 */
 	const handleNodeDeletion = (blockData) => {
 		setShowContextualMenu(false);
 		setNodeSelected();
 		deleteBlocks([blockData]);
 	};
 
+	/**
+	 * Handles the deletion of multiple selected nodes.
+	 */
 	const handleNodeSelectionDeletion = () => {
 		setShowContextualMenu(false);
 		const selectedNodes = document.querySelectorAll(
@@ -1418,6 +1529,11 @@ const OverviewFlow = ({ map }, ref) => {
 		deleteBlocks(clipboardData);
 	};
 
+	/**
+	 * Handles the creation of a new relation between two nodes.
+	 * @param {Node} origin - The origin node of the relation.
+	 * @param {Node} end - The end node of the relation.
+	 */
 	const handleNewRelation = (origin, end) => {
 		setShowContextualMenu(false);
 
@@ -1550,6 +1666,10 @@ const OverviewFlow = ({ map }, ref) => {
 		}
 	};
 
+	/**
+	 * Handles the showing of a modal.
+	 * @param {string} modal - The modal to show.
+	 */
 	const handleShow = (modal) => {
 		const selectedNodes = reactFlowInstance
 			.getNodes()
@@ -1580,6 +1700,10 @@ const OverviewFlow = ({ map }, ref) => {
 		}
 	};
 
+	/**
+	 * Handles the showing of the node selector.
+	 * @param {string} type - The type of node selector to show.
+	 */
 	const handleShowNodeSelector = (type) => {
 		setShowContextualMenu(false);
 		setNodeSelectorType(type);
@@ -1695,7 +1819,7 @@ const OverviewFlow = ({ map }, ref) => {
 				proOptions={{ hideAttribution: true }}
 				nodeTypes={nodeTypes}
 				edgeTypes={edgeTypes}
-				snapGrid={[125, 175]}
+				snapGrid={[125, 275]} //175
 				//connectionLineComponent={}
 				snapToGrid={snapToGrid}
 				deleteKeyCode={["Backspace", "Delete"]}

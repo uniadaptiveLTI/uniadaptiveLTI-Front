@@ -661,7 +661,9 @@ function Header({ LTISettings }, ref) {
 						} else {
 							//FIXME: Load map "shell"
 							setLoadedMaps(false);
-							fetch(`http://${LTISettings.back_url}/lti/get_session`)
+							fetch(
+								`${getHTTPPrefix()}://${LTISettings.back_url}/lti/get_session`
+							)
 								.then((response) => response.json())
 								.then((data) => {
 									const maps = [emptyMap, ...data[2].maps];
@@ -723,7 +725,9 @@ function Header({ LTISettings }, ref) {
 						} else {
 							//FIXME: Load map "shell"
 							setLoadedMaps(false);
-							fetch(`http://${LTISettings.back_url}/lti/get_session`)
+							fetch(
+								`${getHTTPPrefix()}://${LTISettings.back_url}/lti/get_session`
+							)
 								.then((response) => response.json())
 								.then((data) => {
 									const maps = [emptyMap, ...data[2].maps];
@@ -870,7 +874,7 @@ function Header({ LTISettings }, ref) {
 						throw error;
 					});
 			} else {
-				fetch(`http://${LTISettings.back_url}/lti/get_session`)
+				fetch(`${getHTTPPrefix()}://${LTISettings.back_url}/lti/get_session`)
 					.then((response) => response.json())
 					.then((data) => {
 						console.log("DATOS DEL LMS: ", data);

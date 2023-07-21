@@ -16,6 +16,7 @@ import {
 	faEyeSlash,
 	faExclamation,
 	faExclamationTriangle,
+	faPlus,
 } from "@fortawesome/free-solid-svg-icons";
 import {
 	NodeInfoContext,
@@ -29,7 +30,7 @@ import {
 import FocusTrap from "focus-trap-react";
 import { getTypeIcon } from "@utils/NodeIcons";
 import { getUpdatedArrayById, parseBool } from "@utils/Utils";
-import { getNodeById } from "@utils/Nodes";
+import { getNodeById, getNumberOfIndependentConditions } from "@utils/Nodes";
 import { useState } from "react";
 import { NodeTypes } from "@utils/TypeDefinitions";
 import SimpleConditions from "@flow/conditions/SimpleConditions";
@@ -63,6 +64,9 @@ function ElementNode({
 	const [hasWarnings, setHasWarnings] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
 	const rfNodes = useNodes();
+	const [hasExtraConditions, setHasExtraConditions] = useState(
+		getNumberOfIndependentConditions(getNodeById(id, rfNodes)) > 0
+	);
 
 	const getParentExpanded = () => {
 		const nodes = rfNodes;
@@ -163,6 +167,12 @@ function ElementNode({
 		getSelfErrors();
 	}, [data]);
 
+	useEffect(() => {
+		setHasExtraConditions(
+			getNumberOfIndependentConditions(getNodeById(id, rfNodes)) > 0
+		);
+	}, [JSON.stringify(data?.c)]);
+
 	return (
 		<>
 			{isHovered && selected && !dragging && (
@@ -228,6 +238,25 @@ function ElementNode({
 				<span className={styles.blockInfo + " " + styles.bottom}>
 					{getHumanDesc(type)}
 				</span>
+				{hasExtraConditions && (
+					<Badge
+						bg="success"
+						className={
+							styles.badge +
+							" " +
+							styles.badgeConditions +
+							" " +
+							(reducedAnimations && styles.noAnimation) +
+							" " +
+							styles.showBadges +
+							" " +
+							(highContrast && styles.highContrast)
+						}
+						title="Contiene condiciones independientes"
+					>
+						{<FontAwesomeIcon icon={faPlus} style={{ color: "#ffffff" }} />}
+					</Badge>
+				)}
 				{hasErrors && (
 					<Badge
 						bg="danger"

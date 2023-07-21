@@ -1,4 +1,3 @@
-import styles from "@root/styles/BlockContainer.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
 	miAssign,
@@ -25,7 +24,6 @@ import {
 	miGlossary,
 } from "@utils/MoodleIcons";
 import {
-	faCube,
 	faClipboardQuestion,
 	faPenToSquare,
 	faComments,
@@ -35,7 +33,6 @@ import {
 	faHandshakeAngle,
 	faQuestion,
 	faTag,
-	faFileLines,
 	faAward,
 	faEnvelope,
 	faUserPlus,
@@ -60,8 +57,14 @@ import {
 	faRectangleList,
 	faBook,
 } from "@fortawesome/free-solid-svg-icons";
-import Image from "next/image";
 
+/**
+ * Returns an icon based on the type, platform, and desired size.
+ * @param {string} type - The type of icon to return.
+ * @param {string} platform - The platform for which the icon is being returned.
+ * @param {number} [desiredSize=32] - The desired size of the icon in pixels.
+ * @returns {JSX.Element} The icon as a JSX element.
+ */
 export function getTypeIcon(type, platform, desiredSize = 32) {
 	switch (type) {
 		//Moodle + Sakai
@@ -267,6 +270,12 @@ export function getTypeIcon(type, platform, desiredSize = 32) {
 	}
 }
 
+/**
+ * Returns a color based on the type and platform.
+ * @param {string|object} type - The type of color to return. If an object is passed, it should have a `type` property.
+ * @param {string} platform - The platform for which the color is being returned.
+ * @returns {string} The color as a string in hexadecimal format.
+ */
 export const getTypeStaticColor = (type, platform) => {
 	if (typeof type == "object")
 		//Used for minimap
@@ -279,7 +288,6 @@ export const getTypeStaticColor = (type, platform) => {
 					return "#11A676";
 				case "assign":
 					return "#5D63F6";
-
 				case "badge":
 					return "#11A676";
 				case "book":

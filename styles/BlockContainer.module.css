@@ -33,12 +33,12 @@
 }
 
 .container > span.blockInfo.top {
-	top: -3.5em;
+	top: -4.5em;
 	right: -50%;
 }
 
 .container > span.blockInfo.bottom {
-	bottom: -3.5em;
+	bottom: -4.0em;
 	right: -50%;
 }
 
@@ -74,6 +74,18 @@
 	width: 16px;
 }
 
+.badgeConditions {
+	top: -16px;
+    width: 32px;
+	left: auto;
+	padding: 4px;
+}
+
+.badgeConditions svg {
+	height: 16px;
+	width: 16px;
+}
+
 .badgeVisibility {
 	top: -6px;
 	right: -12px;
@@ -103,8 +115,6 @@
 	opacity: 100%;
 	filter: drop-shadow(0 0px 5px rgba(0, 0, 0, 0.65));
 }
-
-
 
 .badge.showBadges {
 	position: absolute;

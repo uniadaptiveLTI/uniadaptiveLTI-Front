@@ -55,6 +55,12 @@ export function errorListCheck(data, errorList, setErrorList, deleteFromList) {
 	}
 }
 
+/**
+ * Deletes a node from an error list.
+ * @param {Object} data - The data of the node to delete from the error list.
+ * @param {Array} errorList - The error list to delete the node from.
+ * @returns {Array} The updated error list with the node deleted.
+ */
 export function deleteNodeFromErrorList(data, errorList) {
 	let errorListUpdated = errorList;
 
@@ -79,6 +85,11 @@ export function deleteNodeFromErrorList(data, errorList) {
 	return errorListUpdated;
 }
 
+/**
+ * Creates item errors for a given item and adds them to an error array.
+ * @param {Object} item - The item to create errors for.
+ * @param {Array} errorArray - The array to add the created errors to.
+ */
 export function createItemErrors(item, errorArray) {
 	if (
 		!(

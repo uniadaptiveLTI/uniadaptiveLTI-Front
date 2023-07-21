@@ -138,24 +138,48 @@ export function isUnique(value, index, self) {
 	return self.indexOf(value) === index;
 }
 
+/**
+ * Encodes a given string to base64.
+ * @param {string} [string=""] - The string to encode to base64. Defaults to an empty string.
+ * @returns {string} The base64 encoded version of the given string.
+ */
 export function base64Encode(string = "") {
 	const buffer = Buffer.from(string, "utf-8");
 	const base64 = buffer.toString("base64");
 	return base64;
 }
 
+/**
+ * Decodes a given base64 string to a regular string.
+ * @param {string} [base64=""] - The base64 string to decode. Defaults to an empty string.
+ * @returns {string} The decoded version of the given base64 string.
+ */
 export function base64Decode(base64 = "") {
 	const buffer = Buffer.from(base64, "base64");
 	const string = buffer.toString("utf-8");
 	return string;
 }
 
+/**
+ * Moves an element in an array from one index to another.
+ * @param {number} from - The index of the element to move.
+ * @param {number} to - The index to move the element to.
+ * @param {Array} array - The array to move the element in.
+ * @returns {Array} A new array with the element moved from the specified index to the specified index.
+ */
 export function arrayMoveByIndex(from, to, array) {
 	const newArray = [...array];
 	newArray.splice(to, 0, newArray.splice(from, 1)[0]);
 	return newArray;
 }
 
+/**
+ * Moves an element in an array with objects that have an "id" property from one ID to another.
+ * @param {number|string} from - The ID of the element to move.
+ * @param {number|string} to - The ID of the element to move the element before.
+ * @param {Array<Object>} array - The array to move the element in.
+ * @returns {Array<Object>} A new array with the element moved from the specified ID to before the specified ID.
+ */
 export function arrayMoveById(from, to, array) {
 	const newArray = [...array];
 	const fromIndex = newArray.findIndex((item) => item.id == from);
@@ -164,6 +188,12 @@ export function arrayMoveById(from, to, array) {
 	return newArray;
 }
 
+/**
+ * Searches a JSON data object for conditions with types that match a given array of target types, and adds them to a results array.
+ * @param {Object} jsonData - The JSON data object to search for conditions with types that match the target types.
+ * @param {Array<string>} targetTypes - An array of target types to search for in the JSON data object's conditions.
+ * @param {Array<Object>} results - An array to add any found conditions with types that match the target types to.
+ */
 export function searchConditionForTypes(jsonData, targetTypes, results) {
 	if (targetTypes.includes(jsonData.type)) {
 		results.push(jsonData);
@@ -176,6 +206,11 @@ export function searchConditionForTypes(jsonData, targetTypes, results) {
 	}
 }
 
+/**
+ * Finds completion and qualification conditions in a given object and returns them in an array.
+ * @param {Object} obj - The object to search for completion and qualification conditions in.
+ * @returns {Array<Object>} An array containing any found completion and qualification conditions in the given object.
+ */
 export function findCompletionAndGrade(obj) {
 	let results = [];
 
@@ -196,6 +231,11 @@ export function findCompletionAndGrade(obj) {
 	return results;
 }
 
+/**
+ * Updates badge conditions for a given block node target and block node source.
+ * @param {Object} blockNodeTarget - The block node target to update badge conditions for.
+ * @param {Object} blockNodeSource - The block node source used when updating badge conditions for the block node target.
+ */
 export function updateBadgeConditions(blockNodeTarget, blockNodeSource) {
 	// Variable to store the conditions of the target node
 	let conditions = blockNodeTarget.data.c.c;
@@ -229,14 +269,30 @@ export function updateBadgeConditions(blockNodeTarget, blockNodeSource) {
 	}
 }
 
+/**
+ * Gets the HTTP prefix based on whether or not SSL is enabled in environment variables.
+ * @returns {string} The HTTP prefix, either "http" or "https".
+ */
 export function getHTTPPrefix() {
 	return parseBool(process.env.NEXT_PUBLIC_SSL) ? "https" : "http";
 }
 
+/**
+ * Gets a section from an array of sections based on its position property value.
+ * @param {Array<Object>} sectionArray - An array of sections to search for a section with a matching position property value.
+ * @param {number} sectionPosition - The position property value of the section to search for in the section array.
+ * @returns {Object|undefined} The section with a matching position property value, or undefined if not found.
+ */
 export function getSectionFromPosition(sectionArray, sectionPosition) {
 	return sectionArray.find((section) => section.position == sectionPosition);
 }
 
+/**
+ * Gets a section ID from an array of sections based on its position property value.
+ * @param {Array<Object>} sectionArray - An array of sections to search for a section with a matching position property value and get its ID property value from.
+ * @param {number} sectionPosition - The position property value of the section whose ID property value should be returned from the section array.
+ * @returns {*} The ID property value of the section with a matching position property value, or undefined if not found.
+ */
 export function getSectionIDFromPosition(sectionArray, sectionPosition) {
 	return getSectionFromPosition(sectionArray, sectionPosition).id;
 }

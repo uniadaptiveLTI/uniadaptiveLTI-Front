@@ -20,7 +20,7 @@ const GroupingComponent = ({
 	swapConditionParam,
 }) => {
 	const grouping = moodleGroupings.find(
-		(grouping) => grouping.id === condition.groupingId
+		(grouping) => grouping.id == condition.groupingId
 	);
 
 	const mainCondition = conditionsList.c.some((c) => c.id === condition.id);

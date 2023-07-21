@@ -70,13 +70,13 @@
 								"type": "conditionsGroup",
 								"id": "9867211125367",
 								"op": "|",
-								"showc" : true,
+								"showc": true,
 								"c": [
 									{
 										"type": "completion",
 										"cm": "dev0A1",
 										"e": 2,
-										"showc" : true,
+										"showc": true,
 										"id": "93620462284937"
 									}
 								]
@@ -87,7 +87,7 @@
 						"id": "dev2A1",
 						"position": {
 							"x": 375,
-							"y": -175
+							"y": -275
 						},
 						"type": "remgroup",
 						"data": {
@@ -141,13 +141,13 @@
 								"type": "conditionsGroup",
 								"id": "68924334612375132878973",
 								"op": "&",
-								"showc" : true,
+								"showc": true,
 								"c": [
 									{
 										"type": "completion",
 										"cm": "dev1A1",
 										"e": 2,
-										"showc" : true,
+										"showc": true,
 										"id": "4342243163224778853"
 									}
 								]
@@ -173,13 +173,13 @@
 								"type": "conditionsGroup",
 								"id": "6892433461789895132878973",
 								"op": "&",
-								"showc" : true,
+								"showc": true,
 								"c": [
 									{
 										"type": "completion",
 										"cm": "dev3A1",
 										"e": 2,
-										"showc" : true,
+										"showc": true,
 										"id": "4123542243163224778853"
 									}
 								]
@@ -205,28 +205,43 @@
 								"type": "conditionsGroup",
 								"id": "100236670156",
 								"op": "|",
-								"showc" : true,
+								"showc": true,
 								"c": [
 									{
 										"type": "completion",
 										"cm": "dev4A1",
 										"e": 1,
-										"showc" : true,
+										"showc": true,
 										"id": "434222363224778852"
 									},
 									{
 										"type": "completion",
 										"cm": "dev6A1",
 										"e": 1,
-										"showc" : true,
+										"showc": true,
 										"id": "43422443224778853"
 									},
 									{
 										"type": "grade",
 										"id": "648191624693482345",
 										"cm": "dev10A1",
-										"showc" : true,
-										"min": "7"
+										"showc": true,
+										"min": 7
+									},
+									{
+										"type": "conditionsGroup",
+										"showc": true,
+										"op": "&",
+										"id": "1297665732697",
+										"c": [
+											{
+												"type": "date",
+												"showc": true,
+												"t": "2023-07-21",
+												"d": ">=",
+												"id": "802671669671"
+											}
+										]
 									}
 								]
 							},
@@ -237,7 +252,7 @@
 						"id": "dev6A1",
 						"position": {
 							"x": 875,
-							"y": 175
+							"y": 275
 						},
 						"type": "assign",
 						"data": {
@@ -251,20 +266,20 @@
 								"type": "conditionsGroup",
 								"id": "68924375132878957895673",
 								"op": "|",
-								"showc" : true,
+								"showc": true,
 								"c": [
 									{
 										"type": "completion",
 										"cm": "dev4A1",
 										"e": 1,
-										"showc" : true,
+										"showc": true,
 										"id": "4342223632247788542"
 									},
 									{
 										"type": "completion",
 										"cm": "dev12A1",
 										"e": 0,
-										"showc" : true,
+										"showc": true,
 										"id": "4342223632247782852"
 									}
 								]
@@ -276,7 +291,7 @@
 						"id": "dev7A1",
 						"position": {
 							"x": 1750,
-							"y": -175
+							"y": -275
 						},
 						"type": "badge",
 						"data": {
@@ -304,28 +319,28 @@
 								"type": "conditionsGroup",
 								"id": "68924375132878973",
 								"op": "&",
-								"showc" : true,
+								"showc": true,
 								"c": [
 									{
 										"type": "completion",
 										"cm": "dev5A1",
 										"e": 1,
-										"showc" : true,
+										"showc": true,
 										"id": "434222363224778852"
 									},
 									{
 										"type": "grade",
 										"id": "6481924693482345",
 										"cm": "dev15A1",
-										"min": "6",
-										"max": "10",
-										"showc" : true
+										"min": 6,
+										"max": 10,
+										"showc": true
 									},
 									{
 										"type": "completion",
 										"cm": "dev16A1",
 										"e": 2,
-										"showc" : true,
+										"showc": true,
 										"id": "43422232778852"
 									}
 								]
@@ -336,7 +351,7 @@
 						"id": "dev9A1",
 						"position": {
 							"x": 375,
-							"y": 350
+							"y": 550
 						},
 						"type": "folder",
 						"data": {
@@ -351,13 +366,13 @@
 								"type": "conditionsGroup",
 								"id": "6892437513287698973",
 								"op": "&",
-								"showc" : true,
+								"showc": true,
 								"c": [
 									{
 										"type": "completion",
 										"cm": "dev1A1",
 										"e": 2,
-										"showc" : true,
+										"showc": true,
 										"id": "4342243163224778853"
 									}
 								]
@@ -368,7 +383,7 @@
 						"id": "dev10A1",
 						"position": {
 							"x": 500,
-							"y": 350
+							"y": 550
 						},
 						"type": "quiz",
 						"data": {
@@ -383,13 +398,13 @@
 								"type": "conditionsGroup",
 								"id": "98437432194690",
 								"op": "&",
-								"showc" : true,
+								"showc": true,
 								"c": [
 									{
 										"type": "completion",
 										"cm": "dev9A1",
 										"e": 0,
-										"showc" : true,
+										"showc": true,
 										"id": "434222363224778852"
 									}
 								]
@@ -400,7 +415,7 @@
 						"id": "dev11A1",
 						"position": {
 							"x": 625,
-							"y": 175
+							"y": 275
 						},
 						"type": "badge",
 						"data": {
@@ -412,7 +427,7 @@
 						"id": "dev12A1",
 						"position": {
 							"x": 625,
-							"y": 525
+							"y": 825
 						},
 						"type": "assign",
 						"data": {
@@ -427,14 +442,14 @@
 								"type": "conditionsGroup",
 								"id": "9544138437432194690",
 								"op": "&",
-								"showc" : true,
+								"showc": true,
 								"c": [
 									{
 										"type": "grade",
 										"id": "648191624693482345",
 										"cm": "dev10A1",
-										"max": "7",
-										"showc" : true
+										"max": 7,
+										"showc": true
 									}
 								]
 							}
@@ -444,7 +459,7 @@
 						"id": "devFragment",
 						"position": {
 							"x": 1125,
-							"y": 175
+							"y": 275
 						},
 						"type": "fragment",
 						"style": {
@@ -534,13 +549,13 @@
 								"type": "conditionsGroup",
 								"id": "89898998898912342",
 								"op": "&",
-								"showc" : true,
+								"showc": true,
 								"c": [
 									{
 										"type": "completion",
 										"cm": "dev15A1",
 										"e": 1,
-										"showc" : true,
+										"showc": true,
 										"id": "4342234224778852"
 									}
 								]
@@ -552,7 +567,7 @@
 						"id": "dev16A1",
 						"position": {
 							"x": 1500,
-							"y": 350
+							"y": 275
 						},
 						"type": "assign",
 						"data": {
@@ -566,14 +581,14 @@
 								"type": "conditionsGroup",
 								"id": "456426231736855865",
 								"op": "&",
-								"showc" : true,
+								"showc": true,
 								"c": [
 									{
 										"type": "grade",
 										"id": "978434243341234324",
 										"cm": "dev15A1",
-										"max": "6",
-										"showc" : true
+										"max": 6,
+										"showc": true
 									}
 								]
 							},
@@ -625,7 +640,7 @@
 						},
 						"position": {
 							"x": -250,
-							"y": -175
+							"y": -275
 						}
 					},
 					{
@@ -642,7 +657,7 @@
 						},
 						"position": {
 							"x": -125,
-							"y": -175
+							"y": -275
 						}
 					},
 					{
@@ -659,7 +674,7 @@
 						},
 						"position": {
 							"x": 0,
-							"y": -175
+							"y": -275
 						}
 					},
 					{
@@ -676,7 +691,7 @@
 						},
 						"position": {
 							"x": 125,
-							"y": -175
+							"y": -275
 						}
 					},
 					{
@@ -693,7 +708,7 @@
 						},
 						"position": {
 							"x": 250,
-							"y": -175
+							"y": -275
 						}
 					},
 					{
@@ -795,7 +810,7 @@
 						},
 						"position": {
 							"x": -250,
-							"y": 175
+							"y": 275
 						}
 					},
 					{
@@ -812,7 +827,7 @@
 						},
 						"position": {
 							"x": -125,
-							"y": 175
+							"y": 275
 						}
 					},
 					{
@@ -829,7 +844,7 @@
 						},
 						"position": {
 							"x": 0,
-							"y": 175
+							"y": 275
 						}
 					},
 					{
@@ -840,7 +855,7 @@
 						},
 						"position": {
 							"x": -250,
-							"y": -525
+							"y": -825
 						}
 					},
 					{
@@ -851,7 +866,7 @@
 						},
 						"position": {
 							"x": -125,
-							"y": -525
+							"y": -825
 						}
 					},
 					{
@@ -862,7 +877,7 @@
 						},
 						"position": {
 							"x": 0,
-							"y": -525
+							"y": -825
 						}
 					},
 					{
@@ -873,7 +888,7 @@
 						},
 						"position": {
 							"x": 125,
-							"y": -525
+							"y": -825
 						}
 					},
 					{
@@ -884,7 +899,7 @@
 						},
 						"position": {
 							"x": 500,
-							"y": -525
+							"y": -825
 						}
 					},
 					{
@@ -895,7 +910,7 @@
 						},
 						"position": {
 							"x": 625,
-							"y": -525
+							"y": -825
 						}
 					},
 					{
@@ -906,7 +921,7 @@
 						},
 						"position": {
 							"x": 750,
-							"y": -525
+							"y": -825
 						}
 					},
 					{
@@ -922,7 +937,7 @@
 						},
 						"position": {
 							"x": 500,
-							"y": -175
+							"y": -275
 						}
 					},
 					{
@@ -938,7 +953,7 @@
 						},
 						"position": {
 							"x": 625,
-							"y": -175
+							"y": -275
 						}
 					},
 					{
@@ -954,7 +969,7 @@
 						},
 						"position": {
 							"x": 750,
-							"y": -175
+							"y": -275
 						}
 					},
 					{
@@ -1018,7 +1033,7 @@
 						},
 						"position": {
 							"x": 500,
-							"y": 175
+							"y": 275
 						}
 					},
 					{
@@ -1034,7 +1049,7 @@
 						},
 						"position": {
 							"x": 625,
-							"y": 175
+							"y": 275
 						}
 					},
 					{
@@ -1050,7 +1065,7 @@
 						},
 						"position": {
 							"x": 750,
-							"y": 175
+							"y": 275
 						}
 					},
 					{
@@ -1067,7 +1082,7 @@
 						},
 						"position": {
 							"x": 125,
-							"y": 175
+							"y": 275
 						}
 					}
 				]
