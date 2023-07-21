@@ -42,25 +42,9 @@ function ConditionModal({
 		setShowConditionsModal(false);
 	};
 
-	const moodleGroups = [
-		{ id: 1, name: "Grupo A" },
-		{ id: 2, name: "Grupo B" },
-		{ id: 3, name: "Grupo C" },
-		{ id: 4, name: "Grupo D" },
-		{ id: 5, name: "Grupo E" },
-		{ id: 6, name: "Grupo F" },
-		{ id: 7, name: "Grupo G" },
-	];
+	const moodleGroups = metaData.groups;
 
-	const moodleGroupings = [
-		{ id: 1, name: "Agrupamiento A" },
-		{ id: 2, name: "Agrupamiento B" },
-		{ id: 3, name: "Agrupamiento C" },
-		{ id: 4, name: "Agrupamiento D" },
-		{ id: 5, name: "Agrupamiento E" },
-		{ id: 6, name: "Agrupamiento F" },
-		{ id: 7, name: "Agrupamiento G" },
-	];
+	const moodleGroupings = metaData.grupings;
 
 	const { metaData, setMetaData } = useContext(MetaDataContext);
 
