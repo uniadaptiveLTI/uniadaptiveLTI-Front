@@ -15,6 +15,11 @@ import Criteria from "./Criteria";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faShuffle, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { useReactFlow } from "reactflow";
+import RoleForm from "./form-components/RoleForm";
+import CourseCompletionForm from "./form-components/CourseCompletionForm";
+import BadgeListForm from "./form-components/BadgeListForm";
+import CompletionForm from "./form-components/CompletionForm";
+import SkillsForm from "./form-components/SkillsForm";
 
 function ConditionModal({
 	blockData,
@@ -34,11 +39,6 @@ function ConditionModal({
 	const [editing, setEditing] = useState(undefined);
 	const [selectedOption, setSelectedOption] = useState(null);
 	const [conditionEdit, setConditionEdit] = useState(undefined);
-
-	const conditionsGroupOperatorList = [
-		{ value: "&", name: "Se deben cumplir todas" },
-		{ value: "|", name: "Solo debe cumplirse una" },
-	];
 
 	const roleList = [
 		{ id: "98123", name: "Gestor" },
@@ -252,14 +252,14 @@ function ConditionModal({
 
 			if (conditionEdit.type == "completion") {
 				setCheckboxValues(conditionEdit.activityList);
+
+				const transformedData = conditionEdit.activityList.map((item) => ({
+					...item,
+					checkboxEnabled: item.date !== undefined ? true : false,
+				}));
+
+				setLmsResourceList(transformedData);
 			}
-
-			const transformedData = conditionEdit.activityList.map((item) => ({
-				...item,
-				checkboxEnabled: item.date !== undefined ? true : false,
-			}));
-
-			setLmsResourceList(transformedData);
 		}
 	}, [conditionEdit]);
 
@@ -362,8 +362,15 @@ function ConditionModal({
 	const [checkboxValues, setCheckboxValues] = useState([]);
 
 	const handleSubmit = (edition) => {
-		const formData = { id: conditionEdit.id, type: selectedOption };
-		formData.op = conditionEdit.op;
+		const formData = {
+			type: selectedOption,
+			op: edition ? conditionEdit.op : "op",
+			id: edition ? conditionEdit.id : uniqueId(),
+		};
+
+		formData.op = conditionOperator.current.value;
+
+		console.log(formData);
 
 		switch (selectedOption) {
 			case "role":
@@ -545,165 +552,47 @@ function ConditionModal({
 						</Form.Select>
 					) : null)}
 				{editing && selectedOption === "role" && (
-					<Form.Group>
-						<Form.Select
-							ref={conditionOperator}
-							defaultValue={conditionEdit?.op}
-						>
-							<option value="&">
-								Todos los roles seleccionados otorgan la insignia
-							</option>
-							<option value="|">Cualquiera de </option>
-						</Form.Select>
-						{roleList.map((option) => {
-							return (
-								<div>
-									<Form.Check
-										onChange={handleCheckboxChange}
-										value={option.id}
-										label={option.name}
-										defaultChecked={conditionEdit?.roleList.some(
-											(role) => role.id === option.id
-										)}
-									></Form.Check>
-								</div>
-							);
-						})}
-					</Form.Group>
+					<RoleForm
+						conditionEdit={conditionEdit}
+						conditionOperator={conditionOperator}
+						handleCheckboxChange={handleCheckboxChange}
+						roleList={roleList}
+					/>
 				)}
 				{editing && selectedOption === "courseCompletion" && (
-					<Form.Group>
-						<Form.Control
-							ref={conditionOperator}
-							type="number"
-							min="0"
-							max="10"
-							defaultValue={
-								conditionEdit
-									? conditionEdit.type === "courseCompletion"
-										? conditionEdit.op !== undefined
-											? conditionEdit.op
-											: 5
-										: 5
-									: 5
-							}
-						/>
-						<Row>
-							<Col>
-								<Form.Check
-									ref={objectiveEnabler}
-									onChange={handleCheckboxChange}
-									defaultChecked={
-										conditionEdit && conditionEdit.type === "date"
-											? false
-												? false
-												: true
-											: true
-									}
-								/>
-							</Col>
-							<Col xs={6}>
-								<Form.Control
-									ref={conditionObjective}
-									type="date"
-									defaultValue={
-										conditionEdit && conditionEdit.type === "date"
-											? conditionEdit.date
-												? conditionEdit.date
-												: new Date().toISOString().substr(0, 10)
-											: new Date().toISOString().substr(0, 10)
-									}
-									disabled={!isDateEnabled}
-								/>
-							</Col>
-						</Row>
-					</Form.Group>
+					<CourseCompletionForm
+						conditionEdit={conditionEdit}
+						conditionOperator={conditionOperator}
+						objectiveEnabler={objectiveEnabler}
+						conditionObjective={conditionObjective}
+						handleCheckboxChange={handleCheckboxChange}
+						isDateEnabled={isDateEnabled}
+					/>
 				)}
 				{editing && selectedOption === "badgeList" && (
-					<Form.Group>
-						<Form.Select
-							ref={conditionOperator}
-							defaultValue={conditionEdit?.op}
-						>
-							<option value="&">
-								Se deben obtener todas las insignias seleccionadas
-							</option>
-							<option value="|">
-								Se debe obtener alguna de las insignias seleccionadas{" "}
-							</option>
-						</Form.Select>
-						{badgeList.map((option) => {
-							return (
-								<div>
-									<Form.Check
-										onChange={handleCheckboxChange}
-										value={option.id}
-										label={option.name}
-									></Form.Check>
-								</div>
-							);
-						})}
-					</Form.Group>
+					<BadgeListForm
+						conditionEdit={conditionEdit}
+						conditionOperator={conditionOperator}
+						badgeList={badgeList}
+						handleCheckboxChange={handleCheckboxChange}
+					/>
 				)}
 				{/* FEATURE: SWAP LOGIC (& |) */}
 				{editing && selectedOption === "completion" && (
-					<Form.Group>
-						{lmsResourceList.map((option, index) => {
-							return (
-								<div key={index}>
-									<div>{option.name}</div>
-									<Row>
-										<Col>
-											<Form.Control
-												id={option.id}
-												type="date"
-												disabled={!option.checkboxEnabled}
-												onChange={() => handleDateChange(index)}
-												defaultValue={
-													option.date
-														? option.date
-														: new Date().toISOString().substr(0, 10)
-												}
-											/>
-										</Col>
-										<Col>
-											<Form.Check
-												label="Habilitar"
-												checked={option.checkboxEnabled}
-												onChange={() => handleSecondCheckboxChange(index)}
-											/>
-										</Col>
-									</Row>
-								</div>
-							);
-						})}
-					</Form.Group>
+					<CompletionForm
+						conditionEdit={conditionEdit}
+						conditionOperator={conditionOperator}
+						badgeList={badgeList}
+						handleCheckboxChange={handleCheckboxChange}
+					/>
 				)}
 				{editing && selectedOption === "skills" && (
-					<Form.Group>
-						<Form.Select
-							ref={conditionOperator}
-							defaultValue={conditionEdit?.op}
-						>
-							<option value="&">
-								Se deben obtener todas las insignias seleccionadas
-							</option>
-							<option value="|">
-								Se debe obtener alguna de las insignias seleccionadas{" "}
-							</option>
-						</Form.Select>
-						{skillsList.map((option) => {
-							return (
-								<div>
-									<Form.Check
-										onChange={handleCheckboxChange}
-										value={option.id}
-										label={option.name}
-									></Form.Check>
-								</div>
-							);
-						})}
-					</Form.Group>
+					<SkillsForm
+						conditionEdit={conditionEdit}
+						conditionOperator={conditionOperator}
+						skillsList={skillsList}
+						handleCheckboxChange={handleCheckboxChange}
+					/>
 				)}
 				{!editing && !allTypesUsed() && (
 					<Button className="mb-5" variant="light" onClick={addConditionToMain}>

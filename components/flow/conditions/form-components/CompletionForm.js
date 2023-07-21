@@ -14,6 +14,7 @@ function CompletionForm({
 				ref={conditionOperator}
 				defaultValue={conditionEdit?.cm}
 				type="text"
+				disabled
 				hidden
 			/>
 			<div className="d-flex align-items-baseline col-12 col-lg-6 col-xl-4">

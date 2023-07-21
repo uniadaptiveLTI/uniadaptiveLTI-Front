@@ -43,23 +43,23 @@ function ConditionModal({
 	};
 
 	const moodleGroups = [
-		{ id: "group-1", name: "Grupo A" },
-		{ id: "group-2", name: "Grupo B" },
-		{ id: "group-3", name: "Grupo C" },
-		{ id: "group-4", name: "Grupo D" },
-		{ id: "group-5", name: "Grupo E" },
-		{ id: "group-6", name: "Grupo F" },
-		{ id: "group-7", name: "Grupo G" },
+		{ id: 1, name: "Grupo A" },
+		{ id: 2, name: "Grupo B" },
+		{ id: 3, name: "Grupo C" },
+		{ id: 4, name: "Grupo D" },
+		{ id: 5, name: "Grupo E" },
+		{ id: 6, name: "Grupo F" },
+		{ id: 7, name: "Grupo G" },
 	];
 
 	const moodleGroupings = [
-		{ id: "grouping-1", name: "Agrupamiento A" },
-		{ id: "grouping-2", name: "Agrupamiento B" },
-		{ id: "grouping-3", name: "Agrupamiento C" },
-		{ id: "grouping-4", name: "Agrupamiento D" },
-		{ id: "grouping-5", name: "Agrupamiento E" },
-		{ id: "grouping-6", name: "Agrupamiento F" },
-		{ id: "grouping-7", name: "Agrupamiento G" },
+		{ id: 1, name: "Agrupamiento A" },
+		{ id: 2, name: "Agrupamiento B" },
+		{ id: 3, name: "Agrupamiento C" },
+		{ id: 4, name: "Agrupamiento D" },
+		{ id: 5, name: "Agrupamiento E" },
+		{ id: 6, name: "Agrupamiento F" },
+		{ id: 7, name: "Agrupamiento G" },
 	];
 
 	const { metaData, setMetaData } = useContext(MetaDataContext);
@@ -507,20 +507,20 @@ function ConditionModal({
 				formData.cm = conditionOperator.current.value;
 
 				if (!conditionObjective.current.disabled) {
-					formData.min = conditionObjective.current.value;
+					formData.min = Number(conditionObjective.current.value);
 				}
 				if (!conditionObjective2.current.disabled) {
-					formData.max = conditionObjective2.current.value;
+					formData.max = Number(conditionObjective2.current.value);
 				}
 				break;
 			case "courseQualification":
 				formData.courseId = metaData.course_id;
 
 				if (!conditionObjective.current.disabled) {
-					formData.min = conditionObjective.current.value;
+					formData.min = Number(conditionObjective.current.value);
 				}
 				if (!conditionObjective2.current.disabled) {
-					formData.max = conditionObjective2.current.value;
+					formData.max = Number(conditionObjective2.current.value);
 				}
 				break;
 			case "completion":
@@ -528,10 +528,10 @@ function ConditionModal({
 				formData.e = conditionQuery.current.value;
 				break;
 			case "group":
-				formData.groupId = conditionOperator.current.value;
+				formData.groupId = Number(conditionOperator.current.value);
 				break;
 			case "grouping":
-				formData.groupingId = conditionOperator.current.value;
+				formData.groupingId = Number(conditionOperator.current.value);
 				break;
 			case "profile":
 				let op = conditionOperator.current.value;
