@@ -4,7 +4,14 @@ import { Form } from "react-bootstrap";
 const GroupForm = ({ conditionOperator, moodleGroups, conditionEdit }) => {
 	const coId = useId();
 	return (
-		<Form.Group className="d-flex flex-column gap-2 m-4 me-0">
+		<Form.Group
+			style={{
+				padding: "10px",
+				border: "1px solid #C7C7C7",
+				marginBottom: "10px",
+			}}
+			className="d-flex flex-column gap-2 p-4"
+		>
 			<div className="d-flex align-items-baseline col-12 col-lg-6 col-xl-4">
 				<Form.Label
 					htmlFor={coId}

@@ -538,31 +538,37 @@ function ConditionModal({
 				{editing &&
 					(conditionEdit === undefined ||
 					conditionEdit.type !== "conditionsGroup" ? (
-						<Form.Select
-							id="condition-select"
-							onChange={handleSelectChange}
-							defaultValue={conditionEdit?.type ? conditionEdit?.type : ""}
-							required
-						>
-							<option value="" disabled>
-								Escoge un tipo de condición...
-							</option>
-							{shouldRenderOption("role") && (
-								<option value="role">Concesión manual por rol</option>
-							)}
+						<>
+							<Form.Label htmlFor="condition-select">Precondición:</Form.Label>
+							<Form.Select
+								id="condition-select"
+								onChange={handleSelectChange}
+								defaultValue={conditionEdit?.type ? conditionEdit?.type : ""}
+								required
+							>
+								<option value="" disabled>
+									Escoge un tipo de condición...
+								</option>
+								{shouldRenderOption("role") && (
+									<option value="role">Concesión manual por rol</option>
+								)}
 
-							{shouldRenderOption("courseCompletion") && (
-								<option value="courseCompletion">Finalización del curso</option>
-							)}
+								{shouldRenderOption("courseCompletion") && (
+									<option value="courseCompletion">
+										Finalización del curso
+									</option>
+								)}
 
-							{shouldRenderOption("badgeList") && (
-								<option value="badgeList">Insignias otorgadas</option>
-							)}
+								{shouldRenderOption("badgeList") && (
+									<option value="badgeList">Insignias otorgadas</option>
+								)}
 
-							{shouldRenderOption("skills") && (
-								<option value="skills">Competencias</option>
-							)}
-						</Form.Select>
+								{shouldRenderOption("skills") && (
+									<option value="skills">Competencias</option>
+								)}
+							</Form.Select>
+							<hr />
+						</>
 					) : null)}
 				{editing && selectedOption === "role" && (
 					<RoleForm
@@ -619,7 +625,11 @@ function ConditionModal({
 			<Modal.Footer>
 				{editing && (
 					<div>
-						<Button variant="primary" onClick={cancelEditCondition}>
+						<Button
+							variant="danger"
+							onClick={cancelEditCondition}
+							className="me-2"
+						>
 							Cancelar
 						</Button>
 						<Button

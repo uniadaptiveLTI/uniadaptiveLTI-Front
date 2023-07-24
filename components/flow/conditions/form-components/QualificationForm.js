@@ -7,7 +7,14 @@ export default function QualificationForm() {
 	const mtid = useId();
 	const qmid = useId();
 	return (
-		<Form>
+		<Form
+			style={{
+				padding: "10px",
+				border: "1px solid #C7C7C7",
+				marginBottom: "10px",
+			}}
+			className="p-4"
+		>
 			<div className="d-flex align-items-center">
 				<Form.Label htmlFor={qcid}>Categoría de calificaciones</Form.Label>
 				<Form.Select id={qcid}></Form.Select>
