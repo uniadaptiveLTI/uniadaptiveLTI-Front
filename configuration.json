@@ -10,6 +10,6 @@
 	},
 	"debugging": {
 		"dev_mode": true,
-		"dev_files": true
+		"dev_files": false
 	}
 }

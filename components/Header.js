@@ -706,7 +706,10 @@ function Header({ LTISettings }, ref) {
 	 */
 	const deleteVersion = async () => {
 		const versionId = selectedVersion.id;
-		if (versionId != 0) {
+		const mapId = selectMapDOM.current.value;
+		const versionCount = maps.find((map) => map.id == mapId).versions.length;
+		console.log(versionCount);
+		if (versionCount > 1) {
 			if (!LTISettings.debugging.dev_files) {
 				try {
 					const response = await fetch(
@@ -724,17 +727,38 @@ function Header({ LTISettings }, ref) {
 							throw `Ha ocurrido un error.`;
 						} else {
 							//FIXME: Load map "shell"
-							setLoadedMaps(false);
-							fetch(
-								`${getHTTPPrefix()}://${LTISettings.back_url}/lti/get_session`
-							)
-								.then((response) => response.json())
-								.then((data) => {
-									const maps = [emptyMap, ...data[2].maps];
-									setMaps(maps);
-									setMapCount(maps.length);
-									setLoadedMaps(true);
-								});
+							// setLoadedMaps(false);
+							// fetch(
+							//	`${getHTTPPrefix()}://${LTISettings.back_url}/lti/get_session`
+							//)
+							// 	.then((response) => response.json())
+							// 	.then((data) => {
+							// 		const maps = [emptyMap, ...data[2].maps];
+							// 		setMaps(maps);
+							// 		setMapCount(maps.length);
+							// 		setLoadedMaps(true);
+							// 	});
+							setVersions((versions) =>
+								versions.filter((version) => version.id != versionId)
+							);
+
+							const firstVersion = versions.find(
+								(version) => version.id != versionId
+							);
+							setSelectedVersion(firstVersion || versions[0] || null);
+
+							const newMapVersions = mapSelected.versions.filter(
+								(version) => version.id != versionId
+							);
+							const modifiedMap = { ...mapSelected, versions: newMapVersions };
+							const mapIndex = maps.findIndex((m) => m.id === mapSelected.id);
+							const newMaps = [...maps];
+							newMaps[mapIndex] = modifiedMap;
+							setMaps(newMaps);
+							setVersions(modifiedMap.versions);
+							setCurrentBlocksData(
+								firstVersion?.blocksData || versions[0]?.blocksData
+							);
 							toast(`Versión eliminada con éxito.`, defaultToastSuccess);
 						}
 					} else {

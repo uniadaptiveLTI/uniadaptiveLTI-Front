@@ -129,13 +129,20 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 			console.log(encodedLMS);
 			setShowSpinner(true);
 			setAllowResourceSelection(false);
-
 			const response = await fetch(
 				selectedOption == "generic"
 					? `${getHTTPPrefix()}://${
 							LTISettings.back_url
-					  }/lti/get_modules_by_type?type=unsupported&instance=${encodedInstance}&platform=${encodedPlatform}&course=${encodedCourse}&url_lms=${encodedLMS}&session=${encodedSession}&supportedTypes=${encodeURIComponent(
+					  }/lti/get_modules_by_type?type=${encodeURIComponent(
+							"unsupported"
+					  )}&instance=${encodedInstance}&platform=${encodedPlatform}&course=${encodedCourse}&url_lms=${encodedLMS}&session=${encodedSession}&supportedTypes=${encodeURIComponent(
 							getSupportedTypes(platform)
+					  )}&sections=${encodeURIComponent(
+							JSON.stringify(
+								metaData.sections.map((section) => {
+									return { id: section.id, position: section.position };
+								})
+							)
 					  )}`
 					: `${getHTTPPrefix()}://${
 							LTISettings.back_url

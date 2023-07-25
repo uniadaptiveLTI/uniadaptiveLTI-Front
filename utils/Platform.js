@@ -152,7 +152,7 @@ export function isSupportedTypeInPlatform(platform, type, excludeLTI = false) {
  * @returns {Array<string>} An array of supported types for the given platform.
  */
 export function getSupportedTypes(platform) {
-	return NodeTypes.map((declaration) => {
-		if (declaration.includes(platform)) return declaration.type;
-	});
+	return NodeTypes.filter((declaration) => {
+		if (declaration.lms.includes(platform)) return declaration.type;
+	}).map((validDeclaration) => validDeclaration.type);
 }
