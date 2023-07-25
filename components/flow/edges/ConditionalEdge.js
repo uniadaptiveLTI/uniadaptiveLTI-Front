@@ -6,6 +6,7 @@ import {
 	EdgeLabelRenderer,
 	getBezierPath,
 	useNodes,
+	useEdges,
 } from "reactflow";
 
 const ConditionalEdge = ({
@@ -19,6 +20,7 @@ const ConditionalEdge = ({
 	sourcePosition,
 	targetPosition,
 	style = {},
+	animated,
 }) => {
 	const [edgePath, labelX, labelY] = getBezierPath({
 		sourceX,
@@ -30,6 +32,16 @@ const ConditionalEdge = ({
 	});
 
 	const rfNodes = useNodes();
+	const rfEdges = useEdges();
+	const [lineType, setLineType] = useState("and");
+	const [animatedLine, setAnimatedLine] = useState(false);
+
+	useEffect(() => {
+		const shouldAnimate = lineType == "or" ? true : false;
+		setAnimatedLine(lineType == "or" ? true : false);
+		animated = shouldAnimate;
+		rfEdges.find((edge) => edge.id == id).animated = shouldAnimate;
+	}, [lineType]);
 
 	// FIXME: GET ALL CHILDREN AND SHOW ONLY 2 CONDITIONS MAX
 	const getSelfCondition = () => {
@@ -62,15 +74,28 @@ const ConditionalEdge = ({
 					}
 				}
 			case "completion":
-				switch (condition.e) {
-					case 0:
-						return `Sin completar`;
-					case 1:
-						return `Completado`;
-					case 2:
-						return `Aprobado`;
-					case 3:
-						return `Suspendido`;
+				if (condition.e) {
+					switch (condition.e) {
+						case 0:
+							return `Sin completar`;
+						case 1:
+							return `Completado`;
+						case 2:
+							return `Aprobado`;
+						case 3:
+							return `Suspendido`;
+					}
+				} else if (condition.activityList) {
+					//TODO: CHANGE THIS
+					switch (condition.op) {
+						case "|":
+							if (lineType != "or") setLineType("or");
+							return `Completado`;
+
+						case "&":
+							if (lineType != "and") setLineType("and");
+							return `Completado`;
+					}
 				}
 				break;
 		}
@@ -84,6 +109,11 @@ const ConditionalEdge = ({
 		const foundCondition = conditions.find((condition) => condition.cm === id);
 		if (foundCondition) {
 			return foundCondition;
+		} else {
+			const foundActionCondition = conditions.find((condition) =>
+				Array.isArray(condition.activityList)
+			);
+			if (foundActionCondition) return foundActionCondition;
 		}
 
 		for (const condition of conditions) {

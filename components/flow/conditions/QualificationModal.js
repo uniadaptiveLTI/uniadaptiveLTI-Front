@@ -48,7 +48,7 @@ function QualificationModal({
 			</Modal.Header>
 			<Modal.Body>
 				{gradeConditionType}
-				<QualificationForm />
+				<QualificationForm gradeConditionType={gradeConditionType} />
 			</Modal.Body>
 			<Modal.Footer></Modal.Footer>
 		</Modal>

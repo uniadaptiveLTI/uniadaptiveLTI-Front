@@ -769,19 +769,30 @@ const OverviewFlow = ({ map }, ref) => {
 	const edgesWithUpdatedTypes = edges
 		? edges.map((edge) => {
 				if (edge) {
-					/*if (edge.sourceHandle) {
-						const edgeType = nodes.find((node) => node.type === "custom").data
-							.selects[edge.sourceHandle];
-						edge.type = edgeType;
-					}
-
-					//FIXME: Does nothing
-					if (edge.c != undefined) {
-						for (let condition of cedge.c) {
-							edge.label = "" + condition.operand + condition.objective;
-						}
-					}*/
 					edge.type = "conditionalEdge";
+					if (edge.target) {
+						const targetNode = getNodeById(
+							edge.target,
+							reactFlowInstance.getNodes()
+						);
+						const actionNodes = NodeTypes.map((declaration) => {
+							if (declaration.nodeType == "ActionNode") return declaration.type;
+						});
+						if (targetNode)
+							if (actionNodes.includes(targetNode.type)) {
+								if (targetNode.data.c) {
+									if (Array.isArray(targetNode.data.c.c)) {
+										targetNode.data.c.c.forEach((condition) => {
+											if (condition.type == "completed") {
+												if (condition.op == "|") {
+													edge.animated = true;
+												}
+											}
+										});
+									}
+								}
+							}
+					}
 				}
 				return edge;
 		  })
@@ -1563,10 +1574,10 @@ const OverviewFlow = ({ map }, ref) => {
 						newNodesData[oI].data.children.push(end.id);
 					}
 				} else {
-					toast("Esta relación ya existe", {
+					toast("La relación ya existe, no se ha creado.", {
 						hideProgressBar: false,
 						autoClose: 2000,
-						type: "info",
+						type: "warning",
 						position: "bottom-center",
 						theme: "light",
 					});
@@ -1648,17 +1659,35 @@ const OverviewFlow = ({ map }, ref) => {
 				},
 			]);
 		} else {
-			const starterBlock = reactFlowInstance
+			const selectedBlocks = reactFlowInstance
 				.getNodes()
-				.find((block) => block.id == currentSelectionId);
+				.filter((block) => block.selected == true);
+			if (selectedBlocks.length == 1) {
+				if (relationStarter == undefined) {
+					setRelationStarter(selectedBlocks[0]);
 
-			setRelationStarter(starterBlock);
-
-			if (starterBlock) {
-				toast("Iniciando relación", {
+					toast("Iniciando relación...", {
+						hideProgressBar: false,
+						autoClose: 2000,
+						type: "info",
+						position: "bottom-center",
+						theme: "light",
+					});
+				} else {
+					toast("Finalizando relación...", {
+						hideProgressBar: false,
+						autoClose: 2000,
+						type: "info",
+						position: "bottom-center",
+						theme: "light",
+					});
+					handleNewRelation(relationStarter, selectedBlocks[0]);
+				}
+			} else {
+				toast("Selección inválida", {
 					hideProgressBar: false,
 					autoClose: 2000,
-					type: "info",
+					type: "error",
 					position: "bottom-center",
 					theme: "light",
 				});
