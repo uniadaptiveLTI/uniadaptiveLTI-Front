@@ -5,8 +5,8 @@ import { Form } from "react-bootstrap";
 const RoleForm = ({
 	conditionEdit,
 	conditionOperator,
-	handleCheckboxChange,
 	roleList,
+	handleCheckboxChange,
 }) => {
 	const cId = useId();
 	return (
@@ -39,9 +39,7 @@ const RoleForm = ({
 							onChange={handleCheckboxChange}
 							value={option.id}
 							label={option.name}
-							defaultChecked={conditionEdit?.roleList.some(
-								(role) => role.id === option.id
-							)}
+							defaultChecked={conditionEdit?.roleList?.includes(option.id)}
 						/>
 					</div>
 				))}

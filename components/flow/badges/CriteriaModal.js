@@ -39,6 +39,11 @@ function ConditionModal({
 	const [editing, setEditing] = useState(undefined);
 	const [selectedOption, setSelectedOption] = useState(null);
 	const [conditionEdit, setConditionEdit] = useState(undefined);
+	const [checkboxValues, setCheckboxValues] = useState([]);
+	const [isDateEnabled, setIsDateEnabled] = useState();
+
+	const [selectedCheckboxes, setSelectedCheckboxes] = useState([]);
+	const [checkedIds, setCheckedIds] = useState(selectedCheckboxes || []);
 
 	const roleList = [
 		{ id: "98123", name: "Gestor" },
@@ -134,6 +139,8 @@ function ConditionModal({
 	const handleSelectChange = (event) => {
 		setSelectedOption(event.target.value);
 		setIsDateEnabled(false);
+		setSelectedCheckboxes([]);
+		setCheckedIds([]);
 		setCheckboxValues([]);
 
 		const updatedLmsResourceList = lmsResourceList.map((item) => ({
@@ -245,8 +252,8 @@ function ConditionModal({
 	}
 
 	useEffect(() => {
-		console.log(blockData);
 		if (conditionEdit) {
+			console.log(conditionEdit);
 			addCondition(conditionEdit.id);
 			setSelectedOption(conditionEdit.type);
 
@@ -260,33 +267,47 @@ function ConditionModal({
 
 				setLmsResourceList(transformedData);
 			}
+			if (
+				conditionEdit.type == "role" ||
+				conditionEdit.type == "badgeList" ||
+				conditionEdit.type == "skills"
+			) {
+				setCheckedIds(prioritizeLists());
+			}
+			if (conditionEdit.type == "courseCompletion") {
+				if (conditionEdit.dateTo) {
+					setIsDateEnabled(true);
+				} else {
+					setIsDateEnabled(false);
+				}
+			}
 		}
 	}, [conditionEdit]);
 
-	const [isDateEnabled, setIsDateEnabled] = useState(false);
+	const prioritizeLists = () => {
+		if (conditionEdit?.badgeList) {
+			return conditionEdit.badgeList;
+		} else if (conditionEdit?.roleList) {
+			return conditionEdit.roleList;
+		} else if (conditionEdit?.skillsList) {
+			return conditionEdit.skillsList;
+		} else {
+			return [];
+		}
+	};
+
+	const handleDateCheckboxChange = () => {
+		setIsDateEnabled(!isDateEnabled);
+	};
 
 	const handleCheckboxChange = (event) => {
-		if (selectedOption === "courseCompletion") {
-			setIsDateEnabled(!isDateEnabled);
-		}
-
 		const { value, checked } = event.target;
 
-		if (checked) {
-			setCheckboxValues([
-				...checkboxValues,
-				{
-					id: value,
-				},
-			]);
-		} else {
-			const updatedValues = checkboxValues.filter((val) => val.id !== value);
-			if (updatedValues.length === 0) {
-				setCheckboxValues([]);
-			} else {
-				setCheckboxValues(updatedValues);
-			}
-		}
+		setCheckedIds((prevCheckedIds) =>
+			checked
+				? [...prevCheckedIds, value]
+				: prevCheckedIds.filter((id) => id !== value)
+		);
 	};
 
 	const handleSecondCheckboxChange = (index) => {
@@ -340,7 +361,7 @@ function ConditionModal({
 						}
 						return item;
 					});
-					console.log(updatedArray);
+
 					setCheckboxValues(updatedArray);
 				} else {
 					const updatedArray = checkboxValues.map((item) => {
@@ -349,7 +370,7 @@ function ConditionModal({
 						}
 						return item;
 					});
-					console.log(updatedArray);
+
 					setCheckboxValues(updatedArray);
 				}
 				break;
@@ -359,8 +380,6 @@ function ConditionModal({
 		setLmsResourceList(updatedList);
 	};
 
-	const [checkboxValues, setCheckboxValues] = useState([]);
-
 	const handleSubmit = (edition) => {
 		const formData = {
 			type: selectedOption,
@@ -368,33 +387,29 @@ function ConditionModal({
 			id: edition ? conditionEdit.id : uniqueId(),
 		};
 
-		formData.op = conditionOperator.current.value;
-
 		switch (selectedOption) {
 			case "role":
-				formData.roleList = checkboxValues;
+				formData.op = conditionOperator.current.value;
+				formData.roleList = checkedIds;
 				break;
 			case "courseCompletion":
-				if (objectiveEnabler.current.checked) {
+				formData.op = conditionOperator.current.value;
+				if (isDateEnabled) {
 					formData.dateTo = conditionObjective.current.value;
+				} else {
+					formData.dateTo = undefined;
 				}
 				break;
 			case "badgeList":
-				formData.badgeList = checkboxValues;
+				formData.op = conditionOperator.current.value;
+				formData.badgeList = checkedIds;
 				break;
 			case "completion":
-				console.log(checkboxValues);
-				/*const sortedData = checkboxValues.sort((a, b) => {
-					if (a.section === b.section) {
-						return a.indentation - b.indentation;
-					}
-					return a.section - b.section;
-				});*/
-
 				formData.activityList = checkboxValues;
 				break;
 			case "skills":
-				formData.skillsList = checkboxValues;
+				formData.op = conditionOperator.current.value;
+				formData.skillsList = checkedIds;
 				break;
 			default:
 				break;
@@ -423,7 +438,7 @@ function ConditionModal({
 					},
 				},
 			};
-			console.log(updatedBlockData);
+
 			setBlockData(updatedBlockData);
 		} else {
 			const updatedCondition = {
@@ -450,9 +465,10 @@ function ConditionModal({
 			}
 		}
 
-		console.log(formData);
 		setSelectedOption("");
 		setCheckboxValues([]);
+		setSelectedCheckboxes([]);
+		setCheckedIds([]);
 		setConditionEdit(undefined);
 		setEditing(undefined);
 	};
@@ -460,15 +476,29 @@ function ConditionModal({
 	const shouldRenderOption = (type) => {
 		const conditions = blockData.data.c?.c;
 		if (conditions) {
-			return !conditions.some((condition) => condition.type === type);
+			if (conditionEdit) {
+				if (conditionEdit.type == type) {
+					return true;
+				} else {
+					return false;
+				}
+			} else {
+				if (type != "completion") {
+					return !conditions.some((condition) => condition.type === type);
+				}
+			}
 		} else {
 			return true;
 		}
 	};
 
 	const allTypesUsed = () => {
+		const conditions = blockData.data.c?.c;
 		const types = ["role", "courseCompletion", "badgeList", "skills"];
-		return types.every((type) => !shouldRenderOption(type));
+
+		return types.every((type) =>
+			conditions?.some((condition) => condition.type === type)
+		);
 	};
 
 	return (
@@ -485,8 +515,8 @@ function ConditionModal({
 							marginBottom: "10px",
 						}}
 					>
-						<Row>
-							<Col class="col-md-10">
+						<Row className="align-items-center">
+							<Col>
 								<div>
 									A los estudiantes se les concede esta insignia cuando
 									finalizan{" "}
@@ -503,7 +533,7 @@ function ConditionModal({
 									los requisitos enumerados
 								</div>
 							</Col>
-							<Col class="col-md-2 d-flex align-items-center">
+							<Col className="col d-flex align-items-center justify-content-end gap-2">
 								<Button
 									variant="light"
 									onClick={() => {
@@ -566,6 +596,12 @@ function ConditionModal({
 								{shouldRenderOption("skills") && (
 									<option value="skills">Competencias</option>
 								)}
+
+								{shouldRenderOption("completion") && (
+									<option value="completion">
+										Finalización de la actividad
+									</option>
+								)}
 							</Form.Select>
 							<hr />
 						</>
@@ -584,7 +620,7 @@ function ConditionModal({
 						conditionOperator={conditionOperator}
 						objectiveEnabler={objectiveEnabler}
 						conditionObjective={conditionObjective}
-						handleCheckboxChange={handleCheckboxChange}
+						handleDateCheckboxChange={handleDateCheckboxChange}
 						isDateEnabled={isDateEnabled}
 					/>
 				)}
@@ -592,17 +628,20 @@ function ConditionModal({
 					<BadgeListForm
 						conditionEdit={conditionEdit}
 						conditionOperator={conditionOperator}
+						selectedBadges={conditionEdit?.badgeList}
+						setCheckedIds={setCheckedIds}
 						badgeList={badgeList}
 						handleCheckboxChange={handleCheckboxChange}
 					/>
 				)}
-				{/* FEATURE: SWAP LOGIC (& |) */}
+
 				{editing && selectedOption === "completion" && (
 					<CompletionForm
 						conditionEdit={conditionEdit}
 						conditionOperator={conditionOperator}
-						badgeList={badgeList}
-						handleCheckboxChange={handleCheckboxChange}
+						lmsResourceList={lmsResourceList}
+						handleDateChange={handleDateChange}
+						handleSecondCheckboxChange={handleSecondCheckboxChange}
 					/>
 				)}
 				{editing && selectedOption === "skills" && (
@@ -623,7 +662,7 @@ function ConditionModal({
 				)}
 			</Modal.Body>
 			<Modal.Footer>
-				{editing && (
+				{editing && selectedOption && (
 					<div>
 						<Button
 							variant="danger"
@@ -642,6 +681,15 @@ function ConditionModal({
 									handleSubmit(false);
 								}
 							}}
+							disabled={
+								((selectedOption === "badgeList" ||
+									selectedOption === "skills" ||
+									selectedOption === "role") &&
+									checkedIds.length <= 0) ||
+								(selectedOption === "courseCompletion" &&
+									conditionOperator.current &&
+									conditionOperator.current.value.trim() === "")
+							}
 						>
 							Guardar
 						</Button>

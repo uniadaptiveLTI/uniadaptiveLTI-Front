@@ -1,5 +1,4 @@
-import React from "react";
-import { useId } from "react";
+import React, { useId, useState } from "react";
 import { Form } from "react-bootstrap";
 
 const BadgeListForm = ({
@@ -45,6 +44,7 @@ const BadgeListForm = ({
 								onChange={handleCheckboxChange}
 								value={option.id}
 								label={option.name}
+								defaultChecked={conditionEdit?.badgeList?.includes(option.id)}
 							></Form.Check>
 						</div>
 					);

@@ -7,7 +7,7 @@ const CourseCompletionForm = ({
 	conditionOperator,
 	objectiveEnabler,
 	conditionObjective,
-	handleCheckboxChange,
+	handleDateCheckboxChange,
 	isDateEnabled,
 }) => {
 	const ccId = useId();
@@ -47,26 +47,18 @@ const CourseCompletionForm = ({
 			<div className="d-flex flex-row gap-2 align-items-baseline col-lg-6 col-xl-4 ms-4 mb-4 me-0">
 				<Form.Check
 					ref={objectiveEnabler}
-					onChange={handleCheckboxChange}
+					onChange={handleDateCheckboxChange}
 					label="Fecha mínima: "
 					style={{ width: "350px" }}
-					defaultChecked={
-						conditionEdit && conditionEdit.type === "date"
-							? false
-								? false
-								: true
-							: true
-					}
+					defaultChecked={conditionEdit && conditionEdit.dateTo ? true : false}
 				/>
 
 				<Form.Control
 					ref={conditionObjective}
 					type="date"
 					defaultValue={
-						conditionEdit && conditionEdit.type === "date"
-							? conditionEdit.date
-								? conditionEdit.date
-								: new Date().toISOString().substr(0, 10)
+						conditionEdit && conditionEdit.dateTo
+							? conditionEdit.dateTo
 							: new Date().toISOString().substr(0, 10)
 					}
 					disabled={!isDateEnabled}

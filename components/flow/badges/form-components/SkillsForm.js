@@ -44,6 +44,7 @@ const SkillsForm = ({
 								onChange={handleCheckboxChange}
 								value={option.id}
 								label={option.name}
+								defaultChecked={conditionEdit?.skillsList?.includes(option.id)}
 							/>
 						</div>
 					);

@@ -1,12 +1,11 @@
-import React from "react";
-import { useId } from "react";
-import { Form } from "react-bootstrap";
+import React, { useId } from "react";
+import { Form, Row, Col } from "react-bootstrap";
 
 const CompletionForm = ({
-	conditionEdit,
 	conditionOperator,
-	badgeList,
-	handleCheckboxChange,
+	lmsResourceList,
+	handleDateChange,
+	handleSecondCheckboxChange,
 }) => {
 	const cId = useId();
 	return (
@@ -18,33 +17,34 @@ const CompletionForm = ({
 			}}
 			className="p-4"
 		>
-			<div className="d-flex flex-row gap-2 align-items-baseline col-12 col-lg-9 col-xl-6">
-				<Form.Label htmlFor={cId}>Condición: </Form.Label>
-				<Form.Select
-					id={cId}
-					ref={conditionOperator}
-					defaultValue={conditionEdit?.op}
-				>
-					<option value="&">
-						Se deben obtener todas las insignias seleccionadas
-					</option>
-					<option value="|">
-						Se debe obtener alguna de las insignias seleccionadas
-					</option>
-				</Form.Select>
-			</div>
-
 			<b className="mt-4">Insignias:</b>
 			<div className="ms-4 me-0">
-				{badgeList.map((option) => {
+				{lmsResourceList.map((option, index) => {
 					return (
-						<div key={option.id}>
-							{" "}
-							<Form.Check
-								onChange={handleCheckboxChange}
-								value={option.id}
-								label={option.name}
-							></Form.Check>
+						<div key={index}>
+							<div>{option.name}</div>
+							<Row>
+								<Col>
+									<Form.Control
+										id={option.id}
+										type="date"
+										disabled={!option.checkboxEnabled}
+										onChange={() => handleDateChange(index)}
+										defaultValue={
+											option.date
+												? option.date
+												: new Date().toISOString().substr(0, 10)
+										}
+									/>
+								</Col>
+								<Col>
+									<Form.Check
+										label="Habilitar"
+										checked={option.checkboxEnabled}
+										onChange={() => handleSecondCheckboxChange(index)}
+									/>
+								</Col>
+							</Row>
 						</div>
 					);
 				})}
