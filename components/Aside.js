@@ -87,7 +87,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 	const lmsVisibilityDOM = useRef(null);
 	const sectionDOM = useRef(null);
 	const orderDOM = useRef(null);
-	const identationDOM = useRef(null);
+	const indentDOM = useRef(null);
 	//IDs
 	const labelDOMId = useId();
 	const optionsID = useId();
@@ -96,7 +96,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 	const sectionDOMId = useId();
 	const lmsVisibilityDOMId = useId();
 	const orderDOMId = useId();
-	const identationDOMId = useId();
+	const indentDOMId = useId();
 	//TODO: Add the rest
 
 	const [resourceOptions, setResourceOptions] = useState([]);
@@ -320,7 +320,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 			const lmsVisibilityCurrent = lmsVisibilityDOM.current;
 			const sectionCurrent = sectionDOM.current;
 			const orderCurrent = orderDOM.current;
-			const identationCurrent = identationDOM.current;
+			const indentCurrent = indentDOM.current;
 
 			if (labelCurrent) {
 				labelCurrent.value = nodeSelected.data.label;
@@ -342,8 +342,8 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 				orderCurrent.value = nodeSelected.data.order + 1;
 			}
 
-			if (identationCurrent) {
-				identationCurrent.value = nodeSelected.data.identation;
+			if (indentCurrent) {
+				indentCurrent.value = nodeSelected.data.indent;
 			}
 
 			setSelectedOption(nodeSelected.type);
@@ -369,8 +369,8 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 					Math.max(orderDOM.current.value, 0),
 					getLastPositionInSection(newSection, reactFlowInstance.getNodes()) + 1
 				);
-				let limitedIdentation = identationDOM.current.value;
-				limitedIdentation = Math.min(Math.max(limitedIdentation, 0), 16);
+				let limitedindent = indentDOM.current.value;
+				limitedindent = Math.min(Math.max(limitedindent, 0), 16);
 
 				newData = {
 					...nodeSelected.data,
@@ -381,7 +381,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 						: "hidden_until_access",
 					section: newSection,
 					order: limitedOrder - 1,
-					identation: limitedIdentation,
+					indent: limitedindent,
 				};
 
 				const updatedData = {
@@ -847,16 +847,16 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 											></Form.Control>
 										</Form.Group>
 										<Form.Group className="mb-2">
-											<Form.Label htmlFor={identationDOMId}>
+											<Form.Label htmlFor={indentDOMId}>
 												Identación en la sección
 											</Form.Label>
 											<Form.Control
 												type="number"
 												min={0}
 												max={16}
-												defaultValue={nodeSelected.data.identation}
-												ref={identationDOM}
-												id={identationDOMId}
+												defaultValue={nodeSelected.data.indent}
+												ref={indentDOM}
+												id={indentDOMId}
 											></Form.Control>
 										</Form.Group>
 									</>

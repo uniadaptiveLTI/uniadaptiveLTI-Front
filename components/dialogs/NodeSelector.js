@@ -101,7 +101,7 @@ export default forwardRef(function NodeSelector(
 					: section;
 			data.order = getLastPositionInSection(section, rfNodes) + 1;
 			data.lmsVisibility = getDefaultVisibility(platform);
-			data.identation = 0;
+			data.indent = 0;
 		} else {
 			data.label = name;
 		}

@@ -375,7 +375,7 @@ function Header({ LTISettings }, ref) {
 					newNode.position = { x: newX, y: newY };
 					newNode.data = {
 						label: node.name,
-						indent: node.indent,
+						indentation: node.indent,
 						section: node.section,
 						children: [],
 						order: node.order, //broken order, as there is missing elements
