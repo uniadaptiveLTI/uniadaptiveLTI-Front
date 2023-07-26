@@ -96,10 +96,6 @@ export default function ExportPanel({
 		}
 	};
 
-	useLayoutEffect(() => {
-		console.log(currentSelectionInfo);
-	}, [currentSelectionInfo]);
-
 	const exportMap = async () => {
 		let nodesToExport = JSON.parse(
 			JSON.stringify(reactFlowInstance.getNodes()) //Deep clone TODO: DO THIS BETTER

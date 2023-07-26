@@ -247,7 +247,6 @@ export default forwardRef(function SectionSelector(
 			warningSearch.map((warningS) => warningS.section)
 		);
 
-		console.log(errorSum);
 		const errorPerSectionArray = [];
 		const warningsPerSectionArray = [];
 		for (const section in errorSum) {

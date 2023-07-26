@@ -1,6 +1,7 @@
 import React from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useReactFlow } from "reactflow";
 import {
 	faEdit,
 	faTrashAlt,
@@ -14,6 +15,9 @@ const CompletionComponent = ({
 	deleteCondition,
 	swapConditionGroup,
 }) => {
+	const reactFlowInstance = useReactFlow();
+	const nodes = reactFlowInstance.getNodes();
+
 	return (
 		<Container
 			className="mb-3 mt-3"
@@ -34,17 +38,20 @@ const CompletionComponent = ({
 						)}
 						siguientes actividades se han finalizado:
 						<ul>
-							{condition.activityList.map((option) => (
-								<li key={option.name}>
-									<strong>{option.name}</strong>{" "}
-									{option.date && (
-										<a>
-											{" "}
-											antes del <strong>{transformDate(option.date)}</strong>
-										</a>
-									)}
-								</li>
-							))}
+							{condition.activityList.map((option) => {
+								const node = nodes.find((node) => node.id === option.id);
+								return (
+									<li key={option.id}>
+										<strong>{node.data.label}</strong>{" "}
+										{option.date && (
+											<a>
+												{" "}
+												antes del <strong>{transformDate(option.date)}</strong>
+											</a>
+										)}
+									</li>
+								);
+							})}
 						</ul>
 					</div>
 				</Col>

@@ -1,5 +1,6 @@
 import React, { useId } from "react";
 import { Form, Row, Col } from "react-bootstrap";
+import { useReactFlow } from "reactflow";
 
 const CompletionForm = ({
 	conditionOperator,
@@ -8,6 +9,9 @@ const CompletionForm = ({
 	handleSecondCheckboxChange,
 }) => {
 	const cId = useId();
+
+	const reactFlowInstance = useReactFlow();
+
 	return (
 		<Form.Group
 			style={{
@@ -17,13 +21,18 @@ const CompletionForm = ({
 			}}
 			className="p-4"
 		>
-			<b className="mt-4">Insignias:</b>
-			<div className="ms-4 me-0">
+			<div>
+				<b className="mt-4">Bloques:</b>
+			</div>
+			<div className="me-0">
 				{lmsResourceList.map((option, index) => {
+					const nodes = reactFlowInstance.getNodes();
+
+					const node = nodes.find((node) => node.id === option.id);
 					return (
 						<div key={index}>
-							<div>{option.name}</div>
-							<Row>
+							<div>{node.data.label}</div>
+							<Row style={{ marginBottom: "0.125rem" }}>
 								<Col>
 									<Form.Control
 										id={option.id}

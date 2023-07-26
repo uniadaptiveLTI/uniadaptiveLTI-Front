@@ -5,7 +5,7 @@ export const NodeTypes = [
 		value: "addgroup",
 		name: "Añadir a grupo",
 		nodeType: "ActionNode",
-		lms: ["moodle", "sakai"],
+		lms: ["sakai"],
 		gradable: [],
 	},
 	{
@@ -140,7 +140,7 @@ export const NodeTypes = [
 		value: "mail",
 		name: "Enviar correo",
 		nodeType: "ActionNode",
-		lms: ["moodle", "sakai"],
+		lms: ["sakai"],
 		gradable: [],
 	},
 	{
@@ -167,7 +167,7 @@ export const NodeTypes = [
 		value: "remgroup",
 		name: "Eliminar grupo",
 		nodeType: "ActionNode",
-		lms: ["moodle", "sakai"],
+		lms: ["sakai"],
 		gradable: [],
 	},
 	{

@@ -488,7 +488,9 @@ function ConditionModal({
 				}
 			}
 		} else {
-			return true;
+			if (type != "completion") {
+				return true;
+			}
 		}
 	};
 

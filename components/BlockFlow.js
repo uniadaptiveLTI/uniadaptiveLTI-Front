@@ -527,7 +527,6 @@ const OverviewFlow = ({ map }, ref) => {
 							if (conditionExists) {
 								const newConditionAppend = {
 									id: sourceNode.id,
-									name: sourceNode.data.label,
 								};
 								conditionExists.activityList.push(newConditionAppend);
 							} else {
@@ -537,7 +536,6 @@ const OverviewFlow = ({ map }, ref) => {
 									activityList: [
 										{
 											id: sourceNode.id,
-											name: sourceNode.data.label,
 										},
 									],
 									op: "&",
@@ -553,7 +551,6 @@ const OverviewFlow = ({ map }, ref) => {
 								activityList: [
 									{
 										id: sourceNode.id,
-										name: sourceNode.data.label,
 									},
 								],
 								op: "&",
@@ -869,12 +866,6 @@ const OverviewFlow = ({ map }, ref) => {
 		setCMContainsReservedNodes(thereIsReservedNodesInArray(selectedNodes));
 		setShowContextualMenu(true);
 	};
-
-	useEffect(() => {
-		if (errorList) {
-			console.log(errorList);
-		}
-	}, [errorList]);
 
 	/**
 	 * Deletes blocks and updates their parents and children.

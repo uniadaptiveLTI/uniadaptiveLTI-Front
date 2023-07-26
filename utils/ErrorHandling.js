@@ -117,8 +117,6 @@ export function createItemErrors(item, errorArray) {
 				type: "resourceNotFound",
 			};
 
-			console.log(item.data.lmsResource);
-
 			const errorFound = errorArray.find(
 				(obj) =>
 					obj.nodeId === customEntry.nodeId &&

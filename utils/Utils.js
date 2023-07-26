@@ -253,18 +253,18 @@ export function updateBadgeConditions(blockNodeTarget, blockNodeSource) {
 
 			// Filter method to delete the specific node from the activity list
 			conditionExists.activityList = conditionExists.activityList.filter(
-				(item) => item.id !== blockNodeSource.id
+				(node) => node.id !== blockNodeSource.id
 			);
 		} else {
 			// Filter method to delete the condition type completion
 			blockNodeTarget.data.c.c = conditions.filter(
-				(item) => item.type !== "completion"
+				(node) => node.type !== "completion"
 			);
 		}
 	} else {
 		// Filter method to delete the condition type completion
 		blockNodeTarget.data.c.c = conditions.filter(
-			(item) => item.type !== "completion"
+			(condition) => condition.type !== "completion"
 		);
 	}
 }
@@ -295,4 +295,32 @@ export function getSectionFromPosition(sectionArray, sectionPosition) {
  */
 export function getSectionIDFromPosition(sectionArray, sectionPosition) {
 	return getSectionFromPosition(sectionArray, sectionPosition).id;
+}
+
+export function transformDate(dateStr) {
+	const date = new Date(dateStr);
+	const year = date.getFullYear();
+	const month = date.getMonth();
+
+	const monthNames = [
+		"enero",
+		"febrero",
+		"marzo",
+		"abril",
+		"mayo",
+		"junio",
+		"julio",
+		"agosto",
+		"septiembre",
+		"octubre",
+		"noviembre",
+		"diciembre",
+	];
+
+	const monthName = monthNames[month];
+	const day = date.getDate();
+
+	const formattedDate = `${day} de ${monthName} de ${year}`;
+
+	return formattedDate;
 }

@@ -9,6 +9,7 @@ import {
 	faEyeSlash,
 	faTrashCan,
 } from "@fortawesome/free-solid-svg-icons";
+import { transformDate } from "@utils/Utils";
 
 const DateComponent = ({
 	condition,
@@ -20,34 +21,6 @@ const DateComponent = ({
 	swapConditionParam,
 }) => {
 	const mainCondition = conditionsList.c.some((c) => c.id === condition.id);
-
-	function transformDate(dateStr) {
-		const date = new Date(dateStr);
-		const year = date.getFullYear();
-		const month = date.getMonth();
-
-		const monthNames = [
-			"enero",
-			"febrero",
-			"marzo",
-			"abril",
-			"mayo",
-			"junio",
-			"julio",
-			"agosto",
-			"septiembre",
-			"octubre",
-			"noviembre",
-			"diciembre",
-		];
-
-		const monthName = monthNames[month];
-		const day = date.getDate();
-
-		const formattedDate = `${day} de ${monthName} de ${year}`;
-
-		return formattedDate;
-	}
 
 	return (
 		<Container

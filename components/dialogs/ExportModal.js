@@ -182,59 +182,58 @@ export default forwardRef(function ExportModal(
 
 	function generateWarningList(nodeList) {
 		const warningArray = [];
-		nodeList.forEach((json) => {
-			const errorEntry = {
-				id: uniqueId(),
-				nodeId: json.id,
-			};
+		nodeList.forEach((node) => {
+			if (node.type !== "start" && node.type !== "end") {
+				const errorEntry = {
+					id: uniqueId(),
+					nodeId: node.id,
+				};
 
-			if (
-				json.type !== "remgroup" &&
-				json.type !== "addgroup" &&
-				json.type !== "fragment" &&
-				json.type !== "mail" &&
-				json.type !== "badge"
-			) {
 				if (
-					(!json.data.children || json.data.children.length === 0) &&
-					json.type !== "end"
+					node.type !== "remgroup" &&
+					node.type !== "addgroup" &&
+					node.type !== "fragment" &&
+					node.type !== "mail" &&
+					node.type !== "badge"
 				) {
-					const customEntry = {
-						...errorEntry,
-						seriousness: "warning",
-						type: "childrenNotFound",
-					};
+					if (!node.data.children || node.data.children.length === 0) {
+						const customEntry = {
+							...errorEntry,
+							seriousness: "warning",
+							type: "childrenNotFound",
+						};
 
-					const errorFound = warningArray.find(
-						(obj) =>
-							obj.nodeId === customEntry.nodeId &&
-							obj.seriousness === customEntry.seriousness &&
-							obj.type === customEntry.type
-					);
+						const errorFound = warningArray.find(
+							(obj) =>
+								obj.nodeId === customEntry.nodeId &&
+								obj.seriousness === customEntry.seriousness &&
+								obj.type === customEntry.type
+						);
 
-					if (!errorFound) {
-						warningArray.push(customEntry);
+						if (!errorFound) {
+							warningArray.push(customEntry);
+						}
 					}
-				}
 
-				const parentsNodeArray = getParentsNode(nodeList, json.id);
+					const parentsNodeArray = getParentsNode(nodeList, node.id);
 
-				if (parentsNodeArray.length <= 0 && json.type !== "start") {
-					const customEntry = {
-						...errorEntry,
-						seriousness: "warning",
-						type: "parentNotFound",
-					};
+					if (parentsNodeArray.length <= 0) {
+						const customEntry = {
+							...errorEntry,
+							seriousness: "warning",
+							type: "parentNotFound",
+						};
 
-					const errorFound = warningArray.find(
-						(obj) =>
-							obj.nodeId === customEntry.nodeId &&
-							obj.seriousness === customEntry.seriousness &&
-							obj.type === customEntry.type
-					);
+						const errorFound = warningArray.find(
+							(obj) =>
+								obj.nodeId === customEntry.nodeId &&
+								obj.seriousness === customEntry.seriousness &&
+								obj.type === customEntry.type
+						);
 
-					if (!errorFound) {
-						warningArray.push(customEntry);
+						if (!errorFound) {
+							warningArray.push(customEntry);
+						}
 					}
 				}
 			}
@@ -256,11 +255,9 @@ export default forwardRef(function ExportModal(
 
 	return (
 		<Modal show={showDialog} onHide={toggleDialog} centered>
-			{
-				<Modal.Header closeButton>
-					<Modal.Title>Exportación</Modal.Title>
-				</Modal.Header>
-			}
+			<Modal.Header closeButton>
+				<Modal.Title>Exportación</Modal.Title>
+			</Modal.Header>
 			<Modal.Body>
 				<Tabs
 					defaultActiveKey="success"

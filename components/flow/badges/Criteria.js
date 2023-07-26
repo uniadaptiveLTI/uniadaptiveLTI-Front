@@ -12,34 +12,7 @@ import CourseCompletionComponent from "./condition-components/CourseCompletionCo
 import BadgeListComponent from "./condition-components/BadgeListComponent";
 import CompletionComponent from "./condition-components/CompletionComponent";
 import SkillsComponent from "./condition-components/SkillsComponent";
-
-function transformDate(dateStr) {
-	const date = new Date(dateStr);
-	const year = date.getFullYear();
-	const month = date.getMonth();
-
-	const monthNames = [
-		"enero",
-		"febrero",
-		"marzo",
-		"abril",
-		"mayo",
-		"junio",
-		"julio",
-		"agosto",
-		"septiembre",
-		"octubre",
-		"noviembre",
-		"diciembre",
-	];
-
-	const monthName = monthNames[month];
-	const day = date.getDate();
-
-	const formattedDate = `${day} de ${monthName} de ${year}`;
-
-	return formattedDate;
-}
+import { transformDate } from "@utils/Utils";
 
 function Criteria({
 	condition,

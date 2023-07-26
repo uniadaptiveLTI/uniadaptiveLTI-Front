@@ -61,7 +61,7 @@
 						"data": {
 							"label": "Aerodinámica",
 							"lmsResource": 2,
-							"children": ["dev2A1", "dev3A1", "dev9A1"],
+							"children": ["dev3A1", "dev9A1"],
 							"indent": 1,
 							"order": 0,
 							"section": 1,
@@ -81,46 +81,6 @@
 									}
 								]
 							}
-						}
-					},
-					{
-						"id": "dev2A1",
-						"position": {
-							"x": 375,
-							"y": -275
-						},
-						"type": "remgroup",
-						"data": {
-							"label": "Conocimiento",
-							"lmsResource": 58,
-							"c": {
-								"type": "conditionsGroup",
-								"id": "784378163420978",
-								"op": "|",
-								"c": [
-									{
-										"id": "6439787364123",
-										"type": "role",
-										"roleList": [
-											{
-												"id": "98123",
-												"name": "Gestor"
-											},
-											{
-												"id": "78134",
-												"name": "Profesor"
-											},
-											{
-												"id": "89422",
-												"name": "Profesor sin permisos de edición"
-											}
-										],
-										"op": "&",
-										"description": "Esta es la descripción"
-									}
-								]
-							},
-							"lmsVisibility": "hidden_until_access"
 						}
 					},
 					{
@@ -197,7 +157,7 @@
 						"data": {
 							"label": "Física de fluidos",
 							"lmsResource": 1,
-							"children": ["dev7A1", "dev8A1", "dev13A1"],
+							"children": ["dev8A1", "dev13A1"],
 							"indent": 2,
 							"order": 7,
 							"section": 1,
@@ -284,19 +244,6 @@
 									}
 								]
 							},
-							"lmsVisibility": "hidden_until_access"
-						}
-					},
-					{
-						"id": "dev7A1",
-						"position": {
-							"x": 1750,
-							"y": -275
-						},
-						"type": "badge",
-						"data": {
-							"label": "Mecánica de fluidos",
-							"lmsResource": 31,
 							"lmsVisibility": "hidden_until_access"
 						}
 					},
@@ -420,7 +367,27 @@
 						"type": "badge",
 						"data": {
 							"label": "Recuperación",
-							"lmsResource": 32
+							"lmsResource": 32,
+							"c": {
+								"type": "conditionsGroup",
+								"id": "301884364154",
+								"op": "&",
+								"showc": true,
+								"c": [
+									{
+										"id": "1458291548812",
+										"type": "completion",
+										"activityList": [
+											{
+												"id": "dev10A1",
+												"date": "2023-07-26"
+											}
+										],
+										"op": "&",
+										"query": "completed"
+									}
+								]
+							}
 						}
 					},
 					{
@@ -541,7 +508,7 @@
 						"expandParent": true,
 						"data": {
 							"label": "Recuperación fluidos",
-							"children": ["dev7A1", "dev8A1", "dev16A1"],
+							"children": ["dev8A1", "dev16A1"],
 							"indent": 2,
 							"order": 2,
 							"section": 2,
@@ -573,7 +540,7 @@
 						"data": {
 							"label": "Trabajo de recuperación",
 							"lmsResource": 5,
-							"children": ["dev7A1", "dev8A1"],
+							"children": ["dev8A1"],
 							"indent": 3,
 							"order": 3,
 							"section": 2,

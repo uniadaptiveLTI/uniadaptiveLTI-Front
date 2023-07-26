@@ -1,5 +1,5 @@
 import { getNodeById } from "@utils/Nodes";
-import { getByProperty } from "@utils/Utils";
+import { getByProperty, transformDate } from "@utils/Utils";
 import React, { useEffect, useState } from "react";
 import {
 	BaseEdge,
@@ -76,8 +76,6 @@ const ConditionalEdge = ({
 			case "completion":
 				if (condition.e) {
 					switch (condition.e) {
-						case 0:
-							return `Sin completar`;
 						case 1:
 							return `Completado`;
 						case 2:
@@ -87,17 +85,32 @@ const ConditionalEdge = ({
 					}
 				} else if (condition.activityList) {
 					//TODO: CHANGE THIS
+					const sourceNode = getNodeById(source, rfNodes);
+					const matchingCondition = condition.activityList.find(
+						(node) => node.id === sourceNode.id
+					);
+
 					switch (condition.op) {
 						case "|":
 							if (lineType != "or") setLineType("or");
-							//TODO: IF DATE
-							return `Completado`;
 
 						case "&":
 							if (lineType != "and") setLineType("and");
-							//TODO: IF DATE
-							return `Completado`;
 					}
+
+					if (matchingCondition.date) {
+						return (
+							<>
+								Completado antes del <br></br>{" "}
+								{transformDate(matchingCondition.date)}
+								<br />
+							</>
+						);
+					} else {
+						return `Completado`;
+					}
+				} else {
+					return `Sin completar`;
 				}
 				break;
 		}

@@ -31,7 +31,7 @@ const RoleForm = ({
 					<option value="|">Cualquiera de</option>
 				</Form.Select>
 			</div>
-			<b className="mt-4">Insignias:</b>
+			<b className="mt-4">Roles:</b>
 			<div className="ms-4 me-0">
 				{roleList.map((option) => (
 					<div key={option.id}>

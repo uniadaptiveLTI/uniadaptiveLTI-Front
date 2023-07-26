@@ -456,8 +456,10 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 
 				errorListCheck(updatedData, errorList, setErrorList, false);
 			} else {
+				console.log(nodeSelected);
 				//if action node
 				newData = {
+					...nodeSelected.data,
 					label: labelDOM.current.value,
 					lmsResource:
 						type !== "mail" ? Number(lmsResourceDOM.current.value) : type,

@@ -83,7 +83,7 @@ function ActionNode({ id, type, data, selected, dragging, isConnectable }) {
 	const rfNodes = useNodes();
 
 	const [hasExtraConditions, setHasExtraConditions] = useState(
-		getNumberOfIndependentConditions(getNodeById(id, rfNodes)) > 0
+		getNumberOfIndependentConditions(getNodeById(id, rfNodes)) > 1
 	);
 
 	const handleEdit = () => {
@@ -204,7 +204,7 @@ function ActionNode({ id, type, data, selected, dragging, isConnectable }) {
 						{<FontAwesomeIcon icon={faPlus} style={{ color: "#ffffff" }} />}
 					</Badge>
 				)}
-				{!data.lmsResource && (
+				{data.lmsResource == undefined && (
 					<Badge
 						bg="danger"
 						className={

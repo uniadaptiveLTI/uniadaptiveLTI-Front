@@ -6,6 +6,7 @@ import {
 	forwardRef,
 	useRef,
 	useLayoutEffect,
+	useId,
 } from "react";
 import SimpleActionDialog from "@dialogs/SimpleActionDialog";
 import SimpleMapSelector from "@dialogs/SimpleMapSelector";
@@ -147,6 +148,7 @@ function Header({ LTISettings }, ref) {
 		useContext(BlocksDataContext);
 	const { isOffline } = useContext(OnlineContext);
 	const { settings, setSettings } = useContext(SettingsContext);
+	const ccId = useId();
 
 	const parsedSettings = JSON.parse(settings);
 	let { reducedAnimations } = parsedSettings;
@@ -1237,6 +1239,7 @@ function Header({ LTISettings }, ref) {
 							{/*FIXME: For any reason this Dropdown triggers an hydration error*/}
 							<Dropdown className={`btn-light d-flex align-items-center`}>
 								<Dropdown.Toggle
+									id={useId()}
 									variant="light"
 									className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder} ${styles.toggleButton}`}
 									disabled={isOffline || !loadedMaps}
