@@ -295,7 +295,7 @@ export default function ExportPanel({
 		console.log(nodes);
 		try {
 			const response = await fetch(
-				`${getHTTPPrefix()}://${LTISettings.back_url}/api/lti/export_version`,
+				`${getHTTPPrefix()}//${LTISettings.back_url}/api/lti/export_version`,
 				{
 					method: "POST",
 					headers: { "Content-Type": "application/json" },

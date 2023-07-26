@@ -274,7 +274,7 @@ export function updateBadgeConditions(blockNodeTarget, blockNodeSource) {
  * @returns {string} The HTTP prefix, either "http" or "https".
  */
 export function getHTTPPrefix() {
-	return parseBool(process.env.NEXT_PUBLIC_SSL) ? "https" : "http";
+	return window.location.protocol;
 }
 
 /**

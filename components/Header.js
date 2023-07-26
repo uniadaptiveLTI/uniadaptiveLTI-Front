@@ -205,7 +205,7 @@ function Header({ LTISettings }, ref) {
 				if (!LTISettings.debugging.dev_files) {
 					try {
 						const response = await fetch(
-							`${getHTTPPrefix()}://${
+							`${getHTTPPrefix()}//${
 								LTISettings.back_url
 							}/lti/get_version?version_id=${selectedMap.versions[0].id}`
 						);
@@ -341,10 +341,10 @@ function Header({ LTISettings }, ref) {
 		console.log(localMetaData, localMaps);
 		const response = await fetch(
 			lesson != undefined
-				? `${getHTTPPrefix()}://${
+				? `${getHTTPPrefix()}//${
 						LTISettings.back_url
 				  }/lti/get_modules?instance=${encodedInstance}&course=${encodedCourse}&session=${encodedSessionId}&lesson=${lesson}`
-				: `${getHTTPPrefix()}://${
+				: `${getHTTPPrefix()}//${
 						LTISettings.back_url
 				  }/lti/get_modules?instance=${encodedInstance}&course=${encodedCourse}`
 		);
@@ -646,7 +646,7 @@ function Header({ LTISettings }, ref) {
 			if (!LTISettings.debugging.dev_files) {
 				try {
 					const response = await fetch(
-						`${getHTTPPrefix()}://${
+						`${getHTTPPrefix()}//${
 							LTISettings.back_url
 						}/api/lti/delete_map_by_id`,
 						{
@@ -662,7 +662,7 @@ function Header({ LTISettings }, ref) {
 							//FIXME: Load map "shell"
 							setLoadedMaps(false);
 							fetch(
-								`${getHTTPPrefix()}://${LTISettings.back_url}/lti/get_session`
+								`${getHTTPPrefix()}//${LTISettings.back_url}/lti/get_session`
 							)
 								.then((response) => response.json())
 								.then((data) => {
@@ -713,7 +713,7 @@ function Header({ LTISettings }, ref) {
 			if (!LTISettings.debugging.dev_files) {
 				try {
 					const response = await fetch(
-						`${getHTTPPrefix()}://${
+						`${getHTTPPrefix()}//${
 							LTISettings.back_url
 						}/api/lti/delete_version_by_id`,
 						{
@@ -729,7 +729,7 @@ function Header({ LTISettings }, ref) {
 							//FIXME: Load map "shell"
 							// setLoadedMaps(false);
 							// fetch(
-							//	`${getHTTPPrefix()}://${LTISettings.back_url}/lti/get_session`
+							//	`${getHTTPPrefix()}//${LTISettings.back_url}/lti/get_session`
 							//)
 							// 	.then((response) => response.json())
 							// 	.then((data) => {
@@ -898,7 +898,7 @@ function Header({ LTISettings }, ref) {
 						throw error;
 					});
 			} else {
-				fetch(`${getHTTPPrefix()}://${LTISettings.back_url}/lti/get_session`)
+				fetch(`${getHTTPPrefix()}//${LTISettings.back_url}/lti/get_session`)
 					.then((response) => response.json())
 					.then((data) => {
 						console.log("DATOS DEL LMS: ", data);
@@ -1062,7 +1062,7 @@ function Header({ LTISettings }, ref) {
 			};
 
 			const response = await fetch(
-				`${getHTTPPrefix()}://${LTISettings.back_url}/api/lti/store_version`,
+				`${getHTTPPrefix()}//${LTISettings.back_url}/api/lti/store_version`,
 				{
 					method: "POST",
 					headers: { "Content-Type": "application/json" },

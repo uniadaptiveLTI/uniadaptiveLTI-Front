@@ -131,7 +131,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 			setAllowResourceSelection(false);
 			const response = await fetch(
 				selectedOption == "generic"
-					? `${getHTTPPrefix()}://${
+					? `${getHTTPPrefix()}//${
 							LTISettings.back_url
 					  }/lti/get_modules_by_type?type=${encodeURIComponent(
 							"unsupported"
@@ -144,7 +144,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 								})
 							)
 					  )}`
-					: `${getHTTPPrefix()}://${
+					: `${getHTTPPrefix()}//${
 							LTISettings.back_url
 					  }/lti/get_modules_by_type?type=${encodedSelectedOption}&instance=${encodedInstance}&platform=${encodedPlatform}&course=${encodedCourse}&url_lms=${encodedLMS}&session=${encodedSession}`
 			);

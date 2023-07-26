@@ -90,10 +90,12 @@ const ConditionalEdge = ({
 					switch (condition.op) {
 						case "|":
 							if (lineType != "or") setLineType("or");
+							//TODO: IF DATE
 							return `Completado`;
 
 						case "&":
 							if (lineType != "and") setLineType("and");
+							//TODO: IF DATE
 							return `Completado`;
 					}
 				}
