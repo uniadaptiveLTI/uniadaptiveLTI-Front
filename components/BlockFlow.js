@@ -870,10 +870,11 @@ const OverviewFlow = ({ map }, ref) => {
 	/**
 	 * Deletes blocks and updates their parents and children.
 	 * @param {Node[]} blocks - The blocks to delete.
+	 * @returns {Node[]} - Node array without the blocks.
 	 */
 	const deleteBlocks = (blocks) => {
 		// Array of blocks that its children or conditions are being updated
-		var updatedBlocks = [];
+		let updatedBlocks = [];
 
 		//For each fragment in the selection, adds its children.
 		blocks.forEach((block) => {
@@ -994,6 +995,7 @@ const OverviewFlow = ({ map }, ref) => {
 
 		// Check method for errors
 		errorListCheck(blocks, errorList, setErrorList, true);
+		return updatedNodeArray;
 	};
 
 	/**
