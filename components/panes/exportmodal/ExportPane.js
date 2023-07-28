@@ -1,16 +1,24 @@
-import { useLayoutEffect, useState, useContext } from "react";
+import { useLayoutEffect, useState, useContext, useRef } from "react";
 import styles from "@root/styles/ExportModal.module.css";
-import { Alert, Button } from "react-bootstrap";
+import { Alert, Button, Spinner } from "react-bootstrap";
 import SectionSelector from "@components/forms/components/SectionSelector";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faExclamationTriangle } from "@fortawesome/free-solid-svg-icons";
 import { getRootStyle } from "@utils/Colors";
-import { useReactFlow } from "reactflow";
+import { useReactFlow, useNodes } from "reactflow";
 import { NodeTypes } from "@utils/TypeDefinitions";
-import { PlatformContext } from "pages/_app";
+import {
+	MapInfoContext,
+	PlatformContext,
+	VersionJsonContext,
+} from "pages/_app";
 import { getBackupURL } from "@utils/Platform";
 import { ActionNodes } from "@utils/Nodes";
-import { getHTTPPrefix, getSectionIDFromPosition } from "@utils/Utils";
+import {
+	getHTTPPrefix,
+	getSectionIDFromPosition,
+	saveVersion,
+} from "@utils/Utils";
 import { toast } from "react-toastify";
 
 export default function ExportPanel({
@@ -23,7 +31,13 @@ export default function ExportPanel({
 	LTISettings,
 }) {
 	const reactFlowInstance = useReactFlow();
+	const rfNodes = useNodes();
+
 	const { platform } = useContext(PlatformContext);
+	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
+	const { versionJson, setVersionJson } = useContext(VersionJsonContext);
+
+	const [exporting, setExporting] = useState(false);
 	const [ableToExport, setAbleToExport] = useState(false);
 	const [hasErrors, setHasErrors] = useState(!ableToExport);
 	const [errorCount, setErrorCount] = useState(0);
@@ -32,6 +46,27 @@ export default function ExportPanel({
 	const [currentSelectionInfo, setCurrentSelectionInfo] = useState({
 		selection: [],
 	});
+
+	const exportButtonRef = useRef(null);
+
+	const defaultToastSuccess = {
+		hideProgressBar: false,
+		autoClose: 2000,
+		type: "success",
+		position: "bottom-center",
+	};
+
+	const defaultToastError = {
+		hideProgressBar: false,
+		autoClose: 2000,
+		type: "error",
+		position: "bottom-center",
+	};
+
+	function enableExporting(boolean) {
+		setExporting(boolean);
+		exportButtonRef.current.disabled = boolean;
+	}
 
 	const backupURL = getBackupURL(platform, metaData);
 	const handleSelectionChange = (selectionInfo) => {
@@ -93,6 +128,15 @@ export default function ExportPanel({
 			setHasWarnings(() => hasSelectedWarnings());
 			setWarningCount(() => getSelectedWarningCount());
 			setCurrentSelectionInfo(selectionInfo);
+		}
+	};
+
+	const exportAndSave = async () => {
+		try {
+			enableExporting(true);
+			await exportMap();
+		} catch (error) {
+			// Handle error
 		}
 	};
 
@@ -193,6 +237,7 @@ export default function ExportPanel({
 			if (section && currentSelectionInfo.selection.includes(section.id))
 				return true;
 		});
+
 		sendNodes(nodesReadyToExport);
 	};
 
@@ -310,16 +355,32 @@ export default function ExportPanel({
 			if (response) {
 				const ok = response.ok;
 				if (ok) {
-					toast("Versión guardada con éxito", defaultToastSuccess);
+					await saveVersion(
+						rfNodes,
+						metaData,
+						platform,
+						userData,
+						mapSelected,
+						versionJson,
+						LTISettings,
+						defaultToastSuccess,
+						defaultToastError,
+						toast,
+						enableExporting
+					);
 				} else {
-					throw new Error("No se pudo guardar");
+					enableExporting(false);
+					throw new Error("No se pudo exportar", defaultToastError);
 				}
 			} else {
-				throw new Error("No se pudo guardar");
+				enableExporting(false);
+				throw new Error("No se pudo exportar", defaultToastError);
 			}
 		} catch (e) {
-			console.error(e);
+			toast("No se pudo exportar", defaultToastError);
 		}
+
+		enableExporting(false);
 	}
 
 	return (
@@ -357,10 +418,20 @@ export default function ExportPanel({
 			)}
 
 			<Button
+				ref={exportButtonRef}
 				disabled={hasErrors || currentSelectionInfo.selection.length <= 0}
-				onClick={exportMap}
+				onClick={exportAndSave}
 			>
-				Guardar y exportar
+				{!exporting && <div>Guardar y exportar</div>}
+				{exporting && (
+					<Spinner
+						as="span"
+						animation="border"
+						size="sm"
+						role="status"
+						aria-hidden="true"
+					/>
+				)}
 				{warningCount > 0 && (
 					<FontAwesomeIcon
 						icon={faExclamationTriangle}

@@ -223,6 +223,7 @@ const ConditionalEdge = ({
 							color: "var(--blockflow-edge-font-color)",
 							border: "var(--blockflow-edge-border)",
 							borderRadius: "var(--blockflow-edge-border-radius)",
+							whiteSpace: "nowrap",
 							textOverflow: "ellipsis",
 						}}
 						className="nodrag nopan"

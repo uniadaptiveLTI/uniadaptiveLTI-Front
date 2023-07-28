@@ -22,6 +22,7 @@ import {
 	Modal,
 	Popover,
 	OverlayTrigger,
+	Spinner,
 } from "react-bootstrap";
 import { useReactFlow, useNodes } from "reactflow";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -56,6 +57,7 @@ import {
 	orderByPropertyAlphabetically,
 	uniqueId,
 	getHTTPPrefix,
+	saveVersion,
 } from "@utils/Utils.js";
 import { isNodeArrayEqual } from "@utils/Nodes";
 import { errorListCheck } from "@utils/ErrorHandling";
@@ -104,6 +106,7 @@ function Header({ LTISettings }, ref) {
 	const [showLessonSelector, setShowLessonSelector] = useState(false);
 	const selectMapDOM = useRef(null);
 	const selectVersionDOM = useRef(null);
+	const saveButtonRef = useRef(null);
 	const [versions, setVersions] = useState([]);
 	const [lastMapCreated, setLastMapCreated] = useState();
 	const [lastVersionCreated, setLastVersionCreated] = useState();
@@ -128,6 +131,8 @@ function Header({ LTISettings }, ref) {
 	const toggleExportModal = () => setShowExportModal(!showExportModal);
 	const toggleUserSettingsModal = () =>
 		setShowUserSettingsModal(!showUserSettingsModal);
+
+	const [saving, setSaving] = useState(false);
 
 	const closeModalVersions = () => setShowModalVersions(false);
 	const openModalVersions = () => setShowModalVersions(true);
@@ -1034,62 +1039,6 @@ function Header({ LTISettings }, ref) {
 		);
 	}
 
-	async function saveVersion() {
-		//Cleaning node data
-		const cleanedNodes = rfNodes.map((node) => {
-			const nodeCopy = { ...node };
-			delete nodeCopy.height;
-			delete nodeCopy.width;
-			delete nodeCopy.positionAbsolute;
-			delete nodeCopy.dragging;
-			delete nodeCopy.selected;
-			delete nodeCopy.targetPosition;
-			return nodeCopy;
-		});
-		try {
-			const saveData = {
-				instance_id: metaData.instance_id,
-				course_id: metaData.course_id,
-				platform: platform,
-				user_id: userData.user_id,
-				map: {
-					id: mapSelected.id,
-					name: mapSelected.name,
-					versions: {
-						...selectedVersion,
-						lastUpdate: new Date().toLocaleString("es-ES"),
-						blocksData: cleanedNodes,
-					},
-				},
-			};
-
-			const response = await fetch(
-				`${getHTTPPrefix()}//${LTISettings.back_url}/api/lti/store_version`,
-				{
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({ saveData }),
-				}
-			);
-
-			if (response) {
-				const ok = response.ok;
-				if (ok) {
-					toast("Versión guardada con éxito", defaultToastSuccess);
-				} else {
-					toast("No se pudo guardar", defaultToastError);
-					throw new Error("No se pudo guardar");
-				}
-			} else {
-				toast("No se pudo guardar", defaultToastError);
-				throw new Error("No se pudo guardar");
-			}
-		} catch (e) {
-			toast(e, defaultToastError);
-			console.warn(e);
-		}
-	}
-
 	/**
 	 * A JSX element representing a popover with information.
 	 */
@@ -1157,6 +1106,33 @@ function Header({ LTISettings }, ref) {
 	const handleToUserSettings = (key) => {
 		if (key == undefined || key == "Enter" || key == "NumpadEnter") {
 			setShowUserSettingsModal(true);
+		}
+	};
+
+	function enableSaving(boolean) {
+		setSaving(boolean);
+		saveButtonRef.current.disabled = boolean;
+	}
+
+	const saveActualVersion = async () => {
+		console.log("AUGH");
+		try {
+			enableSaving(true);
+			await saveVersion(
+				rfNodes,
+				metaData,
+				platform,
+				userData,
+				mapSelected,
+				versionJson,
+				LTISettings,
+				defaultToastSuccess,
+				defaultToastError,
+				toast,
+				enableSaving
+			);
+		} catch (error) {
+			console.log(error);
 		}
 	};
 
@@ -1327,16 +1303,28 @@ function Header({ LTISettings }, ref) {
 									</Dropdown>
 									{/*FIXME: COLOR, remove variant*/}
 									<Button
+										ref={saveButtonRef}
 										className={` d-flex align-items-center p-2 ${styles.actionButtons} ${saveButtonColor}`}
 										disabled={isOffline || !loadedMaps}
 										variant="light"
 										aria-label="Guardar versión actual"
-										onClick={saveVersion}
+										onClick={saveActualVersion}
 									>
-										<FontAwesomeIcon
-											icon={faFloppyDisk}
-											style={{ height: "20px", width: "20px" }}
-										/>
+										{saving && (
+											<Spinner
+												as="span"
+												animation="border"
+												size="sm"
+												role="status"
+												aria-hidden="true"
+											/>
+										)}
+										{!saving && (
+											<FontAwesomeIcon
+												icon={faFloppyDisk}
+												style={{ height: "20px", width: "20px" }}
+											/>
+										)}
 									</Button>
 								</>
 							)}

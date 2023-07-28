@@ -324,3 +324,72 @@ export function transformDate(dateStr) {
 
 	return formattedDate;
 }
+
+export async function saveVersion(
+	rfNodes,
+	metaData,
+	platform,
+	userData,
+	mapSelected,
+	versionJson,
+	LTISettings,
+	defaultToastSuccess,
+	defaultToastError,
+	toast,
+	enable
+) {
+	//Cleaning node data
+	const cleanedNodes = rfNodes.map((node) => {
+		const nodeCopy = { ...node };
+		delete nodeCopy.height;
+		delete nodeCopy.width;
+		delete nodeCopy.positionAbsolute;
+		delete nodeCopy.dragging;
+		delete nodeCopy.selected;
+		delete nodeCopy.targetPosition;
+		return nodeCopy;
+	});
+	try {
+		const saveData = {
+			instance_id: metaData.instance_id,
+			course_id: metaData.course_id,
+			platform: platform,
+			user_id: userData.user_id,
+			map: {
+				id: mapSelected.id,
+				name: mapSelected.name,
+				versions: {
+					...versionJson,
+					lastUpdate: new Date().toLocaleString("es-ES"),
+					blocksData: cleanedNodes,
+				},
+			},
+		};
+
+		const response = await fetch(
+			`${getHTTPPrefix()}//${LTISettings.back_url}/api/lti/store_version`,
+			{
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ saveData }),
+			}
+		);
+
+		if (response) {
+			const ok = response.ok;
+			if (ok) {
+				enable(false);
+				toast("Versión guardada con éxito", defaultToastSuccess);
+			} else {
+				enable(false);
+				toast("No se pudo guardar", defaultToastError);
+			}
+		} else {
+			enable(false);
+			toast("No se pudo guardar", defaultToastError);
+		}
+	} catch (e) {
+		enable(false);
+		toast("No se pudo guardar", defaultToastError);
+	}
+}
