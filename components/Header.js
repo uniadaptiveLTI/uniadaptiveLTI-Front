@@ -1,8 +1,16 @@
-import styles from "@components/styles/Header.module.css";
-import { useState, useContext, useEffect, forwardRef, useRef } from "react";
-import SimpleActionDialog from "./dialogs/SimpleActionDialog";
-import UserSettings from "./UserSettings";
-import Image from "next/image";
+import styles from "@root/styles/Header.module.css";
+import {
+	useState,
+	useContext,
+	useEffect,
+	forwardRef,
+	useRef,
+	useLayoutEffect,
+	useId,
+} from "react";
+import SimpleActionDialog from "@dialogs/SimpleActionDialog";
+import SimpleMapSelector from "@dialogs/SimpleMapSelector";
+import SimpleLessonSelector from "@dialogs/SimpleLessonSelector";
 import {
 	Button,
 	Container,
@@ -14,19 +22,22 @@ import {
 	Modal,
 	Popover,
 	OverlayTrigger,
+	Spinner,
 } from "react-bootstrap";
+import { useReactFlow, useNodes } from "reactflow";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-	Bell,
-	InfoCircle,
-	PlusCircle,
-	Pencil,
-	Trash,
-} from "react-bootstrap-icons";
+	faBell,
+	faCircleQuestion,
+	faCirclePlus,
+	faPencil,
+	faTrash,
+	faFloppyDisk,
+} from "@fortawesome/free-solid-svg-icons";
 import {
-	MapContext,
-	BlockInfoContext,
-	ExpandedContext,
-	ItineraryInfoContext,
+	NodeInfoContext,
+	ExpandedAsideContext,
+	MapInfoContext,
 	VersionJsonContext,
 	VersionInfoContext,
 	PlatformContext,
@@ -34,10 +45,28 @@ import {
 	MSGContext,
 	SettingsContext,
 	OnlineContext,
-} from "@components/pages/_app";
+	MetaDataContext,
+	ErrorListContext,
+	HeaderToEmptySelectorContext,
+} from "@root/pages/_app";
 import { toast } from "react-toastify";
-import { notImplemented } from "@components/pages/_app";
-import { uniqueId } from "./Utils";
+import {
+	base64Decode,
+	base64Encode,
+	capitalizeFirstLetter,
+	orderByPropertyAlphabetically,
+	uniqueId,
+	getHTTPPrefix,
+	saveVersion,
+} from "@utils/Utils.js";
+import { isNodeArrayEqual } from "@utils/Nodes";
+import { errorListCheck } from "@utils/ErrorHandling";
+import download from "downloadjs";
+import { NodeTypes } from "@utils/TypeDefinitions";
+import ExportModal from "@components/dialogs/ExportModal";
+import { DevModeStatusContext } from "pages/_app";
+import UserSettingsModal from "./dialogs/UserSettingsModal";
+import { hasLessons } from "@utils/Platform";
 
 const defaultToastSuccess = {
 	hideProgressBar: false,
@@ -53,936 +82,81 @@ const defaultToastError = {
 	position: "bottom-center",
 };
 
-function Header({ closeBtn }, ref) {
+function Header({ LTISettings }, ref) {
+	const { devModeStatus } = useContext(DevModeStatusContext);
+	const { errorList, setErrorList } = useContext(ErrorListContext);
+	const {
+		mapCount,
+		setMapCount,
+		setMapNames,
+		setAllowUseStatus,
+		maps,
+		setMaps,
+		setFuncCreateMap,
+		setFuncImportMap,
+		setFuncImportMapFromLesson,
+		setFuncMapChange,
+	} = useContext(HeaderToEmptySelectorContext);
+	const rfNodes = useNodes();
 	const [showModalVersions, setShowModalVersions] = useState(false);
-	const [showModal, setShowModal] = useState(false);
+	const [showDeleteModal, setShowDeleteModal] = useState(false);
+	const [showMapSelectorModal, setShowMapSelectorModal] = useState(false);
+	const [showExportModal, setShowExportModal] = useState(false);
+	const [showUserSettingsModal, setShowUserSettingsModal] = useState(false);
+	const [showLessonSelector, setShowLessonSelector] = useState(false);
+	const selectMapDOM = useRef(null);
+	const selectVersionDOM = useRef(null);
+	const saveButtonRef = useRef(null);
+	const [versions, setVersions] = useState([]);
+	const [lastMapCreated, setLastMapCreated] = useState();
+	const [lastVersionCreated, setLastVersionCreated] = useState();
+
+	const [loadedUserData, setLoadedUserData] = useState();
+	const [loadedMetaData, setLoadedMetaData] = useState();
+	const emptyMap = { id: -1, name: "Seleccionar un mapa" };
+	const [loadedMaps, setLoadedMaps] = useState(false);
+	const { metaData, setMetaData } = useContext(MetaDataContext);
+	const [userData, setUserData] = useState({});
+
+	const [selectedVersion, setSelectedVersion] = useState();
+	const fileImportDOM = useRef(null);
+	const [saveButtonColor, setSaveButtonColor] = useState();
+
 	const [modalTitle, setModalTitle] = useState();
 	const [modalBody, setModalBody] = useState();
 	const [modalCallback, setModalCallback] = useState();
-	const toggleModal = () => setShowModal(!showModal);
+	const toggleDeleteModal = () => setShowDeleteModal(!showDeleteModal);
+	const toggleMapSelectorModal = () =>
+		setShowMapSelectorModal(!showMapSelectorModal);
+	const toggleExportModal = () => setShowExportModal(!showExportModal);
+	const toggleUserSettingsModal = () =>
+		setShowUserSettingsModal(!showUserSettingsModal);
 
-	const closeModalVersiones = () => setShowModalVersions(false);
-	const openModalVersiones = () => setShowModalVersions(true);
+	const [saving, setSaving] = useState(false);
+
+	const closeModalVersions = () => setShowModalVersions(false);
+	const openModalVersions = () => setShowModalVersions(true);
 
 	const { platform, setPlatform } = useContext(PlatformContext);
-	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
-	const { itinerarySelected, setItinerarySelected } =
-		useContext(ItineraryInfoContext);
-	const { selectedEditVersion, setSelectedEditVersion } =
+	const { nodeSelected, setNodeSelected } = useContext(NodeInfoContext);
+	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
+	const { editVersionSelected, setEditVersionSelected } =
 		useContext(VersionInfoContext);
 	const { msg, setMSG } = useContext(MSGContext);
 
 	const { versionJson, setVersionJson } = useContext(VersionJsonContext);
 
-	const { expanded, setExpanded } = useContext(ExpandedContext);
+	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
 
+	const reactFlowInstance = useReactFlow();
 	const { currentBlocksData, setCurrentBlocksData } =
 		useContext(BlocksDataContext);
 	const { isOffline } = useContext(OnlineContext);
 	const { settings, setSettings } = useContext(SettingsContext);
+	const ccId = useId();
 
 	const parsedSettings = JSON.parse(settings);
 	let { reducedAnimations } = parsedSettings;
-
-	const selectItineraryDOM = useRef(null);
-	const selectVersionDOM = useRef(null);
-
-	const [versions, setVersions] = useState([]);
-
-	const emptyMap = { id: -1, name: "Seleccionar un itinerario" };
-	const [maps, setMaps] = useState([
-		emptyMap,
-		{
-			id: 1,
-			name: "Física Grupo-A",
-			versions: [
-				{
-					id: 0,
-					name: "Última versión",
-					lastUpdate: "20/05/2023",
-					default: "true",
-					blocksData: [
-						{
-							id: "dev-2A1",
-							x: 0,
-							y: 0,
-							type: "start",
-							title: "Inicio",
-							children: ["dev0A1"],
-							identation: 1,
-						},
-						{
-							id: "dev-1A1",
-							x: 2000,
-							y: 0,
-							type: "end",
-							title: "Final",
-							identation: 1,
-						},
-						{
-							id: "dev0A1",
-							x: 125,
-							y: 0,
-							type: "file",
-							title: "Objetivos del curso",
-							children: ["dev1A1"],
-							identation: 1,
-							order: 1,
-							unit: 1,
-						},
-						{
-							id: "dev1A1",
-							x: 250,
-							y: 0,
-							type: "questionnaire",
-							title: "Aerodinámica",
-							conditions: [
-								{
-									type: "qualification",
-									operand: ">=",
-									objective: 5,
-									unlockId: "dev2A1",
-								},
-								{
-									type: "qualification",
-									operand: ">=",
-									objective: 5,
-									unlockId: "dev3A1",
-								},
-								{
-									type: "qualification",
-									operand: "<",
-									objective: 5,
-									unlockId: "dev9A1",
-								},
-							],
-							children: ["dev2A1", "dev3A1", "dev9A1"],
-							identation: 2,
-							order: 2,
-							unit: 1,
-						},
-						{
-							id: "dev2A1",
-							x: 375,
-							y: -175,
-							type: "badge",
-							title: "Conocimiento",
-							identation: 2,
-						},
-						{
-							id: "dev3A1",
-							x: 500,
-							y: 0,
-							type: "url",
-							title: "Web de Aerodinámica Avanzada",
-							children: ["dev4A1"],
-							identation: 2,
-							order: 3,
-							unit: 1,
-						},
-						{
-							id: "dev4A1",
-							x: 625,
-							y: 0,
-							type: "assignment",
-							title: "Ejercicios de la Web",
-							children: ["dev5A1", "dev6A1"],
-							conditions: [
-								{
-									type: "qualification",
-									operand: ">=",
-									objective: 5,
-									unlockId: "dev5A1",
-								},
-								{
-									type: "qualification",
-									operand: "<",
-									objective: 5,
-									unlockId: "dev6A1",
-								},
-							],
-							identation: 2,
-							order: 4,
-							unit: 1,
-						},
-						{
-							id: "dev5A1",
-							x: 1000,
-							y: 0,
-							type: "questionnaire",
-							title: "Física de fluidos",
-							children: ["dev7A1", "dev8A1", "dev13A1"],
-							identation: 1,
-							order: 9,
-							unit: 2,
-						},
-						{
-							id: "dev6A1",
-							x: 875,
-							y: 175,
-							type: "assignment",
-							title: "Ejercicios de ampliación",
-							children: ["dev5A1"],
-							identation: 3,
-							order: 8,
-							unit: 1,
-						},
-						{
-							id: "dev7A1",
-							x: 1750,
-							y: -175,
-							type: "badge",
-							title: "Mecánica de fluidos",
-							identation: 1,
-						},
-						{
-							id: "dev8A1",
-							x: 1875,
-							y: 0,
-							type: "page",
-							title: "Física cuantica",
-							children: ["dev-1A1"],
-							identation: 1,
-							order: 14,
-							unit: 3,
-						},
-						{
-							id: "dev9A1",
-							x: 375,
-							y: 350,
-							type: "folder",
-							title: "Aerodínamica, refuerzo",
-							children: ["dev10A1"],
-							identation: 2,
-							order: 5,
-							unit: 1,
-						},
-						{
-							id: "dev10A1",
-							x: 500,
-							y: 350,
-							type: "questionnaire",
-							title: "Aerodínamica, refuerzo",
-							children: ["dev11A1", "dev12A1", "dev5A1"],
-							conditions: [
-								{
-									type: "qualification",
-									operand: ">=",
-									objective: 5,
-									unlockId: "dev5A1",
-								},
-								{
-									type: "qualification",
-									operand: ">=",
-									objective: 5,
-									unlockId: "dev11A1",
-								},
-								{
-									type: "qualification",
-									operand: "<",
-									objective: 5,
-									unlockId: "dev12A1",
-								},
-							],
-							identation: 2,
-							order: 6,
-							unit: 1,
-						},
-						{
-							id: "dev11A1",
-							x: 625,
-							y: 175,
-							type: "badge",
-							title: "Recuperación",
-							identation: 3,
-						},
-						{
-							id: "dev12A1",
-							x: 625,
-							y: 525,
-							type: "assignment",
-							title: "Trabajo de recuperación",
-							children: ["dev6A1"],
-							identation: 3,
-							order: 7,
-							unit: 1,
-						},
-						{
-							id: "dev13A1",
-							x: 1125,
-							y: 175,
-							type: "page",
-							title: "Ayuda física de fluidos",
-							children: ["dev14A1"],
-							identation: 3,
-							order: 10,
-							unit: 2,
-						},
-						{
-							id: "dev14A1",
-							x: 1250,
-							y: 175,
-							type: "forum",
-							title: "Preguntas fluidos",
-							children: ["dev15A1"],
-							identation: 3,
-							order: 11,
-							unit: 2,
-						},
-						{
-							id: "dev15A1",
-							x: 1375,
-							y: 175,
-							type: "questionnaire",
-							title: "Recuperación fluidos",
-							children: ["dev7A1", "dev8A1", "dev16A1"],
-							conditions: [
-								{
-									type: "qualification",
-									operand: ">=",
-									objective: 5,
-									unlockId: "dev7A1",
-								},
-								{
-									type: "qualification",
-									operand: ">=",
-									objective: 5,
-									unlockId: "dev8A1",
-								},
-								{
-									type: "qualification",
-									operand: "<",
-									objective: 5,
-									unlockId: "dev16A1",
-								},
-							],
-							identation: 3,
-							order: 12,
-							unit: 2,
-						},
-						{
-							id: "dev16A1",
-							x: 1500,
-							y: 350,
-							type: "assignment",
-							title: "Trabajo de recuperación",
-							children: ["dev7A1", "dev8A1"],
-							identation: 4,
-							order: 13,
-							unit: 2,
-						},
-					],
-				},
-				{
-					id: 1,
-					name: "Prueba 2",
-					lastUpdate: "08/04/2023",
-					default: "false",
-					blocksData: [
-						{
-							id: "dev-2A2",
-							x: 0,
-							y: 0,
-							type: "start",
-							title: "Inicio",
-							children: ["dev-1A2"],
-							identation: 1,
-						},
-						{
-							id: "dev-1A2",
-							x: 125,
-							y: 0,
-							type: "end",
-							title: "Final",
-							identation: 1,
-						},
-					],
-				},
-			],
-		},
-		{
-			id: 2,
-			name: "Ejemplos de UNIAdaptive",
-			versions: [
-				{
-					id: 0,
-					name: "Última versión",
-					lastUpdate: "20/05/2023",
-					default: "true",
-					blocksData: [
-						{
-							id: "dev-2B1",
-							x: 0,
-							y: 175,
-							type: "start",
-							title: "Inicio",
-							children: ["dev0B1"],
-							identation: 1,
-						},
-						{
-							id: "dev-1B1",
-							x: 1000,
-							y: 525,
-							type: "end",
-							title: "Final",
-							identation: 1,
-						},
-						{
-							id: "dev0B1",
-							x: 125,
-							y: 175,
-							type: "file",
-							title: "Ecuaciones",
-							children: ["dev1B1"],
-							identation: 1,
-							order: 1,
-							unit: 1,
-						},
-						{
-							id: "dev1B1",
-							x: 250,
-							y: 175,
-							type: "questionnaire",
-							title: "Examen Tema 1",
-							conditions: [
-								{
-									type: "qualification",
-									operand: ">",
-									objective: 8,
-									unlockId: "dev2B1",
-								},
-							],
-							children: ["dev2B1", "dev4B1"],
-							identation: 2,
-							order: 2,
-							unit: 1,
-						},
-						{
-							id: "dev2B1",
-							x: 375,
-							y: 0,
-							type: "folder",
-							title: "Ecuaciones",
-							children: ["dev3B1"],
-							identation: 2,
-							order: 3,
-							unit: 1,
-						},
-						{
-							id: "dev3B1",
-							x: 500,
-							y: 0,
-							type: "badge",
-							title: "Insignia Ecuaciones",
-							identation: 2,
-						},
-						{
-							id: "dev4B1",
-							x: 375,
-							y: 350,
-							type: "url",
-							title: "Web raices cuadradas",
-							children: ["dev5B1"],
-							identation: 1,
-							order: 4,
-							unit: 1,
-						},
-						{
-							id: "dev5B1",
-							x: 500,
-							y: 350,
-							type: "forum",
-							title: "Foro de discusión",
-							children: ["dev6B1"],
-							identation: 2,
-							order: 5,
-							unit: 1,
-						},
-						{
-							id: "dev6B1",
-							x: 625,
-							y: 350,
-							type: "questionnaire",
-							title: "Cuestionario de raices",
-							children: ["dev7B1", "dev8B1"],
-							identation: 1,
-							order: 6,
-							unit: 2,
-						},
-						{
-							id: "dev7B1",
-							x: 750,
-							y: 175,
-							type: "assignment",
-							title: "Ejercicio de raices",
-							identation: 1,
-							order: 7,
-							unit: 2,
-						},
-						{
-							id: "dev8B1",
-							x: 750,
-							y: 525,
-							type: "choice",
-							title: "Preguntas sobre raices",
-							children: ["dev9B1"],
-							identation: 1,
-							order: 8,
-							unit: 2,
-						},
-						{
-							id: "dev9B1",
-							x: 875,
-							y: 525,
-							type: "page",
-							title: "Web informativa",
-							children: ["dev-1B1"],
-							identation: 2,
-							order: 9,
-							unit: 3,
-						},
-					],
-				},
-				{
-					id: 1,
-					name: "Prueba 1",
-					lastUpdate: "08/04/2023",
-					default: "false",
-					blocksData: [
-						{
-							id: "dev-2B2",
-							x: 0,
-							y: 700,
-							type: "start",
-							title: "Inicio",
-							children: ["dev0B2"],
-							identation: 1,
-						},
-						{
-							id: "dev-1B2",
-							x: 1000,
-							y: 700,
-							type: "end",
-							title: "Final",
-							identation: 1,
-						},
-						{
-							id: "dev0B2",
-							x: 125,
-							y: 700,
-							type: "file",
-							title: "Ecuaciones",
-							children: ["dev1B2"],
-							identation: 1,
-							order: 1,
-							unit: 1,
-						},
-						{
-							id: "dev1B2",
-							x: 250,
-							y: 700,
-							type: "questionnaire",
-							title: "Examen Tema 1",
-							conditions: [
-								{
-									type: "qualification",
-									operand: ">",
-									objective: 8,
-									unlockId: "dev2B2",
-								},
-							],
-							children: ["dev2B2", "dev5B2"],
-							identation: 2,
-							order: 2,
-							unit: 1,
-						},
-						{
-							id: "dev2B2",
-							x: 375,
-							y: 525,
-							type: "folder",
-							title: "Carpeta Ecuaciones",
-							children: ["dev10B2", "dev11B2"],
-							identation: 2,
-							order: 3,
-							unit: 1,
-						},
-						{
-							id: "dev5B2",
-							x: 375,
-							y: 1050,
-							type: "questionnaire",
-							title: "Cuestionario de raices",
-							children: ["dev6B2", "dev7B2"],
-							identation: 1,
-							order: 8,
-							unit: 2,
-						},
-						{
-							id: "dev6B2",
-							x: 625,
-							y: 875,
-							type: "assignment",
-							title: "Ejercicio de raices",
-							children: ["dev-1B2"],
-							identation: 1,
-							order: 9,
-							unit: 2,
-						},
-						{
-							id: "dev7B2",
-							x: 625,
-							y: 1225,
-							type: "choice",
-							title: "Preguntas y respuestas",
-							children: ["dev40B2", "dev41B2"],
-							identation: 1,
-							order: 10,
-							unit: 2,
-						},
-						{
-							id: "dev10B2",
-							x: 500,
-							y: 350,
-							type: "folder",
-							title: "Carpeta Ecuaciones 2",
-							children: ["dev12B2", "dev13B2"],
-							identation: 2,
-							order: 4,
-							unit: 1,
-						},
-						{
-							id: "dev11B2",
-							x: 500,
-							y: 700,
-							type: "folder",
-							title: "Carpeta Ecuaciones 3",
-							identation: 2,
-							order: 5,
-							unit: 1,
-						},
-						{
-							id: "dev12B2",
-							x: 625,
-							y: 175,
-							type: "folder",
-							title: "Insignia Ecuaciones 4",
-							identation: 2,
-							order: 6,
-							unit: 1,
-						},
-						{
-							id: "dev13B2",
-							x: 625,
-							y: 525,
-							type: "folder",
-							title: "Carpeta Ecuaciones 5",
-							identation: 2,
-							order: 7,
-							unit: 1,
-						},
-						{
-							id: "dev40B2",
-							x: 750,
-							y: 1050,
-							type: "page",
-							title: "Web informativa 2",
-							identation: 2,
-							order: 11,
-							unit: 2,
-						},
-						{
-							id: "dev41B2",
-							x: 750,
-							y: 1400,
-							type: "page",
-							title: "Web informativa 3",
-							identation: 2,
-							order: 12,
-							unit: 2,
-						},
-					],
-				},
-				{
-					id: 2,
-					name: "Prueba 2",
-					lastUpdate: "08/04/2023",
-					default: "false",
-					blocksData: [
-						{
-							id: "dev-2B3",
-							x: 0,
-							y: 175,
-							type: "start",
-							title: "Inicio",
-							children: ["dev0B3"],
-							identation: 1,
-						},
-						{
-							id: "dev-1B3",
-							x: 1500,
-							y: 525,
-							type: "end",
-							title: "Final",
-							identation: 1,
-						},
-						{
-							id: "dev0B3",
-							x: 125,
-							y: 175,
-							type: "file",
-							title: "Ecuaciones",
-							children: ["dev1B3"],
-							identation: 1,
-							order: 1,
-							unit: 1,
-						},
-						{
-							id: "dev1B3",
-							x: 250,
-							y: 175,
-							type: "questionnaire",
-							title: "Examen Tema 1",
-							conditions: [
-								{
-									type: "qualification",
-									operand: ">",
-									objective: 8,
-									unlockId: "dev2B3",
-								},
-							],
-							children: ["dev2B3", "dev3B3"],
-							identation: 2,
-							order: 2,
-							unit: 1,
-						},
-						{
-							id: "dev2B3",
-							x: 375,
-							y: 0,
-							type: "folder",
-							title: "Carpeta Ecuaciones",
-							identation: 2,
-							order: 3,
-							unit: 1,
-						},
-						{
-							id: "dev3B3",
-							x: 375,
-							y: 350,
-							type: "url",
-							title: "Web raices cuadradas",
-							children: ["dev4B3"],
-							identation: 1,
-							order: 4,
-							unit: 1,
-						},
-						{
-							id: "dev4B3",
-							x: 500,
-							y: 350,
-							type: "forum",
-							title: "Foro de discusión",
-							children: ["dev5B3"],
-							identation: 2,
-							order: 5,
-							unit: 1,
-						},
-						{
-							id: "dev5B3",
-							x: 625,
-							y: 350,
-							type: "questionnaire",
-							title: "Cuestionario de raices",
-							children: ["dev6B3", "dev7B3"],
-							identation: 1,
-							order: 6,
-							unit: 1,
-						},
-						{
-							id: "dev6B3",
-							x: 750,
-							y: 0,
-							type: "assignment",
-							title: "Ejercicio de raices",
-							identation: 1,
-							order: 7,
-							unit: 1,
-						},
-						{
-							id: "dev7B3",
-							x: 750,
-							y: 350,
-							type: "choice",
-							title: "Preguntas de Matemáticas",
-							children: ["dev8B3"],
-							identation: 1,
-							order: 8,
-							unit: 1,
-						},
-						{
-							id: "dev8B3",
-							x: 875,
-							y: 525,
-							type: "page",
-							title: "Web informativa",
-							children: ["dev40B3", "dev41B3"],
-							identation: 2,
-							order: 9,
-							unit: 1,
-						},
-						{
-							id: "dev40B3",
-							x: 1000,
-							y: 875,
-							type: "page",
-							title: "Web informativa 2",
-							identation: 2,
-							order: 10,
-							unit: 2,
-						},
-						{
-							id: "dev41B3",
-							x: 1000,
-							y: 525,
-							type: "page",
-							title: "Web informativa 3",
-							children: ["dev44B3", "dev45B3"],
-							identation: 2,
-							order: 11,
-							unit: 2,
-						},
-						{
-							id: "dev44B3",
-							x: 1125,
-							y: 525,
-							type: "page",
-							title: "Web informativa 6",
-							children: ["dev46B3", "dev47B3"],
-							identation: 2,
-							order: 12,
-							unit: 2,
-						},
-						{
-							id: "dev45B3",
-							x: 1125,
-							y: 875,
-							type: "page",
-							title: "Web informativa 7",
-							identation: 2,
-							order: 13,
-							unit: 2,
-						},
-						{
-							id: "dev46B3",
-							x: 1250,
-							y: 525,
-							type: "page",
-							title: "Web informativa 8",
-							children: ["dev48B3", "dev49B3"],
-							identation: 2,
-							order: 14,
-							unit: 2,
-						},
-						{
-							id: "dev47B3",
-							x: 1250,
-							y: 875,
-							type: "page",
-							title: "Web informativa 9",
-							identation: 2,
-							order: 15,
-							unit: 2,
-						},
-						{
-							id: "dev48B3",
-							x: 1375,
-							y: 525,
-							type: "page",
-							title: "Web informativa 10",
-							children: ["dev-1B3"],
-							identation: 2,
-							order: 16,
-							unit: 2,
-						},
-						{
-							id: "dev49B3",
-							x: 1375,
-							y: 875,
-							type: "page",
-							title: "Web informativa 11",
-							identation: 2,
-							order: 17,
-							unit: 2,
-						},
-					],
-				},
-			],
-		},
-		{
-			id: 3,
-			name: "Itinerario vacío",
-			versions: [
-				{
-					id: 0,
-					name: "Última versión",
-					lastUpdate: "20/05/2023",
-					default: "true",
-					blocksData: [
-						{
-							id: "dev-2C1",
-							x: 0,
-							y: 0,
-							type: "start",
-							title: "Inicio",
-							children: ["dev-1C1"],
-							identation: 1,
-						},
-						{
-							id: "dev-1C1",
-							x: 125,
-							y: 0,
-							type: "end",
-							title: "Final",
-							identation: 1,
-						},
-					],
-				},
-				{
-					id: 1,
-					name: "Versión vacía",
-					lastUpdate: "05/03/2023",
-					default: "false",
-					blocksData: [
-						{
-							id: "dev-2C2",
-							x: 0,
-							y: 0,
-							type: "start",
-							title: "Inicio",
-							children: ["dev-1C2"],
-							identation: 1,
-						},
-						{
-							id: "dev-1C2",
-							x: 125,
-							y: 0,
-							type: "end",
-							title: "Final",
-							identation: 1,
-						},
-					],
-				},
-			],
-		},
-	]);
-
-	const [selectedMap, setSelectedMap] = useState(getMapById(-1));
-
-	const [selectedVersion, setSelectedVersion] = useState();
-
-	const { map, setMap } = useContext(MapContext);
-
 	/**
 	 * Updates the version of an object in an array of versions.
 	 * @param {Object} newVersion - The new version object to update.
@@ -1012,25 +186,60 @@ function Header({ closeBtn }, ref) {
 	 * Resets the edit state.
 	 */
 	function resetEdit() {
-		setBlockSelected("");
-		setSelectedEditVersion("");
-		setItinerarySelected("");
+		setNodeSelected("");
+		setEditVersionSelected("");
 	}
 
 	/**
 	 * Handles a change in the selected map.
-	 * @param {Event} e - The change event.
+	 * @param {Event} e - The change event or an id.
 	 */
-	function handleMapChange(e) {
+	async function handleMapChange(e) {
 		resetEdit();
-		let id = Number(e.target.value);
-		let selectedMap = [...maps].find((e) => e.id == id);
-		setSelectedMap(selectedMap);
-		id > -1 ? setMap(selectedMap) : setMap("");
-		setVersions(selectedMap.versions);
-		if (selectedMap.versions) {
-			setSelectedVersion(selectedMap.versions[0]);
-			setCurrentBlocksData(selectedMap.versions[0].blocksData);
+		setErrorList([]);
+		let id;
+		if (isNaN(e)) {
+			id = Number(e.target.value);
+		} else {
+			id = e;
+		}
+
+		let selectedMap = [...maps].find((m) => m.id == id);
+		if (selectedMap) {
+			setMapSelected(selectedMap);
+
+			if (selectedMap.versions) {
+				if (!LTISettings.debugging.dev_files) {
+					try {
+						const response = await fetch(
+							`${getHTTPPrefix()}//${
+								LTISettings.back_url
+							}/lti/get_version?version_id=${selectedMap.versions[0].id}`
+						);
+
+						const data = await response.json();
+
+						if (!data.invalid) {
+							setVersions(selectedMap.versions);
+							setSelectedVersion(selectedMap.versions[0]);
+							setCurrentBlocksData(data.blocks_data);
+						} else {
+							setVersions(selectedMap.versions);
+							setSelectedVersion(selectedMap.versions[0]);
+							setCurrentBlocksData(selectedMap.versions[0].blocksData);
+						}
+					} catch (error) {
+						console.error("Error:", error);
+					}
+				} else {
+					setVersions(selectedMap.versions);
+					setSelectedVersion(selectedMap.versions[0]);
+					setCurrentBlocksData(selectedMap.versions[0].blocksData);
+				}
+			}
+			if (selectedMap.id == -1) {
+				changeToMapSelection();
+			}
 		}
 		resetMapSesion();
 	}
@@ -1041,95 +250,292 @@ function Header({ closeBtn }, ref) {
 	}
 
 	/**
-	 * Changes the selected map to the "you need to select a itinerary" message.
+	 * Changes the selected map to the "you need to select a map" message.
 	 */
 	function changeToMapSelection() {
 		resetEdit();
-		setSelectedMap(getMapById(-1));
-		setMap("");
+		setMapSelected(getMapById(-1));
+		setCurrentBlocksData();
 		setMSG([]);
 	}
 
 	/**
-	 * Handles the creation of a new itinerary.
+	 * Handles the creation of a new map.
 	 */
-	const handleNewItinerary = () => {
-		const uniqueId = () => parseInt(Date.now() * Math.random()).toString();
-		const endId = uniqueId();
-		const newMap = [
-			...maps,
-			{
-				id: maps.length,
-				name: "Nuevo Itinerario " + maps.length,
-				versions: [
-					{
-						id: 0,
-						name: "Última versión",
-						lastUpdate: new Date().toLocaleDateString(),
-						default: "true",
-						blocksData: [
-							{
-								id: uniqueId(),
-								x: 0,
-								y: 0,
-								type: "start",
-								title: "Inicio",
-								children: [endId],
-								identation: 1,
+	const handleNewMap = (e, data, localMaps = maps) => {
+		const handleNameCollision = (name, maps = localMaps) => {
+			let repeated = false;
+			let finalName = name;
+			localMaps.forEach((map) => {
+				if (map.name == name) repeated = true;
+			});
+
+			if (repeated) {
+				let nameCount = localMaps.filter((map) =>
+					map.name.startsWith(name)
+				).length;
+				finalName = name + ` (${nameCount + 1})`;
+			}
+			return finalName;
+		};
+
+		const emptyNewMap = {
+			id: uniqueId(),
+			name: handleNameCollision("Nuevo Mapa " + localMaps.length),
+			versions: [
+				{
+					id: uniqueId(),
+					name: "Última versión",
+					lastUpdate: new Date().toLocaleDateString(),
+					default: "true",
+					blocksData: [
+						{
+							id: uniqueId(),
+							position: { x: 0, y: 0 },
+							type: "start",
+							deletable: false,
+							data: {
+								label: "Entrada",
 							},
-							{
-								id: endId,
-								x: 125,
-								y: 0,
-								type: "end",
-								title: "Final",
-								identation: 1,
+						},
+						{
+							id: uniqueId(),
+							position: { x: 125, y: 0 },
+							type: "end",
+							deletable: false,
+							data: {
+								label: "Salida",
 							},
-						],
-					},
-				],
-			},
+						},
+					],
+				},
+			],
+		};
+		console.log(emptyNewMap);
+		const encodedNewMap = encodeURIComponent(emptyNewMap);
+		// console.log(response);
+
+		const newMaps = [
+			...localMaps,
+			data
+				? {
+						...data,
+						id: uniqueId(),
+						name: handleNameCollision("Nuevo Mapa " + localMaps.length),
+				  }
+				: emptyNewMap,
 		];
-		setMaps(newMap);
+
+		setMaps(newMaps);
+		setLastMapCreated(emptyNewMap.id);
 		toast(
-			`Itinerario: "Nuevo Itinerario ${maps.length}" creado`,
+			`Mapa: ${handleNameCollision("Nuevo Mapa " + localMaps.length)} creado`,
 			defaultToastSuccess
 		);
+		setMapCount((prev) => prev + 1);
+	};
+
+	const handleImportedMap = async (
+		lesson,
+		localMetaData = metaData,
+		localMaps = maps
+	) => {
+		const uniqueId = () => parseInt(Date.now() * Math.random()).toString();
+		// try {
+		const encodedCourse = encodeURIComponent(localMetaData.course_id);
+		const encodedInstance = encodeURIComponent(localMetaData.instance_id);
+		const encodedSessionId = encodeURIComponent(localMetaData.session_id);
+		console.log(localMetaData, localMaps);
+		const response = await fetch(
+			lesson != undefined
+				? `${getHTTPPrefix()}//${
+						LTISettings.back_url
+				  }/lti/get_modules?instance=${encodedInstance}&course=${encodedCourse}&session=${encodedSessionId}&lesson=${lesson}`
+				: `${getHTTPPrefix()}//${
+						LTISettings.back_url
+				  }/lti/get_modules?instance=${encodedInstance}&course=${encodedCourse}`
+		);
+
+		if (!response.ok) {
+			toast(
+				`Ha ocurrido un error durante la importación del mapa`,
+				defaultToastError
+			);
+			throw new Error("Request failed");
+		}
+		const data = await response.json();
+
+		console.log("JSON RECIBIDO: ", data);
+
+		let newX = 125;
+		let newY = 0;
+		const validTypes = [];
+		NodeTypes.map((node) => validTypes.push(node.type));
+		const nodes = [];
+		console.log("DAT", data);
+		data.map((node) => {
+			if (platform != "moodle") {
+				if (validTypes.includes(node.modname)) {
+					const newNode = {};
+					newNode.id = "" + uniqueId();
+					newNode.type = node.modname;
+					newNode.position = { x: newX, y: newY };
+					newNode.data = {
+						label: node.name,
+						indentation: node.indent,
+						section: node.section,
+						children: [],
+						order: node.order, //broken order, as there is missing elements
+						lmsResource: node.id,
+						lmsVisibility: node.visible,
+					};
+
+					newX += 125;
+					nodes.push(newNode);
+				}
+			} else {
+				//In Moodle, unknown blocks will be translated as "generic" (in blockflow.js)
+				const newNode = {};
+				newNode.id = "" + uniqueId();
+				newNode.type = node.modname;
+				newNode.position = { x: newX, y: newY };
+				newNode.data = {
+					label: node.name,
+					indent: node.indent,
+					section: node.section,
+					children: [],
+					order: node.order,
+					lmsResource: node.id,
+					lmsVisibility: node.visible,
+				};
+
+				newX += 125;
+				nodes.push(newNode);
+			}
+		});
+		console.log("JSON FILTRADO Y ADAPTADO: ", nodes);
+
+		const platformNewMap = {
+			id: uniqueId(),
+			name:
+				lesson != undefined
+					? `Mapa importado desde ${
+							localMetaData.lessons.find((lesson) => lesson.id == lesson).name
+					  } (${localMaps.length})`
+					: `Mapa importado desde ${localMetaData.name} (${localMaps.length})`,
+			versions: [
+				{
+					id: uniqueId(),
+					name: "Última versión",
+					lastUpdate: new Date().toLocaleDateString(),
+					default: "true",
+					blocksData: [
+						{
+							id: uniqueId(),
+							position: { x: 0, y: 0 },
+							type: "start",
+							deletable: false,
+							data: {
+								label: "Entrada",
+							},
+						},
+						...nodes,
+						{
+							id: uniqueId(),
+							position: { x: newX, y: 0 },
+							type: "end",
+							deletable: false,
+							data: {
+								label: "Salida",
+							},
+						},
+					],
+				},
+			],
+		};
+
+		const newMaps = [...localMaps, platformNewMap];
+
+		console.log("JSON CONVERTIDO EN UN MAPA: ", platformNewMap);
+
+		setMaps(newMaps);
+		setLastMapCreated(platformNewMap.id);
+		toast(`Mapa: ${platformNewMap.name} creado`, defaultToastSuccess);
+		setMapCount((prev) => prev + 1);
+		// } catch (e) {
+		// 	// toast(
+		// 	// 	`Ha ocurrido un error durante la importación del mapa`,
+		// 	// 	defaultToastError
+		// 	// );
+		// 	// throw new Error("Request failed");
+		// }
+	};
+
+	const handleImportedMapFromLesson = () => {
+		setShowLessonSelector(true);
 	};
 
 	/**
 	 * Handles the creation of a new version.
 	 */
-	const handleNewVersion = () => {
-		const endId = uniqueId();
-		const newMapVersions = [
-			...selectedMap.versions,
-			{
-				id: selectedMap.versions.length,
-				name: "Nueva Versión " + selectedMap.versions.length,
-				lastUpdate: new Date().toLocaleDateString(),
-				default: "true",
-				blocksData: [
-					{
-						id: uniqueId(),
-						x: 0,
-						y: 0,
-						type: "start",
-						title: "Inicio",
-						children: [endId],
-						identation: 1,
+	const handleNewVersion = (e, data) => {
+		const handleNameCollision = (name) => {
+			let repeated = false;
+			let finalName = name;
+			selectedMap.versions.forEach((map) => {
+				if (map.name == name) repeated = true;
+			});
+
+			if (repeated) {
+				let nameCount = selectedMap.versions.filter((map) =>
+					map.name.startsWith(name)
+				).length;
+				finalName = name + ` (${nameCount + 1})`;
+			}
+			return finalName;
+		};
+
+		const selectedMap = getMapById(selectMapDOM.current.value);
+		const emptyNewVersion = {
+			id: uniqueId(),
+			name: handleNameCollision("Nueva Versión " + selectedMap.versions.length),
+			lastUpdate: new Date().toLocaleDateString(),
+			default: "true",
+			blocksData: [
+				{
+					id: uniqueId(),
+					position: { x: 0, y: 0 },
+					type: "start",
+					deletable: false,
+					data: {
+						label: "Entrada",
 					},
-					{
-						id: endId,
-						x: 125,
-						y: 0,
-						type: "end",
-						title: "Final",
-						identation: 1,
+				},
+				{
+					id: uniqueId(),
+					position: { x: 125, y: 0 },
+					type: "end",
+					deletable: false,
+					data: {
+						label: "Salida",
 					},
-				],
-			},
-		];
+				},
+			],
+		};
+
+		const newFullVersion = data
+			? {
+					...data,
+					id: uniqueId(),
+					lastUpdate: new Date().toLocaleDateString(),
+					name: handleNameCollision(
+						"Nueva Versión " + selectedMap.versions.length
+					),
+					default: false,
+			  }
+			: emptyNewVersion;
+
+		const newMapVersions = [...selectedMap.versions, newFullVersion];
 		let modifiedMap = selectedMap;
 		modifiedMap.versions = newMapVersions;
 		const mapIndex = maps.findIndex((m) => m.id == selectedMap.id);
@@ -1137,60 +543,158 @@ function Header({ closeBtn }, ref) {
 		newMaps[mapIndex] = selectedMap;
 		setMaps(newMaps);
 		setVersions(modifiedMap.versions);
+		setLastVersionCreated(newFullVersion);
 		toast(
-			`Versión: "Nueva Versión ${modifiedMap.versions.length - 1}" creada`,
+			`Versión: ${handleNameCollision(
+				"Nueva Versión " + selectedMap.versions.length
+			)} creada`,
 			defaultToastSuccess
 		);
 	};
 
 	/**
-	 * Handles the editing of an itinerary.
+	 * Adds a new version to a map with the given the version data and a map id.
+	 * @param {Object} data - The data for the new version of the map.
+	 * @param {string} mapId - The id of the map to create a new version for.
 	 */
-	const editItinerary = () => {
-		if (expanded != true) {
-			setExpanded(true);
+	const handleNewVersionIn = (data, mapId) => {
+		const handleNameCollision = (name, selectedMap) => {
+			let repeated = false;
+			let finalName = name;
+			selectedMap.versions.forEach((map) => {
+				if (map.name == name) repeated = true;
+			});
+
+			if (repeated) {
+				let nameCount = selectedMap.versions.filter((map) =>
+					map.name.startsWith(name)
+				).length;
+				finalName = name + ` (${nameCount + 1})`;
+			}
+			return finalName;
+		};
+		const selectedMap = getMapById(mapId);
+		const newMapVersions = [
+			...selectedMap.versions,
+			{
+				...data,
+				id: uniqueId(),
+				lastUpdate: new Date().toLocaleDateString(),
+				name: handleNameCollision(
+					"Nueva Versión " + selectedMap.versions.length,
+					selectedMap
+				),
+				default: false,
+			},
+		];
+
+		let modifiedMap = selectedMap;
+		modifiedMap.versions = newMapVersions;
+		const mapIndex = maps.findIndex((m) => m.id == selectedMap.id);
+		const newMaps = [...maps];
+		newMaps[mapIndex] = modifiedMap;
+		setMaps(newMaps);
+		setVersions(modifiedMap.versions);
+		setMapSelected(modifiedMap);
+		setSelectedVersion(modifiedMap.versions[selectedMap.versions.length - 1]);
+		setCurrentBlocksData(
+			modifiedMap.versions[selectedMap.versions.length - 1].blocksData
+		);
+
+		toast(
+			`Versión: ${handleNameCollision(
+				"Nueva Versión " + selectedMap.versions.length,
+				selectedMap
+			)} creada`,
+			defaultToastSuccess
+		);
+	};
+
+	/**
+	 * Handles the editing of an map.
+	 */
+	const editMap = () => {
+		if (expandedAside != true) {
+			setExpandedAside(true);
 		}
-		const itineraryId = selectItineraryDOM.current.value;
-		setBlockSelected("");
-		setSelectedEditVersion("");
-		setItinerarySelected(getMapById(itineraryId));
+		const mapId = selectMapDOM.current.value;
+		setNodeSelected("");
+		setEditVersionSelected("");
+		setMapSelected(getMapById(mapId));
 	};
 
 	/**
 	 * Handles the editing of a version.
 	 */
 	const editVersion = () => {
-		if (expanded != true) {
-			setExpanded(true);
+		if (expandedAside != true) {
+			setExpandedAside(true);
 		}
-		setBlockSelected("");
-		setItinerarySelected("");
-		setSelectedEditVersion(selectedVersion);
+		setNodeSelected("");
+		setEditVersionSelected(selectedVersion);
 	};
 
 	/**
-	 * Shows a modal to confirm deletion of an itinerary.
+	 * Shows a modal to confirm deletion of an map.
 	 */
-	const showDeleteItineraryModal = () => {
-		setModalTitle(`¿Eliminar "${selectedMap.name}"?`);
-		setModalBody(`¿Desea eliminar "${selectedMap.name}"?`);
-		setModalCallback(() => deleteItinerary);
-		setShowModal(true);
+	const showDeleteMapModal = () => {
+		setModalTitle(`¿Eliminar "${mapSelected.name}"?`);
+		setModalBody(`¿Desea eliminar "${mapSelected.name}"?`);
+		setModalCallback(() => deleteMap);
+		setShowDeleteModal(true);
 	};
 
 	/**
-	 * Handles the deletion of an itinerary.
+	 * Handles the deletion of an map.
 	 */
-	const deleteItinerary = () => {
-		const itineraryId = selectItineraryDOM.current.value;
-		if (itineraryId != -1) {
-			setMaps((mapas) =>
-				mapas.filter((mapa) => mapa.id !== parseInt(itineraryId))
-			);
-			toast(`Itinerario eliminado con éxito.`, defaultToastSuccess);
-			changeToMapSelection();
+	const deleteMap = async () => {
+		const mapId = selectMapDOM.current.value;
+		if (mapId != -1) {
+			if (!LTISettings.debugging.dev_files) {
+				try {
+					const response = await fetch(
+						`${getHTTPPrefix()}//${
+							LTISettings.back_url
+						}/api/lti/delete_map_by_id`,
+						{
+							method: "POST",
+							headers: { "Content-Type": "application/json" },
+							body: JSON.stringify({ id: Number(mapId) }),
+						}
+					);
+					if (response) {
+						if (!response.ok) {
+							throw `Ha ocurrido un error.`;
+						} else {
+							//FIXME: Load map "shell"
+							setLoadedMaps(false);
+							fetch(
+								`${getHTTPPrefix()}//${LTISettings.back_url}/lti/get_session`
+							)
+								.then((response) => response.json())
+								.then((data) => {
+									const maps = [emptyMap, ...data[2].maps];
+									setMaps(maps);
+									setMapCount(maps.length);
+									setLoadedMaps(true);
+								});
+							changeToMapSelection();
+							toast(`Mapa eliminado con éxito.`, defaultToastSuccess);
+						}
+					} else {
+						throw `Ha ocurrido un error.`;
+					}
+				} catch (e) {
+					toast(`Ha ocurrido un error.`, defaultToastError);
+				}
+			} else {
+				setMaps((prevMaps) => prevMaps.filter((map) => map.id != mapId));
+				toast(`Mapa eliminado con éxito.`, defaultToastSuccess);
+				changeToMapSelection();
+				setMapCount((prev) => prev - 1);
+			}
 		} else {
-			toast(`No puedes eliminar este itinerario.`, defaultToastError);
+			toast(`No puedes eliminar este mapa.`, defaultToastError);
 		}
 	};
 
@@ -1201,49 +705,269 @@ function Header({ closeBtn }, ref) {
 		setModalTitle(`¿Eliminar "${selectedVersion.name}"?`);
 		setModalBody(`¿Desea eliminar "${selectedVersion.name}"?`);
 		setModalCallback(() => deleteVersion);
-		setShowModal(true);
+		setShowDeleteModal(true);
 	};
 
 	/**
 	 * Handles the deletion of a version.
 	 */
-	const deleteVersion = () => {
+	const deleteVersion = async () => {
 		const versionId = selectedVersion.id;
-		if (versionId != 0) {
-			setVersions((versions) =>
-				versions.filter((version) => version.id !== parseInt(versionId))
-			);
+		const mapId = selectMapDOM.current.value;
+		const versionCount = maps.find((map) => map.id == mapId).versions.length;
+		console.log(versionCount);
+		if (versionCount > 1) {
+			if (!LTISettings.debugging.dev_files) {
+				try {
+					const response = await fetch(
+						`${getHTTPPrefix()}//${
+							LTISettings.back_url
+						}/api/lti/delete_version_by_id`,
+						{
+							method: "POST",
+							headers: { "Content-Type": "application/json" },
+							body: JSON.stringify({ id: Number(versionId) }),
+						}
+					);
+					if (response) {
+						if (!response.ok) {
+							throw `Ha ocurrido un error.`;
+						} else {
+							//FIXME: Load map "shell"
+							// setLoadedMaps(false);
+							// fetch(
+							//	`${getHTTPPrefix()}//${LTISettings.back_url}/lti/get_session`
+							//)
+							// 	.then((response) => response.json())
+							// 	.then((data) => {
+							// 		const maps = [emptyMap, ...data[2].maps];
+							// 		setMaps(maps);
+							// 		setMapCount(maps.length);
+							// 		setLoadedMaps(true);
+							// 	});
+							setVersions((versions) =>
+								versions.filter((version) => version.id != versionId)
+							);
 
-			const firstVersion = versions.find(
-				(version) => version.id !== parseInt(versionId)
-			);
-			setSelectedVersion(firstVersion || versions[0] || null);
+							const firstVersion = versions.find(
+								(version) => version.id != versionId
+							);
+							setSelectedVersion(firstVersion || versions[0] || null);
 
-			const newMapVersions = selectedMap.versions.filter(
-				(version) => version.id !== parseInt(versionId)
-			);
-			const modifiedMap = { ...selectedMap, versions: newMapVersions };
-			const mapIndex = maps.findIndex((m) => m.id === selectedMap.id);
-			const newMaps = [...maps];
-			newMaps[mapIndex] = modifiedMap;
-			setMaps(newMaps);
-			setVersions(modifiedMap.versions);
-			toast(`Versión eliminada con éxito.`, defaultToastSuccess);
+							const newMapVersions = mapSelected.versions.filter(
+								(version) => version.id != versionId
+							);
+							const modifiedMap = { ...mapSelected, versions: newMapVersions };
+							const mapIndex = maps.findIndex((m) => m.id === mapSelected.id);
+							const newMaps = [...maps];
+							newMaps[mapIndex] = modifiedMap;
+							setMaps(newMaps);
+							setVersions(modifiedMap.versions);
+							setCurrentBlocksData(
+								firstVersion?.blocksData || versions[0]?.blocksData
+							);
+							toast(`Versión eliminada con éxito.`, defaultToastSuccess);
+						}
+					} else {
+						throw `Ha ocurrido un error.`;
+					}
+				} catch (e) {
+					toast(`Ha ocurrido un error.`, defaultToastError);
+				}
+			} else {
+				setVersions((versions) =>
+					versions.filter((version) => version.id != versionId)
+				);
+
+				const firstVersion = versions.find(
+					(version) => version.id != versionId
+				);
+				setSelectedVersion(firstVersion || versions[0] || null);
+
+				const newMapVersions = mapSelected.versions.filter(
+					(version) => version.id != versionId
+				);
+				const modifiedMap = { ...mapSelected, versions: newMapVersions };
+				const mapIndex = maps.findIndex((m) => m.id === mapSelected.id);
+				const newMaps = [...maps];
+				newMaps[mapIndex] = modifiedMap;
+				setMaps(newMaps);
+				setVersions(modifiedMap.versions);
+				setCurrentBlocksData(
+					firstVersion?.blocksData || versions[0]?.blocksData
+				);
+				toast(`Versión eliminada con éxito.`, defaultToastSuccess);
+			}
 		} else {
 			toast(`No puedes eliminar esta versión.`, defaultToastError);
 		}
 	};
 
+	const handleBlockDataExport = () => {
+		download(
+			base64Encode(
+				JSON.stringify({
+					instance_id: metaData.instance_id,
+					course_id: metaData.course_id,
+					platform: metaData.platform,
+					data: rfNodes,
+				})
+			),
+			`${mapSelected.name}-${selectedVersion.name}-${new Date()
+				.toLocaleDateString()
+				.replaceAll("/", "-")}.json`,
+			"application/json"
+		);
+		setShowModalVersions(false);
+	};
+
+	const handleBlockDataImport = () => {
+		fileImportDOM.current.click();
+	};
+
+	const handleImportedData = (e) => {
+		let file = e.target.files[0];
+		let reader = new FileReader();
+		reader.onload = function (e) {
+			let output = e.target.result;
+			//FIXME: File verification
+			const jsonObject = JSON.parse(base64Decode(output));
+			if (
+				jsonObject.instance_id == metaData.instance_id &&
+				jsonObject.course_id == metaData.course_id &&
+				jsonObject.platform == platform
+			) {
+				setCurrentBlocksData(jsonObject.data);
+			} else {
+				const jsonCleanedBlockData = jsonObject.data.map((node) => {
+					node.data = {
+						...node.data,
+						children: undefined,
+						c: undefined,
+						section: 0, //TODO: Test in sakai
+					};
+				});
+			}
+
+			//displayContents(output);
+		};
+
+		reader.readAsText(file);
+	};
+
+	useLayoutEffect(() => {
+		//Get resources
+		try {
+			if (LTISettings.debugging.dev_files) {
+				fetch("resources/devmaps.json")
+					.then((response) => response.json())
+					.then((data) => {
+						const maps = [emptyMap, ...data];
+						setMaps(maps);
+						setLoadedMaps(true);
+						setMapCount(maps.length);
+					})
+					.catch((e) => {
+						const error = new Error(
+							"No se pudieron obtener los datos del curso desde los archivos locales."
+						);
+						error.log = e;
+						throw error;
+					});
+				fetch("resources/devmeta.json")
+					.then((response) => response.json())
+					.then((data) => {
+						setPlatform(data.platform);
+						setMetaData({
+							...data,
+							back_url: LTISettings.back_url,
+						});
+						setLoadedMetaData(true);
+					})
+					.catch((e) => {
+						const error = new Error(
+							"No se pudieron obtener los metadatos del curso desde los archivos locales."
+						);
+						error.log = e;
+						throw error;
+					});
+				fetch("resources/devuser.json")
+					.then((response) => response.json())
+					.then((data) => {
+						setUserData(data);
+						setLoadedUserData(true);
+					})
+					.catch((e) => {
+						const error = new Error(
+							"No se pudieron obtener los datos del usuario desde los archivos locales."
+						);
+						error.log = e;
+						throw error;
+					});
+			} else {
+				fetch(`${getHTTPPrefix()}//${LTISettings.back_url}/lti/get_session`)
+					.then((response) => response.json())
+					.then((data) => {
+						console.log("DATOS DEL LMS: ", data);
+						// Usuario
+						setUserData(data[0]);
+						setLoadedUserData(true);
+
+						//Metadata
+						setPlatform(data[1].platform);
+						setMetaData({
+							...data[1],
+							back_url: LTISettings.back_url,
+						}); //FIXME: This should be the course website in moodle
+						setLoadedMetaData(true);
+
+						//Maps
+						const maps = [emptyMap, ...data[2].maps];
+						setMaps(maps);
+						setMapCount(maps.length);
+						setLoadedMaps(true);
+					})
+					.catch((e) => {
+						const error = new Error(
+							"No se pudieron obtener los datos del curso desde el LMS."
+						);
+						error.log = e;
+						throw error;
+					});
+			}
+		} catch (e) {
+			toast(e, defaultToastError);
+			console.error(e, e.log);
+		}
+	}, []);
+
 	useEffect(() => {
-		let newMap = [...maps];
-		newMap[maps.findIndex((b) => b.id == map.id)] = map;
-		setMaps(newMap);
-	}, [map]);
+		if (loadedMaps) {
+			let newMap = [...maps];
+			newMap[maps.findIndex((b) => b.id == mapSelected.id)] = mapSelected;
+			setMaps(newMap);
+		}
+	}, [mapSelected]);
+
+	useEffect(() => {
+		if (lastMapCreated != undefined) handleMapChange(lastMapCreated);
+	}, [lastMapCreated]);
+
+	useEffect(() => {
+		if (lastVersionCreated != undefined) setSelectedVersion(lastVersionCreated);
+	}, [lastVersionCreated]);
 
 	useEffect(() => {
 		if (selectedVersion) {
 			if (selectedVersion.id != versionJson.id) {
 				resetEdit();
+				errorListCheck(
+					selectedVersion.blocksData,
+					errorList,
+					setErrorList,
+					false
+				);
+				//console.log(selectedVersion.blocksData);
 				setCurrentBlocksData(selectedVersion.blocksData);
 				resetMapSesion();
 			}
@@ -1265,6 +989,34 @@ function Header({ closeBtn }, ref) {
 		}
 	}, [versionJson]);
 
+	//Gets if the nodes and the loaded version are different
+	useEffect(() => {
+		if (reactFlowInstance && currentBlocksData) {
+			const rfNodes = [...reactFlowInstance?.getNodes()].map((e) => {
+				delete e.height;
+				delete e.width;
+				delete e.positionAbsolute;
+				delete e.dragging;
+				delete e.selected;
+				delete e["Symbol(internals)"];
+				delete e.x; //FIXME: Find where these symbols are assignated
+				delete e.y;
+				return e;
+			});
+			if (rfNodes.length > 0) {
+				if (isNodeArrayEqual(rfNodes, currentBlocksData)) {
+					setSaveButtonColor(styles.primary);
+				} else {
+					setSaveButtonColor(styles.warning);
+				}
+			} else {
+				setSaveButtonColor();
+			}
+		} else {
+			setSaveButtonColor();
+		}
+	}, [reactFlowInstance?.getNodes()]); //TODO: Make it respond to node movement
+
 	/**
 	 * A React component that renders a logo.
 	 * @returns {JSX.Element} A JSX element representing the logo.
@@ -1272,17 +1024,17 @@ function Header({ closeBtn }, ref) {
 	function CreateLogo() {
 		return (
 			<div className="mx-auto d-flex align-items-center" role="button">
-				<Image
-					onClick={() => setExpanded(!expanded)}
-					alt="Uniadaptive"
-					src="/images/logo.png"
+				<img
+					onClick={() => setExpandedAside(!expandedAside)}
+					src={LTISettings.branding.small_logo_path}
+					alt="Mostrar menú lateral"
+					className={styles.icon}
 					width={40}
 					height={40}
-					className={styles.icon}
 					style={{
 						transition: "all 0.5s ease",
 					}}
-				></Image>
+				/>
 			</div>
 		);
 	}
@@ -1351,72 +1103,177 @@ function Header({ closeBtn }, ref) {
 	);
 	UserMenu.displayName = "UserMenu";
 
+	const handleToUserSettings = (key) => {
+		if (key == undefined || key == "Enter" || key == "NumpadEnter") {
+			setShowUserSettingsModal(true);
+		}
+	};
+
+	function enableSaving(boolean) {
+		setSaving(boolean);
+		saveButtonRef.current.disabled = boolean;
+	}
+
+	const saveActualVersion = async () => {
+		console.log("AUGH");
+		try {
+			enableSaving(true);
+			await saveVersion(
+				rfNodes,
+				metaData,
+				platform,
+				userData,
+				mapSelected,
+				selectedVersion,
+				LTISettings,
+				defaultToastSuccess,
+				defaultToastError,
+				toast,
+				enableSaving
+			);
+		} catch (error) {
+			console.log(error);
+		}
+	};
+
+	useEffect(() => {
+		setFuncCreateMap(() => handleNewMap);
+		setFuncImportMap(() => handleImportedMap);
+		setFuncImportMapFromLesson(() => handleImportedMapFromLesson);
+	}, []);
+
+	useEffect(() => {
+		setMapNames(
+			maps.map((map) => {
+				return { id: map.id, name: map.name };
+			})
+		);
+	}, [mapCount]);
+
+	useEffect(() => {
+		setAllowUseStatus(!(isOffline || !loadedMaps));
+	}, [isOffline, loadedMaps]);
 	return (
 		<header ref={ref} className={styles.header}>
-			<Navbar style={{ borderBottom: "1px solid #ccc" }}>
-				<Container fluid>
+			<Navbar>
+				<Container fluid className="flex-column flex-sm-row">
 					<Form
 						className={
-							!expanded ? "d-flex px-2 col-sm-8" : "d-flex px-2 col-sm-8"
+							!expandedAside
+								? "d-flex px-2 col-2 col-sm-6 col-md-8 col-12 flex-column flex-sm-row"
+								: "d-flex px-2 col-2 col-sm-6 col-md-8 col-12 flex-column flex-sm-row"
 						}
 						style={{ gap: "20px" }}
 					>
-						{!expanded && <CreateLogo />}
-						<Form.Select
-							ref={selectItineraryDOM}
-							value={selectedMap.id}
-							onChange={handleMapChange}
-							disabled={isOffline}
-						>
-							{maps.map((mapa) => (
-								<option id={mapa.id} key={mapa.id} value={mapa.id}>
-									{mapa.name}
-								</option>
-							))}
-						</Form.Select>
+						{!expandedAside && <CreateLogo />}
+						<div style={{ flexGrow: 1 }}>
+							{metaData && (
+								<span>
+									Mapas del curso:{" "}
+									<a
+										href={
+											metaData.return_url.startsWith("http")
+												? metaData.return_url
+												: "https://" + metaData.return_url
+										}
+										target="_blank"
+									>
+										{metaData.name}
+									</a>
+								</span>
+							)}
+							<Form.Select
+								ref={selectMapDOM}
+								value={mapSelected.id}
+								onChange={handleMapChange}
+								disabled={isOffline || !loadedMaps}
+								defaultValue={-1}
+								className="mb-2 mb-sm-0"
+							>
+								{loadedMaps &&
+									maps.map((map) => (
+										<option id={map.id} key={map.id} value={map.id}>
+											{map.name}
+										</option>
+									))}
+							</Form.Select>
+						</div>
 					</Form>
-					<Nav className={!expanded ? "col-sm-4" : "col-sm-4"}>
+					<Nav
+						className={
+							!expandedAside
+								? "col-10 col-sm-6 col-md-4 col-12"
+								: "col-10 col-sm-6 col-md-4 col-12"
+						}
+					>
 						<Container
 							fluid
 							className={
-								!expanded
-									? "d-flex align-items-center justify-content-evenly col-sm-7"
-									: "d-flex align-items-center justify-content-evenly col-sm-7"
+								"d-flex align-items-center justify-content-evenly col-sm-7 flex-wrap"
 							}
 						>
 							{/*FIXME: For any reason this Dropdown triggers an hydration error*/}
 							<Dropdown className={`btn-light d-flex align-items-center`}>
 								<Dropdown.Toggle
+									id={useId()}
 									variant="light"
 									className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder} ${styles.toggleButton}`}
-									disabled={isOffline}
+									disabled={isOffline || !loadedMaps}
 								>
-									<PlusCircle width="20" height="20" />
+									<FontAwesomeIcon
+										icon={faCirclePlus}
+										style={{ height: "20px", width: "20px" }}
+									/>
 								</Dropdown.Toggle>
 								<Dropdown.Menu>
-									<Dropdown.Item onClick={handleNewItinerary}>
-										Crear nuevo itinerario
+									<Dropdown.Item onClick={handleNewMap}>
+										Nuevo mapa vacío
 									</Dropdown.Item>
-									{selectedMap.id >= 0 && (
-										<Dropdown.Item onClick={handleNewVersion}>
-											Crear nueva versión
+									{!hasLessons(platform) && (
+										<Dropdown.Item onClick={() => handleImportedMap()}>
+											Nuevo mapa desde {capitalizeFirstLetter(platform)}
 										</Dropdown.Item>
+									)}
+									{hasLessons(platform) && (
+										<Dropdown.Item onClick={handleImportedMapFromLesson}>
+											Nuevo mapa desde {capitalizeFirstLetter(platform)}...
+										</Dropdown.Item>
+									)}
+									{mapSelected.id >= 0 && (
+										<>
+											<Dropdown.Item onClick={handleNewVersion}>
+												Nueva versión vacía
+											</Dropdown.Item>
+											<Dropdown.Item
+												onClick={(e) => handleNewVersion(e, selectedVersion)}
+											>
+												Nueva versión desde la actual
+											</Dropdown.Item>
+											<Dropdown.Item
+												onClick={() => setShowMapSelectorModal(true)}
+											>
+												Nueva versión desde la actual en...
+											</Dropdown.Item>
+										</>
 									)}
 								</Dropdown.Menu>
 							</Dropdown>
-							{selectedMap.id >= 0 && (
+							{mapSelected.id >= 0 && (
 								<>
 									<Dropdown className={`btn-light d-flex align-items-center`}>
 										<Dropdown.Toggle
 											variant="light"
-											className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder} ${styles.toggleButton}`}
-											disabled={isOffline}
+											className={`btn-light d-flex align-items-center p-2 ${styles.actionButtons} ${styles.toggleButton}`}
+											disabled={isOffline || !loadedMaps}
 										>
-											<Trash width="20" height="20" />
+											<FontAwesomeIcon
+												icon={faTrash}
+												style={{ height: "20px", width: "20px" }}
+											/>
 										</Dropdown.Toggle>
 										<Dropdown.Menu>
-											<Dropdown.Item onClick={showDeleteItineraryModal}>
-												Borrar itinerario actual
+											<Dropdown.Item onClick={showDeleteMapModal}>
+												Borrar mapa actual
 											</Dropdown.Item>
 
 											<Dropdown.Item onClick={showDeleteVersionModal}>
@@ -1427,34 +1284,47 @@ function Header({ closeBtn }, ref) {
 									<Dropdown className={`btn-light d-flex align-items-center `}>
 										<Dropdown.Toggle
 											variant="light"
-											className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder} ${styles.toggleButton}`}
-											disabled={isOffline}
+											className={`btn-light d-flex align-items-center p-2 ${styles.actionButtons} ${styles.toggleButton}`}
+											disabled={isOffline || !loadedMaps}
 										>
-											<Pencil width="20" height="20" />
+											<FontAwesomeIcon
+												icon={faPencil}
+												style={{ height: "20px", width: "20px" }}
+											/>
 										</Dropdown.Toggle>
 										<Dropdown.Menu>
-											<Dropdown.Item onClick={editItinerary}>
-												Editar itinerario actual
+											<Dropdown.Item onClick={editMap}>
+												Editar mapa actual
 											</Dropdown.Item>
 											<Dropdown.Item onClick={editVersion}>
 												Editar versión actual
 											</Dropdown.Item>
 										</Dropdown.Menu>
 									</Dropdown>
+									{/*FIXME: COLOR, remove variant*/}
 									<Button
-										className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder}`}
-										disabled={isOffline}
+										ref={saveButtonRef}
+										className={` d-flex align-items-center p-2 ${styles.actionButtons} ${saveButtonColor}`}
+										disabled={isOffline || !loadedMaps}
+										variant="light"
 										aria-label="Guardar versión actual"
+										onClick={saveActualVersion}
 									>
-										<Image
-											src={"/icons/save.svg"}
-											width="20"
-											height="20"
-											style={{ transform: "scale(1.15)" }}
-											onClick={notImplemented}
-											alt=""
-											//TODO: onClick
-										></Image>
+										{saving && (
+											<Spinner
+												as="span"
+												animation="border"
+												size="sm"
+												role="status"
+												aria-hidden="true"
+											/>
+										)}
+										{!saving && (
+											<FontAwesomeIcon
+												icon={faFloppyDisk}
+												style={{ height: "20px", width: "20px" }}
+											/>
+										)}
 									</Button>
 								</>
 							)}
@@ -1465,66 +1335,80 @@ function Header({ closeBtn }, ref) {
 								trigger="focus"
 							>
 								<Button
-									className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder}`}
+									className={`btn-light d-flex align-items-center p-2 ${styles.actionButtons}`}
 									data-bs-container="body"
 									data-bs-toggle="popover"
 									data-bs-placement="top"
 									data-bs-content="Top popover"
 								>
-									<InfoCircle width="20" height="20"></InfoCircle>
+									<FontAwesomeIcon
+										icon={faCircleQuestion}
+										style={{ height: "20px", width: "20px" }}
+									/>
 								</Button>
 							</OverlayTrigger>
 
-							<Button
-								className={`d-flex align-items-center p-2 ${styles.actionsBorder}`}
-								variant="danger"
-							>
-								<Bell width="20" height="20"></Bell>
-							</Button>
+							{mapSelected.id >= 0 && (
+								<Button
+									variant="dark"
+									className={`d-flex align-items-center p-2 ${
+										styles.actionButtons
+									} ${errorList?.length > 0 ? styles.error : styles.success}`}
+									onClick={() => {
+										if (mapSelected && mapSelected.id > -1)
+											setShowExportModal(true);
+									}}
+								>
+									<FontAwesomeIcon
+										icon={faBell}
+										style={{ height: "20px", width: "20px" }}
+									/>
+								</Button>
+							)}
 						</Container>
 						<Container
 							fluid
-							className={!expanded ? "d-flex col-sm-5" : "d-flex col-sm-5"}
+							className={
+								(!expandedAside ? "d-flex col-sm-5" : "d-flex col-sm-5") +
+								" justify-content-center"
+							}
 						>
-							<Dropdown
-								role="menu"
-								focusFirstItemOnShow={true}
-								align={"end"}
-								drop={"start"}
-								autoClose={"outside"}
-								className={styles.userSettings}
+							<div
+								className="d-flex flex-row"
+								role="button"
+								onClick={() => handleToUserSettings()}
+								onKeyUp={(e) => handleToUserSettings(e.code)}
+								tabIndex={0}
 							>
-								<Dropdown.Toggle
-									as={UserToggle}
-									id="dropdown-custom-components"
-								>
-									<div className="d-flex flex-row">
-										<Container className="d-flex flex-column">
-											<div>María García</div>
-											<div>Moodle</div>
-										</Container>
-										<div className="mx-auto d-flex align-items-center">
-											<Image
-												alt="Imagen de perfil"
-												src="/images/3373707.jpg"
-												width={48}
-												height={48}
-												style={{
-													borderRadius: 100 + "%",
-													border: "2px solid white",
-												}}
-											></Image>
-										</div>
-									</div>
-								</Dropdown.Toggle>
-								<Dropdown.Menu as={UserMenu}>
-									<UserSettings />
-								</Dropdown.Menu>
-							</Dropdown>
+								<Container className="d-flex flex-column">
+									<div>{loadedUserData ? userData.name : "Cargando..."}</div>
+									<div>{loadedMetaData && capitalizeFirstLetter(platform)}</div>
+								</Container>
+								<div className="mx-auto d-flex align-items-center">
+									{loadedUserData && userData.profile_url && (
+										<img
+											alt="Imagen de perfil"
+											src={userData.profile_url}
+											className={styles.userProfile}
+											width={48}
+											height={48}
+											style={
+												devModeStatus
+													? {
+															background: `var(--dev-background-color)`,
+															padding: "0.30rem",
+															scale: "1.2",
+													  }
+													: null
+											}
+										></img>
+									)}
+								</div>
+							</div>
 						</Container>
 					</Nav>
 				</Container>
-				{selectedMap.id > -1 && (
+				{mapSelected.id > -1 && versions.length > 0 && (
 					<div
 						className={
 							styles.mapContainer +
@@ -1536,10 +1420,10 @@ function Header({ closeBtn }, ref) {
 							<SplitButton
 								ref={selectVersionDOM}
 								value={selectedVersion.id}
-								title={versions.length > 0 ? selectedVersion.name : ""}
-								onClick={openModalVersiones}
+								title={selectedVersion.name}
+								onClick={openModalVersions}
 								variant="none"
-								disabled={isOffline}
+								disabled={isOffline || !loadedMaps}
 							>
 								{versions.map((version) => (
 									<Dropdown.Item
@@ -1557,7 +1441,7 @@ function Header({ closeBtn }, ref) {
 				)}
 			</Navbar>
 			{selectedVersion ? (
-				<Modal show={showModalVersions} onHide={closeModalVersiones}>
+				<Modal show={showModalVersions} onHide={closeModalVersions}>
 					<Modal.Header closeButton>
 						<Modal.Title>
 							Detalles de &quot;{selectedVersion.name}&quot;
@@ -1567,26 +1451,104 @@ function Header({ closeBtn }, ref) {
 						Actualmente la versión seleccionada es &quot;
 						<strong>{selectedVersion.name}</strong>&quot;, modificada por última
 						vez <b>{selectedVersion.lastUpdate}</b>.
+						{devModeStatus && (
+							<>
+								<br />
+								<div
+									style={{
+										overflow: "auto",
+									}}
+								>
+									<details>
+										<summary>
+											<b>Version -&gt; JSON:</b>
+										</summary>
+										<code
+											style={{
+												whiteSpace: "pre",
+												fontFamily: "monospace",
+											}}
+										>
+											{JSON.stringify(rfNodes, null, "\t")}
+										</code>
+									</details>
+								</div>
+							</>
+						)}
 					</Modal.Body>
 					<Modal.Footer>
-						<Button variant="secondary" onClick={closeModalVersiones}>
+						<Button variant="primary" onClick={handleBlockDataImport}>
+							Importar...
+						</Button>
+						<Button variant="success" onClick={handleBlockDataExport}>
+							Exportar
+						</Button>
+						<Button variant="secondary" onClick={closeModalVersions}>
 							Cerrar
 						</Button>
+						<input
+							style={{ display: "none" }}
+							type="file"
+							ref={fileImportDOM}
+							accept="application/json"
+							onChange={handleImportedData}
+						/>
 					</Modal.Footer>
 				</Modal>
 			) : (
 				<></>
 			)}
-			<SimpleActionDialog
-				showDialog={showModal}
-				toggleDialog={toggleModal}
-				title={modalTitle}
-				body={modalBody}
-				action=""
-				cancel=""
-				type="delete"
-				callback={modalCallback}
-			/>
+			{showDeleteModal && (
+				<SimpleActionDialog
+					showDialog={showDeleteModal}
+					toggleDialog={toggleDeleteModal}
+					title={modalTitle}
+					body={modalBody}
+					action=""
+					cancel=""
+					type="delete"
+					callback={modalCallback}
+				/>
+			)}
+			{showMapSelectorModal && (
+				<SimpleMapSelector
+					showDialog={showMapSelectorModal}
+					toggleDialog={toggleMapSelectorModal}
+					title={"Clonar versión a..."}
+					maps={maps}
+					callback={handleNewVersionIn}
+					selectedVersion={selectedVersion}
+					action={"Importar"}
+				/>
+			)}
+			{showLessonSelector && (
+				<SimpleLessonSelector
+					showDialog={showLessonSelector}
+					setShowDialog={setShowLessonSelector}
+					callback={handleImportedMap}
+					lessons={metaData.lessons}
+					action={"Importar"}
+				/>
+			)}
+			{showExportModal && (
+				<ExportModal
+					showDialog={showExportModal}
+					toggleDialog={toggleExportModal}
+					errorList={errorList}
+					metaData={metaData}
+					userData={userData}
+					mapName={mapSelected.name}
+					LTISettings={LTISettings}
+					selectedVersion={selectedVersion}
+				/>
+			)}
+			{showUserSettingsModal && (
+				<UserSettingsModal
+					showDialog={showUserSettingsModal}
+					setShowDialog={setShowUserSettingsModal}
+					LTISettings={LTISettings}
+				/>
+			)}
 		</header>
 	);
 }

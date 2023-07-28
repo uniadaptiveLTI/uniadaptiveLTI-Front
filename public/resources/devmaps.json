@@ -1,0 +1,1059 @@
+[
+	{
+		"id": 1,
+		"name": "Física Grupo-A",
+		"versions": [
+			{
+				"id": 0,
+				"name": "Última versión",
+				"lastUpdate": "20/05/2023",
+				"default": true,
+				"blocksData": [
+					{
+						"id": "dev-2A1",
+						"position": {
+							"x": 0,
+							"y": 0
+						},
+						"type": "start",
+						"deletable": false,
+						"data": {
+							"label": "Entrada",
+							"children": ["dev0A1"]
+						}
+					},
+					{
+						"id": "dev-1A1",
+						"position": {
+							"x": 2000,
+							"y": 0
+						},
+						"type": "end",
+						"deletable": false,
+						"data": {
+							"label": "Salida"
+						}
+					},
+					{
+						"id": "dev0A1",
+						"position": {
+							"x": 125,
+							"y": 0
+						},
+						"type": "resource",
+						"data": {
+							"label": "Objetivos del curso",
+							"lmsResource": 16,
+							"children": ["dev1A1"],
+							"indent": 0,
+							"order": 0,
+							"section": 0,
+							"lmsVisibility": "show_unconditionally"
+						}
+					},
+					{
+						"id": "dev1A1",
+						"position": {
+							"x": 250,
+							"y": 0
+						},
+						"type": "quiz",
+						"data": {
+							"label": "Aerodinámica",
+							"lmsResource": 2,
+							"children": ["dev3A1", "dev9A1"],
+							"indent": 1,
+							"order": 0,
+							"section": 1,
+							"lmsVisibility": "hidden_until_access",
+							"c": {
+								"type": "conditionsGroup",
+								"id": "9867211125367",
+								"op": "|",
+								"showc": true,
+								"c": [
+									{
+										"type": "completion",
+										"cm": "dev0A1",
+										"e": 2,
+										"showc": true,
+										"id": "93620462284937"
+									}
+								]
+							}
+						}
+					},
+					{
+						"id": "dev3A1",
+						"position": {
+							"x": 500,
+							"y": 0
+						},
+						"type": "url",
+						"data": {
+							"label": "Web de Aerodinámica Avanzada",
+							"lmsResource": 29,
+							"children": ["dev4A1"],
+							"indent": 1,
+							"order": 1,
+							"section": 1,
+							"c": {
+								"type": "conditionsGroup",
+								"id": "68924334612375132878973",
+								"op": "&",
+								"showc": true,
+								"c": [
+									{
+										"type": "completion",
+										"cm": "dev1A1",
+										"e": 2,
+										"showc": true,
+										"id": "4342243163224778853"
+									}
+								]
+							},
+							"lmsVisibility": "hidden_until_access"
+						}
+					},
+					{
+						"id": "dev4A1",
+						"position": {
+							"x": 625,
+							"y": 0
+						},
+						"type": "assign",
+						"data": {
+							"label": "Ejercicios de la Web",
+							"lmsResource": 5,
+							"children": ["dev5A1", "dev6A1"],
+							"indent": 1,
+							"order": 2,
+							"section": 1,
+							"c": {
+								"type": "conditionsGroup",
+								"id": "6892433461789895132878973",
+								"op": "&",
+								"showc": true,
+								"c": [
+									{
+										"type": "completion",
+										"cm": "dev3A1",
+										"e": 2,
+										"showc": true,
+										"id": "4123542243163224778853"
+									}
+								]
+							},
+							"lmsVisibility": "hidden_until_access"
+						}
+					},
+					{
+						"id": "dev5A1",
+						"position": {
+							"x": 1000,
+							"y": 0
+						},
+						"type": "quiz",
+						"data": {
+							"label": "Física de fluidos",
+							"lmsResource": 1,
+							"children": ["dev8A1", "dev13A1"],
+							"indent": 2,
+							"order": 7,
+							"section": 1,
+							"c": {
+								"type": "conditionsGroup",
+								"id": "100236670156",
+								"op": "|",
+								"showc": true,
+								"c": [
+									{
+										"type": "completion",
+										"cm": "dev4A1",
+										"e": 1,
+										"showc": true,
+										"id": "434222363224778852"
+									},
+									{
+										"type": "completion",
+										"cm": "dev6A1",
+										"e": 1,
+										"showc": true,
+										"id": "43422443224778853"
+									},
+									{
+										"type": "grade",
+										"id": "648191624693482345",
+										"cm": "dev10A1",
+										"showc": true,
+										"min": 7
+									},
+									{
+										"type": "conditionsGroup",
+										"showc": true,
+										"op": "&",
+										"id": "1297665732697",
+										"c": [
+											{
+												"type": "date",
+												"showc": true,
+												"t": "2023-07-21",
+												"d": ">=",
+												"id": "802671669671"
+											}
+										]
+									}
+								]
+							},
+							"lmsVisibility": "hidden_until_access"
+						}
+					},
+					{
+						"id": "dev6A1",
+						"position": {
+							"x": 875,
+							"y": 275
+						},
+						"type": "assign",
+						"data": {
+							"label": "Ejercicios de ampliación",
+							"lmsResource": 3,
+							"children": ["dev5A1"],
+							"indent": 2,
+							"order": 6,
+							"section": 1,
+							"c": {
+								"type": "conditionsGroup",
+								"id": "68924375132878957895673",
+								"op": "|",
+								"showc": true,
+								"c": [
+									{
+										"type": "completion",
+										"cm": "dev4A1",
+										"e": 1,
+										"showc": true,
+										"id": "4342223632247788542"
+									},
+									{
+										"type": "completion",
+										"cm": "dev12A1",
+										"e": 0,
+										"showc": true,
+										"id": "4342223632247782852"
+									}
+								]
+							},
+							"lmsVisibility": "hidden_until_access"
+						}
+					},
+					{
+						"id": "dev8A1",
+						"position": {
+							"x": 1875,
+							"y": 0
+						},
+						"type": "page",
+						"data": {
+							"label": "Física cuántica",
+							"lmsResource": 26,
+							"lmsVisibility": "hidden_until_access",
+							"children": ["dev-1A1"],
+							"indent": 0,
+							"order": 0,
+							"section": 3,
+							"c": {
+								"type": "conditionsGroup",
+								"id": "68924375132878973",
+								"op": "&",
+								"showc": true,
+								"c": [
+									{
+										"type": "completion",
+										"cm": "dev5A1",
+										"e": 1,
+										"showc": true,
+										"id": "434222363224778852"
+									},
+									{
+										"type": "grade",
+										"id": "6481924693482345",
+										"cm": "dev15A1",
+										"min": 6,
+										"max": 10,
+										"showc": true
+									},
+									{
+										"type": "completion",
+										"cm": "dev16A1",
+										"e": 2,
+										"showc": true,
+										"id": "43422232778852"
+									}
+								]
+							}
+						}
+					},
+					{
+						"id": "dev9A1",
+						"position": {
+							"x": 375,
+							"y": 550
+						},
+						"type": "folder",
+						"data": {
+							"label": "Aerodinámica, refuerzo",
+							"lmsResource": 19,
+							"lmsVisibility": "hidden_until_access",
+							"children": ["dev10A1"],
+							"indent": 1,
+							"order": 3,
+							"section": 1,
+							"c": {
+								"type": "conditionsGroup",
+								"id": "6892437513287698973",
+								"op": "&",
+								"showc": true,
+								"c": [
+									{
+										"type": "completion",
+										"cm": "dev1A1",
+										"e": 2,
+										"showc": true,
+										"id": "4342243163224778853"
+									}
+								]
+							}
+						}
+					},
+					{
+						"id": "dev10A1",
+						"position": {
+							"x": 500,
+							"y": 550
+						},
+						"type": "quiz",
+						"data": {
+							"label": "Aerodinámica, refuerzo",
+							"lmsResource": 0,
+							"lmsVisibility": "hidden_until_access",
+							"children": ["dev11A1", "dev12A1", "dev5A1"],
+							"indent": 1,
+							"order": 4,
+							"section": 1,
+							"c": {
+								"type": "conditionsGroup",
+								"id": "98437432194690",
+								"op": "&",
+								"showc": true,
+								"c": [
+									{
+										"type": "completion",
+										"cm": "dev9A1",
+										"e": 0,
+										"showc": true,
+										"id": "434222363224778852"
+									}
+								]
+							}
+						}
+					},
+					{
+						"id": "dev11A1",
+						"position": {
+							"x": 625,
+							"y": 275
+						},
+						"type": "badge",
+						"data": {
+							"label": "Recuperación",
+							"lmsResource": 32,
+							"c": {
+								"type": "conditionsGroup",
+								"id": "301884364154",
+								"op": "&",
+								"showc": true,
+								"c": [
+									{
+										"id": "1458291548812",
+										"type": "completion",
+										"activityList": [
+											{
+												"id": "dev10A1",
+												"date": "2023-07-26"
+											}
+										],
+										"op": "&",
+										"query": "completed"
+									}
+								]
+							}
+						}
+					},
+					{
+						"id": "dev12A1",
+						"position": {
+							"x": 625,
+							"y": 825
+						},
+						"type": "assign",
+						"data": {
+							"label": "Trabajo de recuperación",
+							"lmsResource": 5,
+							"lmsVisibility": "hidden_until_access",
+							"children": ["dev6A1"],
+							"indent": 2,
+							"order": 5,
+							"section": 1,
+							"c": {
+								"type": "conditionsGroup",
+								"id": "9544138437432194690",
+								"op": "&",
+								"showc": true,
+								"c": [
+									{
+										"type": "grade",
+										"id": "648191624693482345",
+										"cm": "dev10A1",
+										"max": 7,
+										"showc": true
+									}
+								]
+							}
+						}
+					},
+					{
+						"id": "devFragment",
+						"position": {
+							"x": 1125,
+							"y": 275
+						},
+						"type": "fragment",
+						"style": {
+							"width": 318,
+							"height": 68
+						},
+						"data": {
+							"label": "Fragmento",
+							"expanded": false,
+							"innerNodes": [
+								{
+									"id": "dev13A1",
+									"position": {
+										"x": 0,
+										"y": 0
+									}
+								},
+								{
+									"id": "dev14A1",
+									"position": {
+										"x": 125,
+										"y": 0
+									}
+								},
+								{
+									"id": "dev15A1",
+									"position": {
+										"x": 250,
+										"y": 0
+									}
+								}
+							]
+						}
+					},
+					{
+						"id": "dev13A1",
+						"position": {
+							"x": 32,
+							"y": 64
+						},
+						"type": "page",
+						"parentNode": "devFragment",
+						"expandParent": true,
+						"data": {
+							"label": "Ayuda física de fluidos",
+							"children": ["dev14A1"],
+							"indent": 2,
+							"order": 0,
+							"section": 2,
+							"lmsVisibility": "hidden_until_access"
+						}
+					},
+					{
+						"id": "dev14A1",
+						"position": {
+							"x": 157,
+							"y": 64
+						},
+						"type": "forum",
+						"parentNode": "devFragment",
+						"expandParent": true,
+						"data": {
+							"label": "Preguntas fluidos",
+							"children": ["dev15A1"],
+							"indent": 2,
+							"order": 1,
+							"section": 2,
+							"lmsVisibility": "hidden_until_access"
+						}
+					},
+					{
+						"id": "dev15A1",
+						"position": {
+							"x": 282,
+							"y": 64
+						},
+						"type": "quiz",
+						"parentNode": "devFragment",
+						"expandParent": true,
+						"data": {
+							"label": "Recuperación fluidos",
+							"children": ["dev8A1", "dev16A1"],
+							"indent": 2,
+							"order": 2,
+							"section": 2,
+							"c": {
+								"type": "conditionsGroup",
+								"id": "89898998898912342",
+								"op": "&",
+								"showc": true,
+								"c": [
+									{
+										"type": "completion",
+										"cm": "dev15A1",
+										"e": 1,
+										"showc": true,
+										"id": "4342234224778852"
+									}
+								]
+							},
+							"lmsVisibility": "hidden_until_access"
+						}
+					},
+					{
+						"id": "dev16A1",
+						"position": {
+							"x": 1500,
+							"y": 275
+						},
+						"type": "assign",
+						"data": {
+							"label": "Trabajo de recuperación",
+							"lmsResource": 5,
+							"children": ["dev8A1"],
+							"indent": 3,
+							"order": 3,
+							"section": 2,
+							"c": {
+								"type": "conditionsGroup",
+								"id": "456426231736855865",
+								"op": "&",
+								"showc": true,
+								"c": [
+									{
+										"type": "grade",
+										"id": "978434243341234324",
+										"cm": "dev15A1",
+										"max": 6,
+										"showc": true
+									}
+								]
+							},
+							"lmsVisibility": "hidden_until_access"
+						}
+					}
+				]
+			},
+			{
+				"id": 1,
+				"name": "Todos los bloques",
+				"lastUpdate": "20/05/2023",
+				"default": true,
+				"blocksData": [
+					{
+						"id": "dev-2A2",
+						"position": {
+							"x": -500,
+							"y": 0
+						},
+						"type": "start",
+						"deletable": false,
+						"data": {
+							"label": "Entrada"
+						}
+					},
+					{
+						"id": "dev-1A2",
+						"position": {
+							"x": 1000,
+							"y": 0
+						},
+						"type": "end",
+						"deletable": false,
+						"data": {
+							"label": "Salida"
+						}
+					},
+					{
+						"id": "1107830181877",
+						"type": "resource",
+						"data": {
+							"label": "Vacío",
+							"children": [],
+							"section": 0,
+							"order": 0,
+							"lmsVisibility": "hidden_until_access",
+							"indent": 0
+						},
+						"position": {
+							"x": -250,
+							"y": -275
+						}
+					},
+					{
+						"id": "1395491640609",
+						"type": "folder",
+						"data": {
+							"label": "Vacío",
+							"children": [],
+							"section": 0,
+							"order": 1,
+							"lmsVisibility": "hidden_until_access",
+							"indent": 0,
+							"lmsResource": -1
+						},
+						"position": {
+							"x": -125,
+							"y": -275
+						}
+					},
+					{
+						"id": "662009625756",
+						"type": "choice",
+						"data": {
+							"label": "Vacío",
+							"children": [],
+							"section": 0,
+							"order": 2,
+							"lmsVisibility": "hidden_until_access",
+							"indent": 0,
+							"lmsResource": -1
+						},
+						"position": {
+							"x": 0,
+							"y": -275
+						}
+					},
+					{
+						"id": "1457356554412",
+						"type": "quiz",
+						"data": {
+							"label": "Vacío",
+							"children": [],
+							"section": 0,
+							"order": 3,
+							"lmsVisibility": "hidden_until_access",
+							"indent": 0,
+							"lmsResource": -1
+						},
+						"position": {
+							"x": 125,
+							"y": -275
+						}
+					},
+					{
+						"id": "1457872277231",
+						"type": "label",
+						"data": {
+							"label": "Vacío",
+							"children": [],
+							"section": 0,
+							"order": 4,
+							"lmsVisibility": "hidden_until_access",
+							"indent": 0,
+							"lmsResource": -1
+						},
+						"position": {
+							"x": 250,
+							"y": -275
+						}
+					},
+					{
+						"id": "454314860754",
+						"type": "forum",
+						"data": {
+							"label": "Vacío",
+							"children": [],
+							"section": 0,
+							"order": 5,
+							"lmsVisibility": "hidden_until_access",
+							"indent": 0,
+							"lmsResource": -1
+						},
+						"position": {
+							"x": -250,
+							"y": 0
+						}
+					},
+					{
+						"id": "1606342092137",
+						"type": "glossary",
+						"data": {
+							"label": "Vacío",
+							"children": [],
+							"section": 0,
+							"order": 6,
+							"lmsVisibility": "hidden_until_access",
+							"indent": 0,
+							"lmsResource": -1
+						},
+						"position": {
+							"x": -125,
+							"y": 0
+						}
+					},
+					{
+						"id": "1551372343202",
+						"type": "lesson",
+						"data": {
+							"label": "Vacío",
+							"children": [],
+							"section": 0,
+							"order": 7,
+							"lmsVisibility": "hidden_until_access",
+							"indent": 0,
+							"lmsResource": -1
+						},
+						"position": {
+							"x": 0,
+							"y": 0
+						}
+					},
+					{
+						"id": "405703969648",
+						"type": "book",
+						"data": {
+							"label": "Vacío",
+							"children": [],
+							"section": 0,
+							"order": 8,
+							"lmsVisibility": "hidden_until_access",
+							"indent": 0,
+							"lmsResource": -1
+						},
+						"position": {
+							"x": 125,
+							"y": 0
+						}
+					},
+					{
+						"id": "1263082510766",
+						"type": "page",
+						"data": {
+							"label": "Vacío",
+							"children": [],
+							"section": 0,
+							"order": 9,
+							"lmsVisibility": "hidden_until_access",
+							"indent": 0,
+							"lmsResource": -1
+						},
+						"position": {
+							"x": 250,
+							"y": 0
+						}
+					},
+					{
+						"id": "833413724761",
+						"type": "workshop",
+						"data": {
+							"label": "Vacío",
+							"children": [],
+							"section": 0,
+							"order": 10,
+							"lmsVisibility": "hidden_until_access",
+							"indent": 0,
+							"lmsResource": -1
+						},
+						"position": {
+							"x": -250,
+							"y": 275
+						}
+					},
+					{
+						"id": "1117394860087",
+						"type": "assign",
+						"data": {
+							"label": "Vacío",
+							"children": [],
+							"section": 0,
+							"order": 11,
+							"lmsVisibility": "hidden_until_access",
+							"indent": 0,
+							"lmsResource": -1
+						},
+						"position": {
+							"x": -125,
+							"y": 275
+						}
+					},
+					{
+						"id": "1432219173346",
+						"type": "url",
+						"data": {
+							"label": "Vacío",
+							"children": [],
+							"section": 0,
+							"order": 12,
+							"lmsVisibility": "hidden_until_access",
+							"indent": 0,
+							"lmsResource": -1
+						},
+						"position": {
+							"x": 0,
+							"y": 275
+						}
+					},
+					{
+						"id": "1135082773815",
+						"type": "addgroup",
+						"data": {
+							"label": "Añadir a grupo"
+						},
+						"position": {
+							"x": -250,
+							"y": -825
+						}
+					},
+					{
+						"id": "274698891886",
+						"type": "badge",
+						"data": {
+							"label": "Dar insignia"
+						},
+						"position": {
+							"x": -125,
+							"y": -825
+						}
+					},
+					{
+						"id": "974046268843",
+						"type": "remgroup",
+						"data": {
+							"label": "Eliminar grupo"
+						},
+						"position": {
+							"x": 0,
+							"y": -825
+						}
+					},
+					{
+						"id": "1251432954912",
+						"type": "mail",
+						"data": {
+							"label": "Enviar correo"
+						},
+						"position": {
+							"x": 125,
+							"y": -825
+						}
+					},
+					{
+						"id": "1681399157279",
+						"type": "addgroup",
+						"data": {
+							"label": "Añadir a grupo"
+						},
+						"position": {
+							"x": 500,
+							"y": -825
+						}
+					},
+					{
+						"id": "1076996386074",
+						"type": "remgroup",
+						"data": {
+							"label": "Eliminar grupo"
+						},
+						"position": {
+							"x": 625,
+							"y": -825
+						}
+					},
+					{
+						"id": "1574825846275",
+						"type": "mail",
+						"data": {
+							"label": "Enviar correo"
+						},
+						"position": {
+							"x": 750,
+							"y": -825
+						}
+					},
+					{
+						"id": "1635774638667",
+						"type": "resource",
+						"data": {
+							"label": "Vacío",
+							"children": [],
+							"section": 0,
+							"order": 24,
+							"lmsVisibility": "hidden_until_access",
+							"indent": 0
+						},
+						"position": {
+							"x": 500,
+							"y": -275
+						}
+					},
+					{
+						"id": "596904393823",
+						"type": "folder",
+						"data": {
+							"label": "Vacío",
+							"children": [],
+							"section": 0,
+							"order": 25,
+							"lmsVisibility": "hidden_until_access",
+							"indent": 0
+						},
+						"position": {
+							"x": 625,
+							"y": -275
+						}
+					},
+					{
+						"id": "998183478859",
+						"type": "exam",
+						"data": {
+							"label": "Vacío",
+							"children": [],
+							"section": 0,
+							"order": 26,
+							"lmsVisibility": "hidden_until_access",
+							"indent": 0
+						},
+						"position": {
+							"x": 750,
+							"y": -275
+						}
+					},
+					{
+						"id": "1123461341650",
+						"type": "forum",
+						"data": {
+							"label": "Vacío",
+							"children": [],
+							"section": 0,
+							"order": 27,
+							"lmsVisibility": "hidden_until_access",
+							"indent": 0
+						},
+						"position": {
+							"x": 500,
+							"y": 0
+						}
+					},
+					{
+						"id": "545029985361",
+						"type": "html",
+						"data": {
+							"label": "Vacío",
+							"children": [],
+							"section": 0,
+							"order": 28,
+							"lmsVisibility": "hidden_until_access",
+							"indent": 0
+						},
+						"position": {
+							"x": 625,
+							"y": 0
+						}
+					},
+					{
+						"id": "367540809803",
+						"type": "assign",
+						"data": {
+							"label": "Vacío",
+							"children": [],
+							"section": 0,
+							"order": 29,
+							"lmsVisibility": "hidden_until_access",
+							"indent": 0
+						},
+						"position": {
+							"x": 750,
+							"y": 0
+						}
+					},
+					{
+						"id": "1537139442017",
+						"type": "text",
+						"data": {
+							"label": "Vacío",
+							"children": [],
+							"section": 0,
+							"order": 30,
+							"lmsVisibility": "hidden_until_access",
+							"indent": 0
+						},
+						"position": {
+							"x": 500,
+							"y": 275
+						}
+					},
+					{
+						"id": "1304581698251",
+						"type": "url",
+						"data": {
+							"label": "Vacío",
+							"children": [],
+							"section": 0,
+							"order": 31,
+							"lmsVisibility": "hidden_until_access",
+							"indent": 0
+						},
+						"position": {
+							"x": 625,
+							"y": 275
+						}
+					},
+					{
+						"id": "853462603684",
+						"type": "wiki",
+						"data": {
+							"label": "Vacío",
+							"children": [],
+							"section": 0,
+							"order": 32,
+							"lmsVisibility": "hidden_until_access",
+							"indent": 0
+						},
+						"position": {
+							"x": 750,
+							"y": 275
+						}
+					},
+					{
+						"id": "200004347288",
+						"type": "generic",
+						"data": {
+							"label": "Vacío",
+							"children": [],
+							"section": 0,
+							"order": 13,
+							"lmsVisibility": "hidden_until_access",
+							"indent": 0,
+							"lmsResource": -1
+						},
+						"position": {
+							"x": 125,
+							"y": 275
+						}
+					}
+				]
+			}
+		]
+	}
+]

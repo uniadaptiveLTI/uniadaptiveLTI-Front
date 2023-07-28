@@ -2,8 +2,16 @@ This is is a front-end tool, using the LTI (Learning Tools Interoperability) Pro
 
 ## Getting Started
 
+### Normal install
+
 - [Install NodeJS](https://nodejs.org/)
 - [Install Yarn](https://classic.yarnpkg.com/lang/en/docs/install/)
+
+Install necessary dependencies:
+
+```bash
+yarn install
+```
 
 Run the development server:
 
@@ -15,9 +23,16 @@ Open http://localhost:3000 with your browser to see the result.
 
 You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
 
-(Dummy) API routes can be accessed on http://localhost:3000/api/hello. This endpoint can be edited in `pages/api/hello.js`.
+### Docker
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as API routes instead of React pages.
+You can build your own docker image suited to your needs.
+
+For creating a development server image:
+
+```bash
+docker build --no-cache -f Dockerfile -t uniadaptivelti/frontdev:0.2.0 . --build-arg NEXT_MODE=dev
+```
+You can add additional arguments as you see fit.
 
 ## Learn More
 

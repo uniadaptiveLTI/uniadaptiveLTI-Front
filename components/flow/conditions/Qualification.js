@@ -1,12 +1,12 @@
 import React, { useContext } from "react";
 import { Form } from "react-bootstrap";
-import styles from "@components/styles/Aside.module.css";
-import { SettingsContext } from "@components/pages/_app";
+import styles from "@root/styles/Aside.module.css";
+import { SettingsContext } from "@root/pages/_app";
 
 const Qualification = ({
 	condition,
 	conditionTypes,
-	qualificationOperand,
+	gradeOperand,
 	titleID,
 	titleDOM,
 	expandedCondition,
@@ -40,10 +40,10 @@ const Qualification = ({
 			</Form.Group>
 			<Form.Group className="mb-3">
 				<Form.Label htmlFor={titleID} className="mb-1">
-					Operante
+					Operador
 				</Form.Label>
 				<Form.Select value={condition.operand}>
-					{qualificationOperand.map((operand) => {
+					{gradeOperand.map((operand) => {
 						return (
 							<option value={operand.value} key={operand.value}>
 								{operand.name}
@@ -64,8 +64,23 @@ const Qualification = ({
 					value={condition.objective}
 				></Form.Control>
 			</Form.Group>
+
+			<Form.Group>
+				<Form.Label htmlFor={titleID} className="mb-1">
+					Tipo de relación
+				</Form.Label>
+				<Form.Select value={condition.type}>
+					{conditionTypes.map((conditionType) => {
+						return (
+							<option value={conditionType.value} key={conditionType.value}>
+								{conditionType.name}
+							</option>
+						);
+					})}
+				</Form.Select>
+			</Form.Group>
 		</div>
 	);
 };
 
-export default Qualification;
+export default Grade;

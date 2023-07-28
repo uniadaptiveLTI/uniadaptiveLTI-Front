@@ -2,9 +2,11 @@
     border-right: 1px solid #ccc;
     height: 100%;
     z-index: 6;
-    background-color: #f8f8f8;
+    color: var(--aside-font-color);
+    background-color: var(--aside-background-color);
     display: flex;
     flex-direction: column;
+    font-family: var(--aside-font-family);
 }
 
 .aside form {
@@ -18,7 +20,8 @@
 }
 
 .uniadaptive:hover, .uniadaptive:focus-visible {
-    padding-top: 2.5em;
+
+    padding-top: 2em;
 }
 
 .uniadaptive span {
@@ -39,9 +42,17 @@
 }
 
 .uniadaptive.noAnimation {
-    padding-top: 2.5em;
     transition: none;
+    padding-top: 2em;
 }
+
+.uniadaptive>span>svg {
+    width: 24px;
+    height: 24px;
+    color: var(--aside-collapse-icon-color);
+    background-color: var(--aside-collapse-icon-background-color);
+}
+
 .uniadaptive.noAnimation span{
     transition: none;
     visibility: visible;
@@ -69,8 +80,8 @@
 
 @media screen and (prefers-reduced-motion: reduce) {
 	.uniadaptive {
-		padding-top: 2.5em;
         transition: none;
+        padding-top: 2em;
 	}
     .uniadaptive span{
 		transition: none;

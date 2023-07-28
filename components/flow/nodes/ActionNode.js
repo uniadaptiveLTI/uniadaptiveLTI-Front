@@ -1,115 +1,59 @@
-import { useCallback } from "react";
-import { Handle, Position } from "reactflow";
-import styles from "@components/styles/BlockContainer.module.css";
-
-import { PatchQuestionFill, StarFill } from "react-bootstrap-icons";
+import { useCallback, useContext, useState } from "react";
 import {
-	BlockInfoContext,
-	ExpandedContext,
-	ItineraryInfoContext,
+	Handle,
+	Position,
+	NodeToolbar,
+	useReactFlow,
+	useNodes,
+} from "reactflow";
+import styles from "@root/styles/BlockContainer.module.css";
+import {
+	NodeInfoContext,
+	ExpandedAsideContext,
+	MapInfoContext,
 	SettingsContext,
 	VersionInfoContext,
-} from "@components/pages/_app";
-import { useContext } from "react";
-
-export const ActionBlocks = ["badge"];
-
-function getTypeIcon(type) {
-	switch (type) {
-		//Moodle + Sakai
-
-		//Moodle
-		case "badge":
-			return <StarFill size={32} />;
-		//Sakai
-
-		//LTI
-		default:
-			return <PatchQuestionFill size={32} />;
-	}
-}
+	PlatformContext,
+} from "@root/pages/_app";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+	faEdit,
+	faRightFromBracket,
+	faExclamation,
+	faPlus,
+} from "@fortawesome/free-solid-svg-icons";
+import FocusTrap from "focus-trap-react";
+import { Button, Badge } from "react-bootstrap";
+import { getTypeIcon } from "@utils/NodeIcons";
+import { getUpdatedArrayById, parseBool } from "@utils/Utils";
+import { getNodeById, getNumberOfIndependentConditions } from "@utils/Nodes";
+import { DevModeStatusContext } from "pages/_app";
+import { NodeTypes } from "@utils/TypeDefinitions";
+import SimpleConditions from "../conditions/SimpleConditions";
+import { useEffect } from "react";
 
 const getHumanDesc = (type) => {
+	const node = NodeTypes.find((node) => node.type == type);
 	let humanType = "";
-	switch (type) {
-		//Moodle + Sakai
-		case "questionnaire":
-			humanType = "Cuestionario";
-			break;
-		case "assignment":
-			humanType = "Tarea";
-			break;
-		case "forum":
-			humanType = "Foro";
-			break;
-		case "file":
-			humanType = "Archivo";
-			break;
-		case "folder":
-			humanType = "Folder";
-			break;
-		case "url":
-			humanType = "URL";
-			break;
-		//Moodle
-		case "workshop":
-			humanType = "Taller";
-			break;
-		case "choice":
-			humanType = "Consulta";
-			break;
-		case "tag":
-			humanType = "Etiqueta";
-			break;
-		case "page":
-			humanType = "Página";
-			break;
-		case "badge":
-			humanType = "Medalla";
-			break;
-		//Sakai
-		case "exam":
-			humanType = "Examen";
-			break;
-		case "contents":
-			humanType = "Contenidos";
-			break;
-		case "text":
-			humanType = "Texto";
-			break;
-		case "html":
-			humanType = "HTML";
-			break;
-		//LTI
-		case "start":
-			humanType = "Inicio";
-			break;
-		case "end":
-			humanType = "Final";
-			break;
-		case "fragment":
-			humanType = "Fragmento";
-			break;
-		default:
-			humanType = "Elemento";
-			break;
+	if (node) {
+		humanType = node.name;
+	} else {
+		humanType = "Acción";
 	}
-
-	if (type == "start" || type == "end") return humanType + " del Mapa";
 	return humanType;
 };
 
 const getAriaLabel = () => {
 	/*
-	let end = blockData.unit
-		? ", forma parte de la unidad " +
-		  blockData.unit +
+	let end = blockData.section
+		? ", forma parte de la sección " +
+		  blockData.section +
 		  ", calculado desde su identación."
 		: ".";*/
 	return (
 		getHumanDesc() +
 		", " +
-		blockData.title +
+		blockData.label +
 		", posición en el eje X: " +
 		blockData.x +
 		", posición en el eje Y: " +
@@ -118,77 +62,174 @@ const getAriaLabel = () => {
 	);
 };
 
-function ActionNode({
-	id,
-	xPos,
-	yPos,
-	type,
-	data,
-	children,
-	isConnectable,
-	order = 1,
-	unit = 1,
-}) {
+function ActionNode({ id, type, data, selected, dragging, isConnectable }) {
 	const onChange = useCallback((evt) => {
 		//console.log(evt.target.value);
 	}, []);
 
-	const { expanded, setExpanded } = useContext(ExpandedContext);
-	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
-	const { itinerarySelected, setItinerarySelected } =
-		useContext(ItineraryInfoContext);
-	const { selectedEditVersion, setSelectedEditVersion } =
+	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
+	const { nodeSelected, setNodeSelected } = useContext(NodeInfoContext);
+	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
+	const { editVersionSelected, setEditVersionSelected } =
 		useContext(VersionInfoContext);
+	const { devModeStatus } = useContext(DevModeStatusContext);
 
+	const reactFlowInstance = useReactFlow();
 	const { settings } = useContext(SettingsContext);
+	const [isHovered, setIsHovered] = useState(false);
 	const parsedSettings = JSON.parse(settings);
 	const { highContrast, reducedAnimations } = parsedSettings;
+	const { platform } = useContext(PlatformContext);
+	const rfNodes = useNodes();
 
-	const handleClick = () => {
-		const blockData = {
-			id: id,
-			x: xPos,
-			y: yPos,
-			type: type,
-			title: data.label,
-			children: children,
-			identation: data.identation,
-			conditions: data.conditions,
-		};
-		if (expanded != true) {
-			if (type != "start" && type != "end") setExpanded(true);
+	const [hasExtraConditions, setHasExtraConditions] = useState(
+		getNumberOfIndependentConditions(getNodeById(id, rfNodes)) > 1
+	);
+
+	const handleEdit = () => {
+		const blockData = getNodeById(id, reactFlowInstance.getNodes());
+		if (expandedAside != true) {
+			setExpandedAside(true);
 		}
-
-		setItinerarySelected("");
-		setSelectedEditVersion("");
-		setBlockSelected(blockData);
+		setEditVersionSelected("");
+		setNodeSelected(blockData);
 	};
 
+	const extractSelf = () => {
+		const fragment = getNodeById(
+			getNodeById(id, reactFlowInstance.getNodes()).parentNode,
+			reactFlowInstance
+		);
+		const childToRemove = getNodeById(id, reactFlowInstance.getNodes());
+
+		delete childToRemove.parentNode;
+		delete childToRemove.expandParent;
+		childToRemove.position = childToRemove.positionAbsolute;
+
+		fragment.data.innerNodes = fragment.data.innerNodes.filter(
+			(node) => node.id != childToRemove.id
+		);
+		fragment.zIndex = -1;
+		reactFlowInstance.setNodes(
+			getUpdatedArrayById(fragment, [
+				...reactFlowInstance
+					.getNodes()
+					.filter((node) => childToRemove.id != node.id),
+				childToRemove,
+			])
+		);
+	};
+
+	useEffect(() => {
+		setHasExtraConditions(
+			getNumberOfIndependentConditions(getNodeById(id, rfNodes)) > 0
+		);
+	}, [JSON.stringify(data?.c)]);
+
 	return (
-		<div
-			id={id}
-			className={
-				"block " +
-				styles.container +
-				" " +
-				(highContrast && styles.highContrast + " highContrast ") +
-				" " +
-				(reducedAnimations && styles.noAnimation + " noAnimation")
-			}
-			onClick={handleClick}
-		>
-			<span className={styles.blockInfo + " " + styles.top}>{data.label}</span>
+		<>
+			{isHovered && selected && !dragging && (
+				<div className={styles.hovedConditions}>
+					<SimpleConditions id={id} />
+				</div>
+			)}
 			<Handle
 				type="target"
 				position={Position.Left}
 				isConnectable={isConnectable}
 				isConnectableStart="false"
 			/>
-			<div>{getTypeIcon(type)}</div>
-			<span className={styles.blockInfo + " " + styles.bottom}>
-				{getHumanDesc(type)}
-			</span>
-		</div>
+			<NodeToolbar position="left" offset={25}>
+				<FocusTrap
+					focusTrapOptions={{
+						clickOutsideDeactivates: true,
+						returnFocusOnDeactivate: true,
+					}}
+				>
+					<div className={styles.blockToolbar}>
+						<Button variant="dark" onClick={handleEdit} title="Editar acción">
+							<FontAwesomeIcon icon={faEdit} />
+							<span className="visually-hidden">Editar acción</span>
+						</Button>
+						{getNodeById(id, reactFlowInstance.getNodes()).parentNode && (
+							<Button
+								variant="dark"
+								onClick={extractSelf}
+								title="Sacar del fragmento"
+							>
+								<FontAwesomeIcon icon={faRightFromBracket} />
+								<span className="visually-hidden">Sacar del fragmento</span>
+							</Button>
+						)}
+					</div>
+				</FocusTrap>
+			</NodeToolbar>
+			<div
+				id={id}
+				className={
+					"block " +
+					styles.container +
+					" " +
+					(highContrast && styles.highContrast + " highContrast ") +
+					" " +
+					(reducedAnimations && styles.noAnimation + " noAnimation")
+				}
+				aria-label={getAriaLabel} //FIXME: Doesn't work
+				onMouseEnter={() => setIsHovered(true)}
+				onMouseLeave={() => setIsHovered(false)}
+			>
+				<span className={styles.blockInfo + " " + styles.top}>
+					{data.label}
+				</span>
+				<div>{getTypeIcon(type, platform)}</div>
+				<span className={styles.blockInfo + " " + styles.bottom}>
+					{getHumanDesc(type)}
+				</span>
+				{hasExtraConditions && (
+					<Badge
+						bg="success"
+						className={
+							styles.badge +
+							" " +
+							styles.badgeConditions +
+							" " +
+							(reducedAnimations && styles.noAnimation) +
+							" " +
+							styles.showBadges +
+							" " +
+							(highContrast && styles.highContrast)
+						}
+						title="Contiene condiciones independientes"
+					>
+						{<FontAwesomeIcon icon={faPlus} style={{ color: "#ffffff" }} />}
+					</Badge>
+				)}
+				{data.lmsResource == undefined && (
+					<Badge
+						bg="danger"
+						className={
+							styles.badge +
+							" " +
+							styles.badgeError +
+							" " +
+							(reducedAnimations && styles.noAnimation) +
+							" " +
+							styles.showBadges +
+							" " +
+							(highContrast && styles.highContrast)
+						}
+						title="Sección"
+					>
+						{
+							<FontAwesomeIcon
+								icon={faExclamation}
+								style={{ color: "#ffffff" }}
+							/>
+						}
+					</Badge>
+				)}
+			</div>
+		</>
 	);
 }
 

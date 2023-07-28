@@ -1,113 +1,103 @@
-import { useCallback, useContext } from "react";
-import { Handle, Position } from "reactflow";
-import { Badge } from "react-bootstrap";
-import styles from "@components/styles/BlockContainer.module.css";
-
+import { useCallback, useContext, useEffect } from "react";
 import {
-	FileEarmarkCheck,
-	PatchQuestionFill,
-	Link45deg,
-	PencilSquare,
-	Question,
-	ChatLeftText,
-	FileEarmark,
-	Folder,
-	Tag,
-	FileEarmarkText,
-	Shuffle,
-} from "react-bootstrap-icons";
+	Handle,
+	Position,
+	NodeToolbar,
+	useReactFlow,
+	useNodes,
+} from "reactflow";
+import { Badge, Button } from "react-bootstrap";
+import styles from "@root/styles/BlockContainer.module.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-	BlockInfoContext,
-	ExpandedContext,
-	ItineraryInfoContext,
+	faEdit,
+	faRightFromBracket,
+	faEye,
+	faEyeSlash,
+	faExclamation,
+	faExclamationTriangle,
+	faPlus,
+} from "@fortawesome/free-solid-svg-icons";
+import {
+	NodeInfoContext,
+	ExpandedAsideContext,
+	MapInfoContext,
 	SettingsContext,
 	VersionInfoContext,
-} from "@components/pages/_app";
+	PlatformContext,
+	ErrorListContext,
+} from "@root/pages/_app";
+import FocusTrap from "focus-trap-react";
+import { getTypeIcon } from "@utils/NodeIcons";
+import { getUpdatedArrayById, parseBool } from "@utils/Utils";
+import { getNodeById, getNumberOfIndependentConditions } from "@utils/Nodes";
+import { useState } from "react";
+import { NodeTypes } from "@utils/TypeDefinitions";
+import SimpleConditions from "@flow/conditions/SimpleConditions";
 
-function getTypeIcon(type) {
-	switch (type) {
-		//Moodle + Sakai
-		case "questionnaire":
-			return <FileEarmarkCheck size={32} />;
-		case "assignment":
-			return <PencilSquare size={32} />;
-		case "forum":
-			return <ChatLeftText size={32} />;
-		case "file":
-			return <FileEarmark size={32} />;
-		case "folder":
-			return <Folder size={32} />;
-		case "url":
-			return <Link45deg size={32} />;
-		//Moodle
-		case "workshop":
-			return <Shuffle size={32} />;
-		case "choice":
-			return <Question size={32} />;
-		case "tag":
-			return <Tag size={32} />;
-		case "page":
-			return <FileEarmarkText size={32} />;
-		//Sakai
-		case "exam":
-			return null;
-		case "contents":
-			return null;
-		case "text":
-			return null;
-		case "html":
-			return null;
-		//LTI
-		default:
-			return <PatchQuestionFill size={32} />;
-	}
-}
-
-function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
+function ElementNode({
+	id,
+	xPos,
+	yPos,
+	type,
+	data,
+	selected,
+	dragging,
+	isConnectable,
+}) {
 	const onChange = useCallback((evt) => {
 		//console.log(evt.target.value);
 	}, []);
 
-	const { expanded, setExpanded } = useContext(ExpandedContext);
-	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
-	const { itinerarySelected, setItinerarySelected } =
-		useContext(ItineraryInfoContext);
-	const { selectedEditVersion, setSelectedEditVersion } =
+	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
+	const { nodeSelected, setNodeSelected } = useContext(NodeInfoContext);
+	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
+	const { editVersionSelected, setEditVersionSelected } =
 		useContext(VersionInfoContext);
-
+	const { platform } = useContext(PlatformContext);
+	const { errorList } = useContext(ErrorListContext);
 	const { settings, setSettings } = useContext(SettingsContext);
+	const reactFlowInstance = useReactFlow();
 	const parsedSettings = JSON.parse(settings);
 	const { highContrast, showDetails, reducedAnimations } = parsedSettings;
+	const [hasErrors, setHasErrors] = useState(false);
+	const [hasWarnings, setHasWarnings] = useState(false);
+	const [isHovered, setIsHovered] = useState(false);
+	const rfNodes = useNodes();
+	const [hasExtraConditions, setHasExtraConditions] = useState(
+		getNumberOfIndependentConditions(getNodeById(id, rfNodes)) > 0
+	);
 
-	const handleClick = () => {
-		const blockData = {
-			id: id,
-			x: xPos,
-			y: yPos,
-			type: type,
-			title: data.label,
-			children: data.children,
-			identation: data.identation,
-			conditions: data.conditions,
-			order: data.order,
-			unit: data.unit,
-		};
+	const getParentExpanded = () => {
+		const nodes = rfNodes;
+		const parentID = getNodeById(id, nodes).parentNode;
 
-		if (expanded != true) {
-			if (type != "start" && type != "end") setExpanded(true);
+		if (parentID) {
+			//If is part of a fragment
+			const parent = getNodeById(parentID, nodes);
+
+			return parent.data.expanded;
+		} else {
+			//Treat as expanded
+			return true;
 		}
+	};
 
-		setItinerarySelected("");
-		setSelectedEditVersion("");
-		setBlockSelected(blockData);
+	const handleEdit = () => {
+		const blockData = getNodeById(id, reactFlowInstance.getNodes());
+		if (expandedAside != true) {
+			setExpandedAside(true);
+		}
+		setEditVersionSelected("");
+		setNodeSelected(blockData);
 	};
 
 	const getAriaLabel = () => {
 		let end = "";
-		if (data.unit && data.order) {
-			end = data.unit
-				? ", forma parte de la unidad " +
-				  data.unit +
+		if (data.section && data.order) {
+			end = data.section
+				? ", forma parte de la sección " +
+				  data.section +
 				  ", con la posición " +
 				  data.order +
 				  "en el LMS."
@@ -116,7 +106,7 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 		return (
 			getHumanDesc() +
 			", " +
-			data.title +
+			data.label +
 			", posición en el eje X: " +
 			xPos +
 			", posición en el eje Y: " +
@@ -126,86 +116,69 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 	};
 
 	const getHumanDesc = (type) => {
+		const node = NodeTypes.find((node) => node.type == type);
 		let humanType = "";
-		switch (type) {
-			//Moodle + Sakai
-			case "questionnaire":
-				humanType = "Cuestionario";
-				break;
-			case "assignment":
-				humanType = "Tarea";
-				break;
-			case "forum":
-				humanType = "Foro";
-				break;
-			case "file":
-				humanType = "Archivo";
-				break;
-			case "folder":
-				humanType = "Carpeta";
-				break;
-			case "url":
-				humanType = "URL";
-				break;
-			//Moodle
-			case "workshop":
-				humanType = "Taller";
-				break;
-			case "choice":
-				humanType = "Consulta";
-				break;
-			case "tag":
-				humanType = "Etiqueta";
-				break;
-			case "page":
-				humanType = "Página";
-				break;
-			case "generic":
-				humanType = "Genérico";
-				break;
-			//Sakai
-			case "exam":
-				humanType = "Examen";
-				break;
-			case "contents":
-				humanType = "Contenidos";
-				break;
-			case "text":
-				humanType = "Texto";
-				break;
-			case "html":
-				humanType = "HTML";
-				break;
-			//LTI
-			default:
-				humanType = "Elemento";
-				break;
+		if (node) {
+			humanType = node.name;
+		} else {
+			humanType = "Elemento";
 		}
-
-		if (type == "start" || type == "end") return humanType + " del Mapa";
 		return humanType;
 	};
 
+	const extractSelf = () => {
+		const fragment = getNodeById(
+			getNodeById(id, reactFlowInstance.getNodes()).parentNode,
+			reactFlowInstance.getNodes()
+		);
+		const childToRemove = getNodeById(id, reactFlowInstance.getNodes());
+
+		delete childToRemove.parentNode;
+		delete childToRemove.expandParent;
+		childToRemove.position = childToRemove.positionAbsolute;
+
+		fragment.data.innerNodes = fragment.data.innerNodes.filter(
+			(node) => node.id != childToRemove.id
+		);
+		fragment.zIndex = -1;
+		reactFlowInstance.setNodes(
+			getUpdatedArrayById(fragment, [
+				...reactFlowInstance
+					.getNodes()
+					.filter((node) => childToRemove.id != node.id),
+				childToRemove,
+			])
+		);
+	};
+
+	const getSelfErrors = () => {
+		const relatedErrors = errorList.filter((error) => error.nodeId == id);
+		const errors = relatedErrors.filter(
+			(rerrors) => rerrors.severity == "error"
+		);
+		const warnings = relatedErrors.filter(
+			(rerrors) => rerrors.severity == "warning"
+		);
+		setHasErrors(errors.length > 0);
+		setHasWarnings(warnings.length > 0);
+	};
+
+	useEffect(() => {
+		getSelfErrors();
+	}, [data]);
+
+	useEffect(() => {
+		setHasExtraConditions(
+			getNumberOfIndependentConditions(getNodeById(id, rfNodes)) > 0
+		);
+	}, [JSON.stringify(data?.c)]);
+
 	return (
-		<div
-			id={id}
-			className={
-				"block " +
-				styles.container +
-				" " +
-				(highContrast && styles.highContrast + " highContrast ") +
-				" " +
-				(reducedAnimations && styles.noAnimation + " noAnimation")
-			}
-			onClick={handleClick}
-			aria-label={getAriaLabel} //FIXME: Doesn't work
-		>
-			<span className={styles.blockInfo + " " + styles.top}>{data.label}</span>
-			{process.env.DEV_MODE == true && (
-				<>
-					<div>{`id:${id}`}</div>
-					<div>{`children:${data.children}`}</div>
-				</>
+		<>
+			{isHovered && selected && !dragging && (
+				<div className={styles.hovedConditions}>
+					<SimpleConditions id={id} />
+				</div>
 			)}
 			<Handle
 				type="target"
@@ -213,51 +186,199 @@ function ElementNode({ id, xPos, yPos, type, data, isConnectable }) {
 				isConnectable={isConnectable}
 				isConnectableStart="false"
 			/>
-			<div>{getTypeIcon(type)}</div>
 			<Handle
 				type="source"
 				position={Position.Right}
 				isConnectable={isConnectable}
 				isConnectableEnd="false"
 			/>
-			<span className={styles.blockInfo + " " + styles.bottom}>
-				{getHumanDesc(type)}
-			</span>
-			{data.unit && (
-				<Badge
-					bg="light"
-					className={
-						styles.badge +
-						" " +
-						(reducedAnimations && styles.noAnimation) +
-						" " +
-						(showDetails && styles.showBadges) +
-						" " +
-						(highContrast && styles.highContrast)
-					}
-					title="Unidad"
+			<NodeToolbar position="left" offset={25}>
+				<FocusTrap
+					focusTrapOptions={{
+						clickOutsideDeactivates: true,
+						returnFocusOnDeactivate: true,
+					}}
 				>
-					{data.unit}
-				</Badge>
-			)}
-			{data.order && (
-				<Badge
-					bg="warning"
-					className={
-						styles.badgeTwo +
-						" " +
-						(reducedAnimations && styles.noAnimation) +
-						" " +
-						(showDetails && styles.showBadges) +
-						" " +
-						(highContrast && styles.highContrast)
-					}
-					title="Posición en Moodle"
-				>
-					{data.order}
-				</Badge>
-			)}
-		</div>
+					<div className={styles.blockToolbar}>
+						<Button variant="dark" onClick={handleEdit} title="Editar elemento">
+							<FontAwesomeIcon icon={faEdit} />
+							<span className="visually-hidden">Editar elemento</span>
+						</Button>
+						{getNodeById(id, reactFlowInstance.getNodes()).parentNode && (
+							<Button
+								variant="dark"
+								onClick={extractSelf}
+								title="Sacar del fragmento"
+							>
+								<FontAwesomeIcon icon={faRightFromBracket} />
+								<span className="visually-hidden">Sacar del fragmento</span>
+							</Button>
+						)}
+					</div>
+				</FocusTrap>
+			</NodeToolbar>
+			<div
+				id={id}
+				className={
+					"block " +
+					styles.container +
+					" " +
+					(highContrast && styles.highContrast + " highContrast ") +
+					" " +
+					(reducedAnimations && styles.noAnimation + " noAnimation")
+				}
+				aria-label={getAriaLabel} //FIXME: Doesn't work
+				onMouseEnter={() => setIsHovered(true)}
+				onMouseLeave={() => setIsHovered(false)}
+			>
+				<span className={styles.blockInfo + " " + styles.top}>
+					{data.label}
+				</span>
+				<div>{getTypeIcon(type, platform)}</div>
+				<span className={styles.blockInfo + " " + styles.bottom}>
+					{getHumanDesc(type)}
+				</span>
+				{hasExtraConditions && (
+					<Badge
+						bg="success"
+						className={
+							styles.badge +
+							" " +
+							styles.badgeConditions +
+							" " +
+							(reducedAnimations && styles.noAnimation) +
+							" " +
+							styles.showBadges +
+							" " +
+							(highContrast && styles.highContrast)
+						}
+						title="Contiene condiciones independientes"
+					>
+						{<FontAwesomeIcon icon={faPlus} style={{ color: "#ffffff" }} />}
+					</Badge>
+				)}
+				{hasErrors && (
+					<Badge
+						bg="danger"
+						className={
+							styles.badge +
+							" " +
+							styles.badgeError +
+							" " +
+							(reducedAnimations && styles.noAnimation) +
+							" " +
+							styles.showBadges +
+							" " +
+							(highContrast && styles.highContrast)
+						}
+						title="Errores"
+					>
+						{
+							<FontAwesomeIcon
+								icon={faExclamation}
+								style={{ color: "#ffffff" }}
+							/>
+						}
+					</Badge>
+				)}
+				{!hasErrors && hasWarnings && (
+					<Badge
+						bg="warning"
+						className={
+							styles.badge +
+							" " +
+							styles.badgeError +
+							" " +
+							(reducedAnimations && styles.noAnimation) +
+							" " +
+							styles.showBadges +
+							" " +
+							(highContrast && styles.highContrast)
+						}
+						title="Avisos"
+					>
+						{
+							<FontAwesomeIcon
+								icon={faExclamationTriangle}
+								style={{ color: "#ffffff" }}
+							/>
+						}
+					</Badge>
+				)}
+				{data.lmsVisibility && getParentExpanded() && (
+					<Badge
+						bg="primary"
+						className={
+							styles.badge +
+							" " +
+							styles.badgeVisibility +
+							" " +
+							(reducedAnimations && styles.noAnimation) +
+							" " +
+							(showDetails && styles.showBadges) +
+							" " +
+							(highContrast && styles.highContrast)
+						}
+						title="Visibilidad"
+					>
+						{platform == "moodle" || platform == "sakai" ? (
+							data.lmsVisibility == "show_unconditionally" ? (
+								<FontAwesomeIcon icon={faEye} style={{ color: "#ffffff" }} />
+							) : (
+								<FontAwesomeIcon
+									icon={faEyeSlash}
+									style={{ color: "#ffffff" }}
+								/>
+							)
+						) : data.lmsVisibility == "show_unconditionally" ? (
+							<FontAwesomeIcon icon={faEye} style={{ color: "#ffffff" }} />
+						) : (
+							<FontAwesomeIcon icon={faEyeSlash} style={{ color: "#ffffff" }} />
+						)}
+					</Badge>
+				)}
+				{!isNaN(data.section) && getParentExpanded() && (
+					<Badge
+						bg="light"
+						className={
+							styles.badge +
+							" " +
+							styles.badgeSection +
+							" " +
+							(reducedAnimations && styles.noAnimation) +
+							" " +
+							(showDetails && styles.showBadges) +
+							" " +
+							(highContrast && styles.highContrast)
+						}
+						title="Sección"
+					>
+						{platform == "moodle"
+							? Number(data.section)
+							: Number(data.section) + 1}
+					</Badge>
+				)}
+				{!isNaN(data.order) && getParentExpanded() && (
+					<Badge
+						bg="warning"
+						className={
+							styles.badge +
+							" " +
+							styles.badgePos +
+							" " +
+							(reducedAnimations && styles.noAnimation) +
+							" " +
+							(showDetails && styles.showBadges) +
+							" " +
+							(highContrast && styles.highContrast)
+						}
+						title="Posición en la sección"
+					>
+						{data.order + 1}
+					</Badge>
+				)}
+			</div>
+		</>
 	);
 }
 

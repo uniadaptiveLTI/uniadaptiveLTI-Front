@@ -1,43 +1,53 @@
 import Header from "./Header";
 import Aside from "./Aside";
 import Footer from "./Footer";
-
+import { ReactFlowProvider } from "reactflow";
 import { Container } from "react-bootstrap";
-import { useState, useRef, useLayoutEffect } from "react";
+import { useState, useRef, useLayoutEffect, useEffect } from "react";
 import {
 	PlatformContext,
-	BlockInfoContext,
-	ItineraryInfoContext,
-	MapContext,
-	BlockJsonContext,
+	NodeInfoContext,
+	MapInfoContext,
 	VersionJsonContext,
-	ExpandedContext,
+	ExpandedAsideContext,
 	VersionInfoContext,
-	BlocksDataContext,
 	MainDOMContext,
 	MSGContext,
+	MetaDataContext,
+	HeaderToEmptySelectorContext,
 } from "../pages/_app.js";
 
-export default function Layout({ children }) {
+export default function Layout({ LTISettings, children }) {
 	const [platform, setPlatform] = useState("moodle"); //default to moodle in testing phase
+	const [metaData, setMetaData] = useState();
+	const [sections, setSections] = useState();
 
-	const [blockSelected, setBlockSelected] = useState("");
-	const [itinerarySelected, setItinerarySelected] = useState("");
-	const [selectedEditVersion, setSelectedEditVersion] = useState("");
+	const [nodeSelected, setNodeSelected] = useState("");
+	const [mapSelected, setMapSelected] = useState("");
+	const [activeMap, setActiveMap] = useState("");
+	const [editVersionSelected, setEditVersionSelected] = useState("");
 
-	const [expanded, setExpanded] = useState(false);
-	const [blockJson, setBlockJson] = useState("");
+	const [expandedAside, setExpandedAside] = useState(false);
+
 	const [versionJson, setVersionJson] = useState("");
-	const [map, setMap] = useState("");
-	const [currentBlocksData, setCurrentBlocksData] = useState();
 
 	const [headerHeight, setHeaderHeight] = useState(0);
 	const [footerHeight, setFooterHeight] = useState(0);
 	const [mainHeightOffset, setMainHeightOffset] = useState(0);
-	const [zoomLevel, setZoomLevel] = useState(100);
 
 	const [mainDOM, setMainDOM] = useState(null);
 	const [msg, setMSG] = useState([]);
+
+	//Header to Empty
+	const [mapCount, setMapCount] = useState(0);
+	const [mapNames, setMapNames] = useState([]);
+	const [allowUseStatus, setAllowUseStatus] = useState(false);
+	const emptyMap = { id: -1, name: "Seleccionar un mapa" };
+	const [maps, setMaps] = useState([emptyMap]);
+	const [funcCreateMap, setFuncCreateMap] = useState();
+	const [funcImportMap, setFuncImportMap] = useState();
+	const [funcImportMapFromLesson, setFuncImportMapFromLesson] = useState();
+	const [funcMapChange, setFuncMapChange] = useState();
 
 	//Referencias
 	const headerDOM = useRef(null);
@@ -53,17 +63,7 @@ export default function Layout({ children }) {
 			setFooterHeight(getFooterHeight());
 			setHeaderHeight(getHeaderHeight());
 		});
-		let zoom = ((window.outerWidth - 10) / window.innerWidth) * 100;
-		if (zoom != zoomLevel) setZoomLevel(zoom);
-	}, [footerHeight, headerHeight, zoomLevel]);
-
-	useLayoutEffect(() => {
-		let footerHeight = getFooterHeight();
-		let headerHeight = getHeaderHeight();
-		setFooterHeight(footerHeight);
-		setHeaderHeight(headerHeight);
-		setMainHeightOffset(footerHeight + headerHeight);
-	}, [zoomLevel]);
+	}, [footerHeight, headerHeight, expandedAside]);
 
 	useLayoutEffect(() => {
 		setMainDOM(mainDOMRef);
@@ -99,24 +99,43 @@ export default function Layout({ children }) {
 
 	return (
 		<PlatformContext.Provider value={{ platform, setPlatform }}>
-			<MapContext.Provider value={{ map, setMap }}>
-				<BlockInfoContext.Provider value={{ blockSelected, setBlockSelected }}>
-					<ItineraryInfoContext.Provider
-						value={{ itinerarySelected, setItinerarySelected }}
+			<MetaDataContext.Provider value={{ metaData, setMetaData }}>
+				<NodeInfoContext.Provider value={{ nodeSelected, setNodeSelected }}>
+					<MapInfoContext.Provider
+						value={{ mapSelected, setMapSelected, activeMap, setActiveMap }}
 					>
 						<VersionInfoContext.Provider
-							value={{ selectedEditVersion, setSelectedEditVersion }}
+							value={{ editVersionSelected, setEditVersionSelected }}
 						>
-							<BlockJsonContext.Provider value={{ blockJson, setBlockJson }}>
-								<VersionJsonContext.Provider
-									value={{ versionJson, setVersionJson }}
+							<VersionJsonContext.Provider
+								value={{ versionJson, setVersionJson }}
+							>
+								<HeaderToEmptySelectorContext.Provider
+									value={{
+										mapCount,
+										setMapCount,
+										mapNames,
+										setMapNames,
+										allowUseStatus,
+										setAllowUseStatus,
+										maps,
+										setMaps,
+										funcCreateMap,
+										setFuncCreateMap,
+										funcImportMap,
+										setFuncImportMap,
+										funcImportMapFromLesson,
+										setFuncImportMapFromLesson,
+										funcMapChange,
+										setFuncMapChange,
+									}}
 								>
-									<ExpandedContext.Provider value={{ expanded, setExpanded }}>
-										<BlocksDataContext.Provider
-											value={{ currentBlocksData, setCurrentBlocksData }}
-										>
-											<MainDOMContext.Provider value={{ mainDOM, setMainDOM }}>
-												<MSGContext.Provider value={{ msg, setMSG }}>
+									<ExpandedAsideContext.Provider
+										value={{ expandedAside, setExpandedAside }}
+									>
+										<MainDOMContext.Provider value={{ mainDOM, setMainDOM }}>
+											<MSGContext.Provider value={{ msg, setMSG }}>
+												<ReactFlowProvider>
 													<Container
 														className="g-0"
 														fluid
@@ -127,8 +146,9 @@ export default function Layout({ children }) {
 															style={{ height: 100 + "vh" }}
 														>
 															<Aside
+																LTISettings={LTISettings}
 																className={
-																	expanded
+																	expandedAside
 																		? "col-12 col-sm-4 col-md-3 col-xl-2"
 																		: "d-none"
 																}
@@ -136,7 +156,7 @@ export default function Layout({ children }) {
 															<Container
 																fluid
 																className={
-																	expanded
+																	expandedAside
 																		? "col-12 col-sm-8 col-md-9 col-xl-10 g-0"
 																		: "g-0"
 																}
@@ -150,7 +170,10 @@ export default function Layout({ children }) {
 																	fluid
 																	style={{ flex: "1 0 auto" }}
 																>
-																	<Header ref={headerDOM} />
+																	<Header
+																		LTISettings={LTISettings}
+																		ref={headerDOM}
+																	/>
 
 																	<main
 																		id="main"
@@ -168,7 +191,7 @@ export default function Layout({ children }) {
 																	<Footer
 																		msg={msg}
 																		className={
-																			expanded
+																			expandedAside
 																				? "col-12 col-sm-8 col-md-9 col-xl-10 g-0"
 																				: "col-12 g-0"
 																		}
@@ -177,16 +200,16 @@ export default function Layout({ children }) {
 															</Container>
 														</div>
 													</Container>
-												</MSGContext.Provider>
-											</MainDOMContext.Provider>
-										</BlocksDataContext.Provider>
-									</ExpandedContext.Provider>
-								</VersionJsonContext.Provider>
-							</BlockJsonContext.Provider>
+												</ReactFlowProvider>
+											</MSGContext.Provider>
+										</MainDOMContext.Provider>
+									</ExpandedAsideContext.Provider>
+								</HeaderToEmptySelectorContext.Provider>
+							</VersionJsonContext.Provider>
 						</VersionInfoContext.Provider>
-					</ItineraryInfoContext.Provider>
-				</BlockInfoContext.Provider>
-			</MapContext.Provider>
+					</MapInfoContext.Provider>
+				</NodeInfoContext.Provider>
+			</MetaDataContext.Provider>
 		</PlatformContext.Provider>
 	);
 }

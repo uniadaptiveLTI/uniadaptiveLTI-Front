@@ -6,6 +6,11 @@
 	pointer-events: none; /* So the right click to the SVG doesn't stop the propagation */
 }
 
+.container svg {
+	height: 32px;
+	width: 32px;
+}
+
 .container > span.blockInfo {
 
 	width: 8em;
@@ -19,41 +24,91 @@
 	text-overflow: ellipsis;
 	max-height: 4rem;
 	position:absolute;
-	color: black;
 	text-align: center;
+	color: var(--blockflow-font-color);
+	font-family: var(--blockflow-font-family);
+	background-color: var(--blockflow-text-background-color);
+	pointer-events: none;
+	
 }
 
 .container > span.blockInfo.top {
-	top: -3.5em;
+	top: -4.5em;
 	right: -50%;
 }
 
 .container > span.blockInfo.bottom {
-	bottom: -3.5em;
+	bottom: -4.0em;
 	right: -50%;
 }
 
 
-.badge, .badgeTwo {
+.hovedConditions {
+	background: var(--main-ui-default-background);
+	color: var(--main-font-color);
+	padding: 0.5rem 1rem;
+	border: var(--main-ui-borders);
+	position:absolute;
+	left: calc(1rem + 68px);
+	z-index: 10000 !important;
+}
+
+.badge {
 	position:absolute;
 	visibility: hidden;
 	opacity: 0;
 	color:black;
 	transition: all 0.2s;
 	transform: scaleY(0);
+	pointer-events: none;
 }
 
-.badge {
+.badgeError {
+	top: -6px;
+	left: -12px;
+	padding: 4px;
+}
+
+.badgeError svg {
+	height: 16px;
+	width: 16px;
+}
+
+.badgeConditions {
+	top: -16px;
+    width: 32px;
+	left: auto;
+	padding: 4px;
+}
+
+.badgeConditions svg {
+	height: 16px;
+	width: 16px;
+}
+
+.badgeVisibility {
+	top: -6px;
+	right: -12px;
+	padding: 4px;
+}
+
+.badgeVisibility svg {
+	height: 16px;
+	width: 16px;
+}
+
+
+.badgeSection {
 	bottom: -8px;
 	left: 4px;
 }
 
-.badgeTwo {
+.badgePos {
 	bottom: -8px;
 	right: 4px;
 }
 
-.container:hover .badge, .block:focus-visible~.badge, .block.borderAnim ~ .badge, .container:hover .badgeTwo, .block:focus-visible~.badgeTwo, .block.borderAnim ~ .badgeTwo {
+.container:hover .badge, .container:focus-visible ~ .badge, .container.borderAnim ~ .badge {
 	position: absolute;
 	transform: scaleY(1);
 	visibility: visible;
@@ -61,29 +116,39 @@
 	filter: drop-shadow(0 0px 5px rgba(0, 0, 0, 0.65));
 }
 
-
-
-.badge.showBadges, .badgeTwo.showBadges {
+.badge.showBadges {
 	position: absolute;
 	transform: scaleY(1);
 	visibility: visible;
 	opacity: 100%;
 	filter: drop-shadow(0 0px 5px rgba(0, 0, 0, 0.65));
+}
+
+.blockToolbar {
+	display: flex;
+	flex-direction: column;
+}
+
+.blockToolbar button{
+	border-radius: 0;
+	border: var(--main-ui-borders)
 }
 
  /* Accesibility */
 
-.badge.noAnimation, .badgeTwo.noAnimation  {
+.badge.noAnimation  {
 	transition: none;
 }
 
-.badge.highContrast, .badgeTwo.highContrast {
-	background-color: #101010 !important;
-	color: white  !important;
+.badge.highContrast {
+	filter: none;
+	background-color: var(--high-contrast-accent-color2) !important;
+	color: var(--high-contrast-accent-color1) !important;
+	border: var(--high-contrast-details-border) !important;
 }
 
 @media screen and (prefers-reduced-motion: reduce) {
-	.badge, .badgeTwo {
+	.badge {
 		transition: none;
 	}
  }

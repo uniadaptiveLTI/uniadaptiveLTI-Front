@@ -1,308 +1,517 @@
-import styles from "@components/styles/Aside.module.css";
+import styles from "@root/styles/Aside.module.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-	CaretDownFill,
-	CaretUpFill,
-	ArrowClockwise,
-	ArrowBarLeft,
-} from "react-bootstrap-icons";
-import { Container, Button, Form, Spinner } from "react-bootstrap";
-import Qualification from "./flow/conditions/Qualification.js";
+	faCaretDown,
+	faCaretUp,
+	faRotateRight,
+	faCompress,
+	faCircleQuestion,
+} from "@fortawesome/free-solid-svg-icons";
+import { useReactFlow } from "reactflow";
+import {
+	Tooltip,
+	Button,
+	Form,
+	Spinner,
+	OverlayTrigger,
+} from "react-bootstrap";
 import { useState, useContext, useEffect, useRef, useId, version } from "react";
 import {
+	ErrorListContext,
 	PlatformContext,
-	BlockInfoContext,
-	BlockJsonContext,
-	ExpandedContext,
-	ItineraryInfoContext,
+	NodeInfoContext,
+	ExpandedAsideContext,
+	MapInfoContext,
 	VersionInfoContext,
-	MapContext,
 	VersionJsonContext,
 	SettingsContext,
-	BlocksDataContext,
+	MetaDataContext,
 } from "../pages/_app.js";
+import {
+	capitalizeFirstLetter,
+	deduplicateById,
+	getHTTPPrefix,
+	getUpdatedArrayById,
+	isUnique,
+	orderByPropertyAlphabetically,
+	parseBool,
+} from "@utils/Utils";
+import {
+	ActionNodes,
+	getLastPositionInSection,
+	reorderFromSection,
+} from "@utils/Nodes";
+import { errorListCheck } from "@utils/ErrorHandling";
+import {
+	NodeTypes,
+	getMoodleTypes,
+	getSakaiTypes,
+} from "@utils/TypeDefinitions.js";
+import {
+	getSupportedTypes,
+	getVisibilityOptions,
+	hasUnorderedResources,
+} from "@utils/Platform.js";
 
-export default function Aside({ className, closeBtn }) {
+export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
+	const { errorList, setErrorList } = useContext(ErrorListContext);
+
 	const [expandedContent, setExpandedContent] = useState(true);
-	const [expandedAttr, setExpandedAttr] = useState(true);
 	const [expandedInteract, setExpandedInteract] = useState(true);
-	const [expandedRelations, setExpandedRelations] = useState(true);
-	const [expandedCondition, setExpandedCondition] = useState(false);
 
 	const [selectedOption, setSelectedOption] = useState("");
+	const [lmsResource, setLmsResource] = useState("");
 	const [showSpinner, setShowSpinner] = useState(false);
 	const [allowResourceSelection, setAllowResourceSelection] = useState(true);
 
 	const { platform, setPlatform } = useContext(PlatformContext);
-	const { blockSelected, setBlockSelected } = useContext(BlockInfoContext);
-	const { itinerarySelected, setItinerarySelected } =
-		useContext(ItineraryInfoContext);
-	const { selectedEditVersion, setSelectedEditVersion } =
+	const shownTypes = getVisibilityOptions(platform);
+	const { nodeSelected, setNodeSelected } = useContext(NodeInfoContext);
+	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
+	const { editVersionSelected, setEditVersionSelected } =
 		useContext(VersionInfoContext);
 	const { settings, setSettings } = useContext(SettingsContext);
+	const { metaData, setMetaData } = useContext(MetaDataContext);
 
 	const parsedSettings = JSON.parse(settings);
 	let { reducedAnimations, autoHideAside } = parsedSettings;
 
 	//References
-	const titleDOM = useRef(null);
+	const labelDOM = useRef(null);
 	const optionsDOM = useRef(null);
-	const conditionsDOM = useRef(null);
-	const typeDOM = useRef(null);
-	const itineraryTitleDOM = useRef(null);
+	const resourceDOM = useRef(null);
+	const lmsResourceDOM = useRef(null);
+	const mapTitleDOM = useRef(null);
 	const versionTitleDOM = useRef(null);
 	const refreshIconDOM = useRef(null);
-	const relationSelectDOM = useRef(null);
+	const lmsVisibilityDOM = useRef(null);
+	const sectionDOM = useRef(null);
+	const orderDOM = useRef(null);
+	const indentDOM = useRef(null);
 	//IDs
-	const titleID = useId();
+	const labelDOMId = useId();
 	const optionsID = useId();
-	const contentID = useId();
+	const lmsResourceDOMId = useId();
+	const typeDOMId = useId();
+	const sectionDOMId = useId();
+	const lmsVisibilityDOMId = useId();
+	const orderDOMId = useId();
+	const indentDOMId = useId();
 	//TODO: Add the rest
 
-	const [secondOptions, setSecondOptions] = useState([]);
-	const { blockJson, setBlockJson } = useContext(BlockJsonContext);
+	const [resourceOptions, setResourceOptions] = useState([]);
 	const { versionJson, setVersionJson } = useContext(VersionJsonContext);
-	const { currentBlocksData, setCurrentBlocksData } =
-		useContext(BlocksDataContext);
-	const { map, setMap } = useContext(MapContext);
+	const reactFlowInstance = useReactFlow();
 
-	const { expanded, setExpanded } = useContext(ExpandedContext);
+	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
 
-	const conditionTypes = [
-		{ id: 0, value: "qualification", name: "Calificación", default: "true" },
-		{ id: 1, value: "finalization", name: "Finalización", default: "true" },
-		{ id: 2, value: "userProfile", name: "Perfil de usuario", default: "true" },
-	];
+	const moodleResource = orderByPropertyAlphabetically(
+		getMoodleTypes(),
+		"name"
+	);
+	const sakaiResource = orderByPropertyAlphabetically(getSakaiTypes(), "name");
 
-	const qualificationOperand = [
-		{ id: 0, value: ">=", name: "Mayor o igual", default: "true" },
-		{ id: 1, value: "<", name: "Menor", default: "true" },
-		{ id: 2, value: "between", name: "Entre", default: "true" },
-	];
-
-	const [moodleResource, setMoodleResource] = useState([
-		{ id: 0, value: "questionnaire", name: "Cuestionario" },
-		{ id: 1, value: "assignment", name: "Tarea" },
-		{ id: 3, value: "workshop", name: "Taller" },
-		{ id: 4, value: "choice", name: "Consulta" },
-		{ id: 5, value: "forum", name: "Foro" },
-		{ id: 6, value: "file", name: "Archivo" },
-		{ id: 7, value: "folder", name: "Carpeta" },
-		{ id: 8, value: "tag", name: "Etiqueta" },
-		{ id: 9, value: "page", name: "Página" },
-		{ id: 10, value: "url", name: "URL" },
-		{ id: 11, value: "badge", name: "Medalla" },
-		{ id: 12, value: "generic", name: "Genérico" },
-		//{ id: 12, value: "fragment", name: "Fragmento"}
-	]);
-
-	const [sakaiResource, setSakaiResource] = useState([
-		{ id: 0, value: "questionnaire", name: "Exámenes" },
-		{ id: 1, value: "assignment", name: "Tareas" },
-		{ id: 3, value: "forum", name: "Foro" },
-		{ id: 4, value: "resources", name: "Recursos" },
-		{ id: 5, value: "file", name: "Archivo" },
-		{ id: 6, value: "folder", name: "Carpeta" },
-		{ id: 7, value: "url", name: "URL" },
-		{ id: 8, value: "page", name: "Página" },
-		{
-			id: 9,
-			value: "file",
-			name: "Documento de texto simple",
-		},
-		{ id: 10, value: "html-page", name: "Página HTML" },
-		//{ id: 11, value: "fragment", name: "Fragmento}
-	]);
-
-	useEffect(() => {
-		switch (selectedOption) {
-			case "questionnaire":
-				setSecondOptions([
-					{ id: 0, name: "Cuestionario 1" },
-					{ id: 1, name: "Cuestionario 2" },
-					{ id: 2, name: "Cuestionario 3" },
-				]);
-				break;
-			case "assignment":
-				setSecondOptions([
-					{ id: 0, name: "Tarea 1" },
-					{ id: 1, name: "Tarea 2" },
-					{ id: 2, name: "Tarea 3" },
-				]);
-				break;
-			case "workshop":
-				setSecondOptions([
-					{ id: 0, name: "Taller 1" },
-					{ id: 1, name: "Taller 2" },
-					{ id: 2, name: "Taller 3" },
-				]);
-				break;
-			case "choice":
-				setSecondOptions([
-					{ id: 0, name: "Consulta 1" },
-					{ id: 1, name: "Consulta 2" },
-					{ id: 2, name: "Consulta 3" },
-				]);
-				break;
-			case "forum":
-				setSecondOptions([
-					{ id: 0, name: "Foro 1" },
-					{ id: 1, name: "Foro 2" },
-					{ id: 2, name: "Foro 3" },
-				]);
-				break;
-			case "file":
-				setSecondOptions([
-					{ id: 0, name: "Archivo 1" },
-					{ id: 1, name: "Archivo 2" },
-					{ id: 2, name: "Archivo 3" },
-				]);
-				break;
-			case "folder":
-				setSecondOptions([
-					{ id: 0, name: "Carpeta 1" },
-					{ id: 1, name: "Carpeta 2" },
-					{ id: 2, name: "Carpeta 3" },
-				]);
-				break;
-			case "tag":
-				setSecondOptions([
-					{ id: 0, name: "Etiqueta 1" },
-					{ id: 1, name: "Etiqueta 2" },
-					{ id: 2, name: "Etiqueta 3" },
-				]);
-				break;
-			case "page":
-				setSecondOptions([
-					{ id: 0, name: "Página 1" },
-					{ id: 1, name: "Página 2" },
-					{ id: 2, name: "Página 3" },
-				]);
-				break;
-			case "url":
-				setSecondOptions([
-					{ id: 0, name: "Url 1" },
-					{ id: 1, name: "Url 2" },
-					{ id: 2, name: "Url 3" },
-				]);
-				break;
-			case "badge":
-				setSecondOptions([
-					{ id: 0, name: "Medalla 1" },
-					{ id: 1, name: "Medalla 2" },
-					{ id: 2, name: "Medalla 3" },
-				]);
-				break;
-			case "generic":
-				setSecondOptions([{ id: 0, name: "Genérico" }]);
-				break;
-			default:
-				setSecondOptions([]);
-				break;
-		}
-	}, [selectedOption]);
-
-	const handleSelect = (event) => {
-		setShowSpinner(true);
-
-		let input = optionsDOM.current;
-		setSelectedOption(event.target.value);
-		setAllowResourceSelection(false);
-
-		let refresh = refreshIconDOM.current;
-		refresh.classList.add("d-none");
-		input.disabled = true;
-
-		setTimeout(() => {
-			refresh.classList.remove("d-none");
-			input.disabled = false;
+	const fetchResources = async (
+		selectedOption,
+		platform,
+		instance,
+		lms,
+		course,
+		session
+	) => {
+		try {
+			const encodedSelectedOption = encodeURIComponent(selectedOption);
+			const encodedPlatform = encodeURIComponent(platform);
+			const encodedInstance = encodeURIComponent(instance);
+			const encodedLMS = encodeURIComponent(lms);
+			const encodedCourse = encodeURIComponent(course);
+			const encodedSession = encodeURIComponent(session);
+			console.log(encodedLMS);
+			setShowSpinner(true);
+			setAllowResourceSelection(false);
+			const response = await fetch(
+				selectedOption == "generic"
+					? `${getHTTPPrefix()}//${
+							LTISettings.back_url
+					  }/lti/get_modules_by_type?type=${encodeURIComponent(
+							"unsupported"
+					  )}&instance=${encodedInstance}&platform=${encodedPlatform}&course=${encodedCourse}&url_lms=${encodedLMS}&session=${encodedSession}&supportedTypes=${encodeURIComponent(
+							getSupportedTypes(platform)
+					  )}&sections=${encodeURIComponent(
+							JSON.stringify(
+								metaData.sections.map((section) => {
+									return { id: section.id, position: section.position };
+								})
+							)
+					  )}`
+					: `${getHTTPPrefix()}//${
+							LTISettings.back_url
+					  }/lti/get_modules_by_type?type=${encodedSelectedOption}&instance=${encodedInstance}&platform=${encodedPlatform}&course=${encodedCourse}&url_lms=${encodedLMS}&session=${encodedSession}`
+			);
+			if (!response.ok) {
+				throw new Error("Request failed");
+			}
+			const data = await response.json();
 			setShowSpinner(false);
 			setAllowResourceSelection(true);
-		}, 2000);
+			return data;
+		} catch (e) {
+			const error = new Error(
+				"No se pudieron obtener los datos del curso desde el LMS."
+			);
+			error.log = e;
+			throw error;
+		}
 	};
 
 	useEffect(() => {
-		if (blockSelected) {
-			let newBlock = currentBlocksData.find(
-				(block) => block.id == blockSelected.id
-			);
-			if (newBlock) {
-				setBlockSelected(newBlock);
+		//FIXME: No sucede
+		if (!selectedOption) {
+			setResourceOptions([]);
+		} else {
+			if (LTISettings.debugging.dev_files) {
+				setResourceOptions([]);
+				setTimeout(() => {
+					const data = [
+						{
+							id: 0,
+							name: `${capitalizeFirstLetter(
+								NodeTypes.filter((node) => node.type == selectedOption)[0].name
+							)} A`,
+						},
+						{
+							id: 1,
+							name: `${capitalizeFirstLetter(
+								NodeTypes.filter((node) => node.type == selectedOption)[0].name
+							)} B`,
+						},
+						{
+							id: 2,
+							name: `${capitalizeFirstLetter(
+								NodeTypes.filter((node) => node.type == selectedOption)[0].name
+							)} C`,
+						},
+						{
+							id: 3,
+							name: `${capitalizeFirstLetter(
+								NodeTypes.filter((node) => node.type == selectedOption)[0].name
+							)} D`,
+						},
+					];
+					const filteredData = [];
+					data.forEach((resource) => {
+						if (!getUsedResources().includes(resource.id)) {
+							filteredData.push(resource);
+						}
+					});
+
+					//Adds current resource if exists
+					if (nodeSelected && nodeSelected.data) {
+						if (nodeSelected.data.lmsResource != undefined) {
+							if (nodeSelected.data.lmsResource > -1) {
+								const lmsRes = nodeSelected.data.lmsResource;
+								const storedRes = data.find(
+									(resource) => resource.id === lmsRes
+								);
+
+								if (storedRes != undefined) {
+									filteredData.push(storedRes);
+								}
+							}
+						}
+					}
+
+					const uniqueFilteredData = orderByPropertyAlphabetically(
+						deduplicateById(filteredData),
+						"name"
+					);
+					uniqueFilteredData.unshift({ id: -1, name: "Vacío" });
+					setResourceOptions(uniqueFilteredData);
+				}, 1000);
+			} else {
+				fetchResources(
+					selectedOption,
+					metaData.platform,
+					metaData.instance_id,
+					metaData.lms_url,
+					metaData.course_id,
+					metaData.session_id
+				).then((data) => {
+					const filteredData = [];
+					data.forEach((resource) => {
+						if (!getUsedResources().includes(resource.id)) {
+							filteredData.push(resource);
+						}
+					});
+					//Adds current resource if exists
+					if (nodeSelected && nodeSelected.data) {
+						if (nodeSelected.data.lmsResource) {
+							if (nodeSelected.data.lmsResource > -1) {
+								const lmsRes = nodeSelected.data.lmsResource;
+								const storedRes = data.find(
+									(resource) => resource.id === lmsRes
+								);
+
+								if (storedRes != undefined) {
+									filteredData.push(storedRes);
+								}
+							}
+						}
+					}
+					const uniqueFilteredData = orderByPropertyAlphabetically(
+						deduplicateById(filteredData),
+						"name"
+					);
+					uniqueFilteredData.forEach((option) =>
+						hasUnorderedResources(platform)
+							? (option.bettername = `${option.name}`)
+							: (option.bettername = `${option.name} - Sección: ${option.section}`)
+					);
+					uniqueFilteredData.unshift({ id: -1, name: "Vacío" });
+					setResourceOptions(uniqueFilteredData);
+				});
 			}
 		}
-	}, [currentBlocksData]);
+	}, [selectedOption, nodeSelected]);
 
 	useEffect(() => {
-		if (blockSelected) {
-			const title = titleDOM.current;
-			const type = typeDOM.current;
-			const selectElement = relationSelectDOM.current;
-			const optionToSelect = selectElement?.querySelector('option[value=""]');
-
-			if (title) {
-				title.value = blockSelected.title;
-			}
-
-			if (type) {
-				type.value = blockSelected.type;
-			}
-
-			if (optionToSelect) {
-				optionToSelect.selected = true;
-				setMatchingConditions();
-				setExpandedCondition(false);
-				setShowConditions(false);
-				setSelectedOption(blockSelected.type);
-
-				const condition = conditionsDOM.current;
-
-				if (condition) {
-					condition.value = blockSelected.conditions;
+		if (nodeSelected) {
+			if (resourceOptions.length > 0) {
+				const resourceIDs = resourceOptions.map((resource) => resource.id);
+				const lmsResourceCurrent = lmsResourceDOM.current;
+				if (lmsResourceCurrent) {
+					if (resourceIDs.includes(nodeSelected.data.lmsResource)) {
+						lmsResourceCurrent.value = nodeSelected.data.lmsResource;
+					} else {
+						lmsResourceCurrent.value = -1;
+					}
 				}
+				setLmsResource(nodeSelected.data.lmsResource);
 			}
 		}
-	}, [blockSelected]);
+	}, [resourceOptions]);
+
+	const syncLabel = (e) => {
+		if (nodeSelected) {
+			if (
+				!(
+					ActionNodes.includes(nodeSelected.type) ||
+					nodeSelected.type == "fragment"
+				)
+			) {
+				const labelCurrent = labelDOM.current;
+
+				labelCurrent.value = resourceOptions.find(
+					(resource) => resource.id == e.target.value
+				).name;
+			}
+		}
+	};
+
+	const handleSelect = (event) => {
+		// FIXME Del cambio de calquier tipo a mail el icono refresh no se mapea por lo que no puede pillar las referencia
+		setSelectedOption(event.target.value);
+	};
 
 	useEffect(() => {
-		const titleItinerary = itineraryTitleDOM.current;
-		if (titleItinerary) {
-			titleItinerary.value = itinerarySelected.name;
-		}
-	}, [itinerarySelected]);
+		if (nodeSelected) {
+			const labelCurrent = labelDOM.current;
+			const typeCurrent = resourceDOM.current;
+			const lmsVisibilityCurrent = lmsVisibilityDOM.current;
+			const sectionCurrent = sectionDOM.current;
+			const orderCurrent = orderDOM.current;
+			const indentCurrent = indentDOM.current;
 
-	useEffect(() => {
-		const titleVersion = versionTitleDOM.current;
-		if (titleVersion) {
-			titleVersion.value = selectedEditVersion.name;
+			if (labelCurrent) {
+				labelCurrent.value = nodeSelected.data.label;
+			}
+
+			if (typeCurrent) {
+				typeCurrent.value = nodeSelected.type;
+			}
+
+			if (lmsVisibilityCurrent) {
+				lmsVisibilityCurrent.value = nodeSelected.data.lmsVisibility;
+			}
+
+			if (sectionCurrent) {
+				sectionCurrent.value = nodeSelected.data.section;
+			}
+
+			if (orderCurrent) {
+				orderCurrent.value = nodeSelected.data.order + 1;
+			}
+
+			if (indentCurrent) {
+				indentCurrent.value = nodeSelected.data.indent;
+			}
+
+			setSelectedOption(nodeSelected.type);
 		}
-	}, [selectedEditVersion]);
+	}, [nodeSelected]);
 
 	/**
 	 * Updates the selected block with the values from the specified DOM elements.
 	 */
 	const updateBlock = () => {
-		setBlockJson({
-			id: blockSelected.id,
-			x: blockSelected.x,
-			y: blockSelected.y,
-			type: typeDOM.current.value,
-			title: titleDOM.current.value,
-			resource: optionsDOM.current.value,
-			children: blockSelected.children,
-			identation: blockSelected.identation,
-		});
-		if (autoHideAside) {
-			setExpanded(false);
+		if (nodeSelected.type != "fragment") {
+			let type = resourceDOM.current.value;
+			let newData;
+			if (!ActionNodes.includes(nodeSelected.type)) {
+				//if element node
+				const newSection = Number(
+					sectionDOM.current.value ? sectionDOM.current.value : 0
+				); //FIXME: Only valid for moodle maybe?
+				const originalSection = nodeSelected.data.section;
+
+				const originalOrder = nodeSelected.data.order;
+				const limitedOrder = Math.min(
+					Math.max(orderDOM.current.value, 0),
+					getLastPositionInSection(newSection, reactFlowInstance.getNodes()) + 1
+				);
+				let limitedindent = indentDOM.current.value;
+				limitedindent = Math.min(Math.max(limitedindent, 0), 16);
+
+				newData = {
+					...nodeSelected.data,
+					label: labelDOM.current.value,
+					lmsResource: Number(lmsResourceDOM.current.value),
+					lmsVisibility: lmsVisibilityDOM.current.value
+						? lmsVisibilityDOM.current.value
+						: "hidden_until_access",
+					section: newSection,
+					order: limitedOrder - 1,
+					indent: limitedindent,
+				};
+
+				const updatedData = {
+					...nodeSelected,
+					id: nodeSelected.id,
+					type: resourceDOM.current.value,
+					data: newData,
+				};
+
+				const aNodeWithNewOrderExists = reactFlowInstance
+					.getNodes()
+					.filter((node) => {
+						if (
+							node.data.order == limitedOrder - 1 &&
+							node.data.section == newSection
+						) {
+							return true;
+						}
+					});
+
+				console.log(aNodeWithNewOrderExists, limitedOrder - 1);
+
+				//if reordered
+				if (
+					(limitedOrder - 1 != originalOrder &&
+						aNodeWithNewOrderExists.length > 0) ||
+					originalSection != newSection
+				) {
+					console.log((originalSection, newSection));
+					if (originalSection == newSection) {
+						//Change in order
+						const to = limitedOrder - 1;
+						const from = originalOrder;
+						const reorderedArray = reorderFromSection(
+							newSection,
+							from,
+							to,
+							reactFlowInstance.getNodes()
+						);
+
+						reactFlowInstance.setNodes([...reorderedArray, updatedData]);
+					} else {
+						//(Section change) Add to section AND then the order
+						console.log("CAMBIO DE SECCIÓN");
+						const virtualNodes = reactFlowInstance.getNodes();
+						const forcedPos =
+							getLastPositionInSection(newSection, virtualNodes) + 1;
+						console.log(forcedPos);
+						updatedData.data.order = forcedPos;
+						virtualNodes.push(updatedData);
+						if (!(limitedOrder - 1 > forcedPos)) {
+							//If the desired position is inside the section
+							const to = limitedOrder;
+							const from = forcedPos;
+							const reorderedArray = reorderFromSection(
+								newSection,
+								from,
+								to,
+								virtualNodes
+							);
+							reactFlowInstance.setNodes([...reorderedArray, updatedData]);
+						} else {
+							//If the desired position is outside the section
+							reactFlowInstance.setNodes([...virtualNodes, updatedData]);
+						}
+					}
+				} else {
+					reactFlowInstance.setNodes(
+						getUpdatedArrayById(updatedData, reactFlowInstance.getNodes())
+					);
+				}
+
+				errorListCheck(updatedData, errorList, setErrorList, false);
+			} else {
+				console.log(nodeSelected);
+				//if action node
+				newData = {
+					...nodeSelected.data,
+					label: labelDOM.current.value,
+					lmsResource:
+						type !== "mail" ? Number(lmsResourceDOM.current.value) : type,
+				};
+
+				console.log(newData);
+
+				const updatedData = {
+					...nodeSelected,
+					id: nodeSelected.id,
+					type: resourceDOM.current.value,
+					data: newData,
+				};
+
+				errorListCheck(updatedData, errorList, setErrorList, false);
+
+				reactFlowInstance.setNodes(
+					getUpdatedArrayById(updatedData, reactFlowInstance.getNodes())
+				);
+
+				errorListCheck(updatedData, errorList, setErrorList);
+			}
+
+			if (autoHideAside) {
+				setExpandedAside(false);
+			}
+		} else {
+			const newData = {
+				...nodeSelected.data,
+				label: labelDOM.current.value,
+			};
+
+			const updatedData = {
+				...nodeSelected,
+				id: nodeSelected.id,
+				data: newData,
+			};
+
+			reactFlowInstance.setNodes(
+				getUpdatedArrayById(updatedData, reactFlowInstance.getNodes())
+			);
 		}
 	};
 
 	/**
-	 * Updates the selected itinerary with the value from the specified DOM element.
+	 * Updates the selected map with the value from the specified DOM element.
 	 */
-	const updateItinerary = () => {
-		setMap((prevMap) => ({
+	const updateMap = () => {
+		setMapSelected((prevMap) => ({
 			...prevMap,
-			id: itinerarySelected.id,
-			name: itineraryTitleDOM.current.value,
+			id: mapSelected.id,
+			name: mapTitleDOM.current.value,
 		}));
 	};
 
@@ -312,74 +521,57 @@ export default function Aside({ className, closeBtn }) {
 	const updateVersion = () => {
 		setVersionJson((prevVersionJson) => ({
 			...prevVersionJson,
-			id: selectedEditVersion.id,
+			id: editVersionSelected.id,
 			name: versionTitleDOM.current.value,
-			lastUpdate: selectedEditVersion.lastUpdate,
-			default: selectedEditVersion.default,
+			lastUpdate: editVersionSelected.lastUpdate,
+			default: editVersionSelected.default,
 		}));
 	};
 
-	/**
-	 * Collapses the side panel.
-	 */
-	function collapseAside() {
-		setExpanded(false);
-	}
-
-	const [showConditions, setShowConditions] = useState(false);
-	const [matchingConditions, setMatchingConditions] = useState();
-
-	const handleBlockSelect = (event) => {
-		const blockId = event.target.value;
-		if (blockId === "") {
-			setShowChildSelect(false);
-			setSelectedChild(null);
-			setConditions([]);
-		} else {
-			if (blockSelected.conditions) {
-				const matchingConditions = blockSelected.conditions.filter(
-					(condition) => condition.unlockId === blockId
-				);
-				setExpandedCondition(true);
-				setShowConditions(true);
-				setMatchingConditions(matchingConditions);
-			} else {
-				setExpandedCondition(true);
-				setShowConditions(true);
-				setMatchingConditions();
+	const getUsedResources = () => {
+		const nodes = reactFlowInstance.getNodes();
+		const usedResources = [];
+		nodes.map((node) => {
+			if (node.data.lmsResource != undefined) {
+				usedResources.push(node.data.lmsResource);
 			}
-		}
+		});
+		return usedResources;
 	};
 
-	const handleChildSelect = (event) => {
-		const childId = event.target.value;
-		setSelectedChild(childId);
-	};
 	return (
-		<aside className={`${className} ${styles.aside}`}>
+		<aside id="aside" className={`${className} ${styles.aside}`}>
+			{/* TODO: FocusTrap this */}
 			<div className={"text-center p-2"}>
 				<div
 					role="button"
-					onClick={() => setExpanded(false)}
+					onClick={() => setExpandedAside(false)}
 					className={
 						styles.uniadaptive + " " + (reducedAnimations && styles.noAnimation)
 					}
 					style={{ transition: "all 0.5s ease" }}
 					tabIndex={0}
 				>
-					<h1 className="display-5">UNI Adaptive</h1>
-					<p className="display-6">Prototipo de Interfaz</p>
+					<img
+						alt="Logo"
+						src={LTISettings.branding.logo_path}
+						style={{ width: "100%" }}
+					/>
 					<span className={styles.collapse + " display-6"}>
-						<ArrowBarLeft width={38} height={38} />
+						<FontAwesomeIcon width={38} height={38} icon={faCompress} />
 					</span>
 				</div>
 				<hr />
-				<div id={itinerarySelected.id}></div>
+				<div id={mapSelected?.id}></div>
 			</div>
 
-			{blockSelected &&
-			!(blockSelected.type == "start" || blockSelected.type == "end") ? (
-				<Form onSubmit={allowResourceSelection ? updateBlock : undefined}>
+			{nodeSelected &&
+			!(nodeSelected.type == "start" || nodeSelected.type == "end") ? (
+				<Form
+					action="#"
+					method=""
+					onSubmit={allowResourceSelection ? updateBlock : null}
+				>
 					<div className="container-fluid">
 						<Form.Group className="mb-3">
 							<div
@@ -390,7 +582,11 @@ export default function Aside({ className, closeBtn }) {
 								<div className="fw-bold">Contenido</div>
 								<div>
 									<div>
-										{!expandedContent ? <CaretUpFill /> : <CaretDownFill />}
+										{!expandedContent ? (
+											<FontAwesomeIcon icon={faCaretUp} />
+										) : (
+											<FontAwesomeIcon icon={faCaretDown} />
+										)}
 									</div>
 								</div>
 							</div>
@@ -402,241 +598,274 @@ export default function Aside({ className, closeBtn }) {
 								].join(" ")}
 							>
 								<Form.Group className="mb-3">
-									<Form.Label htmlFor={titleID} className="mb-1">
-										Nombre del contenido
+									<Form.Label htmlFor={labelDOMId} className="mb-1">
+										Nombre del{" "}
+										{nodeSelected.type == "fragment" ? "fragmento" : "bloque"}
 									</Form.Label>
 									<Form.Control
-										ref={titleDOM}
-										id={titleID}
+										ref={labelDOM}
+										id={labelDOMId}
 										type="text"
 										className="w-100"
+										disabled={
+											!(
+												ActionNodes.includes(nodeSelected.type) ||
+												nodeSelected.type == "fragment"
+											)
+										}
 									></Form.Control>
 								</Form.Group>
-								<Form.Group className="mb-3">
-									<Form.Label htmlFor={contentID} className="mb-1">
-										Tipo de contenido
-									</Form.Label>
-									<Form.Select
-										ref={typeDOM}
-										id={contentID}
-										className="w-100"
-										defaultValue={selectedOption}
-										onChange={handleSelect}
-									>
-										{platform == "moodle"
-											? moodleResource.map((option) => (
-													<option key={option.id} value={option.value}>
-														{option.name}
-													</option>
-											  ))
-											: sakaiResource.map((option) => (
-													<option key={option.id} value={option.value}>
-														{option.name}
-													</option>
-											  ))}
-									</Form.Select>
-								</Form.Group>
+								{nodeSelected.type != "fragment" && (
+									<Form.Group className="mb-3">
+										<Form.Label htmlFor={typeDOMId} className="mb-1">
+											{ActionNodes.includes(nodeSelected.type)
+												? "Acción a realizar"
+												: "Tipo de recurso"}
+										</Form.Label>
+										<Form.Select
+											ref={resourceDOM}
+											id={typeDOMId}
+											className="w-100"
+											defaultValue={selectedOption}
+											onChange={handleSelect}
+										>
+											{platform == "moodle"
+												? moodleResource.map((option) => {
+														if (
+															(ActionNodes.includes(nodeSelected.type) &&
+																option.nodeType == "ActionNode") ||
+															(!ActionNodes.includes(nodeSelected.type) &&
+																option.nodeType == "ElementNode")
+														) {
+															return (
+																<option key={option.id} value={option.value}>
+																	{option.name}
+																</option>
+															);
+														}
+												  })
+												: sakaiResource.map((option) => {
+														if (
+															(ActionNodes.includes(nodeSelected.type) &&
+																option.nodeType == "ActionNode") ||
+															(!ActionNodes.includes(nodeSelected.type) &&
+																option.nodeType == "ElementNode")
+														) {
+															return (
+																<option key={option.id} value={option.value}>
+																	{option.name}
+																</option>
+															);
+														}
+												  })}
+										</Form.Select>
+									</Form.Group>
+								)}
 
-								{blockSelected.type != "fragment" ? (
+								{!(
+									nodeSelected.type == "fragment" ||
+									nodeSelected.type == "mail" ||
+									selectedOption == "mail"
+								) && (
 									<div className="mb-3">
 										<div className="d-flex gap-2">
-											<Form.Label htmlFor={optionsID} className="mb-1">
-												Recurso en el LMS
-											</Form.Label>
-											<div className="d-flex">
-												<div ref={refreshIconDOM} id="refresh-icon">
-													<ArrowClockwise></ArrowClockwise>
+											<div className="d-flex align-items-center justify-content-between w-100">
+												<div className="d-flex align-items-center justify-content-between">
+													<Form.Label
+														htmlFor={lmsResourceDOMId}
+														className="mb-1"
+													>
+														Recurso en el LMS
+													</Form.Label>
+													<div className="ms-2">
+														{!showSpinner && (
+															<div ref={refreshIconDOM}>
+																<FontAwesomeIcon icon={faRotateRight} />
+															</div>
+														)}
+														{showSpinner && (
+															<div ref={refreshIconDOM}>
+																<Spinner
+																	animation="border"
+																	role="status"
+																	size="sm"
+																>
+																	<span className="visually-hidden">
+																		Loading...
+																	</span>
+																</Spinner>
+															</div>
+														)}
+													</div>
 												</div>
 												<div>
-													{showSpinner && (
-														<Spinner animation="border" role="status" size="sm">
-															<span className="visually-hidden">
-																Loading...
-															</span>
-														</Spinner>
-													)}
+													<OverlayTrigger
+														placement="right"
+														overlay={
+															<Tooltip>{`Solo se mostrarán elementos existentes en ${capitalizeFirstLetter(
+																platform
+															)}. Para crear un elemento nuevo en ${capitalizeFirstLetter(
+																platform
+															)}, presione este botón.`}</Tooltip>
+														}
+														trigger={["hover", "focus"]}
+													>
+														<Button
+															className={`btn-light d-flex align-items-center p-0 m-0 ${styles.actionButtons}`}
+															onClick={() =>
+																window.open(
+																	metaData.return_url.startsWith("http")
+																		? metaData.return_url
+																		: "https://" + metaData.return_url,
+																	"_blank"
+																)
+															}
+														>
+															<FontAwesomeIcon icon={faCircleQuestion} />
+														</Button>
+													</OverlayTrigger>
 												</div>
 											</div>
 										</div>
 										<Form.Select
-											ref={optionsDOM}
-											id={optionsID}
+											ref={lmsResourceDOM}
+											id={lmsResourceDOMId}
 											className="w-100"
+											defaultValue={lmsResource == "" ? lmsResource : "-1"}
+											disabled={!resourceOptions.length > 0}
+											onChange={syncLabel}
 										>
-											{allowResourceSelection &&
-												secondOptions.map((option) => (
-													<option key={option.id} value={option.name}>
-														{option.name}
+											{allowResourceSelection && (
+												<>
+													<option key="-1" hidden value>
+														{"Esperando recursos..."}
 													</option>
-												))}
+													{resourceOptions.map((resource) => (
+														<option key={resource.id} value={resource.id}>
+															{resource.bettername != undefined
+																? resource.bettername
+																: resource.name}
+														</option>
+													))}
+												</>
+											)}
 										</Form.Select>
 									</div>
-								) : (
-									<></>
 								)}
 							</div>
 						</Form.Group>
-
-						<div className="mb-2">
-							<div
-								className="d-flex gap-2"
-								role="button"
-								onClick={() => setExpandedAttr(!expandedAttr)}
-							>
-								<div className="fw-bold">Atributos</div>
-								<div>
-									<div role="button">
-										{!expandedAttr ? <CaretUpFill /> : <CaretDownFill />}
-									</div>
-								</div>
-							</div>
-
-							<div
-								className={[
-									styles.uniadaptiveDetails,
-									expandedAttr ? styles.active : null,
-									reducedAnimations && styles.noAnimation,
-								].join(" ")}
-							>
-								<Form.Group>
-									<Form.Label htmlFor="mandatory" className="mb-1">
-										Bloque obligatorio
-									</Form.Label>
-									<Form.Select id="mandatory" className="w-100">
-										<option>Si</option>
-										<option>No</option>
-									</Form.Select>
-								</Form.Group>
-							</div>
-						</div>
-
-						<div className="mb-2">
-							<div
-								className="d-flex gap-2"
-								role="button"
-								onClick={() => setExpandedInteract(!expandedInteract)}
-							>
-								<div className="fw-bold">Interacción</div>
-								<div>
-									<div role="button">
-										{!expandedInteract ? <CaretUpFill /> : <CaretDownFill />}
-									</div>
-								</div>
-							</div>
-
-							<div
-								className={[
-									styles.uniadaptiveDetails,
-									expandedInteract ? styles.active : null,
-									reducedAnimations && styles.noAnimation,
-								].join(" ")}
-							>
-								<Form.Group>
-									<Form.Label className="mb-1">Visibilidad</Form.Label>
-									<Form.Select>
-										<option>Si</option>
-										<option>No</option>
-									</Form.Select>
-								</Form.Group>
-							</div>
-						</div>
-						{blockSelected.children && (
-							<div>
-								<div className="mb-2">
-									<div
-										className="d-flex gap-2"
-										role="button"
-										onClick={() => {
-											setExpandedRelations(!expandedRelations);
-											setExpandedCondition(false);
-										}}
-									>
-										<div className="fw-bold">Relaciones</div>
-										<div>
-											<div role="button">
-												{!expandedRelations ? (
-													<CaretUpFill />
-												) : (
-													<CaretDownFill />
-												)}
-											</div>
+						{!(
+							ActionNodes.includes(nodeSelected.type) ||
+							nodeSelected.type == "fragment"
+						) && (
+							<div className="mb-2">
+								<div
+									className="d-flex gap-2"
+									role="button"
+									onClick={() => setExpandedInteract(!expandedInteract)}
+								>
+									<div className="fw-bold">Interacción</div>
+									<div>
+										<div role="button">
+											{!expandedInteract ? (
+												<FontAwesomeIcon icon={faCaretUp} />
+											) : (
+												<FontAwesomeIcon icon={faCaretDown} />
+											)}
 										</div>
 									</div>
+								</div>
 
-									<div
-										className={[
-											styles.uniadaptiveDetails,
-											expandedRelations ? styles.active : null,
-											reducedAnimations && styles.noAnimation,
-										].join(" ")}
-									>
+								<div
+									className={[
+										styles.uniadaptiveDetails,
+										expandedInteract ? styles.active : null,
+										reducedAnimations && styles.noAnimation,
+									].join(" ")}
+								>
+									<Form.Group className="mb-2">
+										<Form.Label htmlFor={lmsVisibilityDOMId}>
+											Visibilidad
+										</Form.Label>
 										<Form.Select
-											ref={relationSelectDOM}
-											className="mb-3"
-											onChange={handleBlockSelect}
-											defaultValue={""}
+											ref={lmsVisibilityDOM}
+											id={lmsVisibilityDOMId}
+											defaultValue={nodeSelected.data.lmsVisibility}
 										>
-											<option value="" disabled>
-												Escoge una relación
-											</option>
-
-											{blockSelected.children &&
-												blockSelected.children.map((childId) => {
-													const selectedChild = currentBlocksData.find(
-														(child) => child.id === childId
-													);
-
-													return (
-														<option
-															key={selectedChild.id}
-															value={selectedChild.id}
-														>
-															{selectedChild.title}
-														</option>
-													);
-												})}
+											{orderByPropertyAlphabetically(shownTypes, "name").map(
+												(option) => (
+													<option key={option.value} value={option.value}>
+														{option.name}
+													</option>
+												)
+											)}
+											{/*<option>Ocultar hasta tener acceso</option>
+											<option>Mostrar siempre sin acceso</option>*/}
 										</Form.Select>
-										{showConditions && (
-											<div className="mb-2">
-												<div
-													className="d-flex gap-2"
-													role="button"
-													onClick={() =>
-														setExpandedCondition(!expandedCondition)
-													}
-												>
-													<div className="fw-bold">Condición</div>
-													<div>
-														<div role="button">
-															{!expandedCondition ? (
-																<CaretUpFill />
-															) : (
-																<CaretDownFill />
-															)}
-														</div>
-													</div>
-												</div>
-												{matchingConditions &&
-													matchingConditions.map((condition) => {
-														if (condition.type === "qualification") {
-															return (
-																<Qualification
-																	condition={condition}
-																	conditionTypes={conditionTypes}
-																	qualificationOperand={qualificationOperand}
-																	titleID={titleID}
-																	titleDOM={titleDOM}
-																	expandedCondition={expandedCondition}
-																/>
-															);
-														}
-													})}
-											</div>
-										)}
-									</div>
+									</Form.Group>
+
+									<>
+										<Form.Group className="mb-2">
+											<Form.Label htmlFor={orderDOMId}>Sección</Form.Label>
+											<Form.Select
+												ref={sectionDOM}
+												id={sectionDOMId}
+												defaultValue={nodeSelected.data.section}
+											>
+												{metaData.sections &&
+													orderByPropertyAlphabetically(
+														[...metaData.sections].map((section) => {
+															if (!section.name.match(/^\d/)) {
+																section.name =
+																	platform == "moodle"
+																		? section.position + "- " + section.name
+																		: section.position +
+																		  1 +
+																		  "- " +
+																		  section.name;
+																section.value = section.position + 1;
+															}
+															return section;
+														}),
+														"name"
+													).map((section) => (
+														<option key={section.id} value={section.position}>
+															{section.name}
+														</option>
+													))}
+											</Form.Select>
+										</Form.Group>
+										<Form.Group className="mb-2">
+											<Form.Label htmlFor={orderDOMId}>
+												Posición en la sección
+											</Form.Label>
+											<Form.Control
+												type="number"
+												min={1}
+												max={999}
+												defaultValue={nodeSelected.data.order}
+												ref={orderDOM}
+												id={orderDOMId}
+											></Form.Control>
+										</Form.Group>
+										<Form.Group className="mb-2">
+											<Form.Label htmlFor={indentDOMId}>
+												Identación en la sección
+											</Form.Label>
+											<Form.Control
+												type="number"
+												min={0}
+												max={16}
+												defaultValue={nodeSelected.data.indent}
+												ref={indentDOM}
+												id={indentDOMId}
+											></Form.Control>
+										</Form.Group>
+									</>
 								</div>
 							</div>
 						)}
+
 						<Button onClick={updateBlock} disabled={!allowResourceSelection}>
 							Guardar
 						</Button>
@@ -646,40 +875,44 @@ export default function Aside({ className, closeBtn }) {
 				<></>
 			)}
 
-			{itinerarySelected ? (
+			{mapSelected && !(nodeSelected || editVersionSelected) ? (
 				<div className="container-fluid">
 					<Form.Group className="mb-3">
 						<div
 							className="d-flex gap-2"
 							role="button"
-							onClick={() => setExpanded(!expanded)}
+							onClick={() => setExpandedAside(!expandedAside)}
 						>
 							<div className="fw-bold">Contenido</div>
 							<div>
-								<div>{!expanded ? <CaretUpFill /> : <CaretDownFill />}</div>
+								<div>
+									{!expandedAside ? (
+										<FontAwesomeIcon icon={faCaretUp} />
+									) : (
+										<FontAwesomeIcon icon={faCaretDown} />
+									)}
+								</div>
 							</div>
 						</div>
 						<div
 							className={[
 								styles.uniadaptiveDetails,
-								expanded && styles.active,
+								expandedAside && styles.active,
 								reducedAnimations && styles.noAnimation,
 							]}
 						>
 							<Form.Group className="mb-3">
-								<Form.Label className="mb-1">Nombre del itinerario</Form.Label>
+								<Form.Label className="mb-1">Nombre del mapa</Form.Label>
 								<Form.Control
-									id="itinerary-title"
-									ref={itineraryTitleDOM}
+									id="map-title"
+									ref={mapTitleDOM}
 									type="text"
 									className="w-100"
+									defaultValue={mapSelected.name}
 								></Form.Control>
 							</Form.Group>
 						</div>
-						<Button
-							onClick={updateItinerary}
-							disabled={!allowResourceSelection}
-						>
+						<Button onClick={updateMap} disabled={!allowResourceSelection}>
 							Guardar
 						</Button>
 					</Form.Group>
@@ -688,24 +921,30 @@ export default function Aside({ className, closeBtn }) {
 				<></>
 			)}
 
-			{selectedEditVersion ? (
+			{editVersionSelected ? (
 				<div className="container-fluid">
 					<Form.Group className="mb-3">
 						<div
 							className="d-flex gap-2"
 							role="button"
-							onClick={() => setExpanded(!expanded)}
+							onClick={() => setExpandedAside(!expandedAside)}
 						>
 							<div className="fw-bold">Contenido</div>
 							<div>
-								<div>{!expanded ? <CaretUpFill /> : <CaretDownFill />}</div>
+								<div>
+									{!expandedAside ? (
+										<FontAwesomeIcon icon={faCaretUp} />
+									) : (
+										<FontAwesomeIcon icon={faCaretDown} />
+									)}
+								</div>
 							</div>
 						</div>
 						<div
 							style={{
-								opacity: expanded ? "1" : "0",
-								visibility: expanded ? "visible" : "hidden",
-								maxHeight: expanded ? "" : "0",
+								opacity: expandedAside ? "1" : "0",
+								visibility: expandedAside ? "visible" : "hidden",
+								maxHeight: expandedAside ? "" : "0",
 								transition: "all .2s",
 							}}
 						>
@@ -716,6 +955,7 @@ export default function Aside({ className, closeBtn }) {
 									ref={versionTitleDOM}
 									type="text"
 									className="w-100"
+									defaultValue={editVersionSelected.name}
 								></Form.Control>
 							</Form.Group>
 						</div>

@@ -1,0 +1,40 @@
+.nodeError, .nodeWarning{
+	text-decoration: none;
+	color:black;
+}
+
+.nodeError:hover, .iconError:hover + .nodeError{
+	text-decoration: underline;
+    color: #dc3545;
+}
+
+.nodeWarning:hover, .iconWarning:hover + .nodeWarning{
+	text-decoration: underline;
+    color: #ffc107;
+}
+
+.iconError {
+    color: #dc3545;
+}
+
+.iconWarning {
+    color: #ffc107;
+}
+
+.errorTabs{
+    --bs-nav-tabs-link-active-border-color: #dc3545 #dc3545 #fff!important;
+	--bs-nav-tabs-link-hover-border-color: #dee2e6 #dee2e6 #dc3545;
+	border-bottom: var(--bs-nav-tabs-border-width) solid #dc3545;
+}
+
+.warningTabs{
+    --bs-nav-tabs-link-active-border-color: #ffc107 #ffc107 #fff!important;
+	--bs-nav-tabs-link-hover-border-color: #dee2e6 #dee2e6 #ffc107;
+	border-bottom: var(--bs-nav-tabs-border-width) solid #ffc107;
+}
+
+.successTabs{
+    --bs-nav-tabs-link-active-border-color: #28a745 #28a745 #fff!important;
+	--bs-nav-tabs-link-hover-border-color: #dee2e6 #dee2e6 #28a745;
+	border-bottom: var(--bs-nav-tabs-border-width) solid #28a745;
+}

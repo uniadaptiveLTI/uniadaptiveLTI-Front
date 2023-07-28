@@ -1,10 +1,171 @@
 :root {
+  --main-font-color: var(--bs-dark);
+  --main-font-family: var(--bs-body-font-family);
+  --main-ui-borders: 1px solid #ccc;
+  --main-ui-default-background: #fff;
+  --main-ui-secondary-background: #f8f8f8;
+  --main-ui-third-background: #212529;
+  --main-ui-button-border-radius: 4px;
+  --main-ui-input-border-radius: 4px;
+
+  /*
+    Square inputs, you need to uncomment the !important on the respective selectors below to make it work
+
+  --main-ui-button-border-radius: 0;
+  --main-ui-input-border-radius: 0;
+  */
+
+  --primary-background-color: var(--bs-primary);
+  --primary-border: 1px solid var(--bs-primary);
+  --primary-border-radius: var(--bs-btn-border-radius);
+  --secondary-background-color: var(--bs-secondary);
+  --secondary-border: 1px solid var(--bs-secondary);
+  --secondary-border-radius: var(--bs-btn-border-radius);
+  --light-background-color: var(--bs-light);
+  --light-border: 1px solid #bdbebf;
+  --light-border-radius: var(--bs-btn-border-radius);
+  --success-background-color: var(--bs-success);
+  --success-border: 1px solid var(--bs-success);
+  --success-border-radius: var(--bs-btn-border-radius);
+  --warning-background-color: var(--bs-warning);
+  --warning-border: 1px solid var(--bs-warning);
+  --warning-border-radius: var(--bs-btn-border-radius);
+  --error-background-color: var(--bs-danger);
+  --error-border: 1px solid var(--bs-danger);
+  --error-border-radius: var(--bs-btn-border-radius);
+  --dev-background-color: repeating-linear-gradient(45deg,gold,gold 10px,black 10px,black 20px);
+  --dev-border: 1px solid black;
+  --dev-border-radius: 0;
+
+  --icons-black-filter: none;
+  --icons-white-filter: invert();
+
+  --header-font-color: var(--main-font-color);
+  --header-font-family: var(--main-font-family);
+  --header-background-color: var(--main-ui-default-background);
+  --header-action-buttons-border-radius: 100%;
+  --header-action-buttons-border: none;
+  --header-action-buttons-background-color: var(--bs-light);
+  --header-action-buttons-svg-filter: none;
+  --header-version-dropdown-container-font-color: var(--header-font-color);
+  --header-version-dropdown-container-font-family: var(--header-font-family);
+  --header-version-dropdown-container-background-color: var(--header-background-color);
+  --header-user-image-border-radius: 100%;
+  --header-user-image-border: 2px solid #fff;
+
+  --aside-font-color: var(--main-font-color);
+  --aside-font-family: var(--bs-body-font-family);
+  --aside-background-color: var(--main-ui-secondary-background);
+  --aside-collapse-icon-color: var(--aside-font-color);
+  --aside-collapse-icon-background-color: var(--aside-background-color);
+
+  --footer-font-color: var(--main-font-color);
+  --footer-font-family: var(--main-font-family);
+  --footer-background-color: var(--main-ui-default-background);
+  --footer-msgbox-font-color: var(--main-font-color);
+  --footer-msgbox-font-family: var(--bs-font-monospace);
+  --footer-msgbox-background-color: var(--footer-background-color);
+
+  --blockflow-font-color: var(--main-font-color);
+  --blockflow-font-family: var(--main-font-family);
+  --blockflow-background-color: none;
+  --blockflow-text-background-color: none;
+  --blockflow-node-border: 2px solid #101011;
+  --blockflow-node-border-radius: 4px;
+  --blockflow-edge-background: var(--main-ui-secondary-background);
+  --blockflow-edge-border: var(--blockflow-node-border);
+  --blockflow-edge-border-radius: var(--blockflow-node-border-radius);
+  --blockflow-edge-font-color: var(--blockflow-font-color);
+  --blockflow-controls-border: none;
+  --blockflow-controls-button-background-color: #fff;
+  --blockflow-controls-button-font-color: #000;
+  --blockflow-controls-button-border: 1px solid #eee;
+  --blockflow-controls-button-svg-filter: none;
+  --blockflow-handles-border-radius: 100%;
+
+  --high-contrast-accent-color1: white;
+  --high-contrast-accent-color2: black;
+  --high-contrast-details-font-color: var(--high-contrast-accent-color1);
+  --high-contrast-details-background-color: var(--high-contrast-accent-color2);
+  --high-contrast-details-border: 1px solid white;
+  --high-contrast-icons-fa-filter: var(--icons-white-filter);
+  --high-contrast-icons-fa-filter-onhover: var(--icons-black-filter);
+  --high-contrast-icons-moodle-filter: var(--icons-black-filter);
+  --high-contrast-icons-moodle-filter-onhover: var(--icons-white-filter);
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  /*:root {
+    Example:
+
+    --main-font-color: var(--bs-light);
+    --main-font-family: var(--bs-body-font-family);
+    --main-ui-borders: 1px solid #ccc;
+    --main-ui-button-radius: auto;
+    --success-background-color: var(--bs-success);
+    --warning-background-color: var(--bs-warning);
+    --error-background-color: var(--bs-danger);
+
+    --icons-black-filter: invert();
+    --icons-white-filter: none;
+
+    --header-font-color: var(--main-font-color);
+    --header-font-family: var(--main-font-family);
+    --header-background-color: #293137;
+    --header-action-buttons-border-radius: 100%;
+    --header-action-buttons-border: none;
+    --header-action-buttons-background-color: var(--bs-dark);
+    --header-action-buttons-svg-filter: invert();
+    --header-version-dropdown-container-font-color: var(--header-font-color);
+    --header-version-dropdown-container-font-family: var(--header-font-family);
+    --header-version-dropdown-container-background-color: var(--header-background-color);
+    --header-user-image-border-radius: 100%;
+    --header-user-image-border: 2px solid white;
+
+    --aside-font-color: #f8f8f8;
+    --aside-background-color: #161b20;
+    --aside-collapse-icon-color: var(--aside-font-color);
+    --aside-collapse-icon-background-color: var(--aside-background-color);
+
+    --footer-font-color: var(--main-font-color);
+    --footer-font-family: var(--main-font-family);
+    --footer-background-color: #293137;
+    --footer-msgbox-font-color: var(--main-font-color);
+    --footer-msgbox-font-family: var(--bs-font-monospace);
+    --footer-msgbox-background-color: var(--footer-background-color);
+
+    --blockflow-font-color: var(--main-font-color);
+    --blockflow-font-family: var(--main-font-family);
+    --blockflow-background-color: #161b20;
+    --blockflow-text-background-color: none;
+    --blockflow-node-border: 2px solid white;
+    --blockflow-controls-border: none;
+    --blockflow-controls-button-background-color: #161b20;
+    --blockflow-controls-button-font-color: white;
+    --blockflow-controls-button-border: 1px solid #eee;
+    --blockflow-controls-button-svg-filter: invert();
+    --blockflow-icons-moodle-filter: invert();
+    --blockflow-handles-border-radius: 100%;
+    --blockflow-node-border-radius: 4px;
     
-  }
+    --high-contrast-accent-color1: black;
+    --high-contrast-accent-color2: white;
+    --high-contrast-details-font-color: var(--high-contrast-accent-color1);
+    --high-contrast-details-background-color: var(--high-contrast-accent-color2);
+    --high-contrast-details-border: 1px solid black;
+    --high-contrast-icons-fa-filter: var(--icons-white-filter);
+    --high-contrast-icons-fa-filter-onhover: var(--icons-black-filter);
+    --high-contrast-icons-moodle-filter: var(--icons-black-filter);
+    --high-contrast-icons-moodle-filter-onhover: var(--icons-white-filter);
+  }*/
+}
+
+button {
+  border-radius: var(--main-ui-button-border-radius) /*!important*/;
+}
+
+input, select {
+  border-radius: var(--main-ui-input-border-radius) /*!important*/;
 }
 
 * {
@@ -19,10 +180,7 @@ body {
   width: 100%;
   overflow-x: hidden;
   overflow-y: hidden;
-}
-
-a {
-  
+  font-family: var(--main-font-family);
 }
 
 @media (prefers-color-scheme: dark) {

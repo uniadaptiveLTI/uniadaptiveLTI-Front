@@ -1,11 +1,14 @@
-import { SettingsContext } from "@components/pages/_app";
-import styles from "@components/styles/Footer.module.css";
+import { SettingsContext } from "@root/pages/_app";
+import styles from "@root/styles/Footer.module.css";
 import { useEffect, useState, useContext } from "react";
 import { Container } from "react-bootstrap";
-import { CaretDownFill, CaretUpFill } from "react-bootstrap-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCaretDown, faCaretUp } from "@fortawesome/free-solid-svg-icons";
 
 export default function Footer({ msg, className }) {
-	const [expanded, setExpanded] = useState(msg.length == 0 ? false : true);
+	const [expandedFooter, setExpandedFooter] = useState(
+		msg.length == 0 ? false : true
+	);
 	const { settings } = useContext(SettingsContext);
 
 	const parsedSettings = JSON.parse(settings);
@@ -13,10 +16,10 @@ export default function Footer({ msg, className }) {
 
 	useEffect(() => {
 		if (autoExpandMSGBox && msg.length > 0) {
-			setExpanded(true);
+			setExpandedFooter(true);
 		}
 		if (autoHideMSGBox && msg.length <= 0) {
-			setExpanded(false);
+			setExpandedFooter(false);
 		}
 	}, [msg.length]);
 
@@ -28,7 +31,7 @@ export default function Footer({ msg, className }) {
 				fluid
 				className="d-flex justify-content-between my-2"
 				style={{ height: "2.5em" }}
-				onClick={() => setExpanded(!expanded)}
+				onClick={() => setExpandedFooter(!expandedFooter)}
 			>
 				<span
 					className="d-flex "
@@ -54,14 +57,18 @@ export default function Footer({ msg, className }) {
 						justifyContent: "space-between",
 					}}
 				>
-					{expanded ? <CaretDownFill /> : <CaretUpFill />}
+					{expandedFooter ? (
+						<FontAwesomeIcon icon={faCaretDown} />
+					) : (
+						<FontAwesomeIcon icon={faCaretUp} />
+					)}
 				</span>
 			</Container>
 			<div
 				className={
 					styles.messageBox +
 					" " +
-					(expanded ? styles.expanded : "") +
+					(expandedFooter ? styles.expanded : "") +
 					" " +
 					(reducedAnimations && styles.noAnimation)
 				}

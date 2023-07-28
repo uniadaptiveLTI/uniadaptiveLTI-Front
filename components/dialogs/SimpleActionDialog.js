@@ -13,7 +13,11 @@ export default function SimpleActionDialog({
 }) {
 	function handleClose(actionClicked) {
 		if (callback && actionClicked) {
-			callback();
+			if (callback instanceof Function) {
+				callback();
+			} else {
+				console.warn("Callback isn't a function");
+			}
 		}
 		toggleDialog();
 	}
@@ -30,6 +34,7 @@ export default function SimpleActionDialog({
 				<Button
 					variant={type == "delete" ? "danger" : "primary"}
 					onClick={() => handleClose(true)}
+					autoFocus
 				>
 					{action ? action : "Ok"}
 				</Button>
