@@ -1539,6 +1539,7 @@ function Header({ LTISettings }, ref) {
 					userData={userData}
 					mapName={mapSelected.name}
 					LTISettings={LTISettings}
+					selectedVersion={selectedVersion}
 				/>
 			)}
 			{showUserSettingsModal && (
