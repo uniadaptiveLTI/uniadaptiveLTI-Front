@@ -1124,7 +1124,7 @@ function Header({ LTISettings }, ref) {
 				platform,
 				userData,
 				mapSelected,
-				versionJson,
+				selectedVersion,
 				LTISettings,
 				defaultToastSuccess,
 				defaultToastError,

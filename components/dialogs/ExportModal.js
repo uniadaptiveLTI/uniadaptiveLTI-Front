@@ -35,6 +35,7 @@ export default forwardRef(function ExportModal(
 		errorList,
 		mapName,
 		LTISettings,
+		selectedVersion,
 	},
 	ref
 ) {
@@ -289,6 +290,7 @@ export default forwardRef(function ExportModal(
 							userData={userData}
 							mapName={mapName}
 							LTISettings={LTISettings}
+							selectedVersion={selectedVersion}
 						/>
 					</Tab>
 
