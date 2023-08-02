@@ -11,6 +11,7 @@ import { MapInfoContext, PlatformContext } from "pages/_app";
 import { getBackupURL } from "@utils/Platform";
 import { ActionNodes } from "@utils/Nodes";
 import {
+	fetchBackEnd,
 	getHTTPPrefix,
 	getSectionIDFromPosition,
 	saveVersion,
@@ -331,21 +332,22 @@ export default function ExportPanel({
 	async function sendNodes(nodes) {
 		console.log(nodes);
 		try {
-			const response = await fetch(
-				`${getHTTPPrefix()}//${LTISettings.back_url}/api/lti/export_version`,
-				{
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({
-						course: metaData.course_id,
-						instance: metaData.instance_id,
-						userId: userData.user_id,
-						userPerms: userData.userperms,
-						nodes: nodes,
-						save: true,
-						selection: currentSelectionInfo.selection,
-					}),
-				}
+			const payload = {
+				course: metaData.course_id,
+				instance: metaData.instance_id,
+				userId: userData.user_id,
+				userPerms: userData.userperms,
+				nodes: nodes,
+				save: true,
+				selection: currentSelectionInfo.selection,
+			};
+
+			const response = await fetchBackEnd(
+				LTISettings,
+				sessionStorage.getItem("token"),
+				"api/lti/export_version",
+				"POST",
+				payload
 			);
 
 			if (response) {

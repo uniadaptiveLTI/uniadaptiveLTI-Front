@@ -6,7 +6,12 @@ import "styles/BlockFlowMoodle.css";
 import "@fortawesome/fontawesome-svg-core/styles.css"; // import Font Awesome CSS
 import { config } from "@fortawesome/fontawesome-svg-core";
 config.autoAddCss = false; // Tell Font Awesome to skip adding the CSS automatically since it's being imported above
-import React, { createContext, useState, useEffect } from "react";
+import React, {
+	createContext,
+	useState,
+	useEffect,
+	useLayoutEffect,
+} from "react";
 
 export const MSGContext = createContext(); // Used for displaying messages in the footer
 export const NodeInfoContext = createContext(); // Contains the node data that is being edited

@@ -58,6 +58,7 @@ import {
 	uniqueId,
 	getHTTPPrefix,
 	saveVersion,
+	fetchBackEnd,
 } from "@utils/Utils.js";
 import { isNodeArrayEqual } from "@utils/Nodes";
 import { errorListCheck } from "@utils/ErrorHandling";
@@ -211,13 +212,15 @@ function Header({ LTISettings }, ref) {
 			if (selectedMap.versions) {
 				if (!LTISettings.debugging.dev_files) {
 					try {
-						const response = await fetch(
-							`${getHTTPPrefix()}//${
-								LTISettings.back_url
-							}/lti/get_version?version_id=${selectedMap.versions[0].id}`
+						const response = await fetchBackEnd(
+							LTISettings,
+							sessionStorage.getItem("token"),
+							"api/lti/get_version",
+							"POST",
+							{ version_id: selectedMap.versions[0].id }
 						);
 
-						const data = await response.json();
+						const data = response.data;
 
 						if (!data.invalid) {
 							setVersions(selectedMap.versions);
@@ -346,14 +349,23 @@ function Header({ LTISettings }, ref) {
 		const encodedInstance = encodeURIComponent(localMetaData.instance_id);
 		const encodedSessionId = encodeURIComponent(localMetaData.session_id);
 		console.log(localMetaData, localMaps);
-		const response = await fetch(
-			lesson != undefined
-				? `${getHTTPPrefix()}//${
-						LTISettings.back_url
-				  }/lti/get_modules?instance=${encodedInstance}&course=${encodedCourse}&session=${encodedSessionId}&lesson=${lesson}`
-				: `${getHTTPPrefix()}//${
-						LTISettings.back_url
-				  }/lti/get_modules?instance=${encodedInstance}&course=${encodedCourse}`
+
+		const payload = {
+			instance: encodedInstance,
+			course: encodedCourse,
+			session: encodedSessionId,
+		};
+
+		if (lesson != undefined) {
+			payload.lesson = lesson;
+		}
+
+		const response = await fetchBackEnd(
+			LTISettings,
+			sessionStorage.getItem("token"),
+			"api/lti/get_modules",
+			"POST",
+			payload
 		);
 
 		if (!response.ok) {
@@ -363,7 +375,7 @@ function Header({ LTISettings }, ref) {
 			);
 			throw new Error("Request failed");
 		}
-		const data = await response.json();
+		const data = response.data;
 
 		console.log("JSON RECIBIDO: ", data);
 
@@ -652,32 +664,31 @@ function Header({ LTISettings }, ref) {
 		if (mapId != -1) {
 			if (!LTISettings.debugging.dev_files) {
 				try {
-					const response = await fetch(
-						`${getHTTPPrefix()}//${
-							LTISettings.back_url
-						}/api/lti/delete_map_by_id`,
-						{
-							method: "POST",
-							headers: { "Content-Type": "application/json" },
-							body: JSON.stringify({ id: Number(mapId) }),
-						}
+					const response = await fetchBackEnd(
+						LTISettings,
+						sessionStorage.getItem("token"),
+						"api/lti/delete_map_by_id",
+						"POST",
+						{ id: Number(mapId) }
 					);
+
 					if (response) {
 						if (!response.ok) {
 							throw `Ha ocurrido un error.`;
 						} else {
 							//FIXME: Load map "shell"
 							setLoadedMaps(false);
-							fetch(
-								`${getHTTPPrefix()}//${LTISettings.back_url}/lti/get_session`
-							)
-								.then((response) => response.json())
-								.then((data) => {
-									const maps = [emptyMap, ...data[2].maps];
-									setMaps(maps);
-									setMapCount(maps.length);
-									setLoadedMaps(true);
-								});
+							const response = await fetchBackEnd(
+								LTISettings,
+								sessionStorage.getItem("token"),
+								"api/lti/get_session",
+								"POST"
+							);
+							const data = response.data;
+							const maps = [emptyMap, ...data[2].maps];
+							setMaps(maps);
+							setMapCount(maps.length);
+							setLoadedMaps(true);
 							changeToMapSelection();
 							toast(`Mapa eliminado con éxito.`, defaultToastSuccess);
 						}
@@ -719,15 +730,12 @@ function Header({ LTISettings }, ref) {
 		if (versionCount > 1) {
 			if (!LTISettings.debugging.dev_files) {
 				try {
-					const response = await fetch(
-						`${getHTTPPrefix()}//${
-							LTISettings.back_url
-						}/api/lti/delete_version_by_id`,
-						{
-							method: "POST",
-							headers: { "Content-Type": "application/json" },
-							body: JSON.stringify({ id: Number(versionId) }),
-						}
+					const response = await fetchBackEnd(
+						LTISettings,
+						token,
+						"api/lti/delete_version_by_id",
+						"POST",
+						{ id: Number(versionId) }
 					);
 					if (response) {
 						if (!response.ok) {
@@ -905,9 +913,18 @@ function Header({ LTISettings }, ref) {
 						throw error;
 					});
 			} else {
-				fetch(`${getHTTPPrefix()}//${LTISettings.back_url}/lti/get_session`)
-					.then((response) => response.json())
-					.then((data) => {
+				const loadResources = async () => {
+					const token = sessionStorage.getItem("token");
+					const response = await fetchBackEnd(
+						LTISettings,
+						token,
+						"api/lti/get_session",
+						"POST"
+					);
+					console.log(response);
+					if (response && response.ok) {
+						const data = response.data;
+
 						console.log("DATOS DEL LMS: ", data);
 						// Usuario
 						setUserData(data[0]);
@@ -926,14 +943,66 @@ function Header({ LTISettings }, ref) {
 						setMaps(maps);
 						setMapCount(maps.length);
 						setLoadedMaps(true);
-					})
-					.catch((e) => {
-						const error = new Error(
-							"No se pudieron obtener los datos del curso desde el LMS."
+					} else {
+						alert(
+							`Error: No se puede obtener una sesión válida para el curso con los identificadores actuales. ¿Ha expirado la sesión?. Vuelva a alanzar la herramienta desde el gestor de contenido. Cerrando.`
 						);
-						error.log = e;
-						throw error;
-					});
+						window.close(); //TODO: DO THIS BETTER
+					}
+				};
+
+				const params = new URLSearchParams(window.location.href.split("?")[1]);
+				const token = params.get("token");
+				let newUrl = window.location.href.split("?")[0];
+				window.history.replaceState({}, document.title, newUrl);
+				if (token) {
+					//if there is a token in the url
+					sessionStorage.setItem("token", token);
+					loadResources();
+				} else {
+					//if there isn't a token in the url
+					const storedToken = sessionStorage.getItem("token");
+					if (storedToken == undefined) {
+						alert(
+							`Error: Interfaz lanzada sin identificador de sesión apropiado. Vuelva a lanzar la herramienta desde el gestor de contenido. Cerrando.`
+						);
+						window.close(); //TODO: DO THIS BETTER
+					} else {
+						loadResources();
+					}
+				}
+
+				// const params = new URLSearchParams(window.location.href.split("?")[1]);
+				// const token = params.get("token");
+				// let newUrl = window.location.href.split("?")[0];
+				// window.history.replaceState({}, document.title, newUrl);
+				// if (token) {
+				// 	//if there is a token in the url
+				// 	if (sessionStorage.getItem("tokens") == undefined) {
+				// 		//if there aren't any tokens stored
+				// 		sessionStorage.setItem("tokens", JSON.stringify([token]));
+				// 		loadResources();
+				// 	} else {
+				// 		//if there is any tokens stored
+				// 		const currentTokens = JSON.parse(sessionStorage.getItem("tokens"));
+				// 		if (!currentTokens.includes(token)) {
+				// 			sessionStorage.setItem(
+				// 				"tokens",
+				// 				JSON.stringify([...currentTokens, token])
+				// 			);
+				// 		}
+				// 		loadResources();
+				// 	}
+				// } else {
+				// 	//if there isn't a token in the url
+				// 	const storedTokens = sessionStorage.getItem("tokens");
+				// 	if (storedTokens == undefined) {
+				// 		alert(
+				// 			`Error: Interfaz lanzada sin identificador de sesión apropiado. Vuelva a alanzar la herramienta desde el gestor de contenido. Cerrando.`
+				// 		);
+				// 		window.close(); //TODO: DO THIS BETTER
+				// 	}
+				// }
 			}
 		} catch (e) {
 			toast(e, defaultToastError);
@@ -1115,7 +1184,6 @@ function Header({ LTISettings }, ref) {
 	}
 
 	const saveActualVersion = async () => {
-		console.log("AUGH");
 		try {
 			enableSaving(true);
 			await saveVersion(

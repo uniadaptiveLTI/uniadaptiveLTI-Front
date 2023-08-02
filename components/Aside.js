@@ -30,11 +30,9 @@ import {
 import {
 	capitalizeFirstLetter,
 	deduplicateById,
-	getHTTPPrefix,
 	getUpdatedArrayById,
-	isUnique,
 	orderByPropertyAlphabetically,
-	parseBool,
+	fetchBackEnd,
 } from "@utils/Utils";
 import {
 	ActionNodes,
@@ -111,56 +109,49 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 	);
 	const sakaiResource = orderByPropertyAlphabetically(getSakaiTypes(), "name");
 
-	const fetchResources = async (
-		selectedOption,
-		platform,
-		instance,
-		lms,
-		course,
-		session
-	) => {
+	const fetchResources = async (selectedOption) => {
 		try {
 			const encodedSelectedOption = encodeURIComponent(selectedOption);
-			const encodedPlatform = encodeURIComponent(platform);
-			const encodedInstance = encodeURIComponent(instance);
-			const encodedLMS = encodeURIComponent(lms);
-			const encodedCourse = encodeURIComponent(course);
-			const encodedSession = encodeURIComponent(session);
-			console.log(encodedLMS);
 			setShowSpinner(true);
 			setAllowResourceSelection(false);
-			const response = await fetch(
-				selectedOption == "generic"
-					? `${getHTTPPrefix()}//${
-							LTISettings.back_url
-					  }/lti/get_modules_by_type?type=${encodeURIComponent(
-							"unsupported"
-					  )}&instance=${encodedInstance}&platform=${encodedPlatform}&course=${encodedCourse}&url_lms=${encodedLMS}&session=${encodedSession}&supportedTypes=${encodeURIComponent(
-							getSupportedTypes(platform)
-					  )}&sections=${encodeURIComponent(
-							JSON.stringify(
-								metaData.sections.map((section) => {
-									return { id: section.id, position: section.position };
-								})
-							)
-					  )}`
-					: `${getHTTPPrefix()}//${
-							LTISettings.back_url
-					  }/lti/get_modules_by_type?type=${encodedSelectedOption}&instance=${encodedInstance}&platform=${encodedPlatform}&course=${encodedCourse}&url_lms=${encodedLMS}&session=${encodedSession}`
+			const payload = {
+				type:
+					selectedOption == "generic" ? "unsupported" : encodedSelectedOption,
+				token: sessionStorage.getItem("token"),
+			};
+
+			if (selectedOption == "generic") {
+				payload.supportedTypes = getSupportedTypes(platform);
+				payload.sections = metaData.sections.map((section) => {
+					return { id: section.id, position: section.position };
+				});
+			}
+
+			const response = await fetchBackEnd(
+				LTISettings,
+				sessionStorage.getItem("token"),
+				"api/lti/get_modules_by_type",
+				"POST",
+				payload
 			);
-			if (!response.ok) {
+
+			console.log(response);
+
+			if (!response) {
 				throw new Error("Request failed");
 			}
-			const data = await response.json();
+
+			const data = response.data;
+
 			setShowSpinner(false);
 			setAllowResourceSelection(true);
 			return data;
 		} catch (e) {
-			const error = new Error(
-				"No se pudieron obtener los datos del curso desde el LMS."
-			);
-			error.log = e;
-			throw error;
+			// const error = new Error(
+			// 	"No se pudieron obtener los datos del curso desde el LMS.\n" + e
+			// );
+			// error.log = e;
+			// throw error;
 		}
 	};
 
@@ -229,14 +220,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 					setResourceOptions(uniqueFilteredData);
 				}, 1000);
 			} else {
-				fetchResources(
-					selectedOption,
-					metaData.platform,
-					metaData.instance_id,
-					metaData.lms_url,
-					metaData.course_id,
-					metaData.session_id
-				).then((data) => {
+				fetchResources(selectedOption).then((data) => {
 					const filteredData = [];
 					data.forEach((resource) => {
 						if (!getUsedResources().includes(resource.id)) {
