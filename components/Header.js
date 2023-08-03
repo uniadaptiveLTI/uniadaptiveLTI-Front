@@ -960,15 +960,25 @@ function Header({ LTISettings }, ref) {
 					loadResources(token);
 				} else {
 					//if there isn't a token in the url
-					const storedToken = sessionStorage.getItem("token");
-					if (storedToken == undefined) {
-						alert(
-							`Error: Interfaz lanzada sin identificador de sesión apropiado. Vuelva a lanzar la herramienta desde el gestor de contenido. Cerrando.`
-						);
-						window.close(); //TODO: DO THIS BETTER
-					} else {
-						loadResources(storedToken);
-					}
+					let attempts = 0;
+					const maxAttempts = 20;
+					const interval = setInterval(() => {
+						const storedToken = sessionStorage.getItem("token");
+						if (storedToken == undefined) {
+							if (attempts < maxAttempts) {
+								attempts++;
+							} else {
+								alert(
+									`Error: Interfaz lanzada sin identificador de sesión apropiado. Vuelva a lanzar la herramienta desde el gestor de contenido. Cerrando.`
+								);
+								window.close();
+								clearInterval(interval);
+							}
+						} else {
+							loadResources(storedToken);
+							clearInterval(interval);
+						}
+					}, 100);
 				}
 
 				// const params = new URLSearchParams(window.location.href.split("?")[1]);
