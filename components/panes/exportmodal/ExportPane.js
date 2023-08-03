@@ -7,11 +7,7 @@ import { faExclamationTriangle } from "@fortawesome/free-solid-svg-icons";
 import { getRootStyle } from "@utils/Colors";
 import { useReactFlow, useNodes } from "reactflow";
 import { NodeTypes } from "@utils/TypeDefinitions";
-import {
-	MapInfoContext,
-	PlatformContext,
-	VersionJsonContext,
-} from "pages/_app";
+import { MapInfoContext, PlatformContext } from "pages/_app";
 import { getBackupURL } from "@utils/Platform";
 import { ActionNodes } from "@utils/Nodes";
 import {
@@ -29,13 +25,13 @@ export default function ExportPanel({
 	userData,
 	mapName,
 	LTISettings,
+	selectedVersion,
 }) {
 	const reactFlowInstance = useReactFlow();
 	const rfNodes = useNodes();
 
 	const { platform } = useContext(PlatformContext);
 	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
-	const { versionJson, setVersionJson } = useContext(VersionJsonContext);
 
 	const [exporting, setExporting] = useState(false);
 	const [ableToExport, setAbleToExport] = useState(false);
@@ -361,7 +357,7 @@ export default function ExportPanel({
 						platform,
 						userData,
 						mapSelected,
-						versionJson,
+						selectedVersion,
 						LTISettings,
 						defaultToastSuccess,
 						defaultToastError,
