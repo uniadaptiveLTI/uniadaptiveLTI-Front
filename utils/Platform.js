@@ -83,7 +83,7 @@ export function startingSectionID(platform) {
 		case "moodle":
 			return 0;
 		case "sakai":
-			return 1;
+			return 0;
 		default:
 			return 1;
 	}

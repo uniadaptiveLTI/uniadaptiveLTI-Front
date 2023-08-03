@@ -732,7 +732,7 @@ function Header({ LTISettings }, ref) {
 				try {
 					const response = await fetchBackEnd(
 						LTISettings,
-						token,
+						sessionStorage.getItem("token"),
 						"api/lti/delete_version_by_id",
 						"POST",
 						{ id: Number(versionId) }
@@ -913,8 +913,7 @@ function Header({ LTISettings }, ref) {
 						throw error;
 					});
 			} else {
-				const loadResources = async () => {
-					const token = sessionStorage.getItem("token");
+				const loadResources = async (token) => {
 					const response = await fetchBackEnd(
 						LTISettings,
 						token,
@@ -958,7 +957,7 @@ function Header({ LTISettings }, ref) {
 				if (token) {
 					//if there is a token in the url
 					sessionStorage.setItem("token", token);
-					loadResources();
+					loadResources(token);
 				} else {
 					//if there isn't a token in the url
 					const storedToken = sessionStorage.getItem("token");
@@ -968,7 +967,7 @@ function Header({ LTISettings }, ref) {
 						);
 						window.close(); //TODO: DO THIS BETTER
 					} else {
-						loadResources();
+						loadResources(storedToken);
 					}
 				}
 

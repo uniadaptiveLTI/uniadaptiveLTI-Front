@@ -117,7 +117,6 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 			const payload = {
 				type:
 					selectedOption == "generic" ? "unsupported" : encodedSelectedOption,
-				token: sessionStorage.getItem("token"),
 			};
 
 			if (selectedOption == "generic") {
