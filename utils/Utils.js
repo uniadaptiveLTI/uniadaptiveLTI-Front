@@ -290,6 +290,43 @@ export function getFetchUrl(LTISettings, webservice) {
 }
 
 /**
+ * Fetches data from the back-end using the specified token, webservice, and method.
+ * @async
+ * @function
+ * @param {Object} LTISettings - The LTI settings object.
+ * @param {string} token - The token to use for authentication.
+ * @param {string} webservice - The webservice to fetch data from.
+ * @param {string} [method="GET"] - The HTTP method to use for the request.
+ * @param {Object} [load] - The payload to send with the request.
+ * @returns {Promise<Object>} A Promise that resolves to the fetched data.
+ */
+export async function fetchBackEnd(
+	LTISettings,
+	token,
+	webservice,
+	method = "GET",
+	load
+) {
+	const fetchURL = getFetchUrl(LTISettings, webservice);
+	let fetchResponse;
+
+	if (method === "POST") {
+		const response = await fetch(fetchURL, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ ...load, token }),
+		});
+		fetchResponse = await response.json();
+	} else if (method === "GET") {
+		fetchResponse = await fetch(
+			fetchURL + `?${new URLSearchParams({ ...load, token }).toString()}`
+		);
+	}
+
+	return fetchResponse;
+}
+
+/** FIXME: UPDATE THIS JSDOC, MULTIPLE TOKEN PER SESSION
  * Fetches data from the back-end using the specified settings and parameters, trying multiple tokens until a successful response is received.
  * @param {Object} LTISettings - The LTI settings object.
  * @param {string[]} tokens - An array of authentication tokens to try.
@@ -297,7 +334,7 @@ export function getFetchUrl(LTISettings, webservice) {
  * @param {string} [method="GET"] - The HTTP method to use for the request (default: "GET").
  * @param {Object} [load] - The payload to send with the request.
  * @returns {Promise<Response|undefined>} A Promise that resolves to the first successful fetch response, or undefined if all tokens fail.
- */
+ 
 export async function fetchBackEnd(
 	LTISettings,
 	tokens,
@@ -306,27 +343,30 @@ export async function fetchBackEnd(
 	load
 ) {
 	const fetchURL = getFetchUrl(LTISettings, webservice);
+	let fetchResponses = [];
 
-	tokens.forEach(async (token) => {
-		let fetchResponse = undefined;
-
+	const promises = tokens.map(async (token) => {
 		if (method === "POST") {
-			fetchResponse = await fetch(fetchURL, {
+			const response = await fetch(fetchURL, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ ...load, token }),
 			});
+			console.log(response);
+			const responseJSON = await response.json();
+			console.log(responseJSON);
+			return responseJSON;
 		} else if (method === "GET") {
-			fetchResponse = await fetch(
+			const response = await fetch(
 				fetchURL + `?${new URLSearchParams({ ...load, token }).toString()}`
 			);
-		}
-		if (fetchResponse && fetchResponse.ok) {
-			return fetchResponse;
+			return response;
 		}
 	});
-	return undefined;
-}
+
+	fetchResponses = await Promise.all(promises);
+	return fetchResponses;
+}*/
 
 /**
  * Gets a section from an array of sections based on its position property value.
