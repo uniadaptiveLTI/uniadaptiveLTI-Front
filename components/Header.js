@@ -968,10 +968,12 @@ function Header({ LTISettings }, ref) {
 							if (attempts < maxAttempts) {
 								attempts++;
 							} else {
-								alert(
-									`Error: Interfaz lanzada sin identificador de sesión apropiado. Vuelva a lanzar la herramienta desde el gestor de contenido. Cerrando.`
-								);
-								window.close();
+								if (!LTISettings.debugging.dev_files) {
+									alert(
+										`Error: Interfaz lanzada sin identificador de sesión apropiado. Vuelva a lanzar la herramienta desde el gestor de contenido. Cerrando.`
+									);
+									window.close();
+								}
 								clearInterval(interval);
 							}
 						} else {

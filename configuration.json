@@ -9,7 +9,7 @@
 		"small_logo_path": "images/branding/small_logo.png"
 	},
 	"debugging": {
-		"dev_mode": false,
-		"dev_files": false
+		"dev_mode": true,
+		"dev_files": true
 	}
 }
