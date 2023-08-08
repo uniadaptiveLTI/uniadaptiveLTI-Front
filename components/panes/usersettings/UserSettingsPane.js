@@ -12,8 +12,6 @@ function UserSettingsPane({ LTISettings }, ref) {
 		snappingInFragment,
 		showDetails,
 		autoHideAside,
-		autoExpandMSGBox,
-		autoHideMSGBox,
 	} = parsedSettings;
 
 	/**
@@ -40,12 +38,6 @@ function UserSettingsPane({ LTISettings }, ref) {
 			case "switch-autoHideAside":
 				autoHideAside = !autoHideAside;
 				break;
-			case "switch-autoExpandMSGBox":
-				autoExpandMSGBox = !autoExpandMSGBox;
-				break;
-			case "switch-autoHideMSGBox":
-				autoHideMSGBox = !autoHideMSGBox;
-				break;
 		}
 		let newSettings = parsedSettings;
 		newSettings.highContrast = highContrast;
@@ -53,8 +45,6 @@ function UserSettingsPane({ LTISettings }, ref) {
 		newSettings.snapping = snapping;
 		newSettings.snappingInFragment = snappingInFragment;
 		newSettings.showDetails = showDetails;
-		newSettings.autoExpandMSGBox = autoExpandMSGBox;
-		newSettings.autoHideMSGBox = autoHideMSGBox;
 		newSettings.autoHideAside = autoHideAside;
 		let json = JSON.stringify(newSettings);
 		localStorage.setItem("settings", json);
@@ -138,23 +128,6 @@ function UserSettingsPane({ LTISettings }, ref) {
 					label="Autocontraer el inspector"
 					className="my-4"
 					defaultChecked={autoHideAside}
-					onClick={handleSettingChange}
-				/>
-				<h4 className="my-3">Caja de mensajes</h4>
-				<Form.Check
-					type="switch"
-					id="switch-autoExpandMSGBox"
-					label="Expandir la caja de mensajes automáticamente"
-					className="my-4"
-					defaultChecked={autoExpandMSGBox}
-					onClick={handleSettingChange}
-				/>
-				<Form.Check
-					type="switch"
-					id="switch-autoHideMSGBox"
-					label="Contraer la caja de mensajes automáticamente"
-					className="my-4"
-					defaultChecked={autoHideMSGBox}
 					onClick={handleSettingChange}
 				/>
 			</Form>

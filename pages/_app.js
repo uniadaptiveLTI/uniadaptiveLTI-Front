@@ -13,7 +13,6 @@ import React, {
 	useLayoutEffect,
 } from "react";
 
-export const MSGContext = createContext(); // Used for displaying messages in the footer
 export const NodeInfoContext = createContext(); // Contains the node data that is being edited
 export const ErrorListContext = createContext(); // Contains an array with error objects
 export const MapInfoContext = createContext(""); //
@@ -36,7 +35,6 @@ import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import { toast } from "react-toastify";
 import { useIsOnline } from "react-use-is-online";
-import { parseBool } from "@utils/Utils";
 
 const sessionStart = Date.now();
 
@@ -49,8 +47,6 @@ export default function App({ Component, pageProps }) {
 			snappingInFragment: false,
 			reducedAnimations: false,
 			autoHideAside: true,
-			autoExpandMSGBox: false,
-			autoHideMSGBox: true,
 		})
 	);
 	const [reactFlowInstance, setReactFlowInstance] = useState();

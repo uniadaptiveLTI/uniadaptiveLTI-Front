@@ -42,7 +42,6 @@ import {
 	VersionInfoContext,
 	PlatformContext,
 	BlocksDataContext,
-	MSGContext,
 	SettingsContext,
 	OnlineContext,
 	MetaDataContext,
@@ -143,7 +142,6 @@ function Header({ LTISettings }, ref) {
 	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
 	const { editVersionSelected, setEditVersionSelected } =
 		useContext(VersionInfoContext);
-	const { msg, setMSG } = useContext(MSGContext);
 
 	const { versionJson, setVersionJson } = useContext(VersionJsonContext);
 
@@ -244,12 +242,6 @@ function Header({ LTISettings }, ref) {
 				changeToMapSelection();
 			}
 		}
-		resetMapSesion();
-	}
-
-	function resetMapSesion() {
-		//Empty msgbox
-		setMSG([]);
 	}
 
 	/**
@@ -259,7 +251,6 @@ function Header({ LTISettings }, ref) {
 		resetEdit();
 		setMapSelected(getMapById(-1));
 		setCurrentBlocksData();
-		setMSG([]);
 	}
 
 	/**
@@ -349,23 +340,11 @@ function Header({ LTISettings }, ref) {
 		const encodedInstance = encodeURIComponent(localMetaData.instance_id);
 		const encodedSessionId = encodeURIComponent(localMetaData.session_id);
 		console.log(localMetaData, localMaps);
-
-		const payload = {
-			instance: encodedInstance,
-			course: encodedCourse,
-			session: encodedSessionId,
-		};
-
-		if (lesson != undefined) {
-			payload.lesson = lesson;
-		}
-
 		const response = await fetchBackEnd(
 			LTISettings,
 			sessionStorage.getItem("token"),
 			"api/lti/get_modules",
-			"POST",
-			payload
+			"POST"
 		);
 
 		if (!response.ok) {
@@ -1049,7 +1028,6 @@ function Header({ LTISettings }, ref) {
 				);
 				//console.log(selectedVersion.blocksData);
 				setCurrentBlocksData(selectedVersion.blocksData);
-				resetMapSesion();
 			}
 		}
 	}, [selectedVersion]);

@@ -118,12 +118,6 @@ export default function BrandingPane({ modifySettings, LTISettings }) {
 		asideCollapseIconBackgroundColor,
 		setAsideCollapseIconBackgroundColor,
 	] = useState(getRootStyle("--aside-collapse-icon-background-color"));
-	//-------Footer
-	const [footerBackgroundColor, setFooterBackgroundColor] = useState(
-		getRootStyle("--footer-background-color")
-	);
-	const [footerMsgboxBackgroundColor, setFooterMsgboxBackgroundColor] =
-		useState(getRootStyle("--footer-msgbox-background-color"));
 	//-------Blockflow
 	const [blockflowFontColor, setBlockflowFontColor] = useState(
 		getRootStyle("--blockflow-font-color")
@@ -424,19 +418,6 @@ export default function BrandingPane({ modifySettings, LTISettings }) {
 				label={"Color de fondo del icono de colapso del panel lateral"}
 				color={asideCollapseIconBackgroundColor}
 				setColor={setAsideCollapseIconBackgroundColor}
-			></InlineColorSelector>
-
-			<h5>Pie de página</h5>
-
-			<InlineColorSelector
-				label={"Color de fondo del pie de página"}
-				color={footerBackgroundColor}
-				setColor={setFooterBackgroundColor}
-			></InlineColorSelector>
-			<InlineColorSelector
-				label={"Color de fondo del cuadro de mensaje del pie de página"}
-				color={footerMsgboxBackgroundColor}
-				setColor={setFooterMsgboxBackgroundColor}
 			></InlineColorSelector>
 
 			<h5>Flujo</h5>
