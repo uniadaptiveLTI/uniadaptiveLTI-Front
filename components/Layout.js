@@ -56,11 +56,14 @@ export default function Layout({ LTISettings, children }) {
 		}
 	}, [headerDOM.current]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (typeof window != "undefined") {
 			setFixedMainHeight(getHeaderHeight());
 		}
-	}, [headerDOM.current && headerDOM.current.getBoundingClientRect().height]);
+	}, [
+		headerDOM.current && headerDOM.current.getBoundingClientRect().height,
+		expandedAside,
+	]);
 
 	useLayoutEffect(() => {
 		setMainDOM(mainDOMRef);

@@ -279,7 +279,7 @@ function Header({ LTISettings }, ref) {
 			versions: [
 				{
 					id: uniqueId(),
-					name: "Última versión",
+					name: "Primera versión",
 					lastUpdate: new Date().toLocaleDateString(),
 					default: "true",
 					blocksData: [
@@ -417,7 +417,7 @@ function Header({ LTISettings }, ref) {
 			versions: [
 				{
 					id: uniqueId(),
-					name: "Última versión",
+					name: "Primera versión",
 					lastUpdate: new Date().toLocaleDateString(),
 					default: "true",
 					blocksData: [

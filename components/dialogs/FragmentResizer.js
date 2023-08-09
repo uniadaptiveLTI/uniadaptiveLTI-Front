@@ -17,7 +17,7 @@ export default function FragmentResizer({
 	const parsedSettings = JSON.parse(settings);
 	const { snappingInFragment } = parsedSettings;
 	const [width, setWidth] = useState(Math.ceil(fragment.style.width / 125));
-	const [height, setHeight] = useState(Math.ceil(fragment.style.height / 175));
+	const [height, setHeight] = useState(Math.ceil(fragment.style.height / 225));
 	const maxWidth = 25;
 	const maxHeight = 5;
 	const widthControl = useRef(null);
@@ -46,10 +46,10 @@ export default function FragmentResizer({
 
 	useEffect(() => {
 		setWidth(Math.ceil(fragment.style.width / 125));
-		setHeight(Math.ceil(fragment.style.height / 175));
+		setHeight(Math.ceil(fragment.style.height / 200));
 		if (widthControl.current && heightControl.current) {
 			widthControl.current.value = Math.ceil(fragment.style.width / 125);
-			heightControl.current.value = Math.ceil(fragment.style.height / 175);
+			heightControl.current.value = Math.ceil(fragment.style.height / 225);
 		}
 	}, [showDialog]);
 	return (

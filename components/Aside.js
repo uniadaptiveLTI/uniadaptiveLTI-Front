@@ -538,7 +538,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 					<img
 						alt="Logo"
 						src={LTISettings.branding.logo_path}
-						style={{ width: "100%" }}
+						style={{ width: "100%", userSelect: "none" }}
 					/>
 					<span className={styles.collapse + " display-6"}>
 						<FontAwesomeIcon width={38} height={38} icon={faCompress} />
@@ -600,11 +600,35 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 								</Form.Group>
 								{nodeSelected.type != "fragment" && (
 									<Form.Group className="mb-3">
-										<Form.Label htmlFor={typeDOMId} className="mb-1">
-											{ActionNodes.includes(nodeSelected.type)
-												? "Acción a realizar"
-												: "Tipo de recurso"}
-										</Form.Label>
+										<div className="d-flex justify-content-between">
+											<Form.Label htmlFor={typeDOMId} className="mb-1">
+												{ActionNodes.includes(nodeSelected.type)
+													? "Acción a realizar"
+													: "Tipo de recurso"}
+											</Form.Label>
+											<div>
+												<OverlayTrigger
+													placement="right"
+													overlay={
+														ActionNodes.includes(nodeSelected.type) ? (
+															<Tooltip>{`Listado de acciones que pueda ejecutar ${capitalizeFirstLetter(
+																platform
+															)}.`}</Tooltip>
+														) : (
+															<Tooltip>{`Listado de tipos de recursos compatibles con ${capitalizeFirstLetter(
+																platform
+															)}.`}</Tooltip>
+														)
+													}
+													trigger={["hover", "focus"]}
+												>
+													<FontAwesomeIcon
+														icon={faCircleQuestion}
+														tabIndex={0}
+													/>
+												</OverlayTrigger>
+											</div>
+										</div>
 										<Form.Select
 											ref={resourceDOM}
 											id={typeDOMId}
@@ -658,7 +682,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 														htmlFor={lmsResourceDOMId}
 														className="mb-1"
 													>
-														Recurso en el LMS
+														{`Recurso en ${capitalizeFirstLetter(platform)}`}
 													</Form.Label>
 													<div className="ms-2">
 														{!showSpinner && (

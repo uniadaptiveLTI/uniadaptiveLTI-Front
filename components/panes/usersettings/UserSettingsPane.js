@@ -95,7 +95,7 @@ function UserSettingsPane({ LTISettings }, ref) {
 				<Form.Check
 					type="switch"
 					id="switch-snapping"
-					label="Autoajustar bloques a la cuadricula"
+					label="Autoajustar bloques a la cuadrícula"
 					className="my-4"
 					defaultChecked={snapping}
 					onClick={handleSettingChange}
@@ -103,7 +103,7 @@ function UserSettingsPane({ LTISettings }, ref) {
 				<Form.Check
 					type="switch"
 					id="switch-snappingInFragment"
-					label="Autoajustar a la cuadricula en fragmentos"
+					label="Autoajustar a la cuadrícula en fragmentos"
 					className="my-4"
 					defaultChecked={snappingInFragment}
 					onClick={handleSettingChange}
