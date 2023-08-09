@@ -31,18 +31,6 @@ import {
 import FinalNode from "./flow/nodes/FinalNode.js";
 import InitialNode from "./flow/nodes/InitialNode.js";
 import FragmentNode from "./flow/nodes/FragmentNode.js";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-	faMap,
-	faX,
-	faFlagCheckered,
-	faMagnifyingGlassPlus,
-	faMagnifyingGlassMinus,
-	faArrowsToDot,
-	faLock,
-	faLockOpen,
-} from "@fortawesome/free-solid-svg-icons";
-import { Button } from "react-bootstrap";
 import {
 	uniqueId,
 	getUpdatedArrayById,
@@ -72,6 +60,7 @@ import AnimatedEdge from "@edges/AnimatedEdge.js";
 import ConditionalEdge from "@edges/ConditionalEdge";
 import { NodeTypes } from "@utils/TypeDefinitions.js";
 import { isSupportedTypeInPlatform } from "@utils/Platform.js";
+import CustomControls from "./flow/CustomControls.js";
 const minimapStyle = {
 	height: 120,
 };
@@ -127,9 +116,9 @@ const OverviewFlow = ({ map }, ref) => {
 	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
 	const { setNodeSelected } = useContext(NodeInfoContext);
 	const { settings } = useContext(SettingsContext);
+	const parsedSettings = JSON.parse(settings);
 	const { metaData } = useContext(MetaDataContext);
 	const [clipboard, setClipboard] = useState(localStorage.getItem("clipboard"));
-	const parsedSettings = JSON.parse(settings);
 	const { autoHideAside, snapping, snappingInFragment, reducedAnimations } =
 		parsedSettings;
 
@@ -220,82 +209,6 @@ const OverviewFlow = ({ map }, ref) => {
 	const reactFlowWrapper = useRef(null);
 
 	const { platform } = useContext(PlatformContext);
-
-	const CustomControls = () => {
-		const toggleInteractive = () => setInteractive(!interactive);
-		const toggleMinimap = () => setMinimap(!minimap);
-		const centerToStart = () => {
-			const startNode = reactFlowInstance
-				.getNodes()
-				.find((el) => el.type === "start");
-			if (startNode) {
-				const x = startNode.position.x + startNode.width / 2;
-				const y = startNode.position.y + startNode.height / 2;
-				reactFlowInstance.setCenter(
-					startNode.position.x + startNode.width / 2,
-					startNode.position.y + startNode.height / 2,
-					fitViewOptions
-				);
-			}
-		};
-		const fitMap = () => {
-			reactFlowInstance.fitView(fitViewOptions);
-		};
-		const zoomIn = () => {
-			reactFlowInstance.zoomIn();
-		};
-		const zoomOut = () => {
-			reactFlowInstance.zoomOut();
-			console.log(reactFlowInstance);
-		};
-
-		return (
-			<div className="react-flow__controls">
-				<Button title="Zoom in" onClick={zoomIn} variant="light">
-					<FontAwesomeIcon icon={faMagnifyingGlassPlus} />
-				</Button>
-				<Button title="Zoom out" onClick={zoomOut} variant="light">
-					<FontAwesomeIcon icon={faMagnifyingGlassMinus} />
-				</Button>
-				<Button title="Fit map" onClick={fitMap} variant="light">
-					<FontAwesomeIcon icon={faArrowsToDot} />
-				</Button>
-				<Button title="Move to start" onClick={centerToStart} variant="light">
-					<FontAwesomeIcon icon={faFlagCheckered} />
-				</Button>
-				<Button
-					title="Lock/unlock pan"
-					onClick={toggleInteractive}
-					variant="light"
-				>
-					<FontAwesomeIcon icon={interactive ? faLockOpen : faLock} />
-				</Button>
-				<Button title="Toggle Minimap" onClick={toggleMinimap} variant="light">
-					{!minimap && <FontAwesomeIcon icon={faMap} />}
-					{minimap && (
-						<div
-							style={{
-								position: "relative",
-								padding: "none",
-								display: "flex",
-								justifyContent: "center",
-								alignItems: "center",
-								width: "18px",
-								height: "24px",
-							}}
-						>
-							<FontAwesomeIcon
-								icon={faX}
-								style={{ position: "absolute", top: "4px" }}
-								color="white"
-							/>
-							<FontAwesomeIcon icon={faMap} />
-						</div>
-					)}
-				</Button>
-			</div>
-		);
-	};
 
 	/**
 	 * Logs the ReactFlow instance when it is loaded.
@@ -1165,15 +1078,14 @@ const OverviewFlow = ({ map }, ref) => {
 			const newBlocksToPaste = [...copiedBlocks];
 
 			const originalIDs = newBlocksToPaste.map((block) => block.id);
-			const newIDs = newBlocksToPaste.map((block) => uniqueId());
-			const fragmentIDChanges = [];
+			const newIDs = newBlocksToPaste.map(() => uniqueId());
 			const originalX = newBlocksToPaste.map((block) => block.position.x);
 			const originalY = newBlocksToPaste.map((block) => block.position.y);
 			const firstOneInX = Math.min(...originalX);
 			const firstOneInY = Math.min(...originalY);
 			const newX = originalX.map((x) => -firstOneInX + x);
 			const newY = originalY.map((y) => -firstOneInY + y);
-			//FIXME: COPIADO DE FRAGMENTOS
+			//FIXME: FRAGMENT PASTING REMOVES CONDITIONS BETWEEN CHILDREN
 			console.log(originalIDs);
 			console.log(newIDs);
 			const shouldEmptyResource = !(
@@ -1181,10 +1093,11 @@ const OverviewFlow = ({ map }, ref) => {
 				metaData.course_id == clipboardData.course_id &&
 				metaData.platform == clipboardData.platform
 			);
-			console.log(shouldEmptyResource);
 			const newBlocks = newBlocksToPaste.map((block, index) => {
 				let newID;
 				let originalID;
+
+				console.log(block);
 
 				let filteredChildren = block.children
 					?.map((child) => {
@@ -1194,9 +1107,13 @@ const OverviewFlow = ({ map }, ref) => {
 					})
 					.filter((child) => child !== undefined);
 
-				console.log(newID);
-				console.log(originalID);
-
+				//(Fragment) Adds the new parent to the children
+				if (block.parentNode) {
+					const parentIndex = originalIDs.findIndex(
+						(id) => id == block.parentNode
+					);
+					block.parentNode = newIDs[parentIndex];
+				}
 				return {
 					...block,
 					id: newIDs[index],
@@ -1212,10 +1129,30 @@ const OverviewFlow = ({ map }, ref) => {
 					},
 				};
 			});
+			if (copiedBlocks.length <= 1) {
+				createBlock(newBlocks[0], newBlocks[0].x, newBlocks[0].y);
+			} else {
+				const addToInnerNodes = (blocks) => {
+					const innerNodes = blocks.filter((block) => block.parentNode);
 
-			copiedBlocks.length <= 1
-				? createBlock(newBlocks[0], newBlocks[0].x, newBlocks[0].y)
-				: createBlockBulk(newBlocks);
+					innerNodes.map((innerNode) => {
+						const currentIDIndex = newIDs.findIndex((id) => id == innerNode.id);
+						const oldID = originalIDs[currentIDIndex];
+						const currentParent = blocks.find(
+							(block) => block.id == innerNode.parentNode
+						);
+						const storedIdIndex = currentParent.data.innerNodes.findIndex(
+							(innerNode) => innerNode.id == oldID
+						);
+						currentParent.data.innerNodes[storedIdIndex].id = innerNode.id;
+					});
+
+					const outerNodes = blocks.filter((block) => !block.parentNode);
+
+					return [...outerNodes, ...innerNodes];
+				};
+				createBlockBulk(addToInnerNodes(newBlocks));
+			}
 		}
 	};
 
@@ -1696,12 +1633,12 @@ const OverviewFlow = ({ map }, ref) => {
 			.filter((node) => node.selected == true);
 
 		let newCMBlockData = undefined;
-		if (selectedNodes.length == 1) {
+		if (selectedNodes.length == 1 && cMBlockData == undefined) {
 			newCMBlockData = selectedNodes[0];
 		}
 
 		if (newCMBlockData || cMBlockData) {
-			if (selectedNodes.length == 1) {
+			if (selectedNodes.length == 1 && cMBlockData == undefined) {
 				setCMBlockData(newCMBlockData);
 			}
 
@@ -1839,7 +1776,7 @@ const OverviewFlow = ({ map }, ref) => {
 				proOptions={{ hideAttribution: true }}
 				nodeTypes={nodeTypes}
 				edgeTypes={edgeTypes}
-				snapGrid={[125, 275]} //175
+				snapGrid={[125, 275]}
 				//connectionLineComponent={}
 				snapToGrid={snapToGrid}
 				deleteKeyCode={["Backspace", "Delete"]}
@@ -1938,6 +1875,14 @@ const OverviewFlow = ({ map }, ref) => {
 					callback={createBlock}
 				/>
 			)}
+			<CustomControls
+				reactFlowInstance={reactFlowInstance}
+				minimap={minimap}
+				setMinimap={setMinimap}
+				interactive={interactive}
+				setInteractive={setInteractive}
+				fitViewOptions={fitViewOptions}
+			></CustomControls>
 		</div>
 	);
 };
