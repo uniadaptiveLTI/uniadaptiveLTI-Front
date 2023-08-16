@@ -1,5 +1,4 @@
 import { uniqueId } from "@utils/Utils";
-import { getParentsNode } from "@utils/Nodes";
 
 /**
  * Checks if a data item or an array of data items have errors and updates the error list accordingly.
@@ -106,11 +105,7 @@ export function createItemErrors(item, errorArray) {
 			id: uniqueId(),
 			nodeId: item.id,
 		};
-		if (
-			item.data.lmsResource === null ||
-			item.data.lmsResource === undefined ||
-			item.data.lmsResource < 0
-		) {
+		if (!item.data.lmsResource) {
 			const customEntry = {
 				...errorEntry,
 				severity: "error",

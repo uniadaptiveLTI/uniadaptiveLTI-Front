@@ -428,8 +428,6 @@ const OverviewFlow = ({ map }, ref) => {
 							};
 						}
 
-						console.log(targetNode.data);
-
 						const conditions = targetNode.data.c?.c;
 
 						if (conditions) {
@@ -485,8 +483,6 @@ const OverviewFlow = ({ map }, ref) => {
 					},
 				]);
 
-				console.log(sourceNode);
-
 				setNodes(
 					getUpdatedArrayById(
 						[sourceNode, targetNode],
@@ -507,7 +503,6 @@ const OverviewFlow = ({ map }, ref) => {
 	 * @param {Node[]} nodes - The nodes being deleted.
 	 */
 	const onNodesDelete = (nodes) => {
-		console.log(nodes);
 		setNodeSelected();
 		deleteBlocks(nodes);
 	};
@@ -748,7 +743,6 @@ const OverviewFlow = ({ map }, ref) => {
 	const onPaneContextMenu = (e) => {
 		setShowContextualMenu(false);
 		setCMContainsReservedNodes(false);
-		console.log(reactFlowInstance);
 		const bounds = reactFlowWrapper.current?.getBoundingClientRect();
 		e.preventDefault();
 		setCMX(e.clientX - bounds.left);
@@ -939,7 +933,6 @@ const OverviewFlow = ({ map }, ref) => {
 	 */
 	const filterRelatedConditionsById = (unlockId, arr) => {
 		return arr.map((b) => {
-			console.log(b);
 			if (b.data?.c?.length) {
 				const updatedConditions = b.data.c.filter(
 					(condition) => condition.unlockId !== unlockId
@@ -1072,7 +1065,6 @@ const OverviewFlow = ({ map }, ref) => {
 	 */
 	const handleNodePaste = () => {
 		const clipboardData = JSON.parse(localStorage.getItem("clipboard"));
-		console.log(clipboardData);
 		if (clipboardData && clipboardData.data && clipboardData.data.length > 0) {
 			const copiedBlocks = clipboardData.data;
 			const newBlocksToPaste = [...copiedBlocks];
@@ -1086,8 +1078,8 @@ const OverviewFlow = ({ map }, ref) => {
 			const newX = originalX.map((x) => -firstOneInX + x);
 			const newY = originalY.map((y) => -firstOneInY + y);
 			//FIXME: FRAGMENT PASTING REMOVES CONDITIONS BETWEEN CHILDREN
-			console.log(originalIDs);
-			console.log(newIDs);
+			// console.log(originalIDs);
+			// console.log(newIDs);
 			const shouldEmptyResource = !(
 				metaData.instance_id == clipboardData.instance_id &&
 				metaData.course_id == clipboardData.course_id &&
@@ -1096,8 +1088,6 @@ const OverviewFlow = ({ map }, ref) => {
 			const newBlocks = newBlocksToPaste.map((block, index) => {
 				let newID;
 				let originalID;
-
-				console.log(block);
 
 				let filteredChildren = block.children
 					?.map((child) => {
@@ -1133,6 +1123,7 @@ const OverviewFlow = ({ map }, ref) => {
 				createBlock(newBlocks[0], newBlocks[0].x, newBlocks[0].y);
 			} else {
 				const addToInnerNodes = (blocks) => {
+					//Updates innerNodes with the new IDs
 					const innerNodes = blocks.filter((block) => block.parentNode);
 
 					innerNodes.map((innerNode) => {
@@ -1149,7 +1140,7 @@ const OverviewFlow = ({ map }, ref) => {
 
 					const outerNodes = blocks.filter((block) => !block.parentNode);
 
-					return [...outerNodes, ...innerNodes];
+					return [...outerNodes, ...innerNodes]; //This order is needed for it to render correctly
 				};
 				createBlockBulk(addToInnerNodes(newBlocks));
 			}
@@ -1464,7 +1455,6 @@ const OverviewFlow = ({ map }, ref) => {
 			clipboardData.push(getNodeByNodeDOM(node, reactFlowInstance.getNodes()));
 		}
 
-		console.log(clipboardData);
 		deleteBlocks(clipboardData);
 	};
 
