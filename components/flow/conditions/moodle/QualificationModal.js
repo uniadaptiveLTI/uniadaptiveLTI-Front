@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
-import styles from "@root/styles/ConditionModal.module.css";
 import { Modal, Button, Form, Row, Col, Container } from "react-bootstrap";
 import { faShuffle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -7,7 +6,7 @@ import { uniqueId } from "@utils/Utils";
 import { useReactFlow } from "reactflow";
 import { getGradable } from "@utils/TypeDefinitions";
 import { PlatformContext } from "pages/_app";
-import QualificationForm from "@components/flow/conditions/form-components/QualificationForm";
+import QualificationForm from "@conditionsMoodle/form-components/QualificationForm";
 
 function QualificationModal({
 	blockData,

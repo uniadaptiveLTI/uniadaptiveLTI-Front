@@ -9,7 +9,7 @@ import {
 	faEyeSlash,
 	faTrashCan,
 } from "@fortawesome/free-solid-svg-icons";
-import { transformDate } from "@utils/Utils";
+import { parseDate } from "@utils/Utils";
 
 const DateComponent = ({
 	condition,
@@ -48,13 +48,12 @@ const DateComponent = ({
 					<div>Tipo: Fecha</div>
 					{condition.d === ">=" && (
 						<div>
-							En esta fecha <strong>{transformDate(condition.t)}</strong> o
-							después
+							En esta fecha <strong>{parseDate(condition.t)}</strong> o después
 						</div>
 					)}
 					{condition.d === "<" && (
 						<div>
-							Antes del final de <strong>{transformDate(condition.t)}</strong>
+							Antes del final de <strong>{parseDate(condition.t)}</strong>
 						</div>
 					)}
 				</Col>

@@ -1,5 +1,5 @@
 import { getNodeById } from "@utils/Nodes";
-import { getByProperty, transformDate } from "@utils/Utils";
+import { getByProperty, parseDate } from "@utils/Utils";
 import React, { useEffect, useState } from "react";
 import {
 	BaseEdge,
@@ -102,7 +102,7 @@ const ConditionalEdge = ({
 						return (
 							<>
 								Completado antes del <br></br>{" "}
-								{transformDate(matchingCondition.date)}
+								{parseDate(matchingCondition.date)}
 								<br />
 							</>
 						);

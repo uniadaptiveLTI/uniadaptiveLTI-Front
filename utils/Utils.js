@@ -395,12 +395,13 @@ export function getSectionIDFromPosition(sectionArray, sectionPosition) {
 	return getSectionFromPosition(sectionArray, sectionPosition)?.id;
 }
 
-export function transformDate(dateStr) {
+export function parseDate(dateStr, dateComplete) {
 	const date = new Date(dateStr);
 	const formattedDate = date.toLocaleDateString("es-ES", {
 		day: "numeric",
 		month: "long",
 		year: "numeric",
+		...(dateComplete && { hour: "2-digit", minute: "2-digit" }),
 	});
 	return formattedDate;
 }

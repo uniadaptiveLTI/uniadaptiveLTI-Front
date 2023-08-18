@@ -92,6 +92,7 @@
   --high-contrast-icons-fa-filter-onhover: var(--icons-black-filter);
   --high-contrast-icons-moodle-filter: var(--icons-black-filter);
   --high-contrast-icons-moodle-filter-onhover: var(--icons-white-filter);
+  
 }
 
 @media (prefers-color-scheme: dark) {
