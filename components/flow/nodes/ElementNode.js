@@ -35,7 +35,7 @@ import {
 import { useState } from "react";
 import { NodeTypes } from "@utils/TypeDefinitions";
 import { getConditionIcon } from "@utils/ConditionIcons";
-import SimpleConditions from "@conditionsMoodle/SimpleConditions";
+import SimpleConditions from "@conditions/SimpleConditions";
 import MoodleBadges from "@blockBadgesMoodle/MoodleBadges";
 import SakaiBadges from "@blockBadgesSakai/SakaiBadges";
 
