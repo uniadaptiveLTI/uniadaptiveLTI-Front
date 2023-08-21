@@ -51,8 +51,10 @@ import { errorListCheck } from "@utils/ErrorHandling";
 import { toast } from "react-toastify";
 import { useHotkeys } from "react-hotkeys-hook";
 import ContextualMenu from "@flow/ContextualMenu.js";
-import ConditionModal from "@conditions/ConditionModal.js";
-import QualificationModal from "@conditions/QualificationModal.js";
+import ConditionModalMoodle from "@conditionsMoodle/ConditionModalMoodle.js";
+import RequisiteModalSakai from "@conditionsSakai/RequisiteModalSakai";
+import QualificationModal from "@conditionsMoodle/QualificationModal.js";
+
 import { getTypeStaticColor } from "@utils/NodeIcons.js";
 import NodeSelector from "@dialogs/NodeSelector.js";
 import CriteriaModal from "@flow/badges/CriteriaModal.js";
@@ -155,8 +157,13 @@ const OverviewFlow = ({ map }, ref) => {
 		x: 0,
 		y: 0,
 	});
+
+	const [showConditionsModal, setShowConditionsModal] = useState(false);
+
 	const [showGradeConditionsModal, setShowGradeConditionsModal] =
 		useState(false);
+
+	const [showRequisitesModal, setShowRequisitesModal] = useState(false);
 
 	useEffect(() => {
 		addEventListeners(document.body, [
@@ -195,8 +202,6 @@ const OverviewFlow = ({ map }, ref) => {
 		]);
 	}, []);
 
-	//Conditions Modal
-	const [showConditionsModal, setShowConditionsModal] = useState(false);
 	//NodeSelector
 	const [showNodeSelector, setShowNodeSelector] = useState(false);
 	const [nodeSelectorType, setNodeSelectorType] = useState(false);
@@ -1619,6 +1624,7 @@ const OverviewFlow = ({ map }, ref) => {
 	 * @param {string} modal - The modal to show.
 	 */
 	const handleShow = (modal) => {
+		console.log(modal);
 		const selectedNodes = reactFlowInstance
 			.getNodes()
 			.filter((node) => node.selected == true);
@@ -1633,8 +1639,12 @@ const OverviewFlow = ({ map }, ref) => {
 				setCMBlockData(newCMBlockData);
 			}
 
-			if (modal == "conditions") setShowConditionsModal(true);
-			if (modal == "grades") setShowGradeConditionsModal(true);
+			if (platform == "moodle") {
+				if (modal == "conditions") setShowConditionsModal(true);
+				if (modal == "grades") setShowGradeConditionsModal(true);
+			} else if (platform == "sakai") {
+				if (modal == "requisites") setShowRequisitesModal(true);
+			}
 
 			setShowContextualMenu(false);
 		} else {
@@ -1821,10 +1831,10 @@ const OverviewFlow = ({ map }, ref) => {
 				/>
 			)}
 			<CustomControls />
-			{showConditionsModal && (
+			{showConditionsModal && platform == "moodle" && (
 				<>
 					{!validTypes.includes(cMBlockData.type) ? (
-						<ConditionModal
+						<ConditionModalMoodle
 							blockData={cMBlockData}
 							setBlockData={setCMBlockData}
 							blocksData={reactFlowInstance.getNodes()}
@@ -1844,7 +1854,7 @@ const OverviewFlow = ({ map }, ref) => {
 					)}
 				</>
 			)}
-			{showGradeConditionsModal && (
+			{showGradeConditionsModal && platform == "moodle" && (
 				<>
 					{!validTypes.includes(cMBlockData.type) && (
 						<QualificationModal
@@ -1856,6 +1866,18 @@ const OverviewFlow = ({ map }, ref) => {
 					)}
 				</>
 			)}
+
+			{showRequisitesModal && platform == "sakai" && (
+				<RequisiteModalSakai
+					blockData={cMBlockData}
+					setBlockData={setCMBlockData}
+					blocksData={reactFlowInstance.getNodes()}
+					onEdgesDelete={onEdgesDelete}
+					showRequisitesModal={showRequisitesModal}
+					setShowRequisitesModal={setShowRequisitesModal}
+				></RequisiteModalSakai>
+			)}
+
 			{showNodeSelector && (
 				<NodeSelector
 					showDialog={showNodeSelector}

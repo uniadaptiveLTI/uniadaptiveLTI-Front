@@ -10,7 +10,7 @@ import {
 
 const CompletionComponent = ({
 	condition,
-	transformDate,
+	parseDate,
 	setConditionEdit,
 	deleteCondition,
 	swapConditionGroup,
@@ -46,7 +46,7 @@ const CompletionComponent = ({
 										{option.date && (
 											<a>
 												{" "}
-												antes del <strong>{transformDate(option.date)}</strong>
+												antes del <strong>{parseDate(option.date)}</strong>
 											</a>
 										)}
 									</li>

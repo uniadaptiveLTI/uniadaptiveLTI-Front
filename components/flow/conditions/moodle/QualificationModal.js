@@ -4,9 +4,8 @@ import { getUpdatedArrayById, uniqueId } from "@utils/Utils";
 import { useReactFlow } from "reactflow";
 import { getGradable } from "@utils/TypeDefinitions";
 import { PlatformContext } from "pages/_app";
-import QualificationForm from "@components/flow/conditions/form-components/QualificationForm";
-import { useLayoutEffect } from "react";
 import { getNodeById } from "@utils/Nodes";
+import QualificationForm from "@conditionsMoodle/form-components/QualificationForm";
 
 function QualificationModal({
 	blockData,

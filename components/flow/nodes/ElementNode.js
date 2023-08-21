@@ -11,12 +11,9 @@ import styles from "@root/styles/BlockContainer.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
 	faEdit,
-	faRightFromBracket,
-	faEye,
-	faEyeSlash,
 	faExclamation,
 	faExclamationTriangle,
-	faPlus,
+	faRightFromBracket,
 } from "@fortawesome/free-solid-svg-icons";
 import {
 	NodeInfoContext,
@@ -37,8 +34,10 @@ import {
 } from "@utils/Nodes";
 import { useState } from "react";
 import { NodeTypes } from "@utils/TypeDefinitions";
-import SimpleConditions from "@components/flow/conditions/SimpleConditions";
 import { getConditionIcon } from "@utils/ConditionIcons";
+import SimpleConditions from "@conditionsMoodle/SimpleConditions";
+import MoodleBadges from "@blockBadgesMoodle/MoodleBadges";
+import SakaiBadges from "@blockBadgesSakai/SakaiBadges";
 
 function ElementNode({
 	id,
@@ -120,6 +119,15 @@ function ElementNode({
 		);
 	};
 
+	const hasEnd = (type) => {
+		const node = NodeTypes.find((node) => node.type == type);
+		if (node.endHandle.includes(platform)) {
+			return true;
+		} else {
+			return false;
+		}
+	};
+
 	const getHumanDesc = (type) => {
 		const node = NodeTypes.find((node) => node.type == type);
 		let humanType = "";
@@ -191,12 +199,14 @@ function ElementNode({
 				isConnectable={isConnectable}
 				isConnectableStart="false"
 			/>
-			<Handle
-				type="source"
-				position={Position.Right}
-				isConnectable={isConnectable}
-				isConnectableEnd="false"
-			/>
+			{hasEnd(type) && (
+				<Handle
+					type="source"
+					position={Position.Right}
+					isConnectable={isConnectable}
+					isConnectableEnd="false"
+				/>
+			)}
 			<NodeToolbar position="left" offset={25}>
 				<FocusTrap
 					focusTrapOptions={{
@@ -289,6 +299,7 @@ function ElementNode({
 						}
 					</Badge>
 				)}
+
 				{!hasErrors && hasWarnings && (
 					<Badge
 						bg="warning"
@@ -313,77 +324,32 @@ function ElementNode({
 						}
 					</Badge>
 				)}
-				{data.lmsVisibility && getParentExpanded() && (
-					<Badge
-						bg="primary"
-						className={
-							styles.badge +
-							" " +
-							styles.badgeVisibility +
-							" " +
-							(reducedAnimations && styles.noAnimation) +
-							" " +
-							(showDetails && styles.showBadges) +
-							" " +
-							(highContrast && styles.highContrast)
-						}
-						title="Visibilidad"
-					>
-						{platform == "moodle" || platform == "sakai" ? (
-							data.lmsVisibility == "show_unconditionally" ? (
-								<FontAwesomeIcon icon={faEye} style={{ color: "#ffffff" }} />
-							) : (
-								<FontAwesomeIcon
-									icon={faEyeSlash}
-									style={{ color: "#ffffff" }}
-								/>
-							)
-						) : data.lmsVisibility == "show_unconditionally" ? (
-							<FontAwesomeIcon icon={faEye} style={{ color: "#ffffff" }} />
-						) : (
-							<FontAwesomeIcon icon={faEyeSlash} style={{ color: "#ffffff" }} />
-						)}
-					</Badge>
+
+				{platform == "moodle" && (
+					<MoodleBadges
+						data={data}
+						hasExtraConditions={hasExtraConditions}
+						showDetails={showDetails}
+						highContrast={highContrast}
+						reducedAnimations={reducedAnimations}
+						getParentExpanded={getParentExpanded}
+						platform={platform}
+						styles={styles}
+					/>
 				)}
-				{!isNaN(data.section) && getParentExpanded() && (
-					<Badge
-						bg="light"
-						className={
-							styles.badge +
-							" " +
-							styles.badgeSection +
-							" " +
-							(reducedAnimations && styles.noAnimation) +
-							" " +
-							(showDetails && styles.showBadges) +
-							" " +
-							(highContrast && styles.highContrast)
-						}
-						title="Sección"
-					>
-						{platform == "moodle"
-							? Number(data.section)
-							: Number(data.section) + 1}
-					</Badge>
-				)}
-				{!isNaN(data.order) && getParentExpanded() && (
-					<Badge
-						bg="warning"
-						className={
-							styles.badge +
-							" " +
-							styles.badgePos +
-							" " +
-							(reducedAnimations && styles.noAnimation) +
-							" " +
-							(showDetails && styles.showBadges) +
-							" " +
-							(highContrast && styles.highContrast)
-						}
-						title="Posición en la sección"
-					>
-						{data.order + 1}
-					</Badge>
+
+				{platform == "sakai" && (
+					<SakaiBadges
+						data={data}
+						type={type}
+						hasExtraConditions={hasExtraConditions}
+						showDetails={showDetails}
+						highContrast={highContrast}
+						reducedAnimations={reducedAnimations}
+						getParentExpanded={getParentExpanded}
+						platform={platform}
+						styles={styles}
+					/>
 				)}
 			</div>
 		</>

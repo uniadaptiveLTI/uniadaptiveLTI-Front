@@ -16,6 +16,7 @@ export const NodeTypes = [
 		nodeType: "ElementNode",
 		lms: ["moodle", "sakai"],
 		gradable: [],
+		endHandle: ["moodle", "sakai"],
 	},
 	{
 		id: 2,
@@ -34,6 +35,7 @@ export const NodeTypes = [
 		nodeType: "ElementNode",
 		lms: ["moodle"],
 		gradable: [],
+		endHandle: ["moodle"],
 	},
 	{
 		id: 4,
@@ -43,6 +45,7 @@ export const NodeTypes = [
 		nodeType: "ElementNode",
 		lms: ["moodle"],
 		gradable: [],
+		endHandle: ["moodle"],
 	},
 	{
 		id: 5,
@@ -61,6 +64,7 @@ export const NodeTypes = [
 		nodeType: "ElementNode",
 		lms: ["sakai"],
 		gradable: [],
+		endHandle: ["sakai"],
 	},
 	{
 		id: 7,
@@ -70,6 +74,7 @@ export const NodeTypes = [
 		nodeType: "ElementNode",
 		lms: ["moodle", "sakai"],
 		gradable: [],
+		endHandle: ["moodle"],
 	},
 	{
 		id: 8,
@@ -79,6 +84,7 @@ export const NodeTypes = [
 		nodeType: "ElementNode",
 		lms: ["moodle", "sakai"],
 		gradable: [{ lms: "moodle", type: "consolidable" }],
+		endHandle: ["moodle", "sakai"],
 	},
 	{
 		id: 9,
@@ -97,6 +103,7 @@ export const NodeTypes = [
 		nodeType: "ElementNode",
 		lms: ["moodle", "sakai"],
 		gradable: [],
+		endHandle: ["moodle"],
 	},
 	{
 		id: 11,
@@ -106,6 +113,7 @@ export const NodeTypes = [
 		nodeType: "ElementNode",
 		lms: ["moodle"],
 		gradable: [{ lms: "moodle", type: "consolidable" }],
+		endHandle: ["moodle"],
 	},
 	{
 		id: 12,
@@ -115,6 +123,7 @@ export const NodeTypes = [
 		nodeType: "ElementNode",
 		lms: ["sakai"],
 		gradable: [],
+		endHandle: [],
 	},
 	{
 		id: 13,
@@ -124,6 +133,7 @@ export const NodeTypes = [
 		nodeType: "ElementNode",
 		lms: ["moodle"],
 		gradable: [],
+		endHandle: ["moodle"],
 	},
 	{
 		id: 14,
@@ -133,6 +143,7 @@ export const NodeTypes = [
 		nodeType: "ElementNode",
 		lms: ["moodle"],
 		gradable: [{ lms: "moodle", type: "normal" }],
+		endHandle: ["moodle"],
 	},
 	{
 		id: 15,
@@ -151,6 +162,7 @@ export const NodeTypes = [
 		nodeType: "ElementNode",
 		lms: ["moodle"],
 		gradable: [],
+		endHandle: ["moodle"],
 	},
 	{
 		id: 17,
@@ -160,6 +172,7 @@ export const NodeTypes = [
 		nodeType: "ElementNode",
 		lms: ["moodle"],
 		gradable: [{ lms: "moodle", type: "normal" }],
+		endHandle: ["moodle"],
 	},
 	{
 		id: 18,
@@ -178,6 +191,7 @@ export const NodeTypes = [
 		nodeType: "ElementNode",
 		lms: ["moodle", "sakai"],
 		gradable: [],
+		endHandle: ["moodle"],
 	},
 	{
 		id: 20,
@@ -196,6 +210,7 @@ export const NodeTypes = [
 		nodeType: "ElementNode",
 		lms: ["sakai"],
 		gradable: [],
+		endHandle: [],
 	},
 	{
 		id: 22,
@@ -205,6 +220,7 @@ export const NodeTypes = [
 		nodeType: "ElementNode",
 		lms: ["moodle", "sakai"],
 		gradable: [],
+		endHandle: ["moodle"],
 	},
 	{
 		id: 23,
@@ -214,6 +230,7 @@ export const NodeTypes = [
 		nodeType: "ElementNode",
 		lms: ["sakai"],
 		gradable: [],
+		endHandle: [],
 	},
 	{
 		id: 24,
@@ -223,6 +240,7 @@ export const NodeTypes = [
 		nodeType: "ElementNode",
 		lms: ["moodle"],
 		gradable: [{ lms: "moodle", type: "accumulative" }],
+		endHandle: ["moodle"],
 	},
 ];
 

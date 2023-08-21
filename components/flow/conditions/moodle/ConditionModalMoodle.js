@@ -1,5 +1,5 @@
 import React, { useEffect, useContext, useRef, useState } from "react";
-import styles from "@root/styles/ConditionModal.module.css";
+import styles from "@root/styles/ConditionModalMoodle.module.css";
 import { Modal, Button, Form, Row, Col, Container } from "react-bootstrap";
 import Condition from "./Condition";
 import {
@@ -11,13 +11,13 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { getParentsNode } from "@utils/Nodes";
-import ProfileForm from "./form-components/ProfileForm";
-import CompletionForm from "./form-components/CompletionForm";
-import GradeForm from "./form-components/GradeForm";
-import DateForm from "./form-components/DateForm";
-import ConditionsGroupForm from "./form-components/ConditionsGroupForm";
-import GroupForm from "./form-components/GroupForm";
-import GroupingForm from "./form-components/GroupingForm";
+import ProfileForm from "@conditionsMoodle/form-components/ProfileForm";
+import CompletionForm from "@conditionsMoodle/form-components/CompletionForm";
+import GradeForm from "@conditionsMoodle/form-components/GradeForm";
+import DateForm from "@conditionsMoodle/form-components/DateForm";
+import ConditionsGroupForm from "@conditionsMoodle/form-components/ConditionsGroupForm";
+import GroupForm from "@conditionsMoodle/form-components/GroupForm";
+import GroupingForm from "@conditionsMoodle/form-components/GroupingForm";
 import {
 	uniqueId,
 	searchConditionForTypes,
@@ -27,7 +27,7 @@ import CourseGradeForm from "./form-components/CourseGradeForm";
 import { useReactFlow } from "reactflow";
 import { MetaDataContext } from "@root/pages/_app.js";
 
-function ConditionModal({
+function ConditionModalMoodle({
 	blockData,
 	setBlockData,
 	blocksData,
@@ -967,4 +967,4 @@ function ConditionModal({
 	);
 }
 
-export default ConditionModal;
+export default ConditionModalMoodle;

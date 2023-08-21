@@ -29,7 +29,7 @@ import { getUpdatedArrayById, parseBool } from "@utils/Utils";
 import { getNodeById, getNumberOfIndependentConditions } from "@utils/Nodes";
 import { DevModeStatusContext } from "pages/_app";
 import { NodeTypes } from "@utils/TypeDefinitions";
-import SimpleConditions from "../conditions/SimpleConditions";
+import SimpleConditions from "@conditionsMoodle/SimpleConditions";
 import { useEffect } from "react";
 
 const getHumanDesc = (type) => {

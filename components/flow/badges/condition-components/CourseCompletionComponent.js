@@ -11,7 +11,7 @@ const CourseCompletionComponent = ({
 	condition,
 	setConditionEdit,
 	deleteCondition,
-	transformDate,
+	parseDate,
 	swapConditionGroup,
 }) => {
 	return (
@@ -36,7 +36,7 @@ const CourseCompletionComponent = ({
 								{condition.dateTo && (
 									<a>
 										{" "}
-										antes del <strong>{transformDate(condition.dateTo)}</strong>
+										antes del <strong>{parseDate(condition.dateTo)}</strong>
 										<br></br>
 									</a>
 								)}
