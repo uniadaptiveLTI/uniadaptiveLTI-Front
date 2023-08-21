@@ -10,6 +10,7 @@ import {
 	faTrashCan,
 } from "@fortawesome/free-solid-svg-icons";
 import { transformDate } from "@utils/Utils";
+import { getConditionIcon } from "@utils/ConditionIcons";
 
 const DateComponent = ({
 	condition,
@@ -45,7 +46,7 @@ const DateComponent = ({
 					</Col>
 				)}
 				<Col style={{ width: "531px", flex: "0 0 auto" }}>
-					<div>Tipo: Fecha</div>
+					<div>Tipo: Fecha ({getConditionIcon("date")})</div>
 					{condition.d === ">=" && (
 						<div>
 							En esta fecha <strong>{transformDate(condition.t)}</strong> o

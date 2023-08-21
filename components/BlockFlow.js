@@ -750,6 +750,7 @@ const OverviewFlow = ({ map }, ref) => {
 		setCMBlockData(undefined);
 		setContextMenuOrigin("pane");
 		setShowContextualMenu(true);
+		console.log(reactFlowInstance);
 	};
 
 	/**
@@ -1848,8 +1849,6 @@ const OverviewFlow = ({ map }, ref) => {
 					{!validTypes.includes(cMBlockData.type) && (
 						<QualificationModal
 							blockData={cMBlockData}
-							setBlockData={setCMBlockData}
-							blocksData={reactFlowInstance.getNodes()}
 							onEdgesDelete={onEdgesDelete}
 							showConditionsModal={showGradeConditionsModal}
 							setShowConditionsModal={setShowGradeConditionsModal}

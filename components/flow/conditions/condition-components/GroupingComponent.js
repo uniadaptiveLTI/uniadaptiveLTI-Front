@@ -8,6 +8,7 @@ import {
 	faEyeSlash,
 	faTrashCan,
 } from "@fortawesome/free-solid-svg-icons";
+import { getConditionIcon } from "@utils/ConditionIcons";
 
 const GroupingComponent = ({
 	condition,
@@ -48,7 +49,7 @@ const GroupingComponent = ({
 					</Col>
 				)}
 				<Col style={{ width: "531px", flex: "0 0 auto" }}>
-					<div>Tipo: Agrupamiento</div>
+					<div>Tipo: Agrupamiento ({getConditionIcon("grouping")})</div>
 					<div>
 						Se pertenezca al agrupamiento <strong>{grouping.name}</strong>
 					</div>

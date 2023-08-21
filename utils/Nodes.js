@@ -301,10 +301,7 @@ export function getNumberOfIndependentConditions(node) {
 		if (c.c) {
 			c.c.forEach((condition) => {
 				if (condition.type != "conditionsGroup") {
-					if (
-						condition.type != "completion" &&
-						condition.type != "qualification"
-					) {
+					if (condition.type != "completion" && condition.type != "grade") {
 						array.push(condition.type);
 					}
 				} else {
@@ -320,4 +317,33 @@ export function getNumberOfIndependentConditions(node) {
 		return recursiveTypeGet(node.data.c).length;
 	}
 	return 0;
+}
+
+export function getPrimaryConditionType(node) {
+	const recursiveTypeGet = (c, array = []) => {
+		if (c.c) {
+			c.c.forEach((condition) => {
+				if (condition.type != "conditionsGroup") {
+					if (condition.type != "completion" && condition.type != "grade") {
+						array.push(condition.type);
+					}
+				} else {
+					if (condition.c) {
+						array.push(...recursiveTypeGet(condition, array));
+					}
+				}
+			});
+		}
+		return array;
+	};
+	if (node.data.c) {
+		const types = [...new Set(recursiveTypeGet(node.data.c))].filter(
+			(cType) =>
+				cType !== "grade" &&
+				cType !== "conditionsGroup" &&
+				cType !== "completion"
+		);
+		return types.length > 1 ? "multiple" : types[0];
+	}
+	return undefined;
 }

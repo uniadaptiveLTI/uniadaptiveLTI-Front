@@ -89,6 +89,7 @@ const ConditionsGroupComponent = ({
 					condition.c.map((innerCondition) => (
 						<div className="mb-3">
 							<Condition
+								key={innerCondition.id}
 								condition={innerCondition}
 								conditionsList={conditionsList}
 								deleteCondition={deleteCondition}

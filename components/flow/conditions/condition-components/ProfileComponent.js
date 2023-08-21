@@ -9,8 +9,9 @@ import {
 	faEyeSlash,
 	faTrashCan,
 } from "@fortawesome/free-solid-svg-icons";
+import { getConditionIcon } from "@utils/ConditionIcons";
 
-const profileOperatorList = [
+export const profileOperatorList = [
 	{ value: "firstname", name: "Nombre" },
 	{ value: "lastname", name: "Apellido" },
 	{ value: "city", name: "Ciudad" },
@@ -23,7 +24,7 @@ const profileOperatorList = [
 	{ value: "phone1", name: "Teléfono" },
 	{ value: "phone2", name: "Teléfono Movil" },
 ];
-const profileQueryList = [
+export const profileQueryList = [
 	{ value: "isequalto", name: "es igual a" },
 	{ value: "contains", name: "contiene" },
 	{ value: "doesnotcontain", name: "no contiene" },
@@ -67,7 +68,7 @@ const ProfileComponent = ({
 					</Col>
 				)}
 				<Col style={{ width: "531px", flex: "0 0 auto" }}>
-					<div>Tipo: Perfil de usuario</div>
+					<div>Tipo: Perfil de usuario ({getConditionIcon("profile")})</div>
 					<div>
 						Su{" "}
 						<strong>

@@ -9,6 +9,7 @@ import {
 	faEyeSlash,
 	faTrashCan,
 } from "@fortawesome/free-solid-svg-icons";
+import { getConditionIcon } from "@utils/ConditionIcons";
 
 function CourseGradeComponent({
 	condition,
@@ -44,7 +45,10 @@ function CourseGradeComponent({
 					</Col>
 				)}
 				<Col style={{ width: "531px", flex: "0 0 auto" }}>
-					<div>Tipo: Calificación total del curso</div>
+					<div>
+						Tipo: Calificación total del curso (
+						{getConditionIcon("courseGrade")})
+					</div>
 					<div>
 						{condition.min && !condition.max && (
 							<div>

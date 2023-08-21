@@ -30,10 +30,15 @@ import {
 import FocusTrap from "focus-trap-react";
 import { getTypeIcon } from "@utils/NodeIcons";
 import { getUpdatedArrayById, parseBool } from "@utils/Utils";
-import { getNodeById, getNumberOfIndependentConditions } from "@utils/Nodes";
+import {
+	getNodeById,
+	getNumberOfIndependentConditions,
+	getPrimaryConditionType,
+} from "@utils/Nodes";
 import { useState } from "react";
 import { NodeTypes } from "@utils/TypeDefinitions";
-import SimpleConditions from "@flow/conditions/SimpleConditions";
+import SimpleConditions from "@components/flow/conditions/SimpleConditions";
+import { getConditionIcon } from "@utils/ConditionIcons";
 
 function ElementNode({
 	id,
@@ -254,7 +259,10 @@ function ElementNode({
 						}
 						title="Contiene condiciones independientes"
 					>
-						{<FontAwesomeIcon icon={faPlus} style={{ color: "#ffffff" }} />}
+						{getConditionIcon(
+							getPrimaryConditionType(getNodeById(id, rfNodes)),
+							{ color: "#ffffff" }
+						)}
 					</Badge>
 				)}
 				{hasErrors && (

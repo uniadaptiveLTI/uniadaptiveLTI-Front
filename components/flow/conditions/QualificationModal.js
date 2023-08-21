@@ -1,31 +1,27 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
-import styles from "@root/styles/ConditionModal.module.css";
 import { Modal, Button, Form, Row, Col, Container } from "react-bootstrap";
-import { faShuffle } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { uniqueId } from "@utils/Utils";
+import { getUpdatedArrayById, uniqueId } from "@utils/Utils";
 import { useReactFlow } from "reactflow";
 import { getGradable } from "@utils/TypeDefinitions";
 import { PlatformContext } from "pages/_app";
 import QualificationForm from "@components/flow/conditions/form-components/QualificationForm";
+import { useLayoutEffect } from "react";
+import { getNodeById } from "@utils/Nodes";
 
 function QualificationModal({
 	blockData,
-	setBlockData,
-	blocksData,
-	onEdgesDelete,
 	showConditionsModal,
 	setShowConditionsModal,
 }) {
 	const reactFlowInstance = useReactFlow();
 	const { platform } = useContext(PlatformContext);
+	const qualificationFormResult = useRef();
 
 	const gradeConditionType = getGradable(platform)
 		.find((declaration) => declaration.type == blockData.type)
 		.gradable.find((gradableDec) => gradableDec.lms == platform).type; //Returns the type of gradable for this node type for this platform
 
 	const handleClose = () => {
-		setBlockData();
 		setShowConditionsModal(false);
 	};
 
@@ -47,10 +43,48 @@ function QualificationModal({
 				<Modal.Title>Calificaciones de "{blockData.data.label}"</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
-				{gradeConditionType}
-				<QualificationForm gradeConditionType={gradeConditionType} />
+				{/*gradeConditionType*/}
+
+				<QualificationForm
+					ref={qualificationFormResult}
+					gradeConditionType={gradeConditionType}
+					initialGrade={{
+						...getNodeById(blockData.id, reactFlowInstance.getNodes()).data?.g,
+					}}
+				/>
 			</Modal.Body>
-			<Modal.Footer></Modal.Footer>
+			<Modal.Footer>
+				<div>
+					<Button variant="danger" onClick={handleClose} className="me-2">
+						Cancelar
+					</Button>
+					<Button
+						variant="primary"
+						onClick={() => {
+							const currentBlock = getNodeById(
+								blockData.id,
+								reactFlowInstance.getNodes()
+							);
+							reactFlowInstance.setNodes(
+								getUpdatedArrayById(
+									{
+										...currentBlock,
+										data: {
+											...currentBlock.data,
+											g: qualificationFormResult.current.data,
+										},
+									},
+									reactFlowInstance.getNodes()
+								)
+							);
+
+							handleClose();
+						}}
+					>
+						Guardar
+					</Button>
+				</div>
+			</Modal.Footer>
 		</Modal>
 	);
 }

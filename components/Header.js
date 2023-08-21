@@ -796,13 +796,13 @@ function Header({ LTISettings }, ref) {
 				JSON.stringify({
 					instance_id: metaData.instance_id,
 					course_id: metaData.course_id,
-					platform: metaData.platform,
+					platform: platform,
 					data: rfNodes,
 				})
 			),
-			`${mapSelected.name}-${selectedVersion.name}-${new Date()
-				.toLocaleDateString()
-				.replaceAll("/", "-")}.json`,
+			`${mapSelected.name}-${selectedVersion.name}-${capitalizeFirstLetter(
+				platform
+			)}-${new Date().toLocaleDateString().replaceAll("/", "-")}.json`,
 			"application/json"
 		);
 		setShowModalVersions(false);
@@ -825,15 +825,39 @@ function Header({ LTISettings }, ref) {
 				jsonObject.platform == platform
 			) {
 				setCurrentBlocksData(jsonObject.data);
-			} else {
-				const jsonCleanedBlockData = jsonObject.data.map((node) => {
-					node.data = {
-						...node.data,
-						children: undefined,
-						c: undefined,
-						section: 0, //TODO: Test in sakai
-					};
+				toast("Importado con éxito.", {
+					type: "success",
+					autoClose: 2000,
+					position: "bottom-center",
 				});
+			} else {
+				if (jsonObject.platform == platform) {
+					toast("Plataforma compatible, importación parcial.", {
+						type: "warning",
+						autoClose: 2000,
+						position: "bottom-center",
+					});
+					const jsonCleanedBlockData = jsonObject.data.map((node) => {
+						node.data = {
+							...node.data,
+							children: undefined,
+							c: undefined,
+							g: undefined,
+							lmsResource: undefined,
+							section: 0,
+							order: 0,
+							indent: 0,
+						};
+						return node;
+					});
+					setCurrentBlocksData(jsonCleanedBlockData);
+				} else {
+					toast("No se puede importar, datos incompatibles.", {
+						type: "error",
+						autoClose: 2000,
+						position: "bottom-center",
+					});
+				}
 			}
 
 			//displayContents(output);
@@ -1516,17 +1540,29 @@ function Header({ LTISettings }, ref) {
 										overflow: "auto",
 									}}
 								>
-									<details>
-										<summary>
-											<b>Version -&gt; JSON:</b>
+									<details style={{ background: "#111213" }}>
+										<summary style={{ background: "#ddd" }}>
+											<b>Versión -&gt; JSON:</b>
 										</summary>
 										<code
 											style={{
 												whiteSpace: "pre",
 												fontFamily: "monospace",
+												fontSize: "12px",
+												tabSize: 4,
+												color: "#7cdcde",
 											}}
 										>
-											{JSON.stringify(rfNodes, null, "\t")}
+											{JSON.stringify(
+												{
+													instance_id: metaData.instance_id,
+													course_id: metaData.course_id,
+													platform: platform,
+													data: rfNodes,
+												},
+												null,
+												"\t"
+											)}
 										</code>
 									</details>
 								</div>

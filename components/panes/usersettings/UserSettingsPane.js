@@ -12,6 +12,7 @@ function UserSettingsPane({ LTISettings }, ref) {
 		snappingInFragment,
 		showDetails,
 		autoHideAside,
+		hoverConditions,
 	} = parsedSettings;
 
 	/**
@@ -38,6 +39,9 @@ function UserSettingsPane({ LTISettings }, ref) {
 			case "switch-autoHideAside":
 				autoHideAside = !autoHideAside;
 				break;
+			case "switch-hoverConditions":
+				hoverConditions = !hoverConditions;
+				break;
 		}
 		let newSettings = parsedSettings;
 		newSettings.highContrast = highContrast;
@@ -46,6 +50,7 @@ function UserSettingsPane({ LTISettings }, ref) {
 		newSettings.snappingInFragment = snappingInFragment;
 		newSettings.showDetails = showDetails;
 		newSettings.autoHideAside = autoHideAside;
+		newSettings.hoverConditions = hoverConditions;
 		let json = JSON.stringify(newSettings);
 		localStorage.setItem("settings", json);
 		setSettings(json);
@@ -92,6 +97,7 @@ function UserSettingsPane({ LTISettings }, ref) {
 				<h2 ref={blockFlowRef} className="my-4">
 					Flujo de bloques
 				</h2>
+				<h4 className="my-3">Mapa</h4>
 				<Form.Check
 					type="switch"
 					id="switch-snapping"
@@ -109,12 +115,25 @@ function UserSettingsPane({ LTISettings }, ref) {
 					onClick={handleSettingChange}
 					disabled={!snapping}
 				/>
+				<h4 className="my-3">Bloques</h4>
 				<Form.Check
 					type="switch"
 					id="switch-showDetails"
 					label="Mostrar los detalles de forma estática"
 					className="my-4"
 					defaultChecked={showDetails}
+					onClick={handleSettingChange}
+				/>
+				<Form.Check
+					type="switch"
+					id="switch-hoverConditions"
+					label={
+						hoverConditions
+							? "Priorizar mostrar el resumen de las condiciones al pasar el ratón sobre el bloque seleccionado"
+							: "Priorizar mostrar el resumen de las calificaciones al pasar el ratón sobre el bloque seleccionado"
+					}
+					className="my-4"
+					defaultChecked={hoverConditions}
 					onClick={handleSettingChange}
 				/>
 
