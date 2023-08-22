@@ -33,6 +33,9 @@ import {
 	faPencil,
 	faTrash,
 	faFloppyDisk,
+	faTriangleExclamation,
+	faFileExport,
+	faArrowRightToBracket,
 } from "@fortawesome/free-solid-svg-icons";
 import {
 	NodeInfoContext,
@@ -1432,16 +1435,19 @@ function Header({ LTISettings }, ref) {
 							{mapSelected.id >= 0 && (
 								<Button
 									variant="dark"
-									className={`d-flex align-items-center p-2 ${
-										styles.actionButtons
-									} ${errorList?.length > 0 ? styles.error : styles.success}`}
+									className={`d-flex align-items-center p-2 position-relative ${styles.actionButtons} ${styles.success}`}
 									onClick={() => {
 										if (mapSelected && mapSelected.id > -1)
 											setShowExportModal(true);
 									}}
 								>
+									{errorList && errorList.length >= 1 && (
+										<span class="d-flex gap-1 position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+											<FontAwesomeIcon icon={faTriangleExclamation} />
+										</span>
+									)}
 									<FontAwesomeIcon
-										icon={faBell}
+										icon={faArrowRightToBracket}
 										style={{ height: "20px", width: "20px" }}
 									/>
 								</Button>

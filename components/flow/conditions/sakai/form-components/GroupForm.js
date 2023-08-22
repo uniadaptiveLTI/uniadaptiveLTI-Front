@@ -11,11 +11,12 @@ const GroupForm = ({
 }) => {
 	const coId = useId();
 
-	const handleCheckboxChange = (id, e, index) => {
+	const handleCheckboxChange = (id, index) => {
+		const e = groupsRef[index];
 		if (e.current.checked == true) {
-			setInitalGroups([...initalGroups, id]);
+			setInitalGroups([...initalGroups, { id: id, index: index }]);
 		} else {
-			const filteredArray = initalGroups.filter((group) => group !== id);
+			const filteredArray = initalGroups.filter((group) => group.id !== id);
 			setInitalGroups(filteredArray);
 		}
 	};
@@ -39,7 +40,9 @@ const GroupForm = ({
 				</Form.Label>
 				{sakaiGroups.length > 0 &&
 					sakaiGroups.map((option, index) => {
-						const isChecked = conditionEdit?.groupList.includes(option.id);
+						const isChecked = conditionEdit?.groupList.some(
+							(item) => item.id === option.id
+						);
 
 						return (
 							<div key={index}>
@@ -48,9 +51,7 @@ const GroupForm = ({
 										<Form.Check
 											id={`checkbox-${option.id}`}
 											ref={groupsRef[index]}
-											onClick={() =>
-												handleCheckboxChange(option.id, groupsRef[index])
-											}
+											onClick={() => handleCheckboxChange(option.id, index)}
 											defaultChecked={isChecked}
 										/>
 									</Col>

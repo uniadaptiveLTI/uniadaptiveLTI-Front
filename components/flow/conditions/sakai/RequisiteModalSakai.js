@@ -1,10 +1,18 @@
 import {
 	faCalendarAlt,
 	faCalendarXmark,
+	faEdit,
+	faTrashCan,
 	faUserGroup,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useEffect, useContext, useRef, useState } from "react";
+import React, {
+	useEffect,
+	useContext,
+	useRef,
+	useState,
+	useLayoutEffect,
+} from "react";
 import {
 	Modal,
 	Button,
@@ -24,6 +32,7 @@ import DateComponent from "@conditionsSakai/condition-components/DateComponent";
 import { parseDate, uniqueId } from "@utils/Utils";
 import DateExceptionComponent from "@conditionsSakai/condition-components/DateExceptionComponent";
 import GroupComponent from "@conditionsSakai/condition-components/GroupComponent";
+import { getAutomaticReusableStyles } from "@utils/Colors";
 
 function RequisiteModalSakai({
 	blockData,
@@ -76,6 +85,10 @@ function RequisiteModalSakai({
 	];
 
 	const [initalGroups, setInitalGroups] = useState([]);
+
+	useEffect(() => {
+		console.log(key);
+	}, [key]);
 
 	const visibilityArray = [
 		"exam",
@@ -219,14 +232,23 @@ function RequisiteModalSakai({
 		);
 	}
 
+	const dateRequisite = blockData.data.requisites?.filter(
+		(item) => item.type === "date"
+	);
+
+	const groupList = blockData.data.requisites?.find(
+		(item) => item.type === "group"
+	);
+
 	return (
-		<Modal size="xl" show={showRequisitesModal} onHide={handleClose}>
+		<Modal size="lg" show={showRequisitesModal} onHide={handleClose}>
 			<Modal.Header closeButton>
 				<Modal.Title>Prerequisitos de "{blockData.data.label}"</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
 				{!editing && (
 					<Tabs
+						className={`${styles.key} d-flex justify-content-center mb-3 `}
 						defaultActiveKey="date"
 						activeKey={key}
 						onSelect={(k) => setKey(k)}
@@ -234,24 +256,64 @@ function RequisiteModalSakai({
 						<Tab
 							eventKey="date"
 							title={
-								<div className="text-success border-success">
+								<div
+									className={`${
+										key !== "date" ? "text-secondary" : "text-dark"
+									}`}
+								>
 									Fecha de disponibilidad
 								</div>
 							}
 						>
 							{hasRequisiteType("date") && (
-								<DateComponent
-									requisites={blockData.data.requisites}
-									parseDate={parseDate}
-									setConditionEdit={setConditionEdit}
-									deleteRequisite={deleteRequisite}
-								></DateComponent>
+								<>
+									<div className="d-flex gap-1">
+										<Button
+											variant="light"
+											style={getAutomaticReusableStyles(
+												"light",
+												true,
+												true,
+												false
+											)}
+											onClick={() => setConditionEdit(dateRequisite[0])}
+										>
+											<FontAwesomeIcon
+												className={styles.cModal}
+												icon={faEdit}
+											/>
+											Editar
+										</Button>
+										<Button
+											variant="light"
+											style={getAutomaticReusableStyles(
+												"light",
+												true,
+												true,
+												false
+											)}
+											onClick={() => deleteRequisite(dateRequisite[0].id)}
+										>
+											<FontAwesomeIcon
+												className={styles.cModal}
+												icon={faTrashCan}
+											/>
+											Borrar
+										</Button>
+									</div>
+									<DateComponent
+										requisites={blockData.data.requisites}
+										parseDate={parseDate}
+										setConditionEdit={setConditionEdit}
+										deleteRequisite={deleteRequisite}
+									></DateComponent>
+								</>
 							)}
 
 							{!editing && !hasRequisiteType("date") && (
 								<Button
-									className="mb-5"
 									variant="light"
+									style={getAutomaticReusableStyles("light", true, true, false)}
 									onClick={() => {
 										addConditionToMain("date");
 									}}
@@ -267,9 +329,37 @@ function RequisiteModalSakai({
 						{!editing && blockData.type == "exam" && (
 							<Tab
 								eventKey="dateException"
-								className="border-danger"
-								title={<div>Exepciones de fecha</div>}
+								className="border-success"
+								title={
+									<div
+										className={`${
+											key !== "dateException" ? "text-secondary" : "text-dark"
+										} enabledKey`}
+									>
+										Exepciones de fecha
+									</div>
+								}
 							>
+								{!editing && blockData.type == "exam" && (
+									<Button
+										variant="light"
+										style={getAutomaticReusableStyles(
+											"light",
+											true,
+											true,
+											false
+										)}
+										onClick={() => {
+											addConditionToMain("dateException");
+										}}
+									>
+										<FontAwesomeIcon
+											className={styles.cModal}
+											icon={faCalendarXmark}
+										/>
+										Establecer nueva excepción de fecha
+									</Button>
+								)}
 								{hasRequisiteType("dateException") && (
 									<DateExceptionComponent
 										requisites={blockData.data.requisites}
@@ -279,43 +369,79 @@ function RequisiteModalSakai({
 										deleteRequisite={deleteRequisite}
 									></DateExceptionComponent>
 								)}
-								{!editing && blockData.type == "exam" && (
-									<Button
-										className="mb-5"
-										variant="light"
-										onClick={() => {
-											addConditionToMain("dateException");
-										}}
-									>
-										<FontAwesomeIcon
-											className={styles.cModal}
-											icon={faCalendarXmark}
-										/>
-										Establecer excepción de fecha
-									</Button>
-								)}
 							</Tab>
 						)}
 						{!editing && blockData.type != "folder" && (
 							<Tab
 								eventKey="group"
-								className="border-warning"
-								title={<div>Grupos con permisos de acceso</div>}
+								className={`${
+									styles[`${key === "group" ? "keyDisabled" : ""}`]
+								}`}
+								title={
+									<div
+										className={`${
+											key !== "group" ? "text-secondary" : "text-dark"
+										}`}
+									>
+										Grupos con permisos de acceso
+									</div>
+								}
 							>
 								{hasRequisiteType("group") && (
-									<GroupComponent
-										requisites={blockData.data.requisites}
-										sakaiGroups={metaData.groups}
-										setConditionEdit={setConditionEdit}
-										deleteRequisite={deleteRequisite}
-									></GroupComponent>
+									<>
+										<div className="d-flex gap-1">
+											<Button
+												variant="light"
+												style={getAutomaticReusableStyles(
+													"light",
+													true,
+													true,
+													false
+												)}
+												onClick={() => setConditionEdit(groupList)}
+											>
+												<FontAwesomeIcon
+													className={styles.cModal}
+													icon={faEdit}
+												/>
+												Editar
+											</Button>
+											<Button
+												variant="light"
+												style={getAutomaticReusableStyles(
+													"light",
+													true,
+													true,
+													false
+												)}
+												onClick={() => deleteRequisite(groupList.id)}
+											>
+												<FontAwesomeIcon
+													className={styles.cModal}
+													icon={faTrashCan}
+												/>
+												Borrar
+											</Button>
+										</div>
+										<GroupComponent
+											requisites={blockData.data.requisites}
+											sakaiGroups={metaData.groups}
+											setConditionEdit={setConditionEdit}
+											deleteRequisite={deleteRequisite}
+										></GroupComponent>
+									</>
 								)}
 								{!editing &&
 									!hasRequisiteType("group") &&
 									blockData.type != "folder" && (
 										<Button
-											className="mb-5"
 											variant="light"
+											style={getAutomaticReusableStyles(
+												"light",
+												true,
+												true,
+												false
+											)}
 											onClick={() => {
 												addConditionToMain("group");
 											}}

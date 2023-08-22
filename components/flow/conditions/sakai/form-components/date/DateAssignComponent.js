@@ -12,7 +12,7 @@ const DateAssignComponent = () => {
 				<Form.Label
 					htmlFor={cqId}
 					className="me-4"
-					style={{ minWidth: "125px", marginLeft: "20px" }}
+					style={{ marginLeft: "20px" }}
 				>
 					Fecha de apertura:{" "}
 				</Form.Label>
@@ -23,7 +23,7 @@ const DateAssignComponent = () => {
 				<Form.Label
 					htmlFor={coId}
 					className="me-4"
-					style={{ minWidth: "125px", marginLeft: "20px" }}
+					style={{ marginLeft: "20px" }}
 				>
 					Fecha de entrega:{" "}
 				</Form.Label>
@@ -34,7 +34,7 @@ const DateAssignComponent = () => {
 				<Form.Label
 					htmlFor={coId}
 					className="me-4"
-					style={{ minWidth: "125px", marginLeft: "20px" }}
+					style={{ marginLeft: "20px" }}
 				>
 					Fecha límite:{" "}
 				</Form.Label>

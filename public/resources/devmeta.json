@@ -4,7 +4,7 @@
 	"lms_url": "https://real-lms.com/",
 	"return_url": "https://real-lms.com/course",
 	"course_id": 0,
-	"platform": "moodle",
+	"platform": "sakai",
 	"lessons": [
 		{ "id:": 0, "name": "Física" },
 		{ "id:": 1, "name": "Matemática" }

@@ -54,7 +54,7 @@ const DateExceptionComponent = ({
 
 	return (
 		<>
-			<div className="d-flex align-items-baseline col-12 col-lg-6 col-xl-4">
+			<div className="d-flex align-items-baseline col-12 col-lg-6 col-xl-6">
 				<Form.Select
 					ref={exceptionSelectRef}
 					onChange={() => {
@@ -65,7 +65,7 @@ const DateExceptionComponent = ({
 					<option value="group">Grupo</option>
 				</Form.Select>
 			</div>
-			<div className="d-flex align-items-baseline col-12 col-lg-6 col-xl-4">
+			<div className="d-flex align-items-baseline col-12 col-lg-6 col-xl-6">
 				<Form.Select ref={exceptionEntityRef}>
 					{!exceptionSelected ||
 						(exceptionSelected === "user" &&
@@ -82,7 +82,7 @@ const DateExceptionComponent = ({
 						))}
 				</Form.Select>
 			</div>
-			<div className="d-flex align-items-baseline col-12 col-lg-6 col-xl-4">
+			<div className="d-flex align-items-baseline col-12 col-lg-6 col-xl-6">
 				<Form.Check
 					id="objectiveCheckbox"
 					type="checkbox"
@@ -111,7 +111,7 @@ const DateExceptionComponent = ({
 					disabled
 				/>
 			</div>
-			<div className="d-flex align-items-baseline col-12 col-lg-6 col-xl-4">
+			<div className="d-flex align-items-baseline col-12 col-lg-6 col-xl-6">
 				<Form.Check
 					id="objectiveCheckbox"
 					type="checkbox"

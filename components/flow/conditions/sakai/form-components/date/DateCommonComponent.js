@@ -44,7 +44,7 @@ const DateCommonComponent = ({
 
 	return (
 		<>
-			<div className="d-flex align-items-baseline col-12 col-lg-6 col-xl-4">
+			<div className="d-flex align-items-baseline col-12 col-lg-6 col-xl-6">
 				<Form.Check
 					id="objectiveCheckbox"
 					type="checkbox"
@@ -76,7 +76,7 @@ const DateCommonComponent = ({
 					disabled={!conditionEdit || !conditionEdit?.openingDate}
 				/>
 			</div>
-			<div className="d-flex align-items-baseline col-12 col-lg-6 col-xl-4">
+			<div className="d-flex align-items-baseline col-12 col-lg-6 col-xl-6">
 				<Form.Check
 					id="objectiveCheckbox"
 					type="checkbox"

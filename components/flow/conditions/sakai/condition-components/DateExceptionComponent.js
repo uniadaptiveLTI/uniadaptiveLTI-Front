@@ -15,12 +15,8 @@ const DateExceptionComponent = ({
 		(item) => item.type === "dateException"
 	);
 	return (
-		<Container
-			className="mb-3 mt-3"
-			style={{ padding: "10px", border: "1px solid #C7C7C7" }}
-		>
+		<Container className="mb-3 mt-3">
 			<div>
-				Excepción de fechas
 				{dateExceptionArray.map((item, index) => {
 					let entityInfo = null;
 
@@ -40,7 +36,14 @@ const DateExceptionComponent = ({
 					}
 
 					return (
-						<Row className="align-items-center">
+						<Row
+							className="align-items-center"
+							style={{
+								marginTop: "10px",
+								padding: "10px",
+								border: "1px solid #C7C7C7",
+							}}
+						>
 							<Col>
 								<div key={index}>
 									<div>{entityInfo}</div>
