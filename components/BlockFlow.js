@@ -38,6 +38,7 @@ import {
 	getByProperty,
 	deduplicateById,
 	updateBadgeConditions,
+	capitalizeFirstLetter,
 } from "@utils/Utils";
 import {
 	getNodeByNodeDOM,
@@ -46,26 +47,31 @@ import {
 	getNodeById,
 	getChildrenNodesFromFragmentID,
 	getParentsNode,
+	nodeArrayContainsGrades,
 } from "@utils/Nodes";
 import { errorListCheck } from "@utils/ErrorHandling";
 import { toast } from "react-toastify";
+import { getAutomaticReusableStyles } from "@utils/Colors";
 import { useHotkeys } from "react-hotkeys-hook";
 import ContextualMenu from "@flow/ContextualMenu.js";
 import ConditionModalMoodle from "@conditionsMoodle/ConditionModalMoodle.js";
 import RequisiteModalSakai from "@conditionsSakai/RequisiteModalSakai";
 import QualificationModal from "@conditionsMoodle/QualificationModal.js";
-
+import { useKeyPress } from "reactflow";
 import { getTypeStaticColor } from "@utils/NodeIcons.js";
 import NodeSelector from "@dialogs/NodeSelector.js";
 import CriteriaModal from "@flow/badges/CriteriaModal.js";
-import AnimatedEdge from "@edges/AnimatedEdge.js";
 import ConditionalEdge from "@edges/ConditionalEdge";
 import { NodeTypes } from "@utils/TypeDefinitions.js";
 import { isSupportedTypeInPlatform } from "@utils/Platform.js";
 import CustomControls from "./flow/CustomControls.js";
+import SimpleActionDialog from "./dialogs/SimpleActionDialog.js";
+
 const minimapStyle = {
 	height: 120,
 };
+
+const deleteKeyCodes = ["Backspace", "Delete"];
 
 const nodeTypes = {
 	addgroup: ActionNode,
@@ -136,7 +142,6 @@ const OverviewFlow = ({ map }, ref) => {
 	const [minimap, setMinimap] = useState(true);
 	const [interactive, setInteractive] = useState(true);
 	const [snapToGrid, setSnapToGrid] = useState(true);
-	const [deletedEdge, setDeletedEdge] = useState([]);
 	const [fragmentPassthrough, setFragmentPassthrough] = useState(false);
 	const dragRef = useRef(null);
 	const [target, setTarget] = useState(null);
@@ -146,6 +151,7 @@ const OverviewFlow = ({ map }, ref) => {
 
 	//ContextMenu Ref, States, Constants
 	const contextMenuDOM = useRef(null);
+	const confirmDeletionModalCallbackRef = useRef(null);
 	const [showContextualMenu, setShowContextualMenu] = useState(false);
 	const [cMX, setCMX] = useState(0);
 	const [cMY, setCMY] = useState(0);
@@ -158,13 +164,16 @@ const OverviewFlow = ({ map }, ref) => {
 		y: 0,
 	});
 
-	const [showConditionsModal, setShowConditionsModal] = useState(false);
+	const [showConfirmDeletionModal, setShowConfirmDeletionModal] =
+		useState(false);
 
+	const [showConditionsModal, setShowConditionsModal] = useState(false);
 	const [showGradeConditionsModal, setShowGradeConditionsModal] =
 		useState(false);
 
 	const [showRequisitesModal, setShowRequisitesModal] = useState(false);
 
+	const deletePressed = useKeyPress(deleteKeyCodes);
 	useEffect(() => {
 		addEventListeners(document.body, [
 			{
@@ -221,6 +230,14 @@ const OverviewFlow = ({ map }, ref) => {
 	 */
 	const onInit = (reactFlowInstance) => {
 		console.log("Blockflow loaded:", reactFlowInstance);
+	};
+
+	const getSelectedEdges = (edgeArray = reactFlowInstance.getEdges()) => {
+		return edgeArray.filter((edge) => edge.selected == true);
+	};
+
+	const getSelectedNodes = (nodeArray = reactFlowInstance.getNodes()) => {
+		return nodeArray.filter((node) => node.selected == true);
 	};
 
 	/**
@@ -503,69 +520,42 @@ const OverviewFlow = ({ map }, ref) => {
 		setEdges(newInitialEdges);
 	}, [newInitialNodes, newInitialEdges]);
 
-	/**
-	 * Handles the deletion of nodes.
-	 * @param {Node[]} nodes - The nodes being deleted.
-	 */
-	const onNodesDelete = (nodes) => {
-		setNodeSelected();
-		deleteBlocks(nodes);
-	};
-
-	/**
-	 * Deletes a condition by its ID.
-	 * @param {Condition[]} conditions - The conditions to search through.
-	 * @param {string} op - The ID of the condition to delete.
-	 * @returns {boolean} Whether or not the condition was deleted.
-	 */
-	function deleteConditionById(conditions, op) {
-		if (conditions) {
-			for (let i = 0; i < conditions.length; i++) {
-				const condition = conditions[i];
-				if (condition.cm === op) {
-					conditions.splice(i, 1);
-					if (conditions.length === 0) {
-						conditions = undefined;
-					}
-					return true;
-				} else if (condition.c) {
-					if (deleteConditionById(condition.c, op)) {
-						if (condition.c.length === 0) {
-							condition.c = undefined;
-						}
-						return true;
-					}
-				}
-			}
-			return false;
-		} else {
-			return false;
+	//-- DELETION LOGIC --
+	useEffect(() => {
+		if (deletePressed) {
+			const selectedNodes = getSelectedNodes();
+			const selectedEdges = getSelectedEdges();
+			deleteElements(selectedNodes, selectedEdges);
 		}
-	}
+	}, [deletePressed]);
 
 	/**
 	 * Handles the deletion of edges.
 	 * @param {Edge[]} edges - The edges being deleted.
 	 */
 	const onEdgesDelete = (edges) => {
+		// Get a copy of the current nodes
+		let updatedBlocksArray = reactFlowInstance.getNodes().slice();
+
+		// Loop through each edge to be deleted
 		for (let i = 0; i < edges.length; i++) {
-			var blockNodeSource = reactFlowInstance
-				?.getNodes()
-				.find((obj) => obj.id === edges[i].source);
+			// Find the source and target nodes for the current edge
+			var blockNodeSource = updatedBlocksArray.find(
+				(obj) => obj.id === edges[i].source
+			);
+			var blockNodeTarget = updatedBlocksArray.find(
+				(obj) => obj.id === edges[i].target
+			);
 
-			var blockNodeTarget = reactFlowInstance
-				?.getNodes()
-				.find((obj) => obj.id === edges[i].target);
-
-			const updatedBlockNodeSource = { ...blockNodeSource };
-			updatedBlockNodeSource.data.children =
-				updatedBlockNodeSource.data.children.filter(
+			// If the source node exists and has children, update its children by removing the target node
+			if (blockNodeSource && blockNodeSource.data.children) {
+				blockNodeSource.data.children = blockNodeSource.data.children.filter(
 					(childId) => !childId.includes(blockNodeTarget.id)
 				);
+			}
 
-			blockNodeSource = updatedBlockNodeSource;
-
-			if (blockNodeTarget.data.c) {
+			// If the target node exists and has a condition, update it based on its type
+			if (blockNodeTarget && blockNodeTarget.data.c) {
 				if (!validTypes.includes(blockNodeTarget.type)) {
 					deleteConditionById(blockNodeTarget.data.c.c, blockNodeSource.id);
 				} else {
@@ -573,211 +563,36 @@ const OverviewFlow = ({ map }, ref) => {
 				}
 			}
 
-			setDeletedEdge(edges[i]);
-		}
-	};
-
-	useEffect(() => {
-		if (deletedEdge.id) {
-			let updatedBlocksArray = reactFlowInstance.getNodes().slice();
-
+			// Find the node to be deleted in the updated blocks array
 			const blockNodeDelete = updatedBlocksArray.find(
-				(obj) => obj.id === deletedEdge.source
+				(obj) => obj.id === edges[i].source
 			);
 
-			if (blockNodeDelete) {
-				if (blockNodeDelete.children) {
-					blockNodeDelete.children = blockNodeDelete.children.filter(
-						(child) => child !== deletedEdge.target
-					);
+			// If the node to be deleted exists and has children, update its children and conditions
+			if (blockNodeDelete && blockNodeDelete.children) {
+				blockNodeDelete.children = blockNodeDelete.children.filter(
+					(child) => child !== edges[i].target
+				);
 
-					if (blockNodeDelete.children.length === 0)
-						blockNodeDelete.children = undefined;
+				if (blockNodeDelete.children.length === 0)
+					blockNodeDelete.children = undefined;
 
-					if (blockNodeDelete.c) {
-						blockNodeDelete.c = blockNodeDelete.c.filter(
-							(condition) => condition.unlockId !== deletedEdge.target
-						);
-						if (blockNodeDelete.c.length === 0) blockNodeDelete.c = undefined;
-					}
-					updatedBlocksArray = updatedBlocksArray.map((obj) =>
-						obj.id === blockNodeDelete.id ? blockNodeDelete : obj
+				if (blockNodeDelete.c) {
+					blockNodeDelete.c = blockNodeDelete.c.filter(
+						(condition) => condition.unlockId !== edges[i].target
 					);
+					if (blockNodeDelete.c.length === 0) blockNodeDelete.c = undefined;
 				}
 			}
-			reactFlowInstance.setNodes(updatedBlocksArray);
 		}
-	}, [deletedEdge]);
 
-	/**
-	 * Handles the loading of the map.
-	 */
-	const onLoad = () => {
-		if (map != prevMap) {
-			reactFlowInstance.fitView(fitViewOptions);
-			setPrevMap(map);
-		}
-	};
-
-	useEffect(() => {
-		//Makes fragment children invsible if it isn't expanded, on load
-		if (nodesInitialized) {
-			for (const node of map) {
-				if (node.parentNode) {
-					const parentFragment = getNodeById(
-						node.parentNode,
-						reactFlowInstance.getNodes()
-					);
-					if (!parentFragment.data.expanded) {
-						getNodeDOMById(node.id).style.visibility = "hidden";
-					}
-				}
-			}
-			if (reactFlowInstance && ableToFitView) {
-				reactFlowInstance.fitView(fitViewOptions);
-				setAbleToFitView(false);
-			}
-		}
-	}, [nodesInitialized]);
-
-	useEffect(() => {
-		setAbleToFitView(true);
-	}, [map]);
-
-	useEffect(() => {
-		const filteredMap = map.map((node) => {
-			return isSupportedTypeInPlatform(platform, node.type)
-				? node
-				: { ...node, type: "generic" };
-		});
-		setNewInitialNodes(filteredMap);
-
-		setNewInitialEdges(
-			map?.flatMap((parent) => {
-				if (parent.data.children) {
-					return parent.data.children.map((child) => {
-						return {
-							id: `${parent.id}-${child}`,
-							source: parent.id,
-							target: child,
-						};
-					});
-				} else {
-					return [];
-				}
-			})
+		// Update the nodes and edges in the reactFlowInstance
+		reactFlowInstance.setNodes(updatedBlocksArray);
+		reactFlowInstance.setEdges(
+			reactFlowInstance
+				.getEdges()
+				.filter((edge) => !edges.map((e) => e.id).includes(edge.id))
 		);
-	}, [map]);
-
-	/*const onConnect = useCallback(
-		(params) => setEdges((eds) => addEdge(params, eds)),
-		[]
-	);*/
-
-	// we are using a bit of a shortcut here to adjust the edge type
-	// this could also be done with a custom edge for example
-	const edgesWithUpdatedTypes = edges
-		? edges.map((edge) => {
-				if (edge) {
-					edge.type = "conditionalEdge";
-					if (edge.target) {
-						const targetNode = getNodeById(
-							edge.target,
-							reactFlowInstance.getNodes()
-						);
-						const actionNodes = NodeTypes.map((declaration) => {
-							if (declaration.nodeType == "ActionNode") return declaration.type;
-						});
-						if (targetNode)
-							if (actionNodes.includes(targetNode.type)) {
-								if (targetNode.data.c) {
-									if (Array.isArray(targetNode.data.c.c)) {
-										targetNode.data.c.c.forEach((condition) => {
-											if (condition.type == "completed") {
-												if (condition.op == "|") {
-													edge.animated = true;
-												}
-											}
-										});
-									}
-								}
-							}
-					}
-				}
-				return edge;
-		  })
-		: edges;
-
-	/**
-	 * Handles a node context menu event.
-	 * @param {Event} e - The context menu event.
-	 * @param {Node} node - The node for which the context menu is being opened.
-	 */
-	const onNodeContextMenu = (e, node) => {
-		setShowContextualMenu(false);
-		setCMContainsReservedNodes(false);
-		const bounds = reactFlowWrapper.current?.getBoundingClientRect();
-		e.preventDefault();
-		setCMX(e.clientX - bounds.left);
-		setCMY(e.clientY - bounds.top);
-		let selectedCount = 0;
-		const currentNodes = reactFlowInstance.getNodes();
-		currentNodes.map((node) => (node.selected ? selectedCount++ : null));
-		if (selectedCount <= 1) {
-			setCMBlockData(node);
-			if (node.type == "start" || node.type == "end") {
-				setCMContainsReservedNodes(true);
-			}
-			setContextMenuOrigin("block");
-		} else {
-			const selectedNodes = currentNodes.filter(
-				(node) => node.selected == true
-			);
-			setContextMenuOrigin("nodesselection");
-			setCMBlockData(selectedNodes);
-			setCMContainsReservedNodes(thereIsReservedNodesInArray(selectedNodes));
-		}
-
-		setShowContextualMenu(true);
-	};
-
-	/**
-	 * Handles a pane context menu event.
-	 * @param {Event} e - The context menu event.
-	 */
-	const onPaneContextMenu = (e) => {
-		setShowContextualMenu(false);
-		setCMContainsReservedNodes(false);
-		const bounds = reactFlowWrapper.current?.getBoundingClientRect();
-		e.preventDefault();
-		setCMX(e.clientX - bounds.left);
-		setCMY(e.clientY - bounds.top);
-		setCMBlockData(undefined);
-		setContextMenuOrigin("pane");
-		setShowContextualMenu(true);
-		console.log(reactFlowInstance);
-	};
-
-	/**
-	 * Handles a selection context menu event.
-	 * @param {Event} e - The context menu event.
-	 */
-	const onSelectionContextMenu = (e) => {
-		setShowContextualMenu(false);
-		setCMContainsReservedNodes(false);
-		const bounds = reactFlowWrapper.current?.getBoundingClientRect();
-		e.preventDefault();
-		const selectedNodes = reactFlowInstance
-			.getNodes()
-			.filter((node) => node.selected == true);
-		setCMX(e.clientX - bounds.left);
-		setCMY(e.clientY - bounds.top);
-		setContextMenuOrigin("nodesselection");
-
-		console.log(selectedNodes, reactFlowInstance);
-		setCMBlockData(selectedNodes);
-		setCMContainsReservedNodes(thereIsReservedNodesInArray(selectedNodes));
-		setShowContextualMenu(true);
 	};
 
 	/**
@@ -909,6 +724,237 @@ const OverviewFlow = ({ map }, ref) => {
 		errorListCheck(blocks, errorList, setErrorList, true);
 	};
 
+	const deleteElements = (nodes, edges, force = false) => {
+		let continueDeletion = true;
+		if (force == false) {
+			if (
+				nodes.filter((node) => metaData.grades.includes(node.data.lmsResource))
+					.length > 0
+			) {
+				continueDeletion = false;
+				confirmDeletionModalCallbackRef.current = () =>
+					deleteElements(nodes, edges, true);
+				setShowConfirmDeletionModal(true);
+			}
+		}
+
+		if (continueDeletion) {
+			if (edges.length > 0) {
+				onEdgesDelete(edges);
+			}
+			if (nodes.length > 0) {
+				deleteBlocks(nodes);
+			}
+		}
+	};
+
+	/**
+	 * Handles the deletion of nodes.
+	 * @param {Node[]} nodes - The nodes being deleted.
+	 */
+	const onNodesDelete = (nodes) => {
+		setNodeSelected();
+		deleteBlocks(nodes);
+	};
+
+	/**
+	 * Deletes a condition by its ID.
+	 * @param {Condition[]} conditions - The conditions to search through.
+	 * @param {string} op - The ID of the condition to delete.
+	 * @returns {boolean} Whether or not the condition was deleted.
+	 */
+	function deleteConditionById(conditions, op) {
+		if (conditions) {
+			for (let i = 0; i < conditions.length; i++) {
+				const condition = conditions[i];
+				if (condition.cm === op) {
+					conditions.splice(i, 1);
+					if (conditions.length === 0) {
+						conditions = undefined;
+					}
+					return true;
+				} else if (condition.c) {
+					if (deleteConditionById(condition.c, op)) {
+						if (condition.c.length === 0) {
+							condition.c = undefined;
+						}
+						return true;
+					}
+				}
+			}
+			return false;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * Handles the loading of the map.
+	 */
+	const onLoad = () => {
+		if (map != prevMap) {
+			reactFlowInstance.fitView(fitViewOptions);
+			setPrevMap(map);
+		}
+	};
+
+	useEffect(() => {
+		//Makes fragment children invsible if it isn't expanded, on load
+		if (nodesInitialized) {
+			for (const node of map) {
+				if (node.parentNode) {
+					const parentFragment = getNodeById(
+						node.parentNode,
+						reactFlowInstance.getNodes()
+					);
+					if (!parentFragment.data.expanded) {
+						getNodeDOMById(node.id).style.visibility = "hidden";
+					}
+				}
+			}
+			if (reactFlowInstance && ableToFitView) {
+				reactFlowInstance.fitView(fitViewOptions);
+				setAbleToFitView(false);
+			}
+		}
+	}, [nodesInitialized]);
+
+	useEffect(() => {
+		setAbleToFitView(true);
+	}, [map]);
+
+	useEffect(() => {
+		const filteredMap = map.map((node) => {
+			return isSupportedTypeInPlatform(platform, node.type)
+				? node
+				: { ...node, type: "generic" };
+		});
+		setNewInitialNodes(filteredMap);
+
+		setNewInitialEdges(
+			map?.flatMap((parent) => {
+				if (parent.data.children) {
+					return parent.data.children.map((child) => {
+						return {
+							id: `${parent.id}-${child}`,
+							source: parent.id,
+							target: child,
+						};
+					});
+				} else {
+					return [];
+				}
+			})
+		);
+	}, [map]);
+
+	/*const onConnect = useCallback(
+		(params) => setEdges((eds) => addEdge(params, eds)),
+		[]
+	);*/
+
+	// we are using a bit of a shortcut here to adjust the edge type
+	// this could also be done with a custom edge for example
+	const edgesWithUpdatedTypes = edges
+		? edges.map((edge) => {
+				if (edge) {
+					edge.type = "conditionalEdge";
+					if (edge.target) {
+						const targetNode = getNodeById(
+							edge.target,
+							reactFlowInstance.getNodes()
+						);
+						const actionNodes = NodeTypes.map((declaration) => {
+							if (declaration.nodeType == "ActionNode") return declaration.type;
+						});
+						if (targetNode)
+							if (actionNodes.includes(targetNode.type)) {
+								if (targetNode.data.c) {
+									if (Array.isArray(targetNode.data.c.c)) {
+										targetNode.data.c.c.forEach((condition) => {
+											if (condition.type == "completed") {
+												if (condition.op == "|") {
+													edge.animated = true;
+												}
+											}
+										});
+									}
+								}
+							}
+					}
+				}
+				return edge;
+		  })
+		: edges;
+
+	/**
+	 * Handles a node context menu event.
+	 * @param {Event} e - The context menu event.
+	 * @param {Node} node - The node for which the context menu is being opened.
+	 */
+	const onNodeContextMenu = (e, node) => {
+		setShowContextualMenu(false);
+		setCMContainsReservedNodes(false);
+		const bounds = reactFlowWrapper.current?.getBoundingClientRect();
+		e.preventDefault();
+		setCMX(e.clientX - bounds.left);
+		setCMY(e.clientY - bounds.top);
+		let selectedCount = 0;
+		const currentNodes = reactFlowInstance.getNodes();
+		currentNodes.map((node) => (node.selected ? selectedCount++ : null));
+		if (selectedCount <= 1) {
+			setCMBlockData(node);
+			if (node.type == "start" || node.type == "end") {
+				setCMContainsReservedNodes(true);
+			}
+			setContextMenuOrigin("block");
+		} else {
+			const selectedNodes = getSelectedNodes(currentNodes);
+			setContextMenuOrigin("nodesselection");
+			setCMBlockData(selectedNodes);
+			setCMContainsReservedNodes(thereIsReservedNodesInArray(selectedNodes));
+		}
+
+		setShowContextualMenu(true);
+	};
+
+	/**
+	 * Handles a pane context menu event.
+	 * @param {Event} e - The context menu event.
+	 */
+	const onPaneContextMenu = (e) => {
+		setShowContextualMenu(false);
+		setCMContainsReservedNodes(false);
+		const bounds = reactFlowWrapper.current?.getBoundingClientRect();
+		e.preventDefault();
+		setCMX(e.clientX - bounds.left);
+		setCMY(e.clientY - bounds.top);
+		setCMBlockData(undefined);
+		setContextMenuOrigin("pane");
+		setShowContextualMenu(true);
+		console.log(reactFlowInstance);
+	};
+
+	/**
+	 * Handles a selection context menu event.
+	 * @param {Event} e - The context menu event.
+	 */
+	const onSelectionContextMenu = (e) => {
+		setShowContextualMenu(false);
+		setCMContainsReservedNodes(false);
+		const bounds = reactFlowWrapper.current?.getBoundingClientRect();
+		e.preventDefault();
+		const selectedNodes = getSelectedNodes();
+		setCMX(e.clientX - bounds.left);
+		setCMY(e.clientY - bounds.top);
+		setContextMenuOrigin("nodesselection");
+
+		console.log(selectedNodes, reactFlowInstance);
+		setCMBlockData(selectedNodes);
+		setCMContainsReservedNodes(thereIsReservedNodesInArray(selectedNodes));
+		setShowContextualMenu(true);
+	};
+
 	/**
 	 * Filters out children with the given id from an array of objects.
 	 * @param {string} id - The id of the child to filter.
@@ -1007,9 +1053,7 @@ const OverviewFlow = ({ map }, ref) => {
 	const handleNodeCopy = (blockData = []) => {
 		setShowContextualMenu(false);
 
-		const selectedNodes = reactFlowInstance
-			.getNodes()
-			.filter((node) => node.selected == true);
+		const selectedNodes = getSelectedNodes();
 
 		const blockDataSet = [];
 		if (blockData.length == 1) {
@@ -1332,9 +1376,7 @@ const OverviewFlow = ({ map }, ref) => {
 	 * Handles the creation of a new fragment.
 	 */
 	const handleFragmentCreation = () => {
-		const selectedNodes = reactFlowInstance
-			.getNodes()
-			.filter((node) => node.selected == true);
+		const selectedNodes = getSelectedNodes();
 
 		if (
 			!selectedNodes.filter(
@@ -1445,7 +1487,7 @@ const OverviewFlow = ({ map }, ref) => {
 	const handleNodeDeletion = (blockData) => {
 		setShowContextualMenu(false);
 		setNodeSelected();
-		deleteBlocks([blockData]);
+		return deleteBlocks([blockData]);
 	};
 
 	/**
@@ -1453,9 +1495,7 @@ const OverviewFlow = ({ map }, ref) => {
 	 */
 	const handleNodeSelectionDeletion = () => {
 		setShowContextualMenu(false);
-		const selectedNodes = document.querySelectorAll(
-			".react-flow__node.selected"
-		);
+		const selectedNodes = getSelectedNodes();
 		const clipboardData = [];
 		for (let node of selectedNodes) {
 			clipboardData.push(getNodeByNodeDOM(node, reactFlowInstance.getNodes()));
@@ -1625,9 +1665,7 @@ const OverviewFlow = ({ map }, ref) => {
 	 */
 	const handleShow = (modal) => {
 		console.log(modal);
-		const selectedNodes = reactFlowInstance
-			.getNodes()
-			.filter((node) => node.selected == true);
+		const selectedNodes = getSelectedNodes();
 
 		let newCMBlockData = undefined;
 		if (selectedNodes.length == 1 && cMBlockData == undefined) {
@@ -1780,7 +1818,7 @@ const OverviewFlow = ({ map }, ref) => {
 				snapGrid={[125, 275]}
 				//connectionLineComponent={}
 				snapToGrid={snapToGrid}
-				deleteKeyCode={["Backspace", "Delete"]}
+				deleteKeyCode={[]}
 				multiSelectionKeyCode={["Shift"]}
 				selectionKeyCode={["Shift"]}
 				zoomOnDoubleClick={false}
@@ -1885,6 +1923,37 @@ const OverviewFlow = ({ map }, ref) => {
 					type={nodeSelectorType}
 					callback={createBlock}
 				/>
+			)}
+			{showConfirmDeletionModal && (
+				<SimpleActionDialog
+					showDialog={showConfirmDeletionModal}
+					toggleDialog={() => {
+						setShowConfirmDeletionModal(!showConfirmDeletionModal);
+					}}
+					title={"Borrado de bloque con calificaciones"}
+					type={"delete"}
+					body={
+						<>
+							<p>
+								<b>La selección actual contiene</b>, como mínimo,{" "}
+								<b>un bloque con calificaciones</b> en{" "}
+								{capitalizeFirstLetter(platform)}.
+							</p>
+							<p>¿Estás seguro de querer continuar?</p>
+							<p
+								style={{
+									...getAutomaticReusableStyles("warning", true, true, false),
+									padding: "6px",
+								}}
+							>
+								(Al confirmar el borrado, se borrarán todos los bloques
+								seleccionados, <b>sin excepción</b>.)
+							</p>
+						</>
+					}
+					action={"Confirmar borrado"}
+					callback={confirmDeletionModalCallbackRef.current}
+				></SimpleActionDialog>
 			)}
 			<CustomControls
 				reactFlowInstance={reactFlowInstance}

@@ -1469,7 +1469,11 @@ function Header({ LTISettings }, ref) {
 									{loadedUserData && userData.profile_url && (
 										<img
 											alt="Imagen de perfil"
-											src={userData.profile_url}
+											src={
+												userData.profile_url == "default"
+													? "/images/default_image.png"
+													: userData.profile_url
+											} //Used if the LMS does not support profile images.
 											className={styles.userProfile}
 											width={48}
 											height={48}

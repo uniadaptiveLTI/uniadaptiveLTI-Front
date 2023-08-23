@@ -319,6 +319,13 @@ export function getNumberOfIndependentConditions(node) {
 	return 0;
 }
 
+/**
+ * Gets the primary condition type of a given node.
+ *
+ * @export
+ * @param {Object} node - The node to check.
+ * @returns {string|undefined} Returns the primary condition type if it exists, 'multiple' if there are more than one types, otherwise returns undefined.
+ */
 export function getPrimaryConditionType(node) {
 	const recursiveTypeGet = (c, array = []) => {
 		if (c.c) {
@@ -346,4 +353,20 @@ export function getPrimaryConditionType(node) {
 		return types.length > 1 ? "multiple" : types[0];
 	}
 	return undefined;
+}
+
+/**
+ * Checks if any node in the given array contains a grade present in the metaData.
+ *
+ * @param {Array} nodeArray - The array of nodes to check.
+ * @param {Object} metaData - The metaData object containing grades.
+ * @returns {boolean} Returns true if any node in the array contains a grade present in the metaData, otherwise returns false.
+ */
+export function nodeArrayContainsGrades(nodeArray, metaData) {
+	if (
+		nodeArray.filter((node) => metaData.grades.includes(node.data.lmsResource))
+			.length > 0
+	)
+		return true;
+	return false;
 }

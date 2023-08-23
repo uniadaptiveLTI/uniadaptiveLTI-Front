@@ -16,6 +16,7 @@
 		{ "id": 3, "position": 2, "name": "Física Cuántica" }
 	],
 	"badges": [],
+	"grades": [1],
 	"groups": [
 		{ "id": 1, "name": "Grupo A" },
 		{ "id": 2, "name": "Grupo B" },
