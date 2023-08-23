@@ -24,7 +24,6 @@ const DateComponent = ({
 			className="mb-3 mt-3"
 			style={{ padding: "10px", border: "1px solid #C7C7C7" }}
 		>
-			<div>Fecha de disponibilidad</div>
 			{dateArray.map((item, index) => (
 				<Row className="align-items-center">
 					<Col>
@@ -35,7 +34,9 @@ const DateComponent = ({
 							<div>Fecha de entrega: {parseDate(item.dueDate, true)}</div>
 						)}
 					</Col>
-					<Col className="col-2">
+					{
+						// FEATURE: ENABLE THIS CODE TO ALLOW MULTIPLE DATE CONDITIONS
+						/*<Col className="col-2">
 						<Button
 							variant="light"
 							onClick={() => setConditionEdit(dateArray[index])}
@@ -49,7 +50,8 @@ const DateComponent = ({
 								<FontAwesomeIcon icon={faTrashCan} />
 							</div>
 						</Button>
-					</Col>
+						</Col>*/
+					}
 				</Row>
 			))}
 		</Container>
