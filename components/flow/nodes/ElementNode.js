@@ -88,10 +88,21 @@ function ElementNode({
 	};
 
 	const handleEdit = () => {
-		const blockData = getNodeById(id, reactFlowInstance.getNodes());
+		const currentNodes = reactFlowInstance.getNodes();
+		const blockData = getNodeById(id, currentNodes);
 		if (expandedAside != true) {
 			setExpandedAside(true);
 		}
+		console.log(currentNodes);
+		reactFlowInstance.setNodes(
+			getUpdatedArrayById(
+				{
+					...getNodeById(id, currentNodes),
+					selected: false,
+				},
+				currentNodes
+			)
+		);
 		setEditVersionSelected("");
 		setNodeSelected(blockData);
 	};

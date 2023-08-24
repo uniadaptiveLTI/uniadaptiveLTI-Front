@@ -74,6 +74,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 	const parsedSettings = JSON.parse(settings);
 	let { reducedAnimations, autoHideAside } = parsedSettings;
 	//References
+	const autoFocus = useRef(null);
 	const labelDOM = useRef(null);
 	const optionsDOM = useRef(null);
 	const resourceDOM = useRef(null);
@@ -333,6 +334,15 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 	}, [nodeSelected]);
 
 	/**
+	 * Focuses into the aside if autoHideAside is active and autoFocus is visible
+	 */
+	useEffect(() => {
+		if (autoFocus && autoHideAside) {
+			autoFocus.current.focus();
+		}
+	});
+
+	/**
 	 * Updates the selected block with the values from the specified DOM elements.
 	 */
 	const updateBlock = () => {
@@ -523,9 +533,9 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 
 	return (
 		<aside id="aside" className={`${className} ${styles.aside}`}>
-			{/* TODO: FocusTrap this */}
 			<div className={"text-center p-2"}>
 				<div
+					ref={autoFocus}
 					role="button"
 					onClick={() => setExpandedAside(false)}
 					className={
