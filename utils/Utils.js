@@ -395,6 +395,12 @@ export function getSectionIDFromPosition(sectionArray, sectionPosition) {
 	return getSectionFromPosition(sectionArray, sectionPosition)?.id;
 }
 
+/**
+ * Method to parse the given date using day, month and year, in case dateComplete param true then add hour and minute
+ * @param {String} dateStr - String of date
+ * @param {boolean} dateComplete - Boolean to define if the date must be parsed with hour and minute
+ * @returns {*} Returns formatted date string
+ */
 export function parseDate(dateStr, dateComplete) {
 	const date = new Date(dateStr);
 	const formattedDate = date.toLocaleDateString("es-ES", {
@@ -479,4 +485,21 @@ export async function saveVersion(
 	} finally {
 		enable(false);
 	}
+}
+
+export function reOrderSakaiRequisites(requisites) {
+	const customSort = (a, b) => {
+		const typeOrder = {
+			date: 1,
+			dateException: 2,
+			group: 3,
+		};
+
+		return typeOrder[a.type] - typeOrder[b.type];
+	};
+
+	const sortedArray = [...requisites].sort(customSort);
+
+	return sortedArray;
+	s;
 }

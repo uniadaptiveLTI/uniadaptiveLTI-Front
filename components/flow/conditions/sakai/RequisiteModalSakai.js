@@ -29,7 +29,7 @@ import GroupForm from "@conditionsSakai/form-components/GroupForm";
 import styles from "@root/styles/RequisiteModalSakai.module.css";
 import { MetaDataContext } from "@root/pages/_app.js";
 import DateComponent from "@conditionsSakai/condition-components/DateComponent";
-import { parseDate, uniqueId } from "@utils/Utils";
+import { parseDate, uniqueId, reOrderSakaiRequisites } from "@utils/Utils";
 import DateExceptionComponent from "@conditionsSakai/condition-components/DateExceptionComponent";
 import GroupComponent from "@conditionsSakai/condition-components/GroupComponent";
 import { getAutomaticReusableStyles } from "@utils/Colors";
@@ -77,12 +77,6 @@ function RequisiteModalSakai({
 		openingDate: undefined,
 		dueDate: undefined,
 	};
-
-	const sakaiUsers = [
-		{ id: 1, name: "David" },
-		{ id: 2, name: "Javi" },
-		{ id: 3, name: "Juanma" },
-	];
 
 	const [initalGroups, setInitalGroups] = useState([]);
 
@@ -220,6 +214,11 @@ function RequisiteModalSakai({
 
 			updatedBlockData.data.requisites.push(formData);
 
+			const reOrderedList = reOrderSakaiRequisites(
+				updatedBlockData.data.requisites
+			);
+
+			updatedBlockData.data.requisites = reOrderedList;
 			setBlockData(updatedBlockData);
 		}
 
@@ -364,7 +363,7 @@ function RequisiteModalSakai({
 									<DateExceptionComponent
 										requisites={blockData.data.requisites}
 										sakaiGroups={metaData.groups}
-										sakaiUsers={sakaiUsers}
+										sakaiUsers={metaData.users}
 										parseDate={parseDate}
 										deleteRequisite={deleteRequisite}
 									></DateExceptionComponent>
@@ -472,7 +471,7 @@ function RequisiteModalSakai({
 						exceptionSelected={exceptionSelected}
 						setExceptionSelected={setExceptionSelected}
 						sakaiGroups={metaData.groups}
-						sakaiUsers={sakaiUsers}
+						sakaiUsers={metaData.users}
 						conditionEdit={conditionEdit}
 					></DateForm>
 				)}

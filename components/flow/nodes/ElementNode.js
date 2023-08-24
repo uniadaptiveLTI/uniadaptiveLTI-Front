@@ -35,7 +35,8 @@ import {
 import { useState } from "react";
 import { NodeTypes } from "@utils/TypeDefinitions";
 import { getConditionIcon } from "@utils/ConditionIcons";
-import SimpleConditions from "@conditions/SimpleConditions";
+import SimpleConditionsMoodle from "@conditions/SimpleConditionsMoodle";
+import SimpleConditionsSakai from "@conditions/SimpleConditionsSakai";
 import MoodleBadges from "@blockBadgesMoodle/MoodleBadges";
 import SakaiBadges from "@blockBadgesSakai/SakaiBadges";
 
@@ -199,9 +200,14 @@ function ElementNode({
 
 	return (
 		<>
-			{isHovered && selected && !dragging && (
+			{isHovered && selected && !dragging && platform == "moodle" && (
 				<div className={styles.hovedConditions}>
-					<SimpleConditions id={id} />
+					<SimpleConditionsMoodle id={id} />
+				</div>
+			)}
+			{isHovered && selected && !dragging && platform == "sakai" && (
+				<div className={styles.hovedConditions}>
+					<SimpleConditionsSakai id={id} />
 				</div>
 			)}
 			<Handle

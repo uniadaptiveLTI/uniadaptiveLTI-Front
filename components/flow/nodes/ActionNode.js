@@ -29,7 +29,8 @@ import { getUpdatedArrayById, parseBool } from "@utils/Utils";
 import { getNodeById, getNumberOfIndependentConditions } from "@utils/Nodes";
 import { DevModeStatusContext } from "pages/_app";
 import { NodeTypes } from "@utils/TypeDefinitions";
-import SimpleConditions from "@conditions/SimpleConditions";
+import SimpleConditionsMoodle from "@conditions/SimpleConditionsMoodle";
+import SimpleConditionsSakai from "@conditions/SimpleConditionsSakai";
 import { useEffect } from "react";
 
 const getHumanDesc = (type) => {
@@ -128,9 +129,14 @@ function ActionNode({ id, type, data, selected, dragging, isConnectable }) {
 
 	return (
 		<>
-			{isHovered && selected && !dragging && (
+			{isHovered && selected && !dragging && platform == "moodle" (
 				<div className={styles.hovedConditions}>
-					<SimpleConditions id={id} />
+					<SimpleConditionsMoodle id={id} />
+				</div>
+			)}
+			{isHovered && selected && !dragging && platform == "sakai" (
+				<div className={styles.hovedConditions}>
+					<SimpleConditionsSakai id={id} />
 				</div>
 			)}
 			<Handle

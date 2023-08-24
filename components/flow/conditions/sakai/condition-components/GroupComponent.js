@@ -22,6 +22,7 @@ const GroupComponent = ({
 	const sortedGroupList = groupArray.groupList.sort(
 		(a, b) => a.index - b.index
 	);
+
 	return (
 		<Container
 			className="mb-3 mt-3"
@@ -31,10 +32,12 @@ const GroupComponent = ({
 				<Col>
 					<ul>
 						{sortedGroupList.map((item, index) => {
-							const user = sakaiGroups.find((user) => user.id === item.id);
+							const group = sakaiGroups.find((group) => group.id === item.id);
 
 							return (
-								<li key={index}>{user ? user.name : "Grupo no encontrado"}</li>
+								<li key={index}>
+									{group ? group.name : "Grupo no encontrado"}
+								</li>
 							);
 						})}
 					</ul>

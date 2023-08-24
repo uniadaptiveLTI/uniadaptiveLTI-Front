@@ -10,7 +10,7 @@ import {
 	profileQueryList,
 } from "@conditionsMoodle/condition-components/ProfileComponent";
 
-export default function SimpleConditions({ id }) {
+export default function SimpleConditionsMoodle({ id }) {
 	const { devModeStatus } = useContext(DevModeStatusContext);
 	const { metaData } = useContext(MetaDataContext);
 	const rfNodes = useNodes();
@@ -333,7 +333,9 @@ export default function SimpleConditions({ id }) {
 				} else {
 					return (
 						<div>
-							Aquí se priorizará mostrará información resumida sobre las{" "}
+							{JSON.stringify(getNodeById(id, rfNodes))}
+							<p></p>
+							Aquí se priorizará mostrar información resumida sobre las{" "}
 							<b>{hoverConditions ? "condiciones" : "calificaciones"}</b> el
 							bloque seleccionado.
 						</div>
