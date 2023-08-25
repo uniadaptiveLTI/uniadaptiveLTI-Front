@@ -50,6 +50,7 @@ export default function SimpleConditionsSakai({ id }) {
 	const parseConditions = () => {
 		let finalDOM = [
 			<div>
+				{JSON.stringify(getNodeById(id, rfNodes))}
 				<b>Requisitos:</b>
 
 				{hasRequisiteType("date") && (
@@ -72,7 +73,7 @@ export default function SimpleConditionsSakai({ id }) {
 					<div style={{ marginTop: "10px" }}>
 						<b style={{ marginLeft: "24px" }}>Excepciones de fecha</b>
 						{dateExceptionArray.map((date) => {
-							const sakaiUsers = metaData.users;
+							const sakaiUsers = metaData.userMembers;
 							let entityInfo = null;
 
 							if (date.op === "user") {

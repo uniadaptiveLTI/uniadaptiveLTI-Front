@@ -26,12 +26,14 @@ import {
 import Requisite from "@conditionsSakai/Requisite";
 import DateForm from "@conditionsSakai/form-components/DateForm";
 import GroupForm from "@conditionsSakai/form-components/GroupForm";
+import GradeForm from "@conditionsSakai/form-components/GradeForm";
 import styles from "@root/styles/RequisiteModalSakai.module.css";
 import { MetaDataContext } from "@root/pages/_app.js";
 import DateComponent from "@conditionsSakai/condition-components/DateComponent";
 import { parseDate, uniqueId, reOrderSakaiRequisites } from "@utils/Utils";
 import DateExceptionComponent from "@conditionsSakai/condition-components/DateExceptionComponent";
 import GroupComponent from "@conditionsSakai/condition-components/GroupComponent";
+import GradeComponent from "@conditionsSakai/condition-components/GradeComponent";
 import { getAutomaticReusableStyles } from "@utils/Colors";
 
 function RequisiteModalSakai({
@@ -52,16 +54,25 @@ function RequisiteModalSakai({
 
 	useEffect(() => {
 		if (conditionEdit) {
+			console.log(conditionEdit);
 			// FUTURE FEATURE EDIT DATE EXCEPTION??
-			if (
-				conditionEdit.type == "date" ||
-				conditionEdit.type == "dateException"
-			) {
-				initialDates.openingDate = conditionEdit.openingDate;
-				initialDates.dueDate = conditionEdit.dueDate;
-				setDates(initialDates);
-			} else {
-				setInitalGroups(conditionEdit.groupList);
+			switch (conditionEdit.type) {
+				case "date":
+				case "dateException":
+					const initialDates = {
+						openingDate: conditionEdit.openingDate,
+						dueDate: conditionEdit.dueDate,
+					};
+					setDates(initialDates);
+					break;
+				case "group":
+					setInitalGroups(conditionEdit.groupList);
+					break;
+				case "grade":
+					// Handle 'grade' case if needed
+					break;
+				default:
+					break;
 			}
 			setEditing(conditionEdit.type);
 		}
@@ -72,6 +83,7 @@ function RequisiteModalSakai({
 	const groupsRef = metaData.groups.map(() => useRef(null));
 	const exceptionSelectRef = useRef(null);
 	const exceptionEntityRef = useRef(null);
+	const pointRef = useRef(null);
 
 	const initialDates = {
 		openingDate: undefined,
@@ -239,8 +251,10 @@ function RequisiteModalSakai({
 		(item) => item.type === "group"
 	);
 
+	const modalSize = blockData.type === "exam" ? "xl" : "lg";
+
 	return (
-		<Modal size="lg" show={showRequisitesModal} onHide={handleClose}>
+		<Modal size={modalSize} show={showRequisitesModal} onHide={handleClose}>
 			<Modal.Header closeButton>
 				<Modal.Title>Prerequisitos de "{blockData.data.label}"</Modal.Title>
 			</Modal.Header>
@@ -363,7 +377,7 @@ function RequisiteModalSakai({
 									<DateExceptionComponent
 										requisites={blockData.data.requisites}
 										sakaiGroups={metaData.groups}
-										sakaiUsers={metaData.users}
+										sakaiUsers={metaData.userMembers}
 										parseDate={parseDate}
 										deleteRequisite={deleteRequisite}
 									></DateExceptionComponent>
@@ -454,6 +468,27 @@ function RequisiteModalSakai({
 									)}
 							</Tab>
 						)}
+						{!editing && (
+							<Tab
+								eventKey="grade"
+								title={
+									<div
+										className={`${
+											key !== "grade" ? "text-secondary" : "text-dark"
+										}`}
+									>
+										Calificación requerida
+									</div>
+								}
+							>
+								{blockData.data.gradeRequisites && (
+									<GradeComponent
+										gradeConditions={blockData.data.gradeRequisites}
+										setConditionEdit={setConditionEdit}
+									></GradeComponent>
+								)}
+							</Tab>
+						)}
 					</Tabs>
 				)}
 
@@ -471,7 +506,7 @@ function RequisiteModalSakai({
 						exceptionSelected={exceptionSelected}
 						setExceptionSelected={setExceptionSelected}
 						sakaiGroups={metaData.groups}
-						sakaiUsers={metaData.users}
+						sakaiUsers={metaData.userMembers}
 						conditionEdit={conditionEdit}
 					></DateForm>
 				)}
@@ -485,6 +520,13 @@ function RequisiteModalSakai({
 						setInitalGroups={setInitalGroups}
 						conditionEdit={conditionEdit}
 					></GroupForm>
+				)}
+				{editing && editing == "grade" && (
+					<GradeForm
+						conditionEdit={conditionEdit}
+						exceptionSelectRef={exceptionSelectRef}
+						pointRef={pointRef}
+					></GradeForm>
 				)}
 			</Modal.Body>
 			<Modal.Footer>

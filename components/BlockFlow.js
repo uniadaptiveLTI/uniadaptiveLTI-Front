@@ -390,6 +390,7 @@ const OverviewFlow = ({ map }, ref) => {
 	 * @param {Event} event - The connect event.
 	 */
 	const onConnect = (event) => {
+		console.log(platform);
 		const sourceNodeId = event.source.split("__")[0];
 		const targetNodeId = event.target.split("__")[0];
 
@@ -398,15 +399,19 @@ const OverviewFlow = ({ map }, ref) => {
 				.getEdges()
 				.find((node) => node.id === sourceNodeId + "-" + targetNodeId);
 
-			if (!edgeFound) {
-				const sourceNode = reactFlowInstance
-					.getNodes()
-					.find((nodes) => nodes.id == sourceNodeId);
+			const sourceNode = reactFlowInstance
+				.getNodes()
+				.find((nodes) => nodes.id == sourceNodeId);
 
-				const targetNode = reactFlowInstance
-					.getNodes()
-					.find((nodes) => nodes.id == targetNodeId);
+			const targetNode = reactFlowInstance
+				.getNodes()
+				.find((nodes) => nodes.id == targetNodeId);
 
+			if (
+				targetNode &&
+				sourceNode.type != "start" &&
+				sourceNode.type != "end"
+			) {
 				if (sourceNode) {
 					if (Array.isArray(sourceNode.data.children)) {
 						sourceNode.data.children.push(targetNodeId);
@@ -415,102 +420,147 @@ const OverviewFlow = ({ map }, ref) => {
 					}
 				}
 
-				if (
-					targetNode &&
-					sourceNode.type != "start" &&
-					sourceNode.type != "end"
-				) {
-					if (!validTypes.includes(targetNode.type)) {
-						const newCondition = {
-							id: parseInt(Date.now() * Math.random()).toString(),
-							type: "completion",
-							cm: sourceNode.id,
-							showc: true,
-							e: 1,
-						};
-
-						if (!targetNode.data.c) {
-							targetNode.data.c = {
-								type: "conditionsGroup",
-								id: parseInt(Date.now() * Math.random()).toString(),
-								op: "&",
-								showc: true,
-								c: [newCondition],
-							};
-						} else {
-							targetNode.data.c.c.push(newCondition);
-						}
-					} else {
-						if (!targetNode.data.c) {
-							targetNode.data.c = {
-								type: "conditionsGroup",
-								id: parseInt(Date.now() * Math.random()).toString(),
-								op: "&",
-								showc: true,
-							};
-						}
-
-						const conditions = targetNode.data.c?.c;
-
-						if (conditions) {
-							const conditionExists = conditions.find(
-								(condition) => condition.type === "completion"
-							);
-
-							if (conditionExists) {
-								const newConditionAppend = {
-									id: sourceNode.id,
-								};
-								conditionExists.activityList.push(newConditionAppend);
-							} else {
+				if (!edgeFound) {
+					switch (platform) {
+						case "moodle":
+							if (!validTypes.includes(targetNode.type)) {
 								const newCondition = {
 									id: parseInt(Date.now() * Math.random()).toString(),
 									type: "completion",
-									activityList: [
-										{
-											id: sourceNode.id,
-										},
-									],
-									op: "&",
-									query: "completed",
+									cm: sourceNode.id,
+									showc: true,
+									e: 1,
 								};
 
-								targetNode.data.c.c.push(newCondition);
+								if (!targetNode.data.c) {
+									targetNode.data.c = {
+										type: "conditionsGroup",
+										id: parseInt(Date.now() * Math.random()).toString(),
+										op: "&",
+										showc: true,
+										c: [newCondition],
+									};
+								} else {
+									targetNode.data.c.c.push(newCondition);
+								}
+							} else {
+								if (!targetNode.data.c) {
+									targetNode.data.c = {
+										type: "conditionsGroup",
+										id: parseInt(Date.now() * Math.random()).toString(),
+										op: "&",
+										showc: true,
+									};
+								}
+
+								const conditions = targetNode.data.c?.c;
+
+								if (conditions) {
+									const conditionExists = conditions.find(
+										(condition) => condition.type === "completion"
+									);
+
+									if (conditionExists) {
+										const newConditionAppend = {
+											id: sourceNode.id,
+										};
+										conditionExists.activityList.push(newConditionAppend);
+									} else {
+										const newCondition = {
+											id: parseInt(Date.now() * Math.random()).toString(),
+											type: "completion",
+											activityList: [
+												{
+													id: sourceNode.id,
+												},
+											],
+											op: "&",
+											query: "completed",
+										};
+
+										targetNode.data.c.c.push(newCondition);
+									}
+								} else {
+									const newCondition = {
+										id: parseInt(Date.now() * Math.random()).toString(),
+										type: "completion",
+										activityList: [
+											{
+												id: sourceNode.id,
+											},
+										],
+										op: "&",
+										query: "completed",
+									};
+
+									targetNode.data.c.c = [newCondition];
+								}
 							}
-						} else {
-							const newCondition = {
-								id: parseInt(Date.now() * Math.random()).toString(),
-								type: "completion",
-								activityList: [
-									{
-										id: sourceNode.id,
-									},
-								],
-								op: "&",
-								query: "completed",
-							};
 
-							targetNode.data.c.c = [newCondition];
-						}
+							break;
+						case "sakai":
+							console.log(sourceNode);
+							console.log(targetNode);
+
+							if (!targetNode.data.gradeRequisites) {
+								targetNode.data.gradeRequisites = {
+									type: "root",
+									id: parseInt(Date.now() * Math.random()).toString(),
+									op: "and",
+									logicalSets: [
+										{
+											id: parseInt(Date.now() * Math.random()).toString(),
+											type: "subRoot",
+											op: "and",
+											conditions: [],
+										},
+										{
+											id: parseInt(Date.now() * Math.random()).toString(),
+											type: "subRoot",
+											op: "or",
+											conditions: [],
+										},
+									],
+								};
+							}
+
+							const gradeRequisites = targetNode.data.gradeRequisites;
+
+							const subRootAnd = gradeRequisites.logicalSets.find(
+								(set) => set.type === "subRoot" && set.op === "and"
+							);
+
+							subRootAnd.conditions.push({
+								id: sourceNodeId,
+								type: "grade",
+								parentId: sourceNodeId,
+								points: 5,
+								op: "GREATER_THAN",
+							});
+
+							console.log(subRootAnd);
+
+							console.log(targetNode.data);
+							break;
 					}
+
+					//FIXME: Check if line already drawn
+					setEdges([
+						...edges,
+						{
+							id: sourceNodeId + "-" + targetNodeId,
+							source: sourceNodeId,
+							target: targetNodeId,
+						},
+					]);
+
+					setNodes(
+						getUpdatedArrayById(
+							[sourceNode, targetNode],
+							reactFlowInstance.getNodes()
+						)
+					);
 				}
-
-				//FIXME: Check if line already drawn
-				setEdges([
-					...edges,
-					{
-						id: sourceNodeId + "-" + targetNodeId,
-						source: sourceNodeId,
-						target: targetNodeId,
-					},
-				]);
-
-				setNodes(
-					getUpdatedArrayById(
-						[sourceNode, targetNode],
-						reactFlowInstance.getNodes()
-					)
-				);
 			}
 		}
 	};
