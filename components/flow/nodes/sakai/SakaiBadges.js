@@ -61,9 +61,7 @@ const SakaiBadges = ({
 						}
 						title="Sección"
 					>
-						{platform === "moodle"
-							? Number(data.section)
-							: Number(data.section) + 1}
+						{Number(data.section)}
 					</Badge>
 				)}
 

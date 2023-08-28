@@ -333,48 +333,6 @@ export async function fetchBackEnd(
 	return fetchResponse;
 }
 
-/** FIXME: UPDATE THIS JSDOC, MULTIPLE TOKEN PER SESSION
- * Fetches data from the back-end using the specified settings and parameters, trying multiple tokens until a successful response is received.
- * @param {Object} LTISettings - The LTI settings object.
- * @param {string[]} tokens - An array of authentication tokens to try.
- * @param {string} webservice - The webservice to fetch data from.
- * @param {string} [method="GET"] - The HTTP method to use for the request (default: "GET").
- * @param {Object} [load] - The payload to send with the request.
- * @returns {Promise<Response|undefined>} A Promise that resolves to the first successful fetch response, or undefined if all tokens fail.
- 
-export async function fetchBackEnd(
-	LTISettings,
-	tokens,
-	webservice,
-	method = "GET",
-	load
-) {
-	const fetchURL = getFetchUrl(LTISettings, webservice);
-	let fetchResponses = [];
-
-	const promises = tokens.map(async (token) => {
-		if (method === "POST") {
-			const response = await fetch(fetchURL, {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ ...load, token }),
-			});
-			console.log(response);
-			const responseJSON = await response.json();
-			console.log(responseJSON);
-			return responseJSON;
-		} else if (method === "GET") {
-			const response = await fetch(
-				fetchURL + `?${new URLSearchParams({ ...load, token }).toString()}`
-			);
-			return response;
-		}
-	});
-
-	fetchResponses = await Promise.all(promises);
-	return fetchResponses;
-}*/
-
 /**
  * Gets a section from an array of sections based on its position property value.
  * @param {Array<Object>} sectionArray - An array of sections to search for a section with a matching position property value.
@@ -501,5 +459,4 @@ export function reOrderSakaiRequisites(requisites) {
 	const sortedArray = [...requisites].sort(customSort);
 
 	return sortedArray;
-	s;
 }

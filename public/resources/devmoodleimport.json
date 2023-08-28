@@ -1,0 +1,235 @@
+[
+	{
+		"name": "Avisos",
+		"modname": "forum",
+		"id": "1",
+		"has_califications": false,
+		"order": 0,
+		"section": 0,
+		"indent": 0,
+		"visible": "show_unconditionally"
+	},
+	{
+		"name": "UNIADAPTIVE INTERNO",
+		"modname": "lti",
+		"id": "4",
+		"has_califications": false,
+		"order": 1,
+		"section": 0,
+		"indent": 0,
+		"visible": "hidden_until_access"
+	},
+	{
+		"name": "hola",
+		"modname": "quiz",
+		"id": "5",
+		"has_califications": false,
+		"order": 2,
+		"section": 0,
+		"indent": 0,
+		"visible": "show_unconditionally"
+	},
+	{
+		"name": "Archivo 1",
+		"modname": "resource",
+		"id": "8",
+		"has_califications": false,
+		"order": 0,
+		"section": 1,
+		"indent": 0,
+		"visible": "show_unconditionally",
+		"availability": {
+			"op": "&",
+			"c": [
+				{
+					"type": "date",
+					"d": ">=",
+					"t": 1692918000
+				}
+			],
+			"showc": [true]
+		}
+	},
+	{
+		"name": "EXAMEN A",
+		"modname": "quiz",
+		"id": "9",
+		"has_califications": false,
+		"order": 1,
+		"section": 1,
+		"indent": 0,
+		"visible": "show_unconditionally",
+		"availability": {
+			"op": "&",
+			"c": [
+				{
+					"type": "completion",
+					"cm": 8,
+					"e": 1
+				}
+			],
+			"showc": [true]
+		}
+	},
+	{
+		"name": "EXAMEN B",
+		"modname": "quiz",
+		"id": "10",
+		"has_califications": false,
+		"order": 2,
+		"section": 1,
+		"indent": 0,
+		"visible": "show_unconditionally",
+		"availability": {
+			"op": "&",
+			"c": [
+				{
+					"type": "grade",
+					"id": 8,
+					"min": 5
+				}
+			],
+			"showc": [true]
+		}
+	},
+	{
+		"name": "CARPETA 1",
+		"modname": "folder",
+		"id": "11",
+		"has_califications": false,
+		"order": 3,
+		"section": 1,
+		"indent": 0,
+		"visible": "show_unconditionally",
+		"availability": {
+			"op": "&",
+			"c": [
+				{
+					"type": "grade",
+					"id": 8,
+					"max": 4
+				}
+			],
+			"showc": [true]
+		}
+	},
+	{
+		"name": "TAREA 1",
+		"modname": "assign",
+		"id": "12",
+		"has_califications": false,
+		"order": 0,
+		"section": 2,
+		"indent": 0,
+		"visible": "show_unconditionally"
+	},
+	{
+		"name": "TAREA 2",
+		"modname": "assign",
+		"id": "13",
+		"has_califications": false,
+		"order": 1,
+		"section": 2,
+		"indent": 0,
+		"visible": "show_unconditionally"
+	},
+	{
+		"name": "TAREA 3",
+		"modname": "assign",
+		"id": "14",
+		"has_califications": false,
+		"order": 2,
+		"section": 2,
+		"indent": 0,
+		"visible": "show_unconditionally"
+	},
+	{
+		"name": "EXÁMEN C",
+		"modname": "quiz",
+		"id": "15",
+		"has_califications": false,
+		"order": 3,
+		"section": 2,
+		"indent": 0,
+		"visible": "show_unconditionally",
+		"availability": {
+			"op": "&",
+			"c": [
+				{
+					"type": "completion",
+					"cm": 12,
+					"e": 1
+				},
+				{
+					"type": "completion",
+					"cm": 13,
+					"e": 1
+				},
+				{
+					"op": "&",
+					"c": [
+						{
+							"type": "completion",
+							"cm": 14,
+							"e": 1
+						}
+					]
+				}
+			],
+			"showc": [true, true, true]
+		}
+	},
+	{
+		"name": "Archivo 1",
+		"modname": "resource",
+		"id": "16",
+		"has_califications": false,
+		"order": 0,
+		"section": 3,
+		"indent": 0,
+		"visible": "show_unconditionally"
+	},
+	{
+		"name": "EXAMEN F",
+		"modname": "quiz",
+		"id": "17",
+		"has_califications": false,
+		"order": 1,
+		"section": 3,
+		"indent": 0,
+		"visible": "show_unconditionally",
+		"availability": {
+			"op": "|",
+			"c": [
+				{
+					"type": "date",
+					"d": ">=",
+					"t": 1692918000
+				},
+				{
+					"type": "grade",
+					"id": 12,
+					"min": 5,
+					"max": 6
+				},
+				{
+					"type": "profile",
+					"sf": "city",
+					"op": "contains",
+					"v": "A"
+				},
+				{
+					"type": "date",
+					"d": ">=",
+					"t": 1692918000
+				},
+				{
+					"type": "completion",
+					"cm": 11,
+					"e": 0
+				}
+			],
+			"show": true
+		}
+	}
+]

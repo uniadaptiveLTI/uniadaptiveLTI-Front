@@ -70,6 +70,8 @@ import ExportModal from "@components/dialogs/ExportModal";
 import { DevModeStatusContext } from "pages/_app";
 import UserSettingsModal from "./dialogs/UserSettingsModal";
 import { hasLessons } from "@utils/Platform";
+import { createNewMoodleMap, parseMoodleNode } from "@utils/Moodle";
+import { createNewSakaiMap } from "@utils/Sakai";
 
 const defaultToastSuccess = {
 	hideProgressBar: false,
@@ -343,21 +345,31 @@ function Header({ LTISettings }, ref) {
 		const encodedInstance = encodeURIComponent(localMetaData.instance_id);
 		const encodedSessionId = encodeURIComponent(localMetaData.session_id);
 		console.log(localMetaData, localMaps);
-		const response = await fetchBackEnd(
-			LTISettings,
-			sessionStorage.getItem("token"),
-			"api/lti/get_modules",
-			"POST"
-		);
 
-		if (!response.ok) {
-			toast(
-				`Ha ocurrido un error durante la importación del mapa`,
-				defaultToastError
+		let data;
+		if (!LTISettings.debugging.dev_files) {
+			const response = await fetchBackEnd(
+				LTISettings,
+				sessionStorage.getItem("token"),
+				"api/lti/get_modules",
+				"POST",
+				{ lesson: lesson }
 			);
-			throw new Error("Request failed");
+
+			if (!response.ok) {
+				toast(
+					`Ha ocurrido un error durante la importación del mapa`,
+					defaultToastError
+				);
+				throw new Error("Request failed");
+			}
+			data = response.data;
+		} else {
+			const response = await fetch("resources/devmoodleimport.json");
+			if (response) {
+				data = await response.json();
+			}
 		}
-		const data = response.data;
 
 		console.log("JSON RECIBIDO: ", data);
 
@@ -366,7 +378,6 @@ function Header({ LTISettings }, ref) {
 		const validTypes = [];
 		NodeTypes.map((node) => validTypes.push(node.type));
 		const nodes = [];
-		console.log("DAT", data);
 		data.map((node) => {
 			if (platform != "moodle") {
 				if (validTypes.includes(node.modname)) {
@@ -389,64 +400,24 @@ function Header({ LTISettings }, ref) {
 				}
 			} else {
 				//In Moodle, unknown blocks will be translated as "generic" (in blockflow.js)
-				const newNode = {};
-				newNode.id = "" + uniqueId();
-				newNode.type = node.modname;
-				newNode.position = { x: newX, y: newY };
-				newNode.data = {
-					label: node.name,
-					indent: node.indent,
-					section: node.section,
-					children: [],
-					order: node.order,
-					lmsResource: node.id,
-					lmsVisibility: node.visible,
-				};
-
+				nodes.push(parseMoodleNode(node, newX, newY));
 				newX += 125;
-				nodes.push(newNode);
 			}
 		});
 		console.log("JSON FILTRADO Y ADAPTADO: ", nodes);
 
-		const platformNewMap = {
-			id: uniqueId(),
-			name:
-				lesson != undefined
-					? `Mapa importado desde ${
-							localMetaData.lessons.find((lesson) => lesson.id == lesson).name
-					  } (${localMaps.length})`
-					: `Mapa importado desde ${localMetaData.name} (${localMaps.length})`,
-			versions: [
-				{
-					id: uniqueId(),
-					name: "Primera versión",
-					lastUpdate: new Date().toLocaleDateString(),
-					default: "true",
-					blocksData: [
-						{
-							id: uniqueId(),
-							position: { x: 0, y: 0 },
-							type: "start",
-							deletable: false,
-							data: {
-								label: "Entrada",
-							},
-						},
-						...nodes,
-						{
-							id: uniqueId(),
-							position: { x: newX, y: 0 },
-							type: "end",
-							deletable: false,
-							data: {
-								label: "Salida",
-							},
-						},
-					],
-				},
-			],
-		};
+		//FIXME: JUST MOODLE
+		let platformNewMap;
+		if (platform == "moodle") {
+			platformNewMap = createNewMoodleMap(nodes, localMetaData, localMaps);
+		} else {
+			platformNewMap = createNewSakaiMap(
+				nodes,
+				lesson,
+				localMetaData,
+				localMaps
+			);
+		}
 
 		const newMaps = [...localMaps, platformNewMap];
 
@@ -1125,18 +1096,6 @@ function Header({ LTISettings }, ref) {
 	}
 
 	/**
-	 * A JSX element representing a popover with information.
-	 */
-	const PopoverInfo = (
-		<Popover id="popover-basic">
-			<Popover.Header as="h3"></Popover.Header>
-			<Popover.Body>
-				Utilizaremos este botón para mostrar un tutorial de la herramienta LTI.
-			</Popover.Body>
-		</Popover>
-	);
-
-	/**
 	 * A React component that renders a user toggle.
 	 * @param {Object} props - The component's props.
 	 * @param {JSX.Element} props.children - The component's children.
@@ -1413,24 +1372,20 @@ function Header({ LTISettings }, ref) {
 								</>
 							)}
 
-							<OverlayTrigger
-								placement="bottom"
-								overlay={PopoverInfo}
-								trigger="focus"
+							<Button
+								className={`btn-light d-flex align-items-center p-2 ${styles.actionButtons}`}
+								onClick={() =>
+									window.open(
+										"https://docs.google.com/document/d/1mbLlx_1A9a-6aNAb8n_amQxxwZocZeawbat_Bs152Sw/edit?usp=sharing",
+										"_blank"
+									)
+								}
 							>
-								<Button
-									className={`btn-light d-flex align-items-center p-2 ${styles.actionButtons}`}
-									data-bs-container="body"
-									data-bs-toggle="popover"
-									data-bs-placement="top"
-									data-bs-content="Top popover"
-								>
-									<FontAwesomeIcon
-										icon={faCircleQuestion}
-										style={{ height: "20px", width: "20px" }}
-									/>
-								</Button>
-							</OverlayTrigger>
+								<FontAwesomeIcon
+									icon={faCircleQuestion}
+									style={{ height: "20px", width: "20px" }}
+								/>
+							</Button>
 
 							{mapSelected.id >= 0 && (
 								<Button

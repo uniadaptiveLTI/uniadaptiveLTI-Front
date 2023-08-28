@@ -368,7 +368,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 					...nodeSelected.data,
 					label: labelDOM.current.value,
 					lmsResource: Number(lmsResourceDOM.current.value),
-					lmsVisibility: lmsVisibilityDOM.current.value
+					lmsVisibility: lmsVisibilityDOM?.current?.value
 						? lmsVisibilityDOM.current.value
 						: "hidden_until_access",
 					section: newSection,
@@ -825,7 +825,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 									<>
 										{platform == "moodle" && (
 											<Form.Group className="mb-2">
-												<Form.Label htmlFor={orderDOMId}>Sección</Form.Label>
+												<Form.Label htmlFor={sectionDOMId}>Sección</Form.Label>
 												<Form.Select
 													ref={sectionDOM}
 													id={sectionDOMId}
@@ -857,27 +857,27 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 										)}
 										{platform == "sakai" && (
 											<Form.Group className="mb-2">
-												<Form.Label htmlFor={orderDOMId}>Sección</Form.Label>
+												<Form.Label htmlFor={sectionDOMId}>Sección</Form.Label>
 												<Form.Control
 													type="number"
 													min={1}
 													max={999}
 													defaultValue={nodeSelected.data.order}
-													ref={orderDOM}
-													id={orderDOMId}
+													ref={sectionDOM}
+													id={sectionDOMId}
 												></Form.Control>
 											</Form.Group>
 										)}
 										{platform == "sakai" && (
 											<Form.Group className="mb-2">
-												<Form.Label htmlFor={orderDOMId}>Columna</Form.Label>
+												<Form.Label htmlFor={indentDOMId}>Columna</Form.Label>
 												<Form.Control
 													type="number"
 													min={1}
 													max={999}
 													defaultValue={nodeSelected.data.order}
-													ref={orderDOM}
-													id={orderDOMId}
+													ref={indentDOM}
+													id={indentDOMId}
 												></Form.Control>
 											</Form.Group>
 										)}

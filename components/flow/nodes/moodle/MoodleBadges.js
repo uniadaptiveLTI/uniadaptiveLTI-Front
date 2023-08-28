@@ -51,13 +51,7 @@ const MoodleBadges = ({
 					}
 					title="Visibilidad"
 				>
-					{platform === "moodle" || platform === "sakai" ? (
-						data.lmsVisibility === "show_unconditionally" ? (
-							<FontAwesomeIcon icon={faEye} style={{ color: "#ffffff" }} />
-						) : (
-							<FontAwesomeIcon icon={faEyeSlash} style={{ color: "#ffffff" }} />
-						)
-					) : data.lmsVisibility === "show_unconditionally" ? (
+					{data.lmsVisibility === "show_unconditionally" ? (
 						<FontAwesomeIcon icon={faEye} style={{ color: "#ffffff" }} />
 					) : (
 						<FontAwesomeIcon icon={faEyeSlash} style={{ color: "#ffffff" }} />
@@ -81,9 +75,7 @@ const MoodleBadges = ({
 					}
 					title="Sección"
 				>
-					{platform === "moodle"
-						? Number(data.section)
-						: Number(data.section) + 1}
+					{Number(data.section)}
 				</Badge>
 			)}
 
