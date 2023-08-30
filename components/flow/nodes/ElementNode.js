@@ -94,7 +94,6 @@ function ElementNode({
 		if (expandedAside != true) {
 			setExpandedAside(true);
 		}
-		console.log(currentNodes);
 		reactFlowInstance.setNodes(
 			getUpdatedArrayById(
 				{

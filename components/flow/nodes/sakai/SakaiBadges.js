@@ -78,9 +78,9 @@ const SakaiBadges = ({
 							" " +
 							(highContrast && styles.highContrast)
 						}
-						title="Posición en la sección"
+						title="Columna"
 					>
-						{data.order + 1}
+						{data.indent + 1}
 					</Badge>
 				)}
 

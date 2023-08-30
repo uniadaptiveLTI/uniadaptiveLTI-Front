@@ -215,7 +215,11 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 						deduplicateById(filteredData),
 						"name"
 					);
-					uniqueFilteredData.unshift({ id: -1, name: "Vacío" });
+					uniqueFilteredData.unshift({
+						id: -1,
+						name: NodeTypes.filter((node) => node.type == selectedOption)[0]
+							.emptyName,
+					});
 					setResourceOptions(uniqueFilteredData);
 				}, 1000);
 			} else {
@@ -250,7 +254,12 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 							? (option.bettername = `${option.name}`)
 							: (option.bettername = `${option.name} - Sección: ${option.section}`)
 					);
-					uniqueFilteredData.unshift({ id: -1, name: "Vacío" });
+					uniqueFilteredData.unshift({
+						id: -1,
+						name: NodeTypes.filter((node) => node.type == selectedOption)[0]
+							.emptyName,
+					});
+
 					setResourceOptions(uniqueFilteredData);
 				});
 			}
@@ -326,7 +335,11 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 			}
 
 			if (indentCurrent) {
-				indentCurrent.value = nodeSelected.data.indent;
+				if (platform == "sakai") {
+					indentCurrent.value = nodeSelected.data.indent + 1;
+				} else {
+					indentCurrent.value = nodeSelected.data.indent;
+				}
 			}
 
 			setSelectedOption(nodeSelected.type);
@@ -373,7 +386,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 						: "hidden_until_access",
 					section: newSection,
 					order: limitedOrder - 1,
-					indent: limitedindent,
+					indent: platform == "sakai" ? limitedindent - 1 : limitedindent,
 				};
 
 				const updatedData = {
@@ -862,7 +875,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 													type="number"
 													min={1}
 													max={999}
-													defaultValue={nodeSelected.data.order}
+													defaultValue={nodeSelected.data.section}
 													ref={sectionDOM}
 													id={sectionDOMId}
 												></Form.Control>
@@ -874,8 +887,8 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 												<Form.Control
 													type="number"
 													min={1}
-													max={999}
-													defaultValue={nodeSelected.data.order}
+													max={16}
+													defaultValue={nodeSelected.data.indent + 1}
 													ref={indentDOM}
 													id={indentDOMId}
 												></Form.Control>
