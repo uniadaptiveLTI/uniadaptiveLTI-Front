@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import styles from "@root/styles/ConditionModal.module.css";
+import styles from "@root/styles/ConditionModalMoodle.module.css";
 //import { Editor } from "@tinymce/tinymce-react";
 import { uniqueId, searchConditionForTypes } from "@utils/Utils";
 import {
@@ -21,7 +21,7 @@ import BadgeListForm from "./form-components/BadgeListForm";
 import CompletionForm from "./form-components/CompletionForm";
 import SkillsForm from "./form-components/SkillsForm";
 
-function ConditionModal({
+function CriteriaModal({
 	blockData,
 	setBlockData,
 	blocksData,
@@ -702,7 +702,7 @@ function ConditionModal({
 	);
 }
 
-export default ConditionModal;
+export default CriteriaModal;
 
 /*
 <Editor

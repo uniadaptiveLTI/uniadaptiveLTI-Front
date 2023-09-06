@@ -1,4 +1,3 @@
-import React from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -9,16 +8,22 @@ import {
 	faEyeSlash,
 	faTrashCan,
 } from "@fortawesome/free-solid-svg-icons";
+import { getConditionIcon } from "@utils/ConditionIcons";
 
-function CourseGradeComponent({
+const GroupingComponent = ({
 	condition,
 	conditionsList,
 	setConditionEdit,
 	upCondition,
 	downCondition,
 	deleteCondition,
+	moodleGroupings,
 	swapConditionParam,
-}) {
+}) => {
+	const grouping = moodleGroupings.find(
+		(grouping) => grouping.id == condition.groupingId
+	);
+
 	const mainCondition = conditionsList.c.some((c) => c.id === condition.id);
 
 	return (
@@ -44,39 +49,12 @@ function CourseGradeComponent({
 					</Col>
 				)}
 				<Col style={{ width: "531px", flex: "0 0 auto" }}>
-					<div>Tipo: Calificación total del curso</div>
+					<div>Tipo: Agrupamiento ({getConditionIcon("grouping")})</div>
 					<div>
-						{condition.min && !condition.max && (
-							<div>
-								La puntuación <strong>total del curso</strong> debe ser{" "}
-								<strong>
-									{">="} {condition.min}
-								</strong>
-							</div>
-						)}
-						{!condition.min && condition.max && (
-							<div>
-								La puntuación <strong>total del curso</strong> debe ser{" "}
-								<strong>
-									{"<"} {condition.max}
-								</strong>
-							</div>
-						)}
-						{condition.min && condition.max && (
-							<div>
-								La puntuación <strong>total del curso</strong> debe ser{" "}
-								<strong>
-									{">="} {condition.min}
-								</strong>{" "}
-								y{" "}
-								<strong>
-									{"<"} {condition.max}
-								</strong>
-							</div>
-						)}
+						Se pertenezca al agrupamiento <strong>{grouping.name}</strong>
 					</div>
 				</Col>
-				<Col className="col d-flex align-items-center justify-content-end gap-2">
+				<Col className="d-flex align-items-center justify-content-end gap-2">
 					<Button variant="light" onClick={() => setConditionEdit(condition)}>
 						<div>
 							<FontAwesomeIcon icon={faEdit} />
@@ -87,7 +65,7 @@ function CourseGradeComponent({
 							<FontAwesomeIcon icon={faTrashCan} />
 						</div>
 					</Button>
-					{conditionsList.c.length > 1 && (
+					{conditionsList.c.length >= 1 && (
 						<>
 							<Button variant="light" onClick={() => upCondition(condition)}>
 								<div>
@@ -105,6 +83,6 @@ function CourseGradeComponent({
 			</Row>
 		</Container>
 	);
-}
+};
 
-export default CourseGradeComponent;
+export default GroupingComponent;

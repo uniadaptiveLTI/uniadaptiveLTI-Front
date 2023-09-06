@@ -73,8 +73,8 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 
 	const parsedSettings = JSON.parse(settings);
 	let { reducedAnimations, autoHideAside } = parsedSettings;
-
 	//References
+	const autoFocus = useRef(null);
 	const labelDOM = useRef(null);
 	const optionsDOM = useRef(null);
 	const resourceDOM = useRef(null);
@@ -215,7 +215,11 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 						deduplicateById(filteredData),
 						"name"
 					);
-					uniqueFilteredData.unshift({ id: -1, name: "Vacío" });
+					uniqueFilteredData.unshift({
+						id: -1,
+						name: NodeTypes.filter((node) => node.type == selectedOption)[0]
+							.emptyName,
+					});
 					setResourceOptions(uniqueFilteredData);
 				}, 1000);
 			} else {
@@ -250,7 +254,12 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 							? (option.bettername = `${option.name}`)
 							: (option.bettername = `${option.name} - Sección: ${option.section}`)
 					);
-					uniqueFilteredData.unshift({ id: -1, name: "Vacío" });
+					uniqueFilteredData.unshift({
+						id: -1,
+						name: NodeTypes.filter((node) => node.type == selectedOption)[0]
+							.emptyName,
+					});
+
 					setResourceOptions(uniqueFilteredData);
 				});
 			}
@@ -326,12 +335,25 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 			}
 
 			if (indentCurrent) {
-				indentCurrent.value = nodeSelected.data.indent;
+				if (platform == "sakai") {
+					indentCurrent.value = nodeSelected.data.indent + 1;
+				} else {
+					indentCurrent.value = nodeSelected.data.indent;
+				}
 			}
 
 			setSelectedOption(nodeSelected.type);
 		}
 	}, [nodeSelected]);
+
+	/**
+	 * Focuses into the aside if autoHideAside is active and autoFocus is visible
+	 */
+	useEffect(() => {
+		if (autoFocus && autoHideAside) {
+			autoFocus.current.focus();
+		}
+	});
 
 	/**
 	 * Updates the selected block with the values from the specified DOM elements.
@@ -359,12 +381,12 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 					...nodeSelected.data,
 					label: labelDOM.current.value,
 					lmsResource: Number(lmsResourceDOM.current.value),
-					lmsVisibility: lmsVisibilityDOM.current.value
+					lmsVisibility: lmsVisibilityDOM?.current?.value
 						? lmsVisibilityDOM.current.value
 						: "hidden_until_access",
 					section: newSection,
 					order: limitedOrder - 1,
-					indent: limitedindent,
+					indent: platform == "sakai" ? limitedindent - 1 : limitedindent,
 				};
 
 				const updatedData = {
@@ -524,9 +546,9 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 
 	return (
 		<aside id="aside" className={`${className} ${styles.aside}`}>
-			{/* TODO: FocusTrap this */}
 			<div className={"text-center p-2"}>
 				<div
+					ref={autoFocus}
 					role="button"
 					onClick={() => setExpandedAside(false)}
 					className={
@@ -790,61 +812,93 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 										reducedAnimations && styles.noAnimation,
 									].join(" ")}
 								>
-									<Form.Group className="mb-2">
-										<Form.Label htmlFor={lmsVisibilityDOMId}>
-											Visibilidad
-										</Form.Label>
-										<Form.Select
-											ref={lmsVisibilityDOM}
-											id={lmsVisibilityDOMId}
-											defaultValue={nodeSelected.data.lmsVisibility}
-										>
-											{orderByPropertyAlphabetically(shownTypes, "name").map(
-												(option) => (
-													<option key={option.value} value={option.value}>
-														{option.name}
-													</option>
-												)
-											)}
-											{/*<option>Ocultar hasta tener acceso</option>
-											<option>Mostrar siempre sin acceso</option>*/}
-										</Form.Select>
-									</Form.Group>
-
-									<>
+									{platform == "moodle" && (
 										<Form.Group className="mb-2">
-											<Form.Label htmlFor={orderDOMId}>Sección</Form.Label>
+											<Form.Label htmlFor={lmsVisibilityDOMId}>
+												Visibilidad
+											</Form.Label>
 											<Form.Select
-												ref={sectionDOM}
-												id={sectionDOMId}
-												defaultValue={nodeSelected.data.section}
+												ref={lmsVisibilityDOM}
+												id={lmsVisibilityDOMId}
+												defaultValue={nodeSelected.data.lmsVisibility}
 											>
-												{metaData.sections &&
-													orderByPropertyAlphabetically(
-														[...metaData.sections].map((section) => {
-															if (!section.name.match(/^\d/)) {
-																section.name =
-																	platform == "moodle"
-																		? section.position + "- " + section.name
-																		: section.position +
-																		  1 +
-																		  "- " +
-																		  section.name;
-																section.value = section.position + 1;
-															}
-															return section;
-														}),
-														"name"
-													).map((section) => (
-														<option key={section.id} value={section.position}>
-															{section.name}
+												{orderByPropertyAlphabetically(shownTypes, "name").map(
+													(option) => (
+														<option key={option.value} value={option.value}>
+															{option.name}
 														</option>
-													))}
+													)
+												)}
+												{/*<option>Ocultar hasta tener acceso</option>
+											<option>Mostrar siempre sin acceso</option>*/}
 											</Form.Select>
 										</Form.Group>
+									)}
+
+									<>
+										{platform == "moodle" && (
+											<Form.Group className="mb-2">
+												<Form.Label htmlFor={sectionDOMId}>Sección</Form.Label>
+												<Form.Select
+													ref={sectionDOM}
+													id={sectionDOMId}
+													defaultValue={nodeSelected.data.section}
+												>
+													{metaData.sections &&
+														orderByPropertyAlphabetically(
+															[...metaData.sections].map((section) => {
+																if (!section.name.match(/^\d/)) {
+																	section.name =
+																		platform == "moodle"
+																			? section.position + "- " + section.name
+																			: section.position +
+																			  1 +
+																			  "- " +
+																			  section.name;
+																	section.value = section.position + 1;
+																}
+																return section;
+															}),
+															"name"
+														).map((section) => (
+															<option key={section.id} value={section.position}>
+																{section.name}
+															</option>
+														))}
+												</Form.Select>
+											</Form.Group>
+										)}
+										{platform == "sakai" && (
+											<Form.Group className="mb-2">
+												<Form.Label htmlFor={sectionDOMId}>Sección</Form.Label>
+												<Form.Control
+													type="number"
+													min={1}
+													max={999}
+													defaultValue={nodeSelected.data.section}
+													ref={sectionDOM}
+													id={sectionDOMId}
+												></Form.Control>
+											</Form.Group>
+										)}
+										{platform == "sakai" && (
+											<Form.Group className="mb-2">
+												<Form.Label htmlFor={indentDOMId}>Columna</Form.Label>
+												<Form.Control
+													type="number"
+													min={1}
+													max={16}
+													defaultValue={nodeSelected.data.indent + 1}
+													ref={indentDOM}
+													id={indentDOMId}
+												></Form.Control>
+											</Form.Group>
+										)}
 										<Form.Group className="mb-2">
 											<Form.Label htmlFor={orderDOMId}>
-												Posición en la sección
+												{platform === "sakai"
+													? "Posición"
+													: "Posición en la sección"}
 											</Form.Label>
 											<Form.Control
 												type="number"
@@ -855,19 +909,21 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 												id={orderDOMId}
 											></Form.Control>
 										</Form.Group>
-										<Form.Group className="mb-2">
-											<Form.Label htmlFor={indentDOMId}>
-												Identación en la sección
-											</Form.Label>
-											<Form.Control
-												type="number"
-												min={0}
-												max={16}
-												defaultValue={nodeSelected.data.indent}
-												ref={indentDOM}
-												id={indentDOMId}
-											></Form.Control>
-										</Form.Group>
+										{platform == "moodle" && (
+											<Form.Group className="mb-2">
+												<Form.Label htmlFor={indentDOMId}>
+													Identación en la sección
+												</Form.Label>
+												<Form.Control
+													type="number"
+													min={0}
+													max={16}
+													defaultValue={nodeSelected.data.indent}
+													ref={indentDOM}
+													id={indentDOMId}
+												></Form.Control>
+											</Form.Group>
+										)}
 									</>
 								</div>
 							</div>

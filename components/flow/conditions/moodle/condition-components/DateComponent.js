@@ -9,31 +9,10 @@ import {
 	faEyeSlash,
 	faTrashCan,
 } from "@fortawesome/free-solid-svg-icons";
+import { getConditionIcon } from "@utils/ConditionIcons";
+import { parseDate } from "@utils/Utils";
 
-const profileOperatorList = [
-	{ value: "firstname", name: "Nombre" },
-	{ value: "lastname", name: "Apellido" },
-	{ value: "city", name: "Ciudad" },
-	{ value: "department", name: "Departamento" },
-	{ value: "address", name: "Dirección" },
-	{ value: "email", name: "Dirección de correo" },
-	{ value: "institution", name: "Institución" },
-	{ value: "idnumber", name: "Número de ID" },
-	{ value: "country", name: "País" },
-	{ value: "phone1", name: "Teléfono" },
-	{ value: "phone2", name: "Teléfono Movil" },
-];
-const profileQueryList = [
-	{ value: "isequalto", name: "es igual a" },
-	{ value: "contains", name: "contiene" },
-	{ value: "doesnotcontain", name: "no contiene" },
-	{ value: "startswith", name: "comienza con" },
-	{ value: "endswith", name: "termina en" },
-	{ value: "isempty", name: "está vacío" },
-	{ value: "isnotempty", name: "no está vacío" },
-];
-
-const ProfileComponent = ({
+const DateComponent = ({
 	condition,
 	conditionsList,
 	setConditionEdit,
@@ -67,18 +46,17 @@ const ProfileComponent = ({
 					</Col>
 				)}
 				<Col style={{ width: "531px", flex: "0 0 auto" }}>
-					<div>Tipo: Perfil de usuario</div>
-					<div>
-						Su{" "}
-						<strong>
-							{
-								profileOperatorList.find((item) => item.value === condition.sf)
-									?.name
-							}
-						</strong>{" "}
-						{profileQueryList.find((item) => item.value === condition.op)?.name}{" "}
-						<strong>{condition.v}</strong>
-					</div>
+					<div>Tipo: Fecha ({getConditionIcon("date")})</div>
+					{condition.d === ">=" && (
+						<div>
+							En esta fecha <strong>{parseDate(condition.t)}</strong> o después
+						</div>
+					)}
+					{condition.d === "<" && (
+						<div>
+							Antes del final de <strong>{parseDate(condition.t)}</strong>
+						</div>
+					)}
 				</Col>
 				<Col className="col d-flex align-items-center justify-content-end gap-2">
 					<Button variant="light" onClick={() => setConditionEdit(condition)}>
@@ -111,4 +89,4 @@ const ProfileComponent = ({
 	);
 };
 
-export default ProfileComponent;
+export default DateComponent;

@@ -47,6 +47,7 @@ export default function App({ Component, pageProps }) {
 			snappingInFragment: false,
 			reducedAnimations: false,
 			autoHideAside: true,
+			hoverConditions: false,
 		})
 	);
 	const [reactFlowInstance, setReactFlowInstance] = useState();

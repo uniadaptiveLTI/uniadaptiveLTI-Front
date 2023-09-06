@@ -9,9 +9,9 @@ import {
 	faEyeSlash,
 	faTrashCan,
 } from "@fortawesome/free-solid-svg-icons";
-import { transformDate } from "@utils/Utils";
+import { getConditionIcon } from "@utils/ConditionIcons";
 
-const DateComponent = ({
+function CourseGradeComponent({
 	condition,
 	conditionsList,
 	setConditionEdit,
@@ -19,7 +19,7 @@ const DateComponent = ({
 	downCondition,
 	deleteCondition,
 	swapConditionParam,
-}) => {
+}) {
 	const mainCondition = conditionsList.c.some((c) => c.id === condition.id);
 
 	return (
@@ -45,18 +45,40 @@ const DateComponent = ({
 					</Col>
 				)}
 				<Col style={{ width: "531px", flex: "0 0 auto" }}>
-					<div>Tipo: Fecha</div>
-					{condition.d === ">=" && (
-						<div>
-							En esta fecha <strong>{transformDate(condition.t)}</strong> o
-							después
-						</div>
-					)}
-					{condition.d === "<" && (
-						<div>
-							Antes del final de <strong>{transformDate(condition.t)}</strong>
-						</div>
-					)}
+					<div>
+						Tipo: Calificación total del curso (
+						{getConditionIcon("courseGrade")})
+					</div>
+					<div>
+						{condition.min && !condition.max && (
+							<div>
+								La puntuación <strong>total del curso</strong> debe ser{" "}
+								<strong>
+									{">="} {condition.min}
+								</strong>
+							</div>
+						)}
+						{!condition.min && condition.max && (
+							<div>
+								La puntuación <strong>total del curso</strong> debe ser{" "}
+								<strong>
+									{"<"} {condition.max}
+								</strong>
+							</div>
+						)}
+						{condition.min && condition.max && (
+							<div>
+								La puntuación <strong>total del curso</strong> debe ser{" "}
+								<strong>
+									{">="} {condition.min}
+								</strong>{" "}
+								y{" "}
+								<strong>
+									{"<"} {condition.max}
+								</strong>
+							</div>
+						)}
+					</div>
 				</Col>
 				<Col className="col d-flex align-items-center justify-content-end gap-2">
 					<Button variant="light" onClick={() => setConditionEdit(condition)}>
@@ -69,7 +91,7 @@ const DateComponent = ({
 							<FontAwesomeIcon icon={faTrashCan} />
 						</div>
 					</Button>
-					{conditionsList.c.length >= 1 && (
+					{conditionsList.c.length > 1 && (
 						<>
 							<Button variant="light" onClick={() => upCondition(condition)}>
 								<div>
@@ -87,6 +109,6 @@ const DateComponent = ({
 			</Row>
 		</Container>
 	);
-};
+}
 
-export default DateComponent;
+export default CourseGradeComponent;

@@ -9,6 +9,7 @@ import {
 	faEyeSlash,
 	faTrashCan,
 } from "@fortawesome/free-solid-svg-icons";
+import { getConditionIcon } from "@utils/ConditionIcons";
 
 const GroupComponent = ({
 	condition,
@@ -49,7 +50,7 @@ const GroupComponent = ({
 					</Col>
 				)}
 				<Col style={{ width: "531px", flex: "0 0 auto" }}>
-					<div>Tipo: Grupo</div>
+					<div>Tipo: Grupo ({getConditionIcon("group")})</div>
 					<div>
 						{!group && (
 							<div>

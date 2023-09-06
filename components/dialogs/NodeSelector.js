@@ -93,7 +93,7 @@ export default forwardRef(function NodeSelector(
 		const data = {};
 		const section = getMaxSectionFromSelection();
 		if (nodeType == "ElementNode") {
-			data.label = "Vacío";
+			data.label = NodeTypes.find((ntype) => type == ntype.type).emptyName;
 			data.children = [];
 			data.section =
 				section == undefined || section == Infinity || section == -Infinity

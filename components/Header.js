@@ -33,6 +33,9 @@ import {
 	faPencil,
 	faTrash,
 	faFloppyDisk,
+	faTriangleExclamation,
+	faFileExport,
+	faArrowRightToBracket,
 } from "@fortawesome/free-solid-svg-icons";
 import {
 	NodeInfoContext,
@@ -67,6 +70,8 @@ import ExportModal from "@components/dialogs/ExportModal";
 import { DevModeStatusContext } from "pages/_app";
 import UserSettingsModal from "./dialogs/UserSettingsModal";
 import { hasLessons } from "@utils/Platform";
+import { createNewMoodleMap, parseMoodleNode } from "@utils/Moodle";
+import { createNewSakaiMap } from "@utils/Sakai";
 
 const defaultToastSuccess = {
 	hideProgressBar: false,
@@ -340,22 +345,31 @@ function Header({ LTISettings }, ref) {
 		const encodedInstance = encodeURIComponent(localMetaData.instance_id);
 		const encodedSessionId = encodeURIComponent(localMetaData.session_id);
 		console.log(localMetaData, localMaps);
-		const response = await fetchBackEnd(
-			LTISettings,
-			sessionStorage.getItem("token"),
-			"api/lti/get_modules",
-			"POST",
-			{ lesson: lesson }
-		);
 
-		if (!response.ok) {
-			toast(
-				`Ha ocurrido un error durante la importación del mapa`,
-				defaultToastError
+		let data;
+		if (!LTISettings.debugging.dev_files) {
+			const response = await fetchBackEnd(
+				LTISettings,
+				sessionStorage.getItem("token"),
+				"api/lti/get_modules",
+				"POST",
+				{ lesson: lesson }
 			);
-			throw new Error("Request failed");
+
+			if (!response.ok) {
+				toast(
+					`Ha ocurrido un error durante la importación del mapa`,
+					defaultToastError
+				);
+				throw new Error("Request failed");
+			}
+			data = response.data;
+		} else {
+			const response = await fetch("resources/devmoodleimport.json");
+			if (response) {
+				data = await response.json();
+			}
 		}
-		const data = response.data;
 
 		console.log("JSON RECIBIDO: ", data);
 
@@ -364,7 +378,6 @@ function Header({ LTISettings }, ref) {
 		const validTypes = [];
 		NodeTypes.map((node) => validTypes.push(node.type));
 		const nodes = [];
-		console.log("DAT", data);
 		data.map((node) => {
 			if (platform != "moodle") {
 				if (validTypes.includes(node.modname)) {
@@ -387,64 +400,24 @@ function Header({ LTISettings }, ref) {
 				}
 			} else {
 				//In Moodle, unknown blocks will be translated as "generic" (in blockflow.js)
-				const newNode = {};
-				newNode.id = "" + uniqueId();
-				newNode.type = node.modname;
-				newNode.position = { x: newX, y: newY };
-				newNode.data = {
-					label: node.name,
-					indent: node.indent,
-					section: node.section,
-					children: [],
-					order: node.order,
-					lmsResource: node.id,
-					lmsVisibility: node.visible,
-				};
-
+				nodes.push(parseMoodleNode(node, newX, newY));
 				newX += 125;
-				nodes.push(newNode);
 			}
 		});
 		console.log("JSON FILTRADO Y ADAPTADO: ", nodes);
 
-		const platformNewMap = {
-			id: uniqueId(),
-			name:
-				lesson != undefined
-					? `Mapa importado desde ${
-							localMetaData.lessons.find((lesson) => lesson.id == lesson).name
-					  } (${localMaps.length})`
-					: `Mapa importado desde ${localMetaData.name} (${localMaps.length})`,
-			versions: [
-				{
-					id: uniqueId(),
-					name: "Primera versión",
-					lastUpdate: new Date().toLocaleDateString(),
-					default: "true",
-					blocksData: [
-						{
-							id: uniqueId(),
-							position: { x: 0, y: 0 },
-							type: "start",
-							deletable: false,
-							data: {
-								label: "Entrada",
-							},
-						},
-						...nodes,
-						{
-							id: uniqueId(),
-							position: { x: newX, y: 0 },
-							type: "end",
-							deletable: false,
-							data: {
-								label: "Salida",
-							},
-						},
-					],
-				},
-			],
-		};
+		//FIXME: JUST MOODLE
+		let platformNewMap;
+		if (platform == "moodle") {
+			platformNewMap = createNewMoodleMap(nodes, localMetaData, localMaps);
+		} else {
+			platformNewMap = createNewSakaiMap(
+				nodes,
+				lesson,
+				localMetaData,
+				localMaps
+			);
+		}
 
 		const newMaps = [...localMaps, platformNewMap];
 
@@ -797,13 +770,13 @@ function Header({ LTISettings }, ref) {
 				JSON.stringify({
 					instance_id: metaData.instance_id,
 					course_id: metaData.course_id,
-					platform: metaData.platform,
+					platform: platform,
 					data: rfNodes,
 				})
 			),
-			`${mapSelected.name}-${selectedVersion.name}-${new Date()
-				.toLocaleDateString()
-				.replaceAll("/", "-")}.json`,
+			`${mapSelected.name}-${selectedVersion.name}-${capitalizeFirstLetter(
+				platform
+			)}-${new Date().toLocaleDateString().replaceAll("/", "-")}.json`,
 			"application/json"
 		);
 		setShowModalVersions(false);
@@ -826,15 +799,39 @@ function Header({ LTISettings }, ref) {
 				jsonObject.platform == platform
 			) {
 				setCurrentBlocksData(jsonObject.data);
-			} else {
-				const jsonCleanedBlockData = jsonObject.data.map((node) => {
-					node.data = {
-						...node.data,
-						children: undefined,
-						c: undefined,
-						section: 0, //TODO: Test in sakai
-					};
+				toast("Importado con éxito.", {
+					type: "success",
+					autoClose: 2000,
+					position: "bottom-center",
 				});
+			} else {
+				if (jsonObject.platform == platform) {
+					toast("Plataforma compatible, importación parcial.", {
+						type: "warning",
+						autoClose: 2000,
+						position: "bottom-center",
+					});
+					const jsonCleanedBlockData = jsonObject.data.map((node) => {
+						node.data = {
+							...node.data,
+							children: undefined,
+							c: undefined,
+							g: undefined,
+							lmsResource: undefined,
+							section: 0,
+							order: 0,
+							indent: 0,
+						};
+						return node;
+					});
+					setCurrentBlocksData(jsonCleanedBlockData);
+				} else {
+					toast("No se puede importar, datos incompatibles.", {
+						type: "error",
+						autoClose: 2000,
+						position: "bottom-center",
+					});
+				}
 			}
 
 			//displayContents(output);
@@ -1097,18 +1094,6 @@ function Header({ LTISettings }, ref) {
 			</div>
 		);
 	}
-
-	/**
-	 * A JSX element representing a popover with information.
-	 */
-	const PopoverInfo = (
-		<Popover id="popover-basic">
-			<Popover.Header as="h3"></Popover.Header>
-			<Popover.Body>
-				Utilizaremos este botón para mostrar un tutorial de la herramienta LTI.
-			</Popover.Body>
-		</Popover>
-	);
 
 	/**
 	 * A React component that renders a user toggle.
@@ -1387,38 +1372,37 @@ function Header({ LTISettings }, ref) {
 								</>
 							)}
 
-							<OverlayTrigger
-								placement="bottom"
-								overlay={PopoverInfo}
-								trigger="focus"
+							<Button
+								className={`btn-light d-flex align-items-center p-2 ${styles.actionButtons}`}
+								onClick={() =>
+									window.open(
+										"https://docs.google.com/document/d/1mbLlx_1A9a-6aNAb8n_amQxxwZocZeawbat_Bs152Sw/edit?usp=sharing",
+										"_blank"
+									)
+								}
 							>
-								<Button
-									className={`btn-light d-flex align-items-center p-2 ${styles.actionButtons}`}
-									data-bs-container="body"
-									data-bs-toggle="popover"
-									data-bs-placement="top"
-									data-bs-content="Top popover"
-								>
-									<FontAwesomeIcon
-										icon={faCircleQuestion}
-										style={{ height: "20px", width: "20px" }}
-									/>
-								</Button>
-							</OverlayTrigger>
+								<FontAwesomeIcon
+									icon={faCircleQuestion}
+									style={{ height: "20px", width: "20px" }}
+								/>
+							</Button>
 
 							{mapSelected.id >= 0 && (
 								<Button
 									variant="dark"
-									className={`d-flex align-items-center p-2 ${
-										styles.actionButtons
-									} ${errorList?.length > 0 ? styles.error : styles.success}`}
+									className={`d-flex align-items-center p-2 position-relative ${styles.actionButtons} ${styles.success}`}
 									onClick={() => {
 										if (mapSelected && mapSelected.id > -1)
 											setShowExportModal(true);
 									}}
 								>
+									{errorList && errorList.length >= 1 && (
+										<span class="d-flex gap-1 position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+											<FontAwesomeIcon icon={faTriangleExclamation} />
+										</span>
+									)}
 									<FontAwesomeIcon
-										icon={faBell}
+										icon={faArrowRightToBracket}
 										style={{ height: "20px", width: "20px" }}
 									/>
 								</Button>
@@ -1446,7 +1430,11 @@ function Header({ LTISettings }, ref) {
 									{loadedUserData && userData.profile_url && (
 										<img
 											alt="Imagen de perfil"
-											src={userData.profile_url}
+											src={
+												userData.profile_url == "default"
+													? "/images/default_image.png"
+													: userData.profile_url
+											} //Used if the LMS does not support profile images.
 											className={styles.userProfile}
 											width={48}
 											height={48}
@@ -1517,17 +1505,29 @@ function Header({ LTISettings }, ref) {
 										overflow: "auto",
 									}}
 								>
-									<details>
-										<summary>
-											<b>Version -&gt; JSON:</b>
+									<details style={{ background: "#111213" }}>
+										<summary style={{ background: "#ddd" }}>
+											<b>Versión -&gt; JSON:</b>
 										</summary>
 										<code
 											style={{
 												whiteSpace: "pre",
 												fontFamily: "monospace",
+												fontSize: "12px",
+												tabSize: 4,
+												color: "#7cdcde",
 											}}
 										>
-											{JSON.stringify(rfNodes, null, "\t")}
+											{JSON.stringify(
+												{
+													instance_id: metaData.instance_id,
+													course_id: metaData.course_id,
+													platform: platform,
+													data: rfNodes,
+												},
+												null,
+												"\t"
+											)}
 										</code>
 									</details>
 								</div>

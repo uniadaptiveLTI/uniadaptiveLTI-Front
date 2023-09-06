@@ -1,18 +1,10 @@
-import {
-	faEdit,
-	faPlus,
-	faShuffle,
-	faTrashCan,
-} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
-import { Button, Col, Container, Row } from "react-bootstrap";
 import RoleComponent from "./condition-components/RoleComponent";
 import CourseCompletionComponent from "./condition-components/CourseCompletionComponent";
 import BadgeListComponent from "./condition-components/BadgeListComponent";
 import CompletionComponent from "./condition-components/CompletionComponent";
 import SkillsComponent from "./condition-components/SkillsComponent";
-import { transformDate } from "@utils/Utils";
+import { parseDate } from "@utils/Utils";
 
 function Criteria({
 	condition,
@@ -41,7 +33,7 @@ function Criteria({
 					condition={condition}
 					setConditionEdit={setConditionEdit}
 					deleteCondition={deleteCondition}
-					transformDate={transformDate}
+					parseDate={parseDate}
 				/>
 			);
 		case "badgeList":
@@ -58,7 +50,7 @@ function Criteria({
 			return (
 				<CompletionComponent
 					condition={condition}
-					transformDate={transformDate}
+					parseDate={parseDate}
 					setConditionEdit={setConditionEdit}
 					deleteCondition={deleteCondition}
 					swapConditionGroup={swapConditionGroup}

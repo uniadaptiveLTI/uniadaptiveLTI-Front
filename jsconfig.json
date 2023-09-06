@@ -17,8 +17,12 @@
       "@panes/*": ["components/panes/*"],
       "@flow/*": ["components/flow/*"],
       "@nodes/*": ["components/flow/nodes/*"],
+      "@blockBadgesMoodle/*" : ["components/flow/nodes/moodle/*"],
+      "@blockBadgesSakai/*" : ["components/flow/nodes/sakai/*"],
       "@edges/*": ["components/flow/edges/*"],
       "@conditions/*": ["components/flow/conditions/*"],
+      "@conditionsMoodle/*": ["components/flow/conditions/moodle/*"],
+      "@conditionsSakai/*": ["components/flow/conditions/sakai/*"],
       "@utils/*": ["utils/*"]
     }
   }

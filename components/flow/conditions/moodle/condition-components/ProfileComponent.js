@@ -1,3 +1,4 @@
+import React from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -8,21 +9,40 @@ import {
 	faEyeSlash,
 	faTrashCan,
 } from "@fortawesome/free-solid-svg-icons";
+import { getConditionIcon } from "@utils/ConditionIcons";
 
-const GroupingComponent = ({
+export const profileOperatorList = [
+	{ value: "firstname", name: "Nombre" },
+	{ value: "lastname", name: "Apellido" },
+	{ value: "city", name: "Ciudad" },
+	{ value: "department", name: "Departamento" },
+	{ value: "address", name: "Dirección" },
+	{ value: "email", name: "Dirección de correo" },
+	{ value: "institution", name: "Institución" },
+	{ value: "idnumber", name: "Número de ID" },
+	{ value: "country", name: "País" },
+	{ value: "phone1", name: "Teléfono" },
+	{ value: "phone2", name: "Teléfono Movil" },
+];
+export const profileQueryList = [
+	{ value: "isequalto", name: "es igual a" },
+	{ value: "contains", name: "contiene" },
+	{ value: "doesnotcontain", name: "no contiene" },
+	{ value: "startswith", name: "comienza con" },
+	{ value: "endswith", name: "termina en" },
+	{ value: "isempty", name: "está vacío" },
+	{ value: "isnotempty", name: "no está vacío" },
+];
+
+const ProfileComponent = ({
 	condition,
 	conditionsList,
 	setConditionEdit,
 	upCondition,
 	downCondition,
 	deleteCondition,
-	moodleGroupings,
 	swapConditionParam,
 }) => {
-	const grouping = moodleGroupings.find(
-		(grouping) => grouping.id == condition.groupingId
-	);
-
 	const mainCondition = conditionsList.c.some((c) => c.id === condition.id);
 
 	return (
@@ -48,12 +68,20 @@ const GroupingComponent = ({
 					</Col>
 				)}
 				<Col style={{ width: "531px", flex: "0 0 auto" }}>
-					<div>Tipo: Agrupamiento</div>
+					<div>Tipo: Perfil de usuario ({getConditionIcon("profile")})</div>
 					<div>
-						Se pertenezca al agrupamiento <strong>{grouping.name}</strong>
+						Su{" "}
+						<strong>
+							{
+								profileOperatorList.find((item) => item.value === condition.sf)
+									?.name
+							}
+						</strong>{" "}
+						{profileQueryList.find((item) => item.value === condition.op)?.name}{" "}
+						<strong>{condition.v}</strong>
 					</div>
 				</Col>
-				<Col className="d-flex align-items-center justify-content-end gap-2">
+				<Col className="col d-flex align-items-center justify-content-end gap-2">
 					<Button variant="light" onClick={() => setConditionEdit(condition)}>
 						<div>
 							<FontAwesomeIcon icon={faEdit} />
@@ -84,4 +112,4 @@ const GroupingComponent = ({
 	);
 };
 
-export default GroupingComponent;
+export default ProfileComponent;

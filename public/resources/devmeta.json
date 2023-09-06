@@ -16,6 +16,12 @@
 		{ "id": 3, "position": 2, "name": "Física Cuántica" }
 	],
 	"badges": [],
+	"grades": [1],
+	"userMembers": [
+		{ "id": 1, "name": "Maria" },
+		{ "id": 2, "name": "Noe" },
+		{ "id": 3, "name": "Pepe" }
+	],
 	"groups": [
 		{ "id": 1, "name": "Grupo A" },
 		{ "id": 2, "name": "Grupo B" },
