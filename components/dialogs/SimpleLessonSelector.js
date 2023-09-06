@@ -15,7 +15,11 @@ export default function SimpleLessonSelector({
 	function handleClose(actionClicked) {
 		if (callback && actionClicked) {
 			if (callback instanceof Function) {
-				callback();
+				if (selectDOM) {
+					callback(Number(selectDOM.current.value));
+				} else {
+					callback();
+				}
 			} else {
 				console.warn("Callback isn't a function");
 			}

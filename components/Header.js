@@ -344,7 +344,8 @@ function Header({ LTISettings }, ref) {
 			LTISettings,
 			sessionStorage.getItem("token"),
 			"api/lti/get_modules",
-			"POST"
+			"POST",
+			{ lesson: lesson }
 		);
 
 		if (!response.ok) {
@@ -925,7 +926,7 @@ function Header({ LTISettings }, ref) {
 						alert(
 							`Error: No se puede obtener una sesión válida para el curso con los identificadores actuales. ¿Ha expirado la sesión?. Vuelva a alanzar la herramienta desde el gestor de contenido. Cerrando.`
 						);
-						window.close(); //TODO: DO THIS BETTER
+						//window.close(); //TODO: DO THIS BETTER
 					}
 				};
 
