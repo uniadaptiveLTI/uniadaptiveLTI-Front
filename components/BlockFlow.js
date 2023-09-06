@@ -648,6 +648,7 @@ const OverviewFlow = ({ map }, ref) => {
 	/**
 	 * Deletes blocks and updates their parents and children.
 	 * @param {Node[]} blocks - The blocks to delete.
+     * @returns {Node[]} - The array with the blocks removed.
 	 */
 	const deleteBlocks = (blocks) => {
 		// Array of blocks that its children or conditions are being updated
@@ -772,6 +773,8 @@ const OverviewFlow = ({ map }, ref) => {
 
 		// Check method for errors
 		errorListCheck(blocks, errorList, setErrorList, true);
+
+        return updatedNodeArray;
 	};
 
 	const deleteElements = (nodes, edges, force = false) => {
