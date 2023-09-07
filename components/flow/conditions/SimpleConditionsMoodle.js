@@ -39,6 +39,13 @@ export default function SimpleConditionsMoodle({ id }) {
 		];
 	};
 
+	const parsedConditionsGroup = [
+		{ op: "&", parsed: <b>Si se cumplen TODOS:</b> },
+		{ op: "|", parsed: <b>Si se cumple UNO:</b> },
+		{ op: "!&", parsed: <b>Si NO se cumplen TODOS:</b> },
+		{ op: "!|", parsed: <b>Si NO se cumple UNO:</b> },
+	];
+
 	const parseConditions = (flatConditions) => {
 		let finalDOM = [
 			<p>
@@ -51,11 +58,7 @@ export default function SimpleConditionsMoodle({ id }) {
 				case "conditionsGroup":
 					finalDOM.push(
 						<p style={prefix}>
-							{c.op == "|" ? (
-								<b>Si se cumple UNO:</b>
-							) : (
-								<b>Si se cumplen TODOS:</b>
-							)}
+							{parsedConditionsGroup.find((pcg) => c.op == pcg.op).parsed}
 						</p>
 					);
 					break;
