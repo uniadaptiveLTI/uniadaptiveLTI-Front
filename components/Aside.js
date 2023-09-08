@@ -38,6 +38,7 @@ import {
 	ActionNodes,
 	getLastPositionInSection,
 	reorderFromSection,
+	reorderFromSectionAndColumn,
 } from "@utils/Nodes";
 import { errorListCheck } from "@utils/ErrorHandling";
 import {
@@ -50,6 +51,7 @@ import {
 	getVisibilityOptions,
 	hasUnorderedResources,
 } from "@utils/Platform.js";
+import { getLastPositionInSakaiColumn } from "@utils/Sakai";
 
 export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 	const { errorList, setErrorList } = useContext(ErrorListContext);
@@ -364,26 +366,36 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 			let newData;
 			if (!ActionNodes.includes(nodeSelected.type)) {
 				//if element node
-				const newSection = Number(
-					sectionDOM.current.value ? sectionDOM.current.value : 0
-				); //FIXME: Only valid for moodle maybe?
-				const originalSection = nodeSelected.data.section;
+				const getValue = (dom) => Number(dom?.current?.value || 0);
+				const newSection = getValue(sectionDOM);
+				const newIndent = getValue(indentDOM);
+				const {
+					section: originalSection,
+					indent: originalIndent,
+					order: originalOrder,
+				} = nodeSelected.data;
 
-				const originalOrder = nodeSelected.data.order;
 				const limitedOrder = Math.min(
 					Math.max(orderDOM.current.value, 0),
-					getLastPositionInSection(newSection, reactFlowInstance.getNodes()) + 1
+					platform != "sakai"
+						? getLastPositionInSection(
+								newSection,
+								reactFlowInstance.getNodes()
+						  ) + 1
+						: getLastPositionInSakaiColumn(
+								newSection,
+								newIndent,
+								reactFlowInstance.getNodes()
+						  ) + 1
 				);
-				let limitedindent = indentDOM.current.value;
-				limitedindent = Math.min(Math.max(limitedindent, 0), 16);
+				let limitedindent = Math.min(Math.max(indentDOM.current.value, 0), 16);
 
 				newData = {
 					...nodeSelected.data,
 					label: labelDOM.current.value,
 					lmsResource: Number(lmsResourceDOM.current.value),
-					lmsVisibility: lmsVisibilityDOM?.current?.value
-						? lmsVisibilityDOM.current.value
-						: "hidden_until_access",
+					lmsVisibility:
+						lmsVisibilityDOM?.current?.value || "hidden_until_access",
 					section: newSection,
 					order: limitedOrder - 1,
 					indent: platform == "sakai" ? limitedindent - 1 : limitedindent,
@@ -398,65 +410,93 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 
 				const aNodeWithNewOrderExists = reactFlowInstance
 					.getNodes()
-					.filter((node) => {
-						if (
+					.some(
+						(node) =>
 							node.data.order == limitedOrder - 1 &&
 							node.data.section == newSection
-						) {
-							return true;
-						}
-					});
+					);
 
 				console.log(aNodeWithNewOrderExists, limitedOrder - 1);
 
-				//if reordered
-				if (
-					(limitedOrder - 1 != originalOrder &&
-						aNodeWithNewOrderExists.length > 0) ||
-					originalSection != newSection
-				) {
-					console.log((originalSection, newSection));
-					if (originalSection == newSection) {
-						//Change in order
-						const to = limitedOrder - 1;
-						const from = originalOrder;
-						const reorderedArray = reorderFromSection(
-							newSection,
-							from,
-							to,
-							reactFlowInstance.getNodes()
-						);
+				const reorderNodes = (newSection, originalOrder, limitedOrder) => {
+					const [from, to] = [originalOrder, limitedOrder - 1];
+					const reorderedArray = reorderFromSection(
+						newSection,
+						from,
+						to,
+						reactFlowInstance.getNodes()
+					);
+					reactFlowInstance.setNodes([...reorderedArray, updatedData]);
+				};
 
-						reactFlowInstance.setNodes([...reorderedArray, updatedData]);
+				const reorderNodesColumn = (
+					newSection,
+					newColumn,
+					originalOrder,
+					limitedOrder
+				) => {
+					const [from, to] = [originalOrder, limitedOrder - 1];
+					const reorderedArray = reorderFromSectionAndColumn(
+						newSection,
+						newColumn,
+						from,
+						to,
+						reactFlowInstance.getNodes()
+					);
+					console.log(reorderedArray, updatedData);
+					reactFlowInstance.setNodes([
+						...reactFlowInstance.getNodes(),
+						...reorderedArray,
+						updatedData,
+					]);
+				};
+
+				const updateNodes = (updatedData) => {
+					console.log(reactFlowInstance.getNodes());
+					reactFlowInstance.setNodes(
+						getUpdatedArrayById(updatedData, reactFlowInstance.getNodes())
+					);
+				};
+
+				if (
+					aNodeWithNewOrderExists ||
+					originalSection != newSection ||
+					(platform == "sakai" && originalIndent != newIndent)
+				) {
+					console.log(originalSection, newSection);
+					if (originalSection == newSection && platform != "sakai") {
+						//Change in order
+						reorderNodes(newSection, originalOrder, limitedOrder);
 					} else {
-						//(Section change) Add to section AND then the order
-						console.log("CAMBIO DE SECCIÓN");
+						console.log("CAMBIO DE SECCIÓN Y/O IDENTACIÓN");
 						const virtualNodes = reactFlowInstance.getNodes();
 						const forcedPos =
-							getLastPositionInSection(newSection, virtualNodes) + 1;
+							platform == "moodle"
+								? getLastPositionInSection(newSection, virtualNodes) + 1
+								: getLastPositionInSakaiColumn(
+										newSection,
+										newIndent,
+										virtualNodes
+								  ) + 1;
 						console.log(forcedPos);
 						updatedData.data.order = forcedPos;
 						virtualNodes.push(updatedData);
 						if (!(limitedOrder - 1 > forcedPos)) {
 							//If the desired position is inside the section
-							const to = limitedOrder;
-							const from = forcedPos;
-							const reorderedArray = reorderFromSection(
+							reorderNodesColumn(
 								newSection,
-								from,
-								to,
-								virtualNodes
+								newIndent,
+								forcedPos + 1,
+								limitedOrder
 							);
-							reactFlowInstance.setNodes([...reorderedArray, updatedData]);
 						} else {
 							//If the desired position is outside the section
-							reactFlowInstance.setNodes([...virtualNodes, updatedData]);
+							console.log(updatedData);
+							updateNodes(updatedData);
 						}
 					}
 				} else {
-					reactFlowInstance.setNodes(
-						getUpdatedArrayById(updatedData, reactFlowInstance.getNodes())
-					);
+					updateNodes(updatedData);
 				}
 
 				errorListCheck(updatedData, errorList, setErrorList, false);

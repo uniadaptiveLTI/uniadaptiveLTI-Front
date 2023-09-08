@@ -184,6 +184,7 @@ export default function ExportPanel({
 				specifyRecursiveConditionType(data.c);
 				//deleteRecursiveId(data.c);
 				deleteRecursiveNull(data.c);
+				data.c = deleteEmptyC(data.c);
 			}
 			delete node.data;
 			delete node.height;
@@ -235,16 +236,17 @@ export default function ExportPanel({
 				return true;
 		});
 
+		console.log(nodesReadyToExport);
 		sendNodes(nodesReadyToExport);
 	};
 
-	function deleteRecursiveId(obj) {
-		if (obj.hasOwnProperty("id")) {
-			delete obj.id;
+	function deleteEmptyC(obj) {
+		if (obj.hasOwnProperty("c") && Array.isArray(obj.c) && obj.c.length > 0) {
+			obj.c.forEach(deleteEmptyC);
+		} else {
+			delete obj.c;
 		}
-		if (obj.hasOwnProperty("c") && Array.isArray(obj.c)) {
-			obj.c.forEach(deleteRecursiveId);
-		}
+		return obj.c;
 	}
 
 	function deleteRecursiveShowC(obj) {
@@ -279,17 +281,6 @@ export default function ExportPanel({
 				.pop();
 
 		return clean(obj);
-	}
-
-	function deleteSelfBySpecificId(obj, id) {
-		if (obj.hasOwnProperty("op")) {
-			if (obj.op == id) obj = null;
-		}
-		if (obj.hasOwnProperty("conditions") && Array.isArray(obj.conditions)) {
-			obj.conditions.forEach((obj) =>
-				deleteRecursdeleteSelfBySpecificIdiveId(obj, id)
-			);
-		}
 	}
 
 	function specifyRecursiveConditionType(condition) {

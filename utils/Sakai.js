@@ -1,4 +1,27 @@
+import { getSectionNodes } from "./Nodes";
 import { uniqueId } from "./Utils";
+
+/**
+ * Gets the last position in a sakai column from an array of nodes.
+ * @param {number} [section=0] - The section number to filter by.
+ * @param {column} [column=0] - The column number to filter by.
+ * @param {Object[]} nodeArray - The array of nodes to search in.
+ * @returns {number} The maximum position number in the section, or -Infinity if no nodes match the section.
+ */
+export function getLastPositionInSakaiColumn(section, column, nodeArray) {
+	console.log("getLastPositionInSakaiColumn", nodeArray, section, column);
+	const columnNodes = nodeArray.filter(
+		(node) => node.data.indent == column - 1
+	);
+	const sectionNodes = columnNodes.filter(
+		(node) => node.data.section == section
+	);
+	const maxPosition = Math.max(
+		...sectionNodes.map((node) => node.data.order),
+		-1
+	);
+	return maxPosition;
+}
 
 export function createNewSakaiMap(nodes, lesson, metadata, maps) {
 	const endX = Math.max(...nodes.map((node) => node.position.x)) + 125;

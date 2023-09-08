@@ -216,7 +216,7 @@ export function getLastPositionInSection(section, nodeArray) {
 	const maxPosition = Math.max(
 		...sectionNodes.map((node) => node.data.order),
 		-1
-	); //TODO: Test in sakai
+	);
 	return maxPosition;
 }
 
@@ -284,6 +284,66 @@ export function reorderFromSection(
 			}
 			console.log("ASSIGNED ORDER", filteredNodes);
 			//Return the modified array;
+			return getUpdatedArrayById(filteredNodes, nodeArray);
+		}
+	} else {
+		return [];
+	}
+}
+
+/**
+ * Reorders the nodes of a given section and column according to the from and to values.
+ * @param {number} [section=0] - The section that contains the nodes to reorder.
+ * @param {number} [column=0] - The column that contains the nodes to reorder.
+ * @param {number} from - The data.order of the node that wants to be moved.
+ * @param {number} to - The data.order of the desired position for the node.
+ * @param {Array} nodeArray - The array of all nodes in the document.
+ * @param {boolean} [swap=false] - A flag that indicates if the node should be swapped with another node or inserted in a new position.
+ * @returns {Array} The updated array of nodes after reordering.
+ */
+export function reorderFromSectionAndColumn(
+	section = 0,
+	column = 0,
+	from,
+	to,
+	nodeArray,
+	swap = false
+) {
+	const sectionAndColumnNodes = nodeArray.filter(
+		(node) => node.data.section == section && node.data.indent == column - 1
+	);
+	console.log(sectionAndColumnNodes, section, column);
+	if (sectionAndColumnNodes.length > 0) {
+		if (swap) {
+			const fromNode = sectionAndColumnNodes.find(
+				(node) => node.data.order == from
+			);
+			const toNode = sectionAndColumnNodes.find(
+				(node) => node.data.order == to
+			);
+			if (toNode) {
+				fromNode.data.order = to;
+				toNode.data.order = from;
+				return getUpdatedArrayById([fromNode, toNode], nodeArray);
+			} else {
+				fromNode.data.order = to;
+				return getUpdatedArrayById(fromNode, nodeArray);
+			}
+		} else {
+			let sortedNodes = sectionAndColumnNodes.sort(
+				(a, b) => a.data.order - b.data.order
+			);
+			for (let i = 0; i < sortedNodes.length; i++) {
+				sortedNodes[i].data.order = i;
+			}
+			const movedNode = sortedNodes.splice(from, 1)[0];
+			sortedNodes.splice(to, 0, movedNode);
+			const filteredNodes = sectionAndColumnNodes.filter(
+				(node) => node != null || node != undefined
+			);
+			for (let i = 0; i < filteredNodes.length; i++) {
+				filteredNodes[i].data.order = i;
+			}
 			return getUpdatedArrayById(filteredNodes, nodeArray);
 		}
 	} else {
