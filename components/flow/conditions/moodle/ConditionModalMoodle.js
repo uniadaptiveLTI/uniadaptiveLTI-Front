@@ -62,6 +62,7 @@ function ConditionModalMoodle({
 
 	const saveButton = useRef(null);
 	const conditionOperator = useRef(null);
+	const conditionSubOperator = useRef(null);
 	const conditionQuery = useRef(null);
 	const conditionObjective = useRef(null);
 	const conditionObjective2 = useRef(null);
@@ -507,7 +508,11 @@ function ConditionModalMoodle({
 				formData.e = Number(conditionQuery.current.value);
 				break;
 			case "group":
-				formData.groupId = Number(conditionOperator.current.value);
+				const conditionOp = conditionOperator.current.value;
+				const opNumber =
+					conditionOp !== "anyGroup" ? Number(conditionOp) : undefined;
+
+				formData.groupId = opNumber;
 				break;
 			case "grouping":
 				formData.groupingId = Number(conditionOperator.current.value);
@@ -523,7 +528,14 @@ function ConditionModalMoodle({
 				}
 				break;
 			case "conditionsGroup":
-				formData.op = conditionOperator.current.value;
+				const operator = conditionOperator.current.value;
+				const subOperator = conditionSubOperator.current.value;
+
+				if (operator == "!") {
+					formData.op = operator + "" + subOperator;
+				} else {
+					formData.op = subOperator;
+				}
 				break;
 			case "role":
 				break;
@@ -542,11 +554,18 @@ function ConditionModalMoodle({
 		formData.id = uniqueId();
 
 		const updatedBlockData = deepCopy(blockData);
-
+		console.log(formData);
 		if (edition) {
 			formData.id = conditionEdit.id;
+			if (formData.type == "conditionsGroup") {
+				formData.c = conditionEdit.c;
+			}
 
-			updateConditionById(updatedBlockData.data.c.c, formData.id, formData);
+			if (formData.id == blockData.data.c.id) {
+				updatedBlockData.data.c = formData;
+			} else {
+				updateConditionById(updatedBlockData.data.c.c, formData.id, formData);
+			}
 
 			setBlockData(updatedBlockData);
 		} else {
@@ -710,8 +729,10 @@ function ConditionModalMoodle({
 	}, [conditionEdit]);
 
 	const conditionsGroupOperatorList = [
-		{ value: "&", name: "Se deben cumplir todas" },
+		{ value: "&", name: "Deben cumplirse todas" },
 		{ value: "|", name: "Solo debe cumplirse una" },
+		{ value: "!&", name: "No se deben cumplir todas" },
+		{ value: "!|", name: "No debe cumplirse alguna" },
 	];
 
 	return (
@@ -729,7 +750,7 @@ function ConditionModalMoodle({
 						}}
 					>
 						<Row className="align-items-center">
-							{blockData.data.c.op !== "&" && (
+							{blockData.data.c.op !== "&" && blockData.data.c.op !== "!|" && (
 								<Col className="col-1">
 									<Button
 										variant="light"
@@ -763,11 +784,11 @@ function ConditionModalMoodle({
 								<Button
 									variant="light"
 									onClick={() => {
-										swapConditionParam(blockData.data.c, "op");
+										setConditionEdit(blockData.data.c);
 									}}
 								>
 									<div>
-										<FontAwesomeIcon icon={faShuffle} />
+										<FontAwesomeIcon icon={faEdit} />
 									</div>
 								</Button>
 							</Col>
@@ -788,6 +809,7 @@ function ConditionModalMoodle({
 										swapConditionParam={swapConditionParam}
 										moodleGroups={moodleGroups}
 										moodleGroupings={moodleGroupings}
+										conditionsGroupOperatorList={conditionsGroupOperatorList}
 									></Condition>
 								);
 							})}
@@ -915,8 +937,9 @@ function ConditionModalMoodle({
 				)}
 				{editing && selectedOption === "conditionsGroup" && (
 					<ConditionsGroupForm
-						conditionOperator={conditionOperator}
 						conditionEdit={conditionEdit}
+						conditionOperator={conditionOperator}
+						conditionSubOperator={conditionSubOperator}
 					/>
 				)}
 				{!editing && (

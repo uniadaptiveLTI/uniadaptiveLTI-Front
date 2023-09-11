@@ -10,12 +10,8 @@ import {
 	faEyeSlash,
 	faArrowUp,
 	faArrowDown,
+	faEdit,
 } from "@fortawesome/free-solid-svg-icons";
-
-const conditionsGroupOperatorList = [
-	{ value: "&", name: "Se deben cumplir todas" },
-	{ value: "|", name: "Solo debe cumplirse una" },
-];
 
 const ConditionsGroupComponent = ({
 	condition,
@@ -28,31 +24,32 @@ const ConditionsGroupComponent = ({
 	swapConditionParam,
 	moodleGroups,
 	moodleGroupings,
+	conditionsGroupOperatorList,
 }) => {
 	const mainCondition = conditionsList.c.some((c) => c.id === condition.id);
-
 	return (
 		<Container
 			className="mb-3 mt-3"
 			style={{ padding: "10px", border: "1px solid #C7C7C7" }}
 		>
 			<Row className="align-items-center">
-				{mainCondition && conditionsList.op === "&" && (
-					<Col className="col-1">
-						<Button
-							variant="light"
-							onClick={() => swapConditionParam(condition, "showc")}
-						>
-							<div>
-								{condition.showc ? (
-									<FontAwesomeIcon icon={faEye} />
-								) : (
-									<FontAwesomeIcon icon={faEyeSlash} />
-								)}
-							</div>
-						</Button>
-					</Col>
-				)}
+				{mainCondition &&
+					(conditionsList.op === "&" || conditionsList.op === "!|") && (
+						<Col className="col-1">
+							<Button
+								variant="light"
+								onClick={() => swapConditionParam(condition, "showc")}
+							>
+								<div>
+									{condition.showc ? (
+										<FontAwesomeIcon icon={faEye} />
+									) : (
+										<FontAwesomeIcon icon={faEyeSlash} />
+									)}
+								</div>
+							</Button>
+						</Col>
+					)}
 				<Col style={{ width: "531px", flex: "0 0 auto" }}>
 					<div>Tipo: Conjunto de condiciones</div>
 					<div>
@@ -72,11 +69,11 @@ const ConditionsGroupComponent = ({
 					<Button
 						variant="light"
 						onClick={() => {
-							swapConditionParam(condition, "op");
+							setConditionEdit(condition);
 						}}
 					>
 						<div>
-							<FontAwesomeIcon icon={faShuffle} />
+							<FontAwesomeIcon icon={faEdit} />
 						</div>
 					</Button>
 					<Button variant="light" onClick={() => deleteCondition(condition.id)}>
@@ -100,6 +97,7 @@ const ConditionsGroupComponent = ({
 								swapConditionParam={swapConditionParam}
 								moodleGroups={moodleGroups}
 								moodleGroupings={moodleGroupings}
+								conditionsGroupOperatorList={conditionsGroupOperatorList}
 							/>
 						</div>
 					))}

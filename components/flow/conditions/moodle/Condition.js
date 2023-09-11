@@ -28,6 +28,7 @@ function Condition({
 	swapConditionParam,
 	moodleGroups,
 	moodleGroupings,
+	conditionsGroupOperatorList,
 }) {
 	const completionQueryList = [
 		{ id: 1, name: "debe estar completa" },
@@ -137,6 +138,7 @@ function Condition({
 					swapConditionParam={swapConditionParam}
 					moodleGroups={moodleGroups}
 					moodleGroupings={moodleGroupings}
+					conditionsGroupOperatorList={conditionsGroupOperatorList}
 				/>
 			);
 		default:

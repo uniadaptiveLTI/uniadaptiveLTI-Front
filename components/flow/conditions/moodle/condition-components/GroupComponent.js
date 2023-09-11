@@ -33,22 +33,23 @@ const GroupComponent = ({
 			style={{ padding: "10px", border: "1px solid #C7C7C7" }}
 		>
 			<Row className="align-items-center">
-				{mainCondition && conditionsList.op === "&" && (
-					<Col className="col-1">
-						<Button
-							variant="light"
-							onClick={() => swapConditionParam(condition, "showc")}
-						>
-							<div>
-								{condition.showc ? (
-									<FontAwesomeIcon icon={faEye} />
-								) : (
-									<FontAwesomeIcon icon={faEyeSlash} />
-								)}
-							</div>
-						</Button>
-					</Col>
-				)}
+				{mainCondition &&
+					(conditionsList.op === "&" || conditionsList.op === "!|") && (
+						<Col className="col-1">
+							<Button
+								variant="light"
+								onClick={() => swapConditionParam(condition, "showc")}
+							>
+								<div>
+									{condition.showc ? (
+										<FontAwesomeIcon icon={faEye} />
+									) : (
+										<FontAwesomeIcon icon={faEyeSlash} />
+									)}
+								</div>
+							</Button>
+						</Col>
+					)}
 				<Col style={{ width: "531px", flex: "0 0 auto" }}>
 					<div>Tipo: Grupo ({getConditionIcon("group")})</div>
 					<div>

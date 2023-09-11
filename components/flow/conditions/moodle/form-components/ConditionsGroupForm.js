@@ -1,7 +1,11 @@
 import React, { useId } from "react";
 import { Form } from "react-bootstrap";
 
-const ConditionsGroupForm = ({ conditionEdit, conditionOperator }) => {
+const ConditionsGroupForm = ({
+	conditionEdit,
+	conditionOperator,
+	conditionSubOperator,
+}) => {
 	const cId = useId();
 	return (
 		<Form.Group
@@ -16,17 +20,34 @@ const ConditionsGroupForm = ({ conditionEdit, conditionOperator }) => {
 				<Form.Label
 					htmlFor={cId}
 					className="me-4"
-					style={{ minWidth: "125px" }}
+					style={{ minWidth: "170px" }}
 				>
 					Condición:{" "}
 				</Form.Label>
 				<Form.Select
 					id={cId}
 					ref={conditionOperator}
-					defaultValue={conditionEdit?.op}
+					defaultValue={conditionEdit?.op.includes("!") ? "!" : "!!"}
 				>
-					<option value="&">Se deben cumplir todas</option>
-					<option value="|">Solo debe cumplirse una</option>
+					<option value="!!">Deben cumplirse</option>
+					<option value="!">No debe cumplirse</option>
+				</Form.Select>
+			</div>
+			<div className="d-flex align-items-baseline col-12 col-lg-7 col-xl-5">
+				<Form.Label
+					htmlFor={cId}
+					className="me-4"
+					style={{ minWidth: "170px" }}
+				>
+					Condición secundaria:{" "}
+				</Form.Label>
+				<Form.Select
+					id={cId}
+					ref={conditionSubOperator}
+					defaultValue={conditionEdit?.op.includes("&") ? "&" : "|"}
+				>
+					<option value="&">Todas</option>
+					<option value="|">Cualquiera de</option>
 				</Form.Select>
 			</div>
 		</Form.Group>
