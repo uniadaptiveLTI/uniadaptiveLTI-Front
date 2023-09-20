@@ -47,6 +47,8 @@ function QualificationModal({
 				<QualificationForm
 					ref={qualificationFormResult}
 					gradeConditionType={gradeConditionType}
+					blockData={blockData}
+					reactFlowInstance={reactFlowInstance}
 					initialGrade={{
 						...getNodeById(blockData.id, reactFlowInstance.getNodes()).data?.g,
 					}}

@@ -42,7 +42,14 @@ const EnabledInput = ({
 };
 
 const QualificationForm = forwardRef(
-	({ gradeConditionType, initialGrade }, ref) => {
+	({ gradeConditionType, blockData, reactFlowInstance, initialGrade }, ref) => {
+		const nodes = reactFlowInstance.getNodes();
+		const [allowNotIndication, setAllowNotIndication] = useState(
+			blockData.data.children.filter(
+				(node) => nodes.find((n) => n.id === node).type === "badge"
+			).length < 1
+		);
+
 		const [showExtra, setShowExtra] = useState(
 			initialGrade?.hasToBeQualified || false
 		);
@@ -161,22 +168,35 @@ const QualificationForm = forwardRef(
 					id={completionTrackingID}
 					defaultValue={completionTrackingToShow}
 				>
-					{[
-						{ value: 0, name: "No indicar finalización de la actividad" },
-						{
-							value: 1,
-							name: "Los estudiantes pueden marcar manualmente la actividad como completada",
-						},
-						{
-							value: 2,
-							name: "Mostrar la actividad como completada cuando se cumplan las condiciones",
-						},
-					].map((op) => (
+					{(allowNotIndication
+						? [
+								{ value: 0, name: "No indicar finalización de la actividad" },
+								{
+									value: 1,
+									name: "Los estudiantes pueden marcar manualmente la actividad como completada",
+								},
+								{
+									value: 2,
+									name: "Mostrar la actividad como completada cuando se cumplan las condiciones",
+								},
+						  ]
+						: [
+								{
+									value: 1,
+									name: "Los estudiantes pueden marcar manualmente la actividad como completada",
+								},
+								{
+									value: 2,
+									name: "Mostrar la actividad como completada cuando se cumplan las condiciones",
+								},
+						  ]
+					).map((op) => (
 						<option value={op.value} key={op.value}>
 							{op.name}
 						</option>
 					))}
 				</Form.Select>
+
 				{completionTrackingToShow == 1 && (
 					<Form.Group
 						style={{
