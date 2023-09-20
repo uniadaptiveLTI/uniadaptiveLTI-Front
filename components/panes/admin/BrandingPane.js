@@ -1,5 +1,5 @@
 import InlineColorSelector from "@components/forms/components/InlineColorSelector";
-import InlineButtonSelector from "@components/forms/components/InlineButtonSelector";
+import UISelection from "@components/forms/components/UISelection";
 import styles from "@root/styles/AdminPane.module.css";
 import { getRootStyle, getAutomaticTextColorsObject } from "@utils/Colors";
 import { useState, useId, useRef } from "react";
@@ -37,80 +37,80 @@ export default function BrandingPane({ modifySettings, LTISettings }) {
 	const [mainFontColor, setMainFontColor] = useState(
 		getRootStyle("--main-font-color")
 	);
+	const [mainFontFamily, setMainFontFamily] = useState(
+		getRootStyle("--main-font-family")
+	);
+	const [mainBorderRadius, setMainBorderRadius] = useState(
+		getRootStyle("--main-border-radius")
+	);
 	const [mainDefaultBackground, setMainDefaultBackground] = useState(
-		getRootStyle("--main-ui-default-background")
+		getRootStyle("--main-background-color")
 	);
 	const [mainSecondaryBackground, setMainSecondaryBackground] = useState(
-		getRootStyle("--main-ui-secondary-background")
+		getRootStyle("--main-secondary-background-color")
 	);
 	const [mainThirdBackground, setMainThirdBackground] = useState(
-		getRootStyle("--main-ui-third-background")
+		getRootStyle("--main-third-background-color")
 	);
-	//-------Reusable
-	const [primaryBackgroundColor, setPrimaryBackgroundColor] = useState(
-		getRootStyle("--primary-background-color")
-	);
-	const [primaryBorders, setPrimaryBorders] = useState({
-		line: getRootStyle("--primary-border"),
-		radius: getRootStyle("--primary-border-radius"),
-	});
-	const [secondaryBackgroundColor, setSecondaryBackgroundColor] = useState(
-		getRootStyle("--secondary-background-color")
-	);
-	const [secondaryBorders, setSecondaryBorders] = useState({
-		line: getRootStyle("--secondary-border"),
-		radius: getRootStyle("--secondary-border-radius"),
-	});
-
-	const [lightBackgroundColor, setLightBackgroundColor] = useState(
-		getRootStyle("--light-background-color")
-	);
-	const [lightBorders, setLightBorders] = useState({
-		line: getRootStyle("--light-border"),
-		radius: getRootStyle("--light-border-radius"),
-	});
-
-	const [successBackground, setSuccessBackground] = useState(
-		getRootStyle("--success-background-color")
-	);
-	const [successBorders, setSuccessBorders] = useState({
-		line: getRootStyle("--success-border"),
-		radius: getRootStyle("--success-border-radius"),
-	});
-
-	const [warningBackground, setWarningBackground] = useState(
-		getRootStyle("--warning-background-color")
-	);
-	const [warningBorders, setWarningBorders] = useState({
-		line: getRootStyle("--warning-border"),
-		radius: getRootStyle("--warning-border-radius"),
-	});
-
-	const [errorBackground, setErrorBackground] = useState(
-		getRootStyle("--error-background-color")
-	);
-	const [errorBorders, setErrorBorders] = useState({
-		line: getRootStyle("--error-border"),
-		radius: getRootStyle("--error-border-radius"),
-	});
+	//-------Main
+	const [uiSelected, setUISelected] = useState(-1);
 	//-------Header
+	const [headerFontColor, setHeaderFontColor] = useState(
+		getRootStyle("--header-font-color")
+	);
+	const [headerFontFamily, setHeaderFontFamily] = useState(
+		getRootStyle("--header-font-family")
+	);
 	const [headerBackgroundColor, setHeaderBackgroundColor] = useState(
 		getRootStyle("--header-background-color")
 	);
+	const [headerUserImageBorderRadius, setHeaderUserImageBorderRadius] =
+		useState(getRootStyle("--header-user-image-border-radius"));
+	const [headerUserImageBorderWidth, setHeaderUserImageBorderWidth] = useState(
+		getRootStyle("--header-user-image-border-width")
+	);
+	const [headerUserImageBorderColor, setHeaderUserImageBorderColor] = useState(
+		getRootStyle("--header-user-image-border-color")
+	);
+	//-------Header---ActionButtons
+	const [headerActionButtonsSvgFilter, setHeaderActionButtonsSvgFilter] =
+		useState(getRootStyle("--header-action-buttons-svg-filter"));
 	const [
 		headerActionButtonsBackgroundColor,
 		setHeaderActionButtonsBackgroundColor,
 	] = useState(getRootStyle("--header-action-buttons-background-color"));
+	const [headerActionButtonsBorderRadius, setHeaderActionButtonsBorderRadius] =
+		useState(getRootStyle("--header-action-buttons-border-radius"));
+	//-------Header---versionDropdown
+	const [
+		headerVersionDropdownContainerFontColor,
+		setVersionDropdownContainerHeaderFontColor,
+	] = useState(getRootStyle("--header-version-dropdown-container-font-color"));
+	const [
+		headerVersionDropdownContainerFontFamily,
+		setVersionDropdownContainerHeaderFontFamily,
+	] = useState(getRootStyle("--header-version-dropdown-container-font-family"));
 	const [
 		headerVersionDropdownContainerBackgroundColor,
 		setHeaderVersionDropdownContainerBackgroundColor,
 	] = useState(
 		getRootStyle("--header-version-dropdown-container-background-color")
 	);
+	const [
+		headerVersionDropdownContainerBoxShadowColor,
+		setHeaderVersionDropdownContainerBoxShadowColor,
+	] = useState(getRootStyle("--header-version-dropdown-box-shadow-color"));
 	//-------Aside
+	const [asideFontColor, setAsideFontColor] = useState(
+		getRootStyle("--aside-font-color")
+	);
+	const [asideFontFamily, setAsideFontFamily] = useState(
+		getRootStyle("--aside-font-family")
+	);
 	const [asideBackgroundColor, setAsideBackgroundColor] = useState(
 		getRootStyle("--aside-background-color")
 	);
+	//-------Aside---Collapse
 	const [asideCollapseIconColor, setAsideCollapseIconColor] = useState(
 		getRootStyle("--aside-collapse-icon-color")
 	);
@@ -118,20 +118,60 @@ export default function BrandingPane({ modifySettings, LTISettings }) {
 		asideCollapseIconBackgroundColor,
 		setAsideCollapseIconBackgroundColor,
 	] = useState(getRootStyle("--aside-collapse-icon-background-color"));
+	//-------Aside---Logo
+	const [asideLogoBackgroundColor, setAsideLogoBackgroundColor] = useState(
+		getRootStyle("--aside-logo-background-color")
+	);
 	//-------Blockflow
 	const [blockflowFontColor, setBlockflowFontColor] = useState(
 		getRootStyle("--blockflow-font-color")
 	);
+	const [blockflowFontFamily, setBlockflowFontFamily] = useState(
+		getRootStyle("--blockflow-font-family")
+	);
 	const [blockflowBackgroundColor, setBlockflowBackgroundColor] = useState(
 		getRootStyle("--blockflow-background-color")
 	);
-	const [blockflowTextBackgroundColor, setBlockflowTextBackgroundColor] =
-		useState(getRootStyle("--blockflow-text-background-color"));
-	const [blockflowEdgeBackground, setBlockflowEdgeBackground] = useState(
-		getRootStyle("--blockflow-edge-background")
+	const [blockflowInnerBoxShadowColor, setBlockflowInnerBoxShadowColor] =
+		useState(getRootStyle("--blockflow-inner-box-shadow-color"));
+	//-------Blockflow---Nodes
+	const [blockflowNodeBorderRadius, setBlockflowNodeBorderRadius] = useState(
+		getRootStyle("--blockflow-node-border-radius")
 	);
+	const [blockflowNodeBorderWidth, setBlockflowNodeBorderWidth] = useState(
+		getRootStyle("--blockflow-node-border-width")
+	);
+	const [blockflowNodeBorderColor, setBlockflowNodeBorderColor] = useState(
+		getRootStyle("--blockflow-node-border-color")
+	);
+	const [blockflowHandlesBorderRadius, setBlockflowHandlesBorderRadius] =
+		useState(getRootStyle("--blockflow-handles-border-radius"));
+	const [blockflowLabelFontColor, setBlockflowLabelFontColor] = useState(
+		getRootStyle("--blockflow-label-font-color")
+	);
+	const [blockflowLabelFontFamily, setBlockflowLabelFontFamily] = useState(
+		getRootStyle("--blockflow-label-font-family")
+	);
+	const [blockflowLabelBackgroundColor, setBlockflowLabelBackgroundColor] =
+		useState(getRootStyle("--blockflow-label-background-color"));
+	//-------Blockflow---Edge
 	const [blockflowEdgeFontColor, setBlockflowEdgeFontColor] = useState(
 		getRootStyle("--blockflow-edge-font-color")
+	);
+	const [blockflowEdgeBackgroundColor, setBlockflowEdgeBackgroundColor] =
+		useState(getRootStyle("--blockflow-edge-background-color"));
+	const [blockflowEdgeBorderRadius, setBlockflowEdgeBorderRadius] = useState(
+		getRootStyle("--blockflow-edge-border-radius")
+	);
+	const [blockflowEdgeBorderWidth, setBlockflowEdgeBorderWidth] = useState(
+		getRootStyle("--blockflow-edge-border-width")
+	);
+	const [blockflowEdgeBorderColor, setBlockflowEdgeBorderColor] = useState(
+		getRootStyle("--blockflow-edge-border-color")
+	);
+	//-------Blockflow---Controls
+	const [blockflowControlsBorder, setBlockflowControlsBorder] = useState(
+		getRootStyle("--blockflow-controls-border")
 	);
 	const [
 		blockflowControlsButtonBackgroundColor,
@@ -141,6 +181,18 @@ export default function BrandingPane({ modifySettings, LTISettings }) {
 		blockflowControlsButtonFontColor,
 		setBlockflowControlsButtonFontColor,
 	] = useState(getRootStyle("--blockflow-controls-button-font-color"));
+	const [blockflowControlsButtonBorder, setBlockflowControlsButtonBorder] =
+		useState(getRootStyle("--blockflow-controls-button-border"));
+	const [
+		blockflowControlsButtonSvgFilter,
+		setBlockflowControlsButtonSvgFilter,
+	] = useState(getRootStyle("--blockflow-controls-button-svg-filter"));
+	//-------Blockflow---Minimap
+	const [blockflowMinimapBorder, setBlockflowMinimapBorder] = useState(
+		getRootStyle("--blockflow-minimap-border")
+	);
+	const [blockflowMinimapBackgroundColor, setBlockflowMinimapBackgroundColor] =
+		useState(getRootStyle("--blockflow-minimap-background-color"));
 	return (
 		<>
 			<h2 className="my-4">Branding</h2>
@@ -305,18 +357,27 @@ export default function BrandingPane({ modifySettings, LTISettings }) {
 				afectada si se cambia algún ajuste de colores.
 			</p>
 			<h5>Interfaz principal</h5>
-			<i>Principales colores utilizados para gran parte de la interfaz</i>
 
 			<InlineColorSelector
 				label={
 					<span>
-						Color de la fuente{" "}
-						<b>(Valores distintos al negro pueden presentar problemas)</b>
+						Color de la fuente por defecto{" "}
+						<b>(Valores claros pueden presentar problemas)</b>
 					</span>
 				}
 				color={mainFontColor}
 				setColor={setMainFontColor}
 			></InlineColorSelector>
+			<div>
+				<Form.Label htmlFor="mainFontFamily">
+					Familia de las fuentes principales
+				</Form.Label>
+				<Form.Control
+					id="mainFontFamily"
+					onChange={setMainFontFamily}
+					defaultValue={mainFontFamily}
+				></Form.Control>
+			</div>
 			<InlineColorSelector
 				label={"Color de fondo principal"}
 				color={mainDefaultBackground}
@@ -332,131 +393,325 @@ export default function BrandingPane({ modifySettings, LTISettings }) {
 				color={mainThirdBackground}
 				setColor={setMainThirdBackground}
 			></InlineColorSelector>
-
-			<h5>Colores reusables</h5>
-			<i>
-				Colores utilizados en diversos componentes de la interfaz, el borde se
-				utilzará en elementos que requieran borde (si ha sido proporcionado)
-			</i>
 			<div>
-				<InlineButtonSelector
-					label="Color de tipo primario"
-					background={primaryBackgroundColor}
-					setBackground={setPrimaryBackgroundColor}
-					border={primaryBorders}
-					setBorder={setPrimaryBorders}
-				/>
-				<InlineButtonSelector
-					label="Color de tipo secundario"
-					background={secondaryBackgroundColor}
-					setBackground={setSecondaryBackgroundColor}
-					border={secondaryBorders}
-					setBorder={setSecondaryBorders}
-				/>
-				<InlineButtonSelector
-					label="Color de tipo ligero"
-					background={lightBackgroundColor}
-					setBackground={setLightBackgroundColor}
-					border={lightBorders}
-					setBorder={setLightBorders}
-				/>
-				<InlineButtonSelector
-					label="Color de tipo éxito"
-					background={successBackground}
-					setBackground={setSuccessBackground}
-					border={successBorders}
-					setBorder={setSuccessBorders}
-				/>
-				<InlineButtonSelector
-					label="Color de tipo advertencia"
-					background={warningBackground}
-					setBackground={setWarningBackground}
-					border={warningBorders}
-					setBorder={setWarningBorders}
-				/>
-				<InlineButtonSelector
-					label="Color de tipo error"
-					background={errorBackground}
-					setBackground={setErrorBackground}
-					border={errorBorders}
-					setBorder={setErrorBorders}
-				/>
+				<Form.Label htmlFor="mainBorderRadius">
+					Redondeo de los bordes
+				</Form.Label>
+				<Form.Control
+					id="mainFontFamily"
+					onChange={setMainBorderRadius}
+					defaultValue={mainBorderRadius}
+				></Form.Control>
 			</div>
 
-			<h5>Encabezado</h5>
-			<InlineColorSelector
-				label={"Color de fondo del encabezado"}
-				color={headerBackgroundColor}
-				setColor={setHeaderBackgroundColor}
-			></InlineColorSelector>
-			<InlineColorSelector
-				label={"Color de fondo de los botones de acción del encabezado"}
-				color={headerActionButtonsBackgroundColor}
-				setColor={setHeaderActionButtonsBackgroundColor}
-			></InlineColorSelector>
-			<InlineColorSelector
-				label={
-					"Color de fondo del contenedor del desplegable de versión del encabezado"
-				}
-				color={headerVersionDropdownContainerBackgroundColor}
-				setColor={setHeaderVersionDropdownContainerBackgroundColor}
-			></InlineColorSelector>
+			<div style={{ padding: "2em 0em" }}>
+				<p>Selección de fragmentos de la interfaz:</p>
+				<UISelection
+					currentSelection={uiSelected}
+					setSelection={setUISelected}
+				></UISelection>
+			</div>
 
-			<h5>Panel lateral</h5>
+			{uiSelected == 0 && (
+				<>
+					<h5>Panel lateral</h5>
 
-			<InlineColorSelector
-				label={"Color de fondo del panel lateral"}
-				color={asideBackgroundColor}
-				setColor={setAsideBackgroundColor}
-			></InlineColorSelector>
-			<InlineColorSelector
-				label={"Color del icono de colapso del panel lateral"}
-				color={asideCollapseIconColor}
-				setColor={setAsideCollapseIconColor}
-			></InlineColorSelector>
-			<InlineColorSelector
-				label={"Color de fondo del icono de colapso del panel lateral"}
-				color={asideCollapseIconBackgroundColor}
-				setColor={setAsideCollapseIconBackgroundColor}
-			></InlineColorSelector>
+					<InlineColorSelector
+						label={"Color de la fuente"}
+						color={asideFontColor}
+						setColor={setAsideFontColor}
+					></InlineColorSelector>
+					<div>
+						<Form.Label htmlFor="asideFontFamily">
+							Familia de las fuentes
+						</Form.Label>
+						<Form.Control
+							id="mainFontFamily"
+							onChange={setAsideFontFamily}
+							defaultValue={asideFontFamily}
+						></Form.Control>
+					</div>
+					<InlineColorSelector
+						label={"Color de fondo"}
+						color={asideBackgroundColor}
+						setColor={setAsideBackgroundColor}
+					></InlineColorSelector>
+					<InlineColorSelector
+						label={"Color del icono de colapso"}
+						color={asideCollapseIconColor}
+						setColor={setAsideCollapseIconColor}
+					></InlineColorSelector>
+					<InlineColorSelector
+						label={"Color de fondo del icono de colapso"}
+						color={asideCollapseIconBackgroundColor}
+						setColor={setAsideCollapseIconBackgroundColor}
+					></InlineColorSelector>
+					<InlineColorSelector
+						label={"Color de fondo del logo"}
+						color={asideLogoBackgroundColor}
+						setColor={setAsideLogoBackgroundColor}
+					></InlineColorSelector>
+				</>
+			)}
 
-			<h5>Flujo</h5>
+			{uiSelected == 1 && (
+				<>
+					<h5>Encabezado</h5>
 
-			<InlineColorSelector
-				label={"Color de la fuente del flujo de bloques"}
-				color={blockflowFontColor}
-				setColor={setBlockflowFontColor}
-			></InlineColorSelector>
-			<InlineColorSelector
-				label={`Color de fondo del flujo de bloques (utilizar "none" para hacerlo transparente)`}
-				color={blockflowBackgroundColor}
-				setColor={setBlockflowBackgroundColor}
-			></InlineColorSelector>
-			<InlineColorSelector
-				label={`Color de fondo del texto del flujo de bloques (utilizar "none" para hacerlo transparente)`}
-				color={blockflowTextBackgroundColor}
-				setColor={setBlockflowTextBackgroundColor}
-			></InlineColorSelector>
-			<InlineColorSelector
-				label={"Color de fondo del borde del flujo de bloques"}
-				color={blockflowEdgeBackground}
-				setColor={setBlockflowEdgeBackground}
-			></InlineColorSelector>
-			<InlineColorSelector
-				label={"Color de la fuente del borde del flujo de bloques"}
-				color={blockflowEdgeFontColor}
-				setColor={setBlockflowEdgeFontColor}
-			></InlineColorSelector>
-			<InlineColorSelector
-				label={"Color de fondo del botón de controles del flujo de bloques"}
-				color={blockflowControlsButtonBackgroundColor}
-				setColor={setBlockflowControlsButtonBackgroundColor}
-			></InlineColorSelector>
-			<InlineColorSelector
-				label={"Color de la fuente del botón de controles del flujo de bloques"}
-				color={blockflowControlsButtonFontColor}
-				setColor={setBlockflowControlsButtonFontColor}
-			></InlineColorSelector>
+					<InlineColorSelector
+						label={"Color de la fuente"}
+						color={headerFontColor}
+						setColor={setHeaderFontColor}
+					></InlineColorSelector>
+					<div>
+						<Form.Label htmlFor="headerFontFamily">
+							Familia de las fuentes
+						</Form.Label>
+						<Form.Control
+							id="headerFontFamily"
+							onChange={setHeaderFontFamily}
+							defaultValue={headerFontFamily}
+						></Form.Control>
+					</div>
+					<InlineColorSelector
+						label={"Color de fondo"}
+						color={headerBackgroundColor}
+						setColor={setHeaderBackgroundColor}
+					></InlineColorSelector>
+					<h6>Imagen de usuario</h6>
+					<div>
+						<Form.Label htmlFor="headerUserImageBorderRadius">
+							Redondeado del borde de la imagen de usuario
+						</Form.Label>
+						<Form.Control
+							id="headerUserImageBorderRadius"
+							onChange={setHeaderUserImageBorderRadius}
+							defaultValue={headerUserImageBorderRadius}
+						></Form.Control>
+					</div>
+					<div>
+						<Form.Label htmlFor="headerUserImageBorderWidth">
+							Tamaño del borde de la imagen de usuario
+						</Form.Label>
+						<Form.Control
+							id="headerUserImageBorderWidth"
+							onChange={setHeaderUserImageBorderWidth}
+							defaultValue={headerUserImageBorderWidth}
+						></Form.Control>
+					</div>
+					<InlineColorSelector
+						label={"Color del borde de la imagen de usuario"}
+						color={headerUserImageBorderColor}
+						setColor={setHeaderUserImageBorderColor}
+					></InlineColorSelector>
+					<h6>Botones de acción</h6>
+					<InlineColorSelector
+						label={"Color de fondo de los botones de acción"}
+						color={headerActionButtonsBackgroundColor}
+						setColor={setHeaderActionButtonsBackgroundColor}
+					></InlineColorSelector>
+					<div>
+						<Form.Label htmlFor="headerActionButtonsBorderRadius">
+							Redondeado del borde de los botones de acción
+						</Form.Label>
+						<Form.Control
+							id="headerActionButtonsBorderRadius"
+							onChange={setHeaderActionButtonsBorderRadius}
+							defaultValue={headerActionButtonsBorderRadius}
+						></Form.Control>
+					</div>
+					<div>
+						<Form.Label htmlFor="headerActionButtonsSvgFilter">
+							Filtro SVG de los botones de acción
+						</Form.Label>
+						<Form.Control
+							id="headerActionButtonsSvgFilter"
+							onChange={setHeaderActionButtonsSvgFilter}
+							defaultValue={headerActionButtonsSvgFilter}
+						></Form.Control>
+					</div>
+					<h6>Selector de versiones</h6>
+					<InlineColorSelector
+						label={"Color de la fuente del selector de versiones"}
+						color={headerVersionDropdownContainerFontColor}
+						setColor={setVersionDropdownContainerHeaderFontColor}
+					></InlineColorSelector>
+					<div>
+						<Form.Label htmlFor="headerVersionDropdownContainerFontFamily">
+							Familia de las fuentes del selector de versiones
+						</Form.Label>
+						<Form.Control
+							id="headerVersionDropdownContainerFontFamily"
+							onChange={setVersionDropdownContainerHeaderFontFamily}
+							defaultValue={headerVersionDropdownContainerFontFamily}
+						></Form.Control>
+					</div>
+					<InlineColorSelector
+						label={"Color de fondo del contenedor del selector de versiones"}
+						color={headerVersionDropdownContainerBackgroundColor}
+						setColor={setHeaderVersionDropdownContainerBackgroundColor}
+					></InlineColorSelector>
+					<InlineColorSelector
+						label={
+							"Color de la sombra del contenedor del selector de versiones"
+						}
+						color={headerVersionDropdownContainerBoxShadowColor}
+						setColor={setHeaderVersionDropdownContainerBoxShadowColor}
+					></InlineColorSelector>
+				</>
+			)}
+
+			{uiSelected == 2 && (
+				<>
+					<h5>Flujo de bloques</h5>
+
+					<InlineColorSelector
+						label={"Color de la fuente"}
+						color={blockflowFontColor}
+						setColor={setBlockflowFontColor}
+					></InlineColorSelector>
+					<div>
+						<Form.Label htmlFor="blockflowFontFamily">
+							Familia de las fuentes
+						</Form.Label>
+						<Form.Control
+							id="blockflowFontFamily"
+							onChange={setBlockflowFontFamily}
+							defaultValue={blockflowFontFamily}
+						></Form.Control>
+					</div>
+					<InlineColorSelector
+						label={`Color de fondo (utilizar "none" para hacerlo transparente)`}
+						color={blockflowBackgroundColor}
+						setColor={setBlockflowBackgroundColor}
+					></InlineColorSelector>
+					<InlineColorSelector
+						label={`Color de la sombra interna (utilizar "none" para hacerlo transparente)`}
+						color={blockflowInnerBoxShadowColor}
+						setColor={setBlockflowInnerBoxShadowColor}
+					></InlineColorSelector>
+					<h6>Etiquetas</h6>
+					<InlineColorSelector
+						label={`Color de la fuente de las etiquetas`}
+						color={blockflowLabelFontColor}
+						setColor={setBlockflowLabelFontColor}
+					></InlineColorSelector>
+					<div>
+						<Form.Label htmlFor="blockflowLabelFontFamily">
+							Familia de las fuentes de las etiquetas
+						</Form.Label>
+						<Form.Control
+							id="blockflowLabelFontFamily"
+							onChange={setBlockflowLabelFontFamily}
+							defaultValue={blockflowLabelFontFamily}
+						></Form.Control>
+					</div>
+					<InlineColorSelector
+						label={`Color de fondo del texto de las etiquetas (utilizar "none" para hacerlo transparente)`}
+						color={blockflowLabelBackgroundColor}
+						setColor={setBlockflowLabelBackgroundColor}
+					></InlineColorSelector>
+					<h6>Lineas</h6>
+					<InlineColorSelector
+						label={"Color de la fuente de las etiquetas de las líneas"}
+						color={blockflowEdgeFontColor}
+						setColor={setBlockflowEdgeFontColor}
+					></InlineColorSelector>
+					<InlineColorSelector
+						label={"Color de fondo de las etiquetas de las líneas"}
+						color={blockflowEdgeBackgroundColor}
+						setColor={setBlockflowEdgeBackgroundColor}
+					></InlineColorSelector>
+					<div>
+						<Form.Label htmlFor="blockflowEdgeBorderRadius">
+							Redondeado de las etiquetas de las líneas
+						</Form.Label>
+						<Form.Control
+							id="blockflowEdgeBorderRadius"
+							onChange={setBlockflowEdgeBorderRadius}
+							defaultValue={blockflowEdgeBorderRadius}
+						></Form.Control>
+					</div>
+					<div>
+						<Form.Label htmlFor="blockflowEdgeBorderWidth">
+							Tamaño del borde de las etiquetas de las líneas
+						</Form.Label>
+						<Form.Control
+							id="blockflowEdgeBorderWidth"
+							onChange={setBlockflowEdgeBorderWidth}
+							defaultValue={blockflowEdgeBorderWidth}
+						></Form.Control>
+					</div>
+					<InlineColorSelector
+						label={"Color de la fuente de las etiquetas de las líneas"}
+						color={blockflowEdgeBorderColor}
+						setColor={setBlockflowEdgeBorderColor}
+					></InlineColorSelector>
+				</>
+			)}
+			{uiSelected == 3 && (
+				<>
+					<div>
+						<Form.Label htmlFor="blockflowControlsBorder">
+							Borde de los controles
+						</Form.Label>
+						<Form.Control
+							id="blockflowControlsBorder"
+							onChange={setBlockflowControlsBorder}
+							defaultValue={blockflowControlsBorder}
+						></Form.Control>
+					</div>
+					<InlineColorSelector
+						label={"Color de la fuente del botón"}
+						color={blockflowControlsButtonFontColor}
+						setColor={setBlockflowControlsButtonFontColor}
+					></InlineColorSelector>
+					<InlineColorSelector
+						label={"Color de fondo del botón"}
+						color={blockflowControlsButtonBackgroundColor}
+						setColor={setBlockflowControlsButtonBackgroundColor}
+					></InlineColorSelector>
+					<div>
+						<Form.Label htmlFor="blockflowControlsButtonBorder">
+							Borde de los botones
+						</Form.Label>
+						<Form.Control
+							id="blockflowControlsButtonBorder"
+							onChange={setBlockflowControlsButtonBorder}
+							defaultValue={blockflowControlsButtonBorder}
+						></Form.Control>
+					</div>
+					<div>
+						<Form.Label htmlFor="blockflowControlsButtonSvgFilter">
+							Filtro SVG de los botones
+						</Form.Label>
+						<Form.Control
+							id="blockflowControlsButtonSvgFilter"
+							onChange={setBlockflowControlsButtonSvgFilter}
+							defaultValue={blockflowControlsButtonSvgFilter}
+						></Form.Control>
+					</div>
+				</>
+			)}
+			{uiSelected == 4 && (
+				<>
+					<div>
+						<Form.Label htmlFor="blockflowMinimapBorder">
+							Borde del minimapa
+						</Form.Label>
+						<Form.Control
+							id="blockflowMinimapBorder"
+							onChange={setBlockflowMinimapBorder}
+							defaultValue={blockflowMinimapBorder}
+						></Form.Control>
+					</div>
+					<InlineColorSelector
+						label={"Color de fondo del minimapa"}
+						color={blockflowMinimapBackgroundColor}
+						setColor={setBlockflowMinimapBackgroundColor}
+					></InlineColorSelector>
+				</>
+			)}
 
 			<Button
 				className="mt-2"
@@ -469,6 +724,83 @@ export default function BrandingPane({ modifySettings, LTISettings }) {
 							faviconx180_path: favx180DOM.current.value,
 							logo_path: logoDOM.current.value,
 							small_logo_path: smallLogoDOM.current.value,
+							main: {
+								fontColor: mainFontColor,
+								fontFamily: mainFontFamily,
+								borderRadius: mainBorderRadius,
+								backgroundColor: mainDefaultBackground,
+								secondaryBackgroundColor: mainSecondaryBackground,
+								tertiaryBackgroundColor: mainThirdBackground,
+							},
+							header: {
+								fontColor: headerFontColor,
+								fontFamily: headerFontFamily,
+								backgroundColor: headerBackgroundColor,
+								userImageBorderRadius: headerUserImageBorderRadius,
+								userImageBorderWidth: headerUserImageBorderWidth,
+								userImageBorderColor: headerUserImageBorderColor,
+								actionButtons: {
+									borderRadius: headerActionButtonsBorderRadius,
+									backgroundColor: headerActionButtonsBackgroundColor,
+									svgFilter: headerActionButtonsSvgFilter,
+								},
+								versionDropdown: {
+									fontColor: headerVersionDropdownContainerFontColor,
+									fontFamily: headerVersionDropdownContainerFontFamily,
+									backgroundColor:
+										headerVersionDropdownContainerBackgroundColor,
+									boxShadowColor: headerVersionDropdownContainerBoxShadowColor,
+								},
+							},
+							aside: {
+								fontColor: asideFontColor,
+								fontFamily: asideFontFamily,
+								backgroundColor: asideBackgroundColor,
+								collapse: {
+									fontColor: asideCollapseIconColor,
+									backgroundColor: asideCollapseIconBackgroundColor,
+								},
+								logo: {
+									backgroundColor: asideLogoBackgroundColor,
+								},
+							},
+							blockflow: {
+								fontColor: blockflowFontColor,
+								fontFamily: blockflowFontFamily,
+								backgroundColor: blockflowBackgroundColor,
+								innerBoxShadowColor: blockflowInnerBoxShadowColor,
+								label: {
+									fontColor: blockflowLabelFontColor,
+									fontFamily: blockflowLabelFontFamily,
+									backgroundColor: blockflowLabelBackgroundColor,
+								},
+								node: {
+									borderRadius: blockflowNodeBorderRadius,
+									borderWidth: blockflowNodeBorderWidth,
+									borderColor: blockflowNodeBorderColor,
+									handlesBorderRadius: blockflowHandlesBorderRadius,
+								},
+								edge: {
+									fontColor: blockflowEdgeFontColor,
+									backgroundColor: blockflowEdgeBackgroundColor,
+									borderRadius: blockflowEdgeBorderRadius,
+									borderWidth: blockflowEdgeBorderWidth,
+									borderColor: blockflowEdgeBorderColor,
+								},
+								controls: {
+									border: blockflowControlsBorder,
+									button: {
+										fontColor: blockflowControlsButtonFontColor,
+										backgroundColor: blockflowControlsButtonBackgroundColor,
+										border: blockflowControlsButtonBorder,
+										svgFilter: blockflowControlsButtonSvgFilter,
+									},
+								},
+								minimap: {
+									border: blockflowMinimapBorder,
+									backgroundColor: blockflowMinimapBackgroundColor,
+								},
+							},
 						},
 					});
 				}}

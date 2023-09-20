@@ -14,6 +14,7 @@ import {
 	MetaDataContext,
 	HeaderToEmptySelectorContext,
 } from "../pages/_app.js";
+import { applyBranding } from "@utils/Colors";
 
 export default function Layout({ LTISettings, children }) {
 	const [platform, setPlatform] = useState("moodle"); //default to moodle in testing phase
@@ -68,6 +69,10 @@ export default function Layout({ LTISettings, children }) {
 	useLayoutEffect(() => {
 		setMainDOM(mainDOMRef);
 	}, [mainDOMRef]);
+
+	useLayoutEffect(() => {
+		applyBranding(LTISettings);
+	}, [LTISettings]);
 
 	/**
 	 * Calculates the height of the header.
@@ -170,7 +175,8 @@ export default function Layout({ LTISettings, children }) {
 																		overflow: "overlay",
 																		scrollBehavior: "smooth",
 																		position: "relative",
-																		boxShadow: "inset 0 0 10px #ccc",
+																		boxShadow:
+																			"inset 0 0 10px var(--blockflow-inner-box-shadow-color)",
 																	}}
 																>
 																	{children}

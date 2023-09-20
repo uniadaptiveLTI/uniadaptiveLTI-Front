@@ -125,7 +125,7 @@ function Header({ LTISettings }, ref) {
 
 	const [selectedVersion, setSelectedVersion] = useState();
 	const fileImportDOM = useRef(null);
-	const [saveButtonColor, setSaveButtonColor] = useState();
+	const [saveButtonColor, setSaveButtonColor] = useState("light");
 
 	const [modalTitle, setModalTitle] = useState();
 	const [modalBody, setModalBody] = useState();
@@ -1054,15 +1054,15 @@ function Header({ LTISettings }, ref) {
 			});
 			if (rfNodes.length > 0) {
 				if (isNodeArrayEqual(rfNodes, currentBlocksData)) {
-					setSaveButtonColor(styles.primary);
+					setSaveButtonColor("success");
 				} else {
-					setSaveButtonColor(styles.warning);
+					setSaveButtonColor("warning");
 				}
 			} else {
-				setSaveButtonColor();
+				setSaveButtonColor("success");
 			}
 		} else {
-			setSaveButtonColor();
+			setSaveButtonColor("light");
 		}
 	}, [reactFlowInstance?.getNodes()]); //TODO: Make it respond to node movement
 
@@ -1253,7 +1253,7 @@ function Header({ LTISettings }, ref) {
 								<Dropdown.Toggle
 									id={useId()}
 									variant="light"
-									className={`btn-light d-flex align-items-center p-2 ${styles.actionsBorder} ${styles.toggleButton}`}
+									className={`btn-light d-flex align-items-center p-2 ${styles.actionButtons} ${styles.toggleButton}`}
 									disabled={isOffline || !loadedMaps}
 								>
 									<FontAwesomeIcon
@@ -1340,9 +1340,9 @@ function Header({ LTISettings }, ref) {
 									{/*FIXME: COLOR, remove variant*/}
 									<Button
 										ref={saveButtonRef}
-										className={` d-flex align-items-center p-2 ${styles.actionButtons} ${saveButtonColor}`}
+										className={` d-flex align-items-center p-2 ${styles.actionButtonsDynamic}`}
 										disabled={isOffline || !loadedMaps}
-										variant="light"
+										variant={saveButtonColor}
 										aria-label="Guardar versión actual"
 										onClick={saveActualVersion}
 									>
@@ -1382,8 +1382,10 @@ function Header({ LTISettings }, ref) {
 
 							{mapSelected.id >= 0 && (
 								<Button
-									variant="dark"
-									className={`d-flex align-items-center p-2 position-relative ${styles.actionButtons} ${styles.success}`}
+									variant={
+										errorList && errorList.length >= 1 ? "warning" : "success"
+									}
+									className={`d-flex align-items-center p-2 position-relative ${styles.actionButtonsDynamic}`}
 									onClick={() => {
 										if (mapSelected && mapSelected.id > -1)
 											setShowExportModal(true);

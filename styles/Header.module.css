@@ -22,24 +22,9 @@
     background-color: var(--header-action-buttons-background-color);
 }
 
-.actionButtons.success, .actionButtons.success:hover{
-    background-color: var(--success-background-color)
-}
-
-.actionButtons.warning, .actionButtons.warning:hover{
-    background-color: var(--warning-background-color)
-}
-
-.actionButtons.error, .actionButtons.error:hover{
-    background-color: var(--error-background-color)
-}
-
-.actionButtons.success, .actionButtons.success:hover{
-    background-color: var(--success-background-color)
-}
-
-.actionButtons.primary, .actionButtons.primary:hover{
-    background-color: var(--primary-background-color)
+.actionButtonsDynamic, .actionButtonsDynamic:hover{
+    border-radius: var(--header-action-buttons-border-radius);
+    border: var(--header-action-buttons-border);
 }
 
 .actionButtons svg {
@@ -72,8 +57,8 @@
     align-items: center;
     height: 100%;
     padding: 0 0.5em;
-    box-shadow: 0 8px 6px -6px #ccc;
-    border-bottom: 1px solid #ccc;
+    box-shadow: 0 8px 6px -6px var(--header-version-dropdown-box-shadow-color);
+    border-bottom: 1px solid var(--main-border-color);
     background-color: var(--header-version-dropdown-container-background-color);
     color: var(--header-version-dropdown-container-font-color);
     font-family: var(--header-version-dropdown-container-font-family);
@@ -96,8 +81,8 @@
 .mapTriangle::after {
     content: '';
     background-color: var(--header-version-dropdown-container-background-color);
-    box-shadow: 8px 0px 6px -6px #ccc;
-    border: 1px solid #ccc;
+    box-shadow: 8px 0px 6px -6px var(--header-version-dropdown-box-shadow-color);
+    border: 1px solid var(--main-border-color);
     width: 142%;
     height: 142%;
     position:absolute;
@@ -119,10 +104,10 @@
 }
 
 .header>nav {
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid var(--main-border-color);;
 }
 
 .userProfile {
     border-radius: var(--header-user-image-border-radius);
-	border: var(--header-user-image-border);
+	border: var(--header-user-image-border-width) solid var(--header-user-image-border-color);
 }

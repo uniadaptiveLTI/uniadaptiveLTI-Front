@@ -262,7 +262,7 @@ const ConditionalEdge = ({
 							textAlign: "center",
 							overflow: "hidden",
 							padding: "0.5em",
-							background: "var(--blockflow-edge-background)",
+							background: "var(--blockflow-edge-background-color)",
 							color: "var(--blockflow-edge-font-color)",
 							border: "var(--blockflow-edge-border)",
 							borderRadius: "var(--blockflow-edge-border-radius)",

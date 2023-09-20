@@ -62,7 +62,9 @@ export default function ExportPanel({
 
 	function enableExporting(boolean) {
 		setExporting(boolean);
-		exportButtonRef.current.disabled = boolean;
+		if (exportButtonRef.current) {
+			exportButtonRef.current.disabled = boolean;
+		}
 	}
 
 	const backupURL = getBackupURL(platform, metaData);
@@ -160,7 +162,7 @@ export default function ExportPanel({
 			const data = node.data;
 			if (data.c) {
 				const finalshowc = [];
-				if (data.c.op == "&") {
+				if (data.c.op == "&" || data.c.op == "!|") {
 					delete data.c.showc;
 					if (data.c.c)
 						if (Array.isArray(data.c.c)) {
@@ -181,10 +183,13 @@ export default function ExportPanel({
 					delete data.c.id;
 					delete data.c.showc;
 				}
+
 				specifyRecursiveConditionType(data.c);
+
 				//deleteRecursiveId(data.c);
 				deleteRecursiveNull(data.c);
 				data.c = deleteEmptyC(data.c);
+				console.log(data.c);
 			}
 			delete node.data;
 			delete node.height;
@@ -246,7 +251,7 @@ export default function ExportPanel({
 		} else {
 			delete obj.c;
 		}
-		return obj.c;
+		return obj;
 	}
 
 	function deleteRecursiveShowC(obj) {

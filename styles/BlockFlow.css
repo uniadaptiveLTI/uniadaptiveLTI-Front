@@ -12,22 +12,24 @@
 }
 
 .react-flow__controls button {
-	background-color: var(--blockflow-controls-button-background-color) !important;
+	background-color: var(
+		--blockflow-controls-button-background-color
+	) !important;
 	color: var(--blockflow-controls-button-font-color) !important;
 	border: var(--blockflow-controls-button-border) !important;
 	border-radius: 0;
 }
 
-.react-flow__controls-button svg{
-	filter: var(--blockflow-controls-button-svg-filter)
+.react-flow__controls-button svg {
+	filter: var(--blockflow-controls-button-svg-filter);
 }
 
-.react-flow__controls-button svg[data-icon="map"]{
+.react-flow__controls-button svg[data-icon="map"] {
 	z-index: 49;
 	filter: var(--icons-black-filter) invert();
 }
 
-.react-flow__controls-button svg[data-icon="x"]{
+.react-flow__controls-button svg[data-icon="x"] {
 	z-index: 50;
 	filter: var(--icons-white-filter) invert();
 }
@@ -35,19 +37,21 @@
 /** Handles **/
 
 .react-flow__handle-left {
-    border-radius: var(--blockflow-handles-border-radius) !important;
-    background-color: #198754 !important;
-    border: var(--blockflow-node-border) !important;
-    padding: 7px  !important;
-    left: -10px  !important;
+	border-radius: var(--blockflow-handles-border-radius) !important;
+	background-color: #198754 !important;
+	border: var(--blockflow-node-border-width) solid
+		var(--blockflow-node-border-color) !important;
+	padding: 7px !important;
+	left: -10px !important;
 }
 
 .react-flow__handle-right {
-    border-radius: var(--blockflow-handles-border-radius) !important;
-    background-color: #dc3545 !important;
-    border: var(--blockflow-node-border) !important;
-    padding: 7px  !important;
-    right: -10px  !important;
+	border-radius: var(--blockflow-handles-border-radius) !important;
+	background-color: #dc3545 !important;
+	border: var(--blockflow-node-border-width) solid
+		var(--blockflow-node-border-color) !important;
+	padding: 7px !important;
+	right: -10px !important;
 }
 
 /** Resize Control **/
@@ -58,22 +62,22 @@
 }
 
 .react-flow__resize-control.handle {
-	padding:0.75em;
+	padding: 0.75em;
 	opacity: 0;
 }
 
 /** Nodes **/
 
 .react-flow__node {
-    border: var(--blockflow-node-border);
-    color: white;
-    border-radius: var(--blockflow-node-border-radius);
-	transition: 0.2s, visibility 0s, transform 0s
-
+	border: var(--blockflow-node-border-width) solid
+		var(--blockflow-node-border-color);
+	color: white;
+	border-radius: var(--blockflow-node-border-radius);
+	transition: 0.2s, visibility 0s, transform 0s;
 }
 
 .react-flow__node > div.block {
-    padding: 1em;
+	padding: 1em;
 	height: 64px;
 	width: 64px;
 }
@@ -82,8 +86,16 @@
 	pointer-events: none !important;
 }
 
-.react-flow__node-start, .react-flow__node-end {
+.react-flow__node-start,
+.react-flow__node-end {
 	border-radius: 100%;
+}
+
+/** MINIMAP **/
+
+.react-flow__minimap {
+	border: var(--blockflow-minimap-border);
+	background-color: var(--blockflow-minimap-background-color) !important;
 }
 
 /**
@@ -99,35 +111,43 @@ FALLBACK
 	background-color: #198754;
 }
 
-.react-flow__node-addgroup:hover, .react-flow__node-addgroup:focus-visible, .react-flow__node-addgroup:active {
+.react-flow__node-addgroup:hover,
+.react-flow__node-addgroup:focus-visible,
+.react-flow__node-addgroup:active {
 	background-color: #0e683e;
 }
 
 /* Assignment */
-.react-flow__node-assign{
-    background-color: #0dcaf0;
+.react-flow__node-assign {
+	background-color: #0dcaf0;
 }
 
-.react-flow__node-assign:hover,  .react-flow__node-assign:focus-visible, .react-flow__node-assign:active{
-    background-color: #1bafcd;
+.react-flow__node-assign:hover,
+.react-flow__node-assign:focus-visible,
+.react-flow__node-assign:active {
+	background-color: #1bafcd;
 }
 
 /* Quiz */
-.react-flow__node-quiz{
-    background-color: #eb9408;
+.react-flow__node-quiz {
+	background-color: #eb9408;
 }
 
-.react-flow__node-quiz:hover, .react-flow__node-quiz:focus-visible, .react-flow__node-quiz:active{
-    background-color: #c9810e;
+.react-flow__node-quiz:hover,
+.react-flow__node-quiz:focus-visible,
+.react-flow__node-quiz:active {
+	background-color: #c9810e;
 }
 
 /* Resource */
-.react-flow__node-resource{
-    background-color: #0d6efd;
+.react-flow__node-resource {
+	background-color: #0d6efd;
 }
 
-.react-flow__node-resource:hover,  .react-flow__node-resource:focus-visible, .react-flow__node-resource:active{
-    background-color: #125ed0;
+.react-flow__node-resource:hover,
+.react-flow__node-resource:focus-visible,
+.react-flow__node-resource:active {
+	background-color: #125ed0;
 }
 
 /* Forum */
@@ -135,26 +155,31 @@ FALLBACK
 	background-color: #800080;
 }
 
-.react-flow__node-forum:hover, .react-flow__node-forum:focus-visible, .react-flow__node-forum:active {
+.react-flow__node-forum:hover,
+.react-flow__node-forum:focus-visible,
+.react-flow__node-forum:active {
 	background-color: #9e0d9e;
 }
 
 /* Folder */
-.react-flow__node-folder{
-    background-color: #ffc107;
+.react-flow__node-folder {
+	background-color: #ffc107;
 }
 
-.react-flow__node-folder:hover,  .react-flow__node-folder:focus-visible, .react-flow__node-folder:active{
-    background-color: #d3a008;
+.react-flow__node-folder:hover,
+.react-flow__node-folder:focus-visible,
+.react-flow__node-folder:active {
+	background-color: #d3a008;
 }
-
 
 /* URL */
 .react-flow__node-url {
 	background-color: #5f9ea0;
 }
 
-.react-flow__node-url:hover, .react-flow__node-url:focus-visible, .react-flow__node-url:active {
+.react-flow__node-url:hover,
+.react-flow__node-url:focus-visible,
+.react-flow__node-url:active {
 	background-color: #419093;
 }
 
@@ -163,7 +188,9 @@ FALLBACK
 	background-color: #5f9ea0;
 }
 
-.react-flow__node-mail:hover, .react-flow__node-mail:focus-visible, .react-flow__node-mail:active {
+.react-flow__node-mail:hover,
+.react-flow__node-mail:focus-visible,
+.react-flow__node-mail:active {
 	background-color: #419093;
 }
 
@@ -172,7 +199,9 @@ FALLBACK
 	background-color: #dc3545;
 }
 
-.react-flow__node-remgroup:hover, .react-flow__node-remgroup:focus-visible, .react-flow__node-remgroup:active {
+.react-flow__node-remgroup:hover,
+.react-flow__node-remgroup:focus-visible,
+.react-flow__node-remgroup:active {
 	background-color: #bf2534;
 }
 
@@ -181,19 +210,22 @@ FALLBACK
 	background-color: #15a935;
 }
 
-.react-flow__node-wiki:hover, .react-flow__node-wiki:focus-visible, .react-flow__node-wiki:active {
+.react-flow__node-wiki:hover,
+.react-flow__node-wiki:focus-visible,
+.react-flow__node-wiki:active {
 	background-color: #0f992d;
 }
 
 /* Moodle */
-
 
 /* Workshop */
 .react-flow__node-workshop {
 	background-color: #15a935;
 }
 
-.react-flow__node-workshop:hover, .react-flow__node-workshop:focus-visible, .react-flow__node-workshop:active {
+.react-flow__node-workshop:hover,
+.react-flow__node-workshop:focus-visible,
+.react-flow__node-workshop:active {
 	background-color: #0f992d;
 }
 
@@ -202,17 +234,20 @@ FALLBACK
 	background-color: #dc3545;
 }
 
-.react-flow__node-choice:hover, .react-flow__node-choice:focus-visible, .react-flow__node-choice:active {
+.react-flow__node-choice:hover,
+.react-flow__node-choice:focus-visible,
+.react-flow__node-choice:active {
 	background-color: #bf2534;
 }
-
 
 /* Label */
 .react-flow__node-label {
 	background-color: #a91568;
 }
 
-.react-flow__node-label:hover, .react-flow__node-label:focus-visible, .react-flow__node-label:active {
+.react-flow__node-label:hover,
+.react-flow__node-label:focus-visible,
+.react-flow__node-label:active {
 	background-color: #bf1a78;
 }
 
@@ -221,7 +256,9 @@ FALLBACK
 	background-color: #6c757d;
 }
 
-.react-flow__node-page:hover, .react-flow__node-page:focus-visible, .react-flow__node-page:active {
+.react-flow__node-page:hover,
+.react-flow__node-page:focus-visible,
+.react-flow__node-page:active {
 	background-color: #525a61;
 }
 
@@ -230,7 +267,9 @@ FALLBACK
 	background-color: #198754;
 }
 
-.react-flow__node-badge:hover, .react-flow__node-badge:focus-visible, .react-flow__node-badge:active {
+.react-flow__node-badge:hover,
+.react-flow__node-badge:focus-visible,
+.react-flow__node-badge:active {
 	background-color: #0e683e;
 }
 
@@ -239,7 +278,9 @@ FALLBACK
 	background: #1f1e42;
 }
 
-.react-flow__node-generic:hover, .react-flow__node-generic:focus-visible, .react-flow__node-generic:active {
+.react-flow__node-generic:hover,
+.react-flow__node-generic:focus-visible,
+.react-flow__node-generic:active {
 	background: #515092;
 }
 
@@ -250,17 +291,20 @@ FALLBACK
 	background-color: #dc3545;
 }
 
-.react-flow__node-exam:hover, .react-flow__node-exam:focus-visible, .react-flow__node-exam:active {
+.react-flow__node-exam:hover,
+.react-flow__node-exam:focus-visible,
+.react-flow__node-exam:active {
 	background-color: #bf2534;
 }
-
 
 /* Simple Text */
 .react-flow__node-text {
 	background-color: #6c757d;
 }
 
-.react-flow__node-text:hover, .react-flow__node-text:focus-visible, .react-flow__node-text:active {
+.react-flow__node-text:hover,
+.react-flow__node-text:focus-visible,
+.react-flow__node-text:active {
 	background-color: #525a61;
 }
 
@@ -269,7 +313,9 @@ FALLBACK
 	background-color: #15a935;
 }
 
-.react-flow__node-contents:hover, .react-flow__node-contents:focus-visible, .react-flow__node-contents:active {
+.react-flow__node-contents:hover,
+.react-flow__node-contents:focus-visible,
+.react-flow__node-contents:active {
 	background-color: #0f992d;
 }
 
@@ -278,101 +324,117 @@ FALLBACK
 	background-color: #a91568;
 }
 
-.react-flow__node-html:hover, .react-flow__node-html:focus-visible, .react-flow__node-html:active {
+.react-flow__node-html:hover,
+.react-flow__node-html:focus-visible,
+.react-flow__node-html:active {
 	background-color: #bf1a78;
 }
 
 /* Resources */
-.react-flow__node-resources{
-    background-color: #eb9408;
+.react-flow__node-resources {
+	background-color: #eb9408;
 }
 
-.react-flow__node-resources:hover, .react-flow__node-resources:focus-visible, .react-flow__node-resources:active{
-    background-color: #c9810e;
+.react-flow__node-resources:hover,
+.react-flow__node-resources:focus-visible,
+.react-flow__node-resources:active {
+	background-color: #c9810e;
 }
 
 /* LTI */
 
-
 /* Start */
 .react-flow__node-start {
-	background-color:#363638;
+	background-color: #363638;
 }
 
-.react-flow__node-start:hover, .react-flow__node-start:focus-visible, .react-flow__node-start:active {
+.react-flow__node-start:hover,
+.react-flow__node-start:focus-visible,
+.react-flow__node-start:active {
 	background-color: #666668;
 }
 
 /* End */
 .react-flow__node-end {
-	background-color:#363638;
+	background-color: #363638;
 }
 
-.react-flow__node-end:hover, .react-flow__node-end:focus-visible, .react-flow__node-end:active {
+.react-flow__node-end:hover,
+.react-flow__node-end:focus-visible,
+.react-flow__node-end:active {
 	background-color: #666668;
 }
 
 /* Fragment */
 .react-flow__node-fragment {
-	background-color:#00008b;
+	background-color: #00008b;
 	transition: 0.2s, margin 0ms, background-color 0.5s, transform 0s;
 }
 
-.react-flow__node-fragment:hover, .react-flow__node-fragment:focus-visible, .react-flow__node-fragment:active {
+.react-flow__node-fragment:hover,
+.react-flow__node-fragment:focus-visible,
+.react-flow__node-fragment:active {
 	background-color: #3f3fc3;
 }
 
 .react-flow__node-fragment:has(.expandedFragment).passthrough {
-	background-color:#00008b10;
+	background-color: #00008b10;
 	border-color: #00006d25;
 }
 
 .react-flow__node-fragment:has(.expandedFragment) {
-	background-color:#00008b32;
+	background-color: #00008b32;
 	border-color: #00006d32;
 	transition: 0.2s, margin 0ms, background-color 0.5s, transform 0s, border 0s;
 }
 
-.react-flow__node-fragment:has(.expandedFragment) svg{
+.react-flow__node-fragment:has(.expandedFragment) svg {
 	visibility: hidden;
 }
 
-.react-flow__node-fragment:has(.expandedFragment):hover, .react-flow__node-fragment:has(.expandedFragment):focus-visible, .react-flow__node-fragment:has(.expandedFragment):active {
+.react-flow__node-fragment:has(.expandedFragment):hover,
+.react-flow__node-fragment:has(.expandedFragment):focus-visible,
+.react-flow__node-fragment:has(.expandedFragment):active {
 	background-color: #1d1da920;
 }
 
-
 .react-flow__node.selected {
-    width: max-content;
-	background-image: linear-gradient(90deg, white 50%, transparent 50%), linear-gradient(90deg, white 50%, transparent 50%), linear-gradient(0deg, white 50%, transparent 50%), linear-gradient(0deg, white 50%, transparent 50%);
-    background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
-    background-size: 15px 4px, 15px 4px, 4px 15px, 4px 15px;
-    animation: border-dance 0.25s infinite linear;
+	width: max-content;
+	background-image: linear-gradient(90deg, white 50%, transparent 50%),
+		linear-gradient(90deg, white 50%, transparent 50%),
+		linear-gradient(0deg, white 50%, transparent 50%),
+		linear-gradient(0deg, white 50%, transparent 50%);
+	background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+	background-size: 15px 4px, 15px 4px, 4px 15px, 4px 15px;
+	animation: border-dance 0.25s infinite linear;
 }
 
-.react-flow__node-start.selected, .react-flow__node-end.selected {
+.react-flow__node-start.selected,
+.react-flow__node-end.selected {
 	background-image: none;
-    animation: none
+	animation: none;
 }
 
 @keyframes border-dance {
-0% {
-    background-position: left top, right bottom, left bottom, right   top;
-}
-100% {
-    background-position: left 15px top, right 15px bottom , left bottom 15px , right   top 15px;
-}
+	0% {
+		background-position: left top, right bottom, left bottom, right top;
+	}
+	100% {
+		background-position: left 15px top, right 15px bottom, left bottom 15px,
+			right top 15px;
+	}
 }
 
 /* NodeSelector */
 
-.nodeSelectionItem img, .nodeSelectionItem svg {
-    color: white;
+.nodeSelectionItem img,
+.nodeSelectionItem svg {
+	color: white;
 }
 
 /* Accesibility */
 
-.react-flow__node:has(.noAnimation){
+.react-flow__node:has(.noAnimation) {
 	transition: none;
 }
 
@@ -381,7 +443,7 @@ FALLBACK
 	animation: none;
 }
 
-.react-flow__node.selected:has(.noAnimation)::after{
+.react-flow__node.selected:has(.noAnimation)::after {
 	z-index: -1;
 	content: " ";
 	position: absolute;
@@ -390,8 +452,8 @@ FALLBACK
 	top: -50%;
 	min-width: 8em;
 	min-height: 8em;
-	background-color: rgba(29, 29, 169,0.5);
-	border: 4px solid rgba(255, 165, 0,0.5);
+	background-color: rgba(29, 29, 169, 0.5);
+	border: 4px solid rgba(255, 165, 0, 0.5);
 	border-radius: 100%;
 }
 
@@ -401,7 +463,7 @@ FALLBACK
 		animation: none;
 	}
 
-	.react-flow__node.selected::after{
+	.react-flow__node.selected::after {
 		z-index: -1;
 		content: " ";
 		position: absolute;
@@ -410,54 +472,57 @@ FALLBACK
 		top: -50%;
 		min-width: 8em;
 		min-height: 8em;
-		background-color: rgba(29, 29, 169,0.5);
-		border: 4px solid rgba(255, 165, 0,0.5);
+		background-color: rgba(29, 29, 169, 0.5);
+		border: 4px solid rgba(255, 165, 0, 0.5);
 		border-radius: 100%;
 	}
- }
+}
 
-.react-flow__node:has(.highContrast){
+.react-flow__node:has(.highContrast) {
 	background-color: var(--high-contrast-accent-color1) !important;
 	color: var(--high-contrast-accent-color2) !important;
-	
 }
 
-.react-flow__node:has(.highContrast) img{
-	filter: var(--high-contrast-icons-fa-filter-onhover)
+.react-flow__node:has(.highContrast) img {
+	filter: var(--high-contrast-icons-fa-filter-onhover);
 }
 
-.react-flow__node:has(.highContrast):hover, .react-flow__node:has(.highContrast):focus-visible, .react-flow__node:has(.highContrast):active{
+.react-flow__node:has(.highContrast):hover,
+.react-flow__node:has(.highContrast):focus-visible,
+.react-flow__node:has(.highContrast):active {
 	background-color: var(--high-contrast-accent-color2) !important;
 	color: var(--high-contrast-accent-color1) !important;
 }
 
-.react-flow__node:has(.highContrast):hover img, .react-flow__node:has(.highContrast):focus-visible img, .react-flow__node:has(.highContrast):active img{
+.react-flow__node:has(.highContrast):hover img,
+.react-flow__node:has(.highContrast):focus-visible img,
+.react-flow__node:has(.highContrast):active img {
 	filter: var(--high-contrast-icons-fa-filter);
 }
 
-.react-flow__node.selected:has(.highContrast){
-	background-image: linear-gradient(90deg, #101010 50%, transparent 50%), linear-gradient(90deg, #101010 50%, transparent 50%), linear-gradient(0deg, #101010 50%, transparent 50%), linear-gradient(0deg, #101010 50%, transparent 50%);
+.react-flow__node.selected:has(.highContrast) {
+	background-image: linear-gradient(90deg, #101010 50%, transparent 50%),
+		linear-gradient(90deg, #101010 50%, transparent 50%),
+		linear-gradient(0deg, #101010 50%, transparent 50%),
+		linear-gradient(0deg, #101010 50%, transparent 50%);
 }
 
 /* Special case, highContrast && noAnimation */
-.react-flow__node.selected:has(.noAnimation.highContrast){
+.react-flow__node.selected:has(.noAnimation.highContrast) {
 	background-image: none;
 }
 
-
-.react-flow__node.selected:has(.noAnimation.highContrast)::after{
+.react-flow__node.selected:has(.noAnimation.highContrast)::after {
 	background-color: transparent;
 	border: 4px solid #101010;
-
 }
 
 @media screen and (prefers-reduced-motion: reduce) {
-	.react-flow__node:has(.highContrast){
+	.react-flow__node:has(.highContrast) {
 		background-image: none;
 		background-color: transparent;
 		border: 4px solid #101010;
 	}
-
 }
 
 /** noAnimation Fragment **/
@@ -468,12 +533,12 @@ FALLBACK
 }
 
 .react-flow__node-fragment.selected:has(.expandedFragment.noAnimation) {
-	border: dashed
+	border: dashed;
 }
 
 /** highContrast Fragment **/
 .react-flow__node-fragment:has(.expandedFragment.highContrast) {
-	background-color:transparent !important;
+	background-color: transparent !important;
 	border-color: black;
 }
 
@@ -482,6 +547,6 @@ FALLBACK
 }
 
 .react-flow__node-fragment:has(.expandedFragment.highContrast):hover {
-	background-color:transparent !important;
+	background-color: transparent !important;
 	border-color: black;
 }

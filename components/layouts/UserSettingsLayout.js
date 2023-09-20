@@ -4,9 +4,10 @@ import { useContext, useEffect, useLayoutEffect, useState } from "react";
 import { Button, Col, Container, Row } from "react-bootstrap";
 import { PlatformContext, DevModeStatusContext } from "pages/_app";
 
-function ButtonLink({ label, scrollref, className, style }) {
+function ButtonLink({ label, variant, scrollref, className, style }) {
 	return (
 		<Button
+			variant={variant}
 			className={className}
 			onClick={() =>
 				scrollref.current.scrollIntoView({
@@ -21,7 +22,6 @@ function ButtonLink({ label, scrollref, className, style }) {
 }
 
 export default function UserSettingsLayout({ children, paneRef, LTISettings }) {
-	const [asideButtonStyles, setAsideButtonStyles] = useState();
 	const [mainBgColor, setMainBgColor] = useState();
 	const [renderButtons, setRenderButtons] = useState(false);
 	const [currentPane, setCurrentPane] = useState(paneRef.current);
@@ -41,10 +41,7 @@ export default function UserSettingsLayout({ children, paneRef, LTISettings }) {
 	}, [paneRef.current]);
 
 	useLayoutEffect(() => {
-		setAsideButtonStyles({
-			...getAutomaticReusableStyles("light", true, true, false),
-		});
-		setMainBgColor(getRootStyle("--main-ui-default-background"));
+		setMainBgColor(getRootStyle("--main-background-color"));
 		setRenderButtons(true);
 	}, []);
 
@@ -78,19 +75,20 @@ export default function UserSettingsLayout({ children, paneRef, LTISettings }) {
 							{currentPaneRefs.length > 0 &&
 								currentPaneRefs.map((link) => (
 									<ButtonLink
+										variant="light"
 										className="py-3 my-2"
 										key={link.name}
 										label={link.name}
 										scrollref={link.ref}
-										style={{ ...asideButtonStyles }}
 									/>
 								))}
 							{devModeStatus && renderButtons && (
 								<Button
+									variant="dark"
 									className="py-3 mb-2"
 									onClick={devPlataformChange}
 									style={{
-										...asideButtonStyles,
+										color: "white",
 										...getAutomaticReusableStyles("dev", true, true, false),
 										marginTop: "auto",
 									}}
@@ -100,9 +98,10 @@ export default function UserSettingsLayout({ children, paneRef, LTISettings }) {
 							)}
 							{LTISettings.visibleAdminButton && renderButtons && (
 								<Button
+									variant="light"
 									className="py-3 mb-2"
 									onClick={() => (window.location.href = "/admin")}
-									style={{ ...asideButtonStyles, marginTop: "auto" }}
+									style={{ marginTop: "auto" }}
 								>
 									Panel de administración
 								</Button>

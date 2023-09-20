@@ -25,9 +25,9 @@
 	max-height: 4rem;
 	position: absolute;
 	text-align: center;
-	color: var(--blockflow-font-color);
-	font-family: var(--blockflow-font-family);
-	background-color: var(--blockflow-text-background-color);
+	color: var(--blockflow-label-font-color);
+	font-family: var(--blockflow-label-font-family);
+	background-color: var(--blockflow-label-background-color);
 	pointer-events: none;
 }
 
@@ -42,10 +42,11 @@
 }
 
 .hovedConditions {
-	background: var(--main-ui-default-background);
-	color: var(--main-font-color);
+	background: var(--blockflow-label-background-color);
+	color: var(--blockflow-label-font-color);
 	padding: 0.5rem 1rem;
-	border: var(--main-ui-borders);
+	font-family: var(--blockflow-label-font-family);
+	border: var(--main-borders);
 	position: absolute;
 	left: calc(1rem + 68px);
 	z-index: 10000 !important;
@@ -159,7 +160,7 @@
 
 .blockToolbar button {
 	border-radius: 0;
-	border: var(--main-ui-borders);
+	border: var(--main-borders);
 }
 
 /* Accesibility */

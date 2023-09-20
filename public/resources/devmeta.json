@@ -15,7 +15,7 @@
 		{ "id": 2, "position": 3, "name": "Física Avanzada" },
 		{ "id": 3, "position": 2, "name": "Física Cuántica" }
 	],
-	"badges": [],
+	"badges": [{ "id": 0, "name": "Ejemplo", "c": [] }],
 	"grades": [1],
 	"userMembers": [
 		{ "id": 1, "name": "Maria" },
