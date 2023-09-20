@@ -113,7 +113,7 @@ export default forwardRef(function ExportModal(
 		const errorResourceNotFound = errorList
 			.filter(
 				(entry) =>
-					entry.severity === "error" && entry.type === "resourceNotFound"
+					entry.seriousness === "error" && entry.type === "resourceNotFound"
 			)
 			.map((error) => ({
 				...error,
@@ -124,7 +124,7 @@ export default forwardRef(function ExportModal(
 		const errorSectionNotFound = errorList
 			.filter(
 				(entry) =>
-					entry.severity === "error" && entry.type === "sectionNotFound"
+					entry.seriousness === "error" && entry.type === "sectionNotFound"
 			)
 			.map((error) => ({
 				...error,
@@ -134,7 +134,8 @@ export default forwardRef(function ExportModal(
 
 		const errorOrderNotFound = errorList
 			.filter(
-				(entry) => entry.severity === "error" && entry.type === "orderNotFound"
+				(entry) =>
+					entry.seriousness === "error" && entry.type === "orderNotFound"
 			)
 			.map((error) => ({
 				...error,
@@ -145,7 +146,7 @@ export default forwardRef(function ExportModal(
 		const warningChildrenNotFound = warningList
 			.filter(
 				(entry) =>
-					entry.severity === "warning" && entry.type === "childrenNotFound"
+					entry.seriousness === "warning" && entry.type === "childrenNotFound"
 			)
 			.map((error) => ({
 				...error,
@@ -156,7 +157,7 @@ export default forwardRef(function ExportModal(
 		const warningParentNotFound = warningList
 			.filter(
 				(entry) =>
-					entry.severity === "warning" && entry.type === "parentNotFound"
+					entry.seriousness === "warning" && entry.type === "parentNotFound"
 			)
 			.map((error) => ({
 				...error,
@@ -197,7 +198,18 @@ export default forwardRef(function ExportModal(
 					node.type !== "mail" &&
 					node.type !== "badge"
 				) {
-					if (!node.data.children || node.data.children.length === 0) {
+					let childlessNode = false;
+
+					if (platform == "sakai") {
+						if (node.type !== "exam" && node.type !== "assign") {
+							childlessNode = true;
+						}
+					}
+
+					if (
+						(!node.data.children || node.data.children.length === 0) &&
+						!childlessNode
+					) {
 						const customEntry = {
 							...errorEntry,
 							seriousness: "warning",
@@ -246,6 +258,8 @@ export default forwardRef(function ExportModal(
 	const [warningCount, setWarningCount] = useState(
 		warningList != undefined ? warningList.length : 0
 	);
+	console.log(warningList);
+	console.log(nodeWarningChildrenList);
 	const [hasWarnings, setHasWarnings] = useState(warningCount > 0);
 
 	useLayoutEffect(() => {
@@ -399,7 +413,7 @@ export default forwardRef(function ExportModal(
 						>
 							<div>
 								{nodeWarningChildrenList != undefined &&
-									nodeWarningChildrenList.length > 0 && (
+									nodeWarningChildrenList.length >= 1 && (
 										<div className="mb-2">
 											<div className="mb-2">
 												<b>

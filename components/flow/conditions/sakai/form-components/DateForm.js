@@ -1,15 +1,19 @@
 import { Form } from "react-bootstrap";
-import DateAssignComponent from "@conditionsSakai/form-components/date/DateAssignComponent";
+import DateLimitComponent from "@conditionsSakai/form-components/date/DateLimitComponent";
 import DateCommonComponent from "@conditionsSakai/form-components/date/DateCommonComponent";
 import DateExceptionComponent from "@conditionsSakai/form-components/date/DateExceptionComponent";
+import { parseDateToString } from "@utils/Utils";
+import { useEffect, useState } from "react";
 
 const DateForm = ({
 	blockData,
+	errorForm,
 	dates,
 	setDates,
 	visibilityArray,
 	openingDateRef,
 	dueDateRef,
+	closeTimeRef,
 	editing,
 	exceptionSelectRef,
 	exceptionEntityRef,
@@ -19,6 +23,12 @@ const DateForm = ({
 	sakaiUsers,
 	conditionEdit,
 }) => {
+	function calculateDefaultDateTime(minutesToAdd) {
+		const targetTime = new Date();
+		targetTime.setMinutes(targetTime.getMinutes() + minutesToAdd);
+		return targetTime.toISOString().slice(0, 16);
+	}
+
 	const handleCheckboxChange = (checkboxName, checked, ref) => {
 		if (!checked) {
 			setDates((prevDates) => ({ ...prevDates, [checkboxName]: undefined }));
@@ -28,6 +38,39 @@ const DateForm = ({
 				[checkboxName]: ref.current.value,
 			}));
 		}
+	};
+
+	const handleCheckbox1Change = (e) => {
+		if (!e.target.checked) {
+			openingDateRef.current.disabled = true;
+		} else {
+			openingDateRef.current.disabled = false;
+		}
+
+		handleCheckboxChange("openingDate", e.target.checked, openingDateRef);
+	};
+
+	const handleCheckbox2Change = (e) => {
+		if (!e.target.checked) {
+			dueDateRef.current.disabled = true;
+		} else {
+			dueDateRef.current.disabled = false;
+		}
+		handleCheckboxChange("dueDate", e.target.checked, dueDateRef);
+	};
+
+	const dateInputChange = (paramName, ref) => {
+		setDates((prevDates) => {
+			console.log(prevDates, prevDates[paramName]);
+			if (prevDates) {
+				return {
+					...prevDates,
+					[paramName]: ref.current.value,
+				};
+			}
+			console.log(prevDates);
+			return prevDates;
+		});
 	};
 
 	return (
@@ -42,21 +85,33 @@ const DateForm = ({
 			{editing == "date" && visibilityArray.includes(blockData.type) && (
 				<DateCommonComponent
 					conditionEdit={conditionEdit}
-					onCheckboxChange={handleCheckboxChange}
+					errorForm={errorForm}
 					openingDateRef={openingDateRef}
 					dueDateRef={dueDateRef}
 					setDates={setDates}
+					calculateDefaultDateTime={calculateDefaultDateTime}
+					dateInputChange={dateInputChange}
 				/>
 			)}
 
-			{editing == "date" &&
-				!visibilityArray.includes(blockData.type) &&
-				blockData.type == "assign" && <DateAssignComponent />}
+			{editing == "date" && !visibilityArray.includes(blockData.type) && (
+				<DateLimitComponent
+					conditionEdit={conditionEdit}
+					errorForm={errorForm}
+					openingDateRef={openingDateRef}
+					dueDateRef={dueDateRef}
+					closeTimeRef={closeTimeRef}
+					setDates={setDates}
+					calculateDefaultDateTime={calculateDefaultDateTime}
+					dateInputChange={dateInputChange}
+				/>
+			)}
 
 			{editing == "dateException" && blockData.type == "exam" && (
 				<DateExceptionComponent
-					onCheckboxChange={handleCheckboxChange}
+					errorForm={errorForm}
 					openingDateRef={openingDateRef}
+					closeTimeRef={closeTimeRef}
 					dueDateRef={dueDateRef}
 					setDates={setDates}
 					exceptionSelectRef={exceptionSelectRef}
@@ -65,6 +120,8 @@ const DateForm = ({
 					setExceptionSelected={setExceptionSelected}
 					sakaiGroups={sakaiGroups}
 					sakaiUsers={sakaiUsers}
+					calculateDefaultDateTime={calculateDefaultDateTime}
+					dateInputChange={dateInputChange}
 				></DateExceptionComponent>
 			)}
 		</Form.Group>

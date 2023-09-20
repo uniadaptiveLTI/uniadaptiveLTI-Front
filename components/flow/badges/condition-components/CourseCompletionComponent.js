@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -6,6 +6,7 @@ import {
 	faShuffle,
 	faTrashAlt,
 } from "@fortawesome/free-solid-svg-icons";
+import { MetaDataContext } from "pages/_app";
 
 const CourseCompletionComponent = ({
 	condition,
@@ -14,6 +15,8 @@ const CourseCompletionComponent = ({
 	parseDate,
 	swapConditionGroup,
 }) => {
+	const { metaData, setMetaData } = useContext(MetaDataContext);
+
 	return (
 		<Container
 			className="mb-3 mt-3"
@@ -26,18 +29,17 @@ const CourseCompletionComponent = ({
 							!condition.dateTo && (
 								<div>
 									Los usuarios deben finalizar el curso{" "}
-									<strong>NOMBRE DEL CURSO</strong>
+									<strong>{metaData.name}</strong>
 								</div>
 							)}
 						{(condition.op || condition.dateTo) && (
 							<div>
 								Los usuarios deben finalizar el curso{" "}
-								<strong>NOMBRE DEL CURSO</strong>
+								<strong>{metaData.name}</strong>
 								{condition.dateTo && (
 									<a>
 										{" "}
 										antes del <strong>{parseDate(condition.dateTo)}</strong>
-										<br></br>
 									</a>
 								)}
 								{condition.op &&

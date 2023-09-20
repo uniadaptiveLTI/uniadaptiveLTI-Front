@@ -1,11 +1,12 @@
 import React, { useId, useLayoutEffect } from "react";
 import { Alert, Form } from "react-bootstrap";
 
-const DateCommonComponent = ({
+const DateLimitComponent = ({
 	conditionEdit,
 	errorForm,
 	openingDateRef,
 	dueDateRef,
+	closeTimeRef,
 	setDates,
 	calculateDefaultDateTime,
 	dateInputChange,
@@ -16,53 +17,57 @@ const DateCommonComponent = ({
 	const defaultValueFiveMinutes =
 		conditionEdit?.openingDate || calculateDefaultDateTime(5);
 
+	const defaultValueTenMinutes =
+		conditionEdit?.openingDate || calculateDefaultDateTime(10);
+
 	useLayoutEffect(() => {
 		const openingValue = openingDateRef.current.value;
 		const dueDate = dueDateRef.current.value;
-		console.log(openingValue);
+		const closeTime = closeTimeRef.current.value;
+
 		setDates({
 			openingDate: openingValue,
 			dueDate: dueDate,
+			closeTime: closeTime,
 		});
 	}, []);
 
 	return (
 		<>
-			<div className="d-flex align-items-baseline col-12 col-lg-6 col-xl-6">
+			<div className="d-flex align-items-baseline col-12 col-lg-8 col-xl-8">
 				<Form.Label
 					htmlFor={cqId}
 					className="me-4"
-					style={{ minWidth: "125px", marginLeft: "20px" }}
+					style={{ minWidth: "160px" }}
 				>
-					Desde:{" "}
+					Fecha de apertura:{" "}
 				</Form.Label>
 				<Form.Control
-					id={cqId}
+					id={coId}
+					type="datetime-local"
 					ref={openingDateRef}
 					onChange={() => {
 						dateInputChange("openingDate", openingDateRef);
 					}}
-					// FIXME: CHANGE TO SERVER DATE TIME
 					defaultValue={
 						conditionEdit?.openingDate
 							? conditionEdit.openingDate
 							: new Date().toISOString().slice(0, 16)
 					}
-					type="datetime-local"
 				/>
 			</div>
-			<div className="d-flex align-items-baseline col-12 col-lg-6 col-xl-6">
+			<div className="d-flex align-items-baseline col-12 col-lg-8 col-xl-8">
 				<Form.Label
 					htmlFor={coId}
 					className="me-4"
-					style={{ minWidth: "125px", marginLeft: "20px" }}
+					style={{ minWidth: "160px" }}
 				>
-					Hasta:{" "}
+					Fecha de entrega:{" "}
 				</Form.Label>
 				<Form.Control
 					id={coId}
-					ref={dueDateRef}
 					type="datetime-local"
+					ref={dueDateRef}
 					onChange={() => {
 						dateInputChange("dueDate", dueDateRef);
 					}}
@@ -70,6 +75,28 @@ const DateCommonComponent = ({
 						conditionEdit?.dueDate
 							? conditionEdit.dueDate
 							: defaultValueFiveMinutes
+					}
+				/>
+			</div>
+			<div className="d-flex align-items-baseline col-12 col-lg-8 col-xl-8">
+				<Form.Label
+					htmlFor={coId}
+					className="me-4"
+					style={{ minWidth: "160px" }}
+				>
+					Fecha límite:{" "}
+				</Form.Label>
+				<Form.Control
+					id={coId}
+					type="datetime-local"
+					ref={closeTimeRef}
+					onChange={() => {
+						dateInputChange("closeTime", closeTimeRef);
+					}}
+					defaultValue={
+						conditionEdit?.closeTime
+							? conditionEdit.closeTime
+							: defaultValueTenMinutes
 					}
 				/>
 			</div>
@@ -86,4 +113,4 @@ const DateCommonComponent = ({
 	);
 };
 
-export default DateCommonComponent;
+export default DateLimitComponent;

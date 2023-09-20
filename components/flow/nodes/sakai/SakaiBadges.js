@@ -65,7 +65,7 @@ const SakaiBadges = ({
 					</Badge>
 				)}
 
-				{!isNaN(data.order) && getParentExpanded() && (
+				{!isNaN(data.column) && getParentExpanded() && (
 					<Badge
 						className={
 							styles.badge +
@@ -80,7 +80,7 @@ const SakaiBadges = ({
 						}
 						title="Columna"
 					>
-						{data.indent + 1}
+						{data.column}
 					</Badge>
 				)}
 
@@ -100,7 +100,7 @@ const SakaiBadges = ({
 						}
 						title="Posición en la sección"
 					>
-						{data.order + 1}
+						{data.order}
 					</Badge>
 				)}
 			</div>

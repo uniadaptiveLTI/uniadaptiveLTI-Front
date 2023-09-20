@@ -33,6 +33,9 @@ const DateComponent = ({
 						{item.dueDate && (
 							<div>Fecha de entrega: {parseDate(item.dueDate, true)}</div>
 						)}
+						{item.closeTime && (
+							<div>Fecha límite: {parseDate(item.closeTime, true)}</div>
+						)}
 					</Col>
 					{
 						// FEATURE: ENABLE THIS CODE TO ALLOW MULTIPLE DATE CONDITIONS

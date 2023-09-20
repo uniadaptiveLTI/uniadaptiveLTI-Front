@@ -71,7 +71,7 @@ import { DevModeStatusContext } from "pages/_app";
 import UserSettingsModal from "./dialogs/UserSettingsModal";
 import { hasLessons } from "@utils/Platform";
 import { createNewMoodleMap, parseMoodleNode } from "@utils/Moodle";
-import { createNewSakaiMap } from "@utils/Sakai";
+import { createNewSakaiMap, parseSakaiNode } from "@utils/Sakai";
 
 const defaultToastSuccess = {
 	hideProgressBar: false,
@@ -340,11 +340,7 @@ function Header({ LTISettings }, ref) {
 		localMaps = maps
 	) => {
 		const uniqueId = () => parseInt(Date.now() * Math.random()).toString();
-		// try {
-		const encodedCourse = encodeURIComponent(localMetaData.course_id);
-		const encodedInstance = encodeURIComponent(localMetaData.instance_id);
-		const encodedSessionId = encodeURIComponent(localMetaData.session_id);
-		console.log(localMetaData, localMaps);
+		console.log(lesson, localMetaData, localMaps);
 
 		let data;
 		if (!LTISettings.debugging.dev_files) {
@@ -365,7 +361,17 @@ function Header({ LTISettings }, ref) {
 			}
 			data = response.data;
 		} else {
-			const response = await fetch("resources/devmoodleimport.json");
+			let endpointJson = null;
+			switch (platform) {
+				case "moodle":
+					endpointJson = "devmoodleimport.json";
+					break;
+				case "sakai":
+					endpointJson = "devsakaiimport.json";
+			}
+
+			const response = await fetch(`resources/${endpointJson}`);
+
 			if (response) {
 				data = await response.json();
 			}
@@ -378,30 +384,15 @@ function Header({ LTISettings }, ref) {
 		const validTypes = [];
 		NodeTypes.map((node) => validTypes.push(node.type));
 		const nodes = [];
+		console.log(data, validTypes);
 		data.map((node) => {
-			if (platform != "moodle") {
-				if (validTypes.includes(node.modname)) {
-					const newNode = {};
-					newNode.id = "" + uniqueId();
-					newNode.type = node.modname;
-					newNode.position = { x: newX, y: newY };
-					newNode.data = {
-						label: node.name,
-						indentation: node.indent,
-						section: node.section,
-						children: [],
-						order: node.order, //broken order, as there is missing elements
-						lmsResource: node.id,
-						lmsVisibility: node.visible,
-					};
-
+			switch (platform) {
+				case "moodle":
+					nodes.push(parseMoodleNode(node, newX, newY));
 					newX += 125;
-					nodes.push(newNode);
-				}
-			} else {
-				//In Moodle, unknown blocks will be translated as "generic" (in blockflow.js)
-				nodes.push(parseMoodleNode(node, newX, newY));
-				newX += 125;
+				case "sakai":
+					parseSakaiNode(nodes, node, newX, newY, validTypes);
+					newX += 125;
 			}
 		});
 		console.log("JSON FILTRADO Y ADAPTADO: ", nodes);
@@ -411,12 +402,14 @@ function Header({ LTISettings }, ref) {
 		if (platform == "moodle") {
 			platformNewMap = createNewMoodleMap(nodes, localMetaData, localMaps);
 		} else {
+			console.log(lesson);
 			platformNewMap = createNewSakaiMap(
 				nodes,
 				lesson,
 				localMetaData,
 				localMaps
 			);
+			console.log(platformNewMap);
 		}
 
 		const newMaps = [...localMaps, platformNewMap];

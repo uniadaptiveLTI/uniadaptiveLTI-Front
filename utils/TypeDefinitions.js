@@ -93,7 +93,7 @@ export const NodeTypes = [
 		nodeType: "ElementNode",
 		lms: ["moodle", "sakai"],
 		gradable: [{ lms: "moodle", type: "consolidable" }],
-		endHandle: ["moodle", "sakai"],
+		endHandle: ["moodle"],
 	},
 	{
 		id: 9,

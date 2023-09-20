@@ -2,7 +2,6 @@ import React from "react";
 import { Form } from "react-bootstrap";
 
 function GradeForm({ conditionEdit, exceptionSelectRef, pointRef }) {
-	console.log(conditionEdit);
 	return (
 		<Form.Group
 			style={{
@@ -12,7 +11,10 @@ function GradeForm({ conditionEdit, exceptionSelectRef, pointRef }) {
 			}}
 			className="d-flex flex-column gap-2 p-4"
 		>
-			<Form.Select ref={exceptionSelectRef} defaultValue={conditionEdit.op}>
+			<Form.Select
+				ref={exceptionSelectRef}
+				defaultValue={conditionEdit.operator}
+			>
 				<option value="SMALLER_THAN">Menor que</option>
 				<option value="SMALLER_THAN_OR_EQUAL_TO">Menor o igual que</option>
 				<option value="EQUAL_TO">Igual que</option>
@@ -20,10 +22,11 @@ function GradeForm({ conditionEdit, exceptionSelectRef, pointRef }) {
 				<option value="GREATER_THAN">Mayor que</option>
 			</Form.Select>
 			<Form.Control
+				ref={pointRef}
 				type="number"
-				min="0"
+				min="1"
 				max="100"
-				defaultValue={conditionEdit.points}
+				defaultValue={conditionEdit.argument}
 			/>
 		</Form.Group>
 	);

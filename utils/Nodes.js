@@ -35,6 +35,7 @@ export const getNodeById = (id, nodeArray) => {
 };
 
 export const getParentsNode = (nodesArray, childId) => {
+	console.log(nodesArray);
 	return nodesArray.filter(
 		(node) => node.data.children && node.data.children.includes(childId)
 	);
@@ -47,8 +48,9 @@ export const getParentsNode = (nodesArray, childId) => {
  * @return {Object|undefined} The node with the same data-id as the DOM element or undefined if not found.
  */
 export const getNodeByNodeDOM = (nodeDOM, nodeArray) => {
+	console.log(nodeDOM);
 	if (Array.isArray(nodeArray)) {
-		return nodeArray.find((node) => node.id == nodeDOM.dataset.id);
+		return nodeArray.find((node) => node.id == nodeDOM.id);
 	} else {
 		return undefined;
 	}

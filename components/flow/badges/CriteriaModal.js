@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import styles from "@root/styles/ConditionModalMoodle.module.css";
 //import { Editor } from "@tinymce/tinymce-react";
 import { uniqueId, searchConditionForTypes } from "@utils/Utils";
@@ -20,6 +20,7 @@ import CourseCompletionForm from "./form-components/CourseCompletionForm";
 import BadgeListForm from "./form-components/BadgeListForm";
 import CompletionForm from "./form-components/CompletionForm";
 import SkillsForm from "./form-components/SkillsForm";
+import { MetaDataContext } from "pages/_app";
 
 function CriteriaModal({
 	blockData,
@@ -45,11 +46,9 @@ function CriteriaModal({
 	const [selectedCheckboxes, setSelectedCheckboxes] = useState([]);
 	const [checkedIds, setCheckedIds] = useState(selectedCheckboxes || []);
 
-	const roleList = [
-		{ id: "98123", name: "Gestor" },
-		{ id: "78134", name: "Profesor" },
-		{ id: "89422", name: "Profesor sin permisos de edición" },
-	];
+	const { metaData, setMetaData } = useContext(MetaDataContext);
+
+	const roleList = metaData.roleList;
 
 	const badgeList = [
 		{ id: "89562", name: "Insignia 1" },
@@ -80,6 +79,7 @@ function CriteriaModal({
 		} else {
 			const firstConditionGroup = {
 				type: "conditionsGroup",
+				criteriaId: 2,
 				id: parseInt(Date.now() * Math.random()).toString(),
 				op: "&",
 			};
@@ -247,13 +247,11 @@ function CriteriaModal({
 		const swapOperator = condition.op === "&" ? "|" : "&";
 
 		updateConditionOp(updatedBlockData.data.c, condition.id, swapOperator);
-		console.log(updatedBlockData);
 		setBlockData(updatedBlockData);
 	}
 
 	useEffect(() => {
 		if (conditionEdit) {
-			console.log(conditionEdit);
 			addCondition(conditionEdit.id);
 			setSelectedOption(conditionEdit.type);
 
@@ -325,7 +323,7 @@ function CriteriaModal({
 						}
 						return item;
 					});
-					console.log(updatedArray);
+
 					setCheckboxValues(updatedArray);
 				} else {
 					const updatedArray = checkboxValues.map((item) => {
@@ -334,7 +332,7 @@ function CriteriaModal({
 						}
 						return item;
 					});
-					console.log(updatedArray);
+
 					setCheckboxValues(updatedArray);
 				}
 				break;
@@ -389,10 +387,12 @@ function CriteriaModal({
 
 		switch (selectedOption) {
 			case "role":
+				formData.criteriaId = 2;
 				formData.op = conditionOperator.current.value;
 				formData.roleList = checkedIds;
 				break;
 			case "courseCompletion":
+				formData.criteriaId = 4;
 				formData.op = conditionOperator.current.value;
 				if (isDateEnabled) {
 					formData.dateTo = conditionObjective.current.value;
@@ -401,13 +401,16 @@ function CriteriaModal({
 				}
 				break;
 			case "badgeList":
+				formData.criteriaId = 7;
 				formData.op = conditionOperator.current.value;
 				formData.badgeList = checkedIds;
 				break;
 			case "completion":
+				formData.criteriaId = 1;
 				formData.activityList = checkboxValues;
 				break;
 			case "skills":
+				formData.criteriaId = 9;
 				formData.op = conditionOperator.current.value;
 				formData.skillsList = checkedIds;
 				break;

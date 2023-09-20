@@ -51,12 +51,13 @@ const DateExceptionComponent = ({
 										Fecha de apertura: {parseDate(item.openingDate, true)}
 									</div>
 									<div>Fecha de entrega: {parseDate(item.dueDate, true)}</div>
+									<div>Fecha límite: {parseDate(item.closeTime, true)}</div>
 								</div>
 							</Col>
-							<Col className="col-2">
+							<Col className="col-md-auto">
 								<Button
 									variant="light"
-									onClick={() => deleteRequisite(item.id)}
+									onClick={() => deleteRequisite(item.id, true)}
 								>
 									<div>
 										<FontAwesomeIcon icon={faTrashCan} />

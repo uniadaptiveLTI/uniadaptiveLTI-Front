@@ -129,12 +129,12 @@ function ActionNode({ id, type, data, selected, dragging, isConnectable }) {
 
 	return (
 		<>
-			{isHovered && selected && !dragging && platform == "moodle" (
+			{isHovered && selected && !dragging && platform == "moodle" && (
 				<div className={styles.hovedConditions}>
 					<SimpleConditionsMoodle id={id} />
 				</div>
 			)}
-			{isHovered && selected && !dragging && platform == "sakai" (
+			{isHovered && selected && !dragging && platform == "sakai" && (
 				<div className={styles.hovedConditions}>
 					<SimpleConditionsSakai id={id} />
 				</div>

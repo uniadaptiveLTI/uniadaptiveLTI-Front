@@ -4,7 +4,7 @@ import { DevModeStatusContext } from "@root/pages/_app";
 import { useContext } from "react";
 import { getTypeIcon } from "@utils/NodeIcons";
 import { MetaDataContext, PlatformContext, SettingsContext } from "pages/_app";
-import { deduplicateById } from "@utils/Utils";
+import { deduplicateById, parseDate } from "@utils/Utils";
 import {
 	profileOperatorList,
 	profileQueryList,
@@ -46,6 +46,19 @@ export default function SimpleConditionsMoodle({ id }) {
 		{ op: "!|", parsed: <b>Si NO se cumple UNO:</b> },
 	];
 
+	const parsedCompletionBadge = [
+		{
+			op: "&",
+			parsed: <b>Todas las siguientes actividades han sido completadas:</b>,
+		},
+		{
+			op: "|",
+			parsed: (
+				<b>Cualquiera de las siguientes actividades han sido completadas:</b>
+			),
+		},
+	];
+
 	const parseConditions = (flatConditions) => {
 		let finalDOM = [
 			<p>
@@ -63,24 +76,53 @@ export default function SimpleConditionsMoodle({ id }) {
 					);
 					break;
 				case "completion":
-					const e = [
-						"no completado.",
-						"completado.",
-						"completado y aprobado.",
-						"completado y suspendido.",
-					];
-					finalDOM.push(
-						<p style={prefix}>
-							{getTypeIcon(getNodeById(c.cm, rfNodes).type, platform)}
-							{
-								<span style={{ marginLeft: "4px" }}>
-									<b>
-										{getNodeById(c.cm, rfNodes).data.label} {e[c.e]}
-									</b>
-								</span>
-							}
-						</p>
-					);
+					let node = getNodeById(id, rfNodes);
+					console.log(node, c);
+					if (node.type !== "badge") {
+						const e = [
+							"no completado.",
+							"completado.",
+							"completado y aprobado.",
+							"completado y suspendido.",
+						];
+						finalDOM.push(
+							<p style={prefix}>
+								{getTypeIcon(getNodeById(c.cm, rfNodes).type, platform)}
+								{
+									<span style={{ marginLeft: "4px" }}>
+										<b>
+											{getNodeById(c.cm, rfNodes).data.label} {e[c.e]}
+										</b>
+									</span>
+								}
+							</p>
+						);
+					} else {
+						finalDOM.push(
+							<>
+								<p>
+									{parsedCompletionBadge.find((pcg) => c.op == pcg.op).parsed}
+								</p>
+								<p style={prefix}>
+									{c.activityList.map((node) => (
+										<p key={node.id}>
+											{getTypeIcon(
+												getNodeById(node.id, rfNodes).type,
+												platform
+											)}
+											<span style={{ marginLeft: "4px" }}>
+												<b>
+													{getNodeById(node.id, rfNodes).data.label}{" "}
+													{node.date && <>antes del {parseDate(node.date)}</>}
+												</b>
+											</span>
+										</p>
+									))}
+								</p>
+							</>
+						);
+					}
+					console.log(finalDOM);
 					break;
 				case "courseGrade":
 					if (c.min && c.max) {
@@ -212,6 +254,67 @@ export default function SimpleConditionsMoodle({ id }) {
 						);
 					}
 					break;
+				case "role":
+					finalDOM.push(
+						<>
+							<p>
+								Debe ser otorgada a los usuarios con{" "}
+								{c.op === "&" && <b>TODOS</b>}{" "}
+								{c.op === "|" && (
+									<>
+										<b>CUALQUIERA</b> <a>de</a>
+									</>
+								)}{" "}
+								los siguientes roles:
+								<ul>
+									{c.roleList.map((option) => {
+										const roleFounded = metaData.roleList.find(
+											(roleMeta) => roleMeta.id === option
+										);
+										<li key={roleFounded.id}>{roleFounded.name}</li>;
+									})}
+								</ul>
+							</p>
+						</>
+					);
+					break;
+				case "courseCompletion":
+					{
+						(!c.op || c.op === "0" || c.op === "") &&
+							!c.dateTo &&
+							finalDOM.push(
+								<div>
+									Debe finalizarse el curso <strong>{metaData.name}</strong>
+								</div>
+							);
+					}
+					{
+						(c.op || c.dateTo) &&
+							finalDOM.push(
+								<div>
+									<a>
+										Debe finalizarse el curso <b>{metaData.name}</b>
+									</a>
+									{c.dateTo && (
+										<a>
+											{" "}
+											antes del <strong>{parseDate(c.dateTo)}</strong>
+										</a>
+									)}
+									{c.op && c.op !== "0" && c.op !== "" && (
+										<a>
+											{" "}
+											con calificación mínima de <strong>{c.op}</strong>
+										</a>
+									)}
+								</div>
+							);
+					}
+					break;
+				case "badgeList":
+
+				case "skills":
+
 				default:
 					break;
 			}

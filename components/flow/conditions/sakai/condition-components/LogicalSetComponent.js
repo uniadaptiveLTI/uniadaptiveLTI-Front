@@ -9,102 +9,124 @@ import {
 	faEdit,
 	faEye,
 	faEyeSlash,
+	faShuffle,
 	faTrashCan,
 } from "@fortawesome/free-solid-svg-icons";
 
-function LogicalSetComponent({ condition, setConditionEdit }) {
+function LogicalSetComponent({
+	lastIndex,
+	condition,
+	setConditionEdit,
+	deleteRequisite,
+	swapToOr,
+}) {
 	const reactFlowInstance = useReactFlow();
-
 	return (
 		<Container
-			className="mb-3 mt-3"
-			style={{ padding: "10px", border: "1px solid #C7C7C7" }}
+			className={lastIndex ? "mb-0 mt-3" : "mb-3 mt-3"}
+			style={{
+				padding: "10px",
+				border: "1px solid #C7C7C7",
+			}}
 		>
 			<Row className="align-items-center">
 				<Col>
-					{condition.op === "GREATER_THAN" && (
+					{condition.operator === "GREATER_THAN" && (
 						<div>
 							La puntuación debe ser{" "}
 							<strong>
-								{"mayor que"} {condition.points}
+								{"mayor que"} {condition.argument}
 							</strong>{" "}
 							en{" "}
 							<strong>
 								{
-									getNodeById(condition.parentId, reactFlowInstance.getNodes())
+									getNodeById(condition.itemId, reactFlowInstance.getNodes())
 										.data.label
 								}
 							</strong>
 						</div>
 					)}
-					{condition.op === "GREATER_THAN_OR_EQUAL_TO" && (
+					{condition.operator === "GREATER_THAN_OR_EQUAL_TO" && (
 						<div>
 							La puntuación debe ser{" "}
 							<strong>
-								{"mayor o igual que"} {condition.points}
+								{"mayor o igual que"} {condition.argument}
 							</strong>{" "}
 							en{" "}
 							<strong>
 								{
-									getNodeById(condition.parentId, reactFlowInstance.getNodes())
+									getNodeById(condition.itemId, reactFlowInstance.getNodes())
 										.data.label
 								}
 							</strong>
 						</div>
 					)}
-					{condition.op === "SMALLER_THAN" && (
+					{condition.operator === "SMALLER_THAN" && (
 						<div>
 							La puntuación debe ser{" "}
 							<strong>
-								{"menor que"} {condition.points}
+								{"menor que"} {condition.argument}
 							</strong>{" "}
 							en{" "}
 							<strong>
 								{
-									getNodeById(condition.parentId, reactFlowInstance.getNodes())
+									getNodeById(condition.itemId, reactFlowInstance.getNodes())
 										.data.label
 								}
 							</strong>
 						</div>
 					)}
-					{condition.op === "SMALLER_THAN_OR_EQUAL_TO" && (
+					{condition.operator === "SMALLER_THAN_OR_EQUAL_TO" && (
 						<div>
 							La puntuación debe ser{" "}
 							<strong>
-								{"menor o igual que"} {condition.points}
+								{"menor o igual que"} {condition.argument}
 							</strong>{" "}
 							en{" "}
 							<strong>
 								{
-									getNodeById(condition.parentId, reactFlowInstance.getNodes())
+									getNodeById(condition.itemId, reactFlowInstance.getNodes())
 										.data.label
 								}
 							</strong>
 						</div>
 					)}
-					{condition.op === "EQUAL_TO" && (
+					{condition.operator === "EQUAL_TO" && (
 						<div>
 							La puntuación debe ser{" "}
 							<strong>
-								{"igual que"} {condition.points}
+								{"igual que"} {condition.argument}
 							</strong>{" "}
 							en{" "}
 							<strong>
 								{
-									getNodeById(condition.parentId, reactFlowInstance.getNodes())
+									getNodeById(condition.itemId, reactFlowInstance.getNodes())
 										.data.label
 								}
 							</strong>
 						</div>
 					)}
 				</Col>
-				<Col className="col d-flex align-items-center justify-content-end gap-2">
+				<Col className="col-md-auto d-flex align-items-center justify-content-end gap-2">
+					<Button
+						variant="light"
+						onClick={() => {
+							swapToOr();
+						}}
+					>
+						<div>
+							<FontAwesomeIcon icon={faShuffle} />
+						</div>
+					</Button>
 					<Button variant="light" onClick={() => setConditionEdit(condition)}>
 						<div>
 							<FontAwesomeIcon icon={faEdit} />
 						</div>
 					</Button>
-					<Button variant="light">
+					<Button
+						variant="light"
+						onClick={() => deleteRequisite(condition.id, false)}
+					>
 						<div>
 							<FontAwesomeIcon icon={faTrashCan} />
 						</div>

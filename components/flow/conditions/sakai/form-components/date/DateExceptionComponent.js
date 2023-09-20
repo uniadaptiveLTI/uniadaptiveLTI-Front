@@ -1,10 +1,11 @@
-import React, { useId } from "react";
-import { Form } from "react-bootstrap";
+import React, { useId, useLayoutEffect } from "react";
+import { Alert, Form } from "react-bootstrap";
 
 const DateExceptionComponent = ({
-	onCheckboxChange,
+	errorForm,
 	openingDateRef,
 	dueDateRef,
+	closeTimeRef,
 	exceptionSelectRef,
 	exceptionEntityRef,
 	setDates,
@@ -13,44 +14,29 @@ const DateExceptionComponent = ({
 	setExceptionSelected,
 	sakaiGroups,
 	sakaiUsers,
+	calculateDefaultDateTime,
+	dateInputChange,
 }) => {
 	const cqId = useId();
 	const coId = useId();
 
-	const handleCheckbox1Change = (e) => {
-		if (!e.target.checked) {
-			openingDateRef.current.disabled = true;
-		} else {
-			openingDateRef.current.disabled = false;
-		}
-
-		onCheckboxChange("openingDate", e.target.checked, openingDateRef);
-	};
-
-	const handleCheckbox2Change = (e) => {
-		if (!e.target.checked) {
-			dueDateRef.current.disabled = true;
-		} else {
-			dueDateRef.current.disabled = false;
-		}
-		onCheckboxChange("dueDate", e.target.checked, dueDateRef);
-	};
-
-	const dateInputChange = (paramName, ref) => {
-		setDates((prevDates) => {
-			if (prevDates && prevDates[paramName] !== undefined) {
-				return {
-					...prevDates,
-					[paramName]: ref.current.value,
-				};
-			}
-			return prevDates;
-		});
-	};
-
 	const selectExceptionChange = (ref) => {
 		setExceptionSelected(ref.current.value);
 	};
+
+	const defaultValueFiveMinutes = calculateDefaultDateTime(5);
+
+	const defaultValueTenMinutes = calculateDefaultDateTime(10);
+
+	useLayoutEffect(() => {
+		const openingValue = openingDateRef.current.value;
+		const dueDate = dueDateRef.current.value;
+		console.log(openingValue);
+		setDates({
+			openingDate: openingValue,
+			dueDate: dueDate,
+		});
+	}, []);
 
 	return (
 		<>
@@ -83,17 +69,12 @@ const DateExceptionComponent = ({
 				</Form.Select>
 			</div>
 			<div className="d-flex align-items-baseline col-12 col-lg-6 col-xl-6">
-				<Form.Check
-					id="objectiveCheckbox"
-					type="checkbox"
-					onChange={handleCheckbox1Change}
-				/>
 				<Form.Label
 					htmlFor={cqId}
 					className="me-4"
-					style={{ minWidth: "125px", marginLeft: "20px" }}
+					style={{ minWidth: "160px" }}
 				>
-					Desde:{" "}
+					Fecha de apertura:{" "}
 				</Form.Label>
 				<Form.Control
 					id={cqId}
@@ -108,21 +89,15 @@ const DateExceptionComponent = ({
 							: new Date().toISOString().slice(0, 16)
 					}
 					type="datetime-local"
-					disabled
 				/>
 			</div>
 			<div className="d-flex align-items-baseline col-12 col-lg-6 col-xl-6">
-				<Form.Check
-					id="objectiveCheckbox"
-					type="checkbox"
-					onChange={handleCheckbox2Change}
-				/>
 				<Form.Label
 					htmlFor={coId}
 					className="me-4"
-					style={{ minWidth: "125px", marginLeft: "20px" }}
+					style={{ minWidth: "160px" }}
 				>
-					Hasta:{" "}
+					Fecha de entrega:{" "}
 				</Form.Label>
 				<Form.Control
 					id={coId}
@@ -131,14 +106,36 @@ const DateExceptionComponent = ({
 					onChange={() => {
 						dateInputChange("dueDate", dueDateRef);
 					}}
-					defaultValue={
-						requisiteEdit
-							? requisiteEdit
-							: new Date().toISOString().substr(0, 16)
-					}
-					disabled
+					defaultValue={requisiteEdit ? requisiteEdit : defaultValueFiveMinutes}
 				/>
 			</div>
+			<div className="d-flex align-items-baseline col-12 col-lg-6 col-xl-6">
+				<Form.Label
+					htmlFor={coId}
+					className="me-4"
+					style={{ minWidth: "160px" }}
+				>
+					Fecha límite:{" "}
+				</Form.Label>
+				<Form.Control
+					id={coId}
+					type="datetime-local"
+					ref={closeTimeRef}
+					onChange={() => {
+						dateInputChange("closeTime", closeTimeRef);
+					}}
+					defaultValue={requisiteEdit ? requisiteEdit : defaultValueTenMinutes}
+				/>
+			</div>
+			{errorForm && errorForm.length >= 1 && (
+				<Alert variant={"danger"} style={{ marginBottom: "0px" }}>
+					<ul style={{ marginBottom: "0px" }}>
+						{errorForm.map((error) => (
+							<li key={error.id}>{error.message}</li>
+						))}
+					</ul>
+				</Alert>
+			)}
 		</>
 	);
 };

@@ -23,7 +23,7 @@ import {
 	Tabs,
 	Tab,
 } from "react-bootstrap";
-import Requisite from "@conditionsSakai/Requisite";
+import { useReactFlow } from "reactflow";
 import DateForm from "@conditionsSakai/form-components/DateForm";
 import GroupForm from "@conditionsSakai/form-components/GroupForm";
 import GradeForm from "@conditionsSakai/form-components/GradeForm";
@@ -45,6 +45,7 @@ function RequisiteModalSakai({
 	setShowRequisitesModal,
 }) {
 	const { metaData, setMetaData } = useContext(MetaDataContext);
+	const reactFlowInstance = useReactFlow();
 
 	const [key, setKey] = useState();
 
@@ -68,8 +69,8 @@ function RequisiteModalSakai({
 				case "group":
 					setInitalGroups(conditionEdit.groupList);
 					break;
-				case "grade":
-					// Handle 'grade' case if needed
+				case "SCORE":
+					// Handle 'SCORE' case if needed
 					break;
 				default:
 					break;
@@ -80,6 +81,7 @@ function RequisiteModalSakai({
 
 	const openingDateRef = useRef(null);
 	const dueDateRef = useRef(null);
+	const closeTimeRef = useRef(null);
 	const groupsRef = metaData.groups.map(() => useRef(null));
 	const exceptionSelectRef = useRef(null);
 	const exceptionEntityRef = useRef(null);
@@ -88,16 +90,12 @@ function RequisiteModalSakai({
 	const initialDates = {
 		openingDate: undefined,
 		dueDate: undefined,
+		closeTime: undefined,
 	};
 
 	const [initalGroups, setInitalGroups] = useState([]);
 
-	useEffect(() => {
-		console.log(key);
-	}, [key]);
-
 	const visibilityArray = [
-		"exam",
 		"forum",
 		"html",
 		"resource",
@@ -107,6 +105,66 @@ function RequisiteModalSakai({
 	];
 
 	const [dates, setDates] = useState(initialDates);
+	const [errorForm, setErrorForm] = useState();
+
+	useEffect(() => {
+		if (dates) {
+			let message = [];
+			if (
+				dates["openingDate"] !== "" &&
+				dates["dueDate"] !== "" &&
+				dates["closeTime"] !== ""
+			) {
+				const openingDateRefValue = new Date(dates["openingDate"]);
+				const dueDateRefValue = new Date(dates["dueDate"]);
+
+				if (openingDateRefValue >= dueDateRefValue) {
+					message.push({
+						id: 1,
+						message:
+							"La fecha de apertura no debe ser superior o igual a la fecha de entrega",
+					});
+				} else {
+					message = message.filter((item) => item.id !== 2);
+				}
+
+				if (dates["closeTime"]) {
+					console.log("CLOSE TIME DEFINED");
+					const closeTimeRefValue = new Date(dates["closeTime"]);
+
+					if (dueDateRefValue >= closeTimeRefValue) {
+						message.push({
+							id: 2,
+							message:
+								"La fecha de entrega no debe ser superior o igual a la fecha límite",
+						});
+					} else {
+						message = message.filter((item) => item.id !== 2);
+					}
+
+					if (openingDateRefValue >= closeTimeRefValue) {
+						console.log(openingDateRefValue, closeTimeRefValue);
+						message.push({
+							id: 3,
+							message:
+								"La fecha de apertura no debe ser superior o igual a la fecha límite",
+						});
+					} else {
+						message = message.filter((item) => item.id !== 3);
+					}
+				}
+			} else {
+				console.log("Fecha vacia");
+				message.push({
+					id: 4,
+					message: "Todas los campos deben poseer un formato de fecha correcto",
+				});
+			}
+
+			console.log(message);
+			setErrorForm(message);
+		}
+	}, [dates]);
 
 	const cancelEditCondition = () => {
 		setDates(initialDates);
@@ -126,14 +184,59 @@ function RequisiteModalSakai({
 		setEditing(op);
 	};
 
-	const deleteRequisite = (requisiteId) => {
+	function findConditionById(id, conditions) {
+		if (!conditions) {
+			return null;
+		}
+
+		const foundCondition = conditions.find((condition) => condition.id === id);
+		if (foundCondition) {
+			return foundCondition;
+		}
+
+		for (const condition of conditions) {
+			if (condition.subConditions) {
+				const innerCondition = findConditionById(id, condition.subConditions);
+				if (innerCondition) {
+					return innerCondition;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	const deleteRequisite = (requisiteId, isRequisite) => {
 		const updatedBlockData = { ...blockData };
 
-		const requisiteArrayFiltered = updatedBlockData.data.requisites.filter(
-			(item) => item.id !== requisiteId
-		);
+		if (isRequisite) {
+			const requisiteArrayFiltered = updatedBlockData.data.requisites.filter(
+				(item) => item.id !== requisiteId
+			);
 
-		updatedBlockData.data.requisites = requisiteArrayFiltered;
+			updatedBlockData.data.requisites = requisiteArrayFiltered;
+		} else {
+			const foundCondition = findConditionById(
+				requisiteId,
+				blockData.data.gradeRequisites.subConditions
+			);
+			console.log(updatedBlockData.data.gradeRequisites);
+			updatedBlockData.data.gradeRequisites?.subConditions?.forEach(
+				(logicalSet) => {
+					logicalSet.subConditions = logicalSet.subConditions?.filter(
+						(cond) => cond.id !== requisiteId
+					);
+				}
+			);
+
+			const edges = reactFlowInstance.getEdges();
+
+			const edgesUpdated = edges.filter(
+				(edge) => edge.id === foundCondition.itemId + "-" + blockData.id
+			);
+
+			onEdgesDelete(edgesUpdated);
+		}
 
 		setBlockData(updatedBlockData);
 	};
@@ -142,58 +245,56 @@ function RequisiteModalSakai({
 	const saveNewCondition = () => {
 		const formData = { type: editing };
 		formData.id = uniqueId();
-
 		switch (editing) {
 			case "date":
-				if (visibilityArray.includes(blockData.type)) {
-					if (dates.openingDate) {
-						formData.openingDate = openingDateRef.current.value;
-					}
-
-					if (dates.dueDate) {
-						formData.dueDate = dueDateRef.current.value;
-					}
+				if (dates.openingDate) {
+					formData.openingDate = openingDateRef.current.value;
 				}
+
+				if (dates.dueDate) {
+					formData.dueDate = dueDateRef.current.value;
+				}
+
+				if (!visibilityArray.includes(blockData.type) && dates.closeTime) {
+					formData.closeTime = closeTimeRef.current.value;
+				}
+
+				const openingDateParsed = new Date(dates.openingDate);
+				const dueDateParsed = new Date(formData.dueDate);
+				const closeTimeParsed = new Date(formData?.closeTime);
+
+				if (
+					openingDateParsed > dueDateParsed ||
+					(closeTimeParsed && dueDateParsed > closeTimeParsed) ||
+					openingDateParsed > closeTimeParsed
+				) {
+					console.log("LOCO");
+				}
+
 				break;
 			case "dateException":
 				if (blockData.type == "exam") {
 					formData.op = exceptionSelectRef.current.value;
 					formData.entityId = Number(exceptionEntityRef.current.value);
-
-					if (dates.openingDate) {
-						formData.openingDate = openingDateRef.current.value;
-						if (dueDateRef.current.disabled) {
-							const selectedDate = new Date(openingDateRef.current.value);
-							selectedDate.setMonth(selectedDate.getMonth() + 1);
-							formData.dueDate = selectedDate.toISOString().slice(0, 16);
-						}
-					}
-
-					if (dates.dueDate) {
-						formData.dueDate = dueDateRef.current.value;
-						if (openingDateRef.current.disabled) {
-							const currentDate = new Date();
-							currentDate.setHours(0, 0, 0, 0);
-
-							const year = currentDate.getFullYear();
-							const month = String(currentDate.getMonth() + 1).padStart(2, "0");
-							const day = String(currentDate.getDate()).padStart(2, "0");
-
-							const formattedDate = `${year}-${month}-${day}T00:00`;
-
-							formData.openingDate = formattedDate;
-						}
-					}
+					formData.openingDate = openingDateRef.current.value;
+					formData.dueDate = dueDateRef.current.value;
+					formData.closeTime = closeTimeRef.current.value;
 				}
 				break;
 			case "group":
 				formData.groupList = initalGroups;
 				break;
+			case "SCORE":
+				formData.argument = Number(pointRef.current.value);
+				formData.operator = exceptionSelectRef.current.value;
 		}
+
+		console.log(formData);
 
 		const updatedBlockData = { ...blockData };
 
 		if (conditionEdit) {
+			formData.id = conditionEdit.id;
 			if (editing == "group") {
 				const groupRequisite = updatedBlockData.data.requisites.find(
 					(item) => item.type === "group"
@@ -202,7 +303,7 @@ function RequisiteModalSakai({
 				groupRequisite.groupList = formData.groupList;
 
 				setBlockData(updatedBlockData);
-			} else {
+			} else if (editing == "date") {
 				let dateRequisite = updatedBlockData.data.requisites.find(
 					(item) => item.type === "date"
 				);
@@ -218,6 +319,22 @@ function RequisiteModalSakai({
 						),
 					},
 				});
+			} else {
+				updatedBlockData.data.gradeRequisites.subConditions.forEach(
+					(logicalSet) => {
+						let conditionIndex = logicalSet.subConditions.findIndex(
+							(cond) => cond.id === conditionEdit.id
+						);
+
+						if (conditionIndex !== -1) {
+							logicalSet.subConditions[conditionIndex] = {
+								...logicalSet.subConditions[conditionIndex],
+								...formData,
+							};
+						}
+					}
+				);
+				console.log(updatedBlockData.data.gradeRequisites);
 			}
 		} else {
 			if (!updatedBlockData.data.requisites) {
@@ -305,7 +422,7 @@ function RequisiteModalSakai({
 												true,
 												false
 											)}
-											onClick={() => deleteRequisite(dateRequisite[0].id)}
+											onClick={() => deleteRequisite(dateRequisite[0].id, true)}
 										>
 											<FontAwesomeIcon
 												className={styles.cModal}
@@ -376,8 +493,8 @@ function RequisiteModalSakai({
 								{hasRequisiteType("dateException") && (
 									<DateExceptionComponent
 										requisites={blockData.data.requisites}
-										sakaiGroups={metaData.groups}
-										sakaiUsers={metaData.userMembers}
+										sakaiGroups={metaData.sakaiGroups}
+										sakaiUsers={metaData.userMembersSakai}
 										parseDate={parseDate}
 										deleteRequisite={deleteRequisite}
 									></DateExceptionComponent>
@@ -427,7 +544,7 @@ function RequisiteModalSakai({
 													true,
 													false
 												)}
-												onClick={() => deleteRequisite(groupList.id)}
+												onClick={() => deleteRequisite(groupList.id, true)}
 											>
 												<FontAwesomeIcon
 													className={styles.cModal}
@@ -438,7 +555,7 @@ function RequisiteModalSakai({
 										</div>
 										<GroupComponent
 											requisites={blockData.data.requisites}
-											sakaiGroups={metaData.groups}
+											sakaiGroups={metaData.sakaiGroups}
 											setConditionEdit={setConditionEdit}
 											deleteRequisite={deleteRequisite}
 										></GroupComponent>
@@ -470,11 +587,11 @@ function RequisiteModalSakai({
 						)}
 						{!editing && (
 							<Tab
-								eventKey="grade"
+								eventKey="SCORE"
 								title={
 									<div
 										className={`${
-											key !== "grade" ? "text-secondary" : "text-dark"
+											key !== "SCORE" ? "text-secondary" : "text-dark"
 										}`}
 									>
 										Calificación requerida
@@ -483,9 +600,20 @@ function RequisiteModalSakai({
 							>
 								{blockData.data.gradeRequisites && (
 									<GradeComponent
+										blockData={blockData}
+										setBlockData={setBlockData}
 										gradeConditions={blockData.data.gradeRequisites}
 										setConditionEdit={setConditionEdit}
+										deleteRequisite={deleteRequisite}
 									></GradeComponent>
+								)}
+								{!blockData.data.gradeRequisites && (
+									<div>
+										Actualmente no existe ninguna condición de calificación
+										asociada a este bloque, para crear una, deberás realizar una
+										línea o conexión entre otro bloque y este para que se genere
+										una condición de obligatoriedad de tipo calificación
+									</div>
 								)}
 							</Tab>
 						)}
@@ -495,18 +623,20 @@ function RequisiteModalSakai({
 				{editing && (editing == "date" || editing == "dateException") && (
 					<DateForm
 						blockData={blockData}
+						errorForm={errorForm}
 						dates={dates}
 						setDates={setDates}
 						visibilityArray={visibilityArray}
 						openingDateRef={openingDateRef}
 						dueDateRef={dueDateRef}
+						closeTimeRef={closeTimeRef}
 						editing={editing}
 						exceptionSelectRef={exceptionSelectRef}
 						exceptionEntityRef={exceptionEntityRef}
 						exceptionSelected={exceptionSelected}
 						setExceptionSelected={setExceptionSelected}
-						sakaiGroups={metaData.groups}
-						sakaiUsers={metaData.userMembers}
+						sakaiGroups={metaData.sakaiGroups}
+						sakaiUsers={metaData.userMembersSakai}
 						conditionEdit={conditionEdit}
 					></DateForm>
 				)}
@@ -515,13 +645,13 @@ function RequisiteModalSakai({
 					<GroupForm
 						groupsRef={groupsRef}
 						blockData={blockData}
-						sakaiGroups={metaData.groups}
+						sakaiGroups={metaData.sakaiGroups}
 						initalGroups={initalGroups}
 						setInitalGroups={setInitalGroups}
 						conditionEdit={conditionEdit}
 					></GroupForm>
 				)}
-				{editing && editing == "grade" && (
+				{editing && editing == "SCORE" && (
 					<GradeForm
 						conditionEdit={conditionEdit}
 						exceptionSelectRef={exceptionSelectRef}
@@ -542,21 +672,19 @@ function RequisiteModalSakai({
 					</div>
 				)}
 				{editing && (
-					<Button
-						onClick={saveNewCondition}
-						variant="primary"
-						disabled={
-							((editing == "date" || editing == "dateException") &&
-								dates.openingDate === undefined &&
-								dates.dueDate === undefined) ||
-							dates.openingDate === "" ||
-							dates.dueDate === "" ||
-							(editing == "group" &&
-								(initalGroups == undefined || initalGroups.length <= 0))
-						}
-					>
-						Guardar
-					</Button>
+					<>
+						<Button
+							onClick={saveNewCondition}
+							variant="primary"
+							disabled={
+								errorForm.length >= 1 ||
+								(editing == "group" &&
+									(initalGroups == undefined || initalGroups.length <= 0))
+							}
+						>
+							Guardar
+						</Button>
+					</>
 				)}
 			</Modal.Footer>
 		</Modal>

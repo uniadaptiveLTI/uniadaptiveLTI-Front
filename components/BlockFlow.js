@@ -407,19 +407,19 @@ const OverviewFlow = ({ map }, ref) => {
 				.getNodes()
 				.find((nodes) => nodes.id == targetNodeId);
 
+			if (sourceNode) {
+				if (Array.isArray(sourceNode.data.children)) {
+					sourceNode.data.children.push(targetNodeId);
+				} else {
+					sourceNode.data.children = [targetNodeId];
+				}
+			}
+
 			if (
 				targetNode &&
 				sourceNode.type != "start" &&
 				sourceNode.type != "end"
 			) {
-				if (sourceNode) {
-					if (Array.isArray(sourceNode.data.children)) {
-						sourceNode.data.children.push(targetNodeId);
-					} else {
-						sourceNode.data.children = [targetNodeId];
-					}
-				}
-
 				if (!edgeFound) {
 					switch (platform) {
 						case "moodle":
@@ -469,6 +469,7 @@ const OverviewFlow = ({ map }, ref) => {
 										const newCondition = {
 											id: parseInt(Date.now() * Math.random()).toString(),
 											type: "completion",
+											criteriaId: 1,
 											activityList: [
 												{
 													id: sourceNode.id,
@@ -484,6 +485,7 @@ const OverviewFlow = ({ map }, ref) => {
 									const newCondition = {
 										id: parseInt(Date.now() * Math.random()).toString(),
 										type: "completion",
+										criteriaId: 1,
 										activityList: [
 											{
 												id: sourceNode.id,
@@ -497,6 +499,15 @@ const OverviewFlow = ({ map }, ref) => {
 								}
 							}
 
+							if (targetNode.type === "badge") {
+								if (
+									sourceNode.data.g &&
+									!sourceNode.data.g.completionTracking
+								) {
+									sourceNode.data.g.completionTracking = 1;
+								}
+							}
+
 							break;
 						case "sakai":
 							console.log(sourceNode);
@@ -504,21 +515,21 @@ const OverviewFlow = ({ map }, ref) => {
 
 							if (!targetNode.data.gradeRequisites) {
 								targetNode.data.gradeRequisites = {
-									type: "root",
+									type: "ROOT",
 									id: parseInt(Date.now() * Math.random()).toString(),
-									op: "and",
-									logicalSets: [
+									operator: "AND",
+									subConditions: [
 										{
 											id: parseInt(Date.now() * Math.random()).toString(),
-											type: "subRoot",
-											op: "and",
-											conditions: [],
+											type: "PARENT",
+											operator: "AND",
+											subConditions: [],
 										},
 										{
 											id: parseInt(Date.now() * Math.random()).toString(),
-											type: "subRoot",
-											op: "or",
-											conditions: [],
+											type: "PARENT",
+											operator: "OR",
+											subConditions: [],
 										},
 									],
 								};
@@ -526,42 +537,40 @@ const OverviewFlow = ({ map }, ref) => {
 
 							const gradeRequisites = targetNode.data.gradeRequisites;
 
-							const subRootAnd = gradeRequisites.logicalSets.find(
-								(set) => set.type === "subRoot" && set.op === "and"
+							const subRootAnd = gradeRequisites.subConditions.find(
+								(set) => set.type === "PARENT" && set.operator === "AND"
 							);
 
-							subRootAnd.conditions.push({
-								id: sourceNodeId,
-								type: "grade",
-								parentId: sourceNodeId,
-								points: 5,
-								op: "GREATER_THAN",
+							console.log(targetNode);
+
+							subRootAnd.subConditions.push({
+								id: parseInt(Date.now() * Math.random()).toString(),
+								type: "SCORE",
+								itemId: sourceNodeId,
+								argument: 5,
+								operator: "GREATER_THAN",
 							});
-
-							console.log(subRootAnd);
-
-							console.log(targetNode.data);
 							break;
 					}
-
-					//FIXME: Check if line already drawn
-					setEdges([
-						...edges,
-						{
-							id: sourceNodeId + "-" + targetNodeId,
-							source: sourceNodeId,
-							target: targetNodeId,
-						},
-					]);
-
-					setNodes(
-						getUpdatedArrayById(
-							[sourceNode, targetNode],
-							reactFlowInstance.getNodes()
-						)
-					);
 				}
 			}
+
+			//FIXME: Check if line already drawn
+			setEdges([
+				...edges,
+				{
+					id: sourceNodeId + "-" + targetNodeId,
+					source: sourceNodeId,
+					target: targetNodeId,
+				},
+			]);
+
+			setNodes(
+				getUpdatedArrayById(
+					[sourceNode, targetNode],
+					reactFlowInstance.getNodes()
+				)
+			);
 		}
 	};
 
@@ -588,13 +597,13 @@ const OverviewFlow = ({ map }, ref) => {
 		let updatedBlocksArray = reactFlowInstance.getNodes().slice();
 
 		// Loop through each edge to be deleted
-		for (let i = 0; i < edges.length; i++) {
+		edges.map((edge) => {
 			// Find the source and target nodes for the current edge
 			var blockNodeSource = updatedBlocksArray.find(
-				(obj) => obj.id === edges[i].source
+				(obj) => obj.id === edge.source
 			);
 			var blockNodeTarget = updatedBlocksArray.find(
-				(obj) => obj.id === edges[i].target
+				(obj) => obj.id === edge.target
 			);
 
 			// If the source node exists and has children, update its children by removing the target node
@@ -605,36 +614,53 @@ const OverviewFlow = ({ map }, ref) => {
 			}
 
 			// If the target node exists and has a condition, update it based on its type
-			if (blockNodeTarget && blockNodeTarget.data.c) {
-				if (!validTypes.includes(blockNodeTarget.type)) {
-					deleteConditionById(blockNodeTarget.data.c.c, blockNodeSource.id);
-				} else {
-					updateBadgeConditions(blockNodeTarget, blockNodeSource);
+			if (blockNodeTarget) {
+				switch (platform) {
+					case "moodle":
+						if (blockNodeTarget.data.c) {
+							if (!validTypes.includes(blockNodeTarget.type)) {
+								deleteConditionById(
+									blockNodeTarget.data.c.c,
+									blockNodeSource.id
+								);
+							} else {
+								updateBadgeConditions(blockNodeTarget, blockNodeSource);
+							}
+						}
+						break;
+
+					case "sakai":
+						console.log(blockNodeTarget);
+						const gradeRequisites = blockNodeTarget.data?.gradeRequisites;
+
+						if (gradeRequisites && gradeRequisites?.subConditions.length >= 1) {
+							console.log(gradeRequisites.subConditions, blockNodeSource);
+							filterConditionsByParentId(
+								gradeRequisites.subConditions,
+								blockNodeSource.id
+							);
+						}
 				}
 			}
 
 			// Find the node to be deleted in the updated blocks array
 			const blockNodeDelete = updatedBlocksArray.find(
-				(obj) => obj.id === edges[i].source
+				(obj) => obj.id === edge.source
 			);
+
+			console.log(blockNodeDelete);
 
 			// If the node to be deleted exists and has children, update its children and conditions
 			if (blockNodeDelete && blockNodeDelete.children) {
 				blockNodeDelete.children = blockNodeDelete.children.filter(
-					(child) => child !== edges[i].target
+					(child) => child !== edge.target
 				);
 
-				if (blockNodeDelete.children.length === 0)
+				if (blockNodeDelete.children.length === 0) {
 					blockNodeDelete.children = undefined;
-
-				if (blockNodeDelete.c) {
-					blockNodeDelete.c = blockNodeDelete.c.filter(
-						(condition) => condition.unlockId !== edges[i].target
-					);
-					if (blockNodeDelete.c.length === 0) blockNodeDelete.c = undefined;
 				}
 			}
-		}
+		});
 
 		// Update the nodes and edges in the reactFlowInstance
 		reactFlowInstance.setNodes(updatedBlocksArray);
@@ -645,10 +671,20 @@ const OverviewFlow = ({ map }, ref) => {
 		);
 	};
 
+	function filterConditionsByParentId(subConditions, blockNodeId) {
+		subConditions.forEach((subCondition) => {
+			subCondition.subConditions = subCondition.subConditions?.filter(
+				(condition) => {
+					return !(condition.itemId === blockNodeId);
+				}
+			);
+		});
+	}
+
 	/**
 	 * Deletes blocks and updates their parents and children.
 	 * @param {Node[]} blocks - The blocks to delete.
-     * @returns {Node[]} - The array with the blocks removed.
+	 * @returns {Node[]} - The array with the blocks removed.
 	 */
 	const deleteBlocks = (blocks) => {
 		// Array of blocks that its children or conditions are being updated
@@ -670,20 +706,20 @@ const OverviewFlow = ({ map }, ref) => {
 		});
 
 		// Iteration of the blocks to delete
-		for (let i = 0; i < blocks.length; i++) {
+		blocks.map((block) => {
 			// Get method to retreive the parents nodes from a block
 			const parentsNode = getParentsNode(
 				reactFlowInstance.getNodes(),
-				blocks[i].id
+				block.id
 			);
 
 			// Iteration of the parents nodes
-			for (let j = 0; j < parentsNode.length; j++) {
+			parentsNode.map((parentNode) => {
 				// Condition to check if one of the parents it isn't being deleted
-				if (!blocks.some((block) => block.id === parentsNode[j].id)) {
+				if (!blocks.some((block) => block.id === parentNode.id)) {
 					// Find method to check if the parent is already edited
 					const foundParentNode = updatedBlocks.find(
-						(block) => block.id === parentsNode[j].id
+						(block) => block.id === parentNode.id
 					);
 
 					// Condition to check if the parent is already edited
@@ -694,66 +730,82 @@ const OverviewFlow = ({ map }, ref) => {
 							data: {
 								...foundParentNode.data,
 								children: foundParentNode.data.children.filter(
-									(childId) => !childId.includes(blocks[i].id)
+									(childId) => !childId.includes(block.id)
 								),
 							},
 						};
 
 						// Map method to update the array of the blocks updated
 						const updatedBlocksArray = updatedBlocks.map((block) =>
-							block.id === parentsNode[j].id ? updatedNode : block
+							block.id === parentNode.id ? updatedNode : block
 						);
 
 						updatedBlocks = updatedBlocksArray;
 					} else {
 						// Filter method to update the children
-						parentsNode[j].data.children = parentsNode[j].data.children.filter(
-							(childId) => !childId.includes(blocks[i].id)
+						parentNode.data.children = parentNode.data.children.filter(
+							(childId) => !childId.includes(block.id)
 						);
 
 						// Push method to store the updated node
-						updatedBlocks.push(parentsNode[j]);
+						updatedBlocks.push(parentNode);
 					}
 				}
-			}
+			});
 
 			var nodeArray = reactFlowInstance.getNodes();
 
 			// Filter method to retrieve only the nodes that are the children of a block
-			if (blocks[i].data.children) {
+			if (block.data.children) {
 				const childrenNodes = nodeArray.filter((node) =>
-					blocks[i].data.children.includes(node.id.toString())
+					block.data.children.includes(node.id.toString())
 				);
 
 				// Iteration of the children nodes
-				for (var k = 0; k < childrenNodes.length; k++) {
+				childrenNodes.map((childrenNode) => {
 					// Find method to check if the children is already edited
 					const foundChildrenNode = updatedBlocks.find(
-						(block) => block.id === childrenNodes[k].id
+						(block) => block.id === childrenNode.id
 					);
 
 					// Condition to check if the children is already edited
 					if (foundChildrenNode) {
-						if (!validTypes.includes(foundChildrenNode.type)) {
-							// Delete method that updates the conditions of the children node edited
-							deleteConditionById(foundChildrenNode.data?.c?.c, blocks[i].id);
-						} else {
-							updateBadgeConditions(foundChildrenNode, blocks[i]);
+						switch (platform) {
+							case "moodle":
+								if (!validTypes.includes(foundChildrenNode.type)) {
+									// Delete method that updates the conditions of the children node edited
+									deleteConditionById(foundChildrenNode.data?.c?.c, block.id);
+								} else {
+									updateBadgeConditions(foundChildrenNode, block);
+								}
+							case "sakai":
+								filterConditionsByParentId(
+									foundChildrenNode.data.gradeRequisites.subConditions,
+									block.id
+								);
 						}
 					} else {
-						if (!validTypes.includes(childrenNodes[k].type)) {
-							// Delete method that updates the conditions of the children node
-							deleteConditionById(childrenNodes[k].data?.c?.c, blocks[i].id);
-						} else {
-							updateBadgeConditions(childrenNodes[k], blocks[i]);
+						switch (platform) {
+							case "moodle":
+								if (!validTypes.includes(childrenNode.type)) {
+									// Delete method that updates the conditions of the children node
+									deleteConditionById(childrenNode.data?.c?.c, block.id);
+								} else {
+									updateBadgeConditions(childrenNode, block);
+								}
+							case "sakai":
+								filterConditionsByParentId(
+									childrenNode.data.gradeRequisites.subConditions,
+									block.id
+								);
 						}
 
 						// Push method to store the updated node
-						updatedBlocks.push(childrenNodes[k]);
+						updatedBlocks.push(childrenNode);
 					}
-				}
+				});
 			}
-		}
+		});
 
 		// Update method to update the full array of nodes with the updated nodes
 		let updatedNodeArray = getUpdatedArrayById(
@@ -762,11 +814,11 @@ const OverviewFlow = ({ map }, ref) => {
 		);
 
 		// Iteration to delete the nodes from the full array of nodes
-		for (let i = 0; i < blocks.length; i++) {
+		blocks.map((block) => {
 			updatedNodeArray = updatedNodeArray.filter(
-				(node) => node.id !== blocks[i].id
+				(node) => node.id !== block.id
 			);
-		}
+		});
 
 		// Set method to update the full array of nodes
 		reactFlowInstance.setNodes(updatedNodeArray);
@@ -774,7 +826,7 @@ const OverviewFlow = ({ map }, ref) => {
 		// Check method for errors
 		errorListCheck(blocks, errorList, setErrorList, true);
 
-        return updatedNodeArray;
+		return updatedNodeArray;
 	};
 
 	const deleteElements = (nodes, edges, force = false) => {
@@ -1445,6 +1497,7 @@ const OverviewFlow = ({ map }, ref) => {
 							selectedNodes.map((pNode) => pNode.id).includes(oNode.id)
 						)
 				);
+				console.log(filteredNodes);
 
 				let minX = Infinity;
 				let minY = Infinity;

@@ -1,6 +1,8 @@
 import { getNodeById } from "@utils/Nodes";
 import { getByProperty, parseDate } from "@utils/Utils";
+import { PlatformContext } from "pages/_app";
 import React, { useEffect, useState } from "react";
+import { useContext } from "react";
 import {
 	BaseEdge,
 	EdgeLabelRenderer,
@@ -31,10 +33,25 @@ const ConditionalEdge = ({
 		targetPosition,
 	});
 
+	const { platform, setPlatform } = useContext(PlatformContext);
+
 	const rfNodes = useNodes();
 	const rfEdges = useEdges();
 	const [lineType, setLineType] = useState("and");
 	const [animatedLine, setAnimatedLine] = useState(false);
+
+	function findConditionByParentId(subConditions, blockNodeId) {
+		for (const subCondition of subConditions) {
+			const foundCondition = subCondition.subConditions?.find((condition) => {
+				return condition.itemId === blockNodeId;
+			});
+			if (foundCondition) {
+				return foundCondition;
+			}
+		}
+
+		return null;
+	}
 
 	useEffect(() => {
 		const shouldAnimate = lineType == "or" ? true : false;
@@ -48,30 +65,42 @@ const ConditionalEdge = ({
 		const targetNode = getNodeById(target, rfNodes);
 		const sourceNode = getNodeById(source, rfNodes);
 
-		if (targetNode && targetNode.data && targetNode.data.c) {
-			const conditions = targetNode.data.c;
-			const condition = findConditionById(sourceNode.id, conditions.c);
-			const parentCondition = findParent(conditions, condition?.id);
-			if (condition) {
-				const sourceNode = getNodeById(source, rfNodes);
-				if (sourceNode && sourceNode.data && sourceNode.data.label) {
+		switch (platform) {
+			case "moodle":
+				if (targetNode && targetNode.data && targetNode.data.c) {
+					const conditions = targetNode.data.c;
+					const condition = findConditionById(sourceNode.id, conditions.c);
+					if (condition) {
+						if (sourceNode && sourceNode.data && sourceNode.data.label) {
+							return getReadableCondition(condition);
+						}
+					}
+				}
+			case "sakai":
+				if (sourceNode && targetNode && targetNode.data.gradeRequisites) {
+					const condition = findConditionByParentId(
+						targetNode.data.gradeRequisites.subConditions,
+						sourceNode.id
+					);
+
 					return getReadableCondition(condition);
 				}
-			}
 		}
 	};
-
 	const getReadableCondition = (condition) => {
-		switch (condition.type) {
+		switch (condition?.type) {
 			case "grade":
-				if (condition.min && condition.max) {
-					return `>= ${condition.min} y < ${condition.max} `;
-				} else {
-					if (condition.min) {
-						return `>= ${condition.min}`;
-					} else {
-						return `< ${condition.max}`;
-					}
+				switch (platform) {
+					case "moodle":
+						if (condition.min && condition.max) {
+							return `>= ${condition.min} y < ${condition.max} `;
+						} else {
+							if (condition.min) {
+								return `>= ${condition.min}`;
+							} else {
+								return `< ${condition.max}`;
+							}
+						}
 				}
 			case "completion":
 				if (condition.e) {
@@ -84,6 +113,7 @@ const ConditionalEdge = ({
 							return `Suspendido`;
 					}
 				} else if (condition.activityList) {
+					console.log("ACTIVITYLIST");
 					//TODO: CHANGE THIS
 					const sourceNode = getNodeById(source, rfNodes);
 					const matchingCondition = condition.activityList.find(
@@ -113,6 +143,20 @@ const ConditionalEdge = ({
 					return `Sin completar`;
 				}
 				break;
+			case "SCORE":
+			case "sakai":
+				switch (condition.operator) {
+					case "SMALLER_THAN":
+						return `< ${condition.argument}`;
+					case "SMALLER_THAN_OR_EQUAL_TO":
+						return `<= ${condition.argument}`;
+					case "EQUAL_TO":
+						return `= ${condition.argument}`;
+					case "GREATER_THAN_OR_EQUAL_TO":
+						return `>= ${condition.argument}`;
+					case "GREATER_THAN":
+						return `> ${condition.argument}`;
+				}
 		}
 	};
 
@@ -193,13 +237,12 @@ const ConditionalEdge = ({
 		}
 	};
 
-	const [label, setLabel] = useState(getSelfCondition());
-
-	const [width, setWidth] = useState(getSelfWidth());
+	const [label, setLabel] = useState();
+	const [width, setWidth] = useState();
 
 	useEffect(() => {
 		setLabel(getSelfCondition());
-	}, [getNodeById(target, rfNodes)]);
+	}, [JSON.stringify(getNodeById(target, rfNodes))]);
 
 	useEffect(() => {
 		setWidth(getSelfWidth);

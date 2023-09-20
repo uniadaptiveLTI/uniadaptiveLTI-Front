@@ -16,6 +16,7 @@ export function parseMoodleNode(node, newX, newY) {
 		lmsResource: node.id,
 		lmsVisibility: node.visible,
 	};
+
 	return newNode;
 }
 
