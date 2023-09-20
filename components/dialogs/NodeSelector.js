@@ -102,6 +102,18 @@ export default forwardRef(function NodeSelector(
 			data.order = getLastPositionInSection(section, rfNodes) + 1;
 			data.lmsVisibility = getDefaultVisibility(platform);
 			data.indent = 0;
+			if (platform == "moodle")
+				data.g = {
+					completionTracking: 0,
+					hasToBeSeen: false,
+					hasToBeQualified: false,
+					qualificationToPass: 0,
+					attemptsAllowed: 0,
+					qualificationMethod: 0,
+					requiredType: 0,
+					hasTimeLimit: false,
+					timeLimit: "",
+				};
 		} else {
 			data.label = name;
 		}
