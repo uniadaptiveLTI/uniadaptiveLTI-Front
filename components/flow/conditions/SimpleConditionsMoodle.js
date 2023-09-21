@@ -176,7 +176,7 @@ export default function SimpleConditionsMoodle({ id }) {
 								<p style={prefix}>
 									{parsedCompletionBadge.find((pcg) => c.op == pcg.op).parsed}
 								</p>
-								<p style={prefix}>
+								<p style={{ marginLeft: "48px" }}>
 									{c.activityList.map((node) => (
 										<p key={node.id}>
 											{getTypeIcon(
