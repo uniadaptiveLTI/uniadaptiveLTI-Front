@@ -1,3 +1,6 @@
+import { clampNodesOrderMoodle } from "./Moodle";
+import { clampNodesOrderSakai } from "./Sakai";
+
 /**
  * Returns a new array with updated entries from the original array.
  * @param {Object|Object[]} updatedEntry - The entry or entries to be updated in the original array. Each entry must have an id property.
@@ -469,4 +472,15 @@ export function reOrderSakaiRequisites(requisites) {
 	const sortedArray = [...requisites].sort(customSort);
 
 	return sortedArray;
+}
+
+export function clampNodesOrder(nodeArray, platform) {
+	switch (platform) {
+		case "moodle":
+			return clampNodesOrderMoodle(nodeArray);
+		case "sakai":
+			return clampNodesOrderSakai(nodeArray);
+		case "default":
+			return nodeArray;
+	}
 }

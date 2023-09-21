@@ -188,3 +188,34 @@ function sakaiConditionalIDAdder(subConditions, nodes, parentNodes) {
 	});
 	return subConditions;
 }
+
+export function clampNodesOrderSakai(nodeArray) {
+	const newArray = [];
+	let maxSection = 0;
+	nodeArray.forEach((node) => {
+		if (maxSection < node.data.section) maxSection = node.data.section;
+	});
+	for (let i = 0; i <= maxSection; i++) {
+		const sectionArray = nodeArray.filter((node) => node.data.section == i);
+		let maxIndent = 0;
+		sectionArray.forEach((node) => {
+			if (maxIndent < node.data.indent) maxIndent = node.data.indent;
+		});
+		for (let j = 0; j <= maxIndent; j++) {
+			const indentArray = sectionArray.filter((node) => node.data.indent == j);
+			// Sort indentArray by data.order, undefined values go first
+			indentArray.sort((a, b) => {
+				if (a.data.order === undefined) return -1;
+				if (b.data.order === undefined) return 1;
+				return a.data.order - b.data.order;
+			});
+			for (let k = 0; k < indentArray.length; k++) {
+				newArray.push({
+					...indentArray[k],
+					data: { ...indentArray[k].data, order: k },
+				});
+			}
+		}
+	}
+	return newArray;
+}
