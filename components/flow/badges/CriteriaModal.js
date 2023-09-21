@@ -48,19 +48,9 @@ function CriteriaModal({
 
 	const { metaData, setMetaData } = useContext(MetaDataContext);
 
-	const roleList = metaData.roleList;
-
-	const badgeList = [
-		{ id: "89562", name: "Insignia 1" },
-		{ id: "24312", name: "Insignia 2" },
-		{ id: "68456", name: "Insignia 3" },
-	];
-
-	const skillsList = [
-		{ id: "89562", name: "Competencia 1" },
-		{ id: "24312", name: "Competencia 2" },
-		{ id: "68456", name: "Competencia 3" },
-	];
+	const roleList = metaData.role_list;
+	const badgeList = metaData.badges;
+	const skillsList = metaData.skills;
 
 	const [lmsResourceList, setLmsResourceList] = useState([]);
 

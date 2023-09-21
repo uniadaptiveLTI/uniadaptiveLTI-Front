@@ -40,21 +40,95 @@ export default function SimpleConditionsMoodle({ id }) {
 	};
 
 	const parsedConditionsGroup = [
-		{ op: "&", parsed: <b>Si se cumplen TODOS:</b> },
-		{ op: "|", parsed: <b>Si se cumple UNO:</b> },
-		{ op: "!&", parsed: <b>Si NO se cumplen TODOS:</b> },
-		{ op: "!|", parsed: <b>Si NO se cumple UNO:</b> },
+		{
+			op: "&",
+			parsed: (
+				<a>
+					Si se cumplen <b>TODOS</b>:
+				</a>
+			),
+		},
+		{
+			op: "|",
+			parsed: (
+				<a>
+					Si se cumple <b>UNO:</b>
+				</a>
+			),
+		},
+		{
+			op: "!&",
+			parsed: (
+				<a>
+					Si NO se cumplen <b>TODOS</b>:
+				</a>
+			),
+		},
+		{
+			op: "!|",
+			parsed: (
+				<a>
+					Si NO se cumple <b>UNO:</b>
+				</a>
+			),
+		},
 	];
 
 	const parsedCompletionBadge = [
 		{
 			op: "&",
-			parsed: <b>Todas las siguientes actividades han sido completadas:</b>,
+			parsed: (
+				<a>
+					<b>TODAS</b> las siguientes actividades han sido completadas:
+				</a>
+			),
 		},
 		{
 			op: "|",
 			parsed: (
-				<b>Cualquiera de las siguientes actividades han sido completadas:</b>
+				<a>
+					<b>CUALQUIERA</b> de las siguientes actividades han sido completadas:
+				</a>
+			),
+		},
+	];
+
+	const parsedBadgeListBadge = [
+		{
+			op: "&",
+			parsed: (
+				<a>
+					<b>TODAS</b> las siguientes insignias tienen que haber sido ganadas:
+				</a>
+			),
+		},
+		{
+			op: "|",
+			parsed: (
+				<a>
+					<b>CUALQUIERA</b> de las siguientes insignias tienen que haber sido
+					ganadas:
+				</a>
+			),
+		},
+	];
+
+	const parsedSkillsListBadge = [
+		{
+			op: "&",
+			parsed: (
+				<a>
+					<b>TODAS</b> las siguientes insignias tienen que haber sido ganadas:
+				</a>
+			),
+		},
+		{
+			op: "|",
+			parsed: (
+				<a>
+					<b>CUALQUIERA</b> de las siguientes insignias tienen que haber sido
+					ganadas:
+				</a>
 			),
 		},
 	];
@@ -77,7 +151,6 @@ export default function SimpleConditionsMoodle({ id }) {
 					break;
 				case "completion":
 					let node = getNodeById(id, rfNodes);
-					console.log(node, c);
 					if (node.type !== "badge") {
 						const e = [
 							"no completado.",
@@ -100,7 +173,7 @@ export default function SimpleConditionsMoodle({ id }) {
 					} else {
 						finalDOM.push(
 							<>
-								<p>
+								<p style={prefix}>
 									{parsedCompletionBadge.find((pcg) => c.op == pcg.op).parsed}
 								</p>
 								<p style={prefix}>
@@ -122,7 +195,7 @@ export default function SimpleConditionsMoodle({ id }) {
 							</>
 						);
 					}
-					console.log(finalDOM);
+
 					break;
 				case "courseGrade":
 					if (c.min && c.max) {
@@ -257,7 +330,7 @@ export default function SimpleConditionsMoodle({ id }) {
 				case "role":
 					finalDOM.push(
 						<>
-							<p>
+							<p style={prefix}>
 								Debe ser otorgada a los usuarios con{" "}
 								{c.op === "&" && <b>TODOS</b>}{" "}
 								{c.op === "|" && (
@@ -268,10 +341,13 @@ export default function SimpleConditionsMoodle({ id }) {
 								los siguientes roles:
 								<ul>
 									{c.roleList.map((option) => {
-										const roleFounded = metaData.roleList.find(
-											(roleMeta) => roleMeta.id === option
+										const roleList = metaData.role_list;
+
+										const roleFounded = roleList.find(
+											(roleMeta) => roleMeta.id === option.toString()
 										);
-										<li key={roleFounded.id}>{roleFounded.name}</li>;
+
+										return <li key={roleFounded.id}>{roleFounded.name}</li>;
 									})}
 								</ul>
 							</p>
@@ -283,7 +359,7 @@ export default function SimpleConditionsMoodle({ id }) {
 						(!c.op || c.op === "0" || c.op === "") &&
 							!c.dateTo &&
 							finalDOM.push(
-								<div>
+								<div style={prefix}>
 									Debe finalizarse el curso <strong>{metaData.name}</strong>
 								</div>
 							);
@@ -291,38 +367,76 @@ export default function SimpleConditionsMoodle({ id }) {
 					{
 						(c.op || c.dateTo) &&
 							finalDOM.push(
-								<div>
-									<a>
-										Debe finalizarse el curso <b>{metaData.name}</b>
-									</a>
-									{c.dateTo && (
+								<>
+									<div style={prefix}>
 										<a>
-											{" "}
-											antes del <strong>{parseDate(c.dateTo)}</strong>
+											Debe finalizarse el curso <b>{metaData.name}</b>
 										</a>
-									)}
-									{c.op && c.op !== "0" && c.op !== "" && (
-										<a>
-											{" "}
-											con calificación mínima de <strong>{c.op}</strong>
-										</a>
-									)}
-								</div>
+										{c.dateTo && (
+											<a>
+												{" "}
+												antes del <strong>{parseDate(c.dateTo)}</strong>
+											</a>
+										)}
+										{c.op && c.op !== "0" && c.op !== "" && (
+											<a>
+												{" "}
+												con calificación mínima de <strong>{c.op}</strong>
+											</a>
+										)}
+									</div>
+									<br></br>
+								</>
 							);
 					}
 					break;
 				case "badgeList":
+					finalDOM.push(
+						<>
+							<p style={prefix}>
+								{parsedBadgeListBadge.find((pcg) => c.op == pcg.op).parsed}
+							</p>
+							<ul style={prefix}>
+								{c.badgeList.map((badge) => {
+									const metaBadgeList = metaData.badges;
 
+									const badgeFounded = metaBadgeList.find(
+										(metaBadge) => metaBadge.id === badge.toString()
+									);
+
+									return <li key={badgeFounded.id}>{badgeFounded.name}</li>;
+								})}
+							</ul>
+						</>
+					);
+					break;
 				case "skills":
+					finalDOM.push(
+						<>
+							<p style={prefix}>
+								{parsedSkillsListBadge.find((pcg) => c.op == pcg.op).parsed}
+							</p>
+							<ul style={prefix}>
+								{c.skillsList.map((skill) => {
+									const metaSkillsList = metaData.skills;
 
+									const skillFounded = metaSkillsList.find(
+										(metaSkill) => metaSkill.id === skill.toString()
+									);
+
+									return <li key={skillFounded.id}>{skillFounded.name}</li>;
+								})}
+							</ul>
+						</>
+					);
+					break;
 				default:
 					break;
 			}
 		});
-		console.log(finalDOM);
+
 		return finalDOM;
 	};
-
 	const parseQualifications = (q) => {
 		let finalDOM = [
 			<p>

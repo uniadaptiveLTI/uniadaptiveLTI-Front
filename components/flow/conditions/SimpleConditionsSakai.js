@@ -217,9 +217,9 @@ export default function SimpleConditionsSakai({ id }) {
 											const node = nodes.find(
 												(node) => node.id === condition.itemId
 											);
-
+											console.log(operatorLabel, condition);
 											const operatorInfo = operatorLabel.find(
-												(opInfo) => opInfo.operator === condition.operator
+												(opInfo) => opInfo.op === condition.operator
 											);
 
 											// Render each condition here
@@ -237,7 +237,9 @@ export default function SimpleConditionsSakai({ id }) {
 					</>
 				)}
 				{((!andLogicalSet && !orLogicalSet) ||
-					(andLogicalSet.subConditions.length < 1 &&
+					(andLogicalSet &&
+						andLogicalSet.subConditions.length < 1 &&
+						andLogicalSet &&
 						orLogicalSet.subConditions.length < 1)) && (
 					<div>
 						{JSON.stringify(getNodeById(id, rfNodes))}
