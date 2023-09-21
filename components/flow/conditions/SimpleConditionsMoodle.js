@@ -118,7 +118,7 @@ export default function SimpleConditionsMoodle({ id }) {
 			op: "&",
 			parsed: (
 				<a>
-					<b>TODAS</b> las siguientes insignias tienen que haber sido ganadas:
+					<b>TODAS</b> las siguientes competencias tengan que ser completadas:
 				</a>
 			),
 		},
@@ -126,8 +126,8 @@ export default function SimpleConditionsMoodle({ id }) {
 			op: "|",
 			parsed: (
 				<a>
-					<b>CUALQUIERA</b> de las siguientes insignias tienen que haber sido
-					ganadas:
+					<b>CUALQUIERA</b> de las siguientes competencias tengan que ser
+					completadas:
 				</a>
 			),
 		},
