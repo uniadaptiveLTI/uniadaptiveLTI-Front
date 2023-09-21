@@ -116,7 +116,7 @@ export function parseSakaiNode(nodes, node, newX, newY, validTypes) {
 		newNode.data = {
 			label: node.name,
 			section: node.section,
-			column: node.column,
+			indent: node.indent,
 			order: node.order,
 			lmsResource: node.sakaiId,
 			children: [],

@@ -23,6 +23,7 @@ const SakaiBadges = ({
 	platform,
 	styles,
 }) => {
+	console.log(data);
 	return (
 		<>
 			{(type == "assign" || type == "exam") && getParentExpanded() && (
