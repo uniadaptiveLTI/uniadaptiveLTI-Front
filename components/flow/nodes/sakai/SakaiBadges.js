@@ -100,7 +100,7 @@ const SakaiBadges = ({
 						}
 						title="Posición en la sección"
 					>
-						{data.order}
+						{data.order + 1}
 					</Badge>
 				)}
 			</div>

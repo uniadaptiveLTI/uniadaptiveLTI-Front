@@ -1478,12 +1478,20 @@ const OverviewFlow = ({ map }, ref) => {
 				...blockData,
 				x: blockData.x + asideOffset + flowPos.x,
 				y: blockData.y + asideOffset + flowPos.y,
+				data: { ...blockData.data, order: Infinity },
 			};
 		});
 		setShowContextualMenu(false);
 
 		let newcurrentBlocksData = [...reactFlowInstance.getNodes(), ...newBlocks];
-		reactFlowInstance.setNodes(newcurrentBlocksData);
+		const finalcurrentBlocksData = getUpdatedArrayById(
+			clampNodesOrder(newcurrentBlocksData, platform),
+			newcurrentBlocksData
+		);
+
+		errorListCheck(finalcurrentBlocksData, errorList, setErrorList);
+
+		reactFlowInstance.setNodes(finalcurrentBlocksData);
 	};
 
 	/**
