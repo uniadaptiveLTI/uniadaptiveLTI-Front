@@ -81,7 +81,7 @@
 
 	--blockflow-label-font-color: var(--blockflow-font-color);
 	--blockflow-label-font-family: var(--blockflow-font-family);
-	--blockflow-label-background-color: none;
+	--blockflow-label-background-color: #fff;
 
 	--blockflow-node-border-width: 2px;
 	--blockflow-node-border-color: #101011;

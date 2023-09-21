@@ -39,6 +39,7 @@ import {
 	deduplicateById,
 	updateBadgeConditions,
 	capitalizeFirstLetter,
+	clampNodesOrder,
 } from "@utils/Utils";
 import {
 	getNodeByNodeDOM,
@@ -793,11 +794,13 @@ const OverviewFlow = ({ map }, ref) => {
 								} else {
 									updateBadgeConditions(childrenNode, block);
 								}
+								break;
 							case "sakai":
 								filterConditionsByParentId(
 									childrenNode.data.gradeRequisites.subConditions,
 									block.id
 								);
+								break;
 						}
 
 						// Push method to store the updated node
@@ -820,13 +823,19 @@ const OverviewFlow = ({ map }, ref) => {
 			);
 		});
 
+		//Clamp nodes order to avoid gaps
+		const finalNodeArray = getUpdatedArrayById(
+			clampNodesOrder(updatedNodeArray, platform),
+			updatedNodeArray
+		);
+
 		// Set method to update the full array of nodes
-		reactFlowInstance.setNodes(updatedNodeArray);
+		reactFlowInstance.setNodes(finalNodeArray);
 
 		// Check method for errors
 		errorListCheck(blocks, errorList, setErrorList, true);
 
-		return updatedNodeArray;
+		return finalNodeArray;
 	};
 
 	const deleteElements = (nodes, edges, force = false) => {

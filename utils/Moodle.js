@@ -1,4 +1,4 @@
-import { uniqueId } from "./Utils";
+import { getUpdatedArrayById, uniqueId } from "./Utils";
 
 export function parseMoodleNode(node, newX, newY) {
 	const newNode = {};
@@ -164,4 +164,31 @@ function moodleParentingSetter(objArray) {
 	}
 
 	return newArray;
+}
+
+export function clampNodesOrderMoodle(nodeArray) {
+	const newArray = [];
+	let maxSection = 0;
+	nodeArray.forEach((node) => {
+		if (maxSection < node.data.section) maxSection = node.data.section;
+	});
+	for (let i = 0; i <= maxSection; i++) {
+		const newSection = [];
+		const sectionArray = nodeArray.filter((node) => node.data.section == i);
+		// Sort sectionArray by data.order, undefined values go first
+		sectionArray.sort((a, b) => {
+			if (a.data.order === undefined) return -1;
+			if (b.data.order === undefined) return 1;
+			return a.data.order - b.data.order;
+		});
+		for (let k = 0; k < sectionArray.length; k++) {
+			newSection.push({
+				...sectionArray[k],
+				data: { ...sectionArray[k].data, order: k },
+			});
+		}
+		newArray.push(...newSection);
+	}
+	console.log(nodeArray, getUpdatedArrayById(newArray, nodeArray));
+	return getUpdatedArrayById(newArray, nodeArray);
 }
