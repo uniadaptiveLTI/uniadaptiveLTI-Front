@@ -42,11 +42,12 @@ const CompletionComponent = ({
 								const node = nodes.find((node) => node.id === option.id);
 								return (
 									<li key={option.id}>
-										<strong>{node.data.label}</strong>{" "}
+										{node.data.label}{" "}
 										{option.date && (
 											<a>
 												{" "}
-												antes del <strong>{parseDate(option.date)}</strong>
+												<strong>antes</strong> del{" "}
+												<strong>{parseDate(option.date)}</strong>
 											</a>
 										)}
 									</li>

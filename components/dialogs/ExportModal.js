@@ -58,7 +58,7 @@ export default forwardRef(function ExportModal(
 
 	const [nodeWarningChildrenList, setNodeWarningChildrenList] = useState();
 	const [nodeWarningParentList, setNodeWarningParentList] = useState();
-
+	console.log(errorList);
 	const formatErrorList = () => {
 		console.log(JSON.stringify(metaData));
 	};
@@ -113,7 +113,7 @@ export default forwardRef(function ExportModal(
 		const errorResourceNotFound = errorList
 			.filter(
 				(entry) =>
-					entry.seriousness === "error" && entry.type === "resourceNotFound"
+					entry.severity === "error" && entry.type === "resourceNotFound"
 			)
 			.map((error) => ({
 				...error,
@@ -124,7 +124,7 @@ export default forwardRef(function ExportModal(
 		const errorSectionNotFound = errorList
 			.filter(
 				(entry) =>
-					entry.seriousness === "error" && entry.type === "sectionNotFound"
+					entry.severity === "error" && entry.type === "sectionNotFound"
 			)
 			.map((error) => ({
 				...error,
@@ -134,8 +134,7 @@ export default forwardRef(function ExportModal(
 
 		const errorOrderNotFound = errorList
 			.filter(
-				(entry) =>
-					entry.seriousness === "error" && entry.type === "orderNotFound"
+				(entry) => entry.severity === "error" && entry.type === "orderNotFound"
 			)
 			.map((error) => ({
 				...error,
