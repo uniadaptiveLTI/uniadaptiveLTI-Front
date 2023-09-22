@@ -56,7 +56,10 @@ function CriteriaModal({
 
 	const addCondition = (conditionId) => {
 		if (blockData.data.c.id != conditionId) {
-			const foundCondition = findConditionById(conditionId, blockData.data.c.c);
+			const foundCondition = findConditionById(
+				conditionId,
+				blockData.data.c.params
+			);
 			setEditing(foundCondition);
 		} else {
 			setEditing(blockData.data.c);
@@ -69,9 +72,9 @@ function CriteriaModal({
 		} else {
 			const firstConditionGroup = {
 				type: "conditionsGroup",
-				criteriaId: 2,
+				criteriatype: 0,
 				id: parseInt(Date.now() * Math.random()).toString(),
-				op: "&",
+				method: "&",
 			};
 			setEditing(firstConditionGroup);
 		}
@@ -88,7 +91,7 @@ function CriteriaModal({
 		}
 
 		for (const condition of conditions) {
-			if (condition.c) {
+			if (condition.params) {
 				const innerCondition = findConditionById(id, condition.c);
 				if (innerCondition) {
 					return innerCondition;
@@ -150,10 +153,10 @@ function CriteriaModal({
 					conditions = undefined;
 				}
 				return true;
-			} else if (condition.c) {
-				if (deleteConditionById(condition.c, id)) {
-					if (condition.c.length === 0) {
-						condition.c = undefined;
+			} else if (condition.params) {
+				if (deleteConditionById(condition.params, id)) {
+					if (condition.params.length === 0) {
+						condition.params = undefined;
 					}
 					return true;
 				}
@@ -176,12 +179,15 @@ function CriteriaModal({
 
 	const deleteCondition = (conditionId) => {
 		// We found the condition to delete
-		const foundCondition = findConditionById(conditionId, blockData.data.c.c);
+		const foundCondition = findConditionById(
+			conditionId,
+			blockData.data.c.params
+		);
 
 		// If clause to check if the condition is completion type
 		if (foundCondition.type === "completion") {
 			// Constant to retrieve the activityList of the completion condition
-			const activityList = foundCondition.activityList;
+			const activityList = foundCondition.params;
 
 			// Get method to retrieve the actual edges
 			const edges = reactFlowInstance.getEdges();
@@ -212,7 +218,7 @@ function CriteriaModal({
 		const blockDataCopy = deepCopy(blockData);
 
 		// Delete method to delete the condition by ID
-		deleteConditionById(blockDataCopy.data.c.c, conditionId);
+		deleteConditionById(blockDataCopy.data.c.params, conditionId);
 
 		// Set method to set the updated blockData
 		setBlockData(blockDataCopy);
@@ -220,11 +226,11 @@ function CriteriaModal({
 
 	function updateConditionOp(jsonObj, id, newOp) {
 		if (jsonObj.id === id) {
-			jsonObj.op = newOp;
+			jsonObj.method = newOp;
 			return true;
-		} else if (jsonObj.c) {
-			for (let i = 0; i < jsonObj.c.length; i++) {
-				if (updateConditionOp(jsonObj.c[i], id, newOp)) {
+		} else if (jsonObj.params) {
+			for (let i = 0; i < jsonObj.params.length; i++) {
+				if (updateConditionOp(jsonObj.params[i], id, newOp)) {
 					return true;
 				}
 			}
@@ -233,8 +239,9 @@ function CriteriaModal({
 	}
 
 	function swapConditionGroup(condition) {
+		console.log(condition);
 		const updatedBlockData = deepCopy(blockData);
-		const swapOperator = condition.op === "&" ? "|" : "&";
+		const swapOperator = condition.method === "&" ? "|" : "&";
 
 		updateConditionOp(updatedBlockData.data.c, condition.id, swapOperator);
 		setBlockData(updatedBlockData);
@@ -246,9 +253,9 @@ function CriteriaModal({
 			setSelectedOption(conditionEdit.type);
 
 			if (conditionEdit.type == "completion") {
-				setCheckboxValues(conditionEdit.activityList);
+				setCheckboxValues(conditionEdit.params);
 
-				const transformedData = conditionEdit.activityList.map((item) => ({
+				const transformedData = conditionEdit.params.map((item) => ({
 					...item,
 					checkboxEnabled: item.date !== undefined ? true : false,
 				}));
@@ -260,7 +267,7 @@ function CriteriaModal({
 				conditionEdit.type == "badgeList" ||
 				conditionEdit.type == "skills"
 			) {
-				setCheckedIds(prioritizeLists());
+				setCheckedIds(conditionEdit.params);
 			}
 			if (conditionEdit.type == "courseCompletion") {
 				if (conditionEdit.dateTo) {
@@ -271,18 +278,6 @@ function CriteriaModal({
 			}
 		}
 	}, [conditionEdit]);
-
-	const prioritizeLists = () => {
-		if (conditionEdit?.badgeList) {
-			return conditionEdit.badgeList;
-		} else if (conditionEdit?.roleList) {
-			return conditionEdit.roleList;
-		} else if (conditionEdit?.skillsList) {
-			return conditionEdit.skillsList;
-		} else {
-			return [];
-		}
-	};
 
 	const handleDateCheckboxChange = () => {
 		setIsDateEnabled(!isDateEnabled);
@@ -371,19 +366,19 @@ function CriteriaModal({
 	const handleSubmit = (edition) => {
 		const formData = {
 			type: selectedOption,
-			op: edition ? conditionEdit.op : "op",
+			method: edition ? conditionEdit.method : "method",
 			id: edition ? conditionEdit.id : uniqueId(),
 		};
 
 		switch (selectedOption) {
 			case "role":
-				formData.criteriaId = 2;
-				formData.op = conditionOperator.current.value;
-				formData.roleList = checkedIds;
+				formData.criteriatype = 2;
+				formData.method = conditionOperator.current.value;
+				formData.params = checkedIds;
 				break;
 			case "courseCompletion":
-				formData.criteriaId = 4;
-				formData.op = conditionOperator.current.value;
+				formData.criteriatype = 4;
+				formData.method = conditionOperator.current.value;
 				if (isDateEnabled) {
 					formData.dateTo = conditionObjective.current.value;
 				} else {
@@ -391,18 +386,18 @@ function CriteriaModal({
 				}
 				break;
 			case "badgeList":
-				formData.criteriaId = 7;
-				formData.op = conditionOperator.current.value;
-				formData.badgeList = checkedIds;
+				formData.criteriatype = 7;
+				formData.method = conditionOperator.current.value;
+				formData.params = checkedIds;
 				break;
 			case "completion":
-				formData.criteriaId = 1;
-				formData.activityList = checkboxValues;
+				formData.criteriatype = 1;
+				formData.params = checkboxValues;
 				break;
 			case "skills":
-				formData.criteriaId = 9;
-				formData.op = conditionOperator.current.value;
-				formData.skillsList = checkedIds;
+				formData.criteriatype = 9;
+				formData.method = conditionOperator.current.value;
+				formData.params = checkedIds;
 				break;
 			default:
 				break;
@@ -417,15 +412,13 @@ function CriteriaModal({
 					...blockData.data,
 					c: {
 						...blockData.data.c,
-						c: blockData.data.c.c.map((condition) => {
+						params: blockData.data.c.params.map((condition) => {
 							if (condition.id === formData.id) {
-								console.log("ENTRO AL IF");
 								return {
 									...condition,
 									...formData,
 								};
 							}
-							console.log("NOPE");
 							return condition;
 						}),
 					},
@@ -436,7 +429,7 @@ function CriteriaModal({
 		} else {
 			const updatedCondition = {
 				...editing,
-				c: editing.c ? [...editing.c, formData] : [formData],
+				params: editing.params ? [...editing.params, formData] : [formData],
 			};
 
 			if (!updatedBlockData.data.c) {
@@ -449,7 +442,7 @@ function CriteriaModal({
 						...blockData.data,
 						c: {
 							...blockData.data.c,
-							c: [...blockData.data.c.c, formData],
+							params: [...blockData.data.c.params, formData],
 						},
 					},
 				};
@@ -467,7 +460,7 @@ function CriteriaModal({
 	};
 
 	const shouldRenderOption = (type) => {
-		const conditions = blockData.data.c?.c;
+		const conditions = blockData.data.c?.params;
 		if (conditions) {
 			if (conditionEdit) {
 				if (conditionEdit.type == type) {
@@ -488,7 +481,7 @@ function CriteriaModal({
 	};
 
 	const allTypesUsed = () => {
-		const conditions = blockData.data.c?.c;
+		const conditions = blockData.data.c?.params;
 		const types = ["role", "courseCompletion", "badgeList", "skills"];
 
 		return types.every((type) =>
@@ -515,12 +508,12 @@ function CriteriaModal({
 								<div>
 									A los estudiantes se les concede esta insignia cuando
 									finalizan{" "}
-									{blockData.data.c.op == "&" && (
+									{blockData.data.c.method == "&" && (
 										<a>
 											<strong>TODOS</strong>{" "}
 										</a>
 									)}
-									{blockData.data.c.op == "|" && (
+									{blockData.data.c.method == "|" && (
 										<a>
 											<strong>CUALQUIERA</strong> de{" "}
 										</a>
@@ -542,7 +535,7 @@ function CriteriaModal({
 							</Col>
 						</Row>
 						<Container>
-							{blockData.data.c.c.map((condition) => {
+							{blockData.data.c.params.map((condition) => {
 								return (
 									<Criteria
 										condition={condition}

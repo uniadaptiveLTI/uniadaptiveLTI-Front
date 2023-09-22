@@ -55,26 +55,29 @@ export default function SimpleConditionsSakai({ id }) {
 						<b>Requisitos:</b>
 
 						{hasRequisiteType("date") && (
-							<div style={{ marginTop: "10px" }}>
-								<b style={{ marginLeft: "24px" }}>Fecha de disponibilidad</b>
-								<div style={{ marginLeft: "48px" }}>
-									<div>
-										La fecha de apertura establecida es:{" "}
-										<b>{parseDate(dateRequisite.openingDate, true)}</b>
-									</div>
-									<div>
-										La fecha de entrega establecida es:{" "}
-										<b>{parseDate(dateRequisite.dueDate, true)}</b>
+							<>
+								<div style={{ marginTop: "10px" }}>
+									<b style={{ marginLeft: "24px" }}>Fecha de disponibilidad</b>
+									<div style={{ marginLeft: "48px" }}>
+										<div>
+											La fecha de apertura establecida es:{" "}
+											<b>{parseDate(dateRequisite.openingDate, true)}</b>
+										</div>
+										<div>
+											La fecha de entrega establecida es:{" "}
+											<b>{parseDate(dateRequisite.dueDate, true)}</b>
+										</div>
 									</div>
 								</div>
-							</div>
+								<br></br>
+							</>
 						)}
 
 						{hasRequisiteType("dateException") && (
 							<div style={{ marginTop: "10px" }}>
 								<b style={{ marginLeft: "24px" }}>Excepciones de fecha</b>
 								{dateExceptionArray.map((date) => {
-									const sakaiUsers = metaData.userMembers;
+									const sakaiUsers = metaData.userMembersSakai;
 									let entityInfo = null;
 
 									if (date.op === "user") {
@@ -102,20 +105,23 @@ export default function SimpleConditionsSakai({ id }) {
 										}
 									}
 									return (
-										<div
-											key={date.id}
-											style={{ marginLeft: "48px", marginTop: "5px" }}
-										>
-											{entityInfo}
-											<div>
-												La fecha de apertura establecida es:{" "}
-												<b>{parseDate(date.openingDate, true)}</b>
+										<>
+											<div
+												key={date.id}
+												style={{ marginLeft: "48px", marginTop: "5px" }}
+											>
+												{entityInfo}
+												<div>
+													La fecha de apertura establecida es:{" "}
+													<b>{parseDate(date.openingDate, true)}</b>
+												</div>
+												<div>
+													La fecha de entrega establecida es:{" "}
+													<b>{parseDate(date.dueDate, true)}</b>
+												</div>
 											</div>
-											<div>
-												La fecha de entrega establecida es:{" "}
-												<b>{parseDate(date.dueDate, true)}</b>
-											</div>
-										</div>
+											<br></br>
+										</>
 									);
 								})}
 							</div>
@@ -127,7 +133,7 @@ export default function SimpleConditionsSakai({ id }) {
 									Grupos con permisos de acceso
 								</b>
 								{groupRequisite.groupList.map((groupItem) => {
-									const group = metaData.groups.find(
+									const group = metaData.sakaiGroups.find(
 										(group) => group.id === groupItem.id
 									);
 
@@ -183,7 +189,7 @@ export default function SimpleConditionsSakai({ id }) {
 											);
 
 											const operatorInfo = operatorLabel.find(
-												(opInfo) => opInfo.op === condition.op
+												(opInfo) => opInfo.op === condition.operator
 											);
 
 											// Render each condition here
@@ -217,7 +223,7 @@ export default function SimpleConditionsSakai({ id }) {
 											const node = nodes.find(
 												(node) => node.id === condition.itemId
 											);
-											console.log(operatorLabel, condition);
+
 											const operatorInfo = operatorLabel.find(
 												(opInfo) => opInfo.op === condition.operator
 											);

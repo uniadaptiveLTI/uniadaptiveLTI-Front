@@ -248,7 +248,7 @@ export function findCompletionAndGrade(obj) {
  */
 export function updateBadgeConditions(blockNodeTarget, blockNodeSource) {
 	// Variable to store the conditions of the target node
-	let conditions = blockNodeTarget.data.c.c;
+	let conditions = blockNodeTarget.data.c.params;
 
 	// Find method to get the condition of type completion
 	const conditionExists = conditions.find(
@@ -258,20 +258,20 @@ export function updateBadgeConditions(blockNodeTarget, blockNodeSource) {
 	// Condition to know if the condition exists
 	if (conditionExists) {
 		// Condition to check if the activity list has more than one entry
-		if (conditionExists.activityList.length > 1) {
+		if (conditionExists.params.length > 1) {
 			// Filter method to delete the specific node from the activity list
-			conditionExists.activityList = conditionExists.activityList.filter(
+			conditionExists.params = conditionExists.params.filter(
 				(node) => node.id !== blockNodeSource.id
 			);
 		} else {
 			// Filter method to delete the condition type completion
-			blockNodeTarget.data.c.c = conditions.filter(
+			blockNodeTarget.data.c.params = conditions.filter(
 				(node) => node.type !== "completion"
 			);
 		}
 	} else {
 		// Filter method to delete the condition type completion
-		blockNodeTarget.data.c.c = conditions.filter(
+		blockNodeTarget.data.c.params = conditions.filter(
 			(condition) => condition.type !== "completion"
 		);
 	}

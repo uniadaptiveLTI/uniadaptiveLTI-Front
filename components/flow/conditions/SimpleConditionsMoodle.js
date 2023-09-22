@@ -22,19 +22,28 @@ export default function SimpleConditionsMoodle({ id }) {
 	let { hoverConditions } = parsedSettings;
 
 	const flattenConditions = (conditions) => {
-		const recursiveGet = (c, identation = 1, array = []) => {
-			if (c.c) {
-				c.c.forEach((condition) => {
-					array.push({ ...condition, identation, c: null });
-					if (condition.c) {
-						array.push(...recursiveGet(condition, identation + 1, array));
+		console.log(conditions);
+		const isBadge = getNodeById(id, rfNodes).type === "badge";
+		const recursiveGet = (c, indentation = 1, array = []) => {
+			const conditionNames = isBadge ? c?.params : c?.c;
+			if (conditionNames) {
+				conditionNames.forEach((condition) => {
+					array.push({
+						...condition,
+						indentation,
+						[isBadge ? "c" : "c"]: null,
+					});
+					const moreConditions = isBadge ? condition?.params : condition?.c;
+					if (moreConditions) {
+						array.push(...recursiveGet(condition, indentation + 1, array));
 					}
 				});
 			}
 			return deduplicateById(array);
 		};
+
 		return [
-			{ ...conditions, identation: 0, c: null },
+			{ ...conditions, indentation: 0, [isBadge ? "c" : "c"]: null },
 			...recursiveGet(conditions),
 		];
 	};
@@ -134,6 +143,7 @@ export default function SimpleConditionsMoodle({ id }) {
 	];
 
 	const parseConditions = (flatConditions) => {
+		console.log(flatConditions);
 		let finalDOM = [
 			<p>
 				<b>Condiciones:</b>
@@ -143,9 +153,11 @@ export default function SimpleConditionsMoodle({ id }) {
 			const prefix = { marginLeft: 24 * c.identation + "px" };
 			switch (c.type) {
 				case "conditionsGroup":
+					const operator =
+						getNodeById(id, rfNodes).type == "badge" ? c.method : c.op;
 					finalDOM.push(
 						<p style={prefix}>
-							{parsedConditionsGroup.find((pcg) => c.op == pcg.op).parsed}
+							{parsedConditionsGroup.find((pcg) => operator == pcg.op).parsed}
 						</p>
 					);
 					break;
@@ -171,13 +183,17 @@ export default function SimpleConditionsMoodle({ id }) {
 							</p>
 						);
 					} else {
+						console.log(c);
 						finalDOM.push(
 							<>
 								<p style={prefix}>
-									{parsedCompletionBadge.find((pcg) => c.op == pcg.op).parsed}
+									{
+										parsedCompletionBadge.find((pcg) => c.method == pcg.op)
+											.parsed
+									}
 								</p>
 								<p style={{ marginLeft: "48px" }}>
-									{c.activityList.map((node) => (
+									{c.params.map((node) => (
 										<p key={node.id}>
 											{getTypeIcon(
 												getNodeById(node.id, rfNodes).type,
@@ -332,15 +348,15 @@ export default function SimpleConditionsMoodle({ id }) {
 						<>
 							<p style={prefix}>
 								Debe ser otorgada a los usuarios con{" "}
-								{c.op === "&" && <b>TODOS</b>}{" "}
-								{c.op === "|" && (
+								{c.method === "&" && <b>TODOS</b>}{" "}
+								{c.method === "|" && (
 									<>
 										<b>CUALQUIERA</b> <a>de</a>
 									</>
 								)}{" "}
 								los siguientes roles:
 								<ul>
-									{c.roleList.map((option) => {
+									{c.params.map((option) => {
 										const roleList = metaData.role_list;
 
 										const roleFounded = roleList.find(
@@ -356,7 +372,7 @@ export default function SimpleConditionsMoodle({ id }) {
 					break;
 				case "courseCompletion":
 					{
-						(!c.op || c.op === "0" || c.op === "") &&
+						(!c.method || c.method === "0" || c.method === "") &&
 							!c.dateTo &&
 							finalDOM.push(
 								<div style={prefix}>
@@ -365,7 +381,7 @@ export default function SimpleConditionsMoodle({ id }) {
 							);
 					}
 					{
-						(c.op || c.dateTo) &&
+						(c.method || c.dateTo) &&
 							finalDOM.push(
 								<>
 									<div style={prefix}>
@@ -378,10 +394,10 @@ export default function SimpleConditionsMoodle({ id }) {
 												antes del <strong>{parseDate(c.dateTo)}</strong>
 											</a>
 										)}
-										{c.op && c.op !== "0" && c.op !== "" && (
+										{c.method && c.method !== "0" && c.method !== "" && (
 											<a>
 												{" "}
-												con calificación mínima de <strong>{c.op}</strong>
+												con calificación mínima de <strong>{c.method}</strong>
 											</a>
 										)}
 									</div>
@@ -394,10 +410,10 @@ export default function SimpleConditionsMoodle({ id }) {
 					finalDOM.push(
 						<>
 							<p style={prefix}>
-								{parsedBadgeListBadge.find((pcg) => c.op == pcg.op).parsed}
+								{parsedBadgeListBadge.find((pcg) => c.method == pcg.op).parsed}
 							</p>
 							<ul style={prefix}>
-								{c.badgeList.map((badge) => {
+								{c.params.map((badge) => {
 									const metaBadgeList = metaData.badges;
 
 									const badgeFounded = metaBadgeList.find(
@@ -414,10 +430,10 @@ export default function SimpleConditionsMoodle({ id }) {
 					finalDOM.push(
 						<>
 							<p style={prefix}>
-								{parsedSkillsListBadge.find((pcg) => c.op == pcg.op).parsed}
+								{parsedSkillsListBadge.find((pcg) => c.method == pcg.op).parsed}
 							</p>
 							<ul style={prefix}>
-								{c.skillsList.map((skill) => {
+								{c.params.map((skill) => {
 									const metaSkillsList = metaData.skills;
 
 									const skillFounded = metaSkillsList.find(
@@ -536,6 +552,7 @@ export default function SimpleConditionsMoodle({ id }) {
 			(conditions && hoverConditions) ||
 			(qualifications && !hoverConditions)
 		) {
+			console.log(flattenConditions(conditions));
 			//Show the preference
 			let finalString = hoverConditions
 				? parseConditions(flattenConditions(conditions))
@@ -544,6 +561,7 @@ export default function SimpleConditionsMoodle({ id }) {
 		} else {
 			//If unable to show the preference, show the alternative
 			if (conditions && !qualifications) {
+				console.log(flattenConditions(conditions));
 				let finalString = parseConditions(flattenConditions(conditions));
 				return <div>{finalString}</div>;
 			} else {

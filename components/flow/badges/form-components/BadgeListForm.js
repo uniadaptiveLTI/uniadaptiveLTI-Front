@@ -24,7 +24,7 @@ const BadgeListForm = ({
 				<Form.Select
 					id={blId}
 					ref={conditionOperator}
-					defaultValue={conditionEdit?.op}
+					defaultValue={conditionEdit?.method}
 				>
 					<option value="&">
 						Se deben obtener todas las insignias seleccionadas
@@ -44,7 +44,7 @@ const BadgeListForm = ({
 								onChange={handleCheckboxChange}
 								value={option.id}
 								label={option.name}
-								defaultChecked={conditionEdit?.badgeList?.includes(option.id)}
+								defaultChecked={conditionEdit?.params?.includes(option.id)}
 							></Form.Check>
 						</div>
 					);

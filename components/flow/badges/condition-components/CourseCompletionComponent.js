@@ -25,14 +25,16 @@ const CourseCompletionComponent = ({
 			<Row className="align-items-center">
 				<Col>
 					<div>
-						{(!condition.op || condition.op === "0" || condition.op === "") &&
+						{(!condition.method ||
+							condition.method === "0" ||
+							condition.method === "") &&
 							!condition.dateTo && (
 								<div>
 									Los usuarios deben finalizar el curso{" "}
 									<strong>{metaData.name}</strong>
 								</div>
 							)}
-						{(condition.op || condition.dateTo) && (
+						{(condition.method || condition.dateTo) && (
 							<div>
 								Los usuarios deben finalizar el curso{" "}
 								<strong>{metaData.name}</strong>
@@ -42,12 +44,13 @@ const CourseCompletionComponent = ({
 										antes del <strong>{parseDate(condition.dateTo)}</strong>
 									</a>
 								)}
-								{condition.op &&
-									condition.op !== "0" &&
-									condition.op !== "" && (
+								{condition.method &&
+									condition.method !== "0" &&
+									condition.method !== "" && (
 										<a>
 											{" "}
-											con calificación mínima de <strong>{condition.op}</strong>
+											con calificación mínima de{" "}
+											<strong>{condition.method}</strong>
 										</a>
 									)}
 							</div>

@@ -23,7 +23,7 @@ const RoleForm = ({
 				<Form.Select
 					id={cId}
 					ref={conditionOperator}
-					defaultValue={conditionEdit?.op}
+					defaultValue={conditionEdit?.method}
 				>
 					<option value="&">
 						Todos los roles seleccionados otorgan la insignia
@@ -39,7 +39,7 @@ const RoleForm = ({
 							onChange={handleCheckboxChange}
 							value={option.id}
 							label={option.name}
-							defaultChecked={conditionEdit?.roleList?.includes(option.id)}
+							defaultChecked={conditionEdit?.params?.includes(option.id)}
 						/>
 					</div>
 				))}

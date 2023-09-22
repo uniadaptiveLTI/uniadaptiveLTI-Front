@@ -26,19 +26,19 @@ const CompletionComponent = ({
 			<Row className="align-items-center">
 				<Col>
 					<div>
-						{condition.op === "&" && (
+						{condition.method === "&" && (
 							<a>
 								<strong>TODAS</strong> las{" "}
 							</a>
 						)}
-						{condition.op === "|" && (
+						{condition.method === "|" && (
 							<a>
 								<strong>CUALQUIERA</strong> de las{" "}
 							</a>
 						)}
 						siguientes actividades se han finalizado:
 						<ul>
-							{condition.activityList.map((option) => {
+							{condition.params.map((option) => {
 								const node = nodes.find((node) => node.id === option.id);
 								return (
 									<li key={option.id}>

@@ -22,19 +22,19 @@ const BadgeListComponent = ({
 			<Row className="align-items-center">
 				<Col>
 					<div>
-						{condition.op === "&" && (
+						{condition.method === "&" && (
 							<a>
 								<strong>TODAS</strong> las{" "}
 							</a>
 						)}
-						{condition.op === "|" && (
+						{condition.method === "|" && (
 							<a>
 								<strong>CUALQUIERA</strong> de las{" "}
 							</a>
 						)}
 						siguientes insignias tienen que haber sido ganadas:
 						<ul>
-							{condition.badgeList.map((option) => {
+							{condition.params.map((option) => {
 								const badge = badgeList.find((badge) => badge.id === option);
 								return <li key={badge.id}>{badge.name}</li>;
 							})}

@@ -449,12 +449,13 @@ const OverviewFlow = ({ map }, ref) => {
 									targetNode.data.c = {
 										type: "conditionsGroup",
 										id: parseInt(Date.now() * Math.random()).toString(),
-										op: "&",
+										method: "&",
 										showc: true,
+										criteriatype: 0,
 									};
 								}
 
-								const conditions = targetNode.data.c?.c;
+								const conditions = targetNode.data.c?.params;
 
 								if (conditions) {
 									const conditionExists = conditions.find(
@@ -465,38 +466,37 @@ const OverviewFlow = ({ map }, ref) => {
 										const newConditionAppend = {
 											id: sourceNode.id,
 										};
-										conditionExists.activityList.push(newConditionAppend);
+
+										conditionExists.params.push(newConditionAppend);
 									} else {
 										const newCondition = {
 											id: parseInt(Date.now() * Math.random()).toString(),
 											type: "completion",
-											criteriaId: 1,
-											activityList: [
+											params: [
 												{
 													id: sourceNode.id,
 												},
 											],
-											op: "&",
-											query: "completed",
+											method: "&",
+											criteriatype: 1,
 										};
 
-										targetNode.data.c.c.push(newCondition);
+										targetNode.data.c.params.push(newCondition);
 									}
 								} else {
 									const newCondition = {
 										id: parseInt(Date.now() * Math.random()).toString(),
 										type: "completion",
-										criteriaId: 1,
-										activityList: [
+										criteriatype: 1,
+										params: [
 											{
 												id: sourceNode.id,
 											},
 										],
-										op: "&",
-										query: "completed",
+										method: "&",
 									};
 
-									targetNode.data.c.c = [newCondition];
+									targetNode.data.c.params = [newCondition];
 								}
 							}
 

@@ -25,7 +25,7 @@ const SkillsForm = ({
 				<Form.Select
 					id={skId}
 					ref={conditionOperator}
-					defaultValue={conditionEdit?.op}
+					defaultValue={conditionEdit?.method}
 				>
 					<option value="&">
 						Se deben obtener todas las insignias seleccionadas
@@ -44,7 +44,7 @@ const SkillsForm = ({
 								onChange={handleCheckboxChange}
 								value={option.id}
 								label={option.name}
-								defaultChecked={conditionEdit?.skillsList?.includes(option.id)}
+								defaultChecked={conditionEdit?.params?.includes(option.id)}
 							/>
 						</div>
 					);
