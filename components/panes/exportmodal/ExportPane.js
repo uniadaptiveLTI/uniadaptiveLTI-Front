@@ -192,6 +192,8 @@ export default function ExportPanel({
 				data.c = deleteEmptyC(data.c);
 				console.log(data.c);
 			}
+			delete node.x;
+			delete node.y;
 			delete node.data;
 			delete node.height;
 			delete node.width;
@@ -251,9 +253,13 @@ export default function ExportPanel({
 
 			if (section && currentSelectionInfo.selection.includes(section.id))
 				return true;
+
+			if (!section) {
+				return true;
+			}
 		});
 
-		console.log(nodesReadyToExport);
+		console.log("nodesReadyToExport", nodesReadyToExport);
 
 		const uniqueSectionColumnPairs = new Set();
 
@@ -328,6 +334,7 @@ export default function ExportPanel({
 		console.log(resultJson);
 
 		console.log(sortedSectionColumnPairs);
+		console.log(nodesReadyToExport);
 		sendNodes(nodesReadyToExport);
 	};
 
