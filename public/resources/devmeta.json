@@ -15,7 +15,7 @@
 		{ "id": 2, "position": 3, "name": "Física Avanzada" },
 		{ "id": 3, "position": 2, "name": "Física Cuántica" }
 	],
-	"badges":[
+	"badges": [
 		{
 			"id": 3,
 			"name": "Insignia 1",
@@ -129,7 +129,7 @@
 			"name": "Insignia 2"
 		}
 	],
-	"skills" : [
+	"skills": [
 		{ "id": "1", "name": "Competencia 1" },
 		{ "id": "2", "name": "Competencia 2" },
 		{ "id": "3", "name": "Competencia 3" }
@@ -154,7 +154,7 @@
 		{ "id": 6, "name": "Grupo F" },
 		{ "id": 7, "name": "Grupo G" }
 	],
-	"sakaiGroups":[
+	"sakaiGroups": [
 		{ "id": "1", "name": "Grupo A" },
 		{ "id": "2", "name": "Grupo B" },
 		{ "id": "3", "name": "Grupo C" },

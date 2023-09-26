@@ -261,17 +261,18 @@ export default function SimpleConditionsSakai({ id }) {
 		return finalDOM;
 	};
 
-	if (devModeStatus) {
-		return JSON.stringify(getNodeById(id, rfNodes));
-	} else {
-		let finalString = undefined;
+	let finalString = undefined;
+	const devString = <div>{JSON.stringify(getNodeById(id, rfNodes))}</div>;
 
-		if (hoverConditions && hoverConditions == true) {
-			finalString = parseConditions();
-			return <div>{finalString}</div>;
-		} else {
-			finalString = parseGrades();
-			return <div>{finalString}</div>;
-		}
+	if (hoverConditions && hoverConditions == true) {
+		finalString = parseConditions();
+		return (
+			<div>{devModeStatus ? [devString, ...finalString] : finalString}</div>
+		);
+	} else {
+		finalString = parseGrades();
+		return (
+			<div>{devModeStatus ? [devString, ...finalString] : finalString}</div>
+		);
 	}
 }

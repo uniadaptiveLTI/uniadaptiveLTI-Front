@@ -539,8 +539,16 @@ export default function SimpleConditionsMoodle({ id }) {
 		return finalDOM;
 	};
 
-	if (devModeStatus) {
-		return JSON.stringify(getNodeById(id, rfNodes));
+	const devString = <div>{JSON.stringify(getNodeById(id, rfNodes))}</div>;
+	if ((conditions && hoverConditions) || (qualifications && !hoverConditions)) {
+		//Show the preference
+		let finalString = hoverConditions
+			? parseConditions(flattenConditions(conditions))
+			: parseQualifications(qualifications);
+
+		return (
+			<div>{devModeStatus ? [devString, ...finalString] : finalString}</div>
+		);
 	} else {
 		if (
 			(conditions && hoverConditions) ||
@@ -550,27 +558,26 @@ export default function SimpleConditionsMoodle({ id }) {
 			let finalString = hoverConditions
 				? parseConditions(flattenConditions(conditions))
 				: parseQualifications(qualifications);
-			return <div>{finalString}</div>;
+			return (
+				<div>{devModeStatus ? [devString, ...finalString] : finalString}</div>
+			);
 		} else {
 			//If unable to show the preference, show the alternative
 			if (conditions && !qualifications) {
 				let finalString = parseConditions(flattenConditions(conditions));
-				return <div>{finalString}</div>;
+				return (
+					<div>{devModeStatus ? [devString, ...finalString] : finalString}</div>
+				);
 			} else {
-				if (!conditions && qualifications) {
-					let finalString = parseQualifications(qualifications);
-					return <div>{finalString}</div>;
-				} else {
-					return (
-						<div>
-							{JSON.stringify(getNodeById(id, rfNodes))}
-							<p></p>
+				return (
+					<div>
+						<p>
 							Aquí se priorizará mostrar información resumida sobre las{" "}
 							<b>{hoverConditions ? "condiciones" : "calificaciones"}</b> el
 							bloque seleccionado.
-						</div>
-					);
-				}
+						</p>
+					</div>
+				);
 			}
 		}
 	}
