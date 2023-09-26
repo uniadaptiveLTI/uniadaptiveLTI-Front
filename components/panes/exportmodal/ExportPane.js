@@ -242,6 +242,80 @@ export default function ExportPanel({
 		});
 
 		console.log(nodesReadyToExport);
+
+		const uniqueSectionColumnPairs = new Set();
+
+		const sortedSectionColumnPairs = nodesReadyToExport
+			.filter((item) => {
+				const { section, indent } = item;
+				const pairString = `${section}-${indent}`;
+
+				if (!uniqueSectionColumnPairs.has(pairString)) {
+					uniqueSectionColumnPairs.add(pairString);
+					return true;
+				}
+
+				return false;
+			})
+			.map(({ section, indent }) => ({ section, indent }));
+
+		sortedSectionColumnPairs.sort((a, b) => {
+			// Compare by "section" first
+			if (a.section < b.section) return -1;
+			if (a.section > b.section) return 1;
+
+			// If "section" values are the same, compare by "indent" (column)
+			return a.indent - b.indent;
+		});
+
+		console.log(sortedSectionColumnPairs);
+
+		let resultJson = [];
+		const sectionProcessed = {};
+
+		sortedSectionColumnPairs.map((jsonObj) => {
+			if (!sectionProcessed[jsonObj.section]) {
+				// Process the section if it hasn't been processed yet
+				resultJson.push({
+					pageId: 1,
+					type: 14,
+					title: "",
+					format: "section",
+				});
+
+				resultJson = resultJson.concat(
+					nodesReadyToExport
+						.filter(
+							(node) =>
+								node.section === jsonObj.section &&
+								node.indent === jsonObj.indent
+						)
+						.sort((a, b) => a.order - b.order)
+				);
+
+				sectionProcessed[jsonObj.section] = true; // Mark the section as processed
+			} else {
+				resultJson.push({
+					pageId: 1,
+					type: 14,
+					title: "",
+					format: "column",
+				});
+
+				resultJson = resultJson.concat(
+					nodesReadyToExport
+						.filter(
+							(node) =>
+								node.section === jsonObj.section &&
+								node.indent === jsonObj.indent
+						)
+						.sort((a, b) => a.order - b.order)
+				);
+			}
+		});
+		console.log(resultJson);
+
+		console.log(sortedSectionColumnPairs);
 		sendNodes(nodesReadyToExport);
 	};
 

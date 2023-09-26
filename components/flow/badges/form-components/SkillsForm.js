@@ -28,10 +28,10 @@ const SkillsForm = ({
 					defaultValue={conditionEdit?.method}
 				>
 					<option value="&">
-						Se deben obtener todas las insignias seleccionadas
+						Se deben obtener todas las competencias seleccionadas
 					</option>
 					<option value="|">
-						Se debe obtener alguna de las insignias seleccionadas
+						Se debe obtener alguna de las competencias seleccionadas
 					</option>
 				</Form.Select>
 			</div>
@@ -49,6 +49,12 @@ const SkillsForm = ({
 						</div>
 					);
 				})}
+				{skillsList && skillsList.length <= 0 && (
+					<div>
+						No existen competencias creadas para la creación de la condición, es
+						necesario crear al menos una.
+					</div>
+				)}
 			</div>
 		</Form.Group>
 	);

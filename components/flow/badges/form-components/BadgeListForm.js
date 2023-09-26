@@ -51,6 +51,12 @@ const BadgeListForm = ({
 						</div>
 					);
 				})}
+				{badgeList && badgeList.length <= 0 && (
+					<div>
+						No existen medallas publicadas para la creación de la condición, es
+						necesario publicar al menos una.
+					</div>
+				)}
 			</div>
 		</Form.Group>
 	);

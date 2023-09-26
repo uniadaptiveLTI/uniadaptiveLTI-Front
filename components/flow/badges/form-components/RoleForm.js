@@ -33,7 +33,7 @@ const RoleForm = ({
 			</div>
 			<b className="mt-4">Roles:</b>
 			<div className="ms-4 me-0">
-				{roleList.map((option) => (
+				{roleList?.map((option) => (
 					<div key={option.id}>
 						<Form.Check
 							onChange={handleCheckboxChange}
@@ -43,6 +43,12 @@ const RoleForm = ({
 						/>
 					</div>
 				))}
+				{roleList && roleList.length <= 0 && (
+					<div>
+						No existen roles disponibles para la creación de la condición, es
+						necesario crear al menos uno.
+					</div>
+				)}
 			</div>
 		</Form.Group>
 	);
