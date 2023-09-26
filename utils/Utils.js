@@ -363,14 +363,27 @@ export function getSectionIDFromPosition(sectionArray, sectionPosition) {
  * @returns {*} Returns formatted date string
  */
 export function parseDate(dateStr, dateComplete) {
-	const date = new Date(dateStr);
-	const formattedDate = date.toLocaleDateString("es-ES", {
-		day: "numeric",
-		month: "long",
-		year: "numeric",
-		...(dateComplete && { hour: "2-digit", minute: "2-digit" }),
-	});
-	return formattedDate;
+	let date = dateStr;
+
+	if (!(dateStr instanceof Date)) {
+		date = new Date(dateStr);
+		return date.toLocaleDateString("es-ES", {
+			day: "numeric",
+			month: "long",
+			year: "numeric",
+			...(dateComplete && { hour: "2-digit", minute: "2-digit" }),
+		});
+	} else {
+		return date
+			.toLocaleDateString("es-ES", {
+				year: "numeric",
+				month: "2-digit",
+				day: "2-digit",
+			})
+			.split("/")
+			.reverse()
+			.join("-");
+	}
 }
 
 export function parseDateToString(date) {

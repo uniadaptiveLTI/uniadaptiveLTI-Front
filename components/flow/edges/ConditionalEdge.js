@@ -64,12 +64,19 @@ const ConditionalEdge = ({
 	const getSelfCondition = () => {
 		const targetNode = getNodeById(target, rfNodes);
 		const sourceNode = getNodeById(source, rfNodes);
+		console.log(targetNode, sourceNode);
 
 		switch (platform) {
 			case "moodle":
 				if (targetNode && targetNode.data && targetNode.data.c) {
 					const conditions = targetNode.data.c;
-					const condition = findConditionById(sourceNode.id, conditions.c);
+					let condition = undefined;
+					if (targetNode.type !== "badge") {
+						condition = findConditionById(sourceNode.id, conditions.c);
+					} else {
+						condition = findConditionById(sourceNode.id, conditions.params);
+					}
+
 					if (condition) {
 						if (sourceNode && sourceNode.data && sourceNode.data.label) {
 							return getReadableCondition(condition);
@@ -112,20 +119,19 @@ const ConditionalEdge = ({
 						case 3:
 							return `Suspendido`;
 					}
-				} else if (condition.activityList) {
-					console.log("ACTIVITYLIST");
+				} else if (condition.params) {
 					//TODO: CHANGE THIS
 					const sourceNode = getNodeById(source, rfNodes);
-					const matchingCondition = condition.activityList.find(
+					const matchingCondition = condition.params.find(
 						(node) => node.id === sourceNode.id
 					);
 
 					switch (condition.op) {
 						case "|":
-							if (lineType != "or") setLineType("or");
+							if (lineType != "OR") setLineType("OR");
 
 						case "&":
-							if (lineType != "and") setLineType("and");
+							if (lineType != "AND") setLineType("AND");
 					}
 
 					if (matchingCondition.date) {
@@ -166,12 +172,14 @@ const ConditionalEdge = ({
 		}
 
 		const foundCondition = conditions.find((condition) => condition.cm === id);
+		console.log(conditions);
 		if (foundCondition) {
 			return foundCondition;
 		} else {
-			const foundActionCondition = conditions.find((condition) =>
-				Array.isArray(condition.activityList)
+			const foundActionCondition = conditions.find(
+				(condition) => condition.type === "completion"
 			);
+
 			if (foundActionCondition) return foundActionCondition;
 		}
 

@@ -1,4 +1,4 @@
-import { getUpdatedArrayById, uniqueId } from "./Utils";
+import { getUpdatedArrayById, uniqueId, parseDate } from "./Utils";
 
 export function parseMoodleNode(node, newX, newY) {
 	const newNode = {};
@@ -20,6 +20,128 @@ export function parseMoodleNode(node, newX, newY) {
 	return newNode;
 }
 
+export function parseMoodleBadges(badge, newX, newY) {
+	console.log(badge);
+	const newNode = {};
+	newNode.id = "" + uniqueId();
+	newNode.type = "badge";
+	newNode.position = { x: newX, y: newY };
+	newNode.data = {
+		label: badge.name,
+		c: parseMoodleBadgeParams(badge.params), //Adapted in "createNewMoodleMap" (as we need all the IDs)
+		lmsResource: badge.id,
+	};
+	console.log(newNode);
+	return newNode;
+}
+
+export function parseMoodleBadgeParams(conditions) {
+	let parsedBadgesConditions = {};
+	conditions?.map((condition) => {
+		console.log(condition);
+		let newCondition = {
+			id: uniqueId(),
+			criteriatype: condition.criteriatype,
+			type: getMoodleConditionType(condition.criteriatype),
+			//method: condition.method === 1 ? "&" : "|",
+		};
+
+		/*condition?.params.map((param) => {
+			switch
+		});*/
+
+		switch (newCondition.type) {
+			case "conditionsGroup":
+				newCondition.params = [];
+				newCondition.method = condition.method === 1 ? "&" : "|";
+				parsedBadgesConditions = newCondition;
+				break;
+			case "completion":
+				newCondition.params = [];
+				newCondition.method = condition.method === 1 ? "&" : "|";
+
+				const filteredArray = condition?.params?.filter(
+					(item) => item.name && item.name.includes("module")
+				);
+
+				filteredArray.map((moduleObj) => {
+					const date = condition?.params?.find((param) =>
+						param.name.includes("bydate_" + moduleObj.value)
+					);
+
+					let dateJsonObj = undefined;
+
+					if (date) {
+						var dateObj = new Date(date.value * 1000);
+						dateJsonObj = parseDate(dateObj);
+					}
+
+					newCondition.params.push({
+						id: moduleObj.value,
+						date: date ? dateJsonObj : undefined,
+					});
+				});
+
+				parsedBadgesConditions.params.push(newCondition);
+				break;
+			case "role":
+			case "badgeList":
+			case "skills":
+				newCondition.method = condition.method === 1 ? "&" : "|";
+				if (condition?.params?.length >= 1) {
+					newCondition.params = [];
+					condition?.params.map((param) => {
+						newCondition.params.push(param.value);
+					});
+				}
+				parsedBadgesConditions.params.push(newCondition);
+				break;
+			case "courseCompletion":
+				const grade = condition?.params?.find((param) =>
+					param.name.includes("grade")
+				);
+				const date = condition?.params?.find((param) =>
+					param.name.includes("bydate")
+				);
+
+				newCondition.method = grade.value;
+
+				if (date) {
+					var dateObj = new Date(date.value * 1000);
+					newCondition.dateTo = parseDate(dateObj);
+				}
+
+				parsedBadgesConditions.params.push(newCondition);
+				break;
+		}
+		console.log(newCondition);
+	});
+
+	if (Object.keys(parsedBadgesConditions).length === 0) {
+		console.log("ENTROROROROROROR");
+		return undefined;
+	} else {
+		return parsedBadgesConditions;
+	}
+}
+
+function getMoodleConditionType(criteriaType) {
+	switch (criteriaType) {
+		case 0:
+			return "conditionsGroup";
+		case 1:
+			return "completion";
+		case 2:
+			return "role";
+		case 4:
+			return "courseCompletion";
+		case 7:
+			return "badgeList";
+		case 9:
+			return "skills";
+	}
+}
+
 export function createNewMoodleMap(nodes, metadata, maps) {
 	const endX = Math.max(...nodes.map((node) => node.position.x)) + 125;
 	const midY = nodes.map((node) => node.position.y).sort((a, b) => a - b)[
@@ -27,18 +149,36 @@ export function createNewMoodleMap(nodes, metadata, maps) {
 	];
 
 	const conditionatedNodes = nodes.map((node) => {
-		const conditions = node.data.c
-			? { ...node.data.c, id: uniqueId(), type: "conditionsGroup" }
-			: undefined;
-		const parsedConditions = {
-			...conditions,
-			c:
-				conditions?.c == undefined
-					? []
-					: moodleConditionalIDAdder(conditions.c, nodes),
-		};
+		if (node.type !== "badge") {
+			const conditions = node.data.c
+				? { ...node.data.c, id: uniqueId(), type: "conditionsGroup" }
+				: undefined;
+			const parsedConditions = {
+				...conditions,
+				c:
+					conditions?.c == undefined
+						? []
+						: moodleConditionalIDAdder(conditions.c, nodes),
+			};
 
-		node.data.c = parsedConditions;
+			node.data.c = parsedConditions;
+		} else {
+			const completionCondition = node.data.c?.params?.find(
+				(condition) => condition.type == "completion"
+			);
+
+			if (
+				completionCondition &&
+				completionCondition.params &&
+				completionCondition.params.length >= 1
+			) {
+				completionCondition.params.map((node) => {
+					moodleConditionalBadgeIDAdder(node, nodes);
+				});
+			}
+			console.log(completionCondition);
+		}
+
 		return node;
 	});
 
@@ -114,6 +254,10 @@ function moodleConditionalIDAdder(objArray, nodes) {
 	return newArray;
 }
 
+function moodleConditionalBadgeIDAdder(objArray, nodes) {
+	objArray.id = moodleLMSResourceToId(objArray.id, nodes);
+}
+
 function moodleFlowConditionalsExtractor(objArray) {
 	let cmValues = [];
 
@@ -138,7 +282,6 @@ function moodleFlowConditionalsExtractor(objArray) {
 
 function moodleLMSResourceToId(resourceId, nodes) {
 	const node = nodes.find((node) => node.data.lmsResource == resourceId);
-	console.log(resourceId, node);
 	return node ? node.id : undefined;
 }
 
@@ -147,10 +290,31 @@ function moodleParentingSetter(objArray) {
 	const newArray = JSON.parse(JSON.stringify(objArray));
 
 	for (let i = 0; i < objArray.length; i++) {
-		if (objArray[i]?.data?.c) {
-			const parents = moodleFlowConditionalsExtractor(objArray[i].data.c.c);
-			console.log("parents", parents);
-			if (parents.length > 0) {
+		if (objArray[i]?.type !== "badge") {
+			if (objArray[i]?.data?.c) {
+				const parents = moodleFlowConditionalsExtractor(objArray[i].data.c.c);
+				console.log("parents", parents);
+				if (parents.length > 0) {
+					parents.forEach((parent) => {
+						const parentFound = objArray.find((node) => node.id == parent);
+						if (parentFound) {
+							newArray
+								.find((node) => node.id == parentFound.id)
+								.data.children.push(objArray[i].id);
+						}
+					});
+				}
+			}
+		} else {
+			const completionCondition = objArray[i].data?.c?.params?.find(
+				(condition) => condition.type == "completion"
+			);
+			if (completionCondition) {
+				let parents = [];
+				completionCondition.params.map((node) => {
+					parents.push(node.id);
+				});
+
 				parents.forEach((parent) => {
 					const parentFound = objArray.find((node) => node.id == parent);
 					if (parentFound) {

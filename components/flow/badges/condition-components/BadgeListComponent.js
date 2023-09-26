@@ -35,8 +35,11 @@ const BadgeListComponent = ({
 						siguientes insignias tienen que haber sido ganadas:
 						<ul>
 							{condition.params.map((option) => {
-								const badge = badgeList.find((badge) => badge.id === option);
-								return <li key={badge.id}>{badge.name}</li>;
+								const badgeFounded = badgeList.find(
+									(badge) => badge.id.toString() === option
+								);
+
+								return <li key={badgeFounded.id}>{badgeFounded.name}</li>;
 							})}
 						</ul>
 					</div>

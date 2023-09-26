@@ -70,7 +70,11 @@ import ExportModal from "@components/dialogs/ExportModal";
 import { DevModeStatusContext } from "pages/_app";
 import UserSettingsModal from "./dialogs/UserSettingsModal";
 import { hasLessons } from "@utils/Platform";
-import { createNewMoodleMap, parseMoodleNode } from "@utils/Moodle";
+import {
+	createNewMoodleMap,
+	parseMoodleNode,
+	parseMoodleBadges,
+} from "@utils/Moodle";
 import { createNewSakaiMap, parseSakaiNode } from "@utils/Sakai";
 
 const defaultToastSuccess = {
@@ -395,6 +399,19 @@ function Header({ LTISettings }, ref) {
 					newX += 125;
 			}
 		});
+
+		switch (platform) {
+			case "moodle":
+				localMetaData.badges.map((badge) => {
+					console.log(badge);
+					nodes.push(parseMoodleBadges(badge, newX, newY));
+					newX += 125;
+				});
+				break;
+			case "sakai":
+				break;
+		}
+
 		console.log("JSON FILTRADO Y ADAPTADO: ", nodes);
 
 		//FIXME: JUST MOODLE

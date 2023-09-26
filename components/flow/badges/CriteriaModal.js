@@ -495,64 +495,67 @@ function CriteriaModal({
 				<Modal.Title>Precondiciones de "{blockData.data.label}"</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
-				{blockData.data.c && !editing && (
-					<Container
-						style={{
-							padding: "10px",
-							border: "1px solid #C7C7C7",
-							marginBottom: "10px",
-						}}
-					>
-						<Row className="align-items-center">
-							<Col>
-								<div>
-									A los estudiantes se les concede esta insignia cuando
-									finalizan{" "}
-									{blockData.data.c.method == "&" && (
-										<a>
-											<strong>TODOS</strong>{" "}
-										</a>
-									)}
-									{blockData.data.c.method == "|" && (
-										<a>
-											<strong>CUALQUIERA</strong> de{" "}
-										</a>
-									)}
-									los requisitos enumerados
-								</div>
-							</Col>
-							<Col className="col d-flex align-items-center justify-content-end gap-2">
-								<Button
-									variant="light"
-									onClick={() => {
-										swapConditionGroup(blockData.data.c);
-									}}
-								>
+				{blockData.data.c &&
+					blockData.data.c.params &&
+					blockData.data.c.params.length >= 1 &&
+					!editing && (
+						<Container
+							style={{
+								padding: "10px",
+								border: "1px solid #C7C7C7",
+								marginBottom: "10px",
+							}}
+						>
+							<Row className="align-items-center">
+								<Col>
 									<div>
-										<FontAwesomeIcon icon={faShuffle} />
+										A los estudiantes se les concede esta insignia cuando
+										finalizan{" "}
+										{blockData.data.c.method == "&" && (
+											<a>
+												<strong>TODOS</strong>{" "}
+											</a>
+										)}
+										{blockData.data.c.method == "|" && (
+											<a>
+												<strong>CUALQUIERA</strong> de{" "}
+											</a>
+										)}
+										los requisitos enumerados
 									</div>
-								</Button>
-							</Col>
-						</Row>
-						<Container>
-							{blockData.data.c.params.map((condition) => {
-								return (
-									<Criteria
-										condition={condition}
-										roleList={roleList}
-										badgeList={badgeList}
-										skillsList={skillsList}
-										deleteCondition={deleteCondition}
-										addCondition={addCondition}
-										setSelectedOption={setSelectedOption}
-										setConditionEdit={setConditionEdit}
-										swapConditionGroup={swapConditionGroup}
-									></Criteria>
-								);
-							})}
+								</Col>
+								<Col className="col d-flex align-items-center justify-content-end gap-2">
+									<Button
+										variant="light"
+										onClick={() => {
+											swapConditionGroup(blockData.data.c);
+										}}
+									>
+										<div>
+											<FontAwesomeIcon icon={faShuffle} />
+										</div>
+									</Button>
+								</Col>
+							</Row>
+							<Container>
+								{blockData.data.c.params.map((condition) => {
+									return (
+										<Criteria
+											condition={condition}
+											roleList={roleList}
+											badgeList={badgeList}
+											skillsList={skillsList}
+											deleteCondition={deleteCondition}
+											addCondition={addCondition}
+											setSelectedOption={setSelectedOption}
+											setConditionEdit={setConditionEdit}
+											swapConditionGroup={swapConditionGroup}
+										></Criteria>
+									);
+								})}
+							</Container>
 						</Container>
-					</Container>
-				)}
+					)}
 				{editing &&
 					(conditionEdit === undefined ||
 					conditionEdit.type !== "conditionsGroup" ? (

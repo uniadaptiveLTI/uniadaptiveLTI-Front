@@ -35,7 +35,6 @@ export const getNodeById = (id, nodeArray) => {
 };
 
 export const getParentsNode = (nodesArray, childId) => {
-	console.log(nodesArray);
 	return nodesArray.filter(
 		(node) => node.data.children && node.data.children.includes(childId)
 	);

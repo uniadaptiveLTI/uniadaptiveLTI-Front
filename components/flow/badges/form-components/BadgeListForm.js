@@ -38,13 +38,15 @@ const BadgeListForm = ({
 			<div className="ms-4 me-0">
 				{badgeList.map((option) => {
 					return (
-						<div key={option.id}>
+						<div key={option.id.toString()}>
 							{" "}
 							<Form.Check
 								onChange={handleCheckboxChange}
-								value={option.id}
+								value={option.id.toString()}
 								label={option.name}
-								defaultChecked={conditionEdit?.params?.includes(option.id)}
+								defaultChecked={conditionEdit?.params?.includes(
+									option.id.toString()
+								)}
 							></Form.Check>
 						</div>
 					);

@@ -20,7 +20,7 @@ export default function SimpleConditionsMoodle({ id }) {
 	const { settings } = useContext(SettingsContext);
 	const parsedSettings = JSON.parse(settings);
 	let { hoverConditions } = parsedSettings;
-
+	console.log(getNodeById(id, rfNodes));
 	const flattenConditions = (conditions) => {
 		console.log(conditions);
 		const isBadge = getNodeById(id, rfNodes).type === "badge";
@@ -155,6 +155,7 @@ export default function SimpleConditionsMoodle({ id }) {
 				case "conditionsGroup":
 					const operator =
 						getNodeById(id, rfNodes).type == "badge" ? c.method : c.op;
+
 					finalDOM.push(
 						<p style={prefix}>
 							{parsedConditionsGroup.find((pcg) => operator == pcg.op).parsed}
@@ -183,7 +184,6 @@ export default function SimpleConditionsMoodle({ id }) {
 							</p>
 						);
 					} else {
-						console.log(c);
 						finalDOM.push(
 							<>
 								<p style={prefix}>
@@ -415,9 +415,8 @@ export default function SimpleConditionsMoodle({ id }) {
 							<ul style={prefix}>
 								{c.params.map((badge) => {
 									const metaBadgeList = metaData.badges;
-
 									const badgeFounded = metaBadgeList.find(
-										(metaBadge) => metaBadge.id === badge.toString()
+										(metaBadge) => metaBadge.id.toString() === badge
 									);
 
 									return <li key={badgeFounded.id}>{badgeFounded.name}</li>;
