@@ -35,7 +35,9 @@ const SkillsComponent = ({
 						siguientes competencias tengan que ser completadas:
 						<ul>
 							{condition.params.map((option) => {
-								const skill = skillsList.find((skill) => skill.id === option);
+								const skill = skillsList.find(
+									(skill) => skill.id.toString() === option.toString()
+								);
 								return <li key={skill.id}>{skill.name}</li>;
 							})}
 						</ul>

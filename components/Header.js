@@ -316,7 +316,6 @@ function Header({ LTISettings }, ref) {
 		};
 		console.log(emptyNewMap);
 		const encodedNewMap = encodeURIComponent(emptyNewMap);
-		// console.log(response);
 
 		const newMaps = [
 			...localMaps,
@@ -394,9 +393,11 @@ function Header({ LTISettings }, ref) {
 				case "moodle":
 					nodes.push(parseMoodleNode(node, newX, newY));
 					newX += 125;
+					break;
 				case "sakai":
 					parseSakaiNode(nodes, node, newX, newY, validTypes);
 					newX += 125;
+					break;
 			}
 		});
 

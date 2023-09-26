@@ -39,12 +39,14 @@ const SkillsForm = ({
 			<div className="ms-4 me-0">
 				{skillsList.map((option) => {
 					return (
-						<div key={option.id}>
+						<div key={option.id.toString()}>
 							<Form.Check
 								onChange={handleCheckboxChange}
-								value={option.id}
+								value={option.id.toString()}
 								label={option.name}
-								defaultChecked={conditionEdit?.params?.includes(option.id)}
+								defaultChecked={conditionEdit?.params?.includes(
+									option.id.toString()
+								)}
 							/>
 						</div>
 					);

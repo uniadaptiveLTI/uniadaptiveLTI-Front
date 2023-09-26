@@ -34,12 +34,14 @@ const RoleForm = ({
 			<b className="mt-4">Roles:</b>
 			<div className="ms-4 me-0">
 				{roleList.map((option) => (
-					<div key={option.id}>
+					<div key={option.id.toString()}>
 						<Form.Check
 							onChange={handleCheckboxChange}
-							value={option.id}
+							value={option.id.toString()}
 							label={option.name}
-							defaultChecked={conditionEdit?.params?.includes(option.id)}
+							defaultChecked={conditionEdit?.params?.includes(
+								option.id.toString()
+							)}
 						/>
 					</div>
 				))}

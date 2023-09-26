@@ -104,7 +104,9 @@ export function parseMoodleBadgeParams(conditions) {
 					param.name.includes("bydate")
 				);
 
-				newCondition.method = grade.value;
+				if (grade) {
+					newCondition.method = grade.value;
+				}
 
 				if (date) {
 					var dateObj = new Date(date.value * 1000);
