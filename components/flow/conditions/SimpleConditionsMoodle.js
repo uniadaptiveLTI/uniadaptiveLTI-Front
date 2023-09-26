@@ -20,9 +20,7 @@ export default function SimpleConditionsMoodle({ id }) {
 	const { settings } = useContext(SettingsContext);
 	const parsedSettings = JSON.parse(settings);
 	let { hoverConditions } = parsedSettings;
-	console.log(getNodeById(id, rfNodes));
 	const flattenConditions = (conditions) => {
-		console.log(conditions);
 		const isBadge = getNodeById(id, rfNodes).type === "badge";
 		const recursiveGet = (c, indentation = 1, array = []) => {
 			const conditionNames = isBadge ? c?.params : c?.c;
@@ -143,7 +141,6 @@ export default function SimpleConditionsMoodle({ id }) {
 	];
 
 	const parseConditions = (flatConditions) => {
-		console.log(flatConditions);
 		let finalDOM = [
 			<p>
 				<b>Condiciones:</b>
@@ -358,11 +355,9 @@ export default function SimpleConditionsMoodle({ id }) {
 								<ul>
 									{c.params.map((option) => {
 										const roleList = metaData.role_list;
-
 										const roleFounded = roleList.find(
-											(roleMeta) => roleMeta.id === option.toString()
+											(roleMeta) => roleMeta.id.toString() === option.toString()
 										);
-
 										return <li key={roleFounded.id}>{roleFounded.name}</li>;
 									})}
 								</ul>
@@ -436,7 +431,7 @@ export default function SimpleConditionsMoodle({ id }) {
 									const metaSkillsList = metaData.skills;
 
 									const skillFounded = metaSkillsList.find(
-										(metaSkill) => metaSkill.id === skill.toString()
+										(metaSkill) => metaSkill.id.toString() === skill.toString()
 									);
 
 									return <li key={skillFounded.id}>{skillFounded.name}</li>;
@@ -544,40 +539,45 @@ export default function SimpleConditionsMoodle({ id }) {
 		return finalDOM;
 	};
 
-	if (devModeStatus) {
-		return JSON.stringify(getNodeById(id, rfNodes));
+	const devString = <div>{JSON.stringify(getNodeById(id, rfNodes))}</div>;
+	if ((conditions && hoverConditions) || (qualifications && !hoverConditions)) {
+		//Show the preference
+		let finalString = hoverConditions
+			? parseConditions(flattenConditions(conditions))
+			: parseQualifications(qualifications);
+
+		return (
+			<div>{devModeStatus ? [devString, ...finalString] : finalString}</div>
+		);
 	} else {
 		if (
 			(conditions && hoverConditions) ||
 			(qualifications && !hoverConditions)
 		) {
-			console.log(flattenConditions(conditions));
 			//Show the preference
 			let finalString = hoverConditions
 				? parseConditions(flattenConditions(conditions))
 				: parseQualifications(qualifications);
-			return <div>{finalString}</div>;
+			return (
+				<div>{devModeStatus ? [devString, ...finalString] : finalString}</div>
+			);
 		} else {
 			//If unable to show the preference, show the alternative
 			if (conditions && !qualifications) {
-				console.log(flattenConditions(conditions));
 				let finalString = parseConditions(flattenConditions(conditions));
-				return <div>{finalString}</div>;
+				return (
+					<div>{devModeStatus ? [devString, ...finalString] : finalString}</div>
+				);
 			} else {
-				if (!conditions && qualifications) {
-					let finalString = parseQualifications(qualifications);
-					return <div>{finalString}</div>;
-				} else {
-					return (
-						<div>
-							{JSON.stringify(getNodeById(id, rfNodes))}
-							<p></p>
+				return (
+					<div>
+						<p>
 							Aquí se priorizará mostrar información resumida sobre las{" "}
 							<b>{hoverConditions ? "condiciones" : "calificaciones"}</b> el
 							bloque seleccionado.
-						</div>
-					);
-				}
+						</p>
+					</div>
+				);
 			}
 		}
 	}

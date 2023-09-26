@@ -17,6 +17,7 @@ import {
 	saveVersion,
 } from "@utils/Utils";
 import { toast } from "react-toastify";
+import { parseMoodleBadgeToExport } from "@utils/Moodle";
 
 export default function ExportPanel({
 	errorList,
@@ -204,7 +205,18 @@ export default function ExportPanel({
 			const type = node.type;
 			delete node.type;
 			if (ActionNodes.includes(type)) {
-				return { ...node, ...data, actionType: type };
+				const actionNode = {
+					...node,
+					...data,
+					actionType: type,
+				};
+				if (platform == "moodle") {
+					if (type == "badge") {
+						return parseMoodleBadgeToExport(actionNode);
+					}
+				} else {
+					return actionNode;
+				}
 			} else {
 				return { ...node, ...data };
 			}

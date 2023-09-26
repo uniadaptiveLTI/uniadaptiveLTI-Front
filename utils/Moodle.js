@@ -104,7 +104,9 @@ export function parseMoodleBadgeParams(conditions) {
 					param.name.includes("bydate")
 				);
 
-				newCondition.method = grade.value;
+				if (grade) {
+					newCondition.method = grade.value;
+				}
 
 				if (date) {
 					var dateObj = new Date(date.value * 1000);
@@ -355,4 +357,64 @@ export function clampNodesOrderMoodle(nodeArray) {
 	}
 	console.log(nodeArray, getUpdatedArrayById(newArray, nodeArray));
 	return getUpdatedArrayById(newArray, nodeArray);
+}
+
+export function parseMoodleBadgeToExport(node) {
+	let newNode = node;
+	let newConditions = [];
+
+	const extractCondition = (condition) => {
+		const criteriaType = condition.criteriatype;
+		const newMethod = condition.op == "&" ? 1 : 2;
+		if (condition.c) delete condition.c;
+		switch (condition.type) {
+			case "conditionsGroup": {
+				return { criteriatype: criteriaType, method: newMethod, params: [] };
+			}
+			case "completion":
+				return {
+					criteriatype: criteriaType,
+					method: newMethod,
+					params: condition.params,
+				};
+			case "role":
+				return {
+					criteriatype: criteriaType,
+					method: newMethod,
+					params: condition.params,
+				};
+			case "courseCompletion":
+				return {
+					criteriatype: criteriaType,
+					method: newMethod,
+					dateTo: condition.params,
+				};
+			case "badgeList":
+				return {
+					criteriatype: criteriaType,
+					method: newMethod,
+					params: condition.params,
+				};
+			case "skills":
+				return {
+					criteriatype: criteriaType,
+					method: newMethod,
+					params: condition.params,
+				};
+		}
+		return condition;
+	};
+
+	if (node.c) {
+		const flatConditions = [node.c, ...node.c.params];
+
+		flatConditions.map((condition) => {
+			newConditions.push(extractCondition(condition));
+		});
+
+		delete newNode.c;
+		newNode.conditions = newConditions;
+	}
+
+	return newNode;
 }
