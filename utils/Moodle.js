@@ -405,13 +405,8 @@ export function parseMoodleBadgeToExport(node) {
 		return condition;
 	};
 
-	console.log("AAA");
-	console.log(node);
 	if (node.c) {
 		const flatConditions = [node.c, ...node.c.params];
-		console.log("BBB");
-
-		console.log(flatConditions);
 
 		flatConditions.map((condition) => {
 			newConditions.push(extractCondition(condition));
@@ -420,7 +415,6 @@ export function parseMoodleBadgeToExport(node) {
 		delete newNode.c;
 		newNode.conditions = newConditions;
 	}
-	console.log(newNode);
 
 	return newNode;
 }

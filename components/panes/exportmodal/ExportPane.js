@@ -204,7 +204,6 @@ export default function ExportPanel({
 			delete node.expandParent;
 			const type = node.type;
 			delete node.type;
-			console.log("PRE");
 			if (ActionNodes.includes(type)) {
 				const actionNode = {
 					...node,
@@ -213,7 +212,6 @@ export default function ExportPanel({
 				};
 				if (platform == "moodle") {
 					if (type == "badge") {
-						console.log("PARSEMOODLEBADGE");
 						return parseMoodleBadgeToExport(actionNode);
 					}
 				} else {
