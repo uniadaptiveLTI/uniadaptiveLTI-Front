@@ -36,7 +36,7 @@ const BadgeListComponent = ({
 						<ul>
 							{condition.params.map((option) => {
 								const badgeFounded = badgeList.find(
-									(badge) => badge.id.toString() === option
+									(badge) => badge.id.toString() === option.toString()
 								);
 
 								return <li key={badgeFounded.id}>{badgeFounded.name}</li>;

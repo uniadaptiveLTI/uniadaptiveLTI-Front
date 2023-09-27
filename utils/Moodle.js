@@ -361,7 +361,7 @@ export function clampNodesOrderMoodle(nodeArray) {
 	return getUpdatedArrayById(newArray, nodeArray);
 }
 
-export function parseMoodleBadgeToExport(node, nodeArray) {
+export function parseMoodleBadgeToExport(node, nodeArray, metaData) {
 	let newNode = node;
 	let newConditions = [];
 
@@ -373,39 +373,53 @@ export function parseMoodleBadgeToExport(node, nodeArray) {
 		const criteriaType = condition.criteriatype;
 		const newMethod = condition.op == "&" ? 1 : 2;
 		if (condition.c) delete condition.c;
+		console.log("IOASDOASJDKL");
 		switch (condition.type) {
 			case "conditionsGroup": {
 				return { criteriatype: criteriaType, method: newMethod, params: [] };
 			}
 			case "completion": {
 				const array = [];
-				array.push(
-					...condition.params.map((param) => {
-						if (param.date) {
-							return [
-								{
-									name: `module_${getResourceById(param.id)}`,
-									value: getResourceById(param.id),
-								},
-								{
-									name: `bydate_${getResourceById(param.id)}`,
-									value: Date.parse(param.date).getTime() / 1000, //UNIX
-								},
-							];
-						} else {
-							return {
-								name: `module_${getResourceById(param.id)}`,
-								value: param.id,
-							};
-						}
-					})
-				);
+				condition.params.map((param) => {
+					array.push({
+						name: `module_${getResourceById(param.id)}`,
+						value: getResourceById(param.id),
+					});
+					if (param.date) {
+						array.push({
+							name: `bydate_${getResourceById(param.id)}`,
+							value: (Date.parse(param.date) / 1000).toString(), //UNIX
+						});
+					}
+				});
 				return {
 					criteriatype: criteriaType,
 					method: newMethod,
 					params: array,
 				};
 			}
+			case "badgeList":
+				return {
+					criteriatype: criteriaType,
+					method: newMethod,
+					params: condition.params.map((param) => {
+						return {
+							name: `badge_${param}`,
+							value: param,
+						};
+					}),
+				};
+			case "skills":
+				return {
+					criteriatype: criteriaType,
+					method: newMethod,
+					params: condition.params.map((param) => {
+						return {
+							name: `competency_${param}`,
+							value: param,
+						};
+					}),
+				};
 			case "role":
 				return {
 					criteriatype: criteriaType,
@@ -418,24 +432,33 @@ export function parseMoodleBadgeToExport(node, nodeArray) {
 					}),
 				};
 			case "courseCompletion":
+				const array = [];
+				array.push({
+					name: `course_${metaData.course_id}`,
+					value: metaData.course_id,
+				});
+
+				if (condition.method) {
+					array.push({
+						name: `grade_${metaData.course_id}`,
+						value: condition.method,
+					});
+				}
+
+				if (condition.dateTo) {
+					array.push({
+						name: `bydate_${metaData.course_id}`,
+						value: (Date.parse(condition.dateTo) / 1000).toString(),
+					});
+				}
+
 				return {
 					criteriatype: criteriaType,
-					method: newMethod,
-					dateTo: condition.params,
-				};
-			case "badgeList":
-				return {
-					criteriatype: criteriaType,
-					method: newMethod,
-					params: condition.params,
-				};
-			case "skills":
-				return {
-					criteriatype: criteriaType,
-					method: newMethod,
-					params: condition.params,
+					method: 1,
+					params: array,
 				};
 		}
+
 		return condition;
 	};
 

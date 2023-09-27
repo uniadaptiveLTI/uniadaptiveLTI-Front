@@ -158,7 +158,9 @@ export default function ExportPanel({
 		const fullNodes = JSON.parse(JSON.stringify(nodesToExport));
 		//Deletting unnecessary info and flattening the nodes
 		nodesToExport = nodesToExport.map((node) => {
-			delete node.data.label;
+			if (platform !== "sakai") {
+				delete node.data.label;
+			}
 			delete node.data.lmsResource;
 			const data = node.data;
 			if (data.c) {
@@ -205,7 +207,9 @@ export default function ExportPanel({
 			delete node.parentNode;
 			delete node.expandParent;
 			const type = node.type;
-			delete node.type;
+			if (platform !== "sakai") {
+				delete node.type;
+			}
 			if (ActionNodes.includes(type)) {
 				const actionNode = {
 					...node,
@@ -216,7 +220,8 @@ export default function ExportPanel({
 					if (type == "badge") {
 						return parseMoodleBadgeToExport(
 							actionNode,
-							reactFlowInstance.getNodes()
+							reactFlowInstance.getNodes(),
+							metaData
 						);
 					}
 				} else {
@@ -264,82 +269,125 @@ export default function ExportPanel({
 
 		console.log("nodesReadyToExport", nodesReadyToExport);
 
-		const uniqueSectionColumnPairs = new Set();
+		if (platform === "sakai") {
+			const uniqueSectionColumnPairs = new Set();
 
-		const sortedSectionColumnPairs = nodesReadyToExport
-			.filter((item) => {
-				const { section, indent } = item;
-				const pairString = `${section}-${indent}`;
+			const sortedSectionColumnPairs = nodesReadyToExport
+				.filter((item) => {
+					const { section, indent } = item;
+					const pairString = `${section}-${indent}`;
 
-				if (!uniqueSectionColumnPairs.has(pairString)) {
-					uniqueSectionColumnPairs.add(pairString);
-					return true;
+					if (!uniqueSectionColumnPairs.has(pairString)) {
+						uniqueSectionColumnPairs.add(pairString);
+						return true;
+					}
+
+					return false;
+				})
+				.map(({ section, indent }) => ({ section, indent }));
+
+			sortedSectionColumnPairs.sort((a, b) => {
+				// Compare by "section" first
+				if (a.section < b.section) return -1;
+				if (a.section > b.section) return 1;
+
+				// If "section" values are the same, compare by "indent" (column)
+				return a.indent - b.indent;
+			});
+
+			console.log(sortedSectionColumnPairs);
+
+			let resultJson = [];
+			const sectionProcessed = {};
+
+			sortedSectionColumnPairs.map((jsonObj) => {
+				if (!sectionProcessed[jsonObj.section]) {
+					// Process the section if it hasn't been processed yet
+					resultJson.push({
+						pageId: 1,
+						type: 14,
+						title: "",
+						format: "section",
+					});
+
+					const filteredArray = nodesReadyToExport
+						.filter(
+							(node) =>
+								node.section === jsonObj.section &&
+								node.indent === jsonObj.indent
+						)
+						.sort((a, b) => a.order - b.order);
+					console.log(filteredArray);
+					filteredArray.map((node) => {
+						const nodeTypeParsed = sakaiTypeSwitch(node);
+						console.log("AAAAAAAAAAAAAAAAA");
+						resultJson.push({
+							pageId: 1,
+							type: nodeTypeParsed.type,
+							title: node.label,
+							contentRef: nodeTypeParsed.contentRef,
+						});
+					});
+					console.log("ME TROLIARROOOOON");
+
+					resultJson = resultJson.concat(filteredArray);
+
+					sectionProcessed[jsonObj.section] = true; // Mark the section as processed
+				} else {
+					resultJson.push({
+						pageId: 1,
+						type: 14,
+						title: "",
+						format: "column",
+					});
+
+					const filteredArray = nodesReadyToExport
+						.filter(
+							(node) =>
+								node.section === jsonObj.section &&
+								node.indent === jsonObj.indent
+						)
+						.sort((a, b) => a.order - b.order);
+
+					filteredArray.map((node) => {
+						const nodeTypeParsed = sakaiTypeSwitch(node);
+						resultJson.push({
+							pageId: 1,
+							type: nodeTypeParsed.type,
+							title: node.label,
+							contentRef: nodeTypeParsed.contentRef,
+						});
+					});
+
+					resultJson = resultJson.concat(filteredArray);
 				}
-
-				return false;
-			})
-			.map(({ section, indent }) => ({ section, indent }));
-
-		sortedSectionColumnPairs.sort((a, b) => {
-			// Compare by "section" first
-			if (a.section < b.section) return -1;
-			if (a.section > b.section) return 1;
-
-			// If "section" values are the same, compare by "indent" (column)
-			return a.indent - b.indent;
-		});
-
-		console.log(sortedSectionColumnPairs);
-
-		let resultJson = [];
-		const sectionProcessed = {};
-
-		sortedSectionColumnPairs.map((jsonObj) => {
-			if (!sectionProcessed[jsonObj.section]) {
-				// Process the section if it hasn't been processed yet
-				resultJson.push({
-					pageId: 1,
-					type: 14,
-					title: "",
-					format: "section",
-				});
-
-				resultJson = resultJson.concat(
-					nodesReadyToExport
-						.filter(
-							(node) =>
-								node.section === jsonObj.section &&
-								node.indent === jsonObj.indent
-						)
-						.sort((a, b) => a.order - b.order)
-				);
-
-				sectionProcessed[jsonObj.section] = true; // Mark the section as processed
-			} else {
-				resultJson.push({
-					pageId: 1,
-					type: 14,
-					title: "",
-					format: "column",
-				});
-
-				resultJson = resultJson.concat(
-					nodesReadyToExport
-						.filter(
-							(node) =>
-								node.section === jsonObj.section &&
-								node.indent === jsonObj.indent
-						)
-						.sort((a, b) => a.order - b.order)
-				);
-			}
-		});
+			});
+		}
 		console.log(resultJson);
 
 		console.log(sortedSectionColumnPairs);
 		console.log(nodesReadyToExport);
 		sendNodes(nodesReadyToExport);
 	};
+
+	function sakaiTypeSwitch(node) {
+		switch (node.type) {
+			case "resource":
+				return { type: 1, contentRef: node.data.lmsResource };
+			case "text":
+				return { type: 5, contentRef: node.data.lmsResource };
+			case "url":
+				return { type: 6, contentRef: node.data.lmsResource };
+			/* IS NOT SUPPORTED case "folder":
+				return { type: 20, contentRef: "" };*/
+			case "exam":
+				return { type: 4, contentRef: "/sam_pub/" + node.data.lmsResource };
+			case "assign":
+				return { type: 3, contentRef: "/assignment/" + node.data.lmsResource };
+			case "forum":
+				return { type: 8, contentRef: "/forum_forum/" + node.data.lmsResource };
+		}
+	}
 
 	function deleteEmptyC(obj) {
 		if (obj.hasOwnProperty("c") && Array.isArray(obj.c) && obj.c.length > 0) {
