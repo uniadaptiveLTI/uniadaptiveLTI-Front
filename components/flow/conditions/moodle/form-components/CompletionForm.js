@@ -1,11 +1,13 @@
 import React, { useId } from "react";
 import { Form } from "react-bootstrap";
+import { getNodeById } from "@utils/Nodes";
 
 function CompletionForm({
 	parentsNodeArray,
 	conditionOperator,
 	conditionQuery,
 	conditionEdit,
+	nodes,
 }) {
 	const coId = useId();
 	return (
@@ -24,6 +26,14 @@ function CompletionForm({
 				disabled
 				hidden
 			/>
+			<div className="d-flex align-items-baseline col-12 col-lg-6 col-xl-4">
+				<Form.Label className="me-4" style={{ minWidth: "125px" }}>
+					Bloque:
+				</Form.Label>
+				<Form.Label>
+					<strong>{getNodeById(conditionEdit.cm, nodes).data.label}</strong>
+				</Form.Label>
+			</div>
 			<div className="d-flex align-items-baseline col-12 col-lg-6 col-xl-4">
 				<Form.Label
 					htmlFor={coId}

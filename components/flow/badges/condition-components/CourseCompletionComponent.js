@@ -25,16 +25,7 @@ const CourseCompletionComponent = ({
 			<Row className="align-items-center">
 				<Col>
 					<div>
-						{(!condition.method ||
-							condition.method === "0" ||
-							condition.method === "") &&
-							!condition.dateTo && (
-								<div>
-									Los usuarios deben finalizar el curso{" "}
-									<strong>{metaData.name}</strong>
-								</div>
-							)}
-						{(condition.method || condition.dateTo) && (
+						{
 							<div>
 								Los usuarios deben finalizar el curso{" "}
 								<strong>{metaData.name}</strong>
@@ -54,7 +45,7 @@ const CourseCompletionComponent = ({
 										</a>
 									)}
 							</div>
-						)}
+						}
 					</div>
 				</Col>
 				<Col className="col-md-2 d-flex align-items-center gap-2">

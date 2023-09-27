@@ -885,6 +885,7 @@ function ConditionModalMoodle({
 						conditionEdit={conditionEdit}
 						parentsNodeArray={parentsNodeArray}
 						checkInputs={checkInputs}
+						nodes={reactFlowInstance.getNodes()}
 					/>
 				)}
 
@@ -906,6 +907,7 @@ function ConditionModalMoodle({
 						conditionOperator={conditionOperator}
 						conditionQuery={conditionQuery}
 						conditionEdit={conditionEdit}
+						nodes={reactFlowInstance.getNodes()}
 					/>
 				)}
 

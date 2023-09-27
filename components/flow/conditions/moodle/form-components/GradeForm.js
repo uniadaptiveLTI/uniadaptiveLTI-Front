@@ -1,5 +1,6 @@
 import React from "react";
 import { Form } from "react-bootstrap";
+import { getNodeById } from "@utils/Nodes";
 
 function GradeForm(props) {
 	const {
@@ -10,6 +11,7 @@ function GradeForm(props) {
 		conditionEdit,
 		parentsNodeArray,
 		checkInputs,
+		nodes,
 	} = props;
 
 	return (
@@ -21,6 +23,14 @@ function GradeForm(props) {
 			}}
 			className="d-flex flex-column gap-2 p-4"
 		>
+			<div className="d-flex align-items-baseline col-12 col-lg-6 col-xl-4">
+				<Form.Label className="me-4" style={{ minWidth: "125px" }}>
+					Bloque:
+				</Form.Label>
+				<Form.Label>
+					<strong>{getNodeById(conditionEdit.cm, nodes).data.label}</strong>
+				</Form.Label>
+			</div>
 			<Form.Control
 				ref={conditionOperator}
 				defaultValue={conditionEdit?.cm}

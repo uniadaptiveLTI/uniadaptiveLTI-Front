@@ -373,7 +373,6 @@ export function parseMoodleBadgeToExport(node, nodeArray, metaData) {
 		const criteriaType = condition.criteriatype;
 		const newMethod = condition.op == "&" ? 1 : 2;
 		if (condition.c) delete condition.c;
-		console.log("IOASDOASJDKL");
 		switch (condition.type) {
 			case "conditionsGroup": {
 				return { criteriatype: criteriaType, method: newMethod, params: [] };
