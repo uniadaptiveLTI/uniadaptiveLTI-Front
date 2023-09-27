@@ -365,8 +365,6 @@ function CriteriaModal({
 
 	const handleSubmit = (edition) => {
 		const formData = {
-			descriptionformat: 1,
-			description: "",
 			type: selectedOption,
 			method: edition ? conditionEdit.method : "method",
 			id: edition ? conditionEdit.id : uniqueId(),

@@ -374,7 +374,13 @@ export function parseMoodleBadgeToExport(node, nodeArray, metaData) {
 		if (condition.c) delete condition.c;
 		switch (condition.type) {
 			case "conditionsGroup": {
-				return { criteriatype: criteriaType, method: newMethod, params: [] };
+				return {
+					criteriatype: criteriaType,
+					method: newMethod,
+					params: [],
+					descriptionformat: 1,
+					description: "",
+				};
 			}
 			case "completion": {
 				const array = [];
@@ -391,6 +397,8 @@ export function parseMoodleBadgeToExport(node, nodeArray, metaData) {
 					}
 				});
 				return {
+					descriptionformat: 1,
+					description: "",
 					criteriatype: criteriaType,
 					method: newMethod,
 					params: array,
@@ -398,6 +406,8 @@ export function parseMoodleBadgeToExport(node, nodeArray, metaData) {
 			}
 			case "badgeList":
 				return {
+					descriptionformat: 1,
+					description: "",
 					criteriatype: criteriaType,
 					method: newMethod,
 					params: condition.params.map((param) => {
@@ -409,6 +419,8 @@ export function parseMoodleBadgeToExport(node, nodeArray, metaData) {
 				};
 			case "skills":
 				return {
+					descriptionformat: 1,
+					description: "",
 					criteriatype: criteriaType,
 					method: newMethod,
 					params: condition.params.map((param) => {
@@ -420,6 +432,8 @@ export function parseMoodleBadgeToExport(node, nodeArray, metaData) {
 				};
 			case "role":
 				return {
+					descriptionformat: 1,
+					description: "",
 					criteriatype: criteriaType,
 					method: newMethod,
 					params: condition.params.map((param) => {
@@ -451,6 +465,8 @@ export function parseMoodleBadgeToExport(node, nodeArray, metaData) {
 				}
 
 				return {
+					descriptionformat: 1,
+					description: "",
 					criteriatype: criteriaType,
 					method: 1,
 					params: array,
