@@ -145,19 +145,15 @@ function ActionNode({ id, type, data, selected, dragging, isConnectable }) {
 				isConnectable={isConnectable}
 				isConnectableStart="false"
 			/>
-			<NodeToolbar position="left" offset={25}>
-				<FocusTrap
-					focusTrapOptions={{
-						clickOutsideDeactivates: true,
-						returnFocusOnDeactivate: true,
-					}}
-				>
-					<div className={styles.blockToolbar}>
-						<Button variant="dark" onClick={handleEdit} title="Editar acción">
-							<FontAwesomeIcon icon={faEdit} />
-							<span className="visually-hidden">Editar acción</span>
-						</Button>
-						{getNodeById(id, reactFlowInstance.getNodes()).parentNode && (
+			{getNodeById(id, reactFlowInstance.getNodes()).parentNode && (
+				<NodeToolbar position="left" offset={25}>
+					<FocusTrap
+						focusTrapOptions={{
+							clickOutsideDeactivates: true,
+							returnFocusOnDeactivate: true,
+						}}
+					>
+						<div className={styles.blockToolbar}>
 							<Button
 								variant="dark"
 								onClick={extractSelf}
@@ -166,10 +162,10 @@ function ActionNode({ id, type, data, selected, dragging, isConnectable }) {
 								<FontAwesomeIcon icon={faRightFromBracket} />
 								<span className="visually-hidden">Sacar del fragmento</span>
 							</Button>
-						)}
-					</div>
-				</FocusTrap>
-			</NodeToolbar>
+						</div>
+					</FocusTrap>
+				</NodeToolbar>
+			)}
 			<div
 				id={id}
 				className={
@@ -183,6 +179,10 @@ function ActionNode({ id, type, data, selected, dragging, isConnectable }) {
 				aria-label={getAriaLabel} //FIXME: Doesn't work
 				onMouseEnter={() => setIsHovered(true)}
 				onMouseLeave={() => setIsHovered(false)}
+				onClick={handleEdit}
+				onKeyDown={(e) => {
+					if (e.key == "Enter") handleEdit();
+				}}
 			>
 				<span className={styles.blockInfo + " " + styles.top}>
 					{data.label}
