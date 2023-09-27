@@ -231,6 +231,7 @@ export default function ExportPanel({
 				return { ...node, ...data };
 			}
 		});
+
 		let nodesAsString = JSON.stringify(nodesToExport);
 		//Replacing block Ids by the resource ids
 		fullNodes.forEach((fullNode) => {
@@ -268,7 +269,7 @@ export default function ExportPanel({
 		});
 
 		console.log("nodesReadyToExport", nodesReadyToExport);
-
+		console.log(platform);
 		if (platform === "sakai") {
 			const uniqueSectionColumnPairs = new Set();
 
@@ -359,8 +360,13 @@ export default function ExportPanel({
 
 					resultJson = resultJson.concat(filteredArray);
 				}
+
+				sendNodes(nodesReadyToExport);
 			});
+		} else {
+			sendNodes(nodesReadyToExport);
 		}
+
 		console.log(resultJson);
 
 		console.log(sortedSectionColumnPairs);
@@ -468,6 +474,7 @@ export default function ExportPanel({
 	}
 
 	async function sendNodes(nodes) {
+		console.log("SUUUU");
 		console.log(nodes);
 		try {
 			const payload = {
