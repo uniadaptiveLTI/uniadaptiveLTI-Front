@@ -223,19 +223,15 @@ function ElementNode({
 					isConnectableEnd="false"
 				/>
 			)}
-			<NodeToolbar position="left" offset={25}>
-				<FocusTrap
-					focusTrapOptions={{
-						clickOutsideDeactivates: true,
-						returnFocusOnDeactivate: true,
-					}}
-				>
-					<div className={styles.blockToolbar}>
-						<Button variant="dark" onClick={handleEdit} title="Editar elemento">
-							<FontAwesomeIcon icon={faEdit} />
-							<span className="visually-hidden">Editar elemento</span>
-						</Button>
-						{getNodeById(id, reactFlowInstance.getNodes()).parentNode && (
+			{getNodeById(id, reactFlowInstance.getNodes()).parentNode && (
+				<NodeToolbar position="left" offset={25}>
+					<FocusTrap
+						focusTrapOptions={{
+							clickOutsideDeactivates: true,
+							returnFocusOnDeactivate: true,
+						}}
+					>
+						<div className={styles.blockToolbar}>
 							<Button
 								variant="dark"
 								onClick={extractSelf}
@@ -244,10 +240,10 @@ function ElementNode({
 								<FontAwesomeIcon icon={faRightFromBracket} />
 								<span className="visually-hidden">Sacar del fragmento</span>
 							</Button>
-						)}
-					</div>
-				</FocusTrap>
-			</NodeToolbar>
+						</div>
+					</FocusTrap>
+				</NodeToolbar>
+			)}
 			<div
 				id={id}
 				className={
@@ -259,6 +255,10 @@ function ElementNode({
 					(reducedAnimations && styles.noAnimation + " noAnimation")
 				}
 				aria-label={getAriaLabel} //FIXME: Doesn't work
+				onClick={handleEdit}
+				onKeyDown={(e) => {
+					if (e.key == "Enter") handleEdit();
+				}}
 				onMouseEnter={() => setIsHovered(true)}
 				onMouseLeave={() => setIsHovered(false)}
 			>

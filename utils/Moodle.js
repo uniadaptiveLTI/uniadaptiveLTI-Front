@@ -1,3 +1,5 @@
+import { useReactFlow } from "reactflow";
+import { getNodeById } from "./Nodes";
 import { getUpdatedArrayById, uniqueId, parseDate } from "./Utils";
 
 export function parseMoodleNode(node, newX, newY) {
@@ -359,11 +361,15 @@ export function clampNodesOrderMoodle(nodeArray) {
 	return getUpdatedArrayById(newArray, nodeArray);
 }
 
-export function parseMoodleBadgeToExport(node) {
+export function parseMoodleBadgeToExport(node, nodeArray) {
 	let newNode = node;
 	let newConditions = [];
 
 	const extractCondition = (condition) => {
+		const getResourceById = (id) => {
+			return getNodeById(id, nodeArray)?.data?.lmsResource;
+		};
+
 		const criteriaType = condition.criteriatype;
 		const newMethod = condition.op == "&" ? 1 : 2;
 		if (condition.c) delete condition.c;
@@ -371,17 +377,45 @@ export function parseMoodleBadgeToExport(node) {
 			case "conditionsGroup": {
 				return { criteriatype: criteriaType, method: newMethod, params: [] };
 			}
-			case "completion":
+			case "completion": {
+				const array = [];
+				array.push(
+					...condition.params.map((param) => {
+						if (param.date) {
+							return [
+								{
+									name: `module_${getResourceById(param.id)}`,
+									value: getResourceById(param.id),
+								},
+								{
+									name: `bydate_${getResourceById(param.id)}`,
+									value: Date.parse(param.date).getTime() / 1000, //UNIX
+								},
+							];
+						} else {
+							return {
+								name: `module_${getResourceById(param.id)}`,
+								value: param.id,
+							};
+						}
+					})
+				);
 				return {
 					criteriatype: criteriaType,
 					method: newMethod,
-					params: condition.params,
+					params: array,
 				};
+			}
 			case "role":
 				return {
 					criteriatype: criteriaType,
 					method: newMethod,
-					params: condition.params,
+					params: condition.params.map((param) => {
+						return {
+							name: `role_${param}`,
+							value: param,
+						};
+					}),
 				};
 			case "courseCompletion":
 				return {

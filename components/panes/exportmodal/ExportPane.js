@@ -214,7 +214,10 @@ export default function ExportPanel({
 				};
 				if (platform == "moodle") {
 					if (type == "badge") {
-						return parseMoodleBadgeToExport(actionNode);
+						return parseMoodleBadgeToExport(
+							actionNode,
+							reactFlowInstance.getNodes()
+						);
 					}
 				} else {
 					return actionNode;

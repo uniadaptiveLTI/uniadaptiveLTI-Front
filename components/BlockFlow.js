@@ -835,7 +835,13 @@ const OverviewFlow = ({ map }, ref) => {
 		// Check method for errors
 		errorListCheck(blocks, errorList, setErrorList, true);
 
-		return finalNodeArray;
+		//Reordering
+		const finalReorderedNodeArray = getUpdatedArrayById(
+			clampNodesOrder(finalNodeArray, platform),
+			finalNodeArray
+		);
+
+		return finalReorderedNodeArray;
 	};
 
 	const deleteElements = (nodes, edges, force = false) => {
