@@ -49,8 +49,7 @@ function CriteriaModal({
 	const { metaData, setMetaData } = useContext(MetaDataContext);
 
 	const roleList = metaData.role_list;
-	const badgeMetaList = metaData.badges;
-	const badgeList = badgeMetaList.filter((badge) => badge.published === true);
+	const badgeList = metaData.badges;
 	const skillsList = metaData.skills;
 
 	const [lmsResourceList, setLmsResourceList] = useState([]);
