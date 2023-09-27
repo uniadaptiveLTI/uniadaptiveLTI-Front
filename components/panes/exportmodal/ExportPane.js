@@ -300,7 +300,7 @@ export default function ExportPanel({
 
 			let resultJson = [];
 			const sectionProcessed = {};
-
+			console.log(sortedSectionColumnPairs, nodesReadyToExport);
 			sortedSectionColumnPairs.map((jsonObj) => {
 				if (!sectionProcessed[jsonObj.section]) {
 					// Process the section if it hasn't been processed yet
@@ -309,6 +309,33 @@ export default function ExportPanel({
 						type: 14,
 						title: "",
 						format: "section",
+					});
+
+					const filteredArray = nodesReadyToExport
+						.filter(
+							(node) =>
+								node.section === jsonObj.section &&
+								node.indent === jsonObj.indent
+						)
+						.sort((a, b) => a.order - b.order);
+
+					filteredArray.map((node) => {
+						const nodeTypeParsed = sakaiTypeSwitch(node);
+						resultJson.push({
+							pageId: 1,
+							type: nodeTypeParsed.type,
+							title: node.label,
+							contentRef: nodeTypeParsed.contentRef,
+						});
+					});
+
+					sectionProcessed[jsonObj.section] = true; // Mark the section as processed
+				} else {
+					resultJson.push({
+						pageId: 1,
+						type: 14,
+						title: "",
+						format: "column",
 					});
 
 					const filteredArray = nodesReadyToExport
@@ -328,68 +355,39 @@ export default function ExportPanel({
 							contentRef: nodeTypeParsed.contentRef,
 						});
 					});
-
-					resultJson = resultJson.concat(filteredArray);
-
-					sectionProcessed[jsonObj.section] = true; // Mark the section as processed
-				} else {
-					resultJson.push({
-						pageId: 1,
-						type: 14,
-						title: "",
-						format: "column",
-					});
-
-					const filteredArray = nodesReadyToExport
-						.filter(
-							(node) =>
-								node.section === jsonObj.section &&
-								node.indent === jsonObj.indent
-						)
-						.sort((a, b) => a.order - b.order);
-
-					filteredArray.map((node) => {
-						const nodeTypeParsed = sakaiTypeSwitch(node);
-						resultJson.push({
-							pageId: 1,
-							type: nodeTypeParsed.type,
-							title: node.label,
-							contentRef: nodeTypeParsed.contentRef,
-						});
-					});
-
-					resultJson = resultJson.concat(filteredArray);
 				}
-
+				console.log(resultJson, mapSelected);
 				sendNodes(nodesReadyToExport);
 			});
+
+			/* AQUI LLAMAREMOS A LA FUNCION PARA QUE A DAVID LE LLEGUE EL
+			   nodesReadyToExport (que es para que se actualicen los objetos)
+			   y resultJson (que es para que se creen los lessons items en la lesson (bloques) <= PRIORIZAR ESTE Y COMPROBARLO EN BACK PLS
+			   no importeis una lesson, porque no va, cread literalmente 2 bloques uno de examen y otro de tarea y exportarlo para ver que se crea
+			*/
 		} else {
 			sendNodes(nodesReadyToExport);
 		}
-
-		console.log(resultJson);
-
-		console.log(sortedSectionColumnPairs);
-		console.log(nodesReadyToExport);
-		sendNodes(nodesReadyToExport);
 	};
 
 	function sakaiTypeSwitch(node) {
 		switch (node.type) {
 			case "resource":
-				return { type: 1, contentRef: node.data.lmsResource };
+				return { type: 1, contentRef: node.id.toString() };
+			case "html":
+				return { type: 1, contentRef: node.id.toString() };
 			case "text":
-				return { type: 5, contentRef: node.data.lmsResource };
+				return { type: 5, contentRef: node.id.toString() };
 			case "url":
-				return { type: 6, contentRef: node.data.lmsResource };
+				return { type: 6, contentRef: node.id.toString() };
 			/* IS NOT SUPPORTED case "folder":
 				return { type: 20, contentRef: "" };*/
 			case "exam":
-				return { type: 4, contentRef: "/sam_pub/" + node.data.lmsResource };
+				return { type: 4, contentRef: "/sam_pub/" + node.id };
 			case "assign":
-				return { type: 3, contentRef: "/assignment/" + node.data.lmsResource };
+				return { type: 3, contentRef: "/assignment/" + node.id };
 			case "forum":
-				return { type: 8, contentRef: "/forum_forum/" + node.data.lmsResource };
+				return { type: 8, contentRef: "/forum_forum/" + node.id };
 		}
 	}
 
