@@ -452,6 +452,8 @@ const OverviewFlow = ({ map }, ref) => {
 										method: "&",
 										showc: true,
 										criteriatype: 0,
+										descriptionformat: 1,
+										description: "",
 									};
 								}
 
@@ -479,6 +481,8 @@ const OverviewFlow = ({ map }, ref) => {
 											],
 											method: "&",
 											criteriatype: 1,
+											descriptionformat: 1,
+											description: "",
 										};
 
 										targetNode.data.c.params.push(newCondition);
@@ -494,6 +498,8 @@ const OverviewFlow = ({ map }, ref) => {
 											},
 										],
 										method: "&",
+										descriptionformat: 1,
+										description: "",
 									};
 
 									targetNode.data.c.params = [newCondition];

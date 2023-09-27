@@ -320,7 +320,6 @@ export default function ExportPanel({
 					console.log(filteredArray);
 					filteredArray.map((node) => {
 						const nodeTypeParsed = sakaiTypeSwitch(node);
-						console.log("AAAAAAAAAAAAAAAAA");
 						resultJson.push({
 							pageId: 1,
 							type: nodeTypeParsed.type,
@@ -328,7 +327,6 @@ export default function ExportPanel({
 							contentRef: nodeTypeParsed.contentRef,
 						});
 					});
-					console.log("ME TROLIARROOOOON");
 
 					resultJson = resultJson.concat(filteredArray);
 

@@ -122,7 +122,6 @@ export function parseMoodleBadgeParams(conditions) {
 	});
 
 	if (Object.keys(parsedBadgesConditions).length === 0) {
-		console.log("ENTROROROROROROR");
 		return undefined;
 	} else {
 		return parsedBadgesConditions;

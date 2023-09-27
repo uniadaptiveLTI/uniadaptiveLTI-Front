@@ -138,7 +138,6 @@ export function parseSakaiNode(nodes, node, newX, newY, validTypes) {
 			node.timeExceptions &&
 			node.timeExceptions.length >= 1
 		) {
-			console.log("ENTRO");
 			node.timeExceptions.map((exception) =>
 				newNode.data.requisites.push({
 					id: "" + uniqueId(),
