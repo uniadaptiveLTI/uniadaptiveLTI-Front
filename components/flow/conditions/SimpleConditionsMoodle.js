@@ -8,7 +8,7 @@ import { deduplicateById, parseDate } from "@utils/Utils";
 import {
 	profileOperatorList,
 	profileQueryList,
-} from "@components/flow/conditionsMoodle/condition-components/ProfileComponent";
+} from "@components/flow/conditions/moodle/condition-components/ProfileComponent";
 
 export default function SimpleConditionsMoodle({ id }) {
 	const { devModeStatus } = useContext(DevModeStatusContext);

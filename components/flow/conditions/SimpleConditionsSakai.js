@@ -8,7 +8,7 @@ import { deduplicateById, parseDate } from "@utils/Utils";
 import {
 	profileOperatorList,
 	profileQueryList,
-} from "@components/flow/conditionsMoodle/condition-components/ProfileComponent";
+} from "@components/flow/conditions/moodle/condition-components/ProfileComponent";
 import { Col, Container } from "react-bootstrap";
 
 export default function SimpleConditionsSakai({ id }) {

@@ -5,7 +5,7 @@ import { useReactFlow } from "reactflow";
 import { getGradable } from "@utils/TypeDefinitions";
 import { PlatformContext } from "pages/_app";
 import { getNodeById } from "@utils/Nodes";
-import QualificationForm from "@components/flow/conditionsMoodle/form-components/QualificationForm";
+import QualificationForm from "@components/flow/conditions/moodle/form-components/QualificationForm";
 
 function QualificationModal({
 	blockData,
