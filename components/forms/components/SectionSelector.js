@@ -114,7 +114,7 @@ export default forwardRef(function SectionSelector(
 					>
 						<Form.Check
 							type="switch"
-							label={mapName ? mapName + ` (${metaData.name})` : metaData.name}
+							label={mapName ? mapName : metaData.name}
 							onClick={toggleInnerSelectors}
 						/>
 						{showErrors && (
@@ -150,7 +150,7 @@ export default forwardRef(function SectionSelector(
 					>
 						<Form.Check
 							type="switch"
-							label={metaData.name}
+							label={mapName ? mapName : metaData.name}
 							onClick={toggleMainSelector}
 						/>
 						{showErrors && (
@@ -201,8 +201,12 @@ export default forwardRef(function SectionSelector(
 
 	function toggleMainSelector(e) {
 		const targetStatus = e.target.checked;
-		const sectionIds = sections.map((section) => section.id);
-		setSelectionStatus(targetStatus ? sectionIds : []);
+		if ((platform = "moodle")) {
+			const sectionIds = sections.map((section) => section.id);
+			setSelectionStatus(targetStatus ? sectionIds : []);
+		} else {
+			//setSelectionStatus(targetStatus ? [] : []);
+		}
 	}
 
 	useLayoutEffect(() => {

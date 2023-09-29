@@ -604,8 +604,9 @@ export default function ExportPanel({
 				errorList={errorList}
 				warningList={warningList}
 				handleSelectionChange={handleSelectionChange}
-				mapName={mapName}
+				mapName={platform == "moodle" ? "" : mapName}
 			/>
+
 			{platform == "sakai" && (
 				<LessonSelector
 					ref={selectDOM}
