@@ -6,9 +6,16 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { getAutomaticReusableStyles, getRootStyle } from "@utils/Colors";
 import { getNodeById } from "@utils/Nodes";
 import { orderByPropertyAlphabetically } from "@utils/Utils";
-import { forwardRef, useState, useLayoutEffect, useRef } from "react";
+import {
+	forwardRef,
+	useState,
+	useLayoutEffect,
+	useRef,
+	useContext,
+} from "react";
 import { Form } from "react-bootstrap";
 import { useNodes } from "reactflow";
+import { PlatformContext } from "/pages/_app";
 
 function getDuplicates(array) {
 	let count = {};
@@ -40,6 +47,8 @@ export default forwardRef(function SectionSelector(
 	const innerSelectors = useRef([]);
 	const [errorsPerSection, setErrorsPerSection] = useState([]);
 	const [warningsPerSection, setWarningsPerSection] = useState([]);
+
+	const { platform } = useContext(PlatformContext);
 
 	//Checks if it has to wait for the warnings to generate
 	useLayoutEffect(() => {
@@ -201,11 +210,11 @@ export default forwardRef(function SectionSelector(
 
 	function toggleMainSelector(e) {
 		const targetStatus = e.target.checked;
-		if ((platform = "moodle")) {
+		if (platform == "moodle") {
 			const sectionIds = sections.map((section) => section.id);
 			setSelectionStatus(targetStatus ? sectionIds : []);
 		} else {
-			//setSelectionStatus(targetStatus ? [] : []);
+			setSelectionStatus(targetStatus ? ["all"] : []);
 		}
 	}
 
