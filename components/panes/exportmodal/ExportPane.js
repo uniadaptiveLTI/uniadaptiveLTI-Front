@@ -431,7 +431,6 @@ export default function ExportPanel({
 			console.log(sortedSectionColumnPairs);
 			console.log(nodesReadyToExport);
 			sendNodes(nodesReadyToExport, resultJson);
-			/*>>>>>>> Stashed changes*/
 		} else {
 			sendNodes(nodesReadyToExport);
 		}

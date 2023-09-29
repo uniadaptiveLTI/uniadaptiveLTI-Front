@@ -214,7 +214,11 @@ export default forwardRef(function SectionSelector(
 			const sectionIds = sections.map((section) => section.id);
 			setSelectionStatus(targetStatus ? sectionIds : []);
 		} else {
-			setSelectionStatus(targetStatus ? ["all"] : []);
+			setSelectionStatus(
+				targetStatus
+					? [...new Set(rfNodes.map((node) => node.data.section))] //GET ALL SECTIONS USED
+					: []
+			);
 		}
 	}
 
