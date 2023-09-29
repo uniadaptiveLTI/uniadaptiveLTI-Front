@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
-import styles from "@root/styles/ConditionModalMoodle.module.css";
+import styles from "/styles/ConditionModalMoodle.module.css";
 //import { Editor } from "@tinymce/tinymce-react";
 import { uniqueId, searchConditionForTypes } from "@utils/Utils";
 import {

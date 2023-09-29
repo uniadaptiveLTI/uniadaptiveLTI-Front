@@ -6,7 +6,7 @@ import {
 	useReactFlow,
 	useNodes,
 } from "reactflow";
-import styles from "@root/styles/BlockContainer.module.css";
+import styles from "/styles/BlockContainer.module.css";
 import {
 	NodeInfoContext,
 	ExpandedAsideContext,
@@ -14,7 +14,7 @@ import {
 	SettingsContext,
 	VersionInfoContext,
 	PlatformContext,
-} from "@root/pages/_app";
+} from "/pages/_app";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
 	faEdit,
@@ -29,8 +29,8 @@ import { getUpdatedArrayById, parseBool } from "@utils/Utils";
 import { getNodeById, getNumberOfIndependentConditions } from "@utils/Nodes";
 import { DevModeStatusContext } from "pages/_app";
 import { NodeTypes } from "@utils/TypeDefinitions";
-import SimpleConditionsMoodle from "@conditions/SimpleConditionsMoodle";
-import SimpleConditionsSakai from "@conditions/SimpleConditionsSakai";
+import SimpleConditionsMoodle from "@components/flow/conditions/SimpleConditionsMoodle";
+import SimpleConditionsSakai from "@components/flow/conditions/SimpleConditionsSakai";
 import { useEffect } from "react";
 
 const getHumanDesc = (type) => {

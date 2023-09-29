@@ -1,6 +1,6 @@
 import { useNodes } from "reactflow";
 import { getNodeById } from "@utils/Nodes";
-import { DevModeStatusContext } from "@root/pages/_app";
+import { DevModeStatusContext } from "/pages/_app";
 import { useContext } from "react";
 import { getTypeIcon } from "@utils/NodeIcons";
 import { MetaDataContext, PlatformContext, SettingsContext } from "pages/_app";
@@ -8,7 +8,7 @@ import { deduplicateById, parseDate } from "@utils/Utils";
 import {
 	profileOperatorList,
 	profileQueryList,
-} from "@conditionsMoodle/condition-components/ProfileComponent";
+} from "@components/flow/conditionsMoodle/condition-components/ProfileComponent";
 
 export default function SimpleConditionsMoodle({ id }) {
 	const { devModeStatus } = useContext(DevModeStatusContext);

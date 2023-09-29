@@ -1,5 +1,5 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import "@root/styles/globals.css";
+import "/styles/globals.css";
 import "reactflow/dist/base.css";
 import "styles/BlockFlow.css";
 import "styles/BlockFlowMoodle.css";

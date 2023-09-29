@@ -1,9 +1,9 @@
-import styles from "@root/styles/Admin.module.css";
+import styles from "/styles/Admin.module.css";
 import { Button, Container, Col, Row, Form } from "react-bootstrap";
 import { useId, useRef, useState } from "react";
-import GeneralPane from "@panes/admin/GeneralPane";
-import BrandingPane from "@panes/admin/BrandingPane";
-import APIPane from "@panes/admin/APIPane";
+import GeneralPane from "@components/panes/admin/GeneralPane";
+import BrandingPane from "@components/panes/admin/BrandingPane";
+import APIPane from "@components/panes/admin/APIPane";
 import { toast } from "react-toastify";
 
 import fs from "fs/promises";

@@ -1,4 +1,4 @@
-import styles from "@root/styles/AdminPane.module.css";
+import styles from "/styles/AdminPane.module.css";
 import { useEffect, useState } from "react";
 import { Col, Row } from "react-bootstrap";
 

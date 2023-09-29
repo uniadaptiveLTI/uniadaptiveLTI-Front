@@ -1,5 +1,5 @@
 import React, { useEffect, useContext, useRef, useState } from "react";
-import styles from "@root/styles/ConditionModalMoodle.module.css";
+import styles from "/styles/ConditionModalMoodle.module.css";
 import { Modal, Button, Form, Row, Col, Container } from "react-bootstrap";
 import Condition from "./Condition";
 import {
@@ -11,13 +11,13 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { getParentsNode } from "@utils/Nodes";
-import ProfileForm from "@conditionsMoodle/form-components/ProfileForm";
-import CompletionForm from "@conditionsMoodle/form-components/CompletionForm";
-import GradeForm from "@conditionsMoodle/form-components/GradeForm";
-import DateForm from "@conditionsMoodle/form-components/DateForm";
-import ConditionsGroupForm from "@conditionsMoodle/form-components/ConditionsGroupForm";
-import GroupForm from "@conditionsMoodle/form-components/GroupForm";
-import GroupingForm from "@conditionsMoodle/form-components/GroupingForm";
+import ProfileForm from "@components/flow//conditions/moodle/form-components/ProfileForm";
+import CompletionForm from "@components/flow/conditions/moodle/form-components/CompletionForm";
+import GradeForm from "@components/flow//conditions/moodle/form-components/GradeForm";
+import DateForm from "@components/flow//conditions/moodle/form-components/DateForm";
+import ConditionsGroupForm from "@components/flow//conditions/moodle/form-components/ConditionsGroupForm";
+import GroupForm from "@components/flow//conditions/moodle/form-components/GroupForm";
+import GroupingForm from "@components/flow//conditions/moodle/form-components/GroupingForm";
 import {
 	uniqueId,
 	searchConditionForTypes,
@@ -25,7 +25,7 @@ import {
 } from "@utils/Utils";
 import CourseGradeForm from "./form-components/CourseGradeForm";
 import { useReactFlow } from "reactflow";
-import { MetaDataContext } from "@root/pages/_app.js";
+import { MetaDataContext } from "/pages/_app.js";
 
 function ConditionModalMoodle({
 	blockData,

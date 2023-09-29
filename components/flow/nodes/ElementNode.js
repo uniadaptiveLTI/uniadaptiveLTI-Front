@@ -7,7 +7,7 @@ import {
 	useNodes,
 } from "reactflow";
 import { Badge, Button } from "react-bootstrap";
-import styles from "@root/styles/BlockContainer.module.css";
+import styles from "/styles/BlockContainer.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
 	faEdit,
@@ -23,7 +23,7 @@ import {
 	VersionInfoContext,
 	PlatformContext,
 	ErrorListContext,
-} from "@root/pages/_app";
+} from "/pages/_app";
 import FocusTrap from "focus-trap-react";
 import { getTypeIcon } from "@utils/NodeIcons";
 import { getUpdatedArrayById, parseBool } from "@utils/Utils";
@@ -35,10 +35,10 @@ import {
 import { useState } from "react";
 import { NodeTypes } from "@utils/TypeDefinitions";
 import { getConditionIcon } from "@utils/ConditionIcons";
-import SimpleConditionsMoodle from "@conditions/SimpleConditionsMoodle";
-import SimpleConditionsSakai from "@conditions/SimpleConditionsSakai";
-import MoodleBadges from "@blockBadgesMoodle/MoodleBadges";
-import SakaiBadges from "@blockBadgesSakai/SakaiBadges";
+import SimpleConditionsMoodle from "@components/flow/conditions/SimpleConditionsMoodle";
+import SimpleConditionsSakai from "@components/flow/conditions/SimpleConditionsSakai";
+import MoodleBadges from "@components/flow/nodes/moodle/MoodleBadges";
+import SakaiBadges from "@components/flow/nodes/sakai/SakaiBadges";
 
 function ElementNode({
 	id,

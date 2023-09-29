@@ -27,7 +27,7 @@ import {
 	SettingsContext,
 	MetaDataContext,
 	notImplemented,
-} from "@root/pages/_app.js";
+} from "/pages/_app.js";
 import FinalNode from "./flow/nodes/FinalNode.js";
 import InitialNode from "./flow/nodes/InitialNode.js";
 import FragmentNode from "./flow/nodes/FragmentNode.js";
@@ -54,15 +54,15 @@ import { errorListCheck } from "@utils/ErrorHandling";
 import { toast } from "react-toastify";
 import { getAutomaticReusableStyles } from "@utils/Colors";
 import { useHotkeys } from "react-hotkeys-hook";
-import ContextualMenu from "@flow/ContextualMenu.js";
-import ConditionModalMoodle from "@conditionsMoodle/ConditionModalMoodle.js";
-import RequisiteModalSakai from "@conditionsSakai/RequisiteModalSakai";
-import QualificationModal from "@conditionsMoodle/QualificationModal.js";
+import ContextualMenu from "@components/flow/ContextualMenu.js";
+import ConditionModalMoodle from "@components/flow/conditions/moodle/ConditionModalMoodle.js";
+import RequisiteModalSakai from "@components/flow/conditions/sakai/RequisiteModalSakai";
+import QualificationModal from "@components/flow/conditions/moodle/QualificationModal.js";
 import { useKeyPress } from "reactflow";
 import { getTypeStaticColor } from "@utils/NodeIcons.js";
-import NodeSelector from "@dialogs/NodeSelector.js";
-import CriteriaModal from "@flow/badges/CriteriaModal.js";
-import ConditionalEdge from "@edges/ConditionalEdge";
+import NodeSelector from "@components/dialogs/NodeSelector.js";
+import CriteriaModal from "@components/flow/badges/CriteriaModal.js";
+import ConditionalEdge from "@components/flow/edges/ConditionalEdge";
 import { NodeTypes } from "@utils/TypeDefinitions.js";
 import { isSupportedTypeInPlatform } from "@utils/Platform.js";
 import CustomControls from "./flow/CustomControls.js";

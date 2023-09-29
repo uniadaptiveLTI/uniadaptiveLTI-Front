@@ -1,5 +1,5 @@
 import { useImperativeHandle, forwardRef, useRef, useContext } from "react";
-import { SettingsContext } from "@root/pages/_app";
+import { SettingsContext } from "/pages/_app";
 import { Form } from "react-bootstrap";
 
 function UserSettingsPane({ LTISettings }, ref) {

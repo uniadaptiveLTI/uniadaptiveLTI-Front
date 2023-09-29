@@ -10,9 +10,9 @@ import { Form, InputGroup } from "react-bootstrap";
 import { useReactFlow, useNodes } from "reactflow";
 import { nearestPowerOfTwo } from "@utils/Utils";
 import { getNodeById } from "@utils/Nodes";
-import { PlatformContext } from "@root/pages/_app";
-import { getTypeIcon } from "@root/utils/NodeIcons";
-import styles from "@root/styles/BlockSelector.module.css";
+import { PlatformContext } from "/pages/_app";
+import { getTypeIcon } from "/utils/NodeIcons";
+import styles from "/styles/BlockSelector.module.css";
 
 export default forwardRef(function BlockSelector(
 	{ nodeArray, defaultValue, placeholder, autoFocus, onChange, size = 16 },

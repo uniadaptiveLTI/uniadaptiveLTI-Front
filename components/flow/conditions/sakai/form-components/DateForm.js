@@ -1,7 +1,7 @@
 import { Form } from "react-bootstrap";
-import DateLimitComponent from "@conditionsSakai/form-components/date/DateLimitComponent";
-import DateCommonComponent from "@conditionsSakai/form-components/date/DateCommonComponent";
-import DateExceptionComponent from "@conditionsSakai/form-components/date/DateExceptionComponent";
+import DateLimitComponent from "@components/flow/conditionsSakai/form-components/date/DateLimitComponent";
+import DateCommonComponent from "@components/flow/conditionsSakai/form-components/date/DateCommonComponent";
+import DateExceptionComponent from "@components/flow/conditionsSakai/form-components/date/DateExceptionComponent";
 import { parseDateToString } from "@utils/Utils";
 import { useEffect, useState } from "react";
 

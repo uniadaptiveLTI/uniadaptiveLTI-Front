@@ -7,7 +7,7 @@ import {
 	useState,
 } from "react";
 import { Modal, Button, Container, Col, Row } from "react-bootstrap";
-import { PlatformContext } from "@root/pages/_app";
+import { PlatformContext } from "/pages/_app";
 import { NodeTypes } from "@utils/TypeDefinitions";
 import {
 	orderByPropertyAlphabetically,
@@ -15,7 +15,7 @@ import {
 	uniqueId,
 } from "@utils/Utils.js";
 import { getTypeIcon, getTypeStaticColor } from "../../utils/NodeIcons";
-import styles from "@root/styles/NodeSelector.module.css";
+import styles from "/styles/NodeSelector.module.css";
 import { useNodes } from "reactflow";
 import { getLastPositionInSection, getLowestSection } from "@utils/Nodes";
 import { getDefaultVisibility, startingSectionID } from "@utils/Platform";

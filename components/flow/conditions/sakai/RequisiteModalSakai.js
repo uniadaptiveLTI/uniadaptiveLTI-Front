@@ -24,16 +24,16 @@ import {
 	Tab,
 } from "react-bootstrap";
 import { useReactFlow } from "reactflow";
-import DateForm from "@conditionsSakai/form-components/DateForm";
-import GroupForm from "@conditionsSakai/form-components/GroupForm";
-import GradeForm from "@conditionsSakai/form-components/GradeForm";
-import styles from "@root/styles/RequisiteModalSakai.module.css";
-import { MetaDataContext } from "@root/pages/_app.js";
-import DateComponent from "@conditionsSakai/condition-components/DateComponent";
+import DateForm from "@components/flow/conditions/sakai/form-components/DateForm";
+import GroupForm from "@components/flow/conditions/sakai/form-components/GroupForm";
+import GradeForm from "@components/flow/conditions/sakai/form-components/GradeForm";
+import styles from "/styles/RequisiteModalSakai.module.css";
+import { MetaDataContext } from "/pages/_app.js";
+import DateComponent from "@components/flow/conditions/sakai/condition-components/DateComponent";
 import { parseDate, uniqueId, reOrderSakaiRequisites } from "@utils/Utils";
-import DateExceptionComponent from "@conditionsSakai/condition-components/DateExceptionComponent";
-import GroupComponent from "@conditionsSakai/condition-components/GroupComponent";
-import GradeComponent from "@conditionsSakai/condition-components/GradeComponent";
+import DateExceptionComponent from "@components/flow/conditions/sakai/condition-components/DateExceptionComponent";
+import GroupComponent from "@components/flow/conditions/sakai/condition-components/GroupComponent";
+import GradeComponent from "@components/flow/conditions/sakai/condition-components/GradeComponent";
 import { getAutomaticReusableStyles } from "@utils/Colors";
 
 function RequisiteModalSakai({

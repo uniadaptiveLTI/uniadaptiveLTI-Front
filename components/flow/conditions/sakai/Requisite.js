@@ -1,6 +1,6 @@
-import DateComponent from "@conditionsSakai/condition-components/DateComponent";
-import DateExceptionComponent from "@conditionsSakai/condition-components/DateExceptionComponent";
-import GroupComponent from "@conditionsSakai/condition-components/GroupComponent";
+import DateComponent from "@components/flow/conditionsSakai/condition-components/DateComponent";
+import DateExceptionComponent from "@components/flow/conditionsSakai/condition-components/DateExceptionComponent";
+import GroupComponent from "@components/flow/conditionsSakai/condition-components/GroupComponent";
 import { parseDate } from "@utils/Utils";
 
 function Requisite({ requisites, hasRequisiteType, sakaiGroups, sakaiUsers }) {

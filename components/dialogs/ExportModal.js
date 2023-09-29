@@ -5,7 +5,7 @@ import {
 	ExpandedAsideContext,
 	NodeInfoContext,
 	VersionInfoContext,
-} from "@root/pages/_app";
+} from "/pages/_app";
 import { NodeTypes } from "@utils/TypeDefinitions";
 import {
 	orderByPropertyAlphabetically,
@@ -14,7 +14,7 @@ import {
 } from "@utils/Nodes";
 import { uniqueId } from "@utils/Utils";
 import { getTypeIcon, getTypeStaticColor } from "@utils/NodeIcons";
-import styles from "@root/styles/ExportModal.module.css";
+import styles from "/styles/ExportModal.module.css";
 import { createItemErrors } from "@utils/ErrorHandling";
 import { useReactFlow } from "reactflow";
 import { useEffect } from "react";
@@ -24,7 +24,7 @@ import {
 	faFileExport,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import ExportPane from "@panes/exportmodal/ExportPane";
+import ExportPane from "@components/panes/exportmodal/ExportPane";
 
 export default forwardRef(function ExportModal(
 	{

@@ -8,7 +8,7 @@ import {
 	faEdit,
 	faCheckSquare,
 } from "@fortawesome/free-solid-svg-icons";
-import styles from "@root/styles/ContextualMenu.module.css";
+import styles from "/styles/ContextualMenu.module.css";
 import { Button } from "react-bootstrap";
 import { ActionNodes } from "@utils/Nodes";
 import { useRef, forwardRef, useContext } from "react";

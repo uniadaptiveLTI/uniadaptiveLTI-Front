@@ -1,4 +1,4 @@
-import styles from "@root/styles/Header.module.css";
+import styles from "/styles/Header.module.css";
 import {
 	useState,
 	useContext,
@@ -8,9 +8,9 @@ import {
 	useLayoutEffect,
 	useId,
 } from "react";
-import SimpleActionDialog from "@dialogs/SimpleActionDialog";
-import SimpleMapSelector from "@dialogs/SimpleMapSelector";
-import SimpleLessonSelector from "@dialogs/SimpleLessonSelector";
+import SimpleActionDialog from "@components/dialogs/SimpleActionDialog";
+import SimpleMapSelector from "@components/dialogs/SimpleMapSelector";
+import SimpleLessonSelector from "@components/dialogs/SimpleLessonSelector";
 import {
 	Button,
 	Container,
@@ -50,7 +50,7 @@ import {
 	MetaDataContext,
 	ErrorListContext,
 	HeaderToEmptySelectorContext,
-} from "@root/pages/_app";
+} from "/pages/_app";
 import { toast } from "react-toastify";
 import {
 	base64Decode,

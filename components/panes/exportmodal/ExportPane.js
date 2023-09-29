@@ -1,5 +1,5 @@
 import { useLayoutEffect, useState, useContext, useRef } from "react";
-import styles from "@root/styles/ExportModal.module.css";
+import styles from "/styles/ExportModal.module.css";
 import { Alert, Button, Spinner } from "react-bootstrap";
 import SectionSelector from "@components/forms/components/SectionSelector";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -18,6 +18,7 @@ import {
 } from "@utils/Utils";
 import { toast } from "react-toastify";
 import { parseMoodleBadgeToExport } from "@utils/Moodle";
+import LessonSelector from "@components/forms/components/LessonSelector";
 
 export default function ExportPanel({
 	errorList,
@@ -46,6 +47,7 @@ export default function ExportPanel({
 	});
 
 	const exportButtonRef = useRef(null);
+	const selectDOM = useRef(null);
 
 	const defaultToastSuccess = {
 		hideProgressBar: false,
@@ -296,7 +298,7 @@ export default function ExportPanel({
 				return a.indent - b.indent;
 			});
 
-			console.log(sortedSectionColumnPairs);
+			/* Juanma changes, temporal
 
 			let resultJson = [];
 			const sectionProcessed = {};
@@ -305,7 +307,7 @@ export default function ExportPanel({
 				if (!sectionProcessed[jsonObj.section]) {
 					// Process the section if it hasn't been processed yet
 					resultJson.push({
-						pageId: 1,
+						pageId: selectDOM.current.value,
 						type: 14,
 						title: "",
 						format: "section",
@@ -322,7 +324,7 @@ export default function ExportPanel({
 					filteredArray.map((node) => {
 						const nodeTypeParsed = sakaiTypeSwitch(node);
 						resultJson.push({
-							pageId: 1,
+							pageId: selectDOM.current.value,
 							type: nodeTypeParsed.type,
 							title: node.label,
 							contentRef: nodeTypeParsed.contentRef,
@@ -332,7 +334,7 @@ export default function ExportPanel({
 					sectionProcessed[jsonObj.section] = true; // Mark the section as processed
 				} else {
 					resultJson.push({
-						pageId: 1,
+						pageId: selectDOM.current.value,
 						type: 14,
 						title: "",
 						format: "column",
@@ -349,7 +351,7 @@ export default function ExportPanel({
 					filteredArray.map((node) => {
 						const nodeTypeParsed = sakaiTypeSwitch(node);
 						resultJson.push({
-							pageId: 1,
+							pageId: selectDOM.current.value,
 							type: nodeTypeParsed.type,
 							title: node.label,
 							contentRef: nodeTypeParsed.contentRef,
@@ -360,11 +362,76 @@ export default function ExportPanel({
 				sendNodes(nodesReadyToExport);
 			});
 
+<<<<<<< Updated upstream*/
 			/* AQUI LLAMAREMOS A LA FUNCION PARA QUE A DAVID LE LLEGUE EL
 			   nodesReadyToExport (que es para que se actualicen los objetos)
 			   y resultJson (que es para que se creen los lessons items en la lesson (bloques) <= PRIORIZAR ESTE Y COMPROBARLO EN BACK PLS
 			   no importeis una lesson, porque no va, cread literalmente 2 bloques uno de examen y otro de tarea y exportarlo para ver que se crea
 			*/
+			/*} else {
+			sendNodes(nodesReadyToExport);
+		}*/
+
+			sortedSectionColumnPairs.sort((a, b) => {
+				// Compare by "section" first
+				if (a.section < b.section) return -1;
+				if (a.section > b.section) return 1;
+
+				// If "section" values are the same, compare by "indent" (column)
+				return a.indent - b.indent;
+			});
+
+			console.log(sortedSectionColumnPairs);
+
+			let resultJson = [];
+			const sectionProcessed = {};
+
+			sortedSectionColumnPairs.map((jsonObj) => {
+				if (!sectionProcessed[jsonObj.section]) {
+					// Process the section if it hasn't been processed yet
+					resultJson.push({
+						pageId: selectDOM.current.value,
+						type: 14,
+						title: "",
+						format: "section",
+					});
+
+					resultJson = resultJson.concat(
+						nodesReadyToExport
+							.filter(
+								(node) =>
+									node.section === jsonObj.section &&
+									node.indent === jsonObj.indent
+							)
+							.sort((a, b) => a.order - b.order)
+					);
+
+					sectionProcessed[jsonObj.section] = true; // Mark the section as processed
+				} else {
+					resultJson.push({
+						pageId: selectDOM.current.value,
+						type: 14,
+						title: "",
+						format: "column",
+					});
+
+					resultJson = resultJson.concat(
+						nodesReadyToExport
+							.filter(
+								(node) =>
+									node.section === jsonObj.section &&
+									node.indent === jsonObj.indent
+							)
+							.sort((a, b) => a.order - b.order)
+					);
+				}
+			});
+			console.log(resultJson);
+
+			console.log(sortedSectionColumnPairs);
+			console.log(nodesReadyToExport);
+			sendNodes(nodesReadyToExport, resultJson);
+			/*>>>>>>> Stashed changes*/
 		} else {
 			sendNodes(nodesReadyToExport);
 		}
@@ -471,8 +538,7 @@ export default function ExportPanel({
 		}
 	}
 
-	async function sendNodes(nodes) {
-		console.log("SUUUU");
+	async function sendNodes(nodes, resultJson) {
 		console.log(nodes);
 		try {
 			const payload = {
@@ -480,10 +546,15 @@ export default function ExportPanel({
 				instance: metaData.instance_id,
 				userId: userData.user_id,
 				userPerms: userData.userperms,
-				nodes: nodes,
 				save: true,
 				selection: currentSelectionInfo.selection,
 			};
+
+			if (platform != "moodle") {
+				payload.nodes = resultJson;
+			} else {
+				payload.nodes = nodes;
+			}
 
 			const response = await fetchBackEnd(
 				LTISettings,
@@ -527,6 +598,7 @@ export default function ExportPanel({
 	return (
 		<>
 			<SectionSelector
+				allowModularSelection={platform == "moodle"}
 				metaData={metaData}
 				showErrors={true}
 				errorList={errorList}
@@ -534,6 +606,14 @@ export default function ExportPanel({
 				handleSelectionChange={handleSelectionChange}
 				mapName={mapName}
 			/>
+			{platform == "sakai" && (
+				<LessonSelector
+					ref={selectDOM}
+					lessons={metaData.lessons}
+					label={"Seleccione la lección donde el contenido será exportado"}
+				></LessonSelector>
+			)}
+
 			{hasErrors && (
 				<Alert variant={"danger"}>
 					<strong>Atención: </strong>

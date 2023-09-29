@@ -1,4 +1,4 @@
-import styles from "@root/styles/Aside.module.css";
+import styles from "/styles/Aside.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
 	faCaretDown,
