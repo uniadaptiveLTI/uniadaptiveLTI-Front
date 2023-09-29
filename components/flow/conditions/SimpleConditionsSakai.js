@@ -267,12 +267,24 @@ export default function SimpleConditionsSakai({ id }) {
 	if (hoverConditions && hoverConditions == true) {
 		finalString = parseConditions();
 		return (
-			<div>{devModeStatus ? [devString, ...finalString] : finalString}</div>
+			<div>
+				<p>
+					<b>{getNodeById(id, rfNodes).data.label}</b>
+				</p>
+				<hr />
+				<dev>{devModeStatus ? [devString, ...finalString] : finalString}</dev>
+			</div>
 		);
 	} else {
 		finalString = parseGrades();
 		return (
-			<div>{devModeStatus ? [devString, ...finalString] : finalString}</div>
+			<div>
+				<p>
+					<b>{getNodeById(id, rfNodes).data.label}</b>
+				</p>
+				<hr />
+				<dev>{devModeStatus ? [devString, ...finalString] : finalString}</dev>
+			</div>
 		);
 	}
 }

@@ -20,7 +20,8 @@ export default function SimpleConditionsMoodle({ id }) {
 	const { settings } = useContext(SettingsContext);
 	const parsedSettings = JSON.parse(settings);
 	let { hoverConditions } = parsedSettings;
-	const flattenConditions = (conditions) => {
+
+	/*const flattenConditions = (conditions) => {
 		const isBadge = getNodeById(id, rfNodes).type === "badge";
 		const recursiveGet = (c, indentation = 1, array = []) => {
 			const conditionNames = isBadge ? c?.params : c?.c;
@@ -44,6 +45,50 @@ export default function SimpleConditionsMoodle({ id }) {
 			{ ...conditions, indentation: 0, [isBadge ? "c" : "c"]: null },
 			...recursiveGet(conditions),
 		];
+	};*/
+
+	const flattenConditions = (conditions) => {
+		const isBadge = getNodeById(id, rfNodes).type === "badge";
+		if (!isBadge) {
+			const recursiveGet = (c, identation = 1, array = []) => {
+				if (c.c) {
+					c.c.forEach((condition) => {
+						array.push({ ...condition, identation, c: null });
+						if (condition.c) {
+							array.push(...recursiveGet(condition, identation + 1, array));
+						}
+					});
+				}
+				return deduplicateById(array);
+			};
+			return [
+				{ ...conditions, identation: 0, c: null },
+				...recursiveGet(conditions),
+			];
+		} else {
+			const recursiveGet = (c, indentation = 1, array = []) => {
+				const conditionNames = c?.params;
+				if (conditionNames) {
+					conditionNames.forEach((condition) => {
+						array.push({
+							...condition,
+							indentation,
+							c: null,
+						});
+						const moreConditions = condition.params;
+						if (moreConditions) {
+							array.push(...recursiveGet(condition, indentation + 1, array));
+						}
+					});
+				}
+				return deduplicateById(array);
+			};
+
+			return [
+				{ ...conditions, indentation: 0, [isBadge ? "c" : "c"]: null },
+				...recursiveGet(conditions),
+			];
+		}
 	};
 
 	const parsedConditionsGroup = [
@@ -547,7 +592,13 @@ export default function SimpleConditionsMoodle({ id }) {
 			: parseQualifications(qualifications);
 
 		return (
-			<div>{devModeStatus ? [devString, ...finalString] : finalString}</div>
+			<div>
+				<p>
+					<b>{getNodeById(id, rfNodes).data.label}</b>
+				</p>
+				<hr />
+				<div>{devModeStatus ? [devString, ...finalString] : finalString}</div>
+			</div>
 		);
 	} else {
 		if (
@@ -559,18 +610,36 @@ export default function SimpleConditionsMoodle({ id }) {
 				? parseConditions(flattenConditions(conditions))
 				: parseQualifications(qualifications);
 			return (
-				<div>{devModeStatus ? [devString, ...finalString] : finalString}</div>
+				<div>
+					<p>
+						<b>{getNodeById(id, rfNodes).data.label}</b>
+					</p>
+					<hr />
+					<div>{devModeStatus ? [devString, ...finalString] : finalString}</div>
+				</div>
 			);
 		} else {
 			//If unable to show the preference, show the alternative
 			if (conditions && !qualifications) {
 				let finalString = parseConditions(flattenConditions(conditions));
 				return (
-					<div>{devModeStatus ? [devString, ...finalString] : finalString}</div>
+					<div>
+						<p>
+							<b>{getNodeById(id, rfNodes).data.label}</b>
+						</p>
+						<hr />
+						<div>
+							{devModeStatus ? [devString, ...finalString] : finalString}
+						</div>
+					</div>
 				);
 			} else {
 				return (
 					<div>
+						<p>
+							<b>{getNodeById(id, rfNodes).data.label}</b>
+						</p>
+						<hr />
 						<p>
 							Aquí se priorizará mostrar información resumida sobre las{" "}
 							<b>{hoverConditions ? "condiciones" : "calificaciones"}</b> el

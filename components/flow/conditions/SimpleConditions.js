@@ -317,25 +317,48 @@ export default function SimpleConditions({ id }) {
 			: parseQualifications(qualifications);
 
 		return (
-			<div>{devModeStatus ? [devString, ...finalString] : finalString}</div>
+			<div>
+				<p>
+					<b>{getNodeById(id, rfNodes).data.label}</b>
+				</p>
+				<hr />
+				<div>{devModeStatus ? [devString, ...finalString] : finalString}</div>
+			</div>
 		);
 	} else {
 		//If unable to show the preference, show the alternative
 		if (conditions && !qualifications) {
 			let finalString = parseConditions(flattenConditions(conditions));
 			return (
-				<div>{devModeStatus ? [devString, ...finalString] : finalString}</div>
+				<div>
+					<p>
+						<b>{getNodeById(id, rfNodes).data.label}</b>
+					</p>
+					<hr />
+					<div>{devModeStatus ? [devString, ...finalString] : finalString}</div>
+				</div>
 			);
 		} else {
 			if (!conditions && qualifications) {
 				let finalString = parseQualifications(qualifications);
 				return (
-					<div>{devModeStatus ? [devString, ...finalString] : finalString}</div>
+					<div>
+						<p>
+							<b>{getNodeById(id, rfNodes).data.label}</b>
+						</p>
+						<hr />
+						<div>
+							{devModeStatus ? [devString, ...finalString] : finalString}
+						</div>
+					</div>
 				);
 			} else {
 				return (
 					<div>
-						Aquí se priorizará mostrará información resumida sobre las{" "}
+						<p>
+							<b>{getNodeById(id, rfNodes).data.label}</b>
+						</p>
+						<hr />+ Aquí se priorizará mostrará información resumida sobre las{" "}
 						<b>{hoverConditions ? "condiciones" : "calificaciones"}</b> el
 						bloque seleccionado.
 					</div>

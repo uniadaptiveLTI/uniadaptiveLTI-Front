@@ -448,6 +448,10 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 				}
 				onClick={(e) => {
 					if (e.detail === 2) {
+						data.expanded = !data.expanded;
+						setExpanded(!expanded);
+					}
+					if (e.detail === 3) {
 						handleEdit();
 					}
 				}}
