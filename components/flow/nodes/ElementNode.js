@@ -255,7 +255,11 @@ function ElementNode({
 					(reducedAnimations && styles.noAnimation + " noAnimation")
 				}
 				aria-label={getAriaLabel} //FIXME: Doesn't work
-				onClick={handleEdit}
+				onClick={(e) => {
+					if (e.detail === 2) {
+						handleEdit();
+					}
+				}}
 				onKeyDown={(e) => {
 					if (e.key == "Enter") handleEdit();
 				}}

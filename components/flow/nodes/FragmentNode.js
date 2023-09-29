@@ -446,8 +446,12 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 					" " +
 					(expanded && "expandedFragment")
 				}
-				/*onClick={handleEdit}
-				onKeyDown={(e) => {
+				onClick={(e) => {
+					if (e.detail === 2) {
+						handleEdit();
+					}
+				}}
+				/*onKeyDown={(e) => {
 					if (e.key == "Enter") handleEdit();
 				}}*/
 				aria-label={getAriaLabel} //FIXME: Doesn't work

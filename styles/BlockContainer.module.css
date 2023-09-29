@@ -42,10 +42,10 @@
 }
 
 .hovedConditions {
-	background: var(--blockflow-label-background-color);
-	color: var(--blockflow-label-font-color);
+	background: var(--blockflow-hover-background-color);
+	color: var(--blockflow-hover-font-color);
 	padding: 0.5rem 1rem;
-	font-family: var(--blockflow-label-font-family);
+	font-family: var(--blockflow-hover-font-family);
 	border: var(--main-borders);
 	position: absolute;
 	left: calc(1rem + 68px);

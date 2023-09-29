@@ -179,7 +179,11 @@ function ActionNode({ id, type, data, selected, dragging, isConnectable }) {
 				aria-label={getAriaLabel} //FIXME: Doesn't work
 				onMouseEnter={() => setIsHovered(true)}
 				onMouseLeave={() => setIsHovered(false)}
-				onClick={handleEdit}
+				onClick={(e) => {
+					if (e.detail === 2) {
+						handleEdit();
+					}
+				}}
 				onKeyDown={(e) => {
 					if (e.key == "Enter") handleEdit();
 				}}

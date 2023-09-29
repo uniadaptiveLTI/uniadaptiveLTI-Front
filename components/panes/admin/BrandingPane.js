@@ -154,6 +154,15 @@ export default function BrandingPane({ modifySettings, LTISettings }) {
 	);
 	const [blockflowLabelBackgroundColor, setBlockflowLabelBackgroundColor] =
 		useState(getRootStyle("--blockflow-label-background-color"));
+	//-------Blockflow---Hover
+	const [blockflowHoverFontColor, setBlockflowHoverFontColor] = useState(
+		getRootStyle("--blockflow-hover-font-color")
+	);
+	const [blockflowHoverFontFamily, setBlockflowHoverFontFamily] = useState(
+		getRootStyle("--blockflow-hover-font-family")
+	);
+	const [blockflowHoverBackgroundColor, setBlockflowHoverBackgroundColor] =
+		useState(getRootStyle("--blockflow-hover-background-color"));
 	//-------Blockflow---Edge
 	const [blockflowEdgeFontColor, setBlockflowEdgeFontColor] = useState(
 		getRootStyle("--blockflow-edge-font-color")
@@ -610,6 +619,27 @@ export default function BrandingPane({ modifySettings, LTISettings }) {
 						label={`Color de fondo del texto de las etiquetas (utilizar "none" para hacerlo transparente)`}
 						color={blockflowLabelBackgroundColor}
 						setColor={setBlockflowLabelBackgroundColor}
+					></InlineColorSelector>
+					<h6>Elementos emergentes</h6>
+					<InlineColorSelector
+						label={`Color de la fuente de los elementos emergentes`}
+						color={blockflowHoverFontColor}
+						setColor={setBlockflowHoverFontColor}
+					></InlineColorSelector>
+					<div>
+						<Form.Label htmlFor="blockflowHoverFontFamily">
+							Familia de las fuentes de los elementos emergentes
+						</Form.Label>
+						<Form.Control
+							id="blockflowHoverFontFamily"
+							onChange={setBlockflowHoverFontFamily}
+							defaultValue={blockflowHoverFontFamily}
+						></Form.Control>
+					</div>
+					<InlineColorSelector
+						label={`Color de fondo del texto de los elementos emergentes (utilizar "none" para hacerlo transparente)`}
+						color={blockflowHoverBackgroundColor}
+						setColor={setBlockflowHoverBackgroundColor}
 					></InlineColorSelector>
 					<h6>Lineas</h6>
 					<InlineColorSelector

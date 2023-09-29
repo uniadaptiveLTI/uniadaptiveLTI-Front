@@ -157,6 +157,16 @@ export function applyBranding(LTISettings) {
 				);
 			}
 
+			if (blockflow.hover) {
+				const hover = blockflow.hover;
+				setRootStyle("--blockflow-hover-font-color", hover.fontColor);
+				setRootStyle("--blockflow-hover-font-family", hover.fontFamily);
+				setRootStyle(
+					"--blockflow-hover-background-color",
+					hover.backgroundColor
+				);
+			}
+
 			setRootStyle(
 				"--blockflow-inner-box-shadow-color",
 				blockflow.innerBoxShadowColor
