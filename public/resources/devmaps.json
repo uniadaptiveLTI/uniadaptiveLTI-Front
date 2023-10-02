@@ -65,7 +65,7 @@
 							"indent": 1,
 							"order": 0,
 							"section": 1,
-							"lmsVisibility": "hidden_until_access",
+							"lmsVisibility": "show_unconditionally",
 							"c": {
 								"type": "conditionsGroup",
 								"id": "9867211125367",
@@ -112,7 +112,7 @@
 									}
 								]
 							},
-							"lmsVisibility": "hidden_until_access"
+							"lmsVisibility": "show_unconditionally"
 						}
 					},
 					{
@@ -144,7 +144,7 @@
 									}
 								]
 							},
-							"lmsVisibility": "hidden_until_access"
+							"lmsVisibility": "show_unconditionally"
 						}
 					},
 					{
@@ -205,7 +205,7 @@
 									}
 								]
 							},
-							"lmsVisibility": "hidden_until_access"
+							"lmsVisibility": "show_unconditionally"
 						}
 					},
 					{
@@ -244,7 +244,7 @@
 									}
 								]
 							},
-							"lmsVisibility": "hidden_until_access"
+							"lmsVisibility": "show_unconditionally"
 						}
 					},
 					{
@@ -257,7 +257,7 @@
 						"data": {
 							"label": "Física cuántica",
 							"lmsResource": 26,
-							"lmsVisibility": "hidden_until_access",
+							"lmsVisibility": "show_unconditionally",
 							"children": ["dev-1A1"],
 							"indent": 0,
 							"order": 0,
@@ -304,7 +304,7 @@
 						"data": {
 							"label": "Aerodinámica, refuerzo",
 							"lmsResource": 19,
-							"lmsVisibility": "hidden_until_access",
+							"lmsVisibility": "show_unconditionally",
 							"children": ["dev10A1"],
 							"indent": 1,
 							"order": 3,
@@ -336,7 +336,7 @@
 						"data": {
 							"label": "Aerodinámica, refuerzo",
 							"lmsResource": 0,
-							"lmsVisibility": "hidden_until_access",
+							"lmsVisibility": "show_unconditionally",
 							"children": ["dev11A1", "dev12A1", "dev5A1"],
 							"indent": 1,
 							"order": 4,
@@ -400,7 +400,7 @@
 						"data": {
 							"label": "Trabajo de recuperación",
 							"lmsResource": 5,
-							"lmsVisibility": "hidden_until_access",
+							"lmsVisibility": "show_unconditionally",
 							"children": ["dev6A1"],
 							"indent": 2,
 							"order": 5,
@@ -476,7 +476,7 @@
 							"indent": 2,
 							"order": 0,
 							"section": 2,
-							"lmsVisibility": "hidden_until_access"
+							"lmsVisibility": "show_unconditionally"
 						}
 					},
 					{
@@ -494,7 +494,7 @@
 							"indent": 2,
 							"order": 1,
 							"section": 2,
-							"lmsVisibility": "hidden_until_access"
+							"lmsVisibility": "show_unconditionally"
 						}
 					},
 					{
@@ -527,7 +527,7 @@
 									}
 								]
 							},
-							"lmsVisibility": "hidden_until_access"
+							"lmsVisibility": "show_unconditionally"
 						}
 					},
 					{
@@ -559,7 +559,7 @@
 									}
 								]
 							},
-							"lmsVisibility": "hidden_until_access"
+							"lmsVisibility": "show_unconditionally"
 						}
 					}
 				]
@@ -602,7 +602,7 @@
 							"children": [],
 							"section": 0,
 							"order": 0,
-							"lmsVisibility": "hidden_until_access",
+							"lmsVisibility": "show_unconditionally",
 							"indent": 0
 						},
 						"position": {
@@ -618,7 +618,7 @@
 							"children": [],
 							"section": 0,
 							"order": 1,
-							"lmsVisibility": "hidden_until_access",
+							"lmsVisibility": "show_unconditionally",
 							"indent": 0,
 							"lmsResource": -1
 						},
@@ -635,7 +635,7 @@
 							"children": [],
 							"section": 0,
 							"order": 2,
-							"lmsVisibility": "hidden_until_access",
+							"lmsVisibility": "show_unconditionally",
 							"indent": 0,
 							"lmsResource": -1
 						},
@@ -652,7 +652,7 @@
 							"children": [],
 							"section": 0,
 							"order": 3,
-							"lmsVisibility": "hidden_until_access",
+							"lmsVisibility": "show_unconditionally",
 							"indent": 0,
 							"lmsResource": -1
 						},
@@ -669,7 +669,7 @@
 							"children": [],
 							"section": 0,
 							"order": 4,
-							"lmsVisibility": "hidden_until_access",
+							"lmsVisibility": "show_unconditionally",
 							"indent": 0,
 							"lmsResource": -1
 						},
@@ -686,7 +686,7 @@
 							"children": [],
 							"section": 0,
 							"order": 5,
-							"lmsVisibility": "hidden_until_access",
+							"lmsVisibility": "show_unconditionally",
 							"indent": 0,
 							"lmsResource": -1
 						},
@@ -703,7 +703,7 @@
 							"children": [],
 							"section": 0,
 							"order": 6,
-							"lmsVisibility": "hidden_until_access",
+							"lmsVisibility": "show_unconditionally",
 							"indent": 0,
 							"lmsResource": -1
 						},
@@ -720,7 +720,7 @@
 							"children": [],
 							"section": 0,
 							"order": 7,
-							"lmsVisibility": "hidden_until_access",
+							"lmsVisibility": "show_unconditionally",
 							"indent": 0,
 							"lmsResource": -1
 						},
@@ -737,7 +737,7 @@
 							"children": [],
 							"section": 0,
 							"order": 8,
-							"lmsVisibility": "hidden_until_access",
+							"lmsVisibility": "show_unconditionally",
 							"indent": 0,
 							"lmsResource": -1
 						},
@@ -754,7 +754,7 @@
 							"children": [],
 							"section": 0,
 							"order": 9,
-							"lmsVisibility": "hidden_until_access",
+							"lmsVisibility": "show_unconditionally",
 							"indent": 0,
 							"lmsResource": -1
 						},
@@ -771,7 +771,7 @@
 							"children": [],
 							"section": 0,
 							"order": 10,
-							"lmsVisibility": "hidden_until_access",
+							"lmsVisibility": "show_unconditionally",
 							"indent": 0,
 							"lmsResource": -1
 						},
@@ -788,7 +788,7 @@
 							"children": [],
 							"section": 0,
 							"order": 11,
-							"lmsVisibility": "hidden_until_access",
+							"lmsVisibility": "show_unconditionally",
 							"indent": 0,
 							"lmsResource": -1
 						},
@@ -805,7 +805,7 @@
 							"children": [],
 							"section": 0,
 							"order": 12,
-							"lmsVisibility": "hidden_until_access",
+							"lmsVisibility": "show_unconditionally",
 							"indent": 0,
 							"lmsResource": -1
 						},
@@ -899,7 +899,7 @@
 							"children": [],
 							"section": 0,
 							"order": 24,
-							"lmsVisibility": "hidden_until_access",
+							"lmsVisibility": "show_unconditionally",
 							"indent": 0
 						},
 						"position": {
@@ -915,7 +915,7 @@
 							"children": [],
 							"section": 0,
 							"order": 25,
-							"lmsVisibility": "hidden_until_access",
+							"lmsVisibility": "show_unconditionally",
 							"indent": 0
 						},
 						"position": {
@@ -931,7 +931,7 @@
 							"children": [],
 							"section": 0,
 							"order": 26,
-							"lmsVisibility": "hidden_until_access",
+							"lmsVisibility": "show_unconditionally",
 							"indent": 0
 						},
 						"position": {
@@ -947,7 +947,7 @@
 							"children": [],
 							"section": 0,
 							"order": 27,
-							"lmsVisibility": "hidden_until_access",
+							"lmsVisibility": "show_unconditionally",
 							"indent": 0
 						},
 						"position": {
@@ -963,7 +963,7 @@
 							"children": [],
 							"section": 0,
 							"order": 28,
-							"lmsVisibility": "hidden_until_access",
+							"lmsVisibility": "show_unconditionally",
 							"indent": 0
 						},
 						"position": {
@@ -979,7 +979,7 @@
 							"children": [],
 							"section": 0,
 							"order": 29,
-							"lmsVisibility": "hidden_until_access",
+							"lmsVisibility": "show_unconditionally",
 							"indent": 0
 						},
 						"position": {
@@ -995,7 +995,7 @@
 							"children": [],
 							"section": 0,
 							"order": 30,
-							"lmsVisibility": "hidden_until_access",
+							"lmsVisibility": "show_unconditionally",
 							"indent": 0
 						},
 						"position": {
@@ -1011,7 +1011,7 @@
 							"children": [],
 							"section": 0,
 							"order": 31,
-							"lmsVisibility": "hidden_until_access",
+							"lmsVisibility": "show_unconditionally",
 							"indent": 0
 						},
 						"position": {
@@ -1027,7 +1027,7 @@
 							"children": [],
 							"section": 0,
 							"order": 32,
-							"lmsVisibility": "hidden_until_access",
+							"lmsVisibility": "show_unconditionally",
 							"indent": 0
 						},
 						"position": {
@@ -1043,7 +1043,7 @@
 							"children": [],
 							"section": 0,
 							"order": 13,
-							"lmsVisibility": "hidden_until_access",
+							"lmsVisibility": "show_unconditionally",
 							"indent": 0,
 							"lmsResource": -1
 						},

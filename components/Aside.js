@@ -390,12 +390,17 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 				);
 				let limitedindent = Math.min(Math.max(indentDOM.current.value, 0), 16);
 
+				console.log("AAAAAAAAAAAa", lmsVisibilityDOM?.current?.value);
+
 				newData = {
 					...nodeSelected.data,
 					label: labelDOM.current.value,
 					lmsResource: Number(lmsResourceDOM.current.value),
-					lmsVisibility:
-						lmsVisibilityDOM?.current?.value || "hidden_until_access",
+					lmsVisibility: lmsVisibilityDOM?.current?.value
+						? lmsVisibilityDOM?.current?.value
+						: platform == "moodle"
+						? "hidden"
+						: "hidden_until_access",
 					section: newSection,
 					order: limitedOrder - 1,
 					indent: platform == "sakai" ? limitedindent - 1 : limitedindent,
