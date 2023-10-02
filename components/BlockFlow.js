@@ -391,7 +391,6 @@ const OverviewFlow = ({ map }, ref) => {
 	 * @param {Event} event - The connect event.
 	 */
 	const onConnect = (event) => {
-		console.log(platform);
 		const sourceNodeId = event.source.split("__")[0];
 		const targetNodeId = event.target.split("__")[0];
 
@@ -511,9 +510,6 @@ const OverviewFlow = ({ map }, ref) => {
 
 							break;
 						case "sakai":
-							console.log(sourceNode);
-							console.log(targetNode);
-
 							if (!targetNode.data.gradeRequisites) {
 								targetNode.data.gradeRequisites = {
 									type: "ROOT",
@@ -631,11 +627,9 @@ const OverviewFlow = ({ map }, ref) => {
 						break;
 
 					case "sakai":
-						console.log(blockNodeTarget);
 						const gradeRequisites = blockNodeTarget.data?.gradeRequisites;
 
 						if (gradeRequisites && gradeRequisites?.subConditions.length >= 1) {
-							console.log(gradeRequisites.subConditions, blockNodeSource);
 							filterConditionsByParentId(
 								gradeRequisites.subConditions,
 								blockNodeSource.id

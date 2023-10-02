@@ -268,7 +268,6 @@ function RequisiteModalSakai({
 					(closeTimeParsed && dueDateParsed > closeTimeParsed) ||
 					openingDateParsed > closeTimeParsed
 				) {
-					console.log("LOCO");
 				}
 
 				break;
