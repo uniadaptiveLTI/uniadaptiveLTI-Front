@@ -36,8 +36,8 @@ const CourseCompletionForm = ({
 					defaultValue={
 						conditionEdit
 							? conditionEdit.type === "courseCompletion"
-								? conditionEdit.op !== undefined
-									? conditionEdit.op
+								? conditionEdit.method !== undefined
+									? conditionEdit.method
 									: 5
 								: 5
 							: 5

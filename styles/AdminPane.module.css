@@ -1,37 +1,36 @@
 .detailBox {
-    border: var(--main-ui-borders);
+	border: var(--main-borders);
 }
 
-.detailBox summary{
-    background-color: var(--main-ui-secondary-background);
-    
+.detailBox summary {
+	background-color: var(--main-secondary-background-color);
 }
 
-.detailBox[open] summary{
-    border-bottom: var(--main-ui-borders);
+.detailBox[open] summary {
+	border-bottom: var(--main-borders);
 }
 
 .detailTable {
-    border: var(--main-ui-borders);
-    background-color: var(--main-ui-secondary-background);
+	border: var(--main-borders);
+	background-color: var(--main-secondary-background-color);
 }
 
 .detailTable > thead {
-    font-weight: bold;
-    text-align: center;
-    border: var(--main-ui-borders);
+	font-weight: bold;
+	text-align: center;
+	border: var(--main-borders);
 }
 
-.detailTable > thead > tr > th{
-    padding:1em;
+.detailTable > thead > tr > th {
+	padding: 1em;
 }
 
 .detailTable > tbody > tr > td {
-    padding: 1em;
-    border: var(--main-ui-borders);
+	padding: 1em;
+	border: var(--main-borders);
 }
 
 .detailTable > tbody > tr > td.center {
-    text-align: center;
-    vertical-align: center;
+	text-align: center;
+	vertical-align: center;
 }

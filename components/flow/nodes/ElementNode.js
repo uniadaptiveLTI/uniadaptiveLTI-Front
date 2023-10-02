@@ -7,16 +7,13 @@ import {
 	useNodes,
 } from "reactflow";
 import { Badge, Button } from "react-bootstrap";
-import styles from "@root/styles/BlockContainer.module.css";
+import styles from "/styles/BlockContainer.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
 	faEdit,
-	faRightFromBracket,
-	faEye,
-	faEyeSlash,
 	faExclamation,
 	faExclamationTriangle,
-	faPlus,
+	faRightFromBracket,
 } from "@fortawesome/free-solid-svg-icons";
 import {
 	NodeInfoContext,
@@ -26,14 +23,22 @@ import {
 	VersionInfoContext,
 	PlatformContext,
 	ErrorListContext,
-} from "@root/pages/_app";
+} from "/pages/_app";
 import FocusTrap from "focus-trap-react";
 import { getTypeIcon } from "@utils/NodeIcons";
 import { getUpdatedArrayById, parseBool } from "@utils/Utils";
-import { getNodeById, getNumberOfIndependentConditions } from "@utils/Nodes";
+import {
+	getNodeById,
+	getNumberOfIndependentConditions,
+	getPrimaryConditionType,
+} from "@utils/Nodes";
 import { useState } from "react";
 import { NodeTypes } from "@utils/TypeDefinitions";
-import SimpleConditions from "@flow/conditions/SimpleConditions";
+import { getConditionIcon } from "@utils/ConditionIcons";
+import SimpleConditionsMoodle from "@components/flow/conditions/SimpleConditionsMoodle";
+import SimpleConditionsSakai from "@components/flow/conditions/SimpleConditionsSakai";
+import MoodleBadges from "@components/flow/nodes/moodle/MoodleBadges";
+import SakaiBadges from "@components/flow/nodes/sakai/SakaiBadges";
 
 function ElementNode({
 	id,
@@ -84,10 +89,20 @@ function ElementNode({
 	};
 
 	const handleEdit = () => {
-		const blockData = getNodeById(id, reactFlowInstance.getNodes());
+		const currentNodes = reactFlowInstance.getNodes();
+		const blockData = getNodeById(id, currentNodes);
 		if (expandedAside != true) {
 			setExpandedAside(true);
 		}
+		reactFlowInstance.setNodes(
+			getUpdatedArrayById(
+				{
+					...getNodeById(id, currentNodes),
+					selected: false,
+				},
+				currentNodes
+			)
+		);
 		setEditVersionSelected("");
 		setNodeSelected(blockData);
 	};
@@ -113,6 +128,15 @@ function ElementNode({
 			yPos +
 			end
 		);
+	};
+
+	const hasEnd = (type) => {
+		const node = NodeTypes.find((node) => node.type == type);
+		if (node.endHandle.includes(platform)) {
+			return true;
+		} else {
+			return false;
+		}
 	};
 
 	const getHumanDesc = (type) => {
@@ -175,9 +199,14 @@ function ElementNode({
 
 	return (
 		<>
-			{isHovered && selected && !dragging && (
+			{isHovered && selected && !dragging && platform == "moodle" && (
 				<div className={styles.hovedConditions}>
-					<SimpleConditions id={id} />
+					<SimpleConditionsMoodle id={id} />
+				</div>
+			)}
+			{isHovered && selected && !dragging && platform == "sakai" && (
+				<div className={styles.hovedConditions}>
+					<SimpleConditionsSakai id={id} />
 				</div>
 			)}
 			<Handle
@@ -186,25 +215,23 @@ function ElementNode({
 				isConnectable={isConnectable}
 				isConnectableStart="false"
 			/>
-			<Handle
-				type="source"
-				position={Position.Right}
-				isConnectable={isConnectable}
-				isConnectableEnd="false"
-			/>
-			<NodeToolbar position="left" offset={25}>
-				<FocusTrap
-					focusTrapOptions={{
-						clickOutsideDeactivates: true,
-						returnFocusOnDeactivate: true,
-					}}
-				>
-					<div className={styles.blockToolbar}>
-						<Button variant="dark" onClick={handleEdit} title="Editar elemento">
-							<FontAwesomeIcon icon={faEdit} />
-							<span className="visually-hidden">Editar elemento</span>
-						</Button>
-						{getNodeById(id, reactFlowInstance.getNodes()).parentNode && (
+			{hasEnd(type) && (
+				<Handle
+					type="source"
+					position={Position.Right}
+					isConnectable={isConnectable}
+					isConnectableEnd="false"
+				/>
+			)}
+			{getNodeById(id, reactFlowInstance.getNodes()).parentNode && (
+				<NodeToolbar position="left" offset={25}>
+					<FocusTrap
+						focusTrapOptions={{
+							clickOutsideDeactivates: true,
+							returnFocusOnDeactivate: true,
+						}}
+					>
+						<div className={styles.blockToolbar}>
 							<Button
 								variant="dark"
 								onClick={extractSelf}
@@ -213,10 +240,10 @@ function ElementNode({
 								<FontAwesomeIcon icon={faRightFromBracket} />
 								<span className="visually-hidden">Sacar del fragmento</span>
 							</Button>
-						)}
-					</div>
-				</FocusTrap>
-			</NodeToolbar>
+						</div>
+					</FocusTrap>
+				</NodeToolbar>
+			)}
 			<div
 				id={id}
 				className={
@@ -228,6 +255,14 @@ function ElementNode({
 					(reducedAnimations && styles.noAnimation + " noAnimation")
 				}
 				aria-label={getAriaLabel} //FIXME: Doesn't work
+				onClick={(e) => {
+					if (e.detail === 2) {
+						handleEdit();
+					}
+				}}
+				onKeyDown={(e) => {
+					if (e.key == "Enter") handleEdit();
+				}}
 				onMouseEnter={() => setIsHovered(true)}
 				onMouseLeave={() => setIsHovered(false)}
 			>
@@ -254,7 +289,10 @@ function ElementNode({
 						}
 						title="Contiene condiciones independientes"
 					>
-						{<FontAwesomeIcon icon={faPlus} style={{ color: "#ffffff" }} />}
+						{getConditionIcon(
+							getPrimaryConditionType(getNodeById(id, rfNodes)),
+							{ color: "#ffffff" }
+						)}
 					</Badge>
 				)}
 				{hasErrors && (
@@ -281,6 +319,7 @@ function ElementNode({
 						}
 					</Badge>
 				)}
+
 				{!hasErrors && hasWarnings && (
 					<Badge
 						bg="warning"
@@ -305,77 +344,32 @@ function ElementNode({
 						}
 					</Badge>
 				)}
-				{data.lmsVisibility && getParentExpanded() && (
-					<Badge
-						bg="primary"
-						className={
-							styles.badge +
-							" " +
-							styles.badgeVisibility +
-							" " +
-							(reducedAnimations && styles.noAnimation) +
-							" " +
-							(showDetails && styles.showBadges) +
-							" " +
-							(highContrast && styles.highContrast)
-						}
-						title="Visibilidad"
-					>
-						{platform == "moodle" || platform == "sakai" ? (
-							data.lmsVisibility == "show_unconditionally" ? (
-								<FontAwesomeIcon icon={faEye} style={{ color: "#ffffff" }} />
-							) : (
-								<FontAwesomeIcon
-									icon={faEyeSlash}
-									style={{ color: "#ffffff" }}
-								/>
-							)
-						) : data.lmsVisibility == "show_unconditionally" ? (
-							<FontAwesomeIcon icon={faEye} style={{ color: "#ffffff" }} />
-						) : (
-							<FontAwesomeIcon icon={faEyeSlash} style={{ color: "#ffffff" }} />
-						)}
-					</Badge>
+
+				{platform == "moodle" && (
+					<MoodleBadges
+						data={data}
+						hasExtraConditions={hasExtraConditions}
+						showDetails={showDetails}
+						highContrast={highContrast}
+						reducedAnimations={reducedAnimations}
+						getParentExpanded={getParentExpanded}
+						platform={platform}
+						styles={styles}
+					/>
 				)}
-				{!isNaN(data.section) && getParentExpanded() && (
-					<Badge
-						bg="light"
-						className={
-							styles.badge +
-							" " +
-							styles.badgeSection +
-							" " +
-							(reducedAnimations && styles.noAnimation) +
-							" " +
-							(showDetails && styles.showBadges) +
-							" " +
-							(highContrast && styles.highContrast)
-						}
-						title="Sección"
-					>
-						{platform == "moodle"
-							? Number(data.section)
-							: Number(data.section) + 1}
-					</Badge>
-				)}
-				{!isNaN(data.order) && getParentExpanded() && (
-					<Badge
-						bg="warning"
-						className={
-							styles.badge +
-							" " +
-							styles.badgePos +
-							" " +
-							(reducedAnimations && styles.noAnimation) +
-							" " +
-							(showDetails && styles.showBadges) +
-							" " +
-							(highContrast && styles.highContrast)
-						}
-						title="Posición en la sección"
-					>
-						{data.order + 1}
-					</Badge>
+
+				{platform == "sakai" && (
+					<SakaiBadges
+						data={data}
+						type={type}
+						hasExtraConditions={hasExtraConditions}
+						showDetails={showDetails}
+						highContrast={highContrast}
+						reducedAnimations={reducedAnimations}
+						getParentExpanded={getParentExpanded}
+						platform={platform}
+						styles={styles}
+					/>
 				)}
 			</div>
 		</>

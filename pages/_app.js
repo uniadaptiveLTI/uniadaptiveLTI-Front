@@ -1,14 +1,18 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import "@root/styles/globals.css";
+import "/styles/globals.css";
 import "reactflow/dist/base.css";
 import "styles/BlockFlow.css";
 import "styles/BlockFlowMoodle.css";
 import "@fortawesome/fontawesome-svg-core/styles.css"; // import Font Awesome CSS
 import { config } from "@fortawesome/fontawesome-svg-core";
 config.autoAddCss = false; // Tell Font Awesome to skip adding the CSS automatically since it's being imported above
-import React, { createContext, useState, useEffect } from "react";
+import React, {
+	createContext,
+	useState,
+	useEffect,
+	useLayoutEffect,
+} from "react";
 
-export const MSGContext = createContext(); // Used for displaying messages in the footer
 export const NodeInfoContext = createContext(); // Contains the node data that is being edited
 export const ErrorListContext = createContext(); // Contains an array with error objects
 export const MapInfoContext = createContext(""); //
@@ -31,7 +35,6 @@ import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import { toast } from "react-toastify";
 import { useIsOnline } from "react-use-is-online";
-import { parseBool } from "@utils/Utils";
 
 const sessionStart = Date.now();
 
@@ -44,8 +47,7 @@ export default function App({ Component, pageProps }) {
 			snappingInFragment: false,
 			reducedAnimations: false,
 			autoHideAside: true,
-			autoExpandMSGBox: false,
-			autoHideMSGBox: true,
+			hoverConditions: false,
 		})
 	);
 	const [reactFlowInstance, setReactFlowInstance] = useState();

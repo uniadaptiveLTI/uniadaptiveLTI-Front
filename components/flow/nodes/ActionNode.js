@@ -6,7 +6,7 @@ import {
 	useReactFlow,
 	useNodes,
 } from "reactflow";
-import styles from "@root/styles/BlockContainer.module.css";
+import styles from "/styles/BlockContainer.module.css";
 import {
 	NodeInfoContext,
 	ExpandedAsideContext,
@@ -14,7 +14,7 @@ import {
 	SettingsContext,
 	VersionInfoContext,
 	PlatformContext,
-} from "@root/pages/_app";
+} from "/pages/_app";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
 	faEdit,
@@ -29,7 +29,8 @@ import { getUpdatedArrayById, parseBool } from "@utils/Utils";
 import { getNodeById, getNumberOfIndependentConditions } from "@utils/Nodes";
 import { DevModeStatusContext } from "pages/_app";
 import { NodeTypes } from "@utils/TypeDefinitions";
-import SimpleConditions from "../conditions/SimpleConditions";
+import SimpleConditionsMoodle from "@components/flow/conditions/SimpleConditionsMoodle";
+import SimpleConditionsSakai from "@components/flow/conditions/SimpleConditionsSakai";
 import { useEffect } from "react";
 
 const getHumanDesc = (type) => {
@@ -128,9 +129,14 @@ function ActionNode({ id, type, data, selected, dragging, isConnectable }) {
 
 	return (
 		<>
-			{isHovered && selected && !dragging && (
+			{isHovered && selected && !dragging && platform == "moodle" && (
 				<div className={styles.hovedConditions}>
-					<SimpleConditions id={id} />
+					<SimpleConditionsMoodle id={id} />
+				</div>
+			)}
+			{isHovered && selected && !dragging && platform == "sakai" && (
+				<div className={styles.hovedConditions}>
+					<SimpleConditionsSakai id={id} />
 				</div>
 			)}
 			<Handle
@@ -139,19 +145,15 @@ function ActionNode({ id, type, data, selected, dragging, isConnectable }) {
 				isConnectable={isConnectable}
 				isConnectableStart="false"
 			/>
-			<NodeToolbar position="left" offset={25}>
-				<FocusTrap
-					focusTrapOptions={{
-						clickOutsideDeactivates: true,
-						returnFocusOnDeactivate: true,
-					}}
-				>
-					<div className={styles.blockToolbar}>
-						<Button variant="dark" onClick={handleEdit} title="Editar acción">
-							<FontAwesomeIcon icon={faEdit} />
-							<span className="visually-hidden">Editar acción</span>
-						</Button>
-						{getNodeById(id, reactFlowInstance.getNodes()).parentNode && (
+			{getNodeById(id, reactFlowInstance.getNodes()).parentNode && (
+				<NodeToolbar position="left" offset={25}>
+					<FocusTrap
+						focusTrapOptions={{
+							clickOutsideDeactivates: true,
+							returnFocusOnDeactivate: true,
+						}}
+					>
+						<div className={styles.blockToolbar}>
 							<Button
 								variant="dark"
 								onClick={extractSelf}
@@ -160,10 +162,10 @@ function ActionNode({ id, type, data, selected, dragging, isConnectable }) {
 								<FontAwesomeIcon icon={faRightFromBracket} />
 								<span className="visually-hidden">Sacar del fragmento</span>
 							</Button>
-						)}
-					</div>
-				</FocusTrap>
-			</NodeToolbar>
+						</div>
+					</FocusTrap>
+				</NodeToolbar>
+			)}
 			<div
 				id={id}
 				className={
@@ -177,6 +179,14 @@ function ActionNode({ id, type, data, selected, dragging, isConnectable }) {
 				aria-label={getAriaLabel} //FIXME: Doesn't work
 				onMouseEnter={() => setIsHovered(true)}
 				onMouseLeave={() => setIsHovered(false)}
+				onClick={(e) => {
+					if (e.detail === 2) {
+						handleEdit();
+					}
+				}}
+				onKeyDown={(e) => {
+					if (e.key == "Enter") handleEdit();
+				}}
 			>
 				<span className={styles.blockInfo + " " + styles.top}>
 					{data.label}

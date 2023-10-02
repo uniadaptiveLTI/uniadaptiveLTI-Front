@@ -1,6 +1,5 @@
 import Header from "./Header";
 import Aside from "./Aside";
-import Footer from "./Footer";
 import { ReactFlowProvider } from "reactflow";
 import { Container } from "react-bootstrap";
 import { useState, useRef, useLayoutEffect, useEffect } from "react";
@@ -12,10 +11,10 @@ import {
 	ExpandedAsideContext,
 	VersionInfoContext,
 	MainDOMContext,
-	MSGContext,
 	MetaDataContext,
 	HeaderToEmptySelectorContext,
 } from "../pages/_app.js";
+import { applyBranding } from "@utils/Colors";
 
 export default function Layout({ LTISettings, children }) {
 	const [platform, setPlatform] = useState("moodle"); //default to moodle in testing phase
@@ -31,12 +30,9 @@ export default function Layout({ LTISettings, children }) {
 
 	const [versionJson, setVersionJson] = useState("");
 
-	const [headerHeight, setHeaderHeight] = useState(0);
-	const [footerHeight, setFooterHeight] = useState(0);
-	const [mainHeightOffset, setMainHeightOffset] = useState(0);
+	const [fixedMainHeight, setFixedMainHeight] = useState("100vh");
 
 	const [mainDOM, setMainDOM] = useState(null);
-	const [msg, setMSG] = useState([]);
 
 	//Header to Empty
 	const [mapCount, setMapCount] = useState(0);
@@ -54,34 +50,29 @@ export default function Layout({ LTISettings, children }) {
 	const mainDOMRef = useRef(null);
 
 	useLayoutEffect(() => {
-		let footerHeight = getFooterHeight();
-		let headerHeight = getHeaderHeight();
-		setFooterHeight(footerHeight);
-		setHeaderHeight(headerHeight);
-		setMainHeightOffset(footerHeight + headerHeight);
-		window.addEventListener("resize", () => {
-			setFooterHeight(getFooterHeight());
-			setHeaderHeight(getHeaderHeight());
-		});
-	}, [footerHeight, headerHeight, expandedAside]);
+		if (typeof window != "undefined") {
+			window.addEventListener("resize", () => {
+				setFixedMainHeight(getHeaderHeight());
+			});
+		}
+	}, [headerDOM.current]);
+
+	useLayoutEffect(() => {
+		if (typeof window != "undefined") {
+			setFixedMainHeight(getHeaderHeight());
+		}
+	}, [
+		headerDOM.current && headerDOM.current.getBoundingClientRect().height,
+		expandedAside,
+	]);
 
 	useLayoutEffect(() => {
 		setMainDOM(mainDOMRef);
 	}, [mainDOMRef]);
 
-	/**
-	 * Calculates the height of the footer.
-	 * @returns {number} The height of the footer.
-	 */
-	function getFooterHeight() {
-		if (typeof window != "undefined") {
-			const footer = document.getElementById("footerHeader");
-			if (footer) {
-				const footerHeight = footer.getBoundingClientRect().height + 16;
-				return footerHeight;
-			}
-		}
-	}
+	useLayoutEffect(() => {
+		applyBranding(LTISettings);
+	}, [LTISettings]);
 
 	/**
 	 * Calculates the height of the header.
@@ -92,8 +83,10 @@ export default function Layout({ LTISettings, children }) {
 			const header = headerDOM.current;
 			if (header) {
 				const headerHeight = header.getBoundingClientRect().height;
-				return headerHeight;
+				return window.innerHeight - headerHeight;
 			}
+		} else {
+			return "100vh";
 		}
 	}
 
@@ -134,74 +127,65 @@ export default function Layout({ LTISettings, children }) {
 										value={{ expandedAside, setExpandedAside }}
 									>
 										<MainDOMContext.Provider value={{ mainDOM, setMainDOM }}>
-											<MSGContext.Provider value={{ msg, setMSG }}>
-												<ReactFlowProvider>
-													<Container
-														className="g-0"
-														fluid
-														style={{ minHeight: 100 + "vh" }}
+											<ReactFlowProvider>
+												<Container
+													className="g-0"
+													fluid
+													style={{ minHeight: 100 + "vh" }}
+												>
+													<div
+														className="row g-0"
+														style={{ height: 100 + "vh" }}
 													>
-														<div
-															className="row g-0"
-															style={{ height: 100 + "vh" }}
+														<Aside
+															LTISettings={LTISettings}
+															className={
+																expandedAside
+																	? "col-12 col-sm-4 col-md-3 col-xl-2"
+																	: "d-none"
+															}
+														/>
+														<Container
+															fluid
+															className={
+																expandedAside
+																	? "col-12 col-sm-8 col-md-9 col-xl-10 g-0"
+																	: "g-0"
+															}
+															style={{
+																display: "flex",
+																flexDirection: "column",
+															}}
 														>
-															<Aside
-																LTISettings={LTISettings}
-																className={
-																	expandedAside
-																		? "col-12 col-sm-4 col-md-3 col-xl-2"
-																		: "d-none"
-																}
-															/>
 															<Container
+																className="g-0"
 																fluid
-																className={
-																	expandedAside
-																		? "col-12 col-sm-8 col-md-9 col-xl-10 g-0"
-																		: "g-0"
-																}
-																style={{
-																	display: "flex",
-																	flexDirection: "column",
-																}}
+																style={{ flex: "1 0 auto" }}
 															>
-																<Container
-																	className="g-0"
-																	fluid
-																	style={{ flex: "1 0 auto" }}
-																>
-																	<Header
-																		LTISettings={LTISettings}
-																		ref={headerDOM}
-																	/>
+																<Header
+																	LTISettings={LTISettings}
+																	ref={headerDOM}
+																/>
 
-																	<main
-																		id="main"
-																		ref={mainDOMRef}
-																		style={{
-																			height: `calc(100vh - ${mainHeightOffset}px)`,
-																			overflow: "overlay",
-																			scrollBehavior: "smooth",
-																			position: "relative",
-																			boxShadow: "inset 0 0 10px #ccc",
-																		}}
-																	>
-																		{children}
-																	</main>
-																	<Footer
-																		msg={msg}
-																		className={
-																			expandedAside
-																				? "col-12 col-sm-8 col-md-9 col-xl-10 g-0"
-																				: "col-12 g-0"
-																		}
-																	/>
-																</Container>
+																<main
+																	id="main"
+																	ref={mainDOMRef}
+																	style={{
+																		height: fixedMainHeight,
+																		overflow: "overlay",
+																		scrollBehavior: "smooth",
+																		position: "relative",
+																		boxShadow:
+																			"inset 0 0 10px var(--blockflow-inner-box-shadow-color)",
+																	}}
+																>
+																	{children}
+																</main>
 															</Container>
-														</div>
-													</Container>
-												</ReactFlowProvider>
-											</MSGContext.Provider>
+														</Container>
+													</div>
+												</Container>
+											</ReactFlowProvider>
 										</MainDOMContext.Provider>
 									</ExpandedAsideContext.Provider>
 								</HeaderToEmptySelectorContext.Provider>

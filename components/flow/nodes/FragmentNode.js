@@ -7,7 +7,7 @@ import {
 } from "react";
 import { NodeResizer, NodeToolbar, useReactFlow, useEdges } from "reactflow";
 import { Button } from "react-bootstrap";
-import styles from "@root/styles/BlockContainer.module.css";
+import styles from "/styles/BlockContainer.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
 	faCubes,
@@ -25,12 +25,12 @@ import {
 	MapInfoContext,
 	SettingsContext,
 	VersionInfoContext,
-} from "@root/pages/_app";
+} from "/pages/_app";
 import { getByProperty, getUpdatedArrayById, parseBool } from "@utils/Utils";
 import { getNodeDOMById, getNodeById } from "@utils/Nodes";
 import FocusTrap from "focus-trap-react";
-import FragmentResizer from "@root/components/dialogs/FragmentResizer";
-import FragmentEditor from "@root/components/dialogs/FragmentEditor";
+import FragmentResizer from "/components/dialogs/FragmentResizer";
+import FragmentEditor from "/components/dialogs/FragmentEditor";
 import { DevModeStatusContext } from "pages/_app";
 
 function FragmentNode({ id, xPos, yPos, type, data }) {
@@ -53,6 +53,7 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 	const [showRemover, setShowRemover] = useState(false);
 
 	const [expanded, setExpanded] = useState(data.expanded);
+	const [originalExpandedSize, setOriginalExpandedSize] = useState();
 
 	const handleEdit = () => {
 		const blockData = getNodeById(id, reactFlowInstance.getNodes());
@@ -72,17 +73,19 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 			const node = getNodeById(innerNode.id, reactFlowInstance.getNodes());
 			if (node) {
 				node.parentNode = id;
-				node.expandParent = true; //FIXME: Propiety applies, but it doesn't work
+				node.expandParent = true;
 				node.position = innerNode.position;
 				changesArray.push(node);
 			}
 		});
+
 		reactFlowInstance.setNodes(
 			getUpdatedArrayById(changesArray, reactFlowInstance.getNodes())
 		);
 	}, []);
 
 	useLayoutEffect(() => {
+		//Sets nodes on map load and on following updates
 		const currentInnerNodes = getInnerNodes();
 		const currentNode = getNodeById(id, reactFlowInstance.getNodes());
 		const styles = currentNode.style
@@ -91,6 +94,7 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 
 		if (currentInnerNodes) {
 			if (!expanded) {
+				//Moves the position of the invisible blocks on the top of the node
 				const newInnerNodes = currentInnerNodes.map((node) => {
 					{
 						node.position = { x: 0, y: 0 };
@@ -111,6 +115,16 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 					return node;
 				});
 
+				if (currentInnerNodes.length == 0) {
+					setOriginalExpandedSize({ width: 193, height: 200 });
+				} else {
+					if (styles.width != 68 && styles.height != 68)
+						setOriginalExpandedSize({
+							width: styles.width,
+							height: styles.height,
+						});
+				}
+
 				styles.width = styles.height = 68;
 
 				reactFlowInstance.setNodes(
@@ -120,6 +134,7 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 					)
 				);
 			} else {
+				//Moves the position of the visible blocks to its stored positions
 				const maxPositions = { x: 0, y: 0 };
 				const newInnerNodes = currentInnerNodes.map((node, index) => {
 					{
@@ -149,8 +164,13 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 					return node;
 				});
 
-				styles.width = maxPositions.x + 68;
-				styles.height = maxPositions.y + 68;
+				if (!originalExpandedSize) {
+					styles.width = maxPositions.x + 68;
+					styles.height = maxPositions.y + 68;
+				} else {
+					styles.width = originalExpandedSize.width;
+					styles.height = originalExpandedSize.height;
+				}
 
 				reactFlowInstance.setNodes(
 					getUpdatedArrayById(
@@ -193,6 +213,7 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 	}, [expanded]);
 
 	const restrictedChildren = (width, height) => {
+		//Forces children to be in bounds
 		const result = getInnerNodes().map((children) => {
 			let cwidth = children.position.x;
 			let cheight = children.position.y;
@@ -229,14 +250,14 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 
 	const resizeFragment = (height, width) => {
 		const currentNode = getNodeById(id, reactFlowInstance.getNodes());
-		const style = { height: height * 175, width: width * 125 };
+		const style = { height: height * 200, width: width * 125 };
 		currentNode.style = style;
 		currentNode.height = style.height;
 		currentNode.width = style.width;
 
 		const restrictedChildrenArray = restrictedChildren(
 			style.width - 125,
-			style.height - 175
+			style.height - 200
 		);
 
 		let updatedChildrenBlockData = [];
@@ -305,7 +326,7 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 			{expanded && (
 				<NodeResizer
 					minWidth={125}
-					minHeight={175}
+					minHeight={200}
 					onResizeEnd={handleResizeEnd}
 				/>
 			)}
@@ -425,11 +446,17 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 					" " +
 					(expanded && "expandedFragment")
 				}
-				/*onClick={(e) => {
-					if (e.detail === 1)
-						if (e.detail === 2)
-							handleClick();
-							handleDoubleClick();
+				onClick={(e) => {
+					if (e.detail === 2) {
+						data.expanded = !data.expanded;
+						setExpanded(!expanded);
+					}
+					if (e.detail === 3) {
+						handleEdit();
+					}
+				}}
+				/*onKeyDown={(e) => {
+					if (e.key == "Enter") handleEdit();
 				}}*/
 				aria-label={getAriaLabel} //FIXME: Doesn't work
 			>

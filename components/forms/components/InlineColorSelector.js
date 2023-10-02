@@ -36,15 +36,15 @@ export default function InlineColorSelector({
 					onChange={(e) => setColor(e.target.value)}
 					styles={{
 						padding: "1em",
-						borderRadius: getRootStyle("--main-ui-button-border-radius"),
-						border: getRootStyle("--main-ui-borders"),
+						borderRadius: getRootStyle("--main-border-radius"),
+						border: getRootStyle("--main-borders"),
 					}}
 				/>
 				<Button
 					onClick={() => setShowSelector(true)}
 					style={{
 						background: color ? color : "#000",
-						border: getRootStyle("--main-ui-borders"),
+						border: getRootStyle("--main-borders"),
 					}}
 				>
 					<FontAwesomeIcon icon={faPalette} style={{ color: iconColor }} />

@@ -1,0 +1,9 @@
+.key{
+    --bs-nav-tabs-link-active-border-color: rgb(189, 190, 191) rgb(189, 190, 191) #fff!important;
+	--bs-nav-tabs-link-hover-border-color: #dee2e6 #dee2e6 rgb(189, 190, 191);
+	border-bottom: var(--bs-nav-tabs-border-width) solid rgb(189, 190, 191);
+}
+
+.cModal {
+	margin-right: 0.5em;
+}

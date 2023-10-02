@@ -8,7 +8,7 @@ import {
 	faEdit,
 	faCheckSquare,
 } from "@fortawesome/free-solid-svg-icons";
-import styles from "@root/styles/ContextualMenu.module.css";
+import styles from "/styles/ContextualMenu.module.css";
 import { Button } from "react-bootstrap";
 import { ActionNodes } from "@utils/Nodes";
 import { useRef, forwardRef, useContext } from "react";
@@ -42,19 +42,36 @@ const Menu = (
 		<div ref={ref} className={styles.cM + " "}>
 			{["fragment"].includes(blockData.type) == false && (
 				<li>
-					<Button
-						variant="light"
-						onClick={() => handleShow("conditions")}
-						disabled={!EnableEditPreconditions}
-					>
-						<div>
-							<FontAwesomeIcon icon={faEdit} />
+					{platform == "moodle" && (
+						<Button
+							variant="light"
+							onClick={() => handleShow("conditions")}
+							disabled={!EnableEditPreconditions}
+						>
 							<div>
-								Editar precondiciones
-								<span>CTRL/Cmd+E</span>
+								<FontAwesomeIcon icon={faEdit} />
+								<div>
+									Editar precondiciones
+									<span>CTRL/Cmd+E</span>
+								</div>
 							</div>
-						</div>
-					</Button>
+						</Button>
+					)}
+					{platform == "sakai" && (
+						<Button
+							variant="light"
+							onClick={() => handleShow("requisites")}
+							disabled={!EnableEditPreconditions}
+						>
+							<div>
+								<FontAwesomeIcon icon={faEdit} />
+								<div>
+									Editar prerequisitos
+									<span>CTRL/Cmd+E</span>
+								</div>
+							</div>
+						</Button>
+					)}
 				</li>
 			)}
 			{["fragment"].includes(blockData.type) == false &&

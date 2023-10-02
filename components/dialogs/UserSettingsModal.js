@@ -2,7 +2,7 @@ import { useContext, useState, useRef, useEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import { getNodeById } from "@utils/Nodes";
 import { useReactFlow, useNodes } from "reactflow";
-import { SettingsContext } from "@root/pages/_app";
+import { SettingsContext } from "/pages/_app";
 import UserSettingsLayout from "@components/layouts/UserSettingsLayout";
 import UserSettingsPane from "@components/panes/usersettings/UserSettingsPane";
 

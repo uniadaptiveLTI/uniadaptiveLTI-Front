@@ -1,5 +1,5 @@
 import { useImperativeHandle, forwardRef, useRef, useContext } from "react";
-import { SettingsContext } from "@root/pages/_app";
+import { SettingsContext } from "/pages/_app";
 import { Form } from "react-bootstrap";
 
 function UserSettingsPane({ LTISettings }, ref) {
@@ -12,8 +12,7 @@ function UserSettingsPane({ LTISettings }, ref) {
 		snappingInFragment,
 		showDetails,
 		autoHideAside,
-		autoExpandMSGBox,
-		autoHideMSGBox,
+		hoverConditions,
 	} = parsedSettings;
 
 	/**
@@ -40,11 +39,8 @@ function UserSettingsPane({ LTISettings }, ref) {
 			case "switch-autoHideAside":
 				autoHideAside = !autoHideAside;
 				break;
-			case "switch-autoExpandMSGBox":
-				autoExpandMSGBox = !autoExpandMSGBox;
-				break;
-			case "switch-autoHideMSGBox":
-				autoHideMSGBox = !autoHideMSGBox;
+			case "switch-hoverConditions":
+				hoverConditions = !hoverConditions;
 				break;
 		}
 		let newSettings = parsedSettings;
@@ -53,9 +49,8 @@ function UserSettingsPane({ LTISettings }, ref) {
 		newSettings.snapping = snapping;
 		newSettings.snappingInFragment = snappingInFragment;
 		newSettings.showDetails = showDetails;
-		newSettings.autoExpandMSGBox = autoExpandMSGBox;
-		newSettings.autoHideMSGBox = autoHideMSGBox;
 		newSettings.autoHideAside = autoHideAside;
+		newSettings.hoverConditions = hoverConditions;
 		let json = JSON.stringify(newSettings);
 		localStorage.setItem("settings", json);
 		setSettings(json);
@@ -102,10 +97,11 @@ function UserSettingsPane({ LTISettings }, ref) {
 				<h2 ref={blockFlowRef} className="my-4">
 					Flujo de bloques
 				</h2>
+				<h4 className="my-3">Mapa</h4>
 				<Form.Check
 					type="switch"
 					id="switch-snapping"
-					label="Autoajustar bloques a la cuadricula"
+					label="Autoajustar bloques a la cuadrícula"
 					className="my-4"
 					defaultChecked={snapping}
 					onClick={handleSettingChange}
@@ -113,18 +109,31 @@ function UserSettingsPane({ LTISettings }, ref) {
 				<Form.Check
 					type="switch"
 					id="switch-snappingInFragment"
-					label="Autoajustar a la cuadricula en fragmentos"
+					label="Autoajustar a la cuadrícula en fragmentos"
 					className="my-4"
 					defaultChecked={snappingInFragment}
 					onClick={handleSettingChange}
 					disabled={!snapping}
 				/>
+				<h4 className="my-3">Bloques</h4>
 				<Form.Check
 					type="switch"
 					id="switch-showDetails"
 					label="Mostrar los detalles de forma estática"
 					className="my-4"
 					defaultChecked={showDetails}
+					onClick={handleSettingChange}
+				/>
+				<Form.Check
+					type="switch"
+					id="switch-hoverConditions"
+					label={
+						hoverConditions
+							? "Priorizar mostrar el resumen de las condiciones al pasar el ratón sobre el bloque seleccionado"
+							: "Priorizar mostrar el resumen de las calificaciones al pasar el ratón sobre el bloque seleccionado"
+					}
+					className="my-4"
+					defaultChecked={hoverConditions}
 					onClick={handleSettingChange}
 				/>
 
@@ -138,23 +147,6 @@ function UserSettingsPane({ LTISettings }, ref) {
 					label="Autocontraer el inspector"
 					className="my-4"
 					defaultChecked={autoHideAside}
-					onClick={handleSettingChange}
-				/>
-				<h4 className="my-3">Caja de mensajes</h4>
-				<Form.Check
-					type="switch"
-					id="switch-autoExpandMSGBox"
-					label="Expandir la caja de mensajes automáticamente"
-					className="my-4"
-					defaultChecked={autoExpandMSGBox}
-					onClick={handleSettingChange}
-				/>
-				<Form.Check
-					type="switch"
-					id="switch-autoHideMSGBox"
-					label="Contraer la caja de mensajes automáticamente"
-					className="my-4"
-					defaultChecked={autoHideMSGBox}
 					onClick={handleSettingChange}
 				/>
 			</Form>

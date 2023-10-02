@@ -1,6 +1,8 @@
 import { getNodeById } from "@utils/Nodes";
-import { getByProperty, transformDate } from "@utils/Utils";
+import { getByProperty, parseDate } from "@utils/Utils";
+import { PlatformContext } from "pages/_app";
 import React, { useEffect, useState } from "react";
+import { useContext } from "react";
 import {
 	BaseEdge,
 	EdgeLabelRenderer,
@@ -31,10 +33,25 @@ const ConditionalEdge = ({
 		targetPosition,
 	});
 
+	const { platform, setPlatform } = useContext(PlatformContext);
+
 	const rfNodes = useNodes();
 	const rfEdges = useEdges();
 	const [lineType, setLineType] = useState("and");
 	const [animatedLine, setAnimatedLine] = useState(false);
+
+	function findConditionByParentId(subConditions, blockNodeId) {
+		for (const subCondition of subConditions) {
+			const foundCondition = subCondition.subConditions?.find((condition) => {
+				return condition.itemId === blockNodeId;
+			});
+			if (foundCondition) {
+				return foundCondition;
+			}
+		}
+
+		return null;
+	}
 
 	useEffect(() => {
 		const shouldAnimate = lineType == "or" ? true : false;
@@ -47,31 +64,50 @@ const ConditionalEdge = ({
 	const getSelfCondition = () => {
 		const targetNode = getNodeById(target, rfNodes);
 		const sourceNode = getNodeById(source, rfNodes);
+		console.log(targetNode, sourceNode);
 
-		if (targetNode && targetNode.data && targetNode.data.c) {
-			const conditions = targetNode.data.c;
-			const condition = findConditionById(sourceNode.id, conditions.c);
-			const parentCondition = findParent(conditions, condition?.id);
-			if (condition) {
-				const sourceNode = getNodeById(source, rfNodes);
-				if (sourceNode && sourceNode.data && sourceNode.data.label) {
+		switch (platform) {
+			case "moodle":
+				if (targetNode && targetNode.data && targetNode.data.c) {
+					const conditions = targetNode.data.c;
+					let condition = undefined;
+					if (targetNode.type !== "badge") {
+						condition = findConditionById(sourceNode.id, conditions.c);
+					} else {
+						condition = findConditionById(sourceNode.id, conditions.params);
+					}
+
+					if (condition) {
+						if (sourceNode && sourceNode.data && sourceNode.data.label) {
+							return getReadableCondition(condition);
+						}
+					}
+				}
+			case "sakai":
+				if (sourceNode && targetNode && targetNode.data.gradeRequisites) {
+					const condition = findConditionByParentId(
+						targetNode.data.gradeRequisites.subConditions,
+						sourceNode.id
+					);
+
 					return getReadableCondition(condition);
 				}
-			}
 		}
 	};
-
 	const getReadableCondition = (condition) => {
-		switch (condition.type) {
+		switch (condition?.type) {
 			case "grade":
-				if (condition.min && condition.max) {
-					return `>= ${condition.min} y < ${condition.max} `;
-				} else {
-					if (condition.min) {
-						return `>= ${condition.min}`;
-					} else {
-						return `< ${condition.max}`;
-					}
+				switch (platform) {
+					case "moodle":
+						if (condition.min && condition.max) {
+							return `>= ${condition.min} y < ${condition.max} `;
+						} else {
+							if (condition.min) {
+								return `>= ${condition.min}`;
+							} else {
+								return `< ${condition.max}`;
+							}
+						}
 				}
 			case "completion":
 				if (condition.e) {
@@ -83,26 +119,26 @@ const ConditionalEdge = ({
 						case 3:
 							return `Suspendido`;
 					}
-				} else if (condition.activityList) {
+				} else if (condition.params) {
 					//TODO: CHANGE THIS
 					const sourceNode = getNodeById(source, rfNodes);
-					const matchingCondition = condition.activityList.find(
+					const matchingCondition = condition.params.find(
 						(node) => node.id === sourceNode.id
 					);
 
 					switch (condition.op) {
 						case "|":
-							if (lineType != "or") setLineType("or");
+							if (lineType != "OR") setLineType("OR");
 
 						case "&":
-							if (lineType != "and") setLineType("and");
+							if (lineType != "AND") setLineType("AND");
 					}
 
 					if (matchingCondition.date) {
 						return (
 							<>
 								Completado antes del <br></br>{" "}
-								{transformDate(matchingCondition.date)}
+								{parseDate(matchingCondition.date)}
 								<br />
 							</>
 						);
@@ -113,6 +149,20 @@ const ConditionalEdge = ({
 					return `Sin completar`;
 				}
 				break;
+			case "SCORE":
+			case "sakai":
+				switch (condition.operator) {
+					case "SMALLER_THAN":
+						return `< ${condition.argument}`;
+					case "SMALLER_THAN_OR_EQUAL_TO":
+						return `<= ${condition.argument}`;
+					case "EQUAL_TO":
+						return `= ${condition.argument}`;
+					case "GREATER_THAN_OR_EQUAL_TO":
+						return `>= ${condition.argument}`;
+					case "GREATER_THAN":
+						return `> ${condition.argument}`;
+				}
 		}
 	};
 
@@ -122,12 +172,14 @@ const ConditionalEdge = ({
 		}
 
 		const foundCondition = conditions.find((condition) => condition.cm === id);
+		console.log(conditions);
 		if (foundCondition) {
 			return foundCondition;
 		} else {
-			const foundActionCondition = conditions.find((condition) =>
-				Array.isArray(condition.activityList)
+			const foundActionCondition = conditions.find(
+				(condition) => condition.type === "completion"
 			);
+
 			if (foundActionCondition) return foundActionCondition;
 		}
 
@@ -193,13 +245,12 @@ const ConditionalEdge = ({
 		}
 	};
 
-	const [label, setLabel] = useState(getSelfCondition());
-
-	const [width, setWidth] = useState(getSelfWidth());
+	const [label, setLabel] = useState();
+	const [width, setWidth] = useState();
 
 	useEffect(() => {
 		setLabel(getSelfCondition());
-	}, [getNodeById(target, rfNodes)]);
+	}, [JSON.stringify(getNodeById(target, rfNodes))]);
 
 	useEffect(() => {
 		setWidth(getSelfWidth);
@@ -219,7 +270,7 @@ const ConditionalEdge = ({
 							textAlign: "center",
 							overflow: "hidden",
 							padding: "0.5em",
-							background: "var(--blockflow-edge-background)",
+							background: "var(--blockflow-edge-background-color)",
 							color: "var(--blockflow-edge-font-color)",
 							border: "var(--blockflow-edge-border)",
 							borderRadius: "var(--blockflow-edge-border-radius)",

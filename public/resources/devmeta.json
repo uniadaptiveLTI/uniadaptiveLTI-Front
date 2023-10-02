@@ -4,10 +4,10 @@
 	"lms_url": "https://real-lms.com/",
 	"return_url": "https://real-lms.com/course",
 	"course_id": 0,
-	"platform": "moodle",
+	"platform": "sakai",
 	"lessons": [
-		{ "id:": 0, "name": "Física" },
-		{ "id:": 1, "name": "Matemática" }
+		{ "id": 0, "name": "Física" },
+		{ "id": 1, "name": "Matemática" }
 	],
 	"sections": [
 		{ "id": 0, "position": 0, "name": "General" },
@@ -15,7 +15,136 @@
 		{ "id": 2, "position": 3, "name": "Física Avanzada" },
 		{ "id": 3, "position": 2, "name": "Física Cuántica" }
 	],
-	"badges": [],
+	"badges": [
+		{
+			"id": 3,
+			"name": "Insignia 1",
+			"params": [
+				{
+					"id": 41,
+					"criteriatype": 0,
+					"method": 1,
+					"descriptionformat": 1,
+					"params": []
+				},
+				{
+					"id": 44,
+					"criteriatype": 1,
+					"method": 1,
+					"descriptionformat": 1,
+					"params": [
+						{
+							"id": 53,
+							"name": "module_9",
+							"value": "9"
+						},
+						{
+							"id": 54,
+							"name": "bydate_9",
+							"value": "1695250800"
+						},
+						{
+							"id": 55,
+							"name": "module_10",
+							"value": "10"
+						}
+					]
+				},
+				{
+					"id": 42,
+					"criteriatype": 2,
+					"method": 2,
+					"descriptionformat": 1,
+					"params": [
+						{
+							"id": 48,
+							"name": "role_1",
+							"value": "1"
+						},
+						{
+							"id": 49,
+							"name": "role_4",
+							"value": "4"
+						},
+						{
+							"id": 50,
+							"name": "role_3",
+							"value": "3"
+						}
+					]
+				},
+				{
+					"id": 43,
+					"criteriatype": 4,
+					"method": 1,
+					"descriptionformat": 1,
+					"params": [
+						{
+							"id": 51,
+							"name": "grade_2",
+							"value": "10"
+						},
+						{
+							"id": 52,
+							"name": "course_2",
+							"value": "2"
+						},
+						{
+							"id": 58,
+							"name": "bydate_2",
+							"value": "1695250800"
+						}
+					]
+				},
+				{
+					"id": 48,
+					"criteriatype": 7,
+					"method": 2,
+					"descriptionformat": 1,
+					"params": [
+						{
+							"id": 60,
+							"name": "badge_4",
+							"value": "4"
+						}
+					]
+				},
+				{
+					"id": 45,
+					"criteriatype": 9,
+					"method": 2,
+					"descriptionformat": 1,
+					"params": [
+						{
+							"id": 57,
+							"name": "competency_1",
+							"value": "1"
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": 4,
+			"name": "Insignia 2"
+		}
+	],
+	"skills": [
+		{ "id": "1", "name": "Competencia 1" },
+		{ "id": "2", "name": "Competencia 2" },
+		{ "id": "3", "name": "Competencia 3" }
+	],
+	"grades": [1],
+	"userMembers": [
+		{ "id": 1, "name": "Maria" },
+		{ "id": 2, "name": "Noe" },
+		{ "id": 3, "name": "Pepe" }
+	],
+	"userMembersSakai": [
+		{ "id": "1", "name": "Maria" },
+		{ "id": "2", "name": "Noe" },
+		{ "id": "3", "name": "Pepe" }
+	],
 	"groups": [
 		{ "id": 1, "name": "Grupo A" },
 		{ "id": 2, "name": "Grupo B" },
@@ -25,6 +154,15 @@
 		{ "id": 6, "name": "Grupo F" },
 		{ "id": 7, "name": "Grupo G" }
 	],
+	"sakaiGroups": [
+		{ "id": "1", "name": "Grupo A" },
+		{ "id": "2", "name": "Grupo B" },
+		{ "id": "3", "name": "Grupo C" },
+		{ "id": "4", "name": "Grupo D" },
+		{ "id": "5", "name": "Grupo E" },
+		{ "id": "6", "name": "Grupo F" },
+		{ "id": "7", "name": "Grupo G" }
+	],
 	"grupings": [
 		{ "id": 1, "name": "Agrupamiento A" },
 		{ "id": 2, "name": "Agrupamiento B" },
@@ -33,5 +171,10 @@
 		{ "id": 5, "name": "Agrupamiento E" },
 		{ "id": 6, "name": "Agrupamiento F" },
 		{ "id": 7, "name": "Agrupamiento G" }
+	],
+	"role_list": [
+		{ "id": "1", "name": "Gestor" },
+		{ "id": "4", "name": "Profesor" },
+		{ "id": "3", "name": "Profesor sin permisos de edición" }
 	]
 }

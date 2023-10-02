@@ -6,9 +6,16 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { getAutomaticReusableStyles, getRootStyle } from "@utils/Colors";
 import { getNodeById } from "@utils/Nodes";
 import { orderByPropertyAlphabetically } from "@utils/Utils";
-import { forwardRef, useState, useLayoutEffect, useRef } from "react";
+import {
+	forwardRef,
+	useState,
+	useLayoutEffect,
+	useRef,
+	useContext,
+} from "react";
 import { Form } from "react-bootstrap";
 import { useNodes } from "reactflow";
+import { PlatformContext } from "/pages/_app";
 
 function getDuplicates(array) {
 	let count = {};
@@ -40,6 +47,8 @@ export default forwardRef(function SectionSelector(
 	const innerSelectors = useRef([]);
 	const [errorsPerSection, setErrorsPerSection] = useState([]);
 	const [warningsPerSection, setWarningsPerSection] = useState([]);
+
+	const { platform } = useContext(PlatformContext);
 
 	//Checks if it has to wait for the warnings to generate
 	useLayoutEffect(() => {
@@ -114,7 +123,7 @@ export default forwardRef(function SectionSelector(
 					>
 						<Form.Check
 							type="switch"
-							label={mapName ? mapName + ` (${metaData.name})` : metaData.name}
+							label={mapName ? mapName : metaData.name}
 							onClick={toggleInnerSelectors}
 						/>
 						{showErrors && (
@@ -150,7 +159,7 @@ export default forwardRef(function SectionSelector(
 					>
 						<Form.Check
 							type="switch"
-							label={metaData.name}
+							label={mapName ? mapName : metaData.name}
 							onClick={toggleMainSelector}
 						/>
 						{showErrors && (
@@ -201,8 +210,16 @@ export default forwardRef(function SectionSelector(
 
 	function toggleMainSelector(e) {
 		const targetStatus = e.target.checked;
-		const sectionIds = sections.map((section) => section.id);
-		setSelectionStatus(targetStatus ? sectionIds : []);
+		if (platform == "moodle") {
+			const sectionIds = sections.map((section) => section.id);
+			setSelectionStatus(targetStatus ? sectionIds : []);
+		} else {
+			setSelectionStatus(
+				targetStatus
+					? [...new Set(rfNodes.map((node) => node.data.section))] //GET ALL SECTIONS USED
+					: []
+			);
+		}
 	}
 
 	useLayoutEffect(() => {

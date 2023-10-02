@@ -22,21 +22,23 @@ const RoleComponent = ({
 			<Row className="align-items-center">
 				<Col>
 					<div>Tipo: Concesión manual por rol</div>
-					{condition.op === "&" && (
+					{condition.method === "&" && (
 						<div>
 							Esta insignia debe ser otorgada a los usuarios con{" "}
 							<strong>TODOS</strong> los siguientes roles:
 						</div>
 					)}
-					{condition.op === "|" && (
+					{condition.method === "|" && (
 						<div>
 							Esta insignia debe ser otorgada a los usuarios con{" "}
 							<strong>CUALQUIERA</strong> de los siguientes roles:
 						</div>
 					)}
 					<ul>
-						{condition.roleList.map((option) => {
-							const role = roleList.find((role) => role.id === option);
+						{condition.params.map((option) => {
+							const role = roleList.find(
+								(role) => role.id.toString() === option
+							);
 							return <li key={role.id}>{role.name}</li>;
 						})}
 					</ul>

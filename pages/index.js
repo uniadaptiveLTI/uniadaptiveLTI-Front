@@ -12,7 +12,7 @@ import {
 	PlatformContext,
 	MetaDataContext,
 } from "./_app";
-import BlockFlow from "@root/components/BlockFlow";
+import BlockFlow from "/components/BlockFlow";
 import Layout from "../components/Layout";
 import { HeaderToEmptySelectorContext } from "./_app";
 

@@ -10,7 +10,7 @@ import {
 
 const CompletionComponent = ({
 	condition,
-	transformDate,
+	parseDate,
 	setConditionEdit,
 	deleteCondition,
 	swapConditionGroup,
@@ -26,27 +26,28 @@ const CompletionComponent = ({
 			<Row className="align-items-center">
 				<Col>
 					<div>
-						{condition.op === "&" && (
+						{condition.method === "&" && (
 							<a>
 								<strong>TODAS</strong> las{" "}
 							</a>
 						)}
-						{condition.op === "|" && (
+						{condition.method === "|" && (
 							<a>
 								<strong>CUALQUIERA</strong> de las{" "}
 							</a>
 						)}
 						siguientes actividades se han finalizado:
 						<ul>
-							{condition.activityList.map((option) => {
+							{condition.params.map((option) => {
 								const node = nodes.find((node) => node.id === option.id);
 								return (
 									<li key={option.id}>
-										<strong>{node.data.label}</strong>{" "}
+										{node.data.label}{" "}
 										{option.date && (
 											<a>
 												{" "}
-												antes del <strong>{transformDate(option.date)}</strong>
+												<strong>antes</strong> del{" "}
+												<strong>{parseDate(option.date)}</strong>
 											</a>
 										)}
 									</li>

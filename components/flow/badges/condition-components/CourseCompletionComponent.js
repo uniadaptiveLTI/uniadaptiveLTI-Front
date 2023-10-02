@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -6,14 +6,17 @@ import {
 	faShuffle,
 	faTrashAlt,
 } from "@fortawesome/free-solid-svg-icons";
+import { MetaDataContext } from "pages/_app";
 
 const CourseCompletionComponent = ({
 	condition,
 	setConditionEdit,
 	deleteCondition,
-	transformDate,
+	parseDate,
 	swapConditionGroup,
 }) => {
+	const { metaData, setMetaData } = useContext(MetaDataContext);
+
 	return (
 		<Container
 			className="mb-3 mt-3"
@@ -22,34 +25,27 @@ const CourseCompletionComponent = ({
 			<Row className="align-items-center">
 				<Col>
 					<div>
-						{(!condition.op || condition.op === "0" || condition.op === "") &&
-							!condition.dateTo && (
-								<div>
-									Los usuarios deben finalizar el curso{" "}
-									<strong>NOMBRE DEL CURSO</strong>
-								</div>
-							)}
-						{(condition.op || condition.dateTo) && (
+						{
 							<div>
 								Los usuarios deben finalizar el curso{" "}
-								<strong>NOMBRE DEL CURSO</strong>
+								<strong>{metaData.name}</strong>
 								{condition.dateTo && (
 									<a>
 										{" "}
-										antes del <strong>{transformDate(condition.dateTo)}</strong>
-										<br></br>
+										antes del <strong>{parseDate(condition.dateTo)}</strong>
 									</a>
 								)}
-								{condition.op &&
-									condition.op !== "0" &&
-									condition.op !== "" && (
+								{condition.method &&
+									condition.method !== "0" &&
+									condition.method !== "" && (
 										<a>
 											{" "}
-											con calificación mínima de <strong>{condition.op}</strong>
+											con calificación mínima de{" "}
+											<strong>{condition.method}</strong>
 										</a>
 									)}
 							</div>
-						)}
+						}
 					</div>
 				</Col>
 				<Col className="col-md-2 d-flex align-items-center gap-2">

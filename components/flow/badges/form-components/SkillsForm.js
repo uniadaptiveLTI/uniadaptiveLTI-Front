@@ -25,13 +25,13 @@ const SkillsForm = ({
 				<Form.Select
 					id={skId}
 					ref={conditionOperator}
-					defaultValue={conditionEdit?.op}
+					defaultValue={conditionEdit?.method}
 				>
 					<option value="&">
-						Se deben obtener todas las insignias seleccionadas
+						Se deben obtener todas las competencias seleccionadas
 					</option>
 					<option value="|">
-						Se debe obtener alguna de las insignias seleccionadas
+						Se debe obtener alguna de las competencias seleccionadas
 					</option>
 				</Form.Select>
 			</div>
@@ -39,16 +39,24 @@ const SkillsForm = ({
 			<div className="ms-4 me-0">
 				{skillsList.map((option) => {
 					return (
-						<div key={option.id}>
+						<div key={option.id.toString()}>
 							<Form.Check
 								onChange={handleCheckboxChange}
-								value={option.id}
+								value={option.id.toString()}
 								label={option.name}
-								defaultChecked={conditionEdit?.skillsList?.includes(option.id)}
+								defaultChecked={conditionEdit?.params?.includes(
+									option.id.toString()
+								)}
 							/>
 						</div>
 					);
 				})}
+				{skillsList && skillsList.length <= 0 && (
+					<div>
+						No existen competencias creadas para la creación de la condición, es
+						necesario crear al menos una.
+					</div>
+				)}
 			</div>
 		</Form.Group>
 	);

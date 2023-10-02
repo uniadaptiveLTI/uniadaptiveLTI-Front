@@ -1,7 +1,11 @@
 import React from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faShuffle, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
+import {
+	faEdit,
+	faShuffle,
+	faTrashAlt,
+} from "@fortawesome/free-solid-svg-icons";
 
 const SkillsComponent = ({
 	condition,
@@ -18,20 +22,22 @@ const SkillsComponent = ({
 			<Row className="align-items-center">
 				<Col>
 					<div>
-						{condition.op === "&" && (
+						{condition.method === "&" && (
 							<a>
 								<strong>TODAS</strong> las{" "}
 							</a>
 						)}
-						{condition.op === "|" && (
+						{condition.method === "|" && (
 							<a>
 								<strong>CUALQUIERA</strong> de las{" "}
 							</a>
 						)}
 						siguientes competencias tengan que ser completadas:
 						<ul>
-							{condition.skillsList.map((option) => {
-								const skill = skillsList.find((skill) => skill.id === option);
+							{condition.params.map((option) => {
+								const skill = skillsList.find(
+									(skill) => skill.id.toString() === option.toString()
+								);
 								return <li key={skill.id}>{skill.name}</li>;
 							})}
 						</ul>

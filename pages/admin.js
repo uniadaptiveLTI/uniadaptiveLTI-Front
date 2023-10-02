@@ -1,9 +1,9 @@
-import styles from "@root/styles/Admin.module.css";
+import styles from "/styles/Admin.module.css";
 import { Button, Container, Col, Row, Form } from "react-bootstrap";
 import { useId, useRef, useState } from "react";
-import GeneralPane from "@panes/admin/GeneralPane";
-import BrandingPane from "@panes/admin/BrandingPane";
-import APIPane from "@panes/admin/APIPane";
+import GeneralPane from "@components/panes/admin/GeneralPane";
+import BrandingPane from "@components/panes/admin/BrandingPane";
+import APIPane from "@components/panes/admin/APIPane";
 import { toast } from "react-toastify";
 
 import fs from "fs/promises";
@@ -119,7 +119,13 @@ export default function Admin({ LTISettings }) {
 					<Container className={styles.contentContainer}>
 						{auth ? (
 							<Row>
-								<Col className={styles.navegationTabs} md="3" xl="2">
+								<Col
+									className={styles.navegationTabs}
+									xs="12"
+									sm="3"
+									md="3"
+									xl="2"
+								>
 									<img alt="Logo" src={LTISettings.branding.logo_path} />
 									<div className={styles.logoContainer}></div>
 									<div className={styles.buttonContainer}>
@@ -141,7 +147,14 @@ export default function Admin({ LTISettings }) {
 										</Button>
 									</div>
 								</Col>
-								<Col className={styles.paneContainer}>
+								<Col
+									className={styles.paneContainer}
+									xs="12"
+									sm="3"
+									md="5"
+									lg="7"
+									xl="10"
+								>
 									{activeTab == 0 && <GeneralPane LTISettings={LTISettings} />}
 									{activeTab == 1 && (
 										<BrandingPane

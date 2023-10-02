@@ -27,22 +27,10 @@ import {
 	SettingsContext,
 	MetaDataContext,
 	notImplemented,
-} from "@root/pages/_app.js";
+} from "/pages/_app.js";
 import FinalNode from "./flow/nodes/FinalNode.js";
 import InitialNode from "./flow/nodes/InitialNode.js";
 import FragmentNode from "./flow/nodes/FragmentNode.js";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-	faMap,
-	faX,
-	faFlagCheckered,
-	faMagnifyingGlassPlus,
-	faMagnifyingGlassMinus,
-	faArrowsToDot,
-	faLock,
-	faLockOpen,
-} from "@fortawesome/free-solid-svg-icons";
-import { Button } from "react-bootstrap";
 import {
 	uniqueId,
 	getUpdatedArrayById,
@@ -50,6 +38,8 @@ import {
 	getByProperty,
 	deduplicateById,
 	updateBadgeConditions,
+	capitalizeFirstLetter,
+	clampNodesOrder,
 } from "@utils/Utils";
 import {
 	getNodeByNodeDOM,
@@ -58,23 +48,31 @@ import {
 	getNodeById,
 	getChildrenNodesFromFragmentID,
 	getParentsNode,
+	nodeArrayContainsGrades,
 } from "@utils/Nodes";
 import { errorListCheck } from "@utils/ErrorHandling";
 import { toast } from "react-toastify";
+import { getAutomaticReusableStyles } from "@utils/Colors";
 import { useHotkeys } from "react-hotkeys-hook";
-import ContextualMenu from "@flow/ContextualMenu.js";
-import ConditionModal from "@conditions/ConditionModal.js";
-import QualificationModal from "@conditions/QualificationModal.js";
+import ContextualMenu from "@components/flow/ContextualMenu.js";
+import ConditionModalMoodle from "@components/flow/conditions/moodle/ConditionModalMoodle.js";
+import RequisiteModalSakai from "@components/flow/conditions/sakai/RequisiteModalSakai";
+import QualificationModal from "@components/flow/conditions/moodle/QualificationModal.js";
+import { useKeyPress } from "reactflow";
 import { getTypeStaticColor } from "@utils/NodeIcons.js";
-import NodeSelector from "@dialogs/NodeSelector.js";
-import CriteriaModal from "@flow/badges/CriteriaModal.js";
-import AnimatedEdge from "@edges/AnimatedEdge.js";
-import ConditionalEdge from "@edges/ConditionalEdge";
+import NodeSelector from "@components/dialogs/NodeSelector.js";
+import CriteriaModal from "@components/flow/badges/CriteriaModal.js";
+import ConditionalEdge from "@components/flow/edges/ConditionalEdge";
 import { NodeTypes } from "@utils/TypeDefinitions.js";
 import { isSupportedTypeInPlatform } from "@utils/Platform.js";
+import CustomControls from "./flow/CustomControls.js";
+import SimpleActionDialog from "./dialogs/SimpleActionDialog.js";
+
 const minimapStyle = {
 	height: 120,
 };
+
+const deleteKeyCodes = ["Backspace", "Delete"];
 
 const nodeTypes = {
 	addgroup: ActionNode,
@@ -127,9 +125,9 @@ const OverviewFlow = ({ map }, ref) => {
 	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
 	const { setNodeSelected } = useContext(NodeInfoContext);
 	const { settings } = useContext(SettingsContext);
+	const parsedSettings = JSON.parse(settings);
 	const { metaData } = useContext(MetaDataContext);
 	const [clipboard, setClipboard] = useState(localStorage.getItem("clipboard"));
-	const parsedSettings = JSON.parse(settings);
 	const { autoHideAside, snapping, snappingInFragment, reducedAnimations } =
 		parsedSettings;
 
@@ -145,7 +143,6 @@ const OverviewFlow = ({ map }, ref) => {
 	const [minimap, setMinimap] = useState(true);
 	const [interactive, setInteractive] = useState(true);
 	const [snapToGrid, setSnapToGrid] = useState(true);
-	const [deletedEdge, setDeletedEdge] = useState([]);
 	const [fragmentPassthrough, setFragmentPassthrough] = useState(false);
 	const dragRef = useRef(null);
 	const [target, setTarget] = useState(null);
@@ -155,6 +152,7 @@ const OverviewFlow = ({ map }, ref) => {
 
 	//ContextMenu Ref, States, Constants
 	const contextMenuDOM = useRef(null);
+	const confirmDeletionModalCallbackRef = useRef(null);
 	const [showContextualMenu, setShowContextualMenu] = useState(false);
 	const [cMX, setCMX] = useState(0);
 	const [cMY, setCMY] = useState(0);
@@ -166,9 +164,17 @@ const OverviewFlow = ({ map }, ref) => {
 		x: 0,
 		y: 0,
 	});
+
+	const [showConfirmDeletionModal, setShowConfirmDeletionModal] =
+		useState(false);
+
+	const [showConditionsModal, setShowConditionsModal] = useState(false);
 	const [showGradeConditionsModal, setShowGradeConditionsModal] =
 		useState(false);
 
+	const [showRequisitesModal, setShowRequisitesModal] = useState(false);
+
+	const deletePressed = useKeyPress(deleteKeyCodes);
 	useEffect(() => {
 		addEventListeners(document.body, [
 			{
@@ -206,8 +212,6 @@ const OverviewFlow = ({ map }, ref) => {
 		]);
 	}, []);
 
-	//Conditions Modal
-	const [showConditionsModal, setShowConditionsModal] = useState(false);
 	//NodeSelector
 	const [showNodeSelector, setShowNodeSelector] = useState(false);
 	const [nodeSelectorType, setNodeSelectorType] = useState(false);
@@ -221,88 +225,20 @@ const OverviewFlow = ({ map }, ref) => {
 
 	const { platform } = useContext(PlatformContext);
 
-	const CustomControls = () => {
-		const toggleInteractive = () => setInteractive(!interactive);
-		const toggleMinimap = () => setMinimap(!minimap);
-		const centerToStart = () => {
-			const startNode = reactFlowInstance
-				.getNodes()
-				.find((el) => el.type === "start");
-			if (startNode) {
-				const x = startNode.position.x + startNode.width / 2;
-				const y = startNode.position.y + startNode.height / 2;
-				reactFlowInstance.setCenter(
-					startNode.position.x + startNode.width / 2,
-					startNode.position.y + startNode.height / 2,
-					fitViewOptions
-				);
-			}
-		};
-		const fitMap = () => {
-			reactFlowInstance.fitView(fitViewOptions);
-		};
-		const zoomIn = () => {
-			reactFlowInstance.zoomIn();
-		};
-		const zoomOut = () => {
-			reactFlowInstance.zoomOut();
-			console.log(reactFlowInstance);
-		};
-
-		return (
-			<div className="react-flow__controls">
-				<Button title="Zoom in" onClick={zoomIn} variant="light">
-					<FontAwesomeIcon icon={faMagnifyingGlassPlus} />
-				</Button>
-				<Button title="Zoom out" onClick={zoomOut} variant="light">
-					<FontAwesomeIcon icon={faMagnifyingGlassMinus} />
-				</Button>
-				<Button title="Fit map" onClick={fitMap} variant="light">
-					<FontAwesomeIcon icon={faArrowsToDot} />
-				</Button>
-				<Button title="Move to start" onClick={centerToStart} variant="light">
-					<FontAwesomeIcon icon={faFlagCheckered} />
-				</Button>
-				<Button
-					title="Lock/unlock pan"
-					onClick={toggleInteractive}
-					variant="light"
-				>
-					<FontAwesomeIcon icon={interactive ? faLockOpen : faLock} />
-				</Button>
-				<Button title="Toggle Minimap" onClick={toggleMinimap} variant="light">
-					{!minimap && <FontAwesomeIcon icon={faMap} />}
-					{minimap && (
-						<div
-							style={{
-								position: "relative",
-								padding: "none",
-								display: "flex",
-								justifyContent: "center",
-								alignItems: "center",
-								width: "18px",
-								height: "24px",
-							}}
-						>
-							<FontAwesomeIcon
-								icon={faX}
-								style={{ position: "absolute", top: "4px" }}
-								color="white"
-							/>
-							<FontAwesomeIcon icon={faMap} />
-						</div>
-					)}
-				</Button>
-			</div>
-		);
-	};
-
 	/**
 	 * Logs the ReactFlow instance when it is loaded.
 	 * @param {ReactFlowInstance} reactFlowInstance - The ReactFlow instance.
 	 */
 	const onInit = (reactFlowInstance) => {
 		console.log("Blockflow loaded:", reactFlowInstance);
+	};
+
+	const getSelectedEdges = (edgeArray = reactFlowInstance.getEdges()) => {
+		return edgeArray.filter((edge) => edge.selected == true);
+	};
+
+	const getSelectedNodes = (nodeArray = reactFlowInstance.getNodes()) => {
+		return nodeArray.filter((node) => node.selected == true);
 	};
 
 	/**
@@ -463,124 +399,175 @@ const OverviewFlow = ({ map }, ref) => {
 				.getEdges()
 				.find((node) => node.id === sourceNodeId + "-" + targetNodeId);
 
-			if (!edgeFound) {
-				const sourceNode = reactFlowInstance
-					.getNodes()
-					.find((nodes) => nodes.id == sourceNodeId);
+			const sourceNode = reactFlowInstance
+				.getNodes()
+				.find((nodes) => nodes.id == sourceNodeId);
 
-				const targetNode = reactFlowInstance
-					.getNodes()
-					.find((nodes) => nodes.id == targetNodeId);
+			const targetNode = reactFlowInstance
+				.getNodes()
+				.find((nodes) => nodes.id == targetNodeId);
 
-				if (sourceNode) {
-					if (Array.isArray(sourceNode.data.children)) {
-						sourceNode.data.children.push(targetNodeId);
-					} else {
-						sourceNode.data.children = [targetNodeId];
-					}
+			if (sourceNode) {
+				if (Array.isArray(sourceNode.data.children)) {
+					sourceNode.data.children.push(targetNodeId);
+				} else {
+					sourceNode.data.children = [targetNodeId];
 				}
+			}
 
-				if (
-					targetNode &&
-					sourceNode.type != "start" &&
-					sourceNode.type != "end"
-				) {
-					if (!validTypes.includes(targetNode.type)) {
-						const newCondition = {
-							id: parseInt(Date.now() * Math.random()).toString(),
-							type: "completion",
-							cm: sourceNode.id,
-							showc: true,
-							e: 1,
-						};
-
-						if (!targetNode.data.c) {
-							targetNode.data.c = {
-								type: "conditionsGroup",
-								id: parseInt(Date.now() * Math.random()).toString(),
-								op: "&",
-								showc: true,
-								c: [newCondition],
-							};
-						} else {
-							targetNode.data.c.c.push(newCondition);
-						}
-					} else {
-						if (!targetNode.data.c) {
-							targetNode.data.c = {
-								type: "conditionsGroup",
-								id: parseInt(Date.now() * Math.random()).toString(),
-								op: "&",
-								showc: true,
-							};
-						}
-
-						console.log(targetNode.data);
-
-						const conditions = targetNode.data.c?.c;
-
-						if (conditions) {
-							const conditionExists = conditions.find(
-								(condition) => condition.type === "completion"
-							);
-
-							if (conditionExists) {
-								const newConditionAppend = {
-									id: sourceNode.id,
-								};
-								conditionExists.activityList.push(newConditionAppend);
-							} else {
+			if (
+				targetNode &&
+				sourceNode.type != "start" &&
+				sourceNode.type != "end"
+			) {
+				if (!edgeFound) {
+					switch (platform) {
+						case "moodle":
+							if (!validTypes.includes(targetNode.type)) {
 								const newCondition = {
 									id: parseInt(Date.now() * Math.random()).toString(),
 									type: "completion",
-									activityList: [
-										{
-											id: sourceNode.id,
-										},
-									],
-									op: "&",
-									query: "completed",
+									cm: sourceNode.id,
+									showc: true,
+									e: 1,
 								};
 
-								targetNode.data.c.c.push(newCondition);
-							}
-						} else {
-							const newCondition = {
-								id: parseInt(Date.now() * Math.random()).toString(),
-								type: "completion",
-								activityList: [
-									{
-										id: sourceNode.id,
-									},
-								],
-								op: "&",
-								query: "completed",
-							};
+								if (!targetNode.data.c) {
+									targetNode.data.c = {
+										type: "conditionsGroup",
+										id: parseInt(Date.now() * Math.random()).toString(),
+										op: "&",
+										showc: true,
+										c: [newCondition],
+									};
+								} else {
+									targetNode.data.c.c.push(newCondition);
+								}
+							} else {
+								if (!targetNode.data.c) {
+									targetNode.data.c = {
+										type: "conditionsGroup",
+										id: parseInt(Date.now() * Math.random()).toString(),
+										method: "&",
+										showc: true,
+										criteriatype: 0,
+									};
+								}
 
-							targetNode.data.c.c = [newCondition];
-						}
+								const conditions = targetNode.data.c?.params;
+
+								if (conditions) {
+									const conditionExists = conditions.find(
+										(condition) => condition.type === "completion"
+									);
+
+									if (conditionExists) {
+										const newConditionAppend = {
+											id: sourceNode.id,
+										};
+
+										conditionExists.params.push(newConditionAppend);
+									} else {
+										const newCondition = {
+											id: parseInt(Date.now() * Math.random()).toString(),
+											type: "completion",
+											params: [
+												{
+													id: sourceNode.id,
+												},
+											],
+											method: "&",
+											criteriatype: 1,
+										};
+
+										targetNode.data.c.params.push(newCondition);
+									}
+								} else {
+									const newCondition = {
+										id: parseInt(Date.now() * Math.random()).toString(),
+										type: "completion",
+										criteriatype: 1,
+										params: [
+											{
+												id: sourceNode.id,
+											},
+										],
+										method: "&",
+									};
+
+									targetNode.data.c.params = [newCondition];
+								}
+							}
+
+							if (targetNode.type === "badge") {
+								if (
+									sourceNode.data.g &&
+									!sourceNode.data.g.completionTracking
+								) {
+									sourceNode.data.g.completionTracking = 1;
+								}
+							}
+
+							break;
+						case "sakai":
+							if (!targetNode.data.gradeRequisites) {
+								targetNode.data.gradeRequisites = {
+									type: "ROOT",
+									id: parseInt(Date.now() * Math.random()).toString(),
+									operator: "AND",
+									subConditions: [
+										{
+											id: parseInt(Date.now() * Math.random()).toString(),
+											type: "PARENT",
+											operator: "AND",
+											subConditions: [],
+										},
+										{
+											id: parseInt(Date.now() * Math.random()).toString(),
+											type: "PARENT",
+											operator: "OR",
+											subConditions: [],
+										},
+									],
+								};
+							}
+
+							const gradeRequisites = targetNode.data.gradeRequisites;
+
+							const subRootAnd = gradeRequisites.subConditions.find(
+								(set) => set.type === "PARENT" && set.operator === "AND"
+							);
+
+							console.log(targetNode);
+
+							subRootAnd.subConditions.push({
+								id: parseInt(Date.now() * Math.random()).toString(),
+								type: "SCORE",
+								itemId: sourceNodeId,
+								argument: 5,
+								operator: "GREATER_THAN",
+							});
+							break;
 					}
 				}
-
-				//FIXME: Check if line already drawn
-				setEdges([
-					...edges,
-					{
-						id: sourceNodeId + "-" + targetNodeId,
-						source: sourceNodeId,
-						target: targetNodeId,
-					},
-				]);
-
-				console.log(sourceNode);
-
-				setNodes(
-					getUpdatedArrayById(
-						[sourceNode, targetNode],
-						reactFlowInstance.getNodes()
-					)
-				);
 			}
+
+			//FIXME: Check if line already drawn
+			setEdges([
+				...edges,
+				{
+					id: sourceNodeId + "-" + targetNodeId,
+					source: sourceNodeId,
+					target: targetNodeId,
+				},
+			]);
+
+			setNodes(
+				getUpdatedArrayById(
+					[sourceNode, targetNode],
+					reactFlowInstance.getNodes()
+				)
+			);
 		}
 	};
 
@@ -589,12 +576,297 @@ const OverviewFlow = ({ map }, ref) => {
 		setEdges(newInitialEdges);
 	}, [newInitialNodes, newInitialEdges]);
 
+	//-- DELETION LOGIC --
+	useEffect(() => {
+		if (deletePressed) {
+			const selectedNodes = getSelectedNodes();
+			const selectedEdges = getSelectedEdges();
+			deleteElements(selectedNodes, selectedEdges);
+		}
+	}, [deletePressed]);
+
+	/**
+	 * Handles the deletion of edges.
+	 * @param {Edge[]} edges - The edges being deleted.
+	 */
+	const onEdgesDelete = (edges) => {
+		// Get a copy of the current nodes
+		let updatedBlocksArray = reactFlowInstance.getNodes().slice();
+
+		// Loop through each edge to be deleted
+		edges.map((edge) => {
+			// Find the source and target nodes for the current edge
+			var blockNodeSource = updatedBlocksArray.find(
+				(obj) => obj.id === edge.source
+			);
+			var blockNodeTarget = updatedBlocksArray.find(
+				(obj) => obj.id === edge.target
+			);
+
+			// If the source node exists and has children, update its children by removing the target node
+			if (blockNodeSource && blockNodeSource.data.children) {
+				blockNodeSource.data.children = blockNodeSource.data.children.filter(
+					(childId) => !childId.includes(blockNodeTarget.id)
+				);
+			}
+
+			// If the target node exists and has a condition, update it based on its type
+			if (blockNodeTarget) {
+				switch (platform) {
+					case "moodle":
+						if (blockNodeTarget.data.c) {
+							if (!validTypes.includes(blockNodeTarget.type)) {
+								deleteConditionById(
+									blockNodeTarget.data.c.c,
+									blockNodeSource.id
+								);
+							} else {
+								updateBadgeConditions(blockNodeTarget, blockNodeSource);
+							}
+						}
+						break;
+
+					case "sakai":
+						const gradeRequisites = blockNodeTarget.data?.gradeRequisites;
+
+						if (gradeRequisites && gradeRequisites?.subConditions.length >= 1) {
+							filterConditionsByParentId(
+								gradeRequisites.subConditions,
+								blockNodeSource.id
+							);
+						}
+				}
+			}
+
+			// Find the node to be deleted in the updated blocks array
+			const blockNodeDelete = updatedBlocksArray.find(
+				(obj) => obj.id === edge.source
+			);
+
+			console.log(blockNodeDelete);
+
+			// If the node to be deleted exists and has children, update its children and conditions
+			if (blockNodeDelete && blockNodeDelete.children) {
+				blockNodeDelete.children = blockNodeDelete.children.filter(
+					(child) => child !== edge.target
+				);
+
+				if (blockNodeDelete.children.length === 0) {
+					blockNodeDelete.children = undefined;
+				}
+			}
+		});
+
+		// Update the nodes and edges in the reactFlowInstance
+		reactFlowInstance.setNodes(updatedBlocksArray);
+		reactFlowInstance.setEdges(
+			reactFlowInstance
+				.getEdges()
+				.filter((edge) => !edges.map((e) => e.id).includes(edge.id))
+		);
+	};
+
+	function filterConditionsByParentId(subConditions, blockNodeId) {
+		subConditions.forEach((subCondition) => {
+			subCondition.subConditions = subCondition.subConditions?.filter(
+				(condition) => {
+					return !(condition.itemId === blockNodeId);
+				}
+			);
+		});
+	}
+
+	/**
+	 * Deletes blocks and updates their parents and children.
+	 * @param {Node[]} blocks - The blocks to delete.
+	 * @returns {Node[]} - The array with the blocks removed.
+	 */
+	const deleteBlocks = (blocks) => {
+		// Array of blocks that its children or conditions are being updated
+		var updatedBlocks = [];
+
+		//For each fragment in the selection, adds its children.
+		blocks.forEach((block) => {
+			if (block.type == "fragment") {
+				const innerNodes = block.data.innerNodes;
+				innerNodes.forEach((node) => {
+					const rfNode = reactFlowInstance
+						.getNodes()
+						.find((onode) => onode.id == node.id);
+					if (rfNode) {
+						blocks.push(rfNode);
+					}
+				});
+			}
+		});
+
+		// Iteration of the blocks to delete
+		blocks.map((block) => {
+			// Get method to retreive the parents nodes from a block
+			const parentsNode = getParentsNode(
+				reactFlowInstance.getNodes(),
+				block.id
+			);
+
+			// Iteration of the parents nodes
+			parentsNode.map((parentNode) => {
+				// Condition to check if one of the parents it isn't being deleted
+				if (!blocks.some((block) => block.id === parentNode.id)) {
+					// Find method to check if the parent is already edited
+					const foundParentNode = updatedBlocks.find(
+						(block) => block.id === parentNode.id
+					);
+
+					// Condition to check if the parent is already edited
+					if (foundParentNode) {
+						// Constant that updates the existing parent
+						const updatedNode = {
+							...foundParentNode,
+							data: {
+								...foundParentNode.data,
+								children: foundParentNode.data.children.filter(
+									(childId) => !childId.includes(block.id)
+								),
+							},
+						};
+
+						// Map method to update the array of the blocks updated
+						const updatedBlocksArray = updatedBlocks.map((block) =>
+							block.id === parentNode.id ? updatedNode : block
+						);
+
+						updatedBlocks = updatedBlocksArray;
+					} else {
+						// Filter method to update the children
+						parentNode.data.children = parentNode.data.children.filter(
+							(childId) => !childId.includes(block.id)
+						);
+
+						// Push method to store the updated node
+						updatedBlocks.push(parentNode);
+					}
+				}
+			});
+
+			var nodeArray = reactFlowInstance.getNodes();
+
+			// Filter method to retrieve only the nodes that are the children of a block
+			if (block.data.children) {
+				const childrenNodes = nodeArray.filter((node) =>
+					block.data.children.includes(node.id.toString())
+				);
+
+				// Iteration of the children nodes
+				childrenNodes.map((childrenNode) => {
+					// Find method to check if the children is already edited
+					const foundChildrenNode = updatedBlocks.find(
+						(block) => block.id === childrenNode.id
+					);
+
+					// Condition to check if the children is already edited
+					if (foundChildrenNode) {
+						switch (platform) {
+							case "moodle":
+								if (!validTypes.includes(foundChildrenNode.type)) {
+									// Delete method that updates the conditions of the children node edited
+									deleteConditionById(foundChildrenNode.data?.c?.c, block.id);
+								} else {
+									updateBadgeConditions(foundChildrenNode, block);
+								}
+							case "sakai":
+								filterConditionsByParentId(
+									foundChildrenNode.data.gradeRequisites.subConditions,
+									block.id
+								);
+						}
+					} else {
+						switch (platform) {
+							case "moodle":
+								if (!validTypes.includes(childrenNode.type)) {
+									// Delete method that updates the conditions of the children node
+									deleteConditionById(childrenNode.data?.c?.c, block.id);
+								} else {
+									updateBadgeConditions(childrenNode, block);
+								}
+								break;
+							case "sakai":
+								filterConditionsByParentId(
+									childrenNode.data.gradeRequisites.subConditions,
+									block.id
+								);
+								break;
+						}
+
+						// Push method to store the updated node
+						updatedBlocks.push(childrenNode);
+					}
+				});
+			}
+		});
+
+		// Update method to update the full array of nodes with the updated nodes
+		let updatedNodeArray = getUpdatedArrayById(
+			updatedBlocks,
+			reactFlowInstance.getNodes()
+		);
+
+		// Iteration to delete the nodes from the full array of nodes
+		blocks.map((block) => {
+			updatedNodeArray = updatedNodeArray.filter(
+				(node) => node.id !== block.id
+			);
+		});
+
+		//Clamp nodes order to avoid gaps
+		const finalNodeArray = getUpdatedArrayById(
+			clampNodesOrder(updatedNodeArray, platform),
+			updatedNodeArray
+		);
+
+		// Set method to update the full array of nodes
+		reactFlowInstance.setNodes(finalNodeArray);
+
+		// Check method for errors
+		errorListCheck(blocks, errorList, setErrorList, true);
+
+		//Reordering
+		const finalReorderedNodeArray = getUpdatedArrayById(
+			clampNodesOrder(finalNodeArray, platform),
+			finalNodeArray
+		);
+
+		return finalReorderedNodeArray;
+	};
+
+	const deleteElements = (nodes, edges, force = false) => {
+		let continueDeletion = true;
+		if (force == false) {
+			if (
+				nodes.filter((node) => metaData.grades.includes(node.data.lmsResource))
+					.length > 0
+			) {
+				continueDeletion = false;
+				confirmDeletionModalCallbackRef.current = () =>
+					deleteElements(nodes, edges, true);
+				setShowConfirmDeletionModal(true);
+			}
+		}
+
+		if (continueDeletion) {
+			if (edges.length > 0) {
+				onEdgesDelete(edges);
+			}
+			if (nodes.length > 0) {
+				deleteBlocks(nodes);
+			}
+		}
+	};
+
 	/**
 	 * Handles the deletion of nodes.
 	 * @param {Node[]} nodes - The nodes being deleted.
 	 */
 	const onNodesDelete = (nodes) => {
-		console.log(nodes);
 		setNodeSelected();
 		deleteBlocks(nodes);
 	};
@@ -629,72 +901,6 @@ const OverviewFlow = ({ map }, ref) => {
 			return false;
 		}
 	}
-
-	/**
-	 * Handles the deletion of edges.
-	 * @param {Edge[]} edges - The edges being deleted.
-	 */
-	const onEdgesDelete = (edges) => {
-		for (let i = 0; i < edges.length; i++) {
-			var blockNodeSource = reactFlowInstance
-				?.getNodes()
-				.find((obj) => obj.id === edges[i].source);
-
-			var blockNodeTarget = reactFlowInstance
-				?.getNodes()
-				.find((obj) => obj.id === edges[i].target);
-
-			const updatedBlockNodeSource = { ...blockNodeSource };
-			updatedBlockNodeSource.data.children =
-				updatedBlockNodeSource.data.children.filter(
-					(childId) => !childId.includes(blockNodeTarget.id)
-				);
-
-			blockNodeSource = updatedBlockNodeSource;
-
-			if (blockNodeTarget.data.c) {
-				if (!validTypes.includes(blockNodeTarget.type)) {
-					deleteConditionById(blockNodeTarget.data.c.c, blockNodeSource.id);
-				} else {
-					updateBadgeConditions(blockNodeTarget, blockNodeSource);
-				}
-			}
-
-			setDeletedEdge(edges[i]);
-		}
-	};
-
-	useEffect(() => {
-		if (deletedEdge.id) {
-			let updatedBlocksArray = reactFlowInstance.getNodes().slice();
-
-			const blockNodeDelete = updatedBlocksArray.find(
-				(obj) => obj.id === deletedEdge.source
-			);
-
-			if (blockNodeDelete) {
-				if (blockNodeDelete.children) {
-					blockNodeDelete.children = blockNodeDelete.children.filter(
-						(child) => child !== deletedEdge.target
-					);
-
-					if (blockNodeDelete.children.length === 0)
-						blockNodeDelete.children = undefined;
-
-					if (blockNodeDelete.c) {
-						blockNodeDelete.c = blockNodeDelete.c.filter(
-							(condition) => condition.unlockId !== deletedEdge.target
-						);
-						if (blockNodeDelete.c.length === 0) blockNodeDelete.c = undefined;
-					}
-					updatedBlocksArray = updatedBlocksArray.map((obj) =>
-						obj.id === blockNodeDelete.id ? blockNodeDelete : obj
-					);
-				}
-			}
-			reactFlowInstance.setNodes(updatedBlocksArray);
-		}
-	}, [deletedEdge]);
 
 	/**
 	 * Handles the loading of the map.
@@ -817,9 +1023,7 @@ const OverviewFlow = ({ map }, ref) => {
 			}
 			setContextMenuOrigin("block");
 		} else {
-			const selectedNodes = currentNodes.filter(
-				(node) => node.selected == true
-			);
+			const selectedNodes = getSelectedNodes(currentNodes);
 			setContextMenuOrigin("nodesselection");
 			setCMBlockData(selectedNodes);
 			setCMContainsReservedNodes(thereIsReservedNodesInArray(selectedNodes));
@@ -835,7 +1039,6 @@ const OverviewFlow = ({ map }, ref) => {
 	const onPaneContextMenu = (e) => {
 		setShowContextualMenu(false);
 		setCMContainsReservedNodes(false);
-		console.log(reactFlowInstance);
 		const bounds = reactFlowWrapper.current?.getBoundingClientRect();
 		e.preventDefault();
 		setCMX(e.clientX - bounds.left);
@@ -843,6 +1046,7 @@ const OverviewFlow = ({ map }, ref) => {
 		setCMBlockData(undefined);
 		setContextMenuOrigin("pane");
 		setShowContextualMenu(true);
+		console.log(reactFlowInstance);
 	};
 
 	/**
@@ -854,9 +1058,7 @@ const OverviewFlow = ({ map }, ref) => {
 		setCMContainsReservedNodes(false);
 		const bounds = reactFlowWrapper.current?.getBoundingClientRect();
 		e.preventDefault();
-		const selectedNodes = reactFlowInstance
-			.getNodes()
-			.filter((node) => node.selected == true);
+		const selectedNodes = getSelectedNodes();
 		setCMX(e.clientX - bounds.left);
 		setCMY(e.clientY - bounds.top);
 		setContextMenuOrigin("nodesselection");
@@ -865,137 +1067,6 @@ const OverviewFlow = ({ map }, ref) => {
 		setCMBlockData(selectedNodes);
 		setCMContainsReservedNodes(thereIsReservedNodesInArray(selectedNodes));
 		setShowContextualMenu(true);
-	};
-
-	/**
-	 * Deletes blocks and updates their parents and children.
-	 * @param {Node[]} blocks - The blocks to delete.
-	 * @returns {Node[]} - Node array without the blocks.
-	 */
-	const deleteBlocks = (blocks) => {
-		// Array of blocks that its children or conditions are being updated
-		let updatedBlocks = [];
-
-		//For each fragment in the selection, adds its children.
-		blocks.forEach((block) => {
-			if (block.type == "fragment") {
-				const innerNodes = block.data.innerNodes;
-				innerNodes.forEach((node) => {
-					const rfNode = reactFlowInstance
-						.getNodes()
-						.find((onode) => onode.id == node.id);
-					if (rfNode) {
-						blocks.push(rfNode);
-					}
-				});
-			}
-		});
-
-		// Iteration of the blocks to delete
-		for (let i = 0; i < blocks.length; i++) {
-			// Get method to retreive the parents nodes from a block
-			const parentsNode = getParentsNode(
-				reactFlowInstance.getNodes(),
-				blocks[i].id
-			);
-
-			// Iteration of the parents nodes
-			for (let j = 0; j < parentsNode.length; j++) {
-				// Condition to check if one of the parents it isn't being deleted
-				if (!blocks.some((block) => block.id === parentsNode[j].id)) {
-					// Find method to check if the parent is already edited
-					const foundParentNode = updatedBlocks.find(
-						(block) => block.id === parentsNode[j].id
-					);
-
-					// Condition to check if the parent is already edited
-					if (foundParentNode) {
-						// Constant that updates the existing parent
-						const updatedNode = {
-							...foundParentNode,
-							data: {
-								...foundParentNode.data,
-								children: foundParentNode.data.children.filter(
-									(childId) => !childId.includes(blocks[i].id)
-								),
-							},
-						};
-
-						// Map method to update the array of the blocks updated
-						const updatedBlocksArray = updatedBlocks.map((block) =>
-							block.id === parentsNode[j].id ? updatedNode : block
-						);
-
-						updatedBlocks = updatedBlocksArray;
-					} else {
-						// Filter method to update the children
-						parentsNode[j].data.children = parentsNode[j].data.children.filter(
-							(childId) => !childId.includes(blocks[i].id)
-						);
-
-						// Push method to store the updated node
-						updatedBlocks.push(parentsNode[j]);
-					}
-				}
-			}
-
-			var nodeArray = reactFlowInstance.getNodes();
-
-			// Filter method to retrieve only the nodes that are the children of a block
-			if (blocks[i].data.children) {
-				const childrenNodes = nodeArray.filter((node) =>
-					blocks[i].data.children.includes(node.id.toString())
-				);
-
-				// Iteration of the children nodes
-				for (var k = 0; k < childrenNodes.length; k++) {
-					// Find method to check if the children is already edited
-					const foundChildrenNode = updatedBlocks.find(
-						(block) => block.id === childrenNodes[k].id
-					);
-
-					// Condition to check if the children is already edited
-					if (foundChildrenNode) {
-						if (!validTypes.includes(foundChildrenNode.type)) {
-							// Delete method that updates the conditions of the children node edited
-							deleteConditionById(foundChildrenNode.data?.c?.c, blocks[i].id);
-						} else {
-							updateBadgeConditions(foundChildrenNode, blocks[i]);
-						}
-					} else {
-						if (!validTypes.includes(childrenNodes[k].type)) {
-							// Delete method that updates the conditions of the children node
-							deleteConditionById(childrenNodes[k].data?.c?.c, blocks[i].id);
-						} else {
-							updateBadgeConditions(childrenNodes[k], blocks[i]);
-						}
-
-						// Push method to store the updated node
-						updatedBlocks.push(childrenNodes[k]);
-					}
-				}
-			}
-		}
-
-		// Update method to update the full array of nodes with the updated nodes
-		let updatedNodeArray = getUpdatedArrayById(
-			updatedBlocks,
-			reactFlowInstance.getNodes()
-		);
-
-		// Iteration to delete the nodes from the full array of nodes
-		for (let i = 0; i < blocks.length; i++) {
-			updatedNodeArray = updatedNodeArray.filter(
-				(node) => node.id !== blocks[i].id
-			);
-		}
-
-		// Set method to update the full array of nodes
-		reactFlowInstance.setNodes(updatedNodeArray);
-
-		// Check method for errors
-		errorListCheck(blocks, errorList, setErrorList, true);
-		return updatedNodeArray;
 	};
 
 	/**
@@ -1028,7 +1099,6 @@ const OverviewFlow = ({ map }, ref) => {
 	 */
 	const filterRelatedConditionsById = (unlockId, arr) => {
 		return arr.map((b) => {
-			console.log(b);
 			if (b.data?.c?.length) {
 				const updatedConditions = b.data.c.filter(
 					(condition) => condition.unlockId !== unlockId
@@ -1097,9 +1167,7 @@ const OverviewFlow = ({ map }, ref) => {
 	const handleNodeCopy = (blockData = []) => {
 		setShowContextualMenu(false);
 
-		const selectedNodes = reactFlowInstance
-			.getNodes()
-			.filter((node) => node.selected == true);
+		const selectedNodes = getSelectedNodes();
 
 		const blockDataSet = [];
 		if (blockData.length == 1) {
@@ -1161,29 +1229,26 @@ const OverviewFlow = ({ map }, ref) => {
 	 */
 	const handleNodePaste = () => {
 		const clipboardData = JSON.parse(localStorage.getItem("clipboard"));
-		console.log(clipboardData);
 		if (clipboardData && clipboardData.data && clipboardData.data.length > 0) {
 			const copiedBlocks = clipboardData.data;
 			const newBlocksToPaste = [...copiedBlocks];
 
 			const originalIDs = newBlocksToPaste.map((block) => block.id);
-			const newIDs = newBlocksToPaste.map((block) => uniqueId());
-			const fragmentIDChanges = [];
+			const newIDs = newBlocksToPaste.map(() => uniqueId());
 			const originalX = newBlocksToPaste.map((block) => block.position.x);
 			const originalY = newBlocksToPaste.map((block) => block.position.y);
 			const firstOneInX = Math.min(...originalX);
 			const firstOneInY = Math.min(...originalY);
 			const newX = originalX.map((x) => -firstOneInX + x);
 			const newY = originalY.map((y) => -firstOneInY + y);
-			//FIXME: COPIADO DE FRAGMENTOS
-			console.log(originalIDs);
-			console.log(newIDs);
+			//FIXME: FRAGMENT PASTING REMOVES CONDITIONS BETWEEN CHILDREN
+			// console.log(originalIDs);
+			// console.log(newIDs);
 			const shouldEmptyResource = !(
 				metaData.instance_id == clipboardData.instance_id &&
 				metaData.course_id == clipboardData.course_id &&
 				metaData.platform == clipboardData.platform
 			);
-			console.log(shouldEmptyResource);
 			const newBlocks = newBlocksToPaste.map((block, index) => {
 				let newID;
 				let originalID;
@@ -1196,9 +1261,13 @@ const OverviewFlow = ({ map }, ref) => {
 					})
 					.filter((child) => child !== undefined);
 
-				console.log(newID);
-				console.log(originalID);
-
+				//(Fragment) Adds the new parent to the children
+				if (block.parentNode) {
+					const parentIndex = originalIDs.findIndex(
+						(id) => id == block.parentNode
+					);
+					block.parentNode = newIDs[parentIndex];
+				}
 				return {
 					...block,
 					id: newIDs[index],
@@ -1214,10 +1283,31 @@ const OverviewFlow = ({ map }, ref) => {
 					},
 				};
 			});
+			if (copiedBlocks.length <= 1) {
+				createBlock(newBlocks[0], newBlocks[0].x, newBlocks[0].y);
+			} else {
+				const addToInnerNodes = (blocks) => {
+					//Updates innerNodes with the new IDs
+					const innerNodes = blocks.filter((block) => block.parentNode);
 
-			copiedBlocks.length <= 1
-				? createBlock(newBlocks[0], newBlocks[0].x, newBlocks[0].y)
-				: createBlockBulk(newBlocks);
+					innerNodes.map((innerNode) => {
+						const currentIDIndex = newIDs.findIndex((id) => id == innerNode.id);
+						const oldID = originalIDs[currentIDIndex];
+						const currentParent = blocks.find(
+							(block) => block.id == innerNode.parentNode
+						);
+						const storedIdIndex = currentParent.data.innerNodes.findIndex(
+							(innerNode) => innerNode.id == oldID
+						);
+						currentParent.data.innerNodes[storedIdIndex].id = innerNode.id;
+					});
+
+					const outerNodes = blocks.filter((block) => !block.parentNode);
+
+					return [...outerNodes, ...innerNodes]; //This order is needed for it to render correctly
+				};
+				createBlockBulk(addToInnerNodes(newBlocks));
+			}
 		}
 	};
 
@@ -1388,21 +1478,27 @@ const OverviewFlow = ({ map }, ref) => {
 				...blockData,
 				x: blockData.x + asideOffset + flowPos.x,
 				y: blockData.y + asideOffset + flowPos.y,
+				data: { ...blockData.data, order: Infinity },
 			};
 		});
 		setShowContextualMenu(false);
 
 		let newcurrentBlocksData = [...reactFlowInstance.getNodes(), ...newBlocks];
-		reactFlowInstance.setNodes(newcurrentBlocksData);
+		const finalcurrentBlocksData = getUpdatedArrayById(
+			clampNodesOrder(newcurrentBlocksData, platform),
+			newcurrentBlocksData
+		);
+
+		errorListCheck(finalcurrentBlocksData, errorList, setErrorList);
+
+		reactFlowInstance.setNodes(finalcurrentBlocksData);
 	};
 
 	/**
 	 * Handles the creation of a new fragment.
 	 */
 	const handleFragmentCreation = () => {
-		const selectedNodes = reactFlowInstance
-			.getNodes()
-			.filter((node) => node.selected == true);
+		const selectedNodes = getSelectedNodes();
 
 		if (
 			!selectedNodes.filter(
@@ -1418,6 +1514,7 @@ const OverviewFlow = ({ map }, ref) => {
 							selectedNodes.map((pNode) => pNode.id).includes(oNode.id)
 						)
 				);
+				console.log(filteredNodes);
 
 				let minX = Infinity;
 				let minY = Infinity;
@@ -1513,7 +1610,7 @@ const OverviewFlow = ({ map }, ref) => {
 	const handleNodeDeletion = (blockData) => {
 		setShowContextualMenu(false);
 		setNodeSelected();
-		deleteBlocks([blockData]);
+		return deleteBlocks([blockData]);
 	};
 
 	/**
@@ -1521,15 +1618,12 @@ const OverviewFlow = ({ map }, ref) => {
 	 */
 	const handleNodeSelectionDeletion = () => {
 		setShowContextualMenu(false);
-		const selectedNodes = document.querySelectorAll(
-			".react-flow__node.selected"
-		);
+		const selectedNodes = getSelectedNodes();
 		const clipboardData = [];
 		for (let node of selectedNodes) {
 			clipboardData.push(getNodeByNodeDOM(node, reactFlowInstance.getNodes()));
 		}
 
-		console.log(clipboardData);
 		deleteBlocks(clipboardData);
 	};
 
@@ -1693,22 +1787,25 @@ const OverviewFlow = ({ map }, ref) => {
 	 * @param {string} modal - The modal to show.
 	 */
 	const handleShow = (modal) => {
-		const selectedNodes = reactFlowInstance
-			.getNodes()
-			.filter((node) => node.selected == true);
+		console.log(modal);
+		const selectedNodes = getSelectedNodes();
 
 		let newCMBlockData = undefined;
-		if (selectedNodes.length == 1) {
+		if (selectedNodes.length == 1 && cMBlockData == undefined) {
 			newCMBlockData = selectedNodes[0];
 		}
 
 		if (newCMBlockData || cMBlockData) {
-			if (selectedNodes.length == 1) {
+			if (selectedNodes.length == 1 && cMBlockData == undefined) {
 				setCMBlockData(newCMBlockData);
 			}
 
-			if (modal == "conditions") setShowConditionsModal(true);
-			if (modal == "grades") setShowGradeConditionsModal(true);
+			if (platform == "moodle") {
+				if (modal == "conditions") setShowConditionsModal(true);
+				if (modal == "grades") setShowGradeConditionsModal(true);
+			} else if (platform == "sakai") {
+				if (modal == "requisites") setShowRequisitesModal(true);
+			}
 
 			setShowContextualMenu(false);
 		} else {
@@ -1841,10 +1938,10 @@ const OverviewFlow = ({ map }, ref) => {
 				proOptions={{ hideAttribution: true }}
 				nodeTypes={nodeTypes}
 				edgeTypes={edgeTypes}
-				snapGrid={[125, 275]} //175
+				snapGrid={[125, 275]}
 				//connectionLineComponent={}
 				snapToGrid={snapToGrid}
-				deleteKeyCode={["Backspace", "Delete"]}
+				deleteKeyCode={[]}
 				multiSelectionKeyCode={["Shift"]}
 				selectionKeyCode={["Shift"]}
 				zoomOnDoubleClick={false}
@@ -1895,10 +1992,10 @@ const OverviewFlow = ({ map }, ref) => {
 				/>
 			)}
 			<CustomControls />
-			{showConditionsModal && (
+			{showConditionsModal && platform == "moodle" && (
 				<>
 					{!validTypes.includes(cMBlockData.type) ? (
-						<ConditionModal
+						<ConditionModalMoodle
 							blockData={cMBlockData}
 							setBlockData={setCMBlockData}
 							blocksData={reactFlowInstance.getNodes()}
@@ -1918,13 +2015,11 @@ const OverviewFlow = ({ map }, ref) => {
 					)}
 				</>
 			)}
-			{showGradeConditionsModal && (
+			{showGradeConditionsModal && platform == "moodle" && (
 				<>
 					{!validTypes.includes(cMBlockData.type) && (
 						<QualificationModal
 							blockData={cMBlockData}
-							setBlockData={setCMBlockData}
-							blocksData={reactFlowInstance.getNodes()}
 							onEdgesDelete={onEdgesDelete}
 							showConditionsModal={showGradeConditionsModal}
 							setShowConditionsModal={setShowGradeConditionsModal}
@@ -1932,6 +2027,18 @@ const OverviewFlow = ({ map }, ref) => {
 					)}
 				</>
 			)}
+
+			{showRequisitesModal && platform == "sakai" && (
+				<RequisiteModalSakai
+					blockData={cMBlockData}
+					setBlockData={setCMBlockData}
+					blocksData={reactFlowInstance.getNodes()}
+					onEdgesDelete={onEdgesDelete}
+					showRequisitesModal={showRequisitesModal}
+					setShowRequisitesModal={setShowRequisitesModal}
+				></RequisiteModalSakai>
+			)}
+
 			{showNodeSelector && (
 				<NodeSelector
 					showDialog={showNodeSelector}
@@ -1940,6 +2047,45 @@ const OverviewFlow = ({ map }, ref) => {
 					callback={createBlock}
 				/>
 			)}
+			{showConfirmDeletionModal && (
+				<SimpleActionDialog
+					showDialog={showConfirmDeletionModal}
+					toggleDialog={() => {
+						setShowConfirmDeletionModal(!showConfirmDeletionModal);
+					}}
+					title={"Borrado de bloque con calificaciones"}
+					type={"delete"}
+					body={
+						<>
+							<p>
+								<b>La selección actual contiene</b>, como mínimo,{" "}
+								<b>un bloque con calificaciones</b> en{" "}
+								{capitalizeFirstLetter(platform)}.
+							</p>
+							<p>¿Estás seguro de querer continuar?</p>
+							<p
+								style={{
+									...getAutomaticReusableStyles("warning", true, true, false),
+									padding: "6px",
+								}}
+							>
+								(Al confirmar el borrado, se borrarán todos los bloques
+								seleccionados, <b>sin excepción</b>.)
+							</p>
+						</>
+					}
+					action={"Confirmar borrado"}
+					callback={confirmDeletionModalCallbackRef.current}
+				></SimpleActionDialog>
+			)}
+			<CustomControls
+				reactFlowInstance={reactFlowInstance}
+				minimap={minimap}
+				setMinimap={setMinimap}
+				interactive={interactive}
+				setInteractive={setInteractive}
+				fitViewOptions={fitViewOptions}
+			></CustomControls>
 		</div>
 	);
 };

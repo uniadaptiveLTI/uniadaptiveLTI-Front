@@ -1,0 +1,128 @@
+[
+    {
+        "name": "Examen 1",
+        "pageId": 2,
+        "sakaiId": "1",
+        "modname": "exam",
+        "section": 1,
+        "indent": 1,
+        "order": 1,
+		"endDate": "Sep 28, 2023, 9:50 am",
+		"fromDate": "Sep 13, 2023, 9:50 am",
+		"groups": [
+            "3", "4"
+        ],
+        "timeExceptions": [
+			{
+				"forEntityRef": "1",
+				"openDate": "Sep 28, 2023, 9:50 am",
+				"dueDate": "Sep 29, 2023, 9:50 am",
+				"closeDate": "Sep 30, 2023, 9:50 am"
+			},
+            {
+				"forEntityRef": "2",
+				"openDate": "Oct 10, 2023, 9:50 am",
+				"dueDate": "Oct 11, 2023, 9:50 am",
+				"closeDate": "Oct 12, 2023, 9:50 am"
+			}
+        ]
+    },
+    {
+        "name": "Tarea 1",
+        "pageId": 2,
+        "sakaiId": "2",
+        "modname": "assign",
+        "section": 1,
+        "indent": 1,
+        "order": 2,
+		"endDate": "Sep 28, 2023, 9:50 am",
+		"fromDate": "Sep 13, 2023, 9:50 am",
+		"groups": []
+    },
+	{
+        "name": "Foro 1",
+        "pageId": 2,
+        "sakaiId": "3",
+        "modname": "forum",
+        "section": 1,
+        "indent": 1,
+        "order": 3,
+		"endDate": "Sep 28, 2023, 9:50 am",
+		"fromDate": "Sep 13, 2023, 9:50 am",
+		"groups": [],
+        "gradeRequisites":{
+            "operator": "AND",
+            "type": "ROOT",
+            "subConditions": [
+                {
+                    "operator": "OR",
+                    "type": "PARENT",
+                    "subConditions": [
+                        {
+                            "argument": "5",
+                            "itemId": "1",
+                            "operator": "SMALLER_THAN",
+                            "type": "SCORE"
+                        },
+                        {
+                            "argument": "10",
+                            "itemId": "2",
+                            "operator": "GREATER_THAN",
+                            "type": "SCORE"
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "name": "Html 1",
+        "pageId": 2,
+        "sakaiId": "4",
+        "modname": "html",
+        "section": 1,
+        "indent": 2,
+        "order": 1,
+		"endDate": "Sep 28, 2023, 9:50 am",
+		"fromDate": "Sep 13, 2023, 9:50 am",
+		"groups": [
+            "1", "2"
+        ]
+    },
+	{
+        "name": "Texto 1",
+        "pageId": 2,
+        "sakaiId": "5",
+        "modname": "text",
+        "section": 1,
+        "indent": 2,
+        "order": 2,
+		"endDate": "Sep 28, 2023, 9:50 am",
+		"fromDate": "Sep 13, 2023, 9:50 am",
+		"groups": []
+    },
+	{
+        "name": "Url 1",
+        "pageId": 2,
+        "sakaiId": "6",
+        "modname": "url",
+        "section": 2,
+        "indent": 1,
+        "order": 1,
+		"endDate": "Sep 28, 2023, 9:50 am",
+		"fromDate": "Sep 13, 2023, 9:50 am",
+		"groups": []
+    },
+	{
+        "name": "Fichero 1",
+        "pageId": 2,
+        "sakaiId": "7",
+        "modname": "resource",
+        "section": 2,
+        "indent": 1,
+        "order": 2,
+		"endDate": "Sep 28, 2023, 9:50 am",
+		"fromDate": "Sep 13, 2023, 9:50 am",
+		"groups": []
+    }
+]

@@ -9,8 +9,8 @@ export function getVisibilityOptions(platform) {
 	switch (platform) {
 		case "moodle":
 			return [
-				{ name: "Ocultar hasta tener acceso", value: "hidden_until_access" },
-				{ name: "Mostrar siempre sin acceso", value: "show_unconditionally" },
+				{ name: "Ocultar a estudiantes", value: "hidden" },
+				{ name: "Mostrar a estudiantes", value: "show_unconditionally" },
 			];
 		case "sakai":
 			return [
@@ -33,9 +33,9 @@ export function getVisibilityOptions(platform) {
 export function getDefaultVisibility(platform) {
 	switch (platform) {
 		case "moodle":
-			return "hidden_until_access";
+			return "show_unconditionally";
 		case "sakai":
-			return "hidden_until_access";
+			return "show_unconditionally";
 		default:
 			return "hidden_until_access";
 	}
@@ -83,7 +83,7 @@ export function startingSectionID(platform) {
 		case "moodle":
 			return 0;
 		case "sakai":
-			return 1;
+			return 0;
 		default:
 			return 1;
 	}
@@ -155,4 +155,9 @@ export function getSupportedTypes(platform) {
 	return NodeTypes.filter((declaration) => {
 		if (declaration.lms.includes(platform)) return declaration.type;
 	}).map((validDeclaration) => validDeclaration.type);
+}
+
+export function getResetOnTypeChange(platform) {
+	if (platform == "moodle") return ["grades"];
+	if (platform == "sakai") return ["requisites"];
 }

@@ -23,7 +23,7 @@ const RoleForm = ({
 				<Form.Select
 					id={cId}
 					ref={conditionOperator}
-					defaultValue={conditionEdit?.op}
+					defaultValue={conditionEdit?.method}
 				>
 					<option value="&">
 						Todos los roles seleccionados otorgan la insignia
@@ -33,16 +33,24 @@ const RoleForm = ({
 			</div>
 			<b className="mt-4">Roles:</b>
 			<div className="ms-4 me-0">
-				{roleList.map((option) => (
-					<div key={option.id}>
+				{roleList?.map((option) => (
+					<div key={option.id.toString()}>
 						<Form.Check
 							onChange={handleCheckboxChange}
-							value={option.id}
+							value={option.id.toString()}
 							label={option.name}
-							defaultChecked={conditionEdit?.roleList?.includes(option.id)}
+							defaultChecked={conditionEdit?.params?.includes(
+								option.id.toString()
+							)}
 						/>
 					</div>
 				))}
+				{roleList && roleList.length <= 0 && (
+					<div>
+						No existen roles disponibles para la creación de la condición, es
+						necesario crear al menos uno.
+					</div>
+				)}
 			</div>
 		</Form.Group>
 	);

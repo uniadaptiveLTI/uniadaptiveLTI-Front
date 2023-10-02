@@ -1,4 +1,4 @@
-import styles from "@root/styles/AdminPane.module.css";
+import styles from "/styles/AdminPane.module.css";
 import { useEffect, useState } from "react";
 import { Col, Row } from "react-bootstrap";
 
@@ -50,6 +50,7 @@ export default function GeneralPane({ LTISettings }) {
 	async function getBackStatus() {
 		if (!LTISettings.debugging.dev_files) {
 			const response = await fetch("/api/auth/", {
+				//TODO: MOVE IT TO THE BACK END
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify("ping"),
@@ -78,6 +79,7 @@ export default function GeneralPane({ LTISettings }) {
 
 	async function getResourceUsage() {
 		const response = await fetch("/api/getResourceUsage/", {
+			//TODO: MOVE IT TO THE BACK END
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 		});

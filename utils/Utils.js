@@ -1,3 +1,6 @@
+import { clampNodesOrderMoodle } from "./Moodle";
+import { clampNodesOrderSakai } from "./Sakai";
+
 /**
  * Returns a new array with updated entries from the original array.
  * @param {Object|Object[]} updatedEntry - The entry or entries to be updated in the original array. Each entry must have an id property.
@@ -130,12 +133,19 @@ export function parseBool(str) {
 /**
  * Returns true if the value is unique in the array, false otherwise.
  * @param {*} value - The value to check for uniqueness.
- * @param {number} index - The index of the value in the array.
- * @param {Array} self - The array itself.
+ * @param {Array} array - The array itself.
  * @returns {boolean} - Whether the value is unique or not.
  */
-export function isUnique(value, index, self) {
-	return self.indexOf(value) === index;
+export function isUnique(value, array) {
+	let isUnique = false;
+	let findings = 0;
+	array.forEach((el) => {
+		if (el === value) {
+			findings++;
+		}
+	});
+	if (findings == 1) isUnique = true;
+	return isUnique;
 }
 
 /**
@@ -176,9 +186,9 @@ export function arrayMoveByIndex(from, to, array) {
 /**
  * Moves an element in an array with objects that have an "id" property from one ID to another.
  * @param {number|string} from - The ID of the element to move.
- * @param {number|string} to - The ID of the element to move the element before.
+ * @param {number|string} to - The ID of the element to move the element after.
  * @param {Array<Object>} array - The array to move the element in.
- * @returns {Array<Object>} A new array with the element moved from the specified ID to before the specified ID.
+ * @returns {Array<Object>} A new array with the element moved from the specified ID to after the specified ID.
  */
 export function arrayMoveById(from, to, array) {
 	const newArray = [...array];
@@ -238,7 +248,7 @@ export function findCompletionAndGrade(obj) {
  */
 export function updateBadgeConditions(blockNodeTarget, blockNodeSource) {
 	// Variable to store the conditions of the target node
-	let conditions = blockNodeTarget.data.c.c;
+	let conditions = blockNodeTarget.data.c.params;
 
 	// Find method to get the condition of type completion
 	const conditionExists = conditions.find(
@@ -248,22 +258,20 @@ export function updateBadgeConditions(blockNodeTarget, blockNodeSource) {
 	// Condition to know if the condition exists
 	if (conditionExists) {
 		// Condition to check if the activity list has more than one entry
-		if (conditionExists.activityList.length > 1) {
-			console.log("entro a eliminar solo una");
-
+		if (conditionExists.params.length > 1) {
 			// Filter method to delete the specific node from the activity list
-			conditionExists.activityList = conditionExists.activityList.filter(
+			conditionExists.params = conditionExists.params.filter(
 				(node) => node.id !== blockNodeSource.id
 			);
 		} else {
 			// Filter method to delete the condition type completion
-			blockNodeTarget.data.c.c = conditions.filter(
+			blockNodeTarget.data.c.params = conditions.filter(
 				(node) => node.type !== "completion"
 			);
 		}
 	} else {
 		// Filter method to delete the condition type completion
-		blockNodeTarget.data.c.c = conditions.filter(
+		blockNodeTarget.data.c.params = conditions.filter(
 			(condition) => condition.type !== "completion"
 		);
 	}
@@ -275,6 +283,57 @@ export function updateBadgeConditions(blockNodeTarget, blockNodeSource) {
  */
 export function getHTTPPrefix() {
 	return window.location.protocol;
+}
+
+/**
+ * Constructs a URL for fetching data from the server.
+ * @param {Object} LTISettings - An object containing the LTI settings.
+ * @param {string} [webservice] - An optional string to be appended to the URL.
+ * @returns {string} The constructed URL for fetching data from the server.
+ */
+export function getFetchUrl(LTISettings, webservice) {
+	return webservice == undefined
+		? `${getHTTPPrefix()}//${LTISettings.back_url}`
+		: `${getHTTPPrefix()}//${LTISettings.back_url}/${webservice}`;
+}
+
+/**
+ * Fetches data from the back-end using the specified token, webservice, and method.
+ * @async
+ * @function
+ * @param {Object} LTISettings - The LTI settings object.
+ * @param {string} token - The token to use for authentication.
+ * @param {string} webservice - The webservice to fetch data from.
+ * @param {string} [method="GET"] - The HTTP method to use for the request.
+ * @param {Object} [load] - The payload to send with the request.
+ * @returns {Promise<Object>} A Promise that resolves to the fetched data.
+ */
+export async function fetchBackEnd(
+	LTISettings,
+	token,
+	webservice,
+	method = "GET",
+	load
+) {
+	const fetchURL = getFetchUrl(LTISettings, webservice);
+	let fetchResponse;
+
+	if (method === "POST") {
+		const response = await fetch(fetchURL, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ ...load, token }),
+		});
+		fetchResponse = await response.json();
+	} else if (method === "GET") {
+		fetchResponse = (
+			await fetch(
+				fetchURL + `?${new URLSearchParams({ ...load, token }).toString()}`
+			)
+		).json();
+	}
+
+	return fetchResponse;
 }
 
 /**
@@ -294,35 +353,47 @@ export function getSectionFromPosition(sectionArray, sectionPosition) {
  * @returns {*} The ID property value of the section with a matching position property value, or undefined if not found.
  */
 export function getSectionIDFromPosition(sectionArray, sectionPosition) {
-	return getSectionFromPosition(sectionArray, sectionPosition).id;
+	return getSectionFromPosition(sectionArray, sectionPosition)?.id;
 }
 
-export function transformDate(dateStr) {
-	const date = new Date(dateStr);
+/**
+ * Method to parse the given date using day, month and year, in case dateComplete param true then add hour and minute
+ * @param {String} dateStr - String of date
+ * @param {boolean} dateComplete - Boolean to define if the date must be parsed with hour and minute
+ * @returns {*} Returns formatted date string
+ */
+export function parseDate(dateStr, dateComplete) {
+	let date = dateStr;
+
+	if (!(dateStr instanceof Date)) {
+		date = new Date(dateStr);
+		return date.toLocaleDateString("es-ES", {
+			day: "numeric",
+			month: "long",
+			year: "numeric",
+			...(dateComplete && { hour: "2-digit", minute: "2-digit" }),
+		});
+	} else {
+		return date
+			.toLocaleDateString("es-ES", {
+				year: "numeric",
+				month: "2-digit",
+				day: "2-digit",
+			})
+			.split("/")
+			.reverse()
+			.join("-");
+	}
+}
+
+export function parseDateToString(date) {
+	console.log(date);
 	const year = date.getFullYear();
-	const month = date.getMonth();
-
-	const monthNames = [
-		"enero",
-		"febrero",
-		"marzo",
-		"abril",
-		"mayo",
-		"junio",
-		"julio",
-		"agosto",
-		"septiembre",
-		"octubre",
-		"noviembre",
-		"diciembre",
-	];
-
-	const monthName = monthNames[month];
-	const day = date.getDate();
-
-	const formattedDate = `${day} de ${monthName} de ${year}`;
-
-	return formattedDate;
+	const month = String(date.getMonth() + 1).padStart(2, "0");
+	const day = String(date.getDate()).padStart(2, "0");
+	const hours = String(date.getHours()).padStart(2, "0");
+	const minutes = String(date.getMinutes()).padStart(2, "0");
+	return `${year}-${month}-${day}T${hours}:${minutes}`;
 }
 
 export async function saveVersion(
@@ -338,17 +409,27 @@ export async function saveVersion(
 	toast,
 	enable
 ) {
-	//Cleaning node data
-	const cleanedNodes = rfNodes.map((node) => {
-		const nodeCopy = { ...node };
-		delete nodeCopy.height;
-		delete nodeCopy.width;
-		delete nodeCopy.positionAbsolute;
-		delete nodeCopy.dragging;
-		delete nodeCopy.selected;
-		delete nodeCopy.targetPosition;
-		return nodeCopy;
-	});
+	// Helper function to clean the nodes
+	function cleanNodes(nodes) {
+		return nodes.map((node) => {
+			// Copy the node object without the properties that want to be removed
+			const {
+				height,
+				width,
+				positionAbsolute,
+				dragging,
+				selected,
+				targetPosition,
+				...cleanedNode
+			} = node;
+			return cleanedNode;
+		});
+	}
+	// Clean the nodes using the helper function
+	const cleanedNodes = cleanNodes(rfNodes);
+	// Define constants for the success and error messages
+	const successMessage = "Versión guardada con éxito";
+	const errorMessage = "No se pudo guardar";
 	try {
 		const saveData = {
 			instance_id: metaData.instance_id,
@@ -366,30 +447,53 @@ export async function saveVersion(
 			},
 		};
 
-		const response = await fetch(
-			`${getHTTPPrefix()}//${LTISettings.back_url}/api/lti/store_version`,
-			{
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ saveData }),
-			}
+		const response = await fetchBackEnd(
+			LTISettings,
+			sessionStorage.getItem("token"),
+			"api/lti/store_version",
+			"POST",
+			{ saveData: saveData }
 		);
 
-		if (response) {
-			const ok = response.ok;
-			if (ok) {
-				enable(false);
-				toast("Versión guardada con éxito", defaultToastSuccess);
-			} else {
-				enable(false);
-				toast("No se pudo guardar", defaultToastError);
-			}
+		if (response && response.ok) {
+			// If the response is successful, show the success message
+			toast(successMessage, defaultToastSuccess);
 		} else {
-			enable(false);
-			toast("No se pudo guardar", defaultToastError);
+			// If the response is not successful, show the error message
+			toast(errorMessage, defaultToastError);
 		}
 	} catch (e) {
+		// If an error occurs when making the request, show the error message and log the error in the console
+		console.error(e);
+		toast(errorMessage, defaultToastError);
+	} finally {
 		enable(false);
-		toast("No se pudo guardar", defaultToastError);
+	}
+}
+
+export function reOrderSakaiRequisites(requisites) {
+	const customSort = (a, b) => {
+		const typeOrder = {
+			date: 1,
+			dateException: 2,
+			group: 3,
+		};
+
+		return typeOrder[a.type] - typeOrder[b.type];
+	};
+
+	const sortedArray = [...requisites].sort(customSort);
+
+	return sortedArray;
+}
+
+export function clampNodesOrder(nodeArray, platform) {
+	switch (platform) {
+		case "moodle":
+			return clampNodesOrderMoodle(nodeArray);
+		case "sakai":
+			return clampNodesOrderSakai(nodeArray);
+		case "default":
+			return nodeArray;
 	}
 }

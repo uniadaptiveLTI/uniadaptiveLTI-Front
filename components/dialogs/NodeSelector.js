@@ -7,7 +7,7 @@ import {
 	useState,
 } from "react";
 import { Modal, Button, Container, Col, Row } from "react-bootstrap";
-import { PlatformContext } from "@root/pages/_app";
+import { PlatformContext } from "/pages/_app";
 import { NodeTypes } from "@utils/TypeDefinitions";
 import {
 	orderByPropertyAlphabetically,
@@ -15,7 +15,7 @@ import {
 	uniqueId,
 } from "@utils/Utils.js";
 import { getTypeIcon, getTypeStaticColor } from "../../utils/NodeIcons";
-import styles from "@root/styles/NodeSelector.module.css";
+import styles from "/styles/NodeSelector.module.css";
 import { useNodes } from "reactflow";
 import { getLastPositionInSection, getLowestSection } from "@utils/Nodes";
 import { getDefaultVisibility, startingSectionID } from "@utils/Platform";
@@ -93,7 +93,7 @@ export default forwardRef(function NodeSelector(
 		const data = {};
 		const section = getMaxSectionFromSelection();
 		if (nodeType == "ElementNode") {
-			data.label = "Vacío";
+			data.label = NodeTypes.find((ntype) => type == ntype.type).emptyName;
 			data.children = [];
 			data.section =
 				section == undefined || section == Infinity || section == -Infinity
@@ -102,6 +102,18 @@ export default forwardRef(function NodeSelector(
 			data.order = getLastPositionInSection(section, rfNodes) + 1;
 			data.lmsVisibility = getDefaultVisibility(platform);
 			data.indent = 0;
+			if (platform == "moodle")
+				data.g = {
+					completionTracking: 0,
+					hasToBeSeen: false,
+					hasToBeQualified: false,
+					qualificationToPass: 0,
+					attemptsAllowed: 0,
+					qualificationMethod: 0,
+					requiredType: 0,
+					hasTimeLimit: false,
+					timeLimit: "",
+				};
 		} else {
 			data.label = name;
 		}

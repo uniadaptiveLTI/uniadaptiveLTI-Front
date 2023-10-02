@@ -5,7 +5,7 @@ import {
 	ExpandedAsideContext,
 	NodeInfoContext,
 	VersionInfoContext,
-} from "@root/pages/_app";
+} from "/pages/_app";
 import { NodeTypes } from "@utils/TypeDefinitions";
 import {
 	orderByPropertyAlphabetically,
@@ -14,7 +14,7 @@ import {
 } from "@utils/Nodes";
 import { uniqueId } from "@utils/Utils";
 import { getTypeIcon, getTypeStaticColor } from "@utils/NodeIcons";
-import styles from "@root/styles/ExportModal.module.css";
+import styles from "/styles/ExportModal.module.css";
 import { createItemErrors } from "@utils/ErrorHandling";
 import { useReactFlow } from "reactflow";
 import { useEffect } from "react";
@@ -24,7 +24,7 @@ import {
 	faFileExport,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import ExportPane from "@panes/exportmodal/ExportPane";
+import ExportPane from "@components/panes/exportmodal/ExportPane";
 
 export default forwardRef(function ExportModal(
 	{
@@ -58,7 +58,7 @@ export default forwardRef(function ExportModal(
 
 	const [nodeWarningChildrenList, setNodeWarningChildrenList] = useState();
 	const [nodeWarningParentList, setNodeWarningParentList] = useState();
-
+	console.log(errorList);
 	const formatErrorList = () => {
 		console.log(JSON.stringify(metaData));
 	};
@@ -145,7 +145,7 @@ export default forwardRef(function ExportModal(
 		const warningChildrenNotFound = warningList
 			.filter(
 				(entry) =>
-					entry.severity === "warning" && entry.type === "childrenNotFound"
+					entry.seriousness === "warning" && entry.type === "childrenNotFound"
 			)
 			.map((error) => ({
 				...error,
@@ -156,7 +156,7 @@ export default forwardRef(function ExportModal(
 		const warningParentNotFound = warningList
 			.filter(
 				(entry) =>
-					entry.severity === "warning" && entry.type === "parentNotFound"
+					entry.seriousness === "warning" && entry.type === "parentNotFound"
 			)
 			.map((error) => ({
 				...error,
@@ -197,7 +197,18 @@ export default forwardRef(function ExportModal(
 					node.type !== "mail" &&
 					node.type !== "badge"
 				) {
-					if (!node.data.children || node.data.children.length === 0) {
+					let childlessNode = false;
+
+					if (platform == "sakai") {
+						if (node.type !== "exam" && node.type !== "assign") {
+							childlessNode = true;
+						}
+					}
+
+					if (
+						(!node.data.children || node.data.children.length === 0) &&
+						!childlessNode
+					) {
 						const customEntry = {
 							...errorEntry,
 							seriousness: "warning",
@@ -246,6 +257,8 @@ export default forwardRef(function ExportModal(
 	const [warningCount, setWarningCount] = useState(
 		warningList != undefined ? warningList.length : 0
 	);
+	console.log(warningList);
+	console.log(nodeWarningChildrenList);
 	const [hasWarnings, setHasWarnings] = useState(warningCount > 0);
 
 	useLayoutEffect(() => {
@@ -399,7 +412,7 @@ export default forwardRef(function ExportModal(
 						>
 							<div>
 								{nodeWarningChildrenList != undefined &&
-									nodeWarningChildrenList.length > 0 && (
+									nodeWarningChildrenList.length >= 1 && (
 										<div className="mb-2">
 											<div className="mb-2">
 												<b>

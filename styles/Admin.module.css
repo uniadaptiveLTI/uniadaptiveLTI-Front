@@ -1,64 +1,67 @@
-.bg{
-    background-color: var(--main-ui-secondary-background);
-    height: 100vh;
-    overflow-y: scroll;
-    padding: 1em 0;
+.bg {
+	background-color: var(--main-secondary-background-color);
+	height: 100vh;
+	overflow-y: scroll;
+	padding: 1em 0;
 }
 
-.mainContainer{
-    display:flex;
-    flex-direction: column;
-    padding:0;
-    min-height: calc(100vh - 2em);
-    background-color: var(--main-ui-default-background);
-    border: var(--main-ui-borders);
-    
+.mainContainer {
+	display: flex;
+	flex-direction: column;
+	padding: 0;
+	min-height: calc(100vh - 2em);
+	background-color: var(--main-background-color);
+	border: var(--main-borders);
 }
 
-.mainContainer > div:first-of-type{
-    display:flex;
-    justify-content: center;
-    padding: 1em;
-    border-bottom: var(--main-ui-borders);
-    
+.mainContainer > div:first-of-type {
+	display: flex;
+	justify-content: center;
+	padding: 1em;
+	border-bottom: var(--main-borders);
 }
 
-.contentContainer{
-   flex-grow: 1;
-   display:flex;
-
+.contentContainer {
+	flex-grow: 1;
+	display: flex;
 }
 
-.contentContainer>div{
-   flex-grow: 1;
+.contentContainer > div {
+	flex-grow: 1;
 }
 
-.navegationTabs{
-    display:flex;
-    flex-direction: column;
-    padding: 0;
-    border-right: var(--main-ui-borders);
-    
+.navegationTabs {
+	display: flex;
+	flex-direction: column;
+	padding: 0;
+	border-right: var(--main-borders);
 }
 
-.navegationTabs img{
-    margin: 1em 0.25em;
-    background-color: var(--main-ui-default-background);
+.navegationTabs img {
+	margin: 1em 0.25em;
+	background-color: var(--main-background-color);
 }
 
-.navegationTabs .buttonContainer{
-    display:flex;
-    flex-direction: column;
-    padding: 0;
-    background-color: var(--main-ui-third-background);
-    height: 100%;
+.navegationTabs .buttonContainer {
+	display: flex;
+	flex-direction: column;
+	padding: 0;
+	background-color: var(--main-third-background-color);
+	height: 100%;
 }
 
 .navegationTabs .buttonContainer button {
-    border-radius: 0;
-    
+	border-radius: 0;
 }
 
-.paneContainer{
-    padding: 1em;
+.paneContainer {
+	padding: 1em;
+}
+
+.mainContainer h5 {
+	margin: 2em 0;
+}
+
+.mainContainer h6 {
+	margin: 1.5em 0;
 }

@@ -1,25 +1,17 @@
 {
-  "exclude": [
-    ".git/*",
-    ".next/*",
-    ".swc/*",
-    ".build/*",
-    ".npm/*",
-    "**/node_modules/*"
-  ],
-  "compilerOptions": {
-    "baseUrl": "./",
-    "paths": {
-      "@root/*": ["/*"],
-      "@components/*": ["components/*"],
-      "@dialogs/*": ["components/dialogs/*"],
-      "@layouts/*": ["components/layouts/*"],
-      "@panes/*": ["components/panes/*"],
-      "@flow/*": ["components/flow/*"],
-      "@nodes/*": ["components/flow/nodes/*"],
-      "@edges/*": ["components/flow/edges/*"],
-      "@conditions/*": ["components/flow/conditions/*"],
-      "@utils/*": ["utils/*"]
-    }
-  }
+	"exclude": [
+		".git/*",
+		".next/*",
+		".swc/*",
+		".build/*",
+		".npm/*",
+		"**/node_modules/*"
+	],
+	"compilerOptions": {
+		"baseUrl": "./",
+		"paths": {
+			"@components/*": ["components/*"],
+			"@utils/*": ["utils/*"]
+		}
+	}
 }

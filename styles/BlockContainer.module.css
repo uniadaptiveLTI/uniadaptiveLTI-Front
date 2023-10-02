@@ -2,7 +2,8 @@
 	user-select: none;
 }
 
-.container svg, .container div {
+.container svg,
+.container div {
 	pointer-events: none; /* So the right click to the SVG doesn't stop the propagation */
 }
 
@@ -12,7 +13,6 @@
 }
 
 .container > span.blockInfo {
-
 	width: 8em;
 	display: -webkit-box;
 	padding: 4px 10px;
@@ -23,13 +23,12 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 	max-height: 4rem;
-	position:absolute;
+	position: absolute;
 	text-align: center;
-	color: var(--blockflow-font-color);
-	font-family: var(--blockflow-font-family);
-	background-color: var(--blockflow-text-background-color);
+	color: var(--blockflow-label-font-color);
+	font-family: var(--blockflow-label-font-family);
+	background-color: var(--blockflow-label-background-color);
 	pointer-events: none;
-	
 }
 
 .container > span.blockInfo.top {
@@ -38,26 +37,29 @@
 }
 
 .container > span.blockInfo.bottom {
-	bottom: -4.0em;
+	bottom: -4em;
 	right: -50%;
 }
 
-
 .hovedConditions {
-	background: var(--main-ui-default-background);
-	color: var(--main-font-color);
+	background: var(--blockflow-hover-background-color);
+	color: var(--blockflow-hover-font-color);
 	padding: 0.5rem 1rem;
-	border: var(--main-ui-borders);
-	position:absolute;
+	font-family: var(--blockflow-hover-font-family);
+	border: var(--main-borders);
+	position: absolute;
 	left: calc(1rem + 68px);
 	z-index: 10000 !important;
+	word-break: keep-all;
+	line-break: strict;
+	min-width: 36em;
 }
 
 .badge {
-	position:absolute;
+	position: absolute;
 	visibility: hidden;
 	opacity: 0;
-	color:black;
+	color: black;
 	transition: all 0.2s;
 	transform: scaleY(0);
 	pointer-events: none;
@@ -74,9 +76,10 @@
 	width: 16px;
 }
 
+/* MOODLE BLOCK BADGES */
 .badgeConditions {
 	top: -16px;
-    width: 32px;
+	width: 32px;
 	left: auto;
 	padding: 4px;
 }
@@ -97,7 +100,6 @@
 	width: 16px;
 }
 
-
 .badgeSection {
 	bottom: -8px;
 	left: 4px;
@@ -108,7 +110,34 @@
 	right: 4px;
 }
 
-.container:hover .badge, .container:focus-visible ~ .badge, .container.borderAnim ~ .badge {
+/* SAKAI BLOCK BADGES START */
+.badgeMessage {
+	top: -6px;
+	right: -12px;
+	padding: 4px;
+}
+
+.badgeSakaiSection {
+	bottom: -8px;
+	left: -12px;
+}
+
+.badgeSakaiColumn {
+	bottom: -8px;
+	left: 20.5px;
+	background-color: #e5b770 !important;
+}
+
+.badgeSakaiPos {
+	bottom: -8px;
+	right: -12px;
+}
+
+/* SAKAI BLOCK BADGES END */
+
+.container:hover .badge,
+.container:focus-visible ~ .badge,
+.container.borderAnim ~ .badge {
 	position: absolute;
 	transform: scaleY(1);
 	visibility: visible;
@@ -129,14 +158,14 @@
 	flex-direction: column;
 }
 
-.blockToolbar button{
+.blockToolbar button {
 	border-radius: 0;
-	border: var(--main-ui-borders)
+	border: var(--main-borders);
 }
 
- /* Accesibility */
+/* Accesibility */
 
-.badge.noAnimation  {
+.badge.noAnimation {
 	transition: none;
 }
 
@@ -151,4 +180,4 @@
 	.badge {
 		transition: none;
 	}
- }
+}

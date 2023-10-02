@@ -1,4 +1,4 @@
-import styles from "@root/styles/Aside.module.css";
+import styles from "/styles/Aside.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
 	faCaretDown,
@@ -30,16 +30,15 @@ import {
 import {
 	capitalizeFirstLetter,
 	deduplicateById,
-	getHTTPPrefix,
 	getUpdatedArrayById,
-	isUnique,
 	orderByPropertyAlphabetically,
-	parseBool,
+	fetchBackEnd,
 } from "@utils/Utils";
 import {
 	ActionNodes,
 	getLastPositionInSection,
 	reorderFromSection,
+	reorderFromSectionAndColumn,
 } from "@utils/Nodes";
 import { errorListCheck } from "@utils/ErrorHandling";
 import {
@@ -52,6 +51,7 @@ import {
 	getVisibilityOptions,
 	hasUnorderedResources,
 } from "@utils/Platform.js";
+import { getLastPositionInSakaiColumn } from "@utils/Sakai";
 
 export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 	const { errorList, setErrorList } = useContext(ErrorListContext);
@@ -75,8 +75,8 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 
 	const parsedSettings = JSON.parse(settings);
 	let { reducedAnimations, autoHideAside } = parsedSettings;
-
 	//References
+	const autoFocus = useRef(null);
 	const labelDOM = useRef(null);
 	const optionsDOM = useRef(null);
 	const resourceDOM = useRef(null);
@@ -111,56 +111,48 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 	);
 	const sakaiResource = orderByPropertyAlphabetically(getSakaiTypes(), "name");
 
-	const fetchResources = async (
-		selectedOption,
-		platform,
-		instance,
-		lms,
-		course,
-		session
-	) => {
+	const fetchResources = async (selectedOption) => {
 		try {
 			const encodedSelectedOption = encodeURIComponent(selectedOption);
-			const encodedPlatform = encodeURIComponent(platform);
-			const encodedInstance = encodeURIComponent(instance);
-			const encodedLMS = encodeURIComponent(lms);
-			const encodedCourse = encodeURIComponent(course);
-			const encodedSession = encodeURIComponent(session);
-			console.log(encodedLMS);
 			setShowSpinner(true);
 			setAllowResourceSelection(false);
-			const response = await fetch(
-				selectedOption == "generic"
-					? `${getHTTPPrefix()}//${
-							LTISettings.back_url
-					  }/lti/get_modules_by_type?type=${encodeURIComponent(
-							"unsupported"
-					  )}&instance=${encodedInstance}&platform=${encodedPlatform}&course=${encodedCourse}&url_lms=${encodedLMS}&session=${encodedSession}&supportedTypes=${encodeURIComponent(
-							getSupportedTypes(platform)
-					  )}&sections=${encodeURIComponent(
-							JSON.stringify(
-								metaData.sections.map((section) => {
-									return { id: section.id, position: section.position };
-								})
-							)
-					  )}`
-					: `${getHTTPPrefix()}//${
-							LTISettings.back_url
-					  }/lti/get_modules_by_type?type=${encodedSelectedOption}&instance=${encodedInstance}&platform=${encodedPlatform}&course=${encodedCourse}&url_lms=${encodedLMS}&session=${encodedSession}`
+			const payload = {
+				type:
+					selectedOption == "generic" ? "unsupported" : encodedSelectedOption,
+			};
+
+			if (selectedOption == "generic") {
+				payload.supportedTypes = getSupportedTypes(platform);
+				payload.sections = metaData.sections.map((section) => {
+					return { id: section.id, position: section.position };
+				});
+			}
+
+			const response = await fetchBackEnd(
+				LTISettings,
+				sessionStorage.getItem("token"),
+				"api/lti/get_modules_by_type",
+				"POST",
+				payload
 			);
-			if (!response.ok) {
+
+			console.log(response);
+
+			if (!response) {
 				throw new Error("Request failed");
 			}
-			const data = await response.json();
+
+			const data = response.data;
+
 			setShowSpinner(false);
 			setAllowResourceSelection(true);
 			return data;
 		} catch (e) {
-			const error = new Error(
-				"No se pudieron obtener los datos del curso desde el LMS."
-			);
-			error.log = e;
-			throw error;
+			// const error = new Error(
+			// 	"No se pudieron obtener los datos del curso desde el LMS.\n" + e
+			// );
+			// error.log = e;
+			// throw error;
 		}
 	};
 
@@ -225,18 +217,15 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 						deduplicateById(filteredData),
 						"name"
 					);
-					uniqueFilteredData.unshift({ id: -1, name: "Vacío" });
+					uniqueFilteredData.unshift({
+						id: -1,
+						name: NodeTypes.filter((node) => node.type == selectedOption)[0]
+							.emptyName,
+					});
 					setResourceOptions(uniqueFilteredData);
 				}, 1000);
 			} else {
-				fetchResources(
-					selectedOption,
-					metaData.platform,
-					metaData.instance_id,
-					metaData.lms_url,
-					metaData.course_id,
-					metaData.session_id
-				).then((data) => {
+				fetchResources(selectedOption).then((data) => {
 					const filteredData = [];
 					data.forEach((resource) => {
 						if (!getUsedResources().includes(resource.id)) {
@@ -267,7 +256,12 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 							? (option.bettername = `${option.name}`)
 							: (option.bettername = `${option.name} - Sección: ${option.section}`)
 					);
-					uniqueFilteredData.unshift({ id: -1, name: "Vacío" });
+					uniqueFilteredData.unshift({
+						id: -1,
+						name: NodeTypes.filter((node) => node.type == selectedOption)[0]
+							.emptyName,
+					});
+
 					setResourceOptions(uniqueFilteredData);
 				});
 			}
@@ -343,12 +337,25 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 			}
 
 			if (indentCurrent) {
-				indentCurrent.value = nodeSelected.data.indent;
+				if (platform == "sakai") {
+					indentCurrent.value = nodeSelected.data.indent + 1;
+				} else {
+					indentCurrent.value = nodeSelected.data.indent;
+				}
 			}
 
 			setSelectedOption(nodeSelected.type);
 		}
 	}, [nodeSelected]);
+
+	/**
+	 * Focuses into the aside if autoHideAside is active and autoFocus is visible
+	 */
+	useEffect(() => {
+		if (autoFocus && autoHideAside) {
+			autoFocus.current.focus();
+		}
+	});
 
 	/**
 	 * Updates the selected block with the values from the specified DOM elements.
@@ -359,29 +366,42 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 			let newData;
 			if (!ActionNodes.includes(nodeSelected.type)) {
 				//if element node
-				const newSection = Number(
-					sectionDOM.current.value ? sectionDOM.current.value : 0
-				); //FIXME: Only valid for moodle maybe?
-				const originalSection = nodeSelected.data.section;
+				const getValue = (dom) => Number(dom?.current?.value || 0);
+				const newSection = getValue(sectionDOM);
+				const newIndent = getValue(indentDOM);
+				const {
+					section: originalSection,
+					indent: originalIndent,
+					order: originalOrder,
+				} = nodeSelected.data;
 
-				const originalOrder = nodeSelected.data.order;
 				const limitedOrder = Math.min(
 					Math.max(orderDOM.current.value, 0),
-					getLastPositionInSection(newSection, reactFlowInstance.getNodes()) + 1
+					platform != "sakai"
+						? getLastPositionInSection(
+								newSection,
+								reactFlowInstance.getNodes()
+						  ) + 1
+						: getLastPositionInSakaiColumn(
+								newSection,
+								newIndent,
+								reactFlowInstance.getNodes()
+						  ) + 1
 				);
-				let limitedindent = indentDOM.current.value;
-				limitedindent = Math.min(Math.max(limitedindent, 0), 16);
+				let limitedindent = Math.min(Math.max(indentDOM.current.value, 0), 16);
 
 				newData = {
 					...nodeSelected.data,
 					label: labelDOM.current.value,
 					lmsResource: Number(lmsResourceDOM.current.value),
-					lmsVisibility: lmsVisibilityDOM.current.value
-						? lmsVisibilityDOM.current.value
+					lmsVisibility: lmsVisibilityDOM?.current?.value
+						? lmsVisibilityDOM?.current?.value
+						: platform == "moodle"
+						? "hidden"
 						: "hidden_until_access",
 					section: newSection,
 					order: limitedOrder - 1,
-					indent: limitedindent,
+					indent: platform == "sakai" ? limitedindent - 1 : limitedindent,
 				};
 
 				const updatedData = {
@@ -393,65 +413,93 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 
 				const aNodeWithNewOrderExists = reactFlowInstance
 					.getNodes()
-					.filter((node) => {
-						if (
+					.some(
+						(node) =>
 							node.data.order == limitedOrder - 1 &&
 							node.data.section == newSection
-						) {
-							return true;
-						}
-					});
+					);
 
 				console.log(aNodeWithNewOrderExists, limitedOrder - 1);
 
-				//if reordered
-				if (
-					(limitedOrder - 1 != originalOrder &&
-						aNodeWithNewOrderExists.length > 0) ||
-					originalSection != newSection
-				) {
-					console.log((originalSection, newSection));
-					if (originalSection == newSection) {
-						//Change in order
-						const to = limitedOrder - 1;
-						const from = originalOrder;
-						const reorderedArray = reorderFromSection(
-							newSection,
-							from,
-							to,
-							reactFlowInstance.getNodes()
-						);
+				const reorderNodes = (newSection, originalOrder, limitedOrder) => {
+					const [from, to] = [originalOrder, limitedOrder - 1];
+					const reorderedArray = reorderFromSection(
+						newSection,
+						from,
+						to,
+						reactFlowInstance.getNodes()
+					);
+					reactFlowInstance.setNodes([...reorderedArray, updatedData]);
+				};
 
-						reactFlowInstance.setNodes([...reorderedArray, updatedData]);
+				const reorderNodesColumn = (
+					newSection,
+					newColumn,
+					originalOrder,
+					limitedOrder
+				) => {
+					const [from, to] = [originalOrder, limitedOrder - 1];
+					const reorderedArray = reorderFromSectionAndColumn(
+						newSection,
+						newColumn,
+						from,
+						to,
+						reactFlowInstance.getNodes()
+					);
+					console.log(reorderedArray, updatedData);
+					reactFlowInstance.setNodes([
+						...reactFlowInstance.getNodes(),
+						...reorderedArray,
+						updatedData,
+					]);
+				};
+
+				const updateNodes = (updatedData) => {
+					console.log(reactFlowInstance.getNodes());
+					reactFlowInstance.setNodes(
+						getUpdatedArrayById(updatedData, reactFlowInstance.getNodes())
+					);
+				};
+
+				if (
+					aNodeWithNewOrderExists ||
+					originalSection != newSection ||
+					(platform == "sakai" && originalIndent != newIndent)
+				) {
+					console.log(originalSection, newSection);
+					if (originalSection == newSection && platform != "sakai") {
+						//Change in order
+						reorderNodes(newSection, originalOrder, limitedOrder);
 					} else {
-						//(Section change) Add to section AND then the order
-						console.log("CAMBIO DE SECCIÓN");
+						console.log("CAMBIO DE SECCIÓN Y/O IDENTACIÓN");
 						const virtualNodes = reactFlowInstance.getNodes();
 						const forcedPos =
-							getLastPositionInSection(newSection, virtualNodes) + 1;
+							platform == "moodle"
+								? getLastPositionInSection(newSection, virtualNodes) + 1
+								: getLastPositionInSakaiColumn(
+										newSection,
+										newIndent,
+										virtualNodes
+								  ) + 1;
 						console.log(forcedPos);
 						updatedData.data.order = forcedPos;
 						virtualNodes.push(updatedData);
 						if (!(limitedOrder - 1 > forcedPos)) {
 							//If the desired position is inside the section
-							const to = limitedOrder;
-							const from = forcedPos;
-							const reorderedArray = reorderFromSection(
+							reorderNodesColumn(
 								newSection,
-								from,
-								to,
-								virtualNodes
+								newIndent,
+								forcedPos + 1,
+								limitedOrder
 							);
-							reactFlowInstance.setNodes([...reorderedArray, updatedData]);
 						} else {
 							//If the desired position is outside the section
-							reactFlowInstance.setNodes([...virtualNodes, updatedData]);
+							console.log(updatedData);
+							updateNodes(updatedData);
 						}
 					}
 				} else {
-					reactFlowInstance.setNodes(
-						getUpdatedArrayById(updatedData, reactFlowInstance.getNodes())
-					);
+					updateNodes(updatedData);
 				}
 
 				errorListCheck(updatedData, errorList, setErrorList, false);
@@ -541,9 +589,9 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 
 	return (
 		<aside id="aside" className={`${className} ${styles.aside}`}>
-			{/* TODO: FocusTrap this */}
 			<div className={"text-center p-2"}>
 				<div
+					ref={autoFocus}
 					role="button"
 					onClick={() => setExpandedAside(false)}
 					className={
@@ -555,7 +603,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 					<img
 						alt="Logo"
 						src={LTISettings.branding.logo_path}
-						style={{ width: "100%" }}
+						style={{ width: "100%", userSelect: "none" }}
 					/>
 					<span className={styles.collapse + " display-6"}>
 						<FontAwesomeIcon width={38} height={38} icon={faCompress} />
@@ -617,11 +665,35 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 								</Form.Group>
 								{nodeSelected.type != "fragment" && (
 									<Form.Group className="mb-3">
-										<Form.Label htmlFor={typeDOMId} className="mb-1">
-											{ActionNodes.includes(nodeSelected.type)
-												? "Acción a realizar"
-												: "Tipo de recurso"}
-										</Form.Label>
+										<div className="d-flex justify-content-between">
+											<Form.Label htmlFor={typeDOMId} className="mb-1">
+												{ActionNodes.includes(nodeSelected.type)
+													? "Acción a realizar"
+													: "Tipo de recurso"}
+											</Form.Label>
+											<div>
+												<OverlayTrigger
+													placement="right"
+													overlay={
+														ActionNodes.includes(nodeSelected.type) ? (
+															<Tooltip>{`Listado de acciones que pueda ejecutar ${capitalizeFirstLetter(
+																platform
+															)}.`}</Tooltip>
+														) : (
+															<Tooltip>{`Listado de tipos de recursos compatibles con ${capitalizeFirstLetter(
+																platform
+															)}.`}</Tooltip>
+														)
+													}
+													trigger={["hover", "focus"]}
+												>
+													<FontAwesomeIcon
+														icon={faCircleQuestion}
+														tabIndex={0}
+													/>
+												</OverlayTrigger>
+											</div>
+										</div>
 										<Form.Select
 											ref={resourceDOM}
 											id={typeDOMId}
@@ -675,7 +747,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 														htmlFor={lmsResourceDOMId}
 														className="mb-1"
 													>
-														Recurso en el LMS
+														{`Recurso en ${capitalizeFirstLetter(platform)}`}
 													</Form.Label>
 													<div className="ms-2">
 														{!showSpinner && (
@@ -783,61 +855,93 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 										reducedAnimations && styles.noAnimation,
 									].join(" ")}
 								>
-									<Form.Group className="mb-2">
-										<Form.Label htmlFor={lmsVisibilityDOMId}>
-											Visibilidad
-										</Form.Label>
-										<Form.Select
-											ref={lmsVisibilityDOM}
-											id={lmsVisibilityDOMId}
-											defaultValue={nodeSelected.data.lmsVisibility}
-										>
-											{orderByPropertyAlphabetically(shownTypes, "name").map(
-												(option) => (
-													<option key={option.value} value={option.value}>
-														{option.name}
-													</option>
-												)
-											)}
-											{/*<option>Ocultar hasta tener acceso</option>
-											<option>Mostrar siempre sin acceso</option>*/}
-										</Form.Select>
-									</Form.Group>
-
-									<>
+									{platform == "moodle" && (
 										<Form.Group className="mb-2">
-											<Form.Label htmlFor={orderDOMId}>Sección</Form.Label>
+											<Form.Label htmlFor={lmsVisibilityDOMId}>
+												Visibilidad
+											</Form.Label>
 											<Form.Select
-												ref={sectionDOM}
-												id={sectionDOMId}
-												defaultValue={nodeSelected.data.section}
+												ref={lmsVisibilityDOM}
+												id={lmsVisibilityDOMId}
+												defaultValue={nodeSelected.data.lmsVisibility}
 											>
-												{metaData.sections &&
-													orderByPropertyAlphabetically(
-														[...metaData.sections].map((section) => {
-															if (!section.name.match(/^\d/)) {
-																section.name =
-																	platform == "moodle"
-																		? section.position + "- " + section.name
-																		: section.position +
-																		  1 +
-																		  "- " +
-																		  section.name;
-																section.value = section.position + 1;
-															}
-															return section;
-														}),
-														"name"
-													).map((section) => (
-														<option key={section.id} value={section.position}>
-															{section.name}
+												{orderByPropertyAlphabetically(shownTypes, "name").map(
+													(option) => (
+														<option key={option.value} value={option.value}>
+															{option.name}
 														</option>
-													))}
+													)
+												)}
+												{/*<option>Ocultar hasta tener acceso</option>
+											<option>Mostrar siempre sin acceso</option>*/}
 											</Form.Select>
 										</Form.Group>
+									)}
+
+									<>
+										{platform == "moodle" && (
+											<Form.Group className="mb-2">
+												<Form.Label htmlFor={sectionDOMId}>Sección</Form.Label>
+												<Form.Select
+													ref={sectionDOM}
+													id={sectionDOMId}
+													defaultValue={nodeSelected.data.section}
+												>
+													{metaData.sections &&
+														orderByPropertyAlphabetically(
+															[...metaData.sections].map((section) => {
+																if (!section.name.match(/^\d/)) {
+																	section.name =
+																		platform == "moodle"
+																			? section.position + "- " + section.name
+																			: section.position +
+																			  1 +
+																			  "- " +
+																			  section.name;
+																	section.value = section.position + 1;
+																}
+																return section;
+															}),
+															"name"
+														).map((section) => (
+															<option key={section.id} value={section.position}>
+																{section.name}
+															</option>
+														))}
+												</Form.Select>
+											</Form.Group>
+										)}
+										{platform == "sakai" && (
+											<Form.Group className="mb-2">
+												<Form.Label htmlFor={sectionDOMId}>Sección</Form.Label>
+												<Form.Control
+													type="number"
+													min={1}
+													max={999}
+													defaultValue={nodeSelected.data.section}
+													ref={sectionDOM}
+													id={sectionDOMId}
+												></Form.Control>
+											</Form.Group>
+										)}
+										{platform == "sakai" && (
+											<Form.Group className="mb-2">
+												<Form.Label htmlFor={indentDOMId}>Columna</Form.Label>
+												<Form.Control
+													type="number"
+													min={1}
+													max={16}
+													defaultValue={nodeSelected.data.indent + 1}
+													ref={indentDOM}
+													id={indentDOMId}
+												></Form.Control>
+											</Form.Group>
+										)}
 										<Form.Group className="mb-2">
 											<Form.Label htmlFor={orderDOMId}>
-												Posición en la sección
+												{platform === "sakai"
+													? "Posición"
+													: "Posición en la sección"}
 											</Form.Label>
 											<Form.Control
 												type="number"
@@ -848,19 +952,21 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 												id={orderDOMId}
 											></Form.Control>
 										</Form.Group>
-										<Form.Group className="mb-2">
-											<Form.Label htmlFor={indentDOMId}>
-												Identación en la sección
-											</Form.Label>
-											<Form.Control
-												type="number"
-												min={0}
-												max={16}
-												defaultValue={nodeSelected.data.indent}
-												ref={indentDOM}
-												id={indentDOMId}
-											></Form.Control>
-										</Form.Group>
+										{platform == "moodle" && (
+											<Form.Group className="mb-2">
+												<Form.Label htmlFor={indentDOMId}>
+													Identación en la sección
+												</Form.Label>
+												<Form.Control
+													type="number"
+													min={0}
+													max={16}
+													defaultValue={nodeSelected.data.indent}
+													ref={indentDOM}
+													id={indentDOMId}
+												></Form.Control>
+											</Form.Group>
+										)}
 									</>
 								</div>
 							</div>

@@ -1,4 +1,4 @@
-import styles from "@root/styles/AdminPane.module.css";
+import styles from "/styles/AdminPane.module.css";
 import { useId, useRef } from "react";
 import { Button, Form } from "react-bootstrap";
 

@@ -70,7 +70,7 @@ export default function FragmentEditor({
 			fragment.style.width = 125;
 		}
 		if (fragment.style.height <= 68) {
-			fragment.style.height = 175;
+			fragment.style.height = 200;
 		}
 
 		fragment.data.innerNodes = [

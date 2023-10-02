@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
-import styles from "@root/styles/ConditionModal.module.css";
+import React, { useContext, useEffect, useRef, useState } from "react";
+import styles from "/styles/ConditionModalMoodle.module.css";
 //import { Editor } from "@tinymce/tinymce-react";
 import { uniqueId, searchConditionForTypes } from "@utils/Utils";
 import {
@@ -20,8 +20,9 @@ import CourseCompletionForm from "./form-components/CourseCompletionForm";
 import BadgeListForm from "./form-components/BadgeListForm";
 import CompletionForm from "./form-components/CompletionForm";
 import SkillsForm from "./form-components/SkillsForm";
+import { MetaDataContext } from "pages/_app";
 
-function ConditionModal({
+function CriteriaModal({
 	blockData,
 	setBlockData,
 	blocksData,
@@ -45,29 +46,20 @@ function ConditionModal({
 	const [selectedCheckboxes, setSelectedCheckboxes] = useState([]);
 	const [checkedIds, setCheckedIds] = useState(selectedCheckboxes || []);
 
-	const roleList = [
-		{ id: "98123", name: "Gestor" },
-		{ id: "78134", name: "Profesor" },
-		{ id: "89422", name: "Profesor sin permisos de edición" },
-	];
+	const { metaData, setMetaData } = useContext(MetaDataContext);
 
-	const badgeList = [
-		{ id: "89562", name: "Insignia 1" },
-		{ id: "24312", name: "Insignia 2" },
-		{ id: "68456", name: "Insignia 3" },
-	];
-
-	const skillsList = [
-		{ id: "89562", name: "Competencia 1" },
-		{ id: "24312", name: "Competencia 2" },
-		{ id: "68456", name: "Competencia 3" },
-	];
+	const roleList = metaData.role_list;
+	const badgeList = metaData.badges;
+	const skillsList = metaData.skills;
 
 	const [lmsResourceList, setLmsResourceList] = useState([]);
 
 	const addCondition = (conditionId) => {
 		if (blockData.data.c.id != conditionId) {
-			const foundCondition = findConditionById(conditionId, blockData.data.c.c);
+			const foundCondition = findConditionById(
+				conditionId,
+				blockData.data.c.params
+			);
 			setEditing(foundCondition);
 		} else {
 			setEditing(blockData.data.c);
@@ -80,8 +72,9 @@ function ConditionModal({
 		} else {
 			const firstConditionGroup = {
 				type: "conditionsGroup",
+				criteriatype: 0,
 				id: parseInt(Date.now() * Math.random()).toString(),
-				op: "&",
+				method: "&",
 			};
 			setEditing(firstConditionGroup);
 		}
@@ -98,7 +91,7 @@ function ConditionModal({
 		}
 
 		for (const condition of conditions) {
-			if (condition.c) {
+			if (condition.params) {
 				const innerCondition = findConditionById(id, condition.c);
 				if (innerCondition) {
 					return innerCondition;
@@ -160,10 +153,10 @@ function ConditionModal({
 					conditions = undefined;
 				}
 				return true;
-			} else if (condition.c) {
-				if (deleteConditionById(condition.c, id)) {
-					if (condition.c.length === 0) {
-						condition.c = undefined;
+			} else if (condition.params) {
+				if (deleteConditionById(condition.params, id)) {
+					if (condition.params.length === 0) {
+						condition.params = undefined;
 					}
 					return true;
 				}
@@ -186,12 +179,15 @@ function ConditionModal({
 
 	const deleteCondition = (conditionId) => {
 		// We found the condition to delete
-		const foundCondition = findConditionById(conditionId, blockData.data.c.c);
+		const foundCondition = findConditionById(
+			conditionId,
+			blockData.data.c.params
+		);
 
 		// If clause to check if the condition is completion type
 		if (foundCondition.type === "completion") {
 			// Constant to retrieve the activityList of the completion condition
-			const activityList = foundCondition.activityList;
+			const activityList = foundCondition.params;
 
 			// Get method to retrieve the actual edges
 			const edges = reactFlowInstance.getEdges();
@@ -222,7 +218,7 @@ function ConditionModal({
 		const blockDataCopy = deepCopy(blockData);
 
 		// Delete method to delete the condition by ID
-		deleteConditionById(blockDataCopy.data.c.c, conditionId);
+		deleteConditionById(blockDataCopy.data.c.params, conditionId);
 
 		// Set method to set the updated blockData
 		setBlockData(blockDataCopy);
@@ -230,11 +226,11 @@ function ConditionModal({
 
 	function updateConditionOp(jsonObj, id, newOp) {
 		if (jsonObj.id === id) {
-			jsonObj.op = newOp;
+			jsonObj.method = newOp;
 			return true;
-		} else if (jsonObj.c) {
-			for (let i = 0; i < jsonObj.c.length; i++) {
-				if (updateConditionOp(jsonObj.c[i], id, newOp)) {
+		} else if (jsonObj.params) {
+			for (let i = 0; i < jsonObj.params.length; i++) {
+				if (updateConditionOp(jsonObj.params[i], id, newOp)) {
 					return true;
 				}
 			}
@@ -243,24 +239,23 @@ function ConditionModal({
 	}
 
 	function swapConditionGroup(condition) {
+		console.log(condition);
 		const updatedBlockData = deepCopy(blockData);
-		const swapOperator = condition.op === "&" ? "|" : "&";
+		const swapOperator = condition.method === "&" ? "|" : "&";
 
 		updateConditionOp(updatedBlockData.data.c, condition.id, swapOperator);
-		console.log(updatedBlockData);
 		setBlockData(updatedBlockData);
 	}
 
 	useEffect(() => {
 		if (conditionEdit) {
-			console.log(conditionEdit);
 			addCondition(conditionEdit.id);
 			setSelectedOption(conditionEdit.type);
 
 			if (conditionEdit.type == "completion") {
-				setCheckboxValues(conditionEdit.activityList);
+				setCheckboxValues(conditionEdit.params);
 
-				const transformedData = conditionEdit.activityList.map((item) => ({
+				const transformedData = conditionEdit.params.map((item) => ({
 					...item,
 					checkboxEnabled: item.date !== undefined ? true : false,
 				}));
@@ -272,7 +267,7 @@ function ConditionModal({
 				conditionEdit.type == "badgeList" ||
 				conditionEdit.type == "skills"
 			) {
-				setCheckedIds(prioritizeLists());
+				setCheckedIds(conditionEdit.params);
 			}
 			if (conditionEdit.type == "courseCompletion") {
 				if (conditionEdit.dateTo) {
@@ -283,18 +278,6 @@ function ConditionModal({
 			}
 		}
 	}, [conditionEdit]);
-
-	const prioritizeLists = () => {
-		if (conditionEdit?.badgeList) {
-			return conditionEdit.badgeList;
-		} else if (conditionEdit?.roleList) {
-			return conditionEdit.roleList;
-		} else if (conditionEdit?.skillsList) {
-			return conditionEdit.skillsList;
-		} else {
-			return [];
-		}
-	};
 
 	const handleDateCheckboxChange = () => {
 		setIsDateEnabled(!isDateEnabled);
@@ -325,7 +308,7 @@ function ConditionModal({
 						}
 						return item;
 					});
-					console.log(updatedArray);
+
 					setCheckboxValues(updatedArray);
 				} else {
 					const updatedArray = checkboxValues.map((item) => {
@@ -334,7 +317,7 @@ function ConditionModal({
 						}
 						return item;
 					});
-					console.log(updatedArray);
+
 					setCheckboxValues(updatedArray);
 				}
 				break;
@@ -383,17 +366,19 @@ function ConditionModal({
 	const handleSubmit = (edition) => {
 		const formData = {
 			type: selectedOption,
-			op: edition ? conditionEdit.op : "op",
+			method: edition ? conditionEdit.method : "method",
 			id: edition ? conditionEdit.id : uniqueId(),
 		};
 
 		switch (selectedOption) {
 			case "role":
-				formData.op = conditionOperator.current.value;
-				formData.roleList = checkedIds;
+				formData.criteriatype = 2;
+				formData.method = conditionOperator.current.value;
+				formData.params = checkedIds;
 				break;
 			case "courseCompletion":
-				formData.op = conditionOperator.current.value;
+				formData.criteriatype = 4;
+				formData.method = conditionOperator.current.value;
 				if (isDateEnabled) {
 					formData.dateTo = conditionObjective.current.value;
 				} else {
@@ -401,15 +386,18 @@ function ConditionModal({
 				}
 				break;
 			case "badgeList":
-				formData.op = conditionOperator.current.value;
-				formData.badgeList = checkedIds;
+				formData.criteriatype = 7;
+				formData.method = conditionOperator.current.value;
+				formData.params = checkedIds;
 				break;
 			case "completion":
-				formData.activityList = checkboxValues;
+				formData.criteriatype = 1;
+				formData.params = checkboxValues;
 				break;
 			case "skills":
-				formData.op = conditionOperator.current.value;
-				formData.skillsList = checkedIds;
+				formData.criteriatype = 9;
+				formData.method = conditionOperator.current.value;
+				formData.params = checkedIds;
 				break;
 			default:
 				break;
@@ -424,15 +412,13 @@ function ConditionModal({
 					...blockData.data,
 					c: {
 						...blockData.data.c,
-						c: blockData.data.c.c.map((condition) => {
+						params: blockData.data.c.params.map((condition) => {
 							if (condition.id === formData.id) {
-								console.log("ENTRO AL IF");
 								return {
 									...condition,
 									...formData,
 								};
 							}
-							console.log("NOPE");
 							return condition;
 						}),
 					},
@@ -443,7 +429,7 @@ function ConditionModal({
 		} else {
 			const updatedCondition = {
 				...editing,
-				c: editing.c ? [...editing.c, formData] : [formData],
+				params: editing.params ? [...editing.params, formData] : [formData],
 			};
 
 			if (!updatedBlockData.data.c) {
@@ -456,7 +442,7 @@ function ConditionModal({
 						...blockData.data,
 						c: {
 							...blockData.data.c,
-							c: [...blockData.data.c.c, formData],
+							params: [...blockData.data.c.params, formData],
 						},
 					},
 				};
@@ -474,7 +460,7 @@ function ConditionModal({
 	};
 
 	const shouldRenderOption = (type) => {
-		const conditions = blockData.data.c?.c;
+		const conditions = blockData.data.c?.params;
 		if (conditions) {
 			if (conditionEdit) {
 				if (conditionEdit.type == type) {
@@ -495,7 +481,7 @@ function ConditionModal({
 	};
 
 	const allTypesUsed = () => {
-		const conditions = blockData.data.c?.c;
+		const conditions = blockData.data.c?.params;
 		const types = ["role", "courseCompletion", "badgeList", "skills"];
 
 		return types.every((type) =>
@@ -509,64 +495,67 @@ function ConditionModal({
 				<Modal.Title>Precondiciones de "{blockData.data.label}"</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
-				{blockData.data.c && !editing && (
-					<Container
-						style={{
-							padding: "10px",
-							border: "1px solid #C7C7C7",
-							marginBottom: "10px",
-						}}
-					>
-						<Row className="align-items-center">
-							<Col>
-								<div>
-									A los estudiantes se les concede esta insignia cuando
-									finalizan{" "}
-									{blockData.data.c.op == "&" && (
-										<a>
-											<strong>TODOS</strong>{" "}
-										</a>
-									)}
-									{blockData.data.c.op == "|" && (
-										<a>
-											<strong>CUALQUIERA</strong> de{" "}
-										</a>
-									)}
-									los requisitos enumerados
-								</div>
-							</Col>
-							<Col className="col d-flex align-items-center justify-content-end gap-2">
-								<Button
-									variant="light"
-									onClick={() => {
-										swapConditionGroup(blockData.data.c);
-									}}
-								>
+				{blockData.data.c &&
+					blockData.data.c.params &&
+					blockData.data.c.params.length >= 1 &&
+					!editing && (
+						<Container
+							style={{
+								padding: "10px",
+								border: "1px solid #C7C7C7",
+								marginBottom: "10px",
+							}}
+						>
+							<Row className="align-items-center">
+								<Col>
 									<div>
-										<FontAwesomeIcon icon={faShuffle} />
+										A los estudiantes se les concede esta insignia cuando
+										finalizan{" "}
+										{blockData.data.c.method == "&" && (
+											<a>
+												<strong>TODOS</strong>{" "}
+											</a>
+										)}
+										{blockData.data.c.method == "|" && (
+											<a>
+												<strong>CUALQUIERA</strong> de{" "}
+											</a>
+										)}
+										los requisitos enumerados
 									</div>
-								</Button>
-							</Col>
-						</Row>
-						<Container>
-							{blockData.data.c.c.map((condition) => {
-								return (
-									<Criteria
-										condition={condition}
-										roleList={roleList}
-										badgeList={badgeList}
-										skillsList={skillsList}
-										deleteCondition={deleteCondition}
-										addCondition={addCondition}
-										setSelectedOption={setSelectedOption}
-										setConditionEdit={setConditionEdit}
-										swapConditionGroup={swapConditionGroup}
-									></Criteria>
-								);
-							})}
+								</Col>
+								<Col className="col d-flex align-items-center justify-content-end gap-2">
+									<Button
+										variant="light"
+										onClick={() => {
+											swapConditionGroup(blockData.data.c);
+										}}
+									>
+										<div>
+											<FontAwesomeIcon icon={faShuffle} />
+										</div>
+									</Button>
+								</Col>
+							</Row>
+							<Container>
+								{blockData.data.c.params.map((condition) => {
+									return (
+										<Criteria
+											condition={condition}
+											roleList={roleList}
+											badgeList={badgeList}
+											skillsList={skillsList}
+											deleteCondition={deleteCondition}
+											addCondition={addCondition}
+											setSelectedOption={setSelectedOption}
+											setConditionEdit={setConditionEdit}
+											swapConditionGroup={swapConditionGroup}
+										></Criteria>
+									);
+								})}
+							</Container>
 						</Container>
-					</Container>
-				)}
+					)}
 				{editing &&
 					(conditionEdit === undefined ||
 					conditionEdit.type !== "conditionsGroup" ? (
@@ -702,7 +691,7 @@ function ConditionModal({
 	);
 }
 
-export default ConditionModal;
+export default CriteriaModal;
 
 /*
 <Editor
