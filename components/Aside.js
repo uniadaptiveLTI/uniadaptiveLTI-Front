@@ -390,8 +390,6 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 				);
 				let limitedindent = Math.min(Math.max(indentDOM.current.value, 0), 16);
 
-				console.log("AAAAAAAAAAAa", lmsVisibilityDOM?.current?.value);
-
 				newData = {
 					...nodeSelected.data,
 					label: labelDOM.current.value,
