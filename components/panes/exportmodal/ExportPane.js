@@ -235,6 +235,7 @@ export default function ExportPanel({
 		});
 
 		let nodesAsString = JSON.stringify(nodesToExport);
+
 		//Replacing block Ids by the resource ids
 		fullNodes.forEach((fullNode) => {
 			const originalId = fullNode.id;
@@ -246,29 +247,32 @@ export default function ExportPanel({
 			nodesAsString = nodesAsString.replace(regex, lmsResource);
 		});
 
-		const nodesReadyToExport = JSON.parse(nodesAsString).filter((node) => {
-			const section = metaData.sections.find(
-				(section) => section.position == node.section
-			);
+		let nodesReadyToExport = JSON.parse(nodesAsString);
+		if (platform == "moodle") {
+			nodesReadyToExport.filter((node) => {
+				const section = metaData.sections.find(
+					(section) => section.position == node.section
+				);
 
-			//Change section position for section id
-			if (section != undefined) {
-				node.section = section.id;
-			}
+				//Change section position for section id
+				if (section != undefined) {
+					node.section = section.id;
+				}
 
-			if (node.id == "") {
-				node.id = -1;
-			} else {
-				node.id = Number(node.id);
-			}
+				if (node.id == "") {
+					node.id = -1;
+				} else {
+					node.id = Number(node.id);
+				}
 
-			if (section && currentSelectionInfo.selection.includes(section.id))
-				return true;
+				if (section && currentSelectionInfo.selection.includes(section.id))
+					return true;
 
-			if (!section) {
-				return true;
-			}
-		});
+				if (!section) {
+					return true;
+				}
+			});
+		}
 
 		console.log("nodesReadyToExport", nodesReadyToExport);
 		console.log(platform);
