@@ -902,39 +902,49 @@ function Header({ LTISettings }, ref) {
 					});
 			} else {
 				const loadResources = async (token) => {
-					const response = await fetchBackEnd(
-						LTISettings,
-						token,
-						"api/lti/get_session",
-						"POST"
-					);
-					console.log(response);
-					if (response && response.ok) {
-						const data = response.data;
-
-						console.log("DATOS DEL LMS: ", data);
-						// Usuario
-						setUserData(data[0]);
-						setLoadedUserData(true);
-
-						//Metadata
-						setPlatform(data[1].platform);
-						setMetaData({
-							...data[1],
-							back_url: LTISettings.back_url,
-						}); //FIXME: This should be the course website in moodle
-						setLoadedMetaData(true);
-
-						//Maps
-						const maps = [emptyMap, ...data[2].maps];
-						setMaps(maps);
-						setMapCount(maps.length);
-						setLoadedMaps(true);
-					} else {
-						alert(
-							`Error: No se puede obtener una sesión válida para el curso con los identificadores actuales. ¿Ha expirado la sesión?. Vuelva a alanzar la herramienta desde el gestor de contenido. Cerrando.`
+					try {
+						const response = await fetchBackEnd(
+							LTISettings,
+							token,
+							"api/lti/get_session",
+							"POST"
 						);
-						//window.close(); //TODO: DO THIS BETTER
+						console.log(response);
+						if (response && response.ok) {
+							const data = response.data;
+
+							console.log("DATOS DEL LMS: ", data);
+							// Usuario
+							setUserData(data[0]);
+							setLoadedUserData(true);
+
+							//Metadata
+							setPlatform(data[1].platform);
+							setMetaData({
+								...data[1],
+								back_url: LTISettings.back_url,
+							}); //FIXME: This should be the course website in moodle
+							setLoadedMetaData(true);
+
+							//Maps
+							const maps = [emptyMap, ...data[2].maps];
+							setMaps(maps);
+							setMapCount(maps.length);
+							setLoadedMaps(true);
+						} else {
+							alert(
+								`Error: No se puede obtener una sesión válida para el curso con los identificadores actuales. ¿Ha expirado la sesión?. Vuelva a alanzar la herramienta desde el gestor de contenido. Cerrando.`
+							);
+							//window.close(); //TODO: DO THIS BETTER
+						}
+					} catch (e) {
+						toast("No se puede conectar con el servidor.", {
+							hideProgressBar: false,
+							autoClose: 4000,
+							type: "error",
+							position: "bottom-center",
+							theme: "light",
+						});
 					}
 				};
 
