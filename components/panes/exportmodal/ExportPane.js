@@ -212,7 +212,7 @@ export default function ExportPanel({
 					delete node.data.label;
 					break;
 				case "sakai":
-					node.pageId = selectDOM.current.value;
+					node.pageId = Number(selectDOM.current.value);
 					break;
 			}
 			if (ActionNodes.includes(type)) {
@@ -305,16 +305,15 @@ export default function ExportPanel({
 				return a.indent - b.indent;
 			});
 
-			/* Juanma changes, temporal
-
 			let resultJson = [];
 			const sectionProcessed = {};
+
 			console.log(sortedSectionColumnPairs, nodesReadyToExport);
 			sortedSectionColumnPairs.map((jsonObj) => {
 				if (!sectionProcessed[jsonObj.section]) {
 					// Process the section if it hasn't been processed yet
 					resultJson.push({
-						pageId: selectDOM.current.value,
+						pageId: Number(selectDOM.current.value),
 						type: 14,
 						title: "",
 						format: "section",
@@ -331,7 +330,7 @@ export default function ExportPanel({
 					filteredArray.map((node) => {
 						const nodeTypeParsed = sakaiTypeSwitch(node);
 						resultJson.push({
-							pageId: selectDOM.current.value,
+							pageId: Number(selectDOM.current.value),
 							type: nodeTypeParsed.type,
 							title: node.label,
 							contentRef: nodeTypeParsed.contentRef,
@@ -341,7 +340,7 @@ export default function ExportPanel({
 					sectionProcessed[jsonObj.section] = true; // Mark the section as processed
 				} else {
 					resultJson.push({
-						pageId: selectDOM.current.value,
+						pageId: Number(selectDOM.current.value),
 						type: 14,
 						title: "",
 						format: "column",
@@ -358,7 +357,7 @@ export default function ExportPanel({
 					filteredArray.map((node) => {
 						const nodeTypeParsed = sakaiTypeSwitch(node);
 						resultJson.push({
-							pageId: selectDOM.current.value,
+							pageId: Number(selectDOM.current.value),
 							type: nodeTypeParsed.type,
 							title: node.label,
 							contentRef: nodeTypeParsed.contentRef,
@@ -368,7 +367,7 @@ export default function ExportPanel({
 				console.log(resultJson, mapSelected);
 				sendNodes(nodesReadyToExport);
 			});
-
+			/*
 <<<<<<< Updated upstream*/
 			/* AQUI LLAMAREMOS A LA FUNCION PARA QUE A DAVID LE LLEGUE EL
 			   nodesReadyToExport (que es para que se actualicen los objetos)
@@ -390,49 +389,6 @@ export default function ExportPanel({
 
 			console.log(sortedSectionColumnPairs);
 
-			let resultJson = [];
-			const sectionProcessed = {};
-
-			sortedSectionColumnPairs.map((jsonObj) => {
-				if (!sectionProcessed[jsonObj.section]) {
-					// Process the section if it hasn't been processed yet
-					resultJson.push({
-						pageId: selectDOM.current.value,
-						type: 14,
-						title: "",
-						format: "section",
-					});
-
-					resultJson = resultJson.concat(
-						nodesReadyToExport
-							.filter(
-								(node) =>
-									node.section === jsonObj.section &&
-									node.indent === jsonObj.indent
-							)
-							.sort((a, b) => a.order - b.order)
-					);
-
-					sectionProcessed[jsonObj.section] = true; // Mark the section as processed
-				} else {
-					resultJson.push({
-						pageId: selectDOM.current.value,
-						type: 14,
-						title: "",
-						format: "column",
-					});
-
-					resultJson = resultJson.concat(
-						nodesReadyToExport
-							.filter(
-								(node) =>
-									node.section === jsonObj.section &&
-									node.indent === jsonObj.indent
-							)
-							.sort((a, b) => a.order - b.order)
-					);
-				}
-			});
 			console.log(resultJson);
 
 			console.log(sortedSectionColumnPairs);
