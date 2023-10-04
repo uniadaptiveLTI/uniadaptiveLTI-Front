@@ -194,15 +194,20 @@ export default forwardRef(function ExportModal(
 					node.type !== "remgroup" &&
 					node.type !== "addgroup" &&
 					node.type !== "fragment" &&
-					node.type !== "mail" &&
-					node.type !== "badge"
+					node.type !== "mail"
 				) {
 					let childlessNode = false;
 
-					if (platform == "sakai") {
-						if (node.type !== "exam" && node.type !== "assign") {
-							childlessNode = true;
-						}
+					switch (platform) {
+						case "sakai":
+							if (node.type !== "exam" && node.type !== "assign") {
+								childlessNode = true;
+							}
+							break;
+						case "moodle":
+							if (node.type == "badge") {
+								childlessNode = true;
+							}
 					}
 
 					if (

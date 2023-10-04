@@ -64,6 +64,7 @@ export function deleteNodeFromErrorList(data, errorList) {
 	let errorListUpdated = errorList;
 
 	if (data.data.lmsResource !== undefined && data.data.lmsResource !== -1) {
+		console.log("SUUUU");
 		errorListUpdated = errorListUpdated.filter(
 			(item) => item.nodeId !== data.id || item.type !== "resourceNotFound"
 		);
@@ -97,7 +98,6 @@ export function createItemErrors(item, errorArray) {
 			item.type === "fragment" ||
 			item.type === "remgroup" ||
 			item.type === "addgroup" ||
-			item.type === "badge" ||
 			item.type === "mail"
 		)
 	) {
@@ -125,9 +125,10 @@ export function createItemErrors(item, errorArray) {
 		}
 
 		if (
-			item.data.section === null ||
-			item.data.section === undefined ||
-			item.data.section < 0
+			(item.data.section === null ||
+				item.data.section === undefined ||
+				item.data.section < 0) &&
+			item.type !== "badge"
 		) {
 			const customEntry = {
 				...errorEntry,
@@ -147,7 +148,10 @@ export function createItemErrors(item, errorArray) {
 			}
 		}
 
-		if (item.data.order == undefined || item.data.order == -Infinity) {
+		if (
+			(item.data.order == undefined || item.data.order == -Infinity) &&
+			item.type !== "badge"
+		) {
 			const customEntry = {
 				...errorEntry,
 				severity: "error",

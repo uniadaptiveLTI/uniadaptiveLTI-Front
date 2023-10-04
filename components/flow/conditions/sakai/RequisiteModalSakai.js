@@ -259,22 +259,11 @@ function RequisiteModalSakai({
 					formData.closeTime = closeTimeRef.current.value;
 				}
 
-				const openingDateParsed = new Date(dates.openingDate);
-				const dueDateParsed = new Date(formData.dueDate);
-				const closeTimeParsed = new Date(formData?.closeTime);
-
-				if (
-					openingDateParsed > dueDateParsed ||
-					(closeTimeParsed && dueDateParsed > closeTimeParsed) ||
-					openingDateParsed > closeTimeParsed
-				) {
-				}
-
 				break;
 			case "dateException":
 				if (blockData.type == "exam") {
 					formData.op = exceptionSelectRef.current.value;
-					formData.entityId = Number(exceptionEntityRef.current.value);
+					formData.entityId = exceptionEntityRef.current.value;
 					formData.openingDate = openingDateRef.current.value;
 					formData.dueDate = dueDateRef.current.value;
 					formData.closeTime = closeTimeRef.current.value;

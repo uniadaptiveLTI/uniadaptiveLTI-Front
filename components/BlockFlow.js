@@ -840,7 +840,7 @@ const OverviewFlow = ({ map }, ref) => {
 
 	const deleteElements = (nodes, edges, force = false) => {
 		let continueDeletion = true;
-		if (force == false) {
+		if (force == false && platform === "moodle") {
 			if (
 				nodes.filter((node) => metaData.grades.includes(node.data.lmsResource))
 					.length > 0
@@ -1436,7 +1436,7 @@ const OverviewFlow = ({ map }, ref) => {
 				};
 			}
 		}
-
+		console.log(newBlockCreated);
 		errorListCheck(newBlockCreated, errorList, setErrorList, false);
 
 		setShowContextualMenu(false);

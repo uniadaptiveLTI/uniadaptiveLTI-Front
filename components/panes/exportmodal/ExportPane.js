@@ -160,9 +160,6 @@ export default function ExportPanel({
 		const fullNodes = JSON.parse(JSON.stringify(nodesToExport));
 		//Deletting unnecessary info and flattening the nodes
 		nodesToExport = nodesToExport.map((node) => {
-			if (platform !== "sakai") {
-				delete node.data.label;
-			}
 			delete node.data.lmsResource;
 			const data = node.data;
 			if (data.c) {
@@ -209,8 +206,14 @@ export default function ExportPanel({
 			delete node.parentNode;
 			delete node.expandParent;
 			const type = node.type;
-			if (platform !== "sakai") {
-				delete node.type;
+			switch (platform) {
+				case "moodle":
+					delete node.type;
+					delete node.data.label;
+					break;
+				case "sakai":
+					node.pageId = selectDOM.current.value;
+					break;
 			}
 			if (ActionNodes.includes(type)) {
 				const actionNode = {
@@ -235,7 +238,7 @@ export default function ExportPanel({
 		});
 
 		let nodesAsString = JSON.stringify(nodesToExport);
-
+		console.log(nodesAsString);
 		//Replacing block Ids by the resource ids
 		fullNodes.forEach((fullNode) => {
 			const originalId = fullNode.id;
