@@ -146,6 +146,7 @@ export default function ExportPanel({
 		let nodesToExport = JSON.parse(
 			JSON.stringify(reactFlowInstance.getNodes()) //Deep clone TODO: DO THIS BETTER
 		);
+		console.log(reactFlowInstance.getNodes());
 		nodesToExport = nodesToExport.filter((node) =>
 			NodeTypes.find((declaration) => {
 				if (node.type == declaration.type) {
@@ -212,6 +213,7 @@ export default function ExportPanel({
 					delete node.data.label;
 					break;
 				case "sakai":
+					node.c = data.requisites;
 					node.pageId = Number(selectDOM.current.value);
 					break;
 			}
@@ -308,6 +310,89 @@ export default function ExportPanel({
 				return a.indent - b.indent;
 			});
 
+			let nodesToUpdateRequest = [];
+			nodesReadyToExport.map((node) => {
+				const newNode = node;
+				if (newNode.c && newNode.c.length >= 1) {
+					const dateCondition = newNode.c.find(
+						(condition) => condition.type === "date"
+					);
+
+					const groupCondition = newNode.c.find(
+						(condition) => condition.type === "group"
+					);
+
+					const dateExceptionCheck = newNode.c.some(
+						(condition) => condition.type === "dateException"
+					);
+
+					if (dateCondition) {
+						if (dateCondition.openingDate) {
+							newNode.openDate = Date.parse(dateCondition?.openingDate) / 1000;
+						}
+
+						if (dateCondition.dueDate) {
+							newNode.dueDate = Date.parse(dateCondition?.dueDate) / 1000;
+						}
+
+						if (dateCondition?.closeTime) {
+							newNode.closeDate = Date.parse(dateCondition?.closeTime) / 1000;
+						}
+					}
+
+					if (groupCondition) {
+						newNode.groupRefs = [];
+						groupCondition.groupList.map((group) => {
+							newNode.groupRefs.push(group.id);
+						});
+					}
+
+					if (dateExceptionCheck) {
+						newNode.timeExceptions = [];
+
+						let dateExceptionFiltered = newNode.c.filter(
+							(condition) => condition.type === "dateException"
+						);
+						dateExceptionFiltered.map((exception) => {
+							const newException = {};
+							newException.openDate = Date.parse(exception?.openingDate) / 1000;
+							newException.dueDate = Date.parse(exception?.dueDate) / 1000;
+							newException.closeDate = Date.parse(exception?.closeTime) / 1000;
+
+							if (exception.op && exception.op === "group") {
+								newException.forEntityRef =
+									"/site/" +
+									metaData.course_id +
+									"/group/" +
+									exception.entityId;
+							}
+
+							if (exception.op && exception.op === "user") {
+								newException.forEntityRef = "/user/" + exception.entityId;
+							}
+
+							newNode.timeExceptions.push(newException);
+						});
+					}
+				}
+
+				newNode.title = newNode.label;
+				newNode.type = sakaiExportTypeSwitch(newNode.type);
+
+				delete newNode.label;
+				delete newNode.c;
+				delete newNode.children;
+				delete newNode.indent;
+				delete newNode.lmsVisibility;
+				delete newNode.requisites;
+				delete newNode.pageId;
+				delete newNode.order;
+				delete newNode.section;
+
+				nodesToUpdateRequest.push(newNode);
+			});
+			console.log(nodesToUpdateRequest);
+
 			let resultJson = [];
 			const sectionProcessed = {};
 
@@ -367,8 +452,6 @@ export default function ExportPanel({
 						});
 					});
 				}
-				console.log(resultJson, mapSelected);
-				sendNodes(nodesReadyToExport);
 			});
 			/*
 <<<<<<< Updated upstream*/
@@ -396,7 +479,7 @@ export default function ExportPanel({
 
 			console.log(sortedSectionColumnPairs);
 			console.log(nodesReadyToExport);
-			sendNodes(nodesReadyToExport, resultJson);
+			sendNodes(nodesReadyToExport, resultJson, nodesToUpdateRequest);
 		} else {
 			sendNodes(nodesReadyToExport);
 		}
@@ -420,6 +503,27 @@ export default function ExportPanel({
 				return { type: 3, contentRef: "/assignment/" + node.id };
 			case "forum":
 				return { type: 8, contentRef: "/forum_forum/" + node.id };
+		}
+	}
+
+	function sakaiExportTypeSwitch(id) {
+		switch (id) {
+			case "resource":
+				return "RESOURCE";
+			case "html":
+				return "HTML";
+			case "text":
+				return "TEXT";
+			case "url":
+				return "URL";
+			/* IS NOT SUPPORTED case "folder":
+				return { type: 20, contentRef: "" };*/
+			case "exam":
+				return "ASSESSMENT";
+			case "assign":
+				return "ASSIGNMENT";
+			case "forum":
+				return "FORUM";
 		}
 	}
 
@@ -503,7 +607,7 @@ export default function ExportPanel({
 		}
 	}
 
-	async function sendNodes(nodes, resultJson) {
+	async function sendNodes(nodes, resultJson, resultJsonSecondary) {
 		console.log(nodes);
 		try {
 			const payload = {
@@ -517,6 +621,7 @@ export default function ExportPanel({
 
 			if (platform == "sakai") {
 				payload.nodes = resultJson;
+				payload.nodesToUpdate = resultJsonSecondary;
 			} else {
 				payload.nodes = nodes;
 			}
