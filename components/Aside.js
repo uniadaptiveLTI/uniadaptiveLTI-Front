@@ -277,7 +277,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 					if (resourceIDs.includes(nodeSelected.data.lmsResource)) {
 						lmsResourceCurrent.value = nodeSelected.data.lmsResource;
 					} else {
-						lmsResourceCurrent.value = -1;
+						lmsResourceCurrent.value = "-1";
 					}
 				}
 				setLmsResource(nodeSelected.data.lmsResource);
@@ -393,7 +393,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 				newData = {
 					...nodeSelected.data,
 					label: labelDOM.current.value,
-					lmsResource: Number(lmsResourceDOM.current.value),
+					lmsResource: lmsResourceDOM.current.value,
 					lmsVisibility: lmsVisibilityDOM?.current?.value
 						? lmsVisibilityDOM?.current?.value
 						: platform == "moodle"
@@ -509,8 +509,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 				newData = {
 					...nodeSelected.data,
 					label: labelDOM.current.value,
-					lmsResource:
-						type !== "mail" ? Number(lmsResourceDOM.current.value) : type,
+					lmsResource: type !== "mail" ? lmsResourceDOM.current.value : type,
 				};
 
 				console.log(newData);

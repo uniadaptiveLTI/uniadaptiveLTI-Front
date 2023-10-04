@@ -72,7 +72,7 @@ export default forwardRef(function SectionSelector(
 				const orderedSelectors = orderByPropertyAlphabetically(
 					sections.map((section, idx) => {
 						return {
-							position: "" + section.position, //ToString to be sorted
+							position: String(section.position), //ToString to be sorted
 							html: (
 								<div
 									style={{ display: "flex", alignItems: "center" }}

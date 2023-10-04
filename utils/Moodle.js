@@ -5,7 +5,7 @@ import { getUpdatedArrayById, uniqueId, parseDate } from "./Utils";
 export function parseMoodleNode(node, newX, newY) {
 	const newNode = {};
 
-	newNode.id = "" + uniqueId();
+	newNode.id = String(uniqueId());
 	newNode.type = node.modname;
 	newNode.position = { x: newX, y: newY };
 	newNode.data = {
@@ -15,7 +15,7 @@ export function parseMoodleNode(node, newX, newY) {
 		children: [], //Filled in "createNewMoodleMap" (as we need all the IDs)
 		c: node.availability, //Adapted in "createNewMoodleMap" (as we need all the IDs)
 		order: node.order,
-		lmsResource: node.id,
+		lmsResource: String(node.id),
 		lmsVisibility: node.visible,
 	};
 
@@ -25,13 +25,13 @@ export function parseMoodleNode(node, newX, newY) {
 export function parseMoodleBadges(badge, newX, newY) {
 	console.log(badge);
 	const newNode = {};
-	newNode.id = "" + uniqueId();
+	newNode.id = String(uniqueId());
 	newNode.type = "badge";
 	newNode.position = { x: newX, y: newY };
 	newNode.data = {
 		label: badge.name,
 		c: parseMoodleBadgeParams(badge.params), //Adapted in "createNewMoodleMap" (as we need all the IDs)
-		lmsResource: badge.id,
+		lmsResource: String(badge.id),
 	};
 	console.log(newNode);
 	return newNode;

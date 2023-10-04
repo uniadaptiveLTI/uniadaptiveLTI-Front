@@ -244,10 +244,13 @@ export default function ExportPanel({
 			const originalId = fullNode.id;
 			const lmsResource =
 				fullNode.data.lmsResource == undefined
-					? -1
-					: Number(fullNode.data.lmsResource);
+					? "-1"
+					: fullNode.data.lmsResource;
 			const regex = new RegExp('"' + originalId + '"', "g");
-			nodesAsString = nodesAsString.replace(regex, lmsResource);
+			nodesAsString = nodesAsString.replace(
+				regex,
+				platform == "moodle" ? lmsResource : JSON.stringify(String(lmsResource))
+			);
 		});
 
 		let nodesReadyToExport = JSON.parse(nodesAsString);
@@ -512,7 +515,7 @@ export default function ExportPanel({
 				selection: currentSelectionInfo.selection,
 			};
 
-			if (platform != "moodle") {
+			if (platform == "sakai") {
 				payload.nodes = resultJson;
 			} else {
 				payload.nodes = nodes;
