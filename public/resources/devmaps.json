@@ -360,35 +360,37 @@
 					},
 					{
 						"id": "dev11A1",
-						"position": {
-							"x": 625,
-							"y": 275
-						},
 						"type": "badge",
 						"data": {
-							"label": "Recuperación",
-							"lmsResource": "32",
+							"label": "Dar insignia",
 							"c": {
 								"type": "conditionsGroup",
-								"id": "301884364154",
-								"op": "&",
+								"id": "116289458576",
+								"method": "&",
 								"showc": true,
-								"c": [
+								"criteriatype": 0,
+								"params": [
 									{
-										"id": "1458291548812",
+										"id": "6254420205",
 										"type": "completion",
-										"activityList": [
+										"criteriatype": 1,
+										"params": [
 											{
 												"id": "dev10A1",
 												"date": "2023-07-26"
 											}
 										],
-										"op": "&",
-										"query": "completed"
+										"method": "&"
 									}
 								]
 							}
-						}
+						},
+						"position": {
+							"x": 625,
+							"y": 275
+						},
+						"selected": true,
+						"dragging": false
 					},
 					{
 						"id": "dev12A1",
