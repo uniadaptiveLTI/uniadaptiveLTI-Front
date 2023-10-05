@@ -146,7 +146,7 @@ export default function ExportPanel({
 		let nodesToExport = JSON.parse(
 			JSON.stringify(reactFlowInstance.getNodes()) //Deep clone TODO: DO THIS BETTER
 		);
-		console.log(reactFlowInstance.getNodes());
+
 		nodesToExport = nodesToExport.filter((node) =>
 			NodeTypes.find((declaration) => {
 				if (node.type == declaration.type) {
@@ -161,6 +161,13 @@ export default function ExportPanel({
 		const fullNodes = JSON.parse(JSON.stringify(nodesToExport));
 		//Deletting unnecessary info and flattening the nodes
 		nodesToExport = nodesToExport.map((node) => {
+			switch (platform) {
+				case "moodle":
+					delete node.data.label;
+					break;
+				case "sakai":
+					break;
+			}
 			delete node.data.lmsResource;
 			const data = node.data;
 			if (data.c) {
@@ -194,6 +201,7 @@ export default function ExportPanel({
 				data.c = deleteEmptyC(data.c);
 				console.log(data.c);
 			}
+
 			delete node.x;
 			delete node.y;
 			delete node.data;
@@ -210,7 +218,6 @@ export default function ExportPanel({
 			switch (platform) {
 				case "moodle":
 					delete node.type;
-					delete node.data.label;
 					break;
 				case "sakai":
 					node.c = data.requisites;
@@ -416,6 +423,7 @@ export default function ExportPanel({
 						.sort((a, b) => a.order - b.order);
 
 					filteredArray.map((node) => {
+						console.log(node);
 						const nodeTypeParsed = sakaiTypeSwitch(node);
 						resultJson.push({
 							pageId: Number(selectDOM.current.value),
@@ -443,6 +451,7 @@ export default function ExportPanel({
 						.sort((a, b) => a.order - b.order);
 					console.log(filteredArray);
 					filteredArray.map((node) => {
+						console.log(node);
 						const nodeTypeParsed = sakaiTypeSwitch(node);
 						resultJson.push({
 							pageId: Number(selectDOM.current.value),
