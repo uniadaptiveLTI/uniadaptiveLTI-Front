@@ -973,6 +973,7 @@ const OverviewFlow = ({ map }, ref) => {
 		? edges.map((edge) => {
 				if (edge) {
 					edge.type = "conditionalEdge";
+
 					if (edge.target) {
 						const targetNode = getNodeById(
 							edge.target,
@@ -1782,6 +1783,10 @@ const OverviewFlow = ({ map }, ref) => {
 		}
 	};
 
+	const onElementClick = (event, element) => {
+		console.log(event, element);
+	};
+
 	/**
 	 * Handles the showing of a modal.
 	 * @param {string} modal - The modal to show.
@@ -1939,7 +1944,7 @@ const OverviewFlow = ({ map }, ref) => {
 				nodeTypes={nodeTypes}
 				edgeTypes={edgeTypes}
 				snapGrid={[125, 275]}
-				//connectionLineComponent={}
+				onElementClick={onElementClick}
 				snapToGrid={snapToGrid}
 				deleteKeyCode={[]}
 				multiSelectionKeyCode={["Shift"]}
@@ -1951,8 +1956,6 @@ const OverviewFlow = ({ map }, ref) => {
 				edgesFocusable={interactive}
 				elementsSelectable={interactive}
 				selectionMode={SelectionMode.Partial}
-				//onElementsRemove={setElements}
-				//onElementClick={onElementClick}
 			>
 				{minimap && (
 					<MiniMap

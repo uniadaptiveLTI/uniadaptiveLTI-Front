@@ -256,9 +256,18 @@ const ConditionalEdge = ({
 		setWidth(getSelfWidth);
 	}, [getNodeById(source, rfNodes), getNodeById(target, rfNodes)]);
 
+	const onEdgeClick = (evt, id) => {
+		evt.stopPropagation();
+		console.log(`Clicked edge ${id}`);
+	};
+
 	return (
 		<>
-			<BaseEdge path={edgePath} style={style} />
+			<BaseEdge
+				path={edgePath}
+				style={style}
+				onClick={(event) => onEdgeClick(event, id)}
+			/>
 			{label && (
 				<EdgeLabelRenderer>
 					<div

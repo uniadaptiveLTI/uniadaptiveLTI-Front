@@ -17,7 +17,10 @@ import {
 	saveVersion,
 } from "@utils/Utils";
 import { toast } from "react-toastify";
-import { parseMoodleBadgeToExport } from "@utils/Moodle";
+import {
+	parseMoodleBadgeToExport,
+	parseMoodleCalifications,
+} from "@utils/Moodle";
 import LessonSelector from "@components/forms/components/LessonSelector";
 
 export default function ExportPanel({
@@ -146,7 +149,7 @@ export default function ExportPanel({
 		let nodesToExport = JSON.parse(
 			JSON.stringify(reactFlowInstance.getNodes()) //Deep clone TODO: DO THIS BETTER
 		);
-
+		console.log(reactFlowInstance.getNodes());
 		nodesToExport = nodesToExport.filter((node) =>
 			NodeTypes.find((declaration) => {
 				if (node.type == declaration.type) {
@@ -226,7 +229,7 @@ export default function ExportPanel({
 					break;
 				case "sakai":
 					node.c = data.requisites;
-					node.pageId = Number(lessonFind.page_id);
+					node.pageId = Number(selectDOM.current.value);
 					break;
 			}
 			if (ActionNodes.includes(type)) {
@@ -252,7 +255,6 @@ export default function ExportPanel({
 		});
 
 		let nodesAsString = JSON.stringify(nodesToExport);
-		console.log(nodesAsString);
 		//Replacing block Ids by the resource ids
 		fullNodes.forEach((fullNode) => {
 			const originalId = fullNode.id;
@@ -507,7 +509,15 @@ export default function ExportPanel({
 				lessonFind
 			);
 		} else {
-			sendNodes(nodesReadyToExport);
+			console.log("MOODLENODES");
+			const moodleNodes = nodesReadyToExport.map((node) => {
+				const newNode = parseMoodleCalifications(node);
+				delete newNode.children;
+				delete newNode.type;
+				return newNode;
+			});
+
+			sendNodes(moodleNodes);
 		}
 	};
 

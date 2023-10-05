@@ -14,6 +14,7 @@ export function parseMoodleNode(node, newX, newY) {
 		section: node.section,
 		children: [], //Filled in "createNewMoodleMap" (as we need all the IDs)
 		c: node.availability, //Adapted in "createNewMoodleMap" (as we need all the IDs)
+		g: node.g ? parseMoodleCalifications(node).g : undefined,
 		order: node.order,
 		lmsResource: String(node.id),
 		lmsVisibility: node.visible,
@@ -488,4 +489,48 @@ export function parseMoodleBadgeToExport(node, nodeArray, metaData) {
 	}
 
 	return newNode;
+}
+
+export function parseMoodleCalifications(node, method = "export") {
+	if (node.g) {
+		const og = node.g;
+
+		let newGrades;
+
+		if (method == "export") {
+			newGrades = {
+				attempts: og.attemptsAllowed,
+				completion: og.completionTracking,
+				completiongradeitemnumber: og.hasToBeQualified,
+				completionview: og.hasToBeSeen,
+				grademethod: og.qualificationMethod,
+				gradepass: og.qualificationToPass,
+				completionexpected: og.timeLimit,
+				requiredType: og.requiredType,
+			};
+		} else if (method == "import") {
+			newGrades = {
+				attemptsAllowed: og.attempts,
+				completionTracking: og.completion,
+				hasToBeQualified: og.completiongradeitemnumber,
+				hasToBeSeen: og.completionview,
+				qualificationMethod: og.grademethod,
+				qualificationToPass: og.gradepass,
+				timeLimit: og.completionexpected,
+				requiredType: og.requiredType,
+			};
+
+			const timeLimit = og.completionexpected;
+			const hasTimeLimit = timeLimit ? true : false;
+
+			newGrades.hasTimeLimit == hasTimeLimit;
+			if (hasTimeLimit) newGrades.timeLimit == timeLimit;
+		}
+
+		const newNode = { ...node, g: newGrades };
+
+		return newNode;
+	} else {
+		return node;
+	}
 }
