@@ -149,7 +149,20 @@ export default function ExportPanel({
 		let nodesToExport = JSON.parse(
 			JSON.stringify(reactFlowInstance.getNodes()) //Deep clone TODO: DO THIS BETTER
 		);
-		console.log(reactFlowInstance.getNodes());
+
+		const conditionList = [];
+
+		nodesToExport.map((node) => {
+			if (
+				node.data.gradeRequisites &&
+				node.data.gradeRequisites.subConditions.length >= 1
+			) {
+				conditionList.push(node.data.gradeRequisites);
+			}
+		});
+
+		console.log(nodesToExport);
+
 		nodesToExport = nodesToExport.filter((node) =>
 			NodeTypes.find((declaration) => {
 				if (node.type == declaration.type) {
@@ -345,12 +358,18 @@ export default function ExportPanel({
 							newNode.openDate = Date.parse(dateCondition?.openingDate) / 1000;
 						}
 
-						if (dateCondition.dueDate) {
-							newNode.dueDate = Date.parse(dateCondition?.dueDate) / 1000;
-						}
+						if (node.type !== "forum") {
+							if (dateCondition.dueDate) {
+								newNode.dueDate = Date.parse(dateCondition?.dueDate) / 1000;
+							}
 
-						if (dateCondition?.closeTime) {
-							newNode.closeDate = Date.parse(dateCondition?.closeTime) / 1000;
+							if (dateCondition?.closeTime) {
+								newNode.closeDate = Date.parse(dateCondition?.closeTime) / 1000;
+							}
+						} else {
+							if (dateCondition.dueDate) {
+								newNode.closeDate = Date.parse(dateCondition?.dueDate) / 1000;
+							}
 						}
 					}
 
@@ -405,6 +424,8 @@ export default function ExportPanel({
 
 				nodesToUpdateRequest.push(newNode);
 			});
+
+			console.log("CONDITION LIST", conditionList);
 
 			let resultJson = [];
 			const sectionProcessed = {};

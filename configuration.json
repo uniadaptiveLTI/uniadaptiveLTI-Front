@@ -90,7 +90,7 @@
 		}
 	},
 	"debugging": {
-		"dev_mode": false,
-		"dev_files": false
+		"dev_mode": true,
+		"dev_files": true
 	}
 }
