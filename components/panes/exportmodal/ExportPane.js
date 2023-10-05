@@ -159,6 +159,11 @@ export default function ExportPanel({
 			})
 		);
 		const fullNodes = JSON.parse(JSON.stringify(nodesToExport));
+
+		const lessonFind = metaData.lessons.find(
+			(lesson) => lesson.id === Number(selectDOM.current.value)
+		);
+		console.log(lessonFind);
 		//Deletting unnecessary info and flattening the nodes
 		nodesToExport = nodesToExport.map((node) => {
 			switch (platform) {
@@ -221,7 +226,7 @@ export default function ExportPanel({
 					break;
 				case "sakai":
 					node.c = data.requisites;
-					node.pageId = 5;
+					node.pageId = Number(lessonFind.page_id);
 					break;
 			}
 			if (ActionNodes.includes(type)) {
@@ -398,17 +403,17 @@ export default function ExportPanel({
 
 				nodesToUpdateRequest.push(newNode);
 			});
-			console.log(nodesToUpdateRequest, nodesReadyToExport);
 
 			let resultJson = [];
 			const sectionProcessed = {};
 
 			console.log(sortedSectionColumnPairs, nodesReadyToExport);
+			console.log(selectDOM.current.value);
 			sortedSectionColumnPairs.map((jsonObj) => {
 				if (!sectionProcessed[jsonObj.section]) {
 					// Process the section if it hasn't been processed yet
 					resultJson.push({
-						pageId: 5,
+						pageId: Number(lessonFind.page_id),
 						type: 14,
 						title: "",
 						format: "section",
@@ -426,7 +431,7 @@ export default function ExportPanel({
 						console.log(node);
 						const nodeTypeParsed = sakaiTypeSwitch(node);
 						resultJson.push({
-							pageId: 5,
+							pageId: Number(lessonFind.page_id),
 							type: nodeTypeParsed.type,
 							title: node.label,
 							contentRef: nodeTypeParsed.contentRef,
@@ -436,7 +441,7 @@ export default function ExportPanel({
 					sectionProcessed[jsonObj.section] = true; // Mark the section as processed
 				} else {
 					resultJson.push({
-						pageId: 5,
+						pageId: Number(lessonFind.page_id),
 						type: 14,
 						title: "",
 						format: "column",
@@ -454,7 +459,7 @@ export default function ExportPanel({
 						console.log(node);
 						const nodeTypeParsed = sakaiTypeSwitch(node);
 						resultJson.push({
-							pageId: 5,
+							pageId: Number(lessonFind.page_id),
 							type: nodeTypeParsed.type,
 							title: node.label,
 							contentRef: nodeTypeParsed.contentRef,
@@ -488,7 +493,19 @@ export default function ExportPanel({
 
 			console.log(sortedSectionColumnPairs);
 			console.log(nodesReadyToExport);
-			sendNodes(nodesReadyToExport, resultJson, nodesToUpdateRequest);
+			console.log(
+				"NODES TO LESSON ITEMS",
+				resultJson,
+				"NODES TO UPDATE",
+				nodesToUpdateRequest,
+				metaData
+			);
+			sendNodes(
+				nodesReadyToExport,
+				resultJson,
+				nodesToUpdateRequest,
+				lessonFind
+			);
 		} else {
 			sendNodes(nodesReadyToExport);
 		}
@@ -518,13 +535,10 @@ export default function ExportPanel({
 	function sakaiExportTypeSwitch(id) {
 		switch (id) {
 			case "resource":
-				return "RESOURCE";
 			case "html":
-				return "HTML";
 			case "text":
-				return "TEXT";
 			case "url":
-				return "URL";
+				return "RESOURCE";
 			/* IS NOT SUPPORTED case "folder":
 				return { type: 20, contentRef: "" };*/
 			case "exam":
@@ -616,7 +630,7 @@ export default function ExportPanel({
 		}
 	}
 
-	async function sendNodes(nodes, resultJson, resultJsonSecondary) {
+	async function sendNodes(nodes, resultJson, resultJsonSecondary, lesson) {
 		console.log(nodes);
 		try {
 			const payload = {
@@ -629,6 +643,7 @@ export default function ExportPanel({
 			};
 
 			if (platform == "sakai") {
+				payload.lessonId = lesson.id;
 				payload.nodes = resultJson;
 				payload.nodesToUpdate = resultJsonSecondary;
 			} else {

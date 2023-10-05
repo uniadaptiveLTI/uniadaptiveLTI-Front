@@ -6,8 +6,8 @@
 	"course_id": 0,
 	"platform": "sakai",
 	"lessons": [
-		{ "id": 0, "name": "Física" },
-		{ "id": 1, "name": "Matemática" }
+		{ "id": 0, "name": "Física", "page_id": "2" },
+		{ "id": 1, "name": "Matemática", "page_id": "3" }
 	],
 	"sections": [
 		{ "id": 0, "position": 0, "name": "General" },

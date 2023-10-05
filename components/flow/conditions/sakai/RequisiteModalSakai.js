@@ -489,90 +489,92 @@ function RequisiteModalSakai({
 								)}
 							</Tab>
 						)}
-						{!editing && blockData.type != "folder" && (
-							<Tab
-								eventKey="group"
-								className={`${
-									styles[`${key === "group" ? "keyDisabled" : ""}`]
-								}`}
-								title={
-									<div
-										className={`${
-											key !== "group" ? "text-secondary" : "text-dark"
-										}`}
-									>
-										Grupos con permisos de acceso
-									</div>
-								}
-							>
-								{hasRequisiteType("group") && (
-									<>
-										<div className="d-flex gap-1">
-											<Button
-												variant="light"
-												style={getAutomaticReusableStyles(
-													"light",
-													true,
-													true,
-													false
-												)}
-												onClick={() => setConditionEdit(groupList)}
-											>
-												<FontAwesomeIcon
-													className={styles.cModal}
-													icon={faEdit}
-												/>
-												Editar
-											</Button>
-											<Button
-												variant="light"
-												style={getAutomaticReusableStyles(
-													"light",
-													true,
-													true,
-													false
-												)}
-												onClick={() => deleteRequisite(groupList.id, true)}
-											>
-												<FontAwesomeIcon
-													className={styles.cModal}
-													icon={faTrashCan}
-												/>
-												Borrar
-											</Button>
-										</div>
-										<GroupComponent
-											requisites={blockData.data.requisites}
-											sakaiGroups={metaData.sakaiGroups}
-											setConditionEdit={setConditionEdit}
-											deleteRequisite={deleteRequisite}
-										></GroupComponent>
-									</>
-								)}
-								{!editing &&
-									!hasRequisiteType("group") &&
-									blockData.type != "folder" && (
-										<Button
-											variant="light"
-											style={getAutomaticReusableStyles(
-												"light",
-												true,
-												true,
-												false
-											)}
-											onClick={() => {
-												addConditionToMain("group");
-											}}
+						{!editing &&
+							blockData.type !== "folder" &&
+							blockData.type !== "forum" && (
+								<Tab
+									eventKey="group"
+									className={`${
+										styles[`${key === "group" ? "keyDisabled" : ""}`]
+									}`}
+									title={
+										<div
+											className={`${
+												key !== "group" ? "text-secondary" : "text-dark"
+											}`}
 										>
-											<FontAwesomeIcon
-												className={styles.cModal}
-												icon={faUserGroup}
-											/>
-											Establecer condición de grupo
-										</Button>
+											Grupos con permisos de acceso
+										</div>
+									}
+								>
+									{hasRequisiteType("group") && (
+										<>
+											<div className="d-flex gap-1">
+												<Button
+													variant="light"
+													style={getAutomaticReusableStyles(
+														"light",
+														true,
+														true,
+														false
+													)}
+													onClick={() => setConditionEdit(groupList)}
+												>
+													<FontAwesomeIcon
+														className={styles.cModal}
+														icon={faEdit}
+													/>
+													Editar
+												</Button>
+												<Button
+													variant="light"
+													style={getAutomaticReusableStyles(
+														"light",
+														true,
+														true,
+														false
+													)}
+													onClick={() => deleteRequisite(groupList.id, true)}
+												>
+													<FontAwesomeIcon
+														className={styles.cModal}
+														icon={faTrashCan}
+													/>
+													Borrar
+												</Button>
+											</div>
+											<GroupComponent
+												requisites={blockData.data.requisites}
+												sakaiGroups={metaData.sakaiGroups}
+												setConditionEdit={setConditionEdit}
+												deleteRequisite={deleteRequisite}
+											></GroupComponent>
+										</>
 									)}
-							</Tab>
-						)}
+									{!editing &&
+										!hasRequisiteType("group") &&
+										blockData.type != "folder" && (
+											<Button
+												variant="light"
+												style={getAutomaticReusableStyles(
+													"light",
+													true,
+													true,
+													false
+												)}
+												onClick={() => {
+													addConditionToMain("group");
+												}}
+											>
+												<FontAwesomeIcon
+													className={styles.cModal}
+													icon={faUserGroup}
+												/>
+												Establecer condición de grupo
+											</Button>
+										)}
+								</Tab>
+							)}
 						{!editing && (
 							<Tab
 								eventKey="SCORE"
