@@ -221,7 +221,7 @@ export default function ExportPanel({
 					break;
 				case "sakai":
 					node.c = data.requisites;
-					node.pageId = Number(selectDOM.current.value);
+					node.pageId = 5;
 					break;
 			}
 			if (ActionNodes.includes(type)) {
@@ -319,7 +319,7 @@ export default function ExportPanel({
 
 			let nodesToUpdateRequest = [];
 			nodesReadyToExport.map((node) => {
-				const newNode = node;
+				const newNode = { ...node };
 				if (newNode.c && newNode.c.length >= 1) {
 					const dateCondition = newNode.c.find(
 						(condition) => condition.type === "date"
@@ -398,7 +398,7 @@ export default function ExportPanel({
 
 				nodesToUpdateRequest.push(newNode);
 			});
-			console.log(nodesToUpdateRequest);
+			console.log(nodesToUpdateRequest, nodesReadyToExport);
 
 			let resultJson = [];
 			const sectionProcessed = {};
@@ -408,7 +408,7 @@ export default function ExportPanel({
 				if (!sectionProcessed[jsonObj.section]) {
 					// Process the section if it hasn't been processed yet
 					resultJson.push({
-						pageId: Number(selectDOM.current.value),
+						pageId: 5,
 						type: 14,
 						title: "",
 						format: "section",
@@ -426,7 +426,7 @@ export default function ExportPanel({
 						console.log(node);
 						const nodeTypeParsed = sakaiTypeSwitch(node);
 						resultJson.push({
-							pageId: Number(selectDOM.current.value),
+							pageId: 5,
 							type: nodeTypeParsed.type,
 							title: node.label,
 							contentRef: nodeTypeParsed.contentRef,
@@ -436,7 +436,7 @@ export default function ExportPanel({
 					sectionProcessed[jsonObj.section] = true; // Mark the section as processed
 				} else {
 					resultJson.push({
-						pageId: Number(selectDOM.current.value),
+						pageId: 5,
 						type: 14,
 						title: "",
 						format: "column",
@@ -454,7 +454,7 @@ export default function ExportPanel({
 						console.log(node);
 						const nodeTypeParsed = sakaiTypeSwitch(node);
 						resultJson.push({
-							pageId: Number(selectDOM.current.value),
+							pageId: 5,
 							type: nodeTypeParsed.type,
 							title: node.label,
 							contentRef: nodeTypeParsed.contentRef,
