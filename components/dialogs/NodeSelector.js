@@ -110,7 +110,7 @@ export default forwardRef(function NodeSelector(
 					qualificationToPass: 0,
 					attemptsAllowed: 0,
 					qualificationMethod: 0,
-					requiredType: 0,
+					requiredType: 1,
 					hasTimeLimit: false,
 					timeLimit: "",
 				};

@@ -499,14 +499,14 @@ export function parseMoodleCalifications(node, method = "export") {
 
 		if (method == "export") {
 			newGrades = {
-				attempts: og.attemptsAllowed,
-				completion: og.completionTracking,
-				completiongradeitemnumber: og.hasToBeQualified,
-				completionview: og.hasToBeSeen,
-				grademethod: og.qualificationMethod,
-				gradepass: og.qualificationToPass,
-				completionexpected: og.timeLimit,
-				requiredType: og.requiredType,
+				attempts: og.attemptsAllowed || 0,
+				completion: og.completionTracking || 0,
+				completiongradeitemnumber: og.hasToBeQualified || false,
+				completionview: og.hasToBeSeen || false,
+				grademethod: og.qualificationMethod || 0,
+				gradepass: og.qualificationToPass || 0,
+				completionexpected: og.timeLimit || "",
+				requiredType: og.requiredType || 1,
 			};
 		} else if (method == "import") {
 			newGrades = {

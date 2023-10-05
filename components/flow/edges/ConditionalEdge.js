@@ -64,7 +64,7 @@ const ConditionalEdge = ({
 	const getSelfCondition = () => {
 		const targetNode = getNodeById(target, rfNodes);
 		const sourceNode = getNodeById(source, rfNodes);
-		console.log(targetNode, sourceNode);
+		//console.log(targetNode, sourceNode);
 
 		switch (platform) {
 			case "moodle":
@@ -172,7 +172,7 @@ const ConditionalEdge = ({
 		}
 
 		const foundCondition = conditions.find((condition) => condition.cm === id);
-		console.log(conditions);
+		//console.log(conditions);
 		if (foundCondition) {
 			return foundCondition;
 		} else {
