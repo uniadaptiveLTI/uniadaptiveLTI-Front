@@ -82,7 +82,7 @@ function RequisiteModalSakai({
 	const openingDateRef = useRef(null);
 	const dueDateRef = useRef(null);
 	const closeTimeRef = useRef(null);
-	const groupsRef = metaData.groups.map(() => useRef(null));
+	const groupsRef = metaData.sakai_groups.map(() => useRef(null));
 	const exceptionSelectRef = useRef(null);
 	const exceptionEntityRef = useRef(null);
 	const pointRef = useRef(null);
@@ -189,7 +189,9 @@ function RequisiteModalSakai({
 			return null;
 		}
 
-		const foundCondition = conditions.find((condition) => condition.id === id);
+		const foundCondition = conditions.find(
+			(condition) => condition.itemId === id
+		);
 		if (foundCondition) {
 			return foundCondition;
 		}
@@ -224,7 +226,7 @@ function RequisiteModalSakai({
 			updatedBlockData.data.gradeRequisites?.subConditions?.forEach(
 				(logicalSet) => {
 					logicalSet.subConditions = logicalSet.subConditions?.filter(
-						(cond) => cond.id !== requisiteId
+						(cond) => cond.itemId !== requisiteId
 					);
 				}
 			);
@@ -244,9 +246,9 @@ function RequisiteModalSakai({
 	// FIXME: CHANGE DATETIME FROM THE BACK
 	const saveNewCondition = () => {
 		const formData = { type: editing };
-		formData.id = uniqueId();
 		switch (editing) {
 			case "date":
+				formData.id = uniqueId();
 				if (dates.openingDate) {
 					formData.openingDate = openingDateRef.current.value;
 				}
@@ -259,31 +261,23 @@ function RequisiteModalSakai({
 					formData.closeTime = closeTimeRef.current.value;
 				}
 
-				const openingDateParsed = new Date(dates.openingDate);
-				const dueDateParsed = new Date(formData.dueDate);
-				const closeTimeParsed = new Date(formData?.closeTime);
-
-				if (
-					openingDateParsed > dueDateParsed ||
-					(closeTimeParsed && dueDateParsed > closeTimeParsed) ||
-					openingDateParsed > closeTimeParsed
-				) {
-				}
-
 				break;
 			case "dateException":
+				formData.id = uniqueId();
 				if (blockData.type == "exam") {
 					formData.op = exceptionSelectRef.current.value;
-					formData.entityId = Number(exceptionEntityRef.current.value);
+					formData.entityId = exceptionEntityRef.current.value;
 					formData.openingDate = openingDateRef.current.value;
 					formData.dueDate = dueDateRef.current.value;
 					formData.closeTime = closeTimeRef.current.value;
 				}
 				break;
 			case "group":
+				formData.id = uniqueId();
 				formData.groupList = initalGroups;
 				break;
 			case "SCORE":
+				formData.itemId = uniqueId();
 				formData.argument = Number(pointRef.current.value);
 				formData.operator = exceptionSelectRef.current.value;
 		}
@@ -293,8 +287,8 @@ function RequisiteModalSakai({
 		const updatedBlockData = { ...blockData };
 
 		if (conditionEdit) {
-			formData.id = conditionEdit.id;
 			if (editing == "group") {
+				formData.id = conditionEdit.id;
 				const groupRequisite = updatedBlockData.data.requisites.find(
 					(item) => item.type === "group"
 				);
@@ -303,6 +297,7 @@ function RequisiteModalSakai({
 
 				setBlockData(updatedBlockData);
 			} else if (editing == "date") {
+				formData.id = conditionEdit.id;
 				let dateRequisite = updatedBlockData.data.requisites.find(
 					(item) => item.type === "date"
 				);
@@ -319,10 +314,11 @@ function RequisiteModalSakai({
 					},
 				});
 			} else {
+				formData.itemId = conditionEdit.itemId;
 				updatedBlockData.data.gradeRequisites.subConditions.forEach(
 					(logicalSet) => {
 						let conditionIndex = logicalSet.subConditions.findIndex(
-							(cond) => cond.id === conditionEdit.id
+							(cond) => cond.itemId === conditionEdit.itemId
 						);
 
 						if (conditionIndex !== -1) {
@@ -421,7 +417,9 @@ function RequisiteModalSakai({
 												true,
 												false
 											)}
-											onClick={() => deleteRequisite(dateRequisite[0].id, true)}
+											onClick={() =>
+												deleteRequisite(dateRequisite[0].itemId, true)
+											}
 										>
 											<FontAwesomeIcon
 												className={styles.cModal}
@@ -492,98 +490,100 @@ function RequisiteModalSakai({
 								{hasRequisiteType("dateException") && (
 									<DateExceptionComponent
 										requisites={blockData.data.requisites}
-										sakaiGroups={metaData.sakaiGroups}
-										sakaiUsers={metaData.userMembersSakai}
+										sakaiGroups={metaData.sakai_groups}
+										sakaiUsers={metaData.user_members}
 										parseDate={parseDate}
 										deleteRequisite={deleteRequisite}
 									></DateExceptionComponent>
 								)}
 							</Tab>
 						)}
-						{!editing && blockData.type != "folder" && (
-							<Tab
-								eventKey="group"
-								className={`${
-									styles[`${key === "group" ? "keyDisabled" : ""}`]
-								}`}
-								title={
-									<div
-										className={`${
-											key !== "group" ? "text-secondary" : "text-dark"
-										}`}
-									>
-										Grupos con permisos de acceso
-									</div>
-								}
-							>
-								{hasRequisiteType("group") && (
-									<>
-										<div className="d-flex gap-1">
-											<Button
-												variant="light"
-												style={getAutomaticReusableStyles(
-													"light",
-													true,
-													true,
-													false
-												)}
-												onClick={() => setConditionEdit(groupList)}
-											>
-												<FontAwesomeIcon
-													className={styles.cModal}
-													icon={faEdit}
-												/>
-												Editar
-											</Button>
-											<Button
-												variant="light"
-												style={getAutomaticReusableStyles(
-													"light",
-													true,
-													true,
-													false
-												)}
-												onClick={() => deleteRequisite(groupList.id, true)}
-											>
-												<FontAwesomeIcon
-													className={styles.cModal}
-													icon={faTrashCan}
-												/>
-												Borrar
-											</Button>
-										</div>
-										<GroupComponent
-											requisites={blockData.data.requisites}
-											sakaiGroups={metaData.sakaiGroups}
-											setConditionEdit={setConditionEdit}
-											deleteRequisite={deleteRequisite}
-										></GroupComponent>
-									</>
-								)}
-								{!editing &&
-									!hasRequisiteType("group") &&
-									blockData.type != "folder" && (
-										<Button
-											variant="light"
-											style={getAutomaticReusableStyles(
-												"light",
-												true,
-												true,
-												false
-											)}
-											onClick={() => {
-												addConditionToMain("group");
-											}}
+						{!editing &&
+							blockData.type !== "folder" &&
+							blockData.type !== "forum" && (
+								<Tab
+									eventKey="group"
+									className={`${
+										styles[`${key === "group" ? "keyDisabled" : ""}`]
+									}`}
+									title={
+										<div
+											className={`${
+												key !== "group" ? "text-secondary" : "text-dark"
+											}`}
 										>
-											<FontAwesomeIcon
-												className={styles.cModal}
-												icon={faUserGroup}
-											/>
-											Establecer condición de grupo
-										</Button>
+											Grupos con permisos de acceso
+										</div>
+									}
+								>
+									{hasRequisiteType("group") && (
+										<>
+											<div className="d-flex gap-1">
+												<Button
+													variant="light"
+													style={getAutomaticReusableStyles(
+														"light",
+														true,
+														true,
+														false
+													)}
+													onClick={() => setConditionEdit(groupList)}
+												>
+													<FontAwesomeIcon
+														className={styles.cModal}
+														icon={faEdit}
+													/>
+													Editar
+												</Button>
+												<Button
+													variant="light"
+													style={getAutomaticReusableStyles(
+														"light",
+														true,
+														true,
+														false
+													)}
+													onClick={() => deleteRequisite(groupList.id, true)}
+												>
+													<FontAwesomeIcon
+														className={styles.cModal}
+														icon={faTrashCan}
+													/>
+													Borrar
+												</Button>
+											</div>
+											<GroupComponent
+												requisites={blockData.data.requisites}
+												sakaiGroups={metaData.sakai_groups}
+												setConditionEdit={setConditionEdit}
+												deleteRequisite={deleteRequisite}
+											></GroupComponent>
+										</>
 									)}
-							</Tab>
-						)}
+									{!editing &&
+										!hasRequisiteType("group") &&
+										blockData.type != "folder" && (
+											<Button
+												variant="light"
+												style={getAutomaticReusableStyles(
+													"light",
+													true,
+													true,
+													false
+												)}
+												onClick={() => {
+													addConditionToMain("group");
+												}}
+											>
+												<FontAwesomeIcon
+													className={styles.cModal}
+													icon={faUserGroup}
+												/>
+												Establecer condición de grupo
+											</Button>
+										)}
+								</Tab>
+							)}
 						{!editing && (
 							<Tab
 								eventKey="SCORE"
@@ -634,8 +634,8 @@ function RequisiteModalSakai({
 						exceptionEntityRef={exceptionEntityRef}
 						exceptionSelected={exceptionSelected}
 						setExceptionSelected={setExceptionSelected}
-						sakaiGroups={metaData.sakaiGroups}
-						sakaiUsers={metaData.userMembersSakai}
+						sakaiGroups={metaData.sakai_groups}
+						sakaiUsers={metaData.user_members}
 						conditionEdit={conditionEdit}
 					></DateForm>
 				)}
@@ -644,7 +644,7 @@ function RequisiteModalSakai({
 					<GroupForm
 						groupsRef={groupsRef}
 						blockData={blockData}
-						sakaiGroups={metaData.sakaiGroups}
+						sakaiGroups={metaData.sakai_groups}
 						initalGroups={initalGroups}
 						setInitalGroups={setInitalGroups}
 						conditionEdit={conditionEdit}

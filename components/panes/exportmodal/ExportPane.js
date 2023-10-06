@@ -17,7 +17,10 @@ import {
 	saveVersion,
 } from "@utils/Utils";
 import { toast } from "react-toastify";
-import { parseMoodleBadgeToExport } from "@utils/Moodle";
+import {
+	parseMoodleBadgeToExport,
+	parseMoodleCalifications,
+} from "@utils/Moodle";
 import LessonSelector from "@components/forms/components/LessonSelector";
 
 export default function ExportPanel({
@@ -146,6 +149,25 @@ export default function ExportPanel({
 		let nodesToExport = JSON.parse(
 			JSON.stringify(reactFlowInstance.getNodes()) //Deep clone TODO: DO THIS BETTER
 		);
+
+		const conditionList = [];
+
+		nodesToExport.map((node) => {
+			if (
+				node.data.gradeRequisites &&
+				node.data.gradeRequisites.subConditions.length >= 1
+			) {
+				const newCondition = { ...node.data.gradeRequisites };
+				console.log(newCondition);
+				newCondition.itemId = reactFlowInstance
+					.getNodes()
+					.find((node) => node.id == newCondition.itemId).data.lmsResource;
+				conditionList.push(node.data.gradeRequisites);
+			}
+		});
+
+		console.log(nodesToExport);
+
 		nodesToExport = nodesToExport.filter((node) =>
 			NodeTypes.find((declaration) => {
 				if (node.type == declaration.type) {
@@ -158,10 +180,15 @@ export default function ExportPanel({
 			})
 		);
 		const fullNodes = JSON.parse(JSON.stringify(nodesToExport));
+
 		//Deletting unnecessary info and flattening the nodes
 		nodesToExport = nodesToExport.map((node) => {
-			if (platform !== "sakai") {
-				delete node.data.label;
+			switch (platform) {
+				case "moodle":
+					delete node.data.label;
+					break;
+				case "sakai":
+					break;
 			}
 			delete node.data.lmsResource;
 			const data = node.data;
@@ -196,6 +223,7 @@ export default function ExportPanel({
 				data.c = deleteEmptyC(data.c);
 				console.log(data.c);
 			}
+
 			delete node.x;
 			delete node.y;
 			delete node.data;
@@ -209,8 +237,14 @@ export default function ExportPanel({
 			delete node.parentNode;
 			delete node.expandParent;
 			const type = node.type;
-			if (platform !== "sakai") {
-				delete node.type;
+			switch (platform) {
+				case "moodle":
+					delete node.type;
+					break;
+				case "sakai":
+					node.c = data.requisites;
+					node.pageId = Number(selectDOM.current.value);
+					break;
 			}
 			if (ActionNodes.includes(type)) {
 				const actionNode = {
@@ -240,39 +274,49 @@ export default function ExportPanel({
 			const originalId = fullNode.id;
 			const lmsResource =
 				fullNode.data.lmsResource == undefined
-					? -1
-					: Number(fullNode.data.lmsResource);
+					? "-1"
+					: fullNode.data.lmsResource;
 			const regex = new RegExp('"' + originalId + '"', "g");
-			nodesAsString = nodesAsString.replace(regex, lmsResource);
-		});
-
-		const nodesReadyToExport = JSON.parse(nodesAsString).filter((node) => {
-			const section = metaData.sections.find(
-				(section) => section.position == node.section
+			nodesAsString = nodesAsString.replace(
+				regex,
+				platform == "moodle" ? lmsResource : JSON.stringify(String(lmsResource))
 			);
-
-			//Change section position for section id
-			if (section != undefined) {
-				node.section = section.id;
-			}
-
-			if (node.id == "") {
-				node.id = -1;
-			} else {
-				node.id = Number(node.id);
-			}
-
-			if (section && currentSelectionInfo.selection.includes(section.id))
-				return true;
-
-			if (!section) {
-				return true;
-			}
 		});
+
+		let nodesReadyToExport = JSON.parse(nodesAsString);
+		if (platform == "moodle") {
+			nodesReadyToExport.filter((node) => {
+				const section = metaData.sections.find(
+					(section) => section.position == node.section
+				);
+
+				//Change section position for section id
+				if (section != undefined) {
+					node.section = section.id;
+				}
+
+				if (node.id == "") {
+					node.id = -1;
+				} else {
+					node.id = Number(node.id);
+				}
+
+				if (section && currentSelectionInfo.selection.includes(section.id))
+					return true;
+
+				if (!section) {
+					return true;
+				}
+			});
+		}
 
 		console.log("nodesReadyToExport", nodesReadyToExport);
 		console.log(platform);
 		if (platform === "sakai") {
+			const lessonFind = metaData.lessons.find(
+				(lesson) => lesson.id === Number(selectDOM.current.value)
+			);
+
 			const uniqueSectionColumnPairs = new Set();
 
 			const sortedSectionColumnPairs = nodesReadyToExport
@@ -298,16 +342,103 @@ export default function ExportPanel({
 				return a.indent - b.indent;
 			});
 
-			/* Juanma changes, temporal
+			let nodesToUpdateRequest = [];
+			nodesReadyToExport.map((node) => {
+				const newNode = { ...node };
+				if (newNode.c && newNode.c.length >= 1) {
+					const dateCondition = newNode.c.find(
+						(condition) => condition.type === "date"
+					);
+
+					const groupCondition = newNode.c.find(
+						(condition) => condition.type === "group"
+					);
+
+					const dateExceptionCheck = newNode.c.some(
+						(condition) => condition.type === "dateException"
+					);
+
+					if (dateCondition) {
+						if (dateCondition.openingDate) {
+							newNode.openDate = Date.parse(dateCondition?.openingDate) / 1000;
+						}
+
+						if (node.type === "exam" && node.type === "assign") {
+							if (dateCondition.dueDate) {
+								newNode.dueDate = Date.parse(dateCondition?.dueDate) / 1000;
+							}
+
+							if (dateCondition?.closeTime) {
+								newNode.closeDate = Date.parse(dateCondition?.closeTime) / 1000;
+							}
+						} else {
+							if (dateCondition.dueDate) {
+								newNode.closeDate = Date.parse(dateCondition?.dueDate) / 1000;
+							}
+						}
+					}
+
+					if (groupCondition) {
+						newNode.groupRefs = [];
+						groupCondition.groupList.map((group) => {
+							newNode.groupRefs.push(group.id);
+						});
+					}
+
+					if (dateExceptionCheck) {
+						newNode.timeExceptions = [];
+
+						let dateExceptionFiltered = newNode.c.filter(
+							(condition) => condition.type === "dateException"
+						);
+						dateExceptionFiltered.map((exception) => {
+							const newException = {};
+							newException.openDate = Date.parse(exception?.openingDate) / 1000;
+							newException.dueDate = Date.parse(exception?.dueDate) / 1000;
+							newException.closeDate = Date.parse(exception?.closeTime) / 1000;
+
+							if (exception.op && exception.op === "group") {
+								newException.forEntityRef =
+									"/site/" +
+									metaData.course_id +
+									"/group/" +
+									exception.entityId;
+							}
+
+							if (exception.op && exception.op === "user") {
+								newException.forEntityRef = "/user/" + exception.entityId;
+							}
+
+							newNode.timeExceptions.push(newException);
+						});
+					}
+
+					newNode.type = sakaiExportTypeSwitch(newNode.type);
+
+					delete newNode.label;
+					delete newNode.c;
+					delete newNode.children;
+					delete newNode.indent;
+					delete newNode.lmsVisibility;
+					delete newNode.requisites;
+					delete newNode.pageId;
+					delete newNode.order;
+					delete newNode.section;
+
+					nodesToUpdateRequest.push(newNode);
+				}
+			});
+
+			console.log("CONDITION LIST", conditionList);
 
 			let resultJson = [];
 			const sectionProcessed = {};
-			console.log(sortedSectionColumnPairs, nodesReadyToExport);
+
 			sortedSectionColumnPairs.map((jsonObj) => {
 				if (!sectionProcessed[jsonObj.section]) {
 					// Process the section if it hasn't been processed yet
 					resultJson.push({
-						pageId: selectDOM.current.value,
+						pageId: Number(lessonFind.page_id),
 						type: 14,
 						title: "",
 						format: "section",
@@ -322,9 +453,10 @@ export default function ExportPanel({
 						.sort((a, b) => a.order - b.order);
 
 					filteredArray.map((node) => {
+						console.log(node);
 						const nodeTypeParsed = sakaiTypeSwitch(node);
 						resultJson.push({
-							pageId: selectDOM.current.value,
+							pageId: Number(lessonFind.page_id),
 							type: nodeTypeParsed.type,
 							title: node.label,
 							contentRef: nodeTypeParsed.contentRef,
@@ -334,7 +466,7 @@ export default function ExportPanel({
 					sectionProcessed[jsonObj.section] = true; // Mark the section as processed
 				} else {
 					resultJson.push({
-						pageId: selectDOM.current.value,
+						pageId: Number(lessonFind.page_id),
 						type: 14,
 						title: "",
 						format: "column",
@@ -349,28 +481,17 @@ export default function ExportPanel({
 						.sort((a, b) => a.order - b.order);
 					console.log(filteredArray);
 					filteredArray.map((node) => {
+						console.log(node);
 						const nodeTypeParsed = sakaiTypeSwitch(node);
 						resultJson.push({
-							pageId: selectDOM.current.value,
+							pageId: Number(lessonFind.page_id),
 							type: nodeTypeParsed.type,
 							title: node.label,
 							contentRef: nodeTypeParsed.contentRef,
 						});
 					});
 				}
-				console.log(resultJson, mapSelected);
-				sendNodes(nodesReadyToExport);
 			});
-
-<<<<<<< Updated upstream*/
-			/* AQUI LLAMAREMOS A LA FUNCION PARA QUE A DAVID LE LLEGUE EL
-			   nodesReadyToExport (que es para que se actualicen los objetos)
-			   y resultJson (que es para que se creen los lessons items en la lesson (bloques) <= PRIORIZAR ESTE Y COMPROBARLO EN BACK PLS
-			   no importeis una lesson, porque no va, cread literalmente 2 bloques uno de examen y otro de tarea y exportarlo para ver que se crea
-			*/
-			/*} else {
-			sendNodes(nodesReadyToExport);
-		}*/
 
 			sortedSectionColumnPairs.sort((a, b) => {
 				// Compare by "section" first
@@ -383,56 +504,33 @@ export default function ExportPanel({
 
 			console.log(sortedSectionColumnPairs);
 
-			let resultJson = [];
-			const sectionProcessed = {};
-
-			sortedSectionColumnPairs.map((jsonObj) => {
-				if (!sectionProcessed[jsonObj.section]) {
-					// Process the section if it hasn't been processed yet
-					resultJson.push({
-						pageId: selectDOM.current.value,
-						type: 14,
-						title: "",
-						format: "section",
-					});
-
-					resultJson = resultJson.concat(
-						nodesReadyToExport
-							.filter(
-								(node) =>
-									node.section === jsonObj.section &&
-									node.indent === jsonObj.indent
-							)
-							.sort((a, b) => a.order - b.order)
-					);
-
-					sectionProcessed[jsonObj.section] = true; // Mark the section as processed
-				} else {
-					resultJson.push({
-						pageId: selectDOM.current.value,
-						type: 14,
-						title: "",
-						format: "column",
-					});
-
-					resultJson = resultJson.concat(
-						nodesReadyToExport
-							.filter(
-								(node) =>
-									node.section === jsonObj.section &&
-									node.indent === jsonObj.indent
-							)
-							.sort((a, b) => a.order - b.order)
-					);
-				}
-			});
 			console.log(resultJson);
 
 			console.log(sortedSectionColumnPairs);
 			console.log(nodesReadyToExport);
-			sendNodes(nodesReadyToExport, resultJson);
+			console.log(
+				"NODES TO LESSON ITEMS",
+				resultJson,
+				"NODES TO UPDATE",
+				nodesToUpdateRequest,
+				metaData
+			);
+			sendNodes(
+				nodesReadyToExport,
+				resultJson,
+				nodesToUpdateRequest,
+				lessonFind
+			);
 		} else {
-			sendNodes(nodesReadyToExport);
+			console.log("MOODLENODES");
+			const moodleNodes = nodesReadyToExport.map((node) => {
+				const newNode = parseMoodleCalifications(node);
+				delete newNode.children;
+				delete newNode.type;
+				return newNode;
+			});
+
+			sendNodes(moodleNodes);
 		}
 	};
 
@@ -454,6 +552,24 @@ export default function ExportPanel({
 				return { type: 3, contentRef: "/assignment/" + node.id };
 			case "forum":
 				return { type: 8, contentRef: "/forum_forum/" + node.id };
+		}
+	}
+
+	function sakaiExportTypeSwitch(id) {
+		switch (id) {
+			case "resource":
+			case "html":
+			case "text":
+			case "url":
+				return "RESOURCE";
+			/* IS NOT SUPPORTED case "folder":
+				return { type: 20, contentRef: "" };*/
+			case "exam":
+				return "ASSESSMENT";
+			case "assign":
+				return "ASSIGNMENT";
+			case "forum":
+				return "FORUM";
 		}
 	}
 
@@ -537,7 +653,7 @@ export default function ExportPanel({
 		}
 	}
 
-	async function sendNodes(nodes, resultJson) {
+	async function sendNodes(nodes, resultJson, resultJsonSecondary, lesson) {
 		console.log(nodes);
 		try {
 			const payload = {
@@ -549,8 +665,10 @@ export default function ExportPanel({
 				selection: currentSelectionInfo.selection,
 			};
 
-			if (platform != "moodle") {
+			if (platform == "sakai") {
+				payload.lessonId = lesson.id;
 				payload.nodes = resultJson;
+				payload.nodesToUpdate = resultJsonSecondary;
 			} else {
 				payload.nodes = nodes;
 			}

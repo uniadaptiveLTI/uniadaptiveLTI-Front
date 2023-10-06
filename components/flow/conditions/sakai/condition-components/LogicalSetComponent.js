@@ -125,7 +125,7 @@ function LogicalSetComponent({
 					</Button>
 					<Button
 						variant="light"
-						onClick={() => deleteRequisite(condition.id, false)}
+						onClick={() => deleteRequisite(condition.itemId, false)}
 					>
 						<div>
 							<FontAwesomeIcon icon={faTrashCan} />

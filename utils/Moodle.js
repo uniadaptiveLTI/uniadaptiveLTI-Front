@@ -5,7 +5,7 @@ import { getUpdatedArrayById, uniqueId, parseDate } from "./Utils";
 export function parseMoodleNode(node, newX, newY) {
 	const newNode = {};
 
-	newNode.id = "" + uniqueId();
+	newNode.id = String(uniqueId());
 	newNode.type = node.modname;
 	newNode.position = { x: newX, y: newY };
 	newNode.data = {
@@ -14,8 +14,9 @@ export function parseMoodleNode(node, newX, newY) {
 		section: node.section,
 		children: [], //Filled in "createNewMoodleMap" (as we need all the IDs)
 		c: node.availability, //Adapted in "createNewMoodleMap" (as we need all the IDs)
+		g: node.g ? parseMoodleCalifications(node).g : undefined,
 		order: node.order,
-		lmsResource: node.id,
+		lmsResource: String(node.id),
 		lmsVisibility: node.visible,
 	};
 
@@ -25,13 +26,13 @@ export function parseMoodleNode(node, newX, newY) {
 export function parseMoodleBadges(badge, newX, newY) {
 	console.log(badge);
 	const newNode = {};
-	newNode.id = "" + uniqueId();
+	newNode.id = String(uniqueId());
 	newNode.type = "badge";
 	newNode.position = { x: newX, y: newY };
 	newNode.data = {
 		label: badge.name,
 		c: parseMoodleBadgeParams(badge.params), //Adapted in "createNewMoodleMap" (as we need all the IDs)
-		lmsResource: badge.id,
+		lmsResource: String(badge.id),
 	};
 	console.log(newNode);
 	return newNode;
@@ -488,4 +489,48 @@ export function parseMoodleBadgeToExport(node, nodeArray, metaData) {
 	}
 
 	return newNode;
+}
+
+export function parseMoodleCalifications(node, method = "export") {
+	if (node.g) {
+		const og = node.g;
+
+		let newGrades;
+
+		if (method == "export") {
+			newGrades = {
+				attempts: og.attemptsAllowed || 0,
+				completion: og.completionTracking || 0,
+				completiongradeitemnumber: og.hasToBeQualified || false,
+				completionview: og.hasToBeSeen || false,
+				grademethod: og.qualificationMethod || 0,
+				gradepass: og.qualificationToPass || 0,
+				completionexpected: og.timeLimit || "",
+				requiredType: og.requiredType || 1,
+			};
+		} else if (method == "import") {
+			newGrades = {
+				attemptsAllowed: og.attempts,
+				completionTracking: og.completion,
+				hasToBeQualified: og.completiongradeitemnumber,
+				hasToBeSeen: og.completionview,
+				qualificationMethod: og.grademethod,
+				qualificationToPass: og.gradepass,
+				timeLimit: og.completionexpected,
+				requiredType: og.requiredType,
+			};
+
+			const timeLimit = og.completionexpected;
+			const hasTimeLimit = timeLimit ? true : false;
+
+			newGrades.hasTimeLimit == hasTimeLimit;
+			if (hasTimeLimit) newGrades.timeLimit == timeLimit;
+		}
+
+		const newNode = { ...node, g: newGrades };
+
+		return newNode;
+	} else {
+		return node;
+	}
 }

@@ -513,17 +513,15 @@ const OverviewFlow = ({ map }, ref) => {
 							if (!targetNode.data.gradeRequisites) {
 								targetNode.data.gradeRequisites = {
 									type: "ROOT",
-									id: parseInt(Date.now() * Math.random()).toString(),
+									itemId: parseInt(Date.now() * Math.random()).toString(),
 									operator: "AND",
 									subConditions: [
 										{
-											id: parseInt(Date.now() * Math.random()).toString(),
 											type: "PARENT",
 											operator: "AND",
 											subConditions: [],
 										},
 										{
-											id: parseInt(Date.now() * Math.random()).toString(),
 											type: "PARENT",
 											operator: "OR",
 											subConditions: [],
@@ -541,7 +539,7 @@ const OverviewFlow = ({ map }, ref) => {
 							console.log(targetNode);
 
 							subRootAnd.subConditions.push({
-								id: parseInt(Date.now() * Math.random()).toString(),
+								itemId: parseInt(Date.now() * Math.random()).toString(),
 								type: "SCORE",
 								itemId: sourceNodeId,
 								argument: 5,
@@ -840,7 +838,7 @@ const OverviewFlow = ({ map }, ref) => {
 
 	const deleteElements = (nodes, edges, force = false) => {
 		let continueDeletion = true;
-		if (force == false) {
+		if (force == false && platform === "moodle") {
 			if (
 				nodes.filter((node) => metaData.grades.includes(node.data.lmsResource))
 					.length > 0
@@ -973,6 +971,7 @@ const OverviewFlow = ({ map }, ref) => {
 		? edges.map((edge) => {
 				if (edge) {
 					edge.type = "conditionalEdge";
+
 					if (edge.target) {
 						const targetNode = getNodeById(
 							edge.target,
@@ -1436,7 +1435,7 @@ const OverviewFlow = ({ map }, ref) => {
 				};
 			}
 		}
-
+		console.log(newBlockCreated);
 		errorListCheck(newBlockCreated, errorList, setErrorList, false);
 
 		setShowContextualMenu(false);
@@ -1782,6 +1781,10 @@ const OverviewFlow = ({ map }, ref) => {
 		}
 	};
 
+	const onElementClick = (event, element) => {
+		console.log(event, element);
+	};
+
 	/**
 	 * Handles the showing of a modal.
 	 * @param {string} modal - The modal to show.
@@ -1939,7 +1942,7 @@ const OverviewFlow = ({ map }, ref) => {
 				nodeTypes={nodeTypes}
 				edgeTypes={edgeTypes}
 				snapGrid={[125, 275]}
-				//connectionLineComponent={}
+				onElementClick={onElementClick}
 				snapToGrid={snapToGrid}
 				deleteKeyCode={[]}
 				multiSelectionKeyCode={["Shift"]}
@@ -1951,8 +1954,6 @@ const OverviewFlow = ({ map }, ref) => {
 				edgesFocusable={interactive}
 				elementsSelectable={interactive}
 				selectionMode={SelectionMode.Partial}
-				//onElementsRemove={setElements}
-				//onElementClick={onElementClick}
 			>
 				{minimap && (
 					<MiniMap

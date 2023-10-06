@@ -532,7 +532,7 @@ function ConditionModalMoodle({
 				const subOperator = conditionSubOperator.current.value;
 
 				if (operator == "!") {
-					formData.op = operator + "" + subOperator;
+					formData.op = operator + String(subOperator);
 				} else {
 					formData.op = subOperator;
 				}

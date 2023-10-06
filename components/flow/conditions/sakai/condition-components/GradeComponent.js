@@ -51,7 +51,6 @@ function GradeComponent({
 		console.log(newTargetSubRoot);
 		if (!newTargetSubRoot) {
 			newTargetSubRoot = {
-				id: uniqueId(),
 				type: "PARENT",
 				operator: newSourceSubRoot.operator == "AND" ? "OR" : "AND",
 			};

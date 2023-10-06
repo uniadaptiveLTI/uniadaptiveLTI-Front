@@ -110,7 +110,7 @@ export function parseSakaiNode(nodes, node, newX, newY, validTypes) {
 	console.log(newX);
 	if (validTypes.includes(node.modname)) {
 		const newNode = {};
-		newNode.id = "" + uniqueId();
+		newNode.id = String(uniqueId());
 		newNode.type = node.modname;
 		newNode.position = { x: newX, y: newY };
 		newNode.data = {
@@ -118,7 +118,7 @@ export function parseSakaiNode(nodes, node, newX, newY, validTypes) {
 			section: node.section,
 			indent: node.indent,
 			order: node.order,
-			lmsResource: node.sakaiId,
+			lmsResource: String(node.sakaiId),
 			children: [],
 			requisites: [],
 			gradeRequisites: !node.gradeRequisites ? undefined : node.gradeRequisites,
@@ -126,7 +126,7 @@ export function parseSakaiNode(nodes, node, newX, newY, validTypes) {
 		console.log(newNode);
 		if (node.fromDate && node.endDate) {
 			newNode.data.requisites.push({
-				id: "" + uniqueId(),
+				id: String(uniqueId()),
 				type: "date",
 				openingDate: node.fromDate,
 				dueDate: node.endDate,
@@ -140,7 +140,7 @@ export function parseSakaiNode(nodes, node, newX, newY, validTypes) {
 		) {
 			node.timeExceptions.map((exception) =>
 				newNode.data.requisites.push({
-					id: "" + uniqueId(),
+					id: String(uniqueId()),
 					type: "dateException",
 					op: exception.forEntityRef.includes("group") ? "group" : "user",
 					entityId: exception.forEntityRef,
@@ -153,7 +153,7 @@ export function parseSakaiNode(nodes, node, newX, newY, validTypes) {
 
 		if (node.groups && node.groups.length >= 1) {
 			const groupCondition = {
-				id: "" + uniqueId(),
+				id: String(uniqueId()),
 				type: "group",
 				groupList: [],
 			};

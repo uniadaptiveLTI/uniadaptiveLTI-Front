@@ -14,6 +14,7 @@ const DateExceptionComponent = ({
 	const dateExceptionArray = requisites.filter(
 		(item) => item.type === "dateException"
 	);
+
 	return (
 		<Container className="mb-3 mt-3">
 			<div>
@@ -57,7 +58,7 @@ const DateExceptionComponent = ({
 							<Col className="col-md-auto">
 								<Button
 									variant="light"
-									onClick={() => deleteRequisite(item.id, true)}
+									onClick={() => deleteRequisite(item.itemId, true)}
 								>
 									<div>
 										<FontAwesomeIcon icon={faTrashCan} />

@@ -43,7 +43,7 @@
 						"type": "resource",
 						"data": {
 							"label": "Objetivos del curso",
-							"lmsResource": 16,
+							"lmsResource": "16",
 							"children": ["dev1A1"],
 							"indent": 0,
 							"order": 0,
@@ -60,7 +60,7 @@
 						"type": "quiz",
 						"data": {
 							"label": "Aerodinámica",
-							"lmsResource": 2,
+							"lmsResource": "2",
 							"children": ["dev3A1", "dev9A1"],
 							"indent": 1,
 							"order": 0,
@@ -92,7 +92,7 @@
 						"type": "url",
 						"data": {
 							"label": "Web de Aerodinámica Avanzada",
-							"lmsResource": 29,
+							"lmsResource": "29",
 							"children": ["dev4A1"],
 							"indent": 1,
 							"order": 1,
@@ -124,7 +124,7 @@
 						"type": "assign",
 						"data": {
 							"label": "Ejercicios de la Web",
-							"lmsResource": 5,
+							"lmsResource": "5",
 							"children": ["dev5A1", "dev6A1"],
 							"indent": 1,
 							"order": 2,
@@ -156,7 +156,7 @@
 						"type": "quiz",
 						"data": {
 							"label": "Física de fluidos",
-							"lmsResource": 1,
+							"lmsResource": "1",
 							"children": ["dev8A1", "dev13A1"],
 							"indent": 2,
 							"order": 7,
@@ -217,7 +217,7 @@
 						"type": "assign",
 						"data": {
 							"label": "Ejercicios de ampliación",
-							"lmsResource": 3,
+							"lmsResource": "3",
 							"children": ["dev5A1"],
 							"indent": 2,
 							"order": 6,
@@ -256,7 +256,7 @@
 						"type": "page",
 						"data": {
 							"label": "Física cuántica",
-							"lmsResource": 26,
+							"lmsResource": "26",
 							"lmsVisibility": "show_unconditionally",
 							"children": ["dev-1A1"],
 							"indent": 0,
@@ -303,7 +303,7 @@
 						"type": "folder",
 						"data": {
 							"label": "Aerodinámica, refuerzo",
-							"lmsResource": 19,
+							"lmsResource": "19",
 							"lmsVisibility": "show_unconditionally",
 							"children": ["dev10A1"],
 							"indent": 1,
@@ -335,7 +335,7 @@
 						"type": "quiz",
 						"data": {
 							"label": "Aerodinámica, refuerzo",
-							"lmsResource": 0,
+							"lmsResource": "0",
 							"lmsVisibility": "show_unconditionally",
 							"children": ["dev11A1", "dev12A1", "dev5A1"],
 							"indent": 1,
@@ -360,35 +360,37 @@
 					},
 					{
 						"id": "dev11A1",
-						"position": {
-							"x": 625,
-							"y": 275
-						},
 						"type": "badge",
 						"data": {
-							"label": "Recuperación",
-							"lmsResource": 32,
+							"label": "Dar insignia",
 							"c": {
 								"type": "conditionsGroup",
-								"id": "301884364154",
-								"op": "&",
+								"id": "116289458576",
+								"method": "&",
 								"showc": true,
-								"c": [
+								"criteriatype": 0,
+								"params": [
 									{
-										"id": "1458291548812",
+										"id": "6254420205",
 										"type": "completion",
-										"activityList": [
+										"criteriatype": 1,
+										"params": [
 											{
 												"id": "dev10A1",
 												"date": "2023-07-26"
 											}
 										],
-										"op": "&",
-										"query": "completed"
+										"method": "&"
 									}
 								]
 							}
-						}
+						},
+						"position": {
+							"x": 625,
+							"y": 275
+						},
+						"selected": true,
+						"dragging": false
 					},
 					{
 						"id": "dev12A1",
@@ -399,7 +401,7 @@
 						"type": "assign",
 						"data": {
 							"label": "Trabajo de recuperación",
-							"lmsResource": 5,
+							"lmsResource": "5",
 							"lmsVisibility": "show_unconditionally",
 							"children": ["dev6A1"],
 							"indent": 2,
@@ -539,7 +541,7 @@
 						"type": "assign",
 						"data": {
 							"label": "Trabajo de recuperación",
-							"lmsResource": 5,
+							"lmsResource": "5",
 							"children": ["dev8A1"],
 							"indent": 3,
 							"order": 3,
@@ -620,7 +622,7 @@
 							"order": 1,
 							"lmsVisibility": "show_unconditionally",
 							"indent": 0,
-							"lmsResource": -1
+							"lmsResource": "-1"
 						},
 						"position": {
 							"x": -125,
@@ -637,7 +639,7 @@
 							"order": 2,
 							"lmsVisibility": "show_unconditionally",
 							"indent": 0,
-							"lmsResource": -1
+							"lmsResource": "-1"
 						},
 						"position": {
 							"x": 0,
@@ -654,7 +656,7 @@
 							"order": 3,
 							"lmsVisibility": "show_unconditionally",
 							"indent": 0,
-							"lmsResource": -1
+							"lmsResource": "-1"
 						},
 						"position": {
 							"x": 125,
@@ -671,7 +673,7 @@
 							"order": 4,
 							"lmsVisibility": "show_unconditionally",
 							"indent": 0,
-							"lmsResource": -1
+							"lmsResource": "-1"
 						},
 						"position": {
 							"x": 250,
@@ -688,7 +690,7 @@
 							"order": 5,
 							"lmsVisibility": "show_unconditionally",
 							"indent": 0,
-							"lmsResource": -1
+							"lmsResource": "-1"
 						},
 						"position": {
 							"x": -250,
@@ -705,7 +707,7 @@
 							"order": 6,
 							"lmsVisibility": "show_unconditionally",
 							"indent": 0,
-							"lmsResource": -1
+							"lmsResource": "-1"
 						},
 						"position": {
 							"x": -125,
@@ -722,7 +724,7 @@
 							"order": 7,
 							"lmsVisibility": "show_unconditionally",
 							"indent": 0,
-							"lmsResource": -1
+							"lmsResource": "-1"
 						},
 						"position": {
 							"x": 0,
@@ -739,7 +741,7 @@
 							"order": 8,
 							"lmsVisibility": "show_unconditionally",
 							"indent": 0,
-							"lmsResource": -1
+							"lmsResource": "-1"
 						},
 						"position": {
 							"x": 125,
@@ -756,7 +758,7 @@
 							"order": 9,
 							"lmsVisibility": "show_unconditionally",
 							"indent": 0,
-							"lmsResource": -1
+							"lmsResource": "-1"
 						},
 						"position": {
 							"x": 250,
@@ -773,7 +775,7 @@
 							"order": 10,
 							"lmsVisibility": "show_unconditionally",
 							"indent": 0,
-							"lmsResource": -1
+							"lmsResource": "-1"
 						},
 						"position": {
 							"x": -250,
@@ -790,7 +792,7 @@
 							"order": 11,
 							"lmsVisibility": "show_unconditionally",
 							"indent": 0,
-							"lmsResource": -1
+							"lmsResource": "-1"
 						},
 						"position": {
 							"x": -125,
@@ -807,7 +809,7 @@
 							"order": 12,
 							"lmsVisibility": "show_unconditionally",
 							"indent": 0,
-							"lmsResource": -1
+							"lmsResource": "-1"
 						},
 						"position": {
 							"x": 0,
@@ -1045,7 +1047,7 @@
 							"order": 13,
 							"lmsVisibility": "show_unconditionally",
 							"indent": 0,
-							"lmsResource": -1
+							"lmsResource": "-1"
 						},
 						"position": {
 							"x": 125,

@@ -77,7 +77,7 @@ export default function SimpleConditionsSakai({ id }) {
 							<div style={{ marginTop: "10px" }}>
 								<b style={{ marginLeft: "24px" }}>Excepciones de fecha</b>
 								{dateExceptionArray.map((date) => {
-									const sakaiUsers = metaData.userMembersSakai;
+									const sakaiUsers = metaData.user_members;
 									let entityInfo = null;
 
 									if (date.op === "user") {
@@ -93,7 +93,7 @@ export default function SimpleConditionsSakai({ id }) {
 											);
 										}
 									} else if (date.op === "group") {
-										const group = metaData.groups.find(
+										const group = metaData.sakai_groups.find(
 											(group) => group.id === date.entityId
 										);
 										if (group) {
@@ -133,7 +133,7 @@ export default function SimpleConditionsSakai({ id }) {
 									Grupos con permisos de acceso
 								</b>
 								{groupRequisite.groupList.map((groupItem) => {
-									const group = metaData.sakaiGroups.find(
+									const group = metaData.sakai_groups.find(
 										(group) => group.id === groupItem.id
 									);
 
