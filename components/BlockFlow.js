@@ -513,17 +513,15 @@ const OverviewFlow = ({ map }, ref) => {
 							if (!targetNode.data.gradeRequisites) {
 								targetNode.data.gradeRequisites = {
 									type: "ROOT",
-									id: parseInt(Date.now() * Math.random()).toString(),
+									itemId: parseInt(Date.now() * Math.random()).toString(),
 									operator: "AND",
 									subConditions: [
 										{
-											id: parseInt(Date.now() * Math.random()).toString(),
 											type: "PARENT",
 											operator: "AND",
 											subConditions: [],
 										},
 										{
-											id: parseInt(Date.now() * Math.random()).toString(),
 											type: "PARENT",
 											operator: "OR",
 											subConditions: [],
@@ -541,7 +539,7 @@ const OverviewFlow = ({ map }, ref) => {
 							console.log(targetNode);
 
 							subRootAnd.subConditions.push({
-								id: parseInt(Date.now() * Math.random()).toString(),
+								itemId: parseInt(Date.now() * Math.random()).toString(),
 								type: "SCORE",
 								itemId: sourceNodeId,
 								argument: 5,

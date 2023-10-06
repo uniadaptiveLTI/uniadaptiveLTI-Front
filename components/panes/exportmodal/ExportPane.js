@@ -157,6 +157,11 @@ export default function ExportPanel({
 				node.data.gradeRequisites &&
 				node.data.gradeRequisites.subConditions.length >= 1
 			) {
+				const newCondition = { ...node.data.gradeRequisites };
+				console.log(newCondition);
+				newCondition.itemId = reactFlowInstance
+					.getNodes()
+					.find((node) => node.id == newCondition.itemId).data.lmsResource;
 				conditionList.push(node.data.gradeRequisites);
 			}
 		});
@@ -358,7 +363,7 @@ export default function ExportPanel({
 							newNode.openDate = Date.parse(dateCondition?.openingDate) / 1000;
 						}
 
-						if (node.type !== "forum") {
+						if (node.type === "exam" && node.type === "assign") {
 							if (dateCondition.dueDate) {
 								newNode.dueDate = Date.parse(dateCondition?.dueDate) / 1000;
 							}

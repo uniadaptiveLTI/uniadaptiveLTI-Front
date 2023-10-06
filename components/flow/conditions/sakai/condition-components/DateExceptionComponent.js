@@ -58,7 +58,7 @@ const DateExceptionComponent = ({
 							<Col className="col-md-auto">
 								<Button
 									variant="light"
-									onClick={() => deleteRequisite(item.id, true)}
+									onClick={() => deleteRequisite(item.itemId, true)}
 								>
 									<div>
 										<FontAwesomeIcon icon={faTrashCan} />
