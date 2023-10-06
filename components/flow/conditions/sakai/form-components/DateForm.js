@@ -107,7 +107,7 @@ const DateForm = ({
 				/>
 			)}
 
-			{editing == "dateException" && blockData.type == "exam" && (
+			{/*editing == "dateException" && blockData.type == "exam" && (
 				<DateExceptionComponent
 					errorForm={errorForm}
 					openingDateRef={openingDateRef}
@@ -123,7 +123,7 @@ const DateForm = ({
 					calculateDefaultDateTime={calculateDefaultDateTime}
 					dateInputChange={dateInputChange}
 				></DateExceptionComponent>
-			)}
+			)*/}
 		</Form.Group>
 	);
 };

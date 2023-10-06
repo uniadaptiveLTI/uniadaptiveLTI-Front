@@ -490,8 +490,8 @@ function RequisiteModalSakai({
 								{hasRequisiteType("dateException") && (
 									<DateExceptionComponent
 										requisites={blockData.data.requisites}
-										sakaiGroups={metaData.sakaiGroups}
-										sakaiUsers={metaData.userMembersSakai}
+										sakaiGroups={metaData.sakai_groups}
+										sakaiUsers={metaData.user_members}
 										parseDate={parseDate}
 										deleteRequisite={deleteRequisite}
 									></DateExceptionComponent>
@@ -554,7 +554,7 @@ function RequisiteModalSakai({
 											</div>
 											<GroupComponent
 												requisites={blockData.data.requisites}
-												sakaiGroups={metaData.sakaiGroups}
+												sakaiGroups={metaData.sakai_groups}
 												setConditionEdit={setConditionEdit}
 												deleteRequisite={deleteRequisite}
 											></GroupComponent>
@@ -634,22 +634,22 @@ function RequisiteModalSakai({
 						exceptionEntityRef={exceptionEntityRef}
 						exceptionSelected={exceptionSelected}
 						setExceptionSelected={setExceptionSelected}
-						sakaiGroups={metaData.sakaiGroups}
-						sakaiUsers={metaData.userMembersSakai}
+						sakaiGroups={metaData.sakai_groups}
+						sakaiUsers={metaData.user_members}
 						conditionEdit={conditionEdit}
 					></DateForm>
 				)}
 
-				{editing && editing == "group" && (
+				{/*editing && editing == "group" && (
 					<GroupForm
 						groupsRef={groupsRef}
 						blockData={blockData}
-						sakaiGroups={metaData.sakaiGroups}
+						sakaiGroups={metaData.sakai_groups}
 						initalGroups={initalGroups}
 						setInitalGroups={setInitalGroups}
 						conditionEdit={conditionEdit}
 					></GroupForm>
-				)}
+				)*/}
 				{editing && editing == "SCORE" && (
 					<GradeForm
 						conditionEdit={conditionEdit}

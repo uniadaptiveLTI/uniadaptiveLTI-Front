@@ -140,7 +140,7 @@
 		{ "id": 2, "name": "Noe" },
 		{ "id": 3, "name": "Pepe" }
 	],
-	"userMembersSakai": [
+	"user_members": [
 		{ "id": "1", "name": "Maria" },
 		{ "id": "2", "name": "Noe" },
 		{ "id": "3", "name": "Pepe" }
@@ -154,7 +154,7 @@
 		{ "id": 6, "name": "Grupo F" },
 		{ "id": 7, "name": "Grupo G" }
 	],
-	"sakaiGroups": [
+	"sakai_groups": [
 		{ "id": "1", "name": "Grupo A" },
 		{ "id": "2", "name": "Grupo B" },
 		{ "id": "3", "name": "Grupo C" },
