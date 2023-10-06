@@ -93,7 +93,7 @@ export default function SimpleConditionsSakai({ id }) {
 											);
 										}
 									} else if (date.op === "group") {
-										const group = metaData.groups.find(
+										const group = metaData.sakai_groups.find(
 											(group) => group.id === date.entityId
 										);
 										if (group) {

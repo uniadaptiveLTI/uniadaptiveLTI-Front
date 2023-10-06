@@ -82,7 +82,7 @@ function RequisiteModalSakai({
 	const openingDateRef = useRef(null);
 	const dueDateRef = useRef(null);
 	const closeTimeRef = useRef(null);
-	const groupsRef = metaData.groups.map(() => useRef(null));
+	const groupsRef = metaData.sakai_groups.map(() => useRef(null));
 	const exceptionSelectRef = useRef(null);
 	const exceptionEntityRef = useRef(null);
 	const pointRef = useRef(null);
@@ -640,7 +640,7 @@ function RequisiteModalSakai({
 					></DateForm>
 				)}
 
-				{/*editing && editing == "group" && (
+				{editing && editing == "group" && (
 					<GroupForm
 						groupsRef={groupsRef}
 						blockData={blockData}
@@ -649,7 +649,7 @@ function RequisiteModalSakai({
 						setInitalGroups={setInitalGroups}
 						conditionEdit={conditionEdit}
 					></GroupForm>
-				)*/}
+				)}
 				{editing && editing == "SCORE" && (
 					<GradeForm
 						conditionEdit={conditionEdit}
