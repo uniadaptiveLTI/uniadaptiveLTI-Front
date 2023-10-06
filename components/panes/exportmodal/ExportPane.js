@@ -181,10 +181,6 @@ export default function ExportPanel({
 		);
 		const fullNodes = JSON.parse(JSON.stringify(nodesToExport));
 
-		const lessonFind = metaData.lessons.find(
-			(lesson) => lesson.id === Number(selectDOM.current.value)
-		);
-		console.log(lessonFind);
 		//Deletting unnecessary info and flattening the nodes
 		nodesToExport = nodesToExport.map((node) => {
 			switch (platform) {
@@ -317,6 +313,10 @@ export default function ExportPanel({
 		console.log("nodesReadyToExport", nodesReadyToExport);
 		console.log(platform);
 		if (platform === "sakai") {
+			const lessonFind = metaData.lessons.find(
+				(lesson) => lesson.id === Number(selectDOM.current.value)
+			);
+
 			const uniqueSectionColumnPairs = new Set();
 
 			const sortedSectionColumnPairs = nodesReadyToExport
@@ -412,7 +412,7 @@ export default function ExportPanel({
 							newNode.timeExceptions.push(newException);
 						});
 					}
-					newNode.title = newNode.label;
+
 					newNode.type = sakaiExportTypeSwitch(newNode.type);
 
 					delete newNode.label;
