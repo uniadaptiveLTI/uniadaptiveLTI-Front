@@ -412,22 +412,21 @@ export default function ExportPanel({
 							newNode.timeExceptions.push(newException);
 						});
 					}
+					newNode.title = newNode.label;
+					newNode.type = sakaiExportTypeSwitch(newNode.type);
+
+					delete newNode.label;
+					delete newNode.c;
+					delete newNode.children;
+					delete newNode.indent;
+					delete newNode.lmsVisibility;
+					delete newNode.requisites;
+					delete newNode.pageId;
+					delete newNode.order;
+					delete newNode.section;
+
+					nodesToUpdateRequest.push(newNode);
 				}
-
-				newNode.title = newNode.label;
-				newNode.type = sakaiExportTypeSwitch(newNode.type);
-
-				delete newNode.label;
-				delete newNode.c;
-				delete newNode.children;
-				delete newNode.indent;
-				delete newNode.lmsVisibility;
-				delete newNode.requisites;
-				delete newNode.pageId;
-				delete newNode.order;
-				delete newNode.section;
-
-				nodesToUpdateRequest.push(newNode);
 			});
 
 			console.log("CONDITION LIST", conditionList);
