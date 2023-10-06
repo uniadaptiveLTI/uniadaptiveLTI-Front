@@ -203,7 +203,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 							if (nodeSelected.data.lmsResource > -1) {
 								const lmsRes = nodeSelected.data.lmsResource;
 								const storedRes = data.find(
-									(resource) => resource.id === lmsRes
+									(resource) => resource.id == lmsRes
 								);
 
 								if (storedRes != undefined) {
@@ -238,7 +238,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 							if (nodeSelected.data.lmsResource > -1) {
 								const lmsRes = nodeSelected.data.lmsResource;
 								const storedRes = data.find(
-									(resource) => resource.id === lmsRes
+									(resource) => resource.id == lmsRes
 								);
 
 								if (storedRes != undefined) {
@@ -251,11 +251,13 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 						deduplicateById(filteredData),
 						"name"
 					);
-					uniqueFilteredData.forEach((option) =>
-						hasUnorderedResources(platform)
+					uniqueFilteredData.forEach((option) => {
+						return hasUnorderedResources(platform)
 							? (option.bettername = `${option.name}`)
-							: (option.bettername = `${option.name} - Sección: ${option.section}`)
-					);
+							: (option.bettername = `${option.name} ${
+									option.section > -1 ? "- Sección: " + option.section : ""
+							  }`);
+					});
 					uniqueFilteredData.unshift({
 						id: -1,
 						name: NodeTypes.filter((node) => node.type == selectedOption)[0]
@@ -289,7 +291,8 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 		if (nodeSelected) {
 			if (
 				!(
-					ActionNodes.includes(nodeSelected.type) ||
+					(ActionNodes.includes(nodeSelected.type) &&
+						nodeSelected.type != "badge") ||
 					nodeSelected.type == "fragment"
 				)
 			) {
@@ -656,7 +659,8 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 										className="w-100"
 										disabled={
 											!(
-												ActionNodes.includes(nodeSelected.type) ||
+												(ActionNodes.includes(nodeSelected.type) &&
+													nodeSelected.type != "badge") ||
 												nodeSelected.type == "fragment"
 											)
 										}

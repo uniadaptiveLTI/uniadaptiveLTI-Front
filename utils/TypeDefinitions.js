@@ -25,7 +25,7 @@ export const NodeTypes = [
 		type: "badge",
 		value: "badge",
 		name: "Dar insignia",
-		emptyName: "Dar insignia",
+		emptyName: "Insignia vacía",
 		nodeType: "ActionNode",
 		lms: ["moodle"],
 		gradable: [],

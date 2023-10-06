@@ -434,8 +434,6 @@ export default function ExportPanel({
 			let resultJson = [];
 			const sectionProcessed = {};
 
-			console.log(sortedSectionColumnPairs, nodesReadyToExport);
-			console.log(selectDOM.current.value);
 			sortedSectionColumnPairs.map((jsonObj) => {
 				if (!sectionProcessed[jsonObj.section]) {
 					// Process the section if it hasn't been processed yet
@@ -494,16 +492,6 @@ export default function ExportPanel({
 					});
 				}
 			});
-			/*
-<<<<<<< Updated upstream*/
-			/* AQUI LLAMAREMOS A LA FUNCION PARA QUE A DAVID LE LLEGUE EL
-			   nodesReadyToExport (que es para que se actualicen los objetos)
-			   y resultJson (que es para que se creen los lessons items en la lesson (bloques) <= PRIORIZAR ESTE Y COMPROBARLO EN BACK PLS
-			   no importeis una lesson, porque no va, cread literalmente 2 bloques uno de examen y otro de tarea y exportarlo para ver que se crea
-			*/
-			/*} else {
-			sendNodes(nodesReadyToExport);
-		}*/
 
 			sortedSectionColumnPairs.sort((a, b) => {
 				// Compare by "section" first
