@@ -540,7 +540,7 @@ export function parseMoodleCalifications(node, method = "export") {
 }
 
 export function parseMoodleConditionsGroupOut(c) {
-	const newC = c;
+	const newC = { ...c };
 
 	if (c) {
 		if (c.type == "conditionsGroup") {
@@ -548,7 +548,16 @@ export function parseMoodleConditionsGroupOut(c) {
 		}
 
 		if (c.c) {
-			newC.c = parseMoodleConditionsGroupOut(c.c);
+			if (Array.isArray(c.c)) {
+				newC.c = c.c.map((item) => {
+					if (item.c) {
+						return parseMoodleConditionsGroupOut(item);
+					}
+					return item;
+				});
+			} else if (typeof c.c === "object" && c.c !== null) {
+				newC.c = parseMoodleConditionsGroupOut(c.c);
+			}
 		}
 	}
 
