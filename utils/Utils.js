@@ -358,23 +358,29 @@ export function getSectionIDFromPosition(sectionArray, sectionPosition) {
 
 /**
  * Method to parse the given date using day, month and year, in case dateComplete param true then add hour and minute
- * @param {String} dateStr - String of date
+ * @param {String} date - Date string, or UNIX Date
  * @param {boolean} dateComplete - Boolean to define if the date must be parsed with hour and minute
  * @returns {*} Returns formatted date string
  */
-export function parseDate(dateStr, dateComplete) {
-	let date = dateStr;
+export function parseDate(date, dateComplete) {
+	let d = date;
 
-	if (!(dateStr instanceof Date)) {
-		date = new Date(dateStr);
-		return date.toLocaleDateString("es-ES", {
+	if (typeof d === "number") {
+		d = new Date(d * 1000);
+	} else if (!(d instanceof Date)) {
+		d = new Date(d);
+	}
+
+	if (dateComplete) {
+		return decodeURIComponent.toLocaleDateString("es-ES", {
 			day: "numeric",
 			month: "long",
 			year: "numeric",
-			...(dateComplete && { hour: "2-digit", minute: "2-digit" }),
+			hour: "2-digit",
+			minute: "2-digit",
 		});
 	} else {
-		return date
+		return d
 			.toLocaleDateString("es-ES", {
 				year: "numeric",
 				month: "2-digit",
@@ -386,14 +392,17 @@ export function parseDate(dateStr, dateComplete) {
 	}
 }
 
-export function parseDateToString(date) {
-	console.log(date);
+export function parseDateToString(date, full = true) {
 	const year = date.getFullYear();
 	const month = String(date.getMonth() + 1).padStart(2, "0");
 	const day = String(date.getDate()).padStart(2, "0");
-	const hours = String(date.getHours()).padStart(2, "0");
-	const minutes = String(date.getMinutes()).padStart(2, "0");
-	return `${year}-${month}-${day}T${hours}:${minutes}`;
+	if (full) {
+		const hours = String(date.getHours()).padStart(2, "0");
+		const minutes = String(date.getMinutes()).padStart(2, "0");
+		return `${year}-${month}-${day}T${hours}:${minutes}`;
+	} else {
+		return `${year}-${month}-${day}`;
+	}
 }
 
 export async function saveVersion(

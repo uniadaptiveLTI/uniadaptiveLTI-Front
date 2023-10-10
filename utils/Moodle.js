@@ -235,13 +235,12 @@ function moodleConditionalIDAdder(objArray, nodes) {
 			}
 
 			if (objArray[i].type === "grade") {
-				console.log("CONDITION ID", newArray[i].id);
-				console.log(
-					"NODE WITH THAT",
-					nodes.find((node) => node.data.lmsResource == newArray[i].id)
-				);
 				newArray[i].cm = moodleLMSResourceToId(newArray[i].id, nodes);
-				console.log(newArray[i], moodleLMSResourceToId(newArray[i].id, nodes));
+			}
+
+			//Parse from UNIX
+			if (objArray[i].type === "date") {
+				newArray[i].t = parseDate(newArray[i].t);
 			}
 
 			// Add/replace "id" property
