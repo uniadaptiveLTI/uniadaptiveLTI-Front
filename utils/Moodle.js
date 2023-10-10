@@ -161,7 +161,7 @@ export function createNewMoodleMap(nodes, metadata, maps) {
 				...conditions,
 				c:
 					conditions?.c == undefined
-						? []
+						? undefined
 						: moodleConditionalIDAdder(conditions.c, nodes),
 			};
 
@@ -264,23 +264,26 @@ function moodleConditionalBadgeIDAdder(objArray, nodes) {
 function moodleFlowConditionalsExtractor(objArray) {
 	let cmValues = [];
 
-	for (let i = 0; i < objArray.length; i++) {
-		if (typeof objArray[i] === "object" && objArray[i] !== null) {
-			// If the object has type "completion" or "grade", add the value of "cm" to the array
-			if (objArray[i].type === "completion" || objArray[i].type === "grade") {
-				if (objArray[i].cm) cmValues.push(objArray[i].cm);
-			}
+	if (objArray) {
+		for (let i = 0; i < objArray.length; i++) {
+			if (typeof objArray[i] === "object" && objArray[i] !== null) {
+				// If the object has type "completion" or "grade", add the value of "cm" to the array
+				if (objArray[i].type === "completion" || objArray[i].type === "grade") {
+					if (objArray[i].cm) cmValues.push(objArray[i].cm);
+				}
 
-			// If the object has a property "c", enter that property
-			if ("c" in objArray[i]) {
-				cmValues = cmValues.concat(
-					moodleFlowConditionalsExtractor(objArray[i].c)
-				);
+				// If the object has a property "c", enter that property
+				if ("c" in objArray[i]) {
+					cmValues = cmValues.concat(
+						moodleFlowConditionalsExtractor(objArray[i].c)
+					);
+				}
 			}
 		}
+		return cmValues;
+	} else {
+		return undefined;
 	}
-
-	return cmValues;
 }
 
 function moodleLMSResourceToId(resourceId, nodes) {
@@ -297,15 +300,17 @@ function moodleParentingSetter(objArray) {
 			if (objArray[i]?.data?.c) {
 				const parents = moodleFlowConditionalsExtractor(objArray[i].data.c.c);
 				console.log("parents", parents);
-				if (parents.length > 0) {
-					parents.forEach((parent) => {
-						const parentFound = objArray.find((node) => node.id == parent);
-						if (parentFound) {
-							newArray
-								.find((node) => node.id == parentFound.id)
-								.data.children.push(objArray[i].id);
-						}
-					});
+				if (parents) {
+					if (parents.length > 0) {
+						parents.forEach((parent) => {
+							const parentFound = objArray.find((node) => node.id == parent);
+							if (parentFound) {
+								newArray
+									.find((node) => node.id == parentFound.id)
+									.data.children.push(objArray[i].id);
+							}
+						});
+					}
 				}
 			}
 		} else {
