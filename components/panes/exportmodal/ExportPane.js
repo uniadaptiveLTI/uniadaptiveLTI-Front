@@ -630,6 +630,7 @@ export default function ExportPanel({
 			case "courseGrade":
 				condition.id = condition.courseId;
 				delete condition.courseId;
+				condition.type = "grade";
 				break;
 			case "group":
 				if (condition.groupId) {
