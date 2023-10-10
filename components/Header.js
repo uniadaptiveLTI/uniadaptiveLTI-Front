@@ -980,38 +980,6 @@ function Header({ LTISettings }, ref) {
 						}
 					}, 100);
 				}
-
-				// const params = new URLSearchParams(window.location.href.split("?")[1]);
-				// const token = params.get("token");
-				// let newUrl = window.location.href.split("?")[0];
-				// window.history.replaceState({}, document.title, newUrl);
-				// if (token) {
-				// 	//if there is a token in the url
-				// 	if (sessionStorage.getItem("tokens") == undefined) {
-				// 		//if there aren't any tokens stored
-				// 		sessionStorage.setItem("tokens", JSON.stringify([token]));
-				// 		loadResources();
-				// 	} else {
-				// 		//if there is any tokens stored
-				// 		const currentTokens = JSON.parse(sessionStorage.getItem("tokens"));
-				// 		if (!currentTokens.includes(token)) {
-				// 			sessionStorage.setItem(
-				// 				"tokens",
-				// 				JSON.stringify([...currentTokens, token])
-				// 			);
-				// 		}
-				// 		loadResources();
-				// 	}
-				// } else {
-				// 	//if there isn't a token in the url
-				// 	const storedTokens = sessionStorage.getItem("tokens");
-				// 	if (storedTokens == undefined) {
-				// 		alert(
-				// 			`Error: Interfaz lanzada sin identificador de sesión apropiado. Vuelva a alanzar la herramienta desde el gestor de contenido. Cerrando.`
-				// 		);
-				// 		window.close(); //TODO: DO THIS BETTER
-				// 	}
-				// }
 			}
 		} catch (e) {
 			toast(e, defaultToastError);
@@ -1276,7 +1244,7 @@ function Header({ LTISettings }, ref) {
 								"d-flex align-items-center justify-content-evenly col-sm-7 flex-wrap"
 							}
 						>
-							{/*FIXME: For any reason this Dropdown triggers an hydration error*/}
+							{/*FIXME: This Dropdown triggers an hydration error*/}
 							<Dropdown className={`btn-light d-flex align-items-center`}>
 								<Dropdown.Toggle
 									id={useId()}
@@ -1365,7 +1333,6 @@ function Header({ LTISettings }, ref) {
 											</Dropdown.Item>
 										</Dropdown.Menu>
 									</Dropdown>
-									{/*FIXME: COLOR, remove variant*/}
 									<Button
 										ref={saveButtonRef}
 										className={` d-flex align-items-center p-2 ${styles.actionButtonsDynamic}`}

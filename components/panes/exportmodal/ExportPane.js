@@ -20,6 +20,7 @@ import { toast } from "react-toastify";
 import {
 	parseMoodleBadgeToExport,
 	parseMoodleCalifications,
+	parseMoodleConditionsGroupOut,
 } from "@utils/Moodle";
 import LessonSelector from "@components/forms/components/LessonSelector";
 
@@ -221,7 +222,6 @@ export default function ExportPanel({
 				//deleteRecursiveId(data.c);
 				deleteRecursiveNull(data.c);
 				data.c = deleteEmptyC(data.c);
-				console.log(data.c);
 			}
 
 			delete node.x;
@@ -524,12 +524,12 @@ export default function ExportPanel({
 		} else {
 			console.log("MOODLENODES");
 			const moodleNodes = nodesReadyToExport.map((node) => {
-				const newNode = parseMoodleCalifications(node);
+				let newNode = parseMoodleCalifications(node);
+				newNode = { ...newNode, c: parseMoodleConditionsGroupOut(newNode.c) };
 				delete newNode.children;
 				delete newNode.type;
 				return newNode;
 			});
-
 			sendNodes(moodleNodes);
 		}
 	};

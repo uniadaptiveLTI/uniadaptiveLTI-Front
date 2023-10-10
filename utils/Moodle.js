@@ -154,9 +154,16 @@ export function createNewMoodleMap(nodes, metadata, maps) {
 
 	const conditionatedNodes = nodes.map((node) => {
 		if (node.type !== "badge") {
-			const conditions = node.data.c
-				? { ...node.data.c, id: uniqueId(), type: "conditionsGroup" }
-				: undefined;
+			let conditions;
+			if (node.data.c && (!node.data.c.c || node.data.c.c.length < 1)) {
+				conditions = undefined;
+			} else {
+				conditions = {
+					...node.data.c,
+					id: uniqueId(),
+					type: "conditionsGroup",
+				};
+			}
 			const parsedConditions = {
 				...conditions,
 				c:
@@ -238,11 +245,6 @@ function moodleConditionalIDAdder(objArray, nodes) {
 				newArray[i].cm = moodleLMSResourceToId(newArray[i].id, nodes);
 			}
 
-			//Parse from UNIX
-			if (objArray[i].type === "date") {
-				newArray[i].t = parseDate(newArray[i].t);
-			}
-
 			// Add/replace "id" property
 			newArray[i].id = uniqueId();
 
@@ -263,7 +265,6 @@ function moodleConditionalBadgeIDAdder(objArray, nodes) {
 
 function moodleFlowConditionalsExtractor(objArray) {
 	let cmValues = [];
-
 	if (objArray) {
 		for (let i = 0; i < objArray.length; i++) {
 			if (typeof objArray[i] === "object" && objArray[i] !== null) {
@@ -299,7 +300,6 @@ function moodleParentingSetter(objArray) {
 		if (objArray[i]?.type !== "badge") {
 			if (objArray[i]?.data?.c) {
 				const parents = moodleFlowConditionalsExtractor(objArray[i].data.c.c);
-				console.log("parents", parents);
 				if (parents) {
 					if (parents.length > 0) {
 						parents.forEach((parent) => {
@@ -537,4 +537,20 @@ export function parseMoodleCalifications(node, method = "export") {
 	} else {
 		return node;
 	}
+}
+
+export function parseMoodleConditionsGroupOut(c) {
+	const newC = c;
+
+	if (c) {
+		if (c.type == "conditionsGroup") {
+			delete newC.type;
+		}
+
+		if (c.c) {
+			newC.c = parseMoodleConditionsGroupOut(c.c);
+		}
+	}
+
+	return newC;
 }
