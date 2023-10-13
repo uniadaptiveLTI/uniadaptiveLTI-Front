@@ -63,8 +63,7 @@ export function errorListCheck(data, errorList, setErrorList, deleteFromList) {
 export function deleteNodeFromErrorList(data, errorList) {
 	let errorListUpdated = errorList;
 
-	if (data.data.lmsResource !== undefined && data.data.lmsResource !== -1) {
-		console.log("SUUUU");
+	if (data.data.lmsResource !== undefined && data.data.lmsResource != "") {
 		errorListUpdated = errorListUpdated.filter(
 			(item) => item.nodeId !== data.id || item.type !== "resourceNotFound"
 		);

@@ -690,6 +690,8 @@ const OverviewFlow = ({ map }, ref) => {
 	 * @returns {Node[]} - The array with the blocks removed.
 	 */
 	const deleteBlocks = (blocks) => {
+		//Close Aside
+		setExpandedAside(false);
 		// Array of blocks that its children or conditions are being updated
 		var updatedBlocks = [];
 
@@ -781,11 +783,13 @@ const OverviewFlow = ({ map }, ref) => {
 								} else {
 									updateBadgeConditions(foundChildrenNode, block);
 								}
+								break;
 							case "sakai":
 								filterConditionsByParentId(
 									foundChildrenNode.data.gradeRequisites.subConditions,
 									block.id
 								);
+								break;
 						}
 					} else {
 						switch (platform) {
@@ -1223,13 +1227,16 @@ const OverviewFlow = ({ map }, ref) => {
 		localStorage.setItem("clipboard", JSON.stringify(clipboardData));
 
 		if (cleanedSelection.length > 0) {
-			toast("Se han copiado " + cleanedSelection.length + " bloque(s)", {
-				hideProgressBar: false,
-				autoClose: 2000,
-				type: "info",
-				position: "bottom-center",
-				theme: "light",
-			});
+			toast(
+				"Se han copiado " + cleanedSelection.length + " bloque(s) abstractos",
+				{
+					hideProgressBar: false,
+					autoClose: 2000,
+					type: "info",
+					position: "bottom-center",
+					theme: "light",
+				}
+			);
 		}
 	};
 

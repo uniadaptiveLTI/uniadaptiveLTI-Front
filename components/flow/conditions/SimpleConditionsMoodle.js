@@ -201,9 +201,8 @@ export default function SimpleConditionsMoodle({ id }) {
 					finalDOM.push(
 						<p style={prefix}>
 							{parsedConditionsGroup.find((pcg) => operator == pcg.op)?.parsed}{" "}
-							//FIXME: Doesn't show empty message
 						</p>
-					);
+					); //FIXME: It Does not show empty message
 					break;
 				case "completion":
 					let node = getNodeById(id, rfNodes);

@@ -388,6 +388,7 @@ export function getNumberOfIndependentConditions(node) {
  * @returns {string|undefined} Returns the primary condition type if it exists, 'multiple' if there are more than one types, otherwise returns undefined.
  */
 export function getPrimaryConditionType(node) {
+	console.log("getPrimaryConditionType", node);
 	const recursiveTypeGet = (c, array = []) => {
 		if (c.c) {
 			c.c.forEach((condition) => {
@@ -402,6 +403,7 @@ export function getPrimaryConditionType(node) {
 				}
 			});
 		}
+
 		return array;
 	};
 	if (node.data.c) {
