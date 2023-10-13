@@ -60,12 +60,14 @@ export function parseMoodleBadgeParams(conditions) {
 				parsedBadgesConditions = newCondition;
 				break;
 			case "completion":
+				console.log(condition?.params);
 				newCondition.params = [];
 				newCondition.method = condition.method === 1 ? "&" : "|";
 
 				const filteredArray = condition?.params?.filter(
 					(item) => item.name && item.name.includes("module")
 				);
+				console.log(filteredArray);
 
 				filteredArray.map((moduleObj) => {
 					const date = condition?.params?.find((param) =>
@@ -177,20 +179,22 @@ export function createNewMoodleMap(nodes, metadata, maps) {
 				node.data.c = parsedConditions;
 			}
 		} else {
-			const completionCondition = node.data.c?.params?.find(
-				(condition) => condition.type == "completion"
-			);
-
-			if (
-				completionCondition &&
-				completionCondition.params &&
-				completionCondition.params.length >= 1
-			) {
-				completionCondition.params.map((node) => {
-					moodleConditionalBadgeIDAdder(node, nodes);
+			if (node.data.c && node.data.c.params) {
+				node.data.c.params = node.data.c.params.filter((param) => {
+					if (
+						param.type === "completion" &&
+						param.params &&
+						param.params.length >= 1
+					) {
+						param.params = param.params.filter((node) => {
+							moodleConditionalBadgeIDAdder(node, nodes);
+							return node.id;
+						});
+						return param.params.length >= 1;
+					}
+					return true;
 				});
 			}
-			console.log(completionCondition);
 		}
 
 		return node;
@@ -305,6 +309,7 @@ function moodleFlowConditionalsExtractor(objArray) {
 }
 
 function moodleLMSResourceToId(resourceId, nodes) {
+	console.log(resourceId, nodes);
 	const node = nodes.find((node) => node.data.lmsResource == resourceId);
 	return node ? node.id : undefined;
 }
