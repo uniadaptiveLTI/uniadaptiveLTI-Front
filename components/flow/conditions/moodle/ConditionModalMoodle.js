@@ -45,7 +45,7 @@ function ConditionModalMoodle({
 
 	const moodleGroups = metaData.groups;
 
-	const moodleGroupings = metaData.grupings;
+	const moodleGroupings = metaData.groupings;
 
 	const [editing, setEditing] = useState(undefined);
 	const [conditionEdit, setConditionEdit] = useState(undefined);
@@ -915,20 +915,22 @@ function ConditionModalMoodle({
 					/>
 				)}
 
-				{editing && selectedOption === "group" && (
+				{editing && selectedOption === "group" && moodleGroups.length > 0 && (
 					<GroupForm
 						conditionOperator={conditionOperator}
 						moodleGroups={moodleGroups}
 						conditionEdit={conditionEdit}
 					/>
 				)}
-				{editing && selectedOption === "grouping" && (
-					<GroupingForm
-						conditionOperator={conditionOperator}
-						conditionEdit={conditionEdit}
-						moodleGroupings={moodleGroupings}
-					/>
-				)}
+				{editing &&
+					selectedOption === "grouping" &&
+					moodleGroupings.length > 0 && (
+						<GroupingForm
+							conditionOperator={conditionOperator}
+							conditionEdit={conditionEdit}
+							moodleGroupings={moodleGroupings}
+						/>
+					)}
 				{editing && selectedOption === "profile" && (
 					<ProfileForm
 						conditionOperator={conditionOperator}

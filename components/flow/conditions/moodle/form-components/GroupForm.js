@@ -26,12 +26,11 @@ const GroupForm = ({ conditionOperator, moodleGroups, conditionEdit }) => {
 					defaultValue={conditionEdit?.groupId}
 				>
 					<option value="anyGroup">Cualquier grupo</option>
-					{moodleGroups.length > 0 &&
-						moodleGroups.map((group) => (
-							<option value={group.id} key={group.id}>
-								{group.name}
-							</option>
-						))}
+					{moodleGroups.map((group) => (
+						<option value={group.id} key={group.id}>
+							{group.name}
+						</option>
+					))}
 				</Form.Select>
 			</div>
 		</Form.Group>

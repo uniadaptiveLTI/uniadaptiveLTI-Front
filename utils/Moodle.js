@@ -254,6 +254,14 @@ function moodleConditionalIDAdder(objArray, nodes) {
 				console.log(newArray[i]);
 			}
 
+			if (objArray[i].type === "group") {
+				newArray[i].groupId = newArray[i].id;
+			}
+
+			if (objArray[i].type === "grouping") {
+				newArray[i].groupingId = newArray[i].id;
+			}
+
 			// Add/replace "id" property
 			newArray[i].id = uniqueId();
 
