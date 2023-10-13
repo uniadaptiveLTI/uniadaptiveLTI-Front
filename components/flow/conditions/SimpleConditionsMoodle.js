@@ -359,7 +359,7 @@ export default function SimpleConditionsMoodle({ id }) {
 									<b>
 										{c.groupingId == null
 											? "Cualquier agrupamiento"
-											: metaData.grupings.find((g) => g.id == c.groupingId)
+											: metaData.groupings.find((g) => g.id == c.groupingId)
 													.name}
 									</b>
 								</>

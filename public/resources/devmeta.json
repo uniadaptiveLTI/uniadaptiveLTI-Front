@@ -163,7 +163,7 @@
 		{ "id": "6", "name": "Grupo F" },
 		{ "id": "7", "name": "Grupo G" }
 	],
-	"grupings": [
+	"groupings": [
 		{ "id": 1, "name": "Agrupamiento A" },
 		{ "id": 2, "name": "Agrupamiento B" },
 		{ "id": 3, "name": "Agrupamiento C" },
