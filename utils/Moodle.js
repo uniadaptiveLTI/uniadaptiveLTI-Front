@@ -173,9 +173,8 @@ export function createNewMoodleMap(nodes, metadata, maps) {
 						? []
 						: moodleConditionalIDAdder(conditions.c, nodes),
 			};
-			console.log(parsedConditions);
 
-			if (parsedConditions && parsedConditions.c.length >= 1) {
+			if (parsedConditions) {
 				node.data.c = parsedConditions;
 			}
 		} else {
@@ -244,13 +243,14 @@ function moodleConditionalIDAdder(objArray, nodes) {
 	console.log(newArray);
 	for (let i = 0; i < newArray.length; i++) {
 		if (typeof newArray[i] === "object" && newArray[i] !== null) {
-			if (objArray[i].type === "completion") {
-				newArray[i].cm = moodleLMSResourceToId(newArray[i].cm, nodes);
-			}
-
-			if (objArray[i].type === "grade") {
+			if (objArray[i].type === "completion" || objArray[i].type === "grade") {
 				newArray[i].cm = moodleLMSResourceToId(newArray[i].id, nodes);
-				console.log(newArray[i], moodleLMSResourceToId(newArray[i].id, nodes));
+				if (!newArray[i].cm) {
+					console.log("XNMZVMNXZ");
+					newArray = newArray.filter((item, index) => index !== i);
+					i--;
+					break;
+				}
 			}
 
 			if (objArray[i].type === "date") {
