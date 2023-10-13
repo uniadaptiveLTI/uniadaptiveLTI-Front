@@ -15,6 +15,7 @@ import {
 	getHTTPPrefix,
 	getSectionIDFromPosition,
 	saveVersion,
+	sakaiTypeSwitch,
 } from "@utils/Utils";
 import { toast } from "react-toastify";
 import {
@@ -159,11 +160,40 @@ export default function ExportPanel({
 				node.data.gradeRequisites.subConditions.length >= 1
 			) {
 				const newCondition = { ...node.data.gradeRequisites };
-				console.log(newCondition);
-				newCondition.itemId = reactFlowInstance
+				let blockResource = reactFlowInstance
 					.getNodes()
 					.find((node) => node.id == newCondition.itemId).data.lmsResource;
-				conditionList.push(node.data.gradeRequisites);
+
+				newCondition.itemId = sakaiTypeSwitch({
+					id: blockResource,
+					type: newCondition.itemType,
+				}).contentRef;
+
+				delete newCondition?.itemType;
+
+				newCondition?.subConditions.map((subCondition) => {
+					if (
+						subCondition.subConditions &&
+						subCondition.subConditions.length >= 1
+					) {
+						subCondition.subConditions.map((childCondition) => {
+							let childResource = reactFlowInstance
+								.getNodes()
+								.find((node) => node.id == childCondition.itemId)
+								.data.lmsResource;
+
+							childCondition.itemId = sakaiTypeSwitch({
+								id: childResource,
+								type: childCondition.itemType,
+							}).contentRef;
+							delete childCondition?.itemType;
+						});
+					}
+				});
+
+				console.log(newCondition);
+
+				conditionList.push(newCondition);
 			}
 		});
 
@@ -519,7 +549,8 @@ export default function ExportPanel({
 				nodesReadyToExport,
 				resultJson,
 				nodesToUpdateRequest,
-				lessonFind
+				lessonFind,
+				conditionList
 			);
 		} else {
 			console.log("MOODLENODES");
@@ -533,27 +564,6 @@ export default function ExportPanel({
 			sendNodes(moodleNodes);
 		}
 	};
-
-	function sakaiTypeSwitch(node) {
-		switch (node.type) {
-			case "resource":
-				return { type: 1, contentRef: node.id.toString() };
-			case "html":
-				return { type: 1, contentRef: node.id.toString() };
-			case "text":
-				return { type: 5, contentRef: node.id.toString() };
-			case "url":
-				return { type: 6, contentRef: node.id.toString() };
-			/* IS NOT SUPPORTED case "folder":
-				return { type: 20, contentRef: "" };*/
-			case "exam":
-				return { type: 4, contentRef: "/sam_pub/" + node.id };
-			case "assign":
-				return { type: 3, contentRef: "/assignment/" + node.id };
-			case "forum":
-				return { type: 8, contentRef: "/forum_forum/" + node.id };
-		}
-	}
 
 	function sakaiExportTypeSwitch(id) {
 		switch (id) {
@@ -653,7 +663,13 @@ export default function ExportPanel({
 		}
 	}
 
-	async function sendNodes(nodes, resultJson, resultJsonSecondary, lesson) {
+	async function sendNodes(
+		nodes,
+		resultJson,
+		resultJsonSecondary,
+		lesson,
+		conditionList
+	) {
 		console.log(nodes);
 		try {
 			const payload = {
@@ -669,6 +685,7 @@ export default function ExportPanel({
 				payload.lessonId = lesson.id;
 				payload.nodes = resultJson;
 				payload.nodesToUpdate = resultJsonSecondary;
+				payload.conditionList = conditionList;
 			} else {
 				payload.nodes = nodes;
 			}

@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { MetaDataContext } from "/pages/_app.js";
 import LogicalSetComponent from "@components/flow/conditions/sakai/condition-components/LogicalSetComponent";
 import {
 	faArrowDown,
@@ -19,6 +20,8 @@ function GradeComponent({
 	setConditionEdit,
 	deleteRequisite,
 }) {
+	const { metaData } = useContext(MetaDataContext);
+
 	const logicalSetAnd = gradeConditions?.subConditions.find(
 		(item) => item.operator === "AND"
 	);
@@ -52,6 +55,8 @@ function GradeComponent({
 		if (!newTargetSubRoot) {
 			newTargetSubRoot = {
 				type: "PARENT",
+				siteId: metaData.course_id,
+				toolId: "sakai.conditions",
 				operator: newSourceSubRoot.operator == "AND" ? "OR" : "AND",
 			};
 		}

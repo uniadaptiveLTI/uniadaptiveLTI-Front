@@ -168,11 +168,14 @@ export function createNewMoodleMap(nodes, metadata, maps) {
 				...conditions,
 				c:
 					conditions?.c == undefined
-						? undefined
+						? []
 						: moodleConditionalIDAdder(conditions.c, nodes),
 			};
+			console.log(parsedConditions);
 
-			node.data.c = parsedConditions;
+			if (parsedConditions && parsedConditions.c.length >= 1) {
+				node.data.c = parsedConditions;
+			}
 		} else {
 			const completionCondition = node.data.c?.params?.find(
 				(condition) => condition.type == "completion"
@@ -234,7 +237,7 @@ export function createNewMoodleMap(nodes, metadata, maps) {
 function moodleConditionalIDAdder(objArray, nodes) {
 	// Create a deep copy of the original array
 	let newArray = JSON.parse(JSON.stringify(objArray));
-
+	console.log(newArray);
 	for (let i = 0; i < newArray.length; i++) {
 		if (typeof newArray[i] === "object" && newArray[i] !== null) {
 			if (objArray[i].type === "completion") {
@@ -243,6 +246,12 @@ function moodleConditionalIDAdder(objArray, nodes) {
 
 			if (objArray[i].type === "grade") {
 				newArray[i].cm = moodleLMSResourceToId(newArray[i].id, nodes);
+				console.log(newArray[i], moodleLMSResourceToId(newArray[i].id, nodes));
+			}
+
+			if (objArray[i].type === "date") {
+				newArray[i].t = parseDate(newArray[i].t);
+				console.log(newArray[i]);
 			}
 
 			// Add/replace "id" property
@@ -252,10 +261,11 @@ function moodleConditionalIDAdder(objArray, nodes) {
 			if ("c" in newArray[i]) {
 				newArray[i].type = "conditionsGroup";
 				newArray[i].c = moodleConditionalIDAdder(newArray[i].c, nodes);
+				console.log(newArray[i]);
 			}
 		}
 	}
-
+	console.log(newArray);
 	return newArray;
 }
 
@@ -281,9 +291,8 @@ function moodleFlowConditionalsExtractor(objArray) {
 				}
 			}
 		}
+
 		return cmValues;
-	} else {
-		return undefined;
 	}
 }
 
@@ -300,6 +309,7 @@ function moodleParentingSetter(objArray) {
 		if (objArray[i]?.type !== "badge") {
 			if (objArray[i]?.data?.c) {
 				const parents = moodleFlowConditionalsExtractor(objArray[i].data.c.c);
+				console.log("parents", parents);
 				if (parents) {
 					if (parents.length > 0) {
 						parents.forEach((parent) => {

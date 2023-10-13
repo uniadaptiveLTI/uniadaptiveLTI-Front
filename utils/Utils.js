@@ -506,3 +506,24 @@ export function clampNodesOrder(nodeArray, platform) {
 			return nodeArray;
 	}
 }
+
+export function sakaiTypeSwitch(node) {
+	switch (node.type) {
+		case "resource":
+			return { type: 1, contentRef: node.id.toString() };
+		case "html":
+			return { type: 1, contentRef: node.id.toString() };
+		case "text":
+			return { type: 5, contentRef: node.id.toString() };
+		case "url":
+			return { type: 6, contentRef: node.id.toString() };
+		/* IS NOT SUPPORTED case "folder":
+			return { type: 20, contentRef: "" };*/
+		case "exam":
+			return { type: 4, contentRef: "/sam_pub/" + node.id };
+		case "assign":
+			return { type: 3, contentRef: "/assignment/" + node.id };
+		case "forum":
+			return { type: 8, contentRef: "/forum_forum/" + node.id };
+	}
+}

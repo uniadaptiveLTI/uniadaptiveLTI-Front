@@ -40,6 +40,7 @@ import {
 	updateBadgeConditions,
 	capitalizeFirstLetter,
 	clampNodesOrder,
+	sakaiTypeSwitch,
 } from "@utils/Utils";
 import {
 	getNodeByNodeDOM,
@@ -513,16 +514,23 @@ const OverviewFlow = ({ map }, ref) => {
 							if (!targetNode.data.gradeRequisites) {
 								targetNode.data.gradeRequisites = {
 									type: "ROOT",
-									itemId: parseInt(Date.now() * Math.random()).toString(),
+									siteId: metaData.course_id,
+									itemId: targetNodeId,
+									itemType: targetNode.type,
+									toolId: "sakai.lessonbuildertool",
 									operator: "AND",
 									subConditions: [
 										{
 											type: "PARENT",
+											siteId: metaData.course_id,
+											toolId: "sakai.conditions",
 											operator: "AND",
 											subConditions: [],
 										},
 										{
 											type: "PARENT",
+											siteId: metaData.course_id,
+											toolId: "sakai.conditions",
 											operator: "OR",
 											subConditions: [],
 										},
@@ -539,9 +547,11 @@ const OverviewFlow = ({ map }, ref) => {
 							console.log(targetNode);
 
 							subRootAnd.subConditions.push({
-								itemId: parseInt(Date.now() * Math.random()).toString(),
 								type: "SCORE",
+								siteId: metaData.course_id,
 								itemId: sourceNodeId,
+								itemType: sourceNode.type,
+								toolId: "sakai.lessonbuildertool",
 								argument: 5,
 								operator: "GREATER_THAN",
 							});
@@ -1679,7 +1689,7 @@ const OverviewFlow = ({ map }, ref) => {
 						id: parseInt(Date.now() * Math.random()).toString(),
 						type: "completion",
 						cm: origin.id,
-						query: "completed",
+						e: 1,
 					};
 
 					if (!end.data.c) {

@@ -235,7 +235,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 					//Adds current resource if exists
 					if (nodeSelected && nodeSelected.data) {
 						if (nodeSelected.data.lmsResource) {
-							if (nodeSelected.data.lmsResource > -1) {
+							if (nodeSelected.data.lmsResource !== "") {
 								const lmsRes = nodeSelected.data.lmsResource;
 								const storedRes = data.find(
 									(resource) => resource.id == lmsRes
