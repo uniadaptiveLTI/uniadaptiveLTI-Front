@@ -112,7 +112,7 @@ export default forwardRef(function NodeSelector(
 					qualificationMethod: 0,
 					requiredType: 1,
 					hasTimeLimit: false,
-					timeLimit: "",
+					timeLimit: 0,
 				};
 		} else {
 			data.label = name;

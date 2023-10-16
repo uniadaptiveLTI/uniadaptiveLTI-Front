@@ -532,7 +532,7 @@ export function parseMoodleCalifications(node, method = "export") {
 				completionview: og.hasToBeSeen || false,
 				grademethod: og.qualificationMethod || 0,
 				gradepass: og.qualificationToPass || 0,
-				completionexpected: og.timeLimit || "",
+				completionexpected: new Date(og.timeLimit).getTime() / 1000 || 0,
 				requiredType: og.requiredType || 1,
 			};
 		} else if (method == "import") {
@@ -543,11 +543,11 @@ export function parseMoodleCalifications(node, method = "export") {
 				hasToBeSeen: og.completionview,
 				qualificationMethod: og.grademethod,
 				qualificationToPass: og.gradepass,
-				timeLimit: og.completionexpected,
+				timeLimit: og.completionexpected || "",
 				requiredType: og.requiredType,
 			};
 
-			const timeLimit = og.completionexpected;
+			const timeLimit = og.completionexpected || "";
 			const hasTimeLimit = timeLimit ? true : false;
 
 			newGrades.hasTimeLimit == hasTimeLimit;

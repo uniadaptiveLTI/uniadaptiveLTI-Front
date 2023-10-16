@@ -105,7 +105,7 @@ const QualificationForm = forwardRef(
 						Number(qualificationMethodRef.current?.value) || 0,
 					requiredType: Number(requiredTypeRef.current?.value) || 0,
 					hasTimeLimit: hasTimeLimitRef.current?.checked || false,
-					timeLimit: timeLimitRef.current?.value || "",
+					timeLimit: timeLimitRef.current?.value || 0,
 				};
 			}
 
@@ -124,7 +124,7 @@ const QualificationForm = forwardRef(
 					hasToRequireReplies: hasToRequireRepliesRef.current?.checked || false,
 					requireReplies: Number(requireRepliesRef.current?.value) || 0,
 					hasTimeLimit: hasTimeLimitRef.current?.checked || false,
-					timeLimit: timeLimitRef.current?.value || "",
+					timeLimit: timeLimitRef.current?.value || 0,
 				};
 			}
 
@@ -135,7 +135,7 @@ const QualificationForm = forwardRef(
 					qualificationMethod:
 						Number(requireQualificationRef.current?.value) || 0,
 					hasTimeLimit: hasTimeLimitRef.current?.checked || false,
-					timeLimit: timeLimitRef.current?.value || "",
+					timeLimit: timeLimitRef.current?.value || 0,
 				};
 			}
 			return qualificationResult;
@@ -219,7 +219,7 @@ const QualificationForm = forwardRef(
 								ref={timeLimitRef}
 								type="datetime-local"
 								defaultValue={
-									initialGrade?.timeLimit ? initialGrade?.timeLimit : ""
+									initialGrade?.timeLimit ? initialGrade?.timeLimit : 0
 								}
 							></Form.Control>
 						)}
@@ -275,7 +275,7 @@ const QualificationForm = forwardRef(
 												id={qualificationToPassID}
 												type="number"
 												step="0.01"
-												min="0"
+												min="1"
 												max="10"
 												defaultValue={initialGrade?.qualificationToPass || 0.0}
 											></Form.Control>
@@ -369,7 +369,7 @@ const QualificationForm = forwardRef(
 												ref={timeLimitRef}
 												type="datetime-local"
 												defaultValue={
-													initialGrade?.timeLimit ? initialGrade?.timeLimit : ""
+													initialGrade?.timeLimit ? initialGrade?.timeLimit : 0
 												}
 											></Form.Control>
 										)}
@@ -445,7 +445,7 @@ const QualificationForm = forwardRef(
 										ref={timeLimitRef}
 										type="datetime-local"
 										defaultValue={
-											initialGrade?.timeLimit ? initialGrade?.timeLimit : ""
+											initialGrade?.timeLimit ? initialGrade?.timeLimit : 0
 										}
 									></Form.Control>
 								)}
@@ -498,7 +498,7 @@ const QualificationForm = forwardRef(
 										ref={timeLimitRef}
 										type="datetime-local"
 										defaultValue={
-											initialGrade?.timeLimit ? initialGrade?.timeLimit : ""
+											initialGrade?.timeLimit ? initialGrade?.timeLimit : 0
 										}
 									></Form.Control>
 								)}
