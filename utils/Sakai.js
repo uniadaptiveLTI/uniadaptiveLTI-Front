@@ -33,9 +33,14 @@ export function createNewSakaiMap(nodes, lesson, metadata, maps) {
 		if (node.data.gradeRequisites) {
 			const parentNodes = [];
 
-			const rootParent = node.data.gradeRequisites
+			let rootParent = node.data.gradeRequisites
 				? { ...node.data.gradeRequisites, id: uniqueId() }
 				: undefined;
+			console.log(rootParent);
+			delete rootParent?.argument;
+			delete rootParent?.siteId;
+			delete rootParent?.toolId;
+			delete rootParent?.hasParent;
 
 			const parsedRequisites = {
 				...rootParent,
@@ -56,6 +61,7 @@ export function createNewSakaiMap(nodes, lesson, metadata, maps) {
 				}
 			});
 
+			delete node?.data?.sakaiImportId;
 			node.data.gradeRequisites = parsedRequisites;
 
 			console.log(node.data);
@@ -118,6 +124,7 @@ export function parseSakaiNode(nodes, node, newX, newY, validTypes) {
 			section: node.section,
 			indent: node.indent,
 			order: node.order,
+			sakaiImportId: node.id,
 			lmsResource: String(node.sakaiId),
 			children: [],
 			requisites: [],
@@ -170,9 +177,12 @@ export function parseSakaiNode(nodes, node, newX, newY, validTypes) {
 }
 
 function sakaiLMSResourceToId(resourceId, nodes) {
-	const node = nodes.find((node) => node.data.lmsResource == resourceId);
-	console.log(resourceId, node);
-	return node ? node.id : undefined;
+	let node = nodes.find((node) => node.data.sakaiImportId == resourceId);
+	if (node && node.id) {
+		return node.id;
+	} else {
+		return undefined;
+	}
 }
 
 function sakaiConditionalIDAdder(subConditions, nodes, parentNodes) {
@@ -182,9 +192,22 @@ function sakaiConditionalIDAdder(subConditions, nodes, parentNodes) {
 			childCondition.id = uniqueId();
 			const newItemId = sakaiLMSResourceToId(childCondition.itemId, nodes);
 			childCondition.itemId = newItemId;
+
+			delete childCondition?.siteId;
+			delete childCondition?.toolId;
+			delete childCondition?.subConditions;
+			delete childCondition?.hasParent;
+
 			parentNodes.push(newItemId);
 		});
+
+		delete rootCondition?.argument;
+		delete rootCondition?.siteId;
+		delete rootCondition?.toolId;
+		delete rootCondition?.itemId;
+		delete rootCondition?.hasParent;
 	});
+	console.log(subConditions);
 	return subConditions;
 }
 
