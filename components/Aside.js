@@ -894,17 +894,20 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 													{metaData.sections &&
 														orderByPropertyAlphabetically(
 															[...metaData.sections].map((section) => {
+																const newSection = section;
 																if (!section.name.match(/^\d/)) {
 																	section.name =
 																		platform == "moodle"
-																			? section.position + "- " + section.name
-																			: section.position +
+																			? newSection.position +
+																			  "- " +
+																			  newSection.name
+																			: newSection.position +
 																			  1 +
 																			  "- " +
-																			  section.name;
-																	section.value = section.position + 1;
+																			  newSection.name;
+																	newSection.value = newSection.position + 1;
 																}
-																return section;
+																return newSection;
 															}),
 															"name"
 														).map((section) => (
