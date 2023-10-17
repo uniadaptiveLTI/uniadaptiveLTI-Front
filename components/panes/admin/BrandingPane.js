@@ -379,7 +379,7 @@ export default function BrandingPane({ modifySettings, LTISettings }) {
 			></InlineColorSelector>
 			<div>
 				<Form.Label htmlFor="mainFontFamily">
-					Familia de las fuentes principales
+					Familia de las fuentes principales (separadas por comas)
 				</Form.Label>
 				<Form.Control
 					id="mainFontFamily"
@@ -421,327 +421,327 @@ export default function BrandingPane({ modifySettings, LTISettings }) {
 				></UISelection>
 			</div>
 
-			{uiSelected == 0 && (
-				<>
-					<h5>Panel lateral</h5>
+			<div style={{ display: uiSelected == 0 ? "block" : "none" }}>
+				<h5>Panel lateral</h5>
 
-					<InlineColorSelector
-						label={"Color de la fuente"}
-						color={asideFontColor}
-						setColor={setAsideFontColor}
-					></InlineColorSelector>
-					<div>
-						<Form.Label htmlFor="asideFontFamily">
-							Familia de las fuentes
-						</Form.Label>
-						<Form.Control
-							id="mainFontFamily"
-							onChange={setAsideFontFamily}
-							defaultValue={asideFontFamily}
-						></Form.Control>
-					</div>
-					<InlineColorSelector
-						label={"Color de fondo"}
-						color={asideBackgroundColor}
-						setColor={setAsideBackgroundColor}
-					></InlineColorSelector>
-					<InlineColorSelector
-						label={"Color del icono de colapso"}
-						color={asideCollapseIconColor}
-						setColor={setAsideCollapseIconColor}
-					></InlineColorSelector>
-					<InlineColorSelector
-						label={"Color de fondo del icono de colapso"}
-						color={asideCollapseIconBackgroundColor}
-						setColor={setAsideCollapseIconBackgroundColor}
-					></InlineColorSelector>
-					<InlineColorSelector
-						label={"Color de fondo del logo"}
-						color={asideLogoBackgroundColor}
-						setColor={setAsideLogoBackgroundColor}
-					></InlineColorSelector>
-				</>
-			)}
+				<InlineColorSelector
+					label={"Color de la fuente"}
+					color={asideFontColor}
+					setColor={setAsideFontColor}
+				></InlineColorSelector>
+				<div>
+					<Form.Label htmlFor="asideFontFamily">
+						Familia de las fuentes (separadas por comas)
+					</Form.Label>
+					<Form.Control
+						id="mainFontFamily"
+						onChange={setAsideFontFamily}
+						defaultValue={asideFontFamily}
+					></Form.Control>
+				</div>
+				<InlineColorSelector
+					label={"Color de fondo"}
+					color={asideBackgroundColor}
+					setColor={setAsideBackgroundColor}
+				></InlineColorSelector>
+				<InlineColorSelector
+					label={"Color del icono de colapso"}
+					color={asideCollapseIconColor}
+					setColor={setAsideCollapseIconColor}
+				></InlineColorSelector>
+				<InlineColorSelector
+					label={
+						'Color de fondo del icono de colapso (Utilizar "none" para preservar la transparencia)'
+					}
+					color={asideCollapseIconBackgroundColor}
+					setColor={setAsideCollapseIconBackgroundColor}
+				></InlineColorSelector>
+				<InlineColorSelector
+					label={
+						'Color de fondo del logo (Utilizar "none" para preservar la transparencia)'
+					}
+					color={asideLogoBackgroundColor}
+					setColor={setAsideLogoBackgroundColor}
+				></InlineColorSelector>
+			</div>
 
-			{uiSelected == 1 && (
-				<>
-					<h5>Encabezado</h5>
+			<div style={{ display: uiSelected == 1 ? "block" : "none" }}>
+				<h5>Encabezado</h5>
 
-					<InlineColorSelector
-						label={"Color de la fuente"}
-						color={headerFontColor}
-						setColor={setHeaderFontColor}
-					></InlineColorSelector>
-					<div>
-						<Form.Label htmlFor="headerFontFamily">
-							Familia de las fuentes
-						</Form.Label>
-						<Form.Control
-							id="headerFontFamily"
-							onChange={setHeaderFontFamily}
-							defaultValue={headerFontFamily}
-						></Form.Control>
-					</div>
-					<InlineColorSelector
-						label={"Color de fondo"}
-						color={headerBackgroundColor}
-						setColor={setHeaderBackgroundColor}
-					></InlineColorSelector>
-					<h6>Imagen de usuario</h6>
-					<div>
-						<Form.Label htmlFor="headerUserImageBorderRadius">
-							Redondeado del borde de la imagen de usuario
-						</Form.Label>
-						<Form.Control
-							id="headerUserImageBorderRadius"
-							onChange={setHeaderUserImageBorderRadius}
-							defaultValue={headerUserImageBorderRadius}
-						></Form.Control>
-					</div>
-					<div>
-						<Form.Label htmlFor="headerUserImageBorderWidth">
-							Tamaño del borde de la imagen de usuario
-						</Form.Label>
-						<Form.Control
-							id="headerUserImageBorderWidth"
-							onChange={setHeaderUserImageBorderWidth}
-							defaultValue={headerUserImageBorderWidth}
-						></Form.Control>
-					</div>
-					<InlineColorSelector
-						label={"Color del borde de la imagen de usuario"}
-						color={headerUserImageBorderColor}
-						setColor={setHeaderUserImageBorderColor}
-					></InlineColorSelector>
-					<h6>Botones de acción</h6>
-					<InlineColorSelector
-						label={"Color de fondo de los botones de acción"}
-						color={headerActionButtonsBackgroundColor}
-						setColor={setHeaderActionButtonsBackgroundColor}
-					></InlineColorSelector>
-					<div>
-						<Form.Label htmlFor="headerActionButtonsBorderRadius">
-							Redondeado del borde de los botones de acción
-						</Form.Label>
-						<Form.Control
-							id="headerActionButtonsBorderRadius"
-							onChange={setHeaderActionButtonsBorderRadius}
-							defaultValue={headerActionButtonsBorderRadius}
-						></Form.Control>
-					</div>
-					<div>
-						<Form.Label htmlFor="headerActionButtonsSvgFilter">
-							Filtro SVG de los botones de acción
-						</Form.Label>
-						<Form.Control
-							id="headerActionButtonsSvgFilter"
-							onChange={setHeaderActionButtonsSvgFilter}
-							defaultValue={headerActionButtonsSvgFilter}
-						></Form.Control>
-					</div>
-					<h6>Selector de versiones</h6>
-					<InlineColorSelector
-						label={"Color de la fuente del selector de versiones"}
-						color={headerVersionDropdownContainerFontColor}
-						setColor={setVersionDropdownContainerHeaderFontColor}
-					></InlineColorSelector>
-					<div>
-						<Form.Label htmlFor="headerVersionDropdownContainerFontFamily">
-							Familia de las fuentes del selector de versiones
-						</Form.Label>
-						<Form.Control
-							id="headerVersionDropdownContainerFontFamily"
-							onChange={setVersionDropdownContainerHeaderFontFamily}
-							defaultValue={headerVersionDropdownContainerFontFamily}
-						></Form.Control>
-					</div>
-					<InlineColorSelector
-						label={"Color de fondo del contenedor del selector de versiones"}
-						color={headerVersionDropdownContainerBackgroundColor}
-						setColor={setHeaderVersionDropdownContainerBackgroundColor}
-					></InlineColorSelector>
-					<InlineColorSelector
-						label={
-							"Color de la sombra del contenedor del selector de versiones"
-						}
-						color={headerVersionDropdownContainerBoxShadowColor}
-						setColor={setHeaderVersionDropdownContainerBoxShadowColor}
-					></InlineColorSelector>
-				</>
-			)}
+				<InlineColorSelector
+					label={"Color de la fuente"}
+					color={headerFontColor}
+					setColor={setHeaderFontColor}
+				></InlineColorSelector>
+				<div>
+					<Form.Label htmlFor="headerFontFamily">
+						Familia de las fuentes (separadas por comas)
+					</Form.Label>
+					<Form.Control
+						id="headerFontFamily"
+						onChange={setHeaderFontFamily}
+						defaultValue={headerFontFamily}
+					></Form.Control>
+				</div>
+				<InlineColorSelector
+					label={"Color de fondo"}
+					color={headerBackgroundColor}
+					setColor={setHeaderBackgroundColor}
+				></InlineColorSelector>
+				<h6>Imagen de usuario</h6>
+				<div>
+					<Form.Label htmlFor="headerUserImageBorderRadius">
+						Redondeado del borde de la imagen de usuario
+					</Form.Label>
+					<Form.Control
+						id="headerUserImageBorderRadius"
+						onChange={setHeaderUserImageBorderRadius}
+						defaultValue={headerUserImageBorderRadius}
+					></Form.Control>
+				</div>
+				<div>
+					<Form.Label htmlFor="headerUserImageBorderWidth">
+						Tamaño del borde de la imagen de usuario
+					</Form.Label>
+					<Form.Control
+						id="headerUserImageBorderWidth"
+						onChange={setHeaderUserImageBorderWidth}
+						defaultValue={headerUserImageBorderWidth}
+					></Form.Control>
+				</div>
+				<InlineColorSelector
+					label={"Color del borde de la imagen de usuario"}
+					color={headerUserImageBorderColor}
+					setColor={setHeaderUserImageBorderColor}
+				></InlineColorSelector>
+				<h6>Botones de acción</h6>
+				<InlineColorSelector
+					label={"Color de fondo de los botones de acción"}
+					color={headerActionButtonsBackgroundColor}
+					setColor={setHeaderActionButtonsBackgroundColor}
+				></InlineColorSelector>
+				<div>
+					<Form.Label htmlFor="headerActionButtonsBorderRadius">
+						Redondeado del borde de los botones de acción
+					</Form.Label>
+					<Form.Control
+						id="headerActionButtonsBorderRadius"
+						onChange={setHeaderActionButtonsBorderRadius}
+						defaultValue={headerActionButtonsBorderRadius}
+					></Form.Control>
+				</div>
+				<div>
+					<Form.Label htmlFor="headerActionButtonsSvgFilter">
+						Filtro SVG de los botones de acción
+					</Form.Label>
+					<Form.Control
+						id="headerActionButtonsSvgFilter"
+						onChange={setHeaderActionButtonsSvgFilter}
+						defaultValue={headerActionButtonsSvgFilter}
+					></Form.Control>
+				</div>
+				<h6>Selector de versiones</h6>
+				<InlineColorSelector
+					label={"Color de la fuente del selector de versiones"}
+					color={headerVersionDropdownContainerFontColor}
+					setColor={setVersionDropdownContainerHeaderFontColor}
+				></InlineColorSelector>
+				<div>
+					<Form.Label htmlFor="headerVersionDropdownContainerFontFamily">
+						Familia de las fuentes del selector de versiones (separadas por
+						comas)
+					</Form.Label>
+					<Form.Control
+						id="headerVersionDropdownContainerFontFamily"
+						onChange={setVersionDropdownContainerHeaderFontFamily}
+						defaultValue={headerVersionDropdownContainerFontFamily}
+					></Form.Control>
+				</div>
+				<InlineColorSelector
+					label={"Color de fondo del contenedor del selector de versiones"}
+					color={headerVersionDropdownContainerBackgroundColor}
+					setColor={setHeaderVersionDropdownContainerBackgroundColor}
+				></InlineColorSelector>
+				<InlineColorSelector
+					label={"Color de la sombra del contenedor del selector de versiones"}
+					color={headerVersionDropdownContainerBoxShadowColor}
+					setColor={setHeaderVersionDropdownContainerBoxShadowColor}
+				></InlineColorSelector>
+			</div>
 
-			{uiSelected == 2 && (
-				<>
-					<h5>Flujo de bloques</h5>
+			<div style={{ display: uiSelected == 2 ? "block" : "none" }}>
+				<h5>Flujo de bloques</h5>
 
-					<InlineColorSelector
-						label={"Color de la fuente"}
-						color={blockflowFontColor}
-						setColor={setBlockflowFontColor}
-					></InlineColorSelector>
-					<div>
-						<Form.Label htmlFor="blockflowFontFamily">
-							Familia de las fuentes
-						</Form.Label>
-						<Form.Control
-							id="blockflowFontFamily"
-							onChange={setBlockflowFontFamily}
-							defaultValue={blockflowFontFamily}
-						></Form.Control>
-					</div>
-					<InlineColorSelector
-						label={`Color de fondo (utilizar "none" para hacerlo transparente)`}
-						color={blockflowBackgroundColor}
-						setColor={setBlockflowBackgroundColor}
-					></InlineColorSelector>
-					<InlineColorSelector
-						label={`Color de la sombra interna (utilizar "none" para hacerlo transparente)`}
-						color={blockflowInnerBoxShadowColor}
-						setColor={setBlockflowInnerBoxShadowColor}
-					></InlineColorSelector>
-					<h6>Etiquetas</h6>
-					<InlineColorSelector
-						label={`Color de la fuente de las etiquetas`}
-						color={blockflowLabelFontColor}
-						setColor={setBlockflowLabelFontColor}
-					></InlineColorSelector>
-					<div>
-						<Form.Label htmlFor="blockflowLabelFontFamily">
-							Familia de las fuentes de las etiquetas
-						</Form.Label>
-						<Form.Control
-							id="blockflowLabelFontFamily"
-							onChange={setBlockflowLabelFontFamily}
-							defaultValue={blockflowLabelFontFamily}
-						></Form.Control>
-					</div>
-					<InlineColorSelector
-						label={`Color de fondo del texto de las etiquetas (utilizar "none" para hacerlo transparente)`}
-						color={blockflowLabelBackgroundColor}
-						setColor={setBlockflowLabelBackgroundColor}
-					></InlineColorSelector>
-					<h6>Elementos emergentes</h6>
-					<InlineColorSelector
-						label={`Color de la fuente de los elementos emergentes`}
-						color={blockflowHoverFontColor}
-						setColor={setBlockflowHoverFontColor}
-					></InlineColorSelector>
-					<div>
-						<Form.Label htmlFor="blockflowHoverFontFamily">
-							Familia de las fuentes de los elementos emergentes
-						</Form.Label>
-						<Form.Control
-							id="blockflowHoverFontFamily"
-							onChange={setBlockflowHoverFontFamily}
-							defaultValue={blockflowHoverFontFamily}
-						></Form.Control>
-					</div>
-					<InlineColorSelector
-						label={`Color de fondo del texto de los elementos emergentes (utilizar "none" para hacerlo transparente)`}
-						color={blockflowHoverBackgroundColor}
-						setColor={setBlockflowHoverBackgroundColor}
-					></InlineColorSelector>
-					<h6>Lineas</h6>
-					<InlineColorSelector
-						label={"Color de la fuente de las etiquetas de las líneas"}
-						color={blockflowEdgeFontColor}
-						setColor={setBlockflowEdgeFontColor}
-					></InlineColorSelector>
-					<InlineColorSelector
-						label={"Color de fondo de las etiquetas de las líneas"}
-						color={blockflowEdgeBackgroundColor}
-						setColor={setBlockflowEdgeBackgroundColor}
-					></InlineColorSelector>
-					<div>
-						<Form.Label htmlFor="blockflowEdgeBorderRadius">
-							Redondeado de las etiquetas de las líneas
-						</Form.Label>
-						<Form.Control
-							id="blockflowEdgeBorderRadius"
-							onChange={setBlockflowEdgeBorderRadius}
-							defaultValue={blockflowEdgeBorderRadius}
-						></Form.Control>
-					</div>
-					<div>
-						<Form.Label htmlFor="blockflowEdgeBorderWidth">
-							Tamaño del borde de las etiquetas de las líneas
-						</Form.Label>
-						<Form.Control
-							id="blockflowEdgeBorderWidth"
-							onChange={setBlockflowEdgeBorderWidth}
-							defaultValue={blockflowEdgeBorderWidth}
-						></Form.Control>
-					</div>
-					<InlineColorSelector
-						label={"Color de la fuente de las etiquetas de las líneas"}
-						color={blockflowEdgeBorderColor}
-						setColor={setBlockflowEdgeBorderColor}
-					></InlineColorSelector>
-				</>
-			)}
-			{uiSelected == 3 && (
-				<>
-					<div>
-						<Form.Label htmlFor="blockflowControlsBorder">
-							Borde de los controles
-						</Form.Label>
-						<Form.Control
-							id="blockflowControlsBorder"
-							onChange={setBlockflowControlsBorder}
-							defaultValue={blockflowControlsBorder}
-						></Form.Control>
-					</div>
-					<InlineColorSelector
-						label={"Color de la fuente del botón"}
-						color={blockflowControlsButtonFontColor}
-						setColor={setBlockflowControlsButtonFontColor}
-					></InlineColorSelector>
-					<InlineColorSelector
-						label={"Color de fondo del botón"}
-						color={blockflowControlsButtonBackgroundColor}
-						setColor={setBlockflowControlsButtonBackgroundColor}
-					></InlineColorSelector>
-					<div>
-						<Form.Label htmlFor="blockflowControlsButtonBorder">
-							Borde de los botones
-						</Form.Label>
-						<Form.Control
-							id="blockflowControlsButtonBorder"
-							onChange={setBlockflowControlsButtonBorder}
-							defaultValue={blockflowControlsButtonBorder}
-						></Form.Control>
-					</div>
-					<div>
-						<Form.Label htmlFor="blockflowControlsButtonSvgFilter">
-							Filtro SVG de los botones
-						</Form.Label>
-						<Form.Control
-							id="blockflowControlsButtonSvgFilter"
-							onChange={setBlockflowControlsButtonSvgFilter}
-							defaultValue={blockflowControlsButtonSvgFilter}
-						></Form.Control>
-					</div>
-				</>
-			)}
-			{uiSelected == 4 && (
-				<>
-					<div>
-						<Form.Label htmlFor="blockflowMinimapBorder">
-							Borde del minimapa
-						</Form.Label>
-						<Form.Control
-							id="blockflowMinimapBorder"
-							onChange={setBlockflowMinimapBorder}
-							defaultValue={blockflowMinimapBorder}
-						></Form.Control>
-					</div>
-					<InlineColorSelector
-						label={"Color de fondo del minimapa"}
-						color={blockflowMinimapBackgroundColor}
-						setColor={setBlockflowMinimapBackgroundColor}
-					></InlineColorSelector>
-				</>
-			)}
+				<InlineColorSelector
+					label={"Color de la fuente"}
+					color={blockflowFontColor}
+					setColor={setBlockflowFontColor}
+				></InlineColorSelector>
+				<div>
+					<Form.Label htmlFor="blockflowFontFamily">
+						Familia de las fuentes (separadas por comas)
+					</Form.Label>
+					<Form.Control
+						id="blockflowFontFamily"
+						onChange={setBlockflowFontFamily}
+						defaultValue={blockflowFontFamily}
+					></Form.Control>
+				</div>
+				<InlineColorSelector
+					label={`Color de fondo (utilizar "none" para hacerlo transparente)`}
+					color={blockflowBackgroundColor}
+					setColor={setBlockflowBackgroundColor}
+				></InlineColorSelector>
+				<InlineColorSelector
+					label={`Color de la sombra interna (utilizar "none" para hacerlo transparente)`}
+					color={blockflowInnerBoxShadowColor}
+					setColor={setBlockflowInnerBoxShadowColor}
+				></InlineColorSelector>
+				<h6>Etiquetas</h6>
+				<InlineColorSelector
+					label={`Color de la fuente de las etiquetas`}
+					color={blockflowLabelFontColor}
+					setColor={setBlockflowLabelFontColor}
+				></InlineColorSelector>
+				<div>
+					<Form.Label htmlFor="blockflowLabelFontFamily">
+						Familia de las fuentes de las etiquetas (separadas por comas)
+					</Form.Label>
+					<Form.Control
+						id="blockflowLabelFontFamily"
+						onChange={setBlockflowLabelFontFamily}
+						defaultValue={blockflowLabelFontFamily}
+					></Form.Control>
+				</div>
+				<InlineColorSelector
+					label={`Color de fondo del texto de las etiquetas (utilizar "none" para hacerlo transparente)`}
+					color={blockflowLabelBackgroundColor}
+					setColor={setBlockflowLabelBackgroundColor}
+				></InlineColorSelector>
+				<h6>Elementos emergentes</h6>
+				<InlineColorSelector
+					label={`Color de la fuente de los elementos emergentes`}
+					color={blockflowHoverFontColor}
+					setColor={setBlockflowHoverFontColor}
+				></InlineColorSelector>
+				<div>
+					<Form.Label htmlFor="blockflowHoverFontFamily">
+						Familia de las fuentes de los elementos emergentes (separadas por
+						comas)
+					</Form.Label>
+					<Form.Control
+						id="blockflowHoverFontFamily"
+						onChange={setBlockflowHoverFontFamily}
+						defaultValue={blockflowHoverFontFamily}
+					></Form.Control>
+				</div>
+				<InlineColorSelector
+					label={`Color de fondo del texto de los elementos emergentes (utilizar "none" para hacerlo transparente)`}
+					color={blockflowHoverBackgroundColor}
+					setColor={setBlockflowHoverBackgroundColor}
+				></InlineColorSelector>
+				<h6>Lineas</h6>
+				<InlineColorSelector
+					label={"Color de la fuente de las etiquetas de las líneas"}
+					color={blockflowEdgeFontColor}
+					setColor={setBlockflowEdgeFontColor}
+				></InlineColorSelector>
+				<InlineColorSelector
+					label={"Color de fondo de las etiquetas de las líneas"}
+					color={blockflowEdgeBackgroundColor}
+					setColor={setBlockflowEdgeBackgroundColor}
+				></InlineColorSelector>
+				<div>
+					<Form.Label htmlFor="blockflowEdgeBorderRadius">
+						Redondeado de las etiquetas de las líneas
+					</Form.Label>
+					<Form.Control
+						id="blockflowEdgeBorderRadius"
+						onChange={setBlockflowEdgeBorderRadius}
+						defaultValue={blockflowEdgeBorderRadius}
+					></Form.Control>
+				</div>
+				<div>
+					<Form.Label htmlFor="blockflowEdgeBorderWidth">
+						Tamaño del borde de las etiquetas de las líneas
+					</Form.Label>
+					<Form.Control
+						id="blockflowEdgeBorderWidth"
+						onChange={setBlockflowEdgeBorderWidth}
+						defaultValue={blockflowEdgeBorderWidth}
+					></Form.Control>
+				</div>
+				<InlineColorSelector
+					label={"Color de la fuente de las etiquetas de las líneas"}
+					color={blockflowEdgeBorderColor}
+					setColor={setBlockflowEdgeBorderColor}
+				></InlineColorSelector>
+			</div>
+
+			<div style={{ display: uiSelected == 3 ? "block" : "none" }}>
+				<h5>Controles del Flujo de Bloques</h5>
+
+				<div>
+					<Form.Label htmlFor="blockflowControlsBorder">
+						Borde de los controles
+					</Form.Label>
+					<Form.Control
+						id="blockflowControlsBorder"
+						onChange={setBlockflowControlsBorder}
+						defaultValue={blockflowControlsBorder}
+					></Form.Control>
+				</div>
+				<InlineColorSelector
+					label={"Color de la fuente del botón"}
+					color={blockflowControlsButtonFontColor}
+					setColor={setBlockflowControlsButtonFontColor}
+				></InlineColorSelector>
+				<InlineColorSelector
+					label={"Color de fondo del botón"}
+					color={blockflowControlsButtonBackgroundColor}
+					setColor={setBlockflowControlsButtonBackgroundColor}
+				></InlineColorSelector>
+				<div>
+					<Form.Label htmlFor="blockflowControlsButtonBorder">
+						Borde de los botones
+					</Form.Label>
+					<Form.Control
+						id="blockflowControlsButtonBorder"
+						onChange={setBlockflowControlsButtonBorder}
+						defaultValue={blockflowControlsButtonBorder}
+					></Form.Control>
+				</div>
+				<div>
+					<Form.Label htmlFor="blockflowControlsButtonSvgFilter">
+						Filtro SVG de los botones
+					</Form.Label>
+					<Form.Control
+						id="blockflowControlsButtonSvgFilter"
+						onChange={setBlockflowControlsButtonSvgFilter}
+						defaultValue={blockflowControlsButtonSvgFilter}
+					></Form.Control>
+				</div>
+			</div>
+
+			<div style={{ display: uiSelected == 4 ? "block" : "none" }}>
+				<h5>Minimapa del Flujo de Bloques</h5>
+
+				<div>
+					<Form.Label htmlFor="blockflowMinimapBorder">
+						Borde del minimapa
+					</Form.Label>
+					<Form.Control
+						id="blockflowMinimapBorder"
+						onChange={setBlockflowMinimapBorder}
+						defaultValue={blockflowMinimapBorder}
+					></Form.Control>
+				</div>
+				<InlineColorSelector
+					label={"Color de fondo del minimapa"}
+					color={blockflowMinimapBackgroundColor}
+					setColor={setBlockflowMinimapBackgroundColor}
+				></InlineColorSelector>
+			</div>
 
 			<Button
 				className="mt-2"
@@ -803,6 +803,11 @@ export default function BrandingPane({ modifySettings, LTISettings }) {
 									fontColor: blockflowLabelFontColor,
 									fontFamily: blockflowLabelFontFamily,
 									backgroundColor: blockflowLabelBackgroundColor,
+								},
+								hover: {
+									fontColor: blockflowHoverFontColor,
+									fontFamily: blockflowHoverFontFamily,
+									backgroundColor: blockflowHoverBackgroundColor,
 								},
 								node: {
 									borderRadius: blockflowNodeBorderRadius,

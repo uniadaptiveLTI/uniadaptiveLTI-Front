@@ -8,7 +8,7 @@ import {
 } from "react";
 import { Modal, Button, Container, Col, Row } from "react-bootstrap";
 import { PlatformContext } from "/pages/_app";
-import { NodeTypes } from "@utils/TypeDefinitions";
+import { NodeTypes, getGradableTypes } from "@utils/TypeDefinitions";
 import {
 	orderByPropertyAlphabetically,
 	parseBool,
@@ -20,6 +20,7 @@ import { useNodes } from "reactflow";
 import { getLastPositionInSection, getLowestSection } from "@utils/Nodes";
 import { getDefaultVisibility, startingSectionID } from "@utils/Platform";
 import { DevModeStatusContext } from "pages/_app";
+import { moodleGradableTypes } from "@utils/Moodle";
 
 export default forwardRef(function NodeSelector(
 	{ showDialog, type, toggleDialog, callback },
@@ -102,7 +103,7 @@ export default forwardRef(function NodeSelector(
 			data.order = getLastPositionInSection(section, rfNodes) + 1;
 			data.lmsVisibility = getDefaultVisibility(platform);
 			data.indent = 0;
-			if (platform == "moodle")
+			if (platform == "moodle" && getGradableTypes("moodle").includes(type))
 				data.g = {
 					completionTracking: 0,
 					hasToBeSeen: false,
@@ -112,7 +113,7 @@ export default forwardRef(function NodeSelector(
 					qualificationMethod: 0,
 					requiredType: 1,
 					hasTimeLimit: false,
-					timeLimit: "",
+					timeLimit: 0,
 				};
 		} else {
 			data.label = name;

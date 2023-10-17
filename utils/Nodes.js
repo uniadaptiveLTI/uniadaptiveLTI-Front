@@ -402,6 +402,7 @@ export function getPrimaryConditionType(node) {
 				}
 			});
 		}
+
 		return array;
 	};
 	if (node.data.c) {

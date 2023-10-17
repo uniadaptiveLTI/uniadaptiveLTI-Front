@@ -20,7 +20,9 @@ const GroupingComponent = ({
 	moodleGroupings,
 	swapConditionParam,
 }) => {
-	const grouping = moodleGroupings.find(
+	console.log(condition);
+	console.log(moodleGroupings);
+	const groupingFounded = moodleGroupings.find(
 		(grouping) => grouping.id == condition.groupingId
 	);
 
@@ -52,7 +54,8 @@ const GroupingComponent = ({
 				<Col style={{ width: "531px", flex: "0 0 auto" }}>
 					<div>Tipo: Agrupamiento ({getConditionIcon("grouping")})</div>
 					<div>
-						Se pertenezca al agrupamiento <strong>{grouping.name}</strong>
+						Se pertenezca al agrupamiento{" "}
+						<strong>{groupingFounded.name}</strong>
 					</div>
 				</Col>
 				<Col className="d-flex align-items-center justify-content-end gap-2">

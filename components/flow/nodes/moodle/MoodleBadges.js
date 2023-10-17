@@ -5,36 +5,14 @@ import { faEye, faEyeSlash, faPlus } from "@fortawesome/free-solid-svg-icons";
 
 const MoodleBadges = ({
 	data,
-	hasExtraConditions,
 	showDetails,
 	highContrast,
 	reducedAnimations,
 	getParentExpanded,
-	platform,
 	styles,
 }) => {
 	return (
 		<>
-			{hasExtraConditions && (
-				<Badge
-					bg="success"
-					className={
-						styles.badge +
-						" " +
-						styles.badgeConditions +
-						" " +
-						(reducedAnimations && styles.noAnimation) +
-						" " +
-						styles.showBadges +
-						" " +
-						(highContrast && styles.highContrast)
-					}
-					title="Contiene condiciones independientes"
-				>
-					<FontAwesomeIcon icon={faPlus} style={{ color: "#ffffff" }} />
-				</Badge>
-			)}
-
 			{data.lmsVisibility && getParentExpanded() && (
 				<Badge
 					bg="primary"

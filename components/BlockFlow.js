@@ -40,6 +40,7 @@ import {
 	updateBadgeConditions,
 	capitalizeFirstLetter,
 	clampNodesOrder,
+	sakaiTypeSwitch,
 } from "@utils/Utils";
 import {
 	getNodeByNodeDOM,
@@ -513,16 +514,23 @@ const OverviewFlow = ({ map }, ref) => {
 							if (!targetNode.data.gradeRequisites) {
 								targetNode.data.gradeRequisites = {
 									type: "ROOT",
-									itemId: parseInt(Date.now() * Math.random()).toString(),
+									siteId: metaData.course_id,
+									itemId: targetNodeId,
+									itemType: targetNode.type,
+									toolId: "sakai.lessonbuildertool",
 									operator: "AND",
 									subConditions: [
 										{
 											type: "PARENT",
+											siteId: metaData.course_id,
+											toolId: "sakai.conditions",
 											operator: "AND",
 											subConditions: [],
 										},
 										{
 											type: "PARENT",
+											siteId: metaData.course_id,
+											toolId: "sakai.conditions",
 											operator: "OR",
 											subConditions: [],
 										},
@@ -539,9 +547,11 @@ const OverviewFlow = ({ map }, ref) => {
 							console.log(targetNode);
 
 							subRootAnd.subConditions.push({
-								itemId: parseInt(Date.now() * Math.random()).toString(),
 								type: "SCORE",
+								siteId: metaData.course_id,
 								itemId: sourceNodeId,
+								itemType: sourceNode.type,
+								toolId: "sakai.lessonbuildertool",
 								argument: 5,
 								operator: "GREATER_THAN",
 							});
@@ -680,6 +690,8 @@ const OverviewFlow = ({ map }, ref) => {
 	 * @returns {Node[]} - The array with the blocks removed.
 	 */
 	const deleteBlocks = (blocks) => {
+		//Close Aside
+		setExpandedAside(false);
 		// Array of blocks that its children or conditions are being updated
 		var updatedBlocks = [];
 
@@ -771,11 +783,13 @@ const OverviewFlow = ({ map }, ref) => {
 								} else {
 									updateBadgeConditions(foundChildrenNode, block);
 								}
+								break;
 							case "sakai":
 								filterConditionsByParentId(
 									foundChildrenNode.data.gradeRequisites.subConditions,
 									block.id
 								);
+								break;
 						}
 					} else {
 						switch (platform) {
@@ -1213,13 +1227,16 @@ const OverviewFlow = ({ map }, ref) => {
 		localStorage.setItem("clipboard", JSON.stringify(clipboardData));
 
 		if (cleanedSelection.length > 0) {
-			toast("Se han copiado " + cleanedSelection.length + " bloque(s)", {
-				hideProgressBar: false,
-				autoClose: 2000,
-				type: "info",
-				position: "bottom-center",
-				theme: "light",
-			});
+			toast(
+				"Se han copiado " + cleanedSelection.length + " bloque(s) abstractos",
+				{
+					hideProgressBar: false,
+					autoClose: 2000,
+					type: "info",
+					position: "bottom-center",
+					theme: "light",
+				}
+			);
 		}
 	};
 
@@ -1679,7 +1696,7 @@ const OverviewFlow = ({ map }, ref) => {
 						id: parseInt(Date.now() * Math.random()).toString(),
 						type: "completion",
 						cm: origin.id,
-						query: "completed",
+						e: 1,
 					};
 
 					if (!end.data.c) {

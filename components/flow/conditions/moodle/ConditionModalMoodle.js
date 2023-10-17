@@ -45,7 +45,7 @@ function ConditionModalMoodle({
 
 	const moodleGroups = metaData.groups;
 
-	const moodleGroupings = metaData.grupings;
+	const moodleGroupings = metaData.groupings;
 
 	const [editing, setEditing] = useState(undefined);
 	const [conditionEdit, setConditionEdit] = useState(undefined);
@@ -400,7 +400,7 @@ function ConditionModalMoodle({
 	}
 
 	function updateConditionById(conditions, id, newCondition) {
-		for (let i = 0; i < conditions.length; i++) {
+		for (let i = 0; i < (conditions?.length || 0); i++) {
 			const condition = conditions[i];
 			if (condition.id === id) {
 				conditions[i] = newCondition;
@@ -741,81 +741,85 @@ function ConditionModalMoodle({
 				<Modal.Title>Precondiciones de "{blockData.data.label}"</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
-				{blockData.data.c && blockData.data.c.c.length >= 1 && !editing && (
-					<Container
-						style={{
-							padding: "10px",
-							border: "1px solid #C7C7C7",
-							marginBottom: "10px",
-						}}
-					>
-						<Row className="align-items-center">
-							{blockData.data.c.op !== "&" && blockData.data.c.op !== "!|" && (
-								<Col className="col-1">
+				{blockData.data.c &&
+					blockData.data.c.c &&
+					blockData.data.c.c.length >= 1 &&
+					!editing && (
+						<Container
+							style={{
+								padding: "10px",
+								border: "1px solid #C7C7C7",
+								marginBottom: "10px",
+							}}
+						>
+							<Row className="align-items-center">
+								{blockData.data.c.op !== "&" &&
+									blockData.data.c.op !== "!|" && (
+										<Col className="col-1">
+											<Button
+												variant="light"
+												onClick={() =>
+													swapConditionParam(blockData.data.c, "showc")
+												}
+											>
+												<div>
+													{blockData.data.c.showc ? (
+														<FontAwesomeIcon icon={faEye} />
+													) : (
+														<FontAwesomeIcon icon={faEyeSlash} />
+													)}
+												</div>
+											</Button>
+										</Col>
+									)}
+								<Col>
+									<div>Tipo: Conjunto de condiciones</div>
+									<div>
+										<strong>
+											{
+												conditionsGroupOperatorList.find(
+													(item) => item.value === blockData.data.c.op
+												)?.name
+											}
+										</strong>
+									</div>
+								</Col>
+								<Col className="col d-flex align-items-center justify-content-end gap-2">
 									<Button
 										variant="light"
-										onClick={() =>
-											swapConditionParam(blockData.data.c, "showc")
-										}
+										onClick={() => {
+											setConditionEdit(blockData.data.c);
+										}}
 									>
 										<div>
-											{blockData.data.c.showc ? (
-												<FontAwesomeIcon icon={faEye} />
-											) : (
-												<FontAwesomeIcon icon={faEyeSlash} />
-											)}
+											<FontAwesomeIcon icon={faEdit} />
 										</div>
 									</Button>
 								</Col>
-							)}
-							<Col>
-								<div>Tipo: Conjunto de condiciones</div>
-								<div>
-									<strong>
-										{
-											conditionsGroupOperatorList.find(
-												(item) => item.value === blockData.data.c.op
-											)?.name
-										}
-									</strong>
-								</div>
-							</Col>
-							<Col className="col d-flex align-items-center justify-content-end gap-2">
-								<Button
-									variant="light"
-									onClick={() => {
-										setConditionEdit(blockData.data.c);
-									}}
-								>
-									<div>
-										<FontAwesomeIcon icon={faEdit} />
-									</div>
-								</Button>
-							</Col>
-						</Row>
-						<Container>
-							{blockData.data.c.c.map((condition) => {
-								return (
-									<Condition
-										key={condition.id}
-										condition={condition}
-										conditionsList={blockData.data.c}
-										upCondition={upCondition}
-										downCondition={downCondition}
-										deleteCondition={deleteCondition}
-										addCondition={addCondition}
-										setSelectedOption={setSelectedOption}
-										setConditionEdit={setConditionEdit}
-										swapConditionParam={swapConditionParam}
-										moodleGroups={moodleGroups}
-										moodleGroupings={moodleGroupings}
-										conditionsGroupOperatorList={conditionsGroupOperatorList}
-									></Condition>
-								);
-							})}
+							</Row>
+							<Container>
+								{blockData.data.c.c.map((condition) => {
+									return (
+										<Condition
+											key={condition.id}
+											condition={condition}
+											conditionsList={blockData.data.c}
+											upCondition={upCondition}
+											downCondition={downCondition}
+											deleteCondition={deleteCondition}
+											addCondition={addCondition}
+											setSelectedOption={setSelectedOption}
+											setConditionEdit={setConditionEdit}
+											swapConditionParam={swapConditionParam}
+											moodleGroups={moodleGroups}
+											moodleGroupings={moodleGroupings}
+											conditionsGroupOperatorList={conditionsGroupOperatorList}
+										></Condition>
+									);
+								})}
+							</Container>
 						</Container>
-					</Container>
-				)}
+					)}
 				{editing &&
 					(conditionEdit === undefined ||
 					(conditionEdit.type !== "conditionsGroup" &&
@@ -911,20 +915,22 @@ function ConditionModalMoodle({
 					/>
 				)}
 
-				{editing && selectedOption === "group" && (
+				{editing && selectedOption === "group" && moodleGroups.length > 0 && (
 					<GroupForm
 						conditionOperator={conditionOperator}
 						moodleGroups={moodleGroups}
 						conditionEdit={conditionEdit}
 					/>
 				)}
-				{editing && selectedOption === "grouping" && (
-					<GroupingForm
-						conditionOperator={conditionOperator}
-						conditionEdit={conditionEdit}
-						moodleGroupings={moodleGroupings}
-					/>
-				)}
+				{editing &&
+					selectedOption === "grouping" &&
+					moodleGroupings.length > 0 && (
+						<GroupingForm
+							conditionOperator={conditionOperator}
+							conditionEdit={conditionEdit}
+							moodleGroupings={moodleGroupings}
+						/>
+					)}
 				{editing && selectedOption === "profile" && (
 					<ProfileForm
 						conditionOperator={conditionOperator}

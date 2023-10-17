@@ -79,7 +79,7 @@ const ConditionalEdge = ({
 
 					if (condition) {
 						if (sourceNode && sourceNode.data && sourceNode.data.label) {
-							return getReadableCondition(condition);
+							return getReadableCondition(condition, source);
 						}
 					}
 				}
@@ -94,7 +94,7 @@ const ConditionalEdge = ({
 				}
 		}
 	};
-	const getReadableCondition = (condition) => {
+	const getReadableCondition = (condition, source) => {
 		switch (condition?.type) {
 			case "grade":
 				switch (platform) {
@@ -126,22 +126,24 @@ const ConditionalEdge = ({
 						(node) => node.id === sourceNode.id
 					);
 
-					switch (condition.op) {
-						case "|":
-							if (lineType != "OR") setLineType("OR");
+					if (matchingCondition) {
+						switch (condition.op) {
+							case "|":
+								if (lineType != "OR") setLineType("OR");
 
-						case "&":
-							if (lineType != "AND") setLineType("AND");
-					}
+							case "&":
+								if (lineType != "AND") setLineType("AND");
+						}
 
-					if (matchingCondition.date) {
-						return (
-							<>
-								Completado antes del <br></br>{" "}
-								{parseDate(matchingCondition.date)}
-								<br />
-							</>
-						);
+						if (matchingCondition?.date) {
+							return (
+								<>
+									Completado antes del <br></br>{" "}
+									{parseDate(matchingCondition.date)}
+									<br />
+								</>
+							);
+						}
 					} else {
 						return `Completado`;
 					}

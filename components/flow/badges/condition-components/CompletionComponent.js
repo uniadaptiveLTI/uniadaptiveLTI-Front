@@ -40,6 +40,7 @@ const CompletionComponent = ({
 						<ul>
 							{condition.params.map((option) => {
 								const node = nodes.find((node) => node.id === option.id);
+								console.log(nodes, condition);
 								return (
 									<li key={option.id}>
 										{node.data.label}{" "}

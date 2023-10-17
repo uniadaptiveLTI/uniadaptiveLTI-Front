@@ -60,12 +60,14 @@ export function parseMoodleBadgeParams(conditions) {
 				parsedBadgesConditions = newCondition;
 				break;
 			case "completion":
+				console.log(condition?.params);
 				newCondition.params = [];
 				newCondition.method = condition.method === 1 ? "&" : "|";
 
 				const filteredArray = condition?.params?.filter(
 					(item) => item.name && item.name.includes("module")
 				);
+				console.log(filteredArray);
 
 				filteredArray.map((moduleObj) => {
 					const date = condition?.params?.find((param) =>
@@ -154,9 +156,16 @@ export function createNewMoodleMap(nodes, metadata, maps) {
 
 	const conditionatedNodes = nodes.map((node) => {
 		if (node.type !== "badge") {
-			const conditions = node.data.c
-				? { ...node.data.c, id: uniqueId(), type: "conditionsGroup" }
-				: undefined;
+			let conditions;
+			if (node.data.c && (!node.data.c.c || node.data.c.c.length < 1)) {
+				conditions = undefined;
+			} else {
+				conditions = {
+					...node.data.c,
+					id: uniqueId(),
+					type: "conditionsGroup",
+				};
+			}
 			const parsedConditions = {
 				...conditions,
 				c:
@@ -165,22 +174,26 @@ export function createNewMoodleMap(nodes, metadata, maps) {
 						: moodleConditionalIDAdder(conditions.c, nodes),
 			};
 
-			node.data.c = parsedConditions;
+			if (parsedConditions) {
+				node.data.c = parsedConditions;
+			}
 		} else {
-			const completionCondition = node.data.c?.params?.find(
-				(condition) => condition.type == "completion"
-			);
-
-			if (
-				completionCondition &&
-				completionCondition.params &&
-				completionCondition.params.length >= 1
-			) {
-				completionCondition.params.map((node) => {
-					moodleConditionalBadgeIDAdder(node, nodes);
+			if (node.data.c && node.data.c.params) {
+				node.data.c.params = node.data.c.params.filter((param) => {
+					if (
+						param.type === "completion" &&
+						param.params &&
+						param.params.length >= 1
+					) {
+						param.params = param.params.filter((node) => {
+							moodleConditionalBadgeIDAdder(node, nodes);
+							return node.id;
+						});
+						return param.params.length >= 1;
+					}
+					return true;
 				});
 			}
-			console.log(completionCondition);
 		}
 
 		return node;
@@ -227,21 +240,38 @@ export function createNewMoodleMap(nodes, metadata, maps) {
 function moodleConditionalIDAdder(objArray, nodes) {
 	// Create a deep copy of the original array
 	let newArray = JSON.parse(JSON.stringify(objArray));
-
+	console.log(newArray);
 	for (let i = 0; i < newArray.length; i++) {
 		if (typeof newArray[i] === "object" && newArray[i] !== null) {
 			if (objArray[i].type === "completion") {
 				newArray[i].cm = moodleLMSResourceToId(newArray[i].cm, nodes);
+				if (!newArray[i].cm) {
+					newArray = newArray.filter((item, index) => index !== i);
+					i--;
+					break;
+				}
 			}
 
 			if (objArray[i].type === "grade") {
-				console.log("CONDITION ID", newArray[i].id);
-				console.log(
-					"NODE WITH THAT",
-					nodes.find((node) => node.data.lmsResource == newArray[i].id)
-				);
 				newArray[i].cm = moodleLMSResourceToId(newArray[i].id, nodes);
-				console.log(newArray[i], moodleLMSResourceToId(newArray[i].id, nodes));
+				if (!newArray[i].cm) {
+					newArray = newArray.filter((item, index) => index !== i);
+					i--;
+					break;
+				}
+			}
+
+			if (objArray[i].type === "date") {
+				newArray[i].t = parseDate(newArray[i].t);
+				console.log(newArray[i]);
+			}
+
+			if (objArray[i].type === "group") {
+				newArray[i].groupId = newArray[i].id;
+			}
+
+			if (objArray[i].type === "grouping") {
+				newArray[i].groupingId = newArray[i].id;
 			}
 
 			// Add/replace "id" property
@@ -251,10 +281,11 @@ function moodleConditionalIDAdder(objArray, nodes) {
 			if ("c" in newArray[i]) {
 				newArray[i].type = "conditionsGroup";
 				newArray[i].c = moodleConditionalIDAdder(newArray[i].c, nodes);
+				console.log(newArray[i]);
 			}
 		}
 	}
-
+	console.log(newArray);
 	return newArray;
 }
 
@@ -264,27 +295,29 @@ function moodleConditionalBadgeIDAdder(objArray, nodes) {
 
 function moodleFlowConditionalsExtractor(objArray) {
 	let cmValues = [];
+	if (objArray) {
+		for (let i = 0; i < objArray.length; i++) {
+			if (typeof objArray[i] === "object" && objArray[i] !== null) {
+				// If the object has type "completion" or "grade", add the value of "cm" to the array
+				if (objArray[i].type === "completion" || objArray[i].type === "grade") {
+					if (objArray[i].cm) cmValues.push(objArray[i].cm);
+				}
 
-	for (let i = 0; i < objArray.length; i++) {
-		if (typeof objArray[i] === "object" && objArray[i] !== null) {
-			// If the object has type "completion" or "grade", add the value of "cm" to the array
-			if (objArray[i].type === "completion" || objArray[i].type === "grade") {
-				if (objArray[i].cm) cmValues.push(objArray[i].cm);
-			}
-
-			// If the object has a property "c", enter that property
-			if ("c" in objArray[i]) {
-				cmValues = cmValues.concat(
-					moodleFlowConditionalsExtractor(objArray[i].c)
-				);
+				// If the object has a property "c", enter that property
+				if ("c" in objArray[i]) {
+					cmValues = cmValues.concat(
+						moodleFlowConditionalsExtractor(objArray[i].c)
+					);
+				}
 			}
 		}
-	}
 
-	return cmValues;
+		return cmValues;
+	}
 }
 
 function moodleLMSResourceToId(resourceId, nodes) {
+	console.log(resourceId, nodes);
 	const node = nodes.find((node) => node.data.lmsResource == resourceId);
 	return node ? node.id : undefined;
 }
@@ -298,15 +331,17 @@ function moodleParentingSetter(objArray) {
 			if (objArray[i]?.data?.c) {
 				const parents = moodleFlowConditionalsExtractor(objArray[i].data.c.c);
 				console.log("parents", parents);
-				if (parents.length > 0) {
-					parents.forEach((parent) => {
-						const parentFound = objArray.find((node) => node.id == parent);
-						if (parentFound) {
-							newArray
-								.find((node) => node.id == parentFound.id)
-								.data.children.push(objArray[i].id);
-						}
-					});
+				if (parents) {
+					if (parents.length > 0) {
+						parents.forEach((parent) => {
+							const parentFound = objArray.find((node) => node.id == parent);
+							if (parentFound) {
+								newArray
+									.find((node) => node.id == parentFound.id)
+									.data.children.push(objArray[i].id);
+							}
+						});
+					}
 				}
 			}
 		} else {
@@ -505,7 +540,7 @@ export function parseMoodleCalifications(node, method = "export") {
 				completionview: og.hasToBeSeen || false,
 				grademethod: og.qualificationMethod || 0,
 				gradepass: og.qualificationToPass || 0,
-				completionexpected: og.timeLimit || "",
+				completionexpected: new Date(og.timeLimit).getTime() / 1000 || 0,
 				requiredType: og.requiredType || 1,
 			};
 		} else if (method == "import") {
@@ -516,11 +551,11 @@ export function parseMoodleCalifications(node, method = "export") {
 				hasToBeSeen: og.completionview,
 				qualificationMethod: og.grademethod,
 				qualificationToPass: og.gradepass,
-				timeLimit: og.completionexpected,
+				timeLimit: og.completionexpected || "",
 				requiredType: og.requiredType,
 			};
 
-			const timeLimit = og.completionexpected;
+			const timeLimit = og.completionexpected || "";
 			const hasTimeLimit = timeLimit ? true : false;
 
 			newGrades.hasTimeLimit == hasTimeLimit;
@@ -533,4 +568,29 @@ export function parseMoodleCalifications(node, method = "export") {
 	} else {
 		return node;
 	}
+}
+
+export function parseMoodleConditionsGroupOut(c) {
+	const newC = { ...c };
+
+	if (c) {
+		if (c.type == "conditionsGroup") {
+			delete newC.type;
+		}
+
+		if (c.c) {
+			if (Array.isArray(c.c)) {
+				newC.c = c.c.map((item) => {
+					if (item.c) {
+						return parseMoodleConditionsGroupOut(item);
+					}
+					return item;
+				});
+			} else if (typeof c.c === "object" && c.c !== null) {
+				newC.c = parseMoodleConditionsGroupOut(c.c);
+			}
+		}
+	}
+
+	return newC;
 }

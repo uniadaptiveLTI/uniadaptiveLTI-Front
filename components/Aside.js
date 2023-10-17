@@ -200,7 +200,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 					//Adds current resource if exists
 					if (nodeSelected && nodeSelected.data) {
 						if (nodeSelected.data.lmsResource != undefined) {
-							if (nodeSelected.data.lmsResource > -1) {
+							if (nodeSelected.data.lmsResource != "") {
 								const lmsRes = nodeSelected.data.lmsResource;
 								const storedRes = data.find(
 									(resource) => resource.id == lmsRes
@@ -235,7 +235,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 					//Adds current resource if exists
 					if (nodeSelected && nodeSelected.data) {
 						if (nodeSelected.data.lmsResource) {
-							if (nodeSelected.data.lmsResource > -1) {
+							if (nodeSelected.data.lmsResource != "") {
 								const lmsRes = nodeSelected.data.lmsResource;
 								const storedRes = data.find(
 									(resource) => resource.id == lmsRes
@@ -485,7 +485,8 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 										virtualNodes
 								  ) + 1;
 						console.log(forcedPos);
-						updatedData.data.order = forcedPos;
+						if (platform == "moodle") updatedData.data.order = forcedPos;
+						if (platform == "sakai") updatedData.data.order = forcedPos - 1;
 						virtualNodes.push(updatedData);
 						if (!(limitedOrder - 1 > forcedPos)) {
 							//If the desired position is inside the section
@@ -620,7 +621,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 				<Form
 					action="#"
 					method=""
-					onSubmit={allowResourceSelection ? updateBlock : null}
+					onSubmit={allowResourceSelection ? updateBlock : false}
 				>
 					<div className="container-fluid">
 						<Form.Group className="mb-3">
@@ -893,17 +894,20 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 													{metaData.sections &&
 														orderByPropertyAlphabetically(
 															[...metaData.sections].map((section) => {
+																const newSection = section;
 																if (!section.name.match(/^\d/)) {
 																	section.name =
 																		platform == "moodle"
-																			? section.position + "- " + section.name
-																			: section.position +
+																			? newSection.position +
+																			  "- " +
+																			  newSection.name
+																			: newSection.position +
 																			  1 +
 																			  "- " +
-																			  section.name;
-																	section.value = section.position + 1;
+																			  newSection.name;
+																	newSection.value = newSection.position + 1;
 																}
-																return section;
+																return newSection;
 															}),
 															"name"
 														).map((section) => (
@@ -985,7 +989,12 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 			)}
 
 			{mapSelected && !(nodeSelected || editVersionSelected) ? (
-				<div className="container-fluid">
+				<Form
+					className="container-fluid"
+					action="#"
+					method=""
+					onSubmit={updateMap}
+				>
 					<Form.Group className="mb-3">
 						<div
 							className="d-flex gap-2"
@@ -1025,13 +1034,18 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 							Guardar
 						</Button>
 					</Form.Group>
-				</div>
+				</Form>
 			) : (
 				<></>
 			)}
 
 			{editVersionSelected ? (
-				<div className="container-fluid">
+				<Form
+					className="container-fluid"
+					action="#"
+					method=""
+					onSubmit={updateVersion}
+				>
 					<Form.Group className="mb-3">
 						<div
 							className="d-flex gap-2"
@@ -1072,7 +1086,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 							Guardar
 						</Button>
 					</Form.Group>
-				</div>
+				</Form>
 			) : (
 				<></>
 			)}

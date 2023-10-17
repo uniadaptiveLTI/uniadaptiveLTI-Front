@@ -200,9 +200,9 @@ export default function SimpleConditionsMoodle({ id }) {
 
 					finalDOM.push(
 						<p style={prefix}>
-							{parsedConditionsGroup.find((pcg) => operator == pcg.op).parsed}
+							{parsedConditionsGroup.find((pcg) => operator == pcg.op)?.parsed}{" "}
 						</p>
-					);
+					); //FIXME: It Does not show empty message
 					break;
 				case "completion":
 					let node = getNodeById(id, rfNodes);
@@ -359,7 +359,7 @@ export default function SimpleConditionsMoodle({ id }) {
 									<b>
 										{c.groupingId == null
 											? "Cualquier agrupamiento"
-											: metaData.grupings.find((g) => g.id == c.groupingId)
+											: metaData.groupings.find((g) => g.id == c.groupingId)
 													.name}
 									</b>
 								</>

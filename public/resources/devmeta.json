@@ -4,7 +4,7 @@
 	"lms_url": "https://real-lms.com/",
 	"return_url": "https://real-lms.com/course",
 	"course_id": 0,
-	"platform": "sakai",
+	"platform": "moodle",
 	"lessons": [
 		{ "id": 0, "name": "Física", "page_id": "2" },
 		{ "id": 1, "name": "Matemática", "page_id": "3" }
@@ -163,7 +163,7 @@
 		{ "id": "6", "name": "Grupo F" },
 		{ "id": "7", "name": "Grupo G" }
 	],
-	"grupings": [
+	"groupings": [
 		{ "id": 1, "name": "Agrupamiento A" },
 		{ "id": 2, "name": "Agrupamiento B" },
 		{ "id": 3, "name": "Agrupamiento C" },

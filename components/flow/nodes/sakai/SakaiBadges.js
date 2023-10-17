@@ -15,13 +15,11 @@ import {
 const SakaiBadges = ({
 	data,
 	type,
-	hasExtraConditions,
-	showDetails,
 	highContrast,
 	reducedAnimations,
 	getParentExpanded,
-	platform,
 	styles,
+	showDetails,
 }) => {
 	return (
 		<>

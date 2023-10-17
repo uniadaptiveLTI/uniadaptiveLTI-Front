@@ -17,7 +17,7 @@ export const NodeTypes = [
 		emptyName: "Tarea vacía",
 		nodeType: "ElementNode",
 		lms: ["moodle", "sakai"],
-		gradable: [],
+		gradable: [{ lms: "moodle", type: "normal" }],
 		endHandle: ["moodle", "sakai"],
 	},
 	{
