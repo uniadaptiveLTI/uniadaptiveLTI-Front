@@ -174,7 +174,11 @@ export function createNewMoodleMap(nodes, metadata, maps) {
 						: moodleConditionalIDAdder(conditions.c, nodes),
 			};
 
-			if (parsedConditions) {
+			if (
+				parsedConditions &&
+				parsedConditions.c &&
+				parsedConditions.c.length >= 1
+			) {
 				node.data.c = parsedConditions;
 			}
 		} else {
