@@ -372,7 +372,7 @@ export function parseDate(date, dateComplete) {
 	}
 
 	if (dateComplete) {
-		return decodeURIComponent.toLocaleDateString("es-ES", {
+		return d.toLocaleDateString("es-ES", {
 			day: "numeric",
 			month: "long",
 			year: "numeric",
