@@ -130,14 +130,26 @@ export function parseSakaiNode(nodes, node, newX, newY, validTypes) {
 			requisites: [],
 			gradeRequisites: !node.gradeRequisites ? undefined : node.gradeRequisites,
 		};
-		console.log(newNode);
-		if (node.fromDate && node.endDate) {
-			newNode.data.requisites.push({
-				id: String(uniqueId()),
-				type: "date",
-				openingDate: node.fromDate,
-				dueDate: node.endDate,
-			});
+
+		if (newNode.type == "exam" || newNode.type == "assign") {
+			if (node && node?.openDate && node?.dueDate && node?.closeDate) {
+				newNode.data.requisites.push({
+					id: String(uniqueId()),
+					type: "date",
+					openingDate: node.openDate,
+					dueDate: node.dueDate,
+					closeTime: node.closeDate,
+				});
+			}
+		} else {
+			if (node && node?.openDate && node?.dueDate) {
+				newNode.data.requisites.push({
+					id: String(uniqueId()),
+					type: "date",
+					openingDate: node.openDate,
+					dueDate: node.dueDate,
+				});
+			}
 		}
 		console.log(node);
 		if (
