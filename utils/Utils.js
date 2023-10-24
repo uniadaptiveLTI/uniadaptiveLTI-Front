@@ -416,7 +416,8 @@ export async function saveVersion(
 	defaultToastSuccess,
 	defaultToastError,
 	toast,
-	enable
+	enable,
+	responseData
 ) {
 	// Helper function to clean the nodes
 	function cleanNodes(nodes) {
@@ -465,11 +466,69 @@ export async function saveVersion(
 		);
 
 		if (response && response.ok) {
-			// If the response is successful, show the success message
-			toast(successMessage, defaultToastSuccess);
+			if (responseData) {
+				switch (responseData) {
+					case "SUCCESSFUL_EXPORT":
+						console.log(
+							"%c ✔ La exportación y el guardado de la página de contenidos se han completado con éxito.",
+							"background: #D7FFD7; color: black; padding: 4px;"
+						);
+						toast(
+							"La exportación y el guardado de la página de contenidos se han completado con éxito.",
+							defaultToastSuccess
+						);
+						break;
+					case "SUCCESSFUL_EXPORT_WITHOUT_CONDITIONS":
+						console.log(
+							"%c ✔ La exportación (sin condiciones) y el guardado de la página de contenidos se han completado con éxito.",
+							"background: #D7FFD7; color: black; padding: 4px;"
+						);
+						toast(
+							"La exportación (sin condiciones) y el guardado de la página de contenidos se han completado con éxito.",
+							defaultToastSuccess
+						);
+						break;
+				}
+			} else {
+				// If the response is successful, show the success message
+				console.log(
+					"%c ✔ Versión guardada con éxito",
+					"background: #D7FFD7; color: black; padding: 4px;"
+				);
+				toast(successMessage, defaultToastSuccess);
+			}
 		} else {
-			// If the response is not successful, show the error message
-			toast(errorMessage, defaultToastError);
+			if (responseData) {
+				switch (responseData) {
+					case "SUCCESSFUL_EXPORT":
+						console.log(
+							"%c ⚠️ La exportación se ha completado con éxito, el guardado ha fallado",
+							"background: #FFE3D7; color: black; padding: 4px;"
+						);
+						toast(
+							"La exportación se ha completado con éxito, el guardado ha fallado",
+							defaultToastError
+						);
+						break;
+					case "SUCCESSFUL_EXPORT_WITHOUT_CONDITIONS":
+						console.log(
+							"%c ⚠️ La exportación (sin condiciones) se ha completado con éxito, el guardado ha fallado",
+							"background: #FFE3D7; color: black; padding: 4px;"
+						);
+						toast(
+							"La exportación (sin condiciones) se ha completado con éxito, el guardado ha fallado",
+							defaultToastError
+						);
+						break;
+				}
+			} else {
+				console.log(
+					"%c ❌ No se pudo guardar",
+					"background: #FFD7DC; color: black; padding: 4px;"
+				);
+				// If the response is not successful, show the error message
+				toast(errorMessage, defaultToastError);
+			}
 		}
 	} catch (e) {
 		// If an error occurs when making the request, show the error message and log the error in the console

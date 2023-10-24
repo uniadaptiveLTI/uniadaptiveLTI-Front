@@ -712,11 +712,88 @@ export default function ExportPanel({
 						defaultToastSuccess,
 						defaultToastError,
 						toast,
-						enableExporting
+						enableExporting,
+						response.successType
 					);
 				} else {
 					enableExporting(false);
-					throw new Error("No se pudo exportar", defaultToastError);
+
+					if (response.errorType) {
+						const unableToExport = "No se pudo exportar: ";
+						switch (response.errorType) {
+							case "PAGE_EXPORT_ERROR":
+								console.log(
+									"%c ❌ Los bloques no comparten el mismo identificador de página (pageId) // Codigo de error: PAGE_EXPORT_ERROR",
+									"background: #FFD7DC; color: black; padding: 4px;"
+								);
+								throw new Error(
+									unableToExport +
+										"Los bloques no comparten el mismo identificador de página (pageId)",
+									defaultToastError
+								);
+							case "LESSON_COPY_ERROR":
+								console.log(
+									"%c ❌ No se pudo hacer una copia de seguridad de la página de contenidos a exportar // Codigo de error: LESSON_COPY_ERROR",
+									"background: #FFD7DC; color: black; padding: 4px;"
+								);
+								throw new Error(
+									unableToExport +
+										"No se pudo hacer una copia de seguridad de la página de contenidos a exportar",
+									defaultToastError
+								);
+							case "LESSON_DELETE_ERROR":
+								console.log(
+									"%c ❌ No se ha podido reconstruir la página de contenidos // Codigo de error: LESSON_DELETE_ERROR",
+									"background: #FFD7DC; color: black; padding: 4px;"
+								);
+								throw new Error(
+									unableToExport +
+										"No se ha podido reconstruir la página de contenidos",
+									defaultToastError
+								);
+							case "FATAL_ERROR":
+								console.log(
+									"%c ❌ No se ha podido reestablecer la copia de seguridad // Codigo de error: FATAL_ERROR",
+									"background: #FFD7DC; color: black; padding: 4px;"
+								);
+								throw new Error(
+									unableToExport +
+										"No se ha podido reestablecer la copia de seguridad",
+									defaultToastError
+								);
+							case "LESSON_ITEMS_CREATION_ERROR":
+								console.log(
+									"%c ❌ Se ha reestablecido la copia de seguridad de la página de contenidos // Codigo de error: LESSON_ITEMS_CREATION_ERROR",
+									"background: #FFD7DC; color: black; padding: 4px;"
+								);
+								throw new Error(
+									unableToExport +
+										"Se ha reestablecido la copia de seguridad de la página de contenidos",
+									defaultToastError
+								);
+							case "LESSON_ITEMS_WITHOUT_CONDITIONS_CREATION_ERROR":
+								console.log(
+									"%c ❌ Se ha reestablecido la copia de seguridad de la página de contenidos pero las condiciones no // Codigo de error: LESSON_ITEMS_WITHOUT_CONDITIONS_CREATION_ERROR",
+									"background: #FFD7DC; color: black; padding: 4px;"
+								);
+								throw new Error(
+									unableToExport +
+										"Se ha reestablecido la copia de seguridad de la página de contenidos pero las condiciones no",
+									defaultToastError
+								);
+							case "NODE_UPDATE_ERROR":
+								console.log(
+									"%c ❌ No se han podido actualizar los bloques // Codigo de error: NODE_UPDATE_ERROR",
+									"background: #FFD7DC; color: black; padding: 4px;"
+								);
+								throw new Error(
+									unableToExport + "No se han podido actualizar los bloques",
+									defaultToastError
+								);
+						}
+					} else {
+						throw new Error("No se pudo exportar", defaultToastError);
+					}
 				}
 			} else {
 				enableExporting(false);

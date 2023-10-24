@@ -1161,7 +1161,8 @@ function Header({ LTISettings }, ref) {
 				defaultToastSuccess,
 				defaultToastError,
 				toast,
-				enableSaving
+				enableSaving,
+				undefined
 			);
 		} catch (error) {
 			console.log(error);
