@@ -493,94 +493,60 @@ export default function SimpleConditionsMoodle({ id }) {
 		return finalDOM;
 	};
 	const parseQualifications = (q) => {
+		const used = q.hasConditions || q.hasToBeQualified || q.hasToBeSeen;
 		let finalDOM = [
 			<p>
-				<b>Calificaciones:</b>
+				<b>Para que el elemento se considere finalizado:</b>
 			</p>,
 		];
-		if (q && q.completionTracking == 0) {
-			finalDOM.push(<b>Sin indicación de finalización de actividad.</b>);
-		}
-		if (q && q.completionTracking == 1) {
-			finalDOM.push(
-				<p>
-					<b>Manualmente marcado como finalizado por estudiantes.</b>
-				</p>
-			);
-			if (q.hasTimeLimit && q.timeLimit) {
-				const parsedDate = new Date(q.timeLimit).toLocaleDateString("es-ES");
-				if (parsedDate != "Invalid Date")
-					finalDOM.push(
-						<p style={{ marginLeft: 24 }}>
-							Con fecha límite de <b>{parsedDate}</b>.
-						</p>
-					);
-			}
-		}
-		if (q && q.completionTracking == 2) {
-			finalDOM.push(
-				<p>
-					<b>Completada cuando las siguientes condiciones se cumplan:</b>
-				</p>
-			);
-			if (q.hasToBeSeen)
-				finalDOM.push(
-					<p style={{ marginLeft: 24 }}>Ver esta actividad para finalizarla.</p>
-				);
 
-			if (q.hasToBeQualified)
+		if (used) {
+			if (q && q.hasToBeSeen == 1) {
+				finalDOM.push(<p style={{ marginLeft: 24 }}>Debe de ser visto.</p>);
+			}
+			if (q && q.hasToBeQualified == 1) {
 				finalDOM.push(
-					<p style={{ marginLeft: 24 }}>
-						Recibir una calificación para finalizarla.
+					<p style={{ marginLeft: 24 }}>Debe de ser calificado o marcado.</p>
+				);
+			}
+			if (q && q.hasConditions == 1) {
+				finalDOM.push(
+					<p>
+						<b>Con las siguientes condiciones adicionales:</b>
 					</p>
 				);
-			if (q.hasToBeQualified)
-				finalDOM.push(
-					<>
-						<p style={{ marginLeft: 48 }}>
-							Calificación necesaria para aprobar:{" "}
-							<b>{q.qualificationToPass}</b>.
-						</p>
-						<p style={{ marginLeft: 48 }}>
-							Intentos permitidos:{" "}
-							<b>{q.attemptsAllowed < 1 ? "Sin límite" : q.attemptsAllowed}</b>
-						</p>
-						<p style={{ marginLeft: 48 }}>
-							Método de calificación:{" "}
-							<b>
-								{
-									[
-										"Calificación más alta",
-										"Promedio de calificaciones",
-										"Primer intento",
-										"Último intento",
-									][q.attemptsAllowed]
-								}
-							</b>
-						</p>
-						<p style={{ marginLeft: 48 }}>
-							Requerir calificación aprobatoria:{" "}
-							<b>
-								{
-									["No", "Sí", "Sí o consumir todos los intentos"][
-										q.requiredType
-									]
-								}
-							</b>
-						</p>
-					</>
-				);
-			if (q.hasToBeQualified && q.hasTimeLimit && q.timeLimit) {
-				const parsedDate = new Date(q.timeLimit).toLocaleDateString("es-ES");
-				if (parsedDate != "Invalid Date") {
+			}
+
+			if (q && q.data) {
+				if (q.data.hasToSelect) {
 					finalDOM.push(
-						<p style={{ marginLeft: 48 }}>
-							Con fecha límite de <b>{parsedDate}</b>.
+						<p style={{ marginLeft: 24 }}>Debe tener una selección.</p>
+					);
+				}
+				if (q.data.min) {
+					finalDOM.push(
+						<p style={{ marginLeft: 24 }}>
+							<b>Nota mínima: {q.data.min}</b>
+						</p>
+					);
+				}
+				if (q.data.max) {
+					finalDOM.push(
+						<p style={{ marginLeft: 24 }}>
+							<b>Nota máxima: {q.data.max}</b>
 						</p>
 					);
 				}
 			}
+		} else {
+			finalDOM.push(
+				<p>
+					No se deberá de hacer nada, debido a que no se definieron ajustes de
+					finalización.
+				</p>
+			);
 		}
+
 		return finalDOM;
 	};
 
@@ -641,9 +607,13 @@ export default function SimpleConditionsMoodle({ id }) {
 						</p>
 						<hr />
 						<p>
-							Aquí se priorizará mostrar información resumida sobre las{" "}
-							<b>{hoverConditions ? "condiciones" : "calificaciones"}</b> el
-							bloque seleccionado.
+							Aquí se priorizará mostrar información resumida sobre{" "}
+							<b>
+								{hoverConditions
+									? "las condiciones"
+									: "los ajustes de calificación"}
+							</b>{" "}
+							el bloque seleccionado.
 						</p>
 					</div>
 				);

@@ -38,7 +38,7 @@ export const NodeTypes = [
 		emptyName: "Libro vacío",
 		nodeType: "ElementNode",
 		lms: ["moodle"],
-		gradable: [],
+		gradable: [{ lms: "moodle", type: "simple" }],
 		endHandle: ["moodle"],
 	},
 	{
@@ -49,7 +49,7 @@ export const NodeTypes = [
 		emptyName: "Consulta vacía",
 		nodeType: "ElementNode",
 		lms: ["moodle"],
-		gradable: [],
+		gradable: [{ lms: "moodle", type: "choice" }],
 		endHandle: ["moodle"],
 	},
 	{
@@ -81,7 +81,7 @@ export const NodeTypes = [
 		emptyName: "Carpeta vacía",
 		nodeType: "ElementNode",
 		lms: ["moodle", "sakai"],
-		gradable: [],
+		gradable: [{ lms: "moodle", type: "simple" }],
 		endHandle: ["moodle"],
 	},
 	{
@@ -135,7 +135,7 @@ export const NodeTypes = [
 		emptyName: "Página HTML vacía",
 		nodeType: "ElementNode",
 		lms: ["sakai"],
-		gradable: [],
+		gradable: [{ lms: "moodle", type: "simple" }],
 		endHandle: [],
 	},
 	{
@@ -146,7 +146,7 @@ export const NodeTypes = [
 		emptyName: "Etiqueta vacía",
 		nodeType: "ElementNode",
 		lms: ["moodle"],
-		gradable: [],
+		gradable: [{ lms: "moodle", type: "simple" }],
 		endHandle: ["moodle"],
 	},
 	/*{
@@ -177,7 +177,7 @@ export const NodeTypes = [
 		emptyName: "Página vacía",
 		nodeType: "ElementNode",
 		lms: ["moodle"],
-		gradable: [],
+		gradable: [{ lms: "moodle", type: "simple" }],
 		endHandle: ["moodle"],
 	},
 	{
@@ -209,7 +209,7 @@ export const NodeTypes = [
 		emptyName: "Archivo vacío",
 		nodeType: "ElementNode",
 		lms: ["moodle", "sakai"],
-		gradable: [],
+		gradable: [{ lms: "moodle", type: "simple" }],
 		endHandle: ["moodle"],
 	},
 	{
@@ -241,7 +241,7 @@ export const NodeTypes = [
 		emptyName: "URL vacía",
 		nodeType: "ElementNode",
 		lms: ["moodle", "sakai"],
-		gradable: [],
+		gradable: [{ lms: "moodle", type: "simple" }],
 		endHandle: ["moodle"],
 	},
 	{

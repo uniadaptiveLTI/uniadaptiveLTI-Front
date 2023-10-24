@@ -130,7 +130,7 @@ function UserSettingsPane({ LTISettings }, ref) {
 					label={
 						hoverConditions
 							? "Priorizar mostrar el resumen de las condiciones al pasar el ratón sobre el bloque seleccionado"
-							: "Priorizar mostrar el resumen de las calificaciones al pasar el ratón sobre el bloque seleccionado"
+							: "Priorizar mostrar el resumen de los ajustes de finalización al pasar el ratón sobre el bloque seleccionado"
 					}
 					className="my-4"
 					defaultChecked={hoverConditions}

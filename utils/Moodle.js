@@ -538,37 +538,28 @@ export function parseMoodleCalifications(node, method = "export") {
 
 		if (method == "export") {
 			newGrades = {
-				attempts: og.attemptsAllowed || 0,
-				completion: og.completionTracking || 0,
-				completiongradeitemnumber: og.hasToBeQualified || false,
-				completionview: og.hasToBeSeen || false,
-				grademethod: og.qualificationMethod || 0,
-				gradepass: og.qualificationToPass || 0,
-				completionexpected: new Date(og.timeLimit).getTime() / 1000 || 0,
-				requiredType: og.requiredType || 1,
+				hasConditions: og.hasConditions || false,
+				hasToBeSeen: og.hasToBeSeen || false,
+				hasToBeQualified: og.hasToBeQualified || false,
+				data: {
+					min: og.data.min || 0,
+					max: Math.floor(og.data.max * 100) || 0,
+					hasToSelect: og.data.hasToSelect || false,
+				},
 			};
 		} else if (method == "import") {
 			newGrades = {
-				attemptsAllowed: og.attempts,
-				completionTracking: og.completion,
-				hasToBeQualified: og.completiongradeitemnumber,
-				hasToBeSeen: og.completionview,
-				qualificationMethod: og.grademethod,
-				qualificationToPass: og.gradepass,
-				timeLimit: og.completionexpected || "",
-				requiredType: og.requiredType,
+				hasConditions: og.hasConditions || false,
+				hasToBeSeen: og.hasToBeSeen || false,
+				hasToBeQualified: og.hasToBeQualified || false,
+				data: {
+					min: og.data.min || 0,
+					max: og.data.max / 100 || 0,
+					hasToSelect: og.data.hasToSelect || false,
+				},
 			};
-
-			const timeLimit = og.completionexpected || "";
-			const hasTimeLimit = timeLimit ? true : false;
-
-			newGrades.hasTimeLimit == hasTimeLimit;
-			if (hasTimeLimit) newGrades.timeLimit == timeLimit;
 		}
-
-		const newNode = { ...node, g: newGrades };
-
-		return newNode;
+		return { ...node, g: newGrades };
 	} else {
 		return node;
 	}

@@ -263,6 +263,7 @@ function ElementNode({
 				onKeyDown={(e) => {
 					if (e.key == "Enter") handleEdit();
 				}}
+				tabIndex={0}
 				onMouseEnter={() => setIsHovered(true)}
 				onMouseLeave={() => setIsHovered(false)}
 			>

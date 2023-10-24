@@ -503,9 +503,10 @@ const OverviewFlow = ({ map }, ref) => {
 							if (targetNode.type === "badge") {
 								if (
 									sourceNode.data.g &&
-									!sourceNode.data.g.completionTracking
+									sourceNode.data.g &&
+									!sourceNode.data.g.hasToBeQualified
 								) {
-									sourceNode.data.g.completionTracking = 1;
+									sourceNode.data.g.hasToBeQualified = true;
 								}
 							}
 

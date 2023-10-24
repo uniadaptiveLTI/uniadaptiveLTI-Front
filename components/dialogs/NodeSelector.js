@@ -105,15 +105,14 @@ export default forwardRef(function NodeSelector(
 			data.indent = 0;
 			if (platform == "moodle" && getGradableTypes("moodle").includes(type))
 				data.g = {
-					completionTracking: 0,
+					hasConditions: false,
 					hasToBeSeen: false,
 					hasToBeQualified: false,
-					qualificationToPass: 0,
-					attemptsAllowed: 0,
-					qualificationMethod: 0,
-					requiredType: 1,
-					hasTimeLimit: false,
-					timeLimit: 0,
+					data: {
+						min: 0,
+						max: 0,
+						hasToSelect: false,
+					},
 				};
 		} else {
 			data.label = name;

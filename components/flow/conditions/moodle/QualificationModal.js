@@ -39,7 +39,9 @@ function QualificationModal({
 	return (
 		<Modal size="xl" show={showConditionsModal} onHide={handleClose}>
 			<Modal.Header closeButton>
-				<Modal.Title>Calificaciones de "{blockData.data.label}"</Modal.Title>
+				<Modal.Title>
+					Ajustes de finalización de "{blockData.data.label}"
+				</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
 				{/*gradeConditionType*/}
@@ -62,25 +64,27 @@ function QualificationModal({
 					<Button
 						variant="primary"
 						onClick={() => {
-							const currentBlock = getNodeById(
-								blockData.id,
-								reactFlowInstance.getNodes()
-							);
-							reactFlowInstance.setNodes(
-								getUpdatedArrayById(
-									{
-										...currentBlock,
-										data: {
-											...currentBlock.data,
-											g: qualificationFormResult.current.data,
-										},
-									},
+							if (qualificationFormResult?.current?.data) {
+								const currentBlock = getNodeById(
+									blockData.id,
 									reactFlowInstance.getNodes()
-								)
-							);
-
+								);
+								reactFlowInstance.setNodes(
+									getUpdatedArrayById(
+										{
+											...currentBlock,
+											data: {
+												...currentBlock.data,
+												g: qualificationFormResult.current.data,
+											},
+										},
+										reactFlowInstance.getNodes()
+									)
+								);
+							}
 							handleClose();
 						}}
+						disabled={Boolean(!qualificationFormResult?.current?.data)}
 					>
 						Guardar
 					</Button>

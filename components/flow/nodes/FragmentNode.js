@@ -455,9 +455,14 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 						handleEdit();
 					}
 				}}
-				/*onKeyDown={(e) => {
+				onKeyDown={(e) => {
+					if (e.key == "e") {
+						data.expanded = !data.expanded;
+						setExpanded(!expanded);
+					}
 					if (e.key == "Enter") handleEdit();
-				}}*/
+				}}
+				tabIndex={0}
 				aria-label={getAriaLabel} //FIXME: Doesn't work
 			>
 				{!expanded && (

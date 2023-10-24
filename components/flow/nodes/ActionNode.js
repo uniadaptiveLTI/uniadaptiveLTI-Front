@@ -187,6 +187,7 @@ function ActionNode({ id, type, data, selected, dragging, isConnectable }) {
 				onKeyDown={(e) => {
 					if (e.key == "Enter") handleEdit();
 				}}
+				tabIndex={0}
 			>
 				<span className={styles.blockInfo + " " + styles.top}>
 					{data.label}
