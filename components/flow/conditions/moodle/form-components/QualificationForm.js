@@ -76,7 +76,7 @@ const QualificationForm = forwardRef(
 			let qualificationResult = {};
 			const requirementArray = getRequired(blockData.type);
 
-			const checkedConditions = hasConditionsRef.current?.checked || false;
+			const checkedQualified = hasToBeQualifiedRef.current?.checked || false;
 			const minValue = Number(minRef.current?.value) || 0;
 			const maxValue =
 				blockData.type != "quiz" ? Number(maxRef.current?.value) || 0 : 0;
@@ -101,7 +101,7 @@ const QualificationForm = forwardRef(
 			};
 
 			//Tests if variables are correct
-			if (checkedConditions) {
+			if (checkedQualified) {
 				if (
 					!requirementArray[0] &&
 					!requirementArray[1] &&
@@ -159,23 +159,12 @@ const QualificationForm = forwardRef(
 				{gradeConditionType != "simple" && (
 					<>
 						<Form.Check
-							ref={hasToBeSeenRef}
-							label={"El estudiante debe ver esta actividad para finalizarla"}
-							defaultChecked={initialGrade?.hasToBeSeen || false}
-						></Form.Check>
-						<Form.Check
-							ref={hasToBeQualifiedRef}
-							label={
-								"El estudiante debe completar el recurso para que se considere finalizado"
-							}
-							defaultChecked={initialGrade?.hasToBeQualified || false}
-						></Form.Check>
-						<Form.Check
 							ref={hasConditionsRef}
 							label={"La finalización de la actividad está condicionada"}
 							defaultChecked={initialGrade?.hasConditions || false}
 							onChange={(e) => setShowExtra(e.target.checked)}
 						></Form.Check>
+
 						<fieldset
 							disabled={!showExtra}
 							className="align-items-left"
@@ -188,65 +177,86 @@ const QualificationForm = forwardRef(
 								margin: gradeConditionType != "choice" ? "10px" : "none",
 							}}
 						>
-							<div
-								className=" align-items-baseline mb-2"
-								style={{
-									display: gradeConditionType != "choice" ? "flex" : "none",
-								}}
-							>
-								<Form.Label htmlFor={minID} style={{ width: "350px" }}>
-									Calificación para aprobar
-								</Form.Label>
-								<Form.Control
-									ref={minRef}
-									id={minID}
-									type="number"
-									step="0.01"
-									min="1"
-									max="10"
-									defaultValue={initialGrade?.data?.min || 0.0}
-								></Form.Control>
-							</div>
+							<Form.Check
+								ref={hasToBeSeenRef}
+								label={"El estudiante debe ver esta actividad para finalizarla"}
+								defaultChecked={initialGrade?.hasToBeSeen || false}
+							></Form.Check>
+							<Form.Check
+								ref={hasToBeQualifiedRef}
+								label={
+									"El estudiante debe ser calificado para que el recurso se considere finalizado"
+								}
+								defaultChecked={initialGrade?.hasToBeQualified || false}
+							></Form.Check>
 
-							<div
-								className="align-items-baseline mb-2"
+							<fieldset
+								disabled={!hasToBeQualifiedRef?.current?.checked || false}
 								style={{
-									display: !["normal", "choice"].includes(gradeConditionType)
-										? "flex"
-										: "none",
+									display: "flex",
+									flexDirection: "column",
 								}}
 							>
-								<Form.Label htmlFor={maxID} style={{ width: "350px" }}>
-									Calificación máxima
-								</Form.Label>
-								<div className="d-flex flex-column w-100">
+								<div
+									className=" align-items-baseline mb-2"
+									style={{
+										display: gradeConditionType != "choice" ? "flex" : "none",
+									}}
+								>
+									<Form.Label htmlFor={minID} style={{ width: "350px" }}>
+										Calificación para aprobar
+									</Form.Label>
 									<Form.Control
-										ref={maxRef}
-										id={maxID}
+										ref={minRef}
+										id={minID}
 										type="number"
 										step="0.01"
 										min="1"
 										max="10"
-										isInvalid={maxError}
-										onChange={(e) => {
-											Number(e.target.value) < Number(minRef.current.value)
-												? setMaxError(true)
-												: setMaxError(false);
-										}}
-										defaultValue={
-											!["normal", "choice"].includes(gradeConditionType)
-												? typeof initialGrade?.data?.max === "number"
-													? initialGrade.data.max
-													: 10.0
-												: 0
-										}
+										defaultValue={initialGrade?.data?.min || 0.0}
 									></Form.Control>
-									<Form.Control.Feedback type="invalid">
-										La calificación máxima no puede ser inferior a la necesitada
-										para aprobar.
-									</Form.Control.Feedback>
 								</div>
-							</div>
+
+								<div
+									className="align-items-baseline mb-2"
+									style={{
+										display: !["normal", "choice"].includes(gradeConditionType)
+											? "flex"
+											: "none",
+									}}
+								>
+									<Form.Label htmlFor={maxID} style={{ width: "350px" }}>
+										Calificación máxima
+									</Form.Label>
+									<div className="d-flex flex-column w-100">
+										<Form.Control
+											ref={maxRef}
+											id={maxID}
+											type="number"
+											step="0.01"
+											min="1"
+											max="10"
+											isInvalid={maxError}
+											onChange={(e) => {
+												Number(e.target.value) < Number(minRef.current.value)
+													? setMaxError(true)
+													: setMaxError(false);
+											}}
+											defaultValue={
+												!["normal", "choice"].includes(gradeConditionType)
+													? typeof initialGrade?.data?.max === "number"
+														? initialGrade.data.max
+														: 10.0
+													: 0
+											}
+										></Form.Control>
+										<Form.Control.Feedback type="invalid">
+											La calificación máxima no puede ser inferior a la
+											necesitada para aprobar.
+										</Form.Control.Feedback>
+									</div>
+								</div>
+							</fieldset>
 
 							<Form.Check
 								ref={hasToSelectRef}
