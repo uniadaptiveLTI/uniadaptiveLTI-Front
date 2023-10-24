@@ -530,35 +530,22 @@ export function parseMoodleBadgeToExport(node, nodeArray, metaData) {
 	return newNode;
 }
 
-export function parseMoodleCalifications(node, method = "export") {
+export function parseMoodleCalifications(node) {
 	if (node.g) {
 		const og = node.g;
 
 		let newGrades;
 
-		if (method == "export") {
-			newGrades = {
-				hasConditions: og.hasConditions || false,
-				hasToBeSeen: og.hasToBeSeen || false,
-				hasToBeQualified: og.hasToBeQualified || false,
-				data: {
-					min: og.data.min || 0,
-					max: Math.floor(og.data.max * 100) || 0,
-					hasToSelect: og.data.hasToSelect || false,
-				},
-			};
-		} else if (method == "import") {
-			newGrades = {
-				hasConditions: og.hasConditions || false,
-				hasToBeSeen: og.hasToBeSeen || false,
-				hasToBeQualified: og.hasToBeQualified || false,
-				data: {
-					min: og.data.min || 0,
-					max: og.data.max / 100 || 0,
-					hasToSelect: og.data.hasToSelect || false,
-				},
-			};
-		}
+		newGrades = {
+			hasConditions: og.hasConditions || false,
+			hasToBeSeen: og.hasToBeSeen || false,
+			hasToBeQualified: og.hasToBeQualified || false,
+			data: {
+				min: og.data.min || 0,
+				max: og.data.max || 0,
+				hasToSelect: og.data.hasToSelect || false,
+			},
+		};
 		return { ...node, g: newGrades };
 	} else {
 		return node;

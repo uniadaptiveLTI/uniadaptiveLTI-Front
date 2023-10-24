@@ -526,14 +526,14 @@ export default function SimpleConditionsMoodle({ id }) {
 				if (q.data.min) {
 					finalDOM.push(
 						<p style={{ marginLeft: 24 }}>
-							<b>Nota mínima: {q.data.min}</b>
+							Nota mínima: <b>{q.data.min}</b>
 						</p>
 					);
 				}
 				if (q.data.max) {
 					finalDOM.push(
 						<p style={{ marginLeft: 24 }}>
-							<b>Nota máxima: {q.data.max}</b>
+							Nota máxima: <b>{q.data.max}</b>
 						</p>
 					);
 				}

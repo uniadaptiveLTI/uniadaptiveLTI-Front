@@ -47,6 +47,9 @@ const QualificationForm = forwardRef(
 		const [showExtra, setShowExtra] = useState(
 			initialGrade?.hasConditions || false
 		);
+		const [showGrades, setShowGrades] = useState(
+			initialGrade?.hasToBeQualified || false
+		);
 		const [maxError, setMaxError] = useState(false);
 		// Refs
 
@@ -188,13 +191,17 @@ const QualificationForm = forwardRef(
 									"El estudiante debe ser calificado para que el recurso se considere finalizado"
 								}
 								defaultChecked={initialGrade?.hasToBeQualified || false}
+								onChange={(e) => {
+									setShowGrades(e.target.checked);
+								}}
 							></Form.Check>
 
 							<fieldset
-								disabled={!hasToBeQualifiedRef?.current?.checked || false}
+								disabled={!showGrades}
 								style={{
 									display: "flex",
 									flexDirection: "column",
+									margin: "15px 24px 0",
 								}}
 							>
 								<div
