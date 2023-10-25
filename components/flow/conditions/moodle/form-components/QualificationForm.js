@@ -219,7 +219,16 @@ const QualificationForm = forwardRef(
 										type="number"
 										step="0.01"
 										min="1"
-										max="10"
+										max={gradeConditionType == "normal" ? 10 : 100}
+										onChange={(e) => {
+											if (gradeConditionType == "normal" && e.target.value > 10)
+												e.target.value = 10;
+											if (
+												gradeConditionType != "normal" &&
+												e.target.value > 100
+											)
+												e.target.value = 100;
+										}}
 										defaultValue={initialGrade?.data?.min || 0.0}
 									></Form.Control>
 								</div>
@@ -242,12 +251,13 @@ const QualificationForm = forwardRef(
 											type="number"
 											step="0.01"
 											min="1"
-											max="10"
+											max="100"
 											isInvalid={maxError}
 											onChange={(e) => {
 												Number(e.target.value) < Number(minRef.current.value)
 													? setMaxError(true)
 													: setMaxError(false);
+												if (e.target.value > 100) e.target.value = 100;
 											}}
 											defaultValue={
 												!["normal", "choice"].includes(gradeConditionType)
