@@ -176,8 +176,8 @@ const QualificationForm = forwardRef(
 								flexDirection: "column",
 								border:
 									gradeConditionType != "choice" ? "1px solid #C7C7C7" : "none",
-								padding: gradeConditionType != "choice" ? "10px" : "none",
-								margin: gradeConditionType != "choice" ? "10px" : "none",
+								padding: gradeConditionType != "choice" ? "10px" : 0,
+								margin: gradeConditionType != "choice" ? "10px" : 0,
 							}}
 						>
 							<Form.Check
@@ -199,7 +199,7 @@ const QualificationForm = forwardRef(
 							<fieldset
 								disabled={!showGrades}
 								style={{
-									display: "flex",
+									display: gradeConditionType != "choice" ? "flex" : "none",
 									flexDirection: "column",
 									margin: "15px 24px 0",
 								}}
@@ -281,7 +281,9 @@ const QualificationForm = forwardRef(
 								style={{
 									display: gradeConditionType == "choice" ? "block" : "none",
 								}}
-								defaultChecked={Boolean(initialGrade?.hasToSelect) || false}
+								defaultChecked={
+									Boolean(initialGrade?.data?.hasToSelect) || false
+								}
 							></Form.Check>
 						</fieldset>
 					</>
