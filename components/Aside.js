@@ -7,6 +7,7 @@ import {
 	faCompress,
 	faCircleQuestion,
 } from "@fortawesome/free-solid-svg-icons";
+import { toast } from "react-toastify";
 import { useReactFlow } from "reactflow";
 import {
 	Tooltip,
@@ -138,11 +139,23 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 
 			console.log(response);
 
-			if (!response) {
+			if (
+				!response ||
+				!response.ok ||
+				(response?.ok && response?.ok == false)
+			) {
+				/* Old error handler
 				throw new Error("Request failed");
+				*/
+				toast({
+					hideProgressBar: false,
+					autoClose: 2000,
+					type: "error",
+					position: "bottom-center",
+				});
 			}
 
-			const data = response.data;
+			const data = response.data.items;
 
 			setShowSpinner(false);
 			setAllowResourceSelection(true);
