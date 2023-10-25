@@ -244,7 +244,7 @@ export const NodeTypes = [
 		gradable: [{ lms: "moodle", type: "simple" }],
 		endHandle: ["moodle"],
 	},
-	{
+	/*{
 		id: 23,
 		type: "wiki",
 		value: "wiki",
@@ -254,7 +254,7 @@ export const NodeTypes = [
 		lms: ["sakai"],
 		gradable: [],
 		endHandle: [],
-	},
+	},*/
 	{
 		id: 24,
 		type: "workshop",

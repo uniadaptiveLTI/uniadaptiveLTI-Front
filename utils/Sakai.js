@@ -63,8 +63,6 @@ export function createNewSakaiMap(nodes, lesson, metadata, maps) {
 
 			delete node?.data?.sakaiImportId;
 			node.data.gradeRequisites = parsedRequisites;
-
-			console.log(node.data);
 		}
 	});
 
