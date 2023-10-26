@@ -117,8 +117,8 @@ export default forwardRef(function ExportModal(
 			)
 			.map((error) => ({
 				...error,
-				nodeName: getNodeById(error.nodeId, reactFlowInstance.getNodes()).data
-					.label,
+				nodeName: getNodeById(error.nodeId, reactFlowInstance.getNodes())?.data
+					?.label,
 			}));
 
 		const errorSectionNotFound = errorList
@@ -128,8 +128,8 @@ export default forwardRef(function ExportModal(
 			)
 			.map((error) => ({
 				...error,
-				nodeName: getNodeById(error.nodeId, reactFlowInstance.getNodes()).data
-					.label,
+				nodeName: getNodeById(error.nodeId, reactFlowInstance.getNodes())?.data
+					?.label,
 			}));
 
 		const errorOrderNotFound = errorList
@@ -138,8 +138,8 @@ export default forwardRef(function ExportModal(
 			)
 			.map((error) => ({
 				...error,
-				nodeName: getNodeById(error.nodeId, reactFlowInstance.getNodes()).data
-					.label,
+				nodeName: getNodeById(error.nodeId, reactFlowInstance.getNodes())?.data
+					?.label,
 			}));
 
 		const warningChildrenNotFound = warningList
@@ -149,8 +149,8 @@ export default forwardRef(function ExportModal(
 			)
 			.map((error) => ({
 				...error,
-				nodeName: getNodeById(error.nodeId, reactFlowInstance.getNodes()).data
-					.label,
+				nodeName: getNodeById(error.nodeId, reactFlowInstance.getNodes())?.data
+					?.label,
 			}));
 
 		const warningParentNotFound = warningList
@@ -160,8 +160,8 @@ export default forwardRef(function ExportModal(
 			)
 			.map((error) => ({
 				...error,
-				nodeName: getNodeById(error.nodeId, reactFlowInstance.getNodes()).data
-					.label,
+				nodeName: getNodeById(error.nodeId, reactFlowInstance.getNodes())?.data
+					?.label,
 			}));
 
 		setNodeErrorResourceList(errorResourceNotFound);
