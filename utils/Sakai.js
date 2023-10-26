@@ -225,17 +225,22 @@ export function clampNodesOrderSakai(nodeArray) {
 	const newArray = [];
 	let maxSection = 0;
 	nodeArray.forEach((node) => {
-		if (maxSection < node.data.section) maxSection = node.data.section;
+		if (maxSection < (node.data.section || 0))
+			maxSection = node.data.section || 0;
 	});
 	for (let i = 0; i <= maxSection; i++) {
-		const sectionArray = nodeArray.filter((node) => node.data.section == i);
+		const sectionArray = nodeArray.filter(
+			(node) => (node.data.section || 0) == i
+		);
 		let maxIndent = 0;
 		sectionArray.forEach((node) => {
-			if (maxIndent < node.data.indent) maxIndent = node.data.indent;
+			if (maxIndent < (node.data.indent || 0))
+				maxIndent = node.data.indent || 0;
 		});
 		for (let j = 0; j <= maxIndent; j++) {
-			const indentArray = sectionArray.filter((node) => node.data.indent == j);
-			// Sort indentArray by data.order, undefined values go first
+			const indentArray = sectionArray.filter(
+				(node) => (node.data.indent || 0) == j
+			);
 			indentArray.sort((a, b) => {
 				if (a.data.order === undefined) return -1;
 				if (b.data.order === undefined) return 1;
