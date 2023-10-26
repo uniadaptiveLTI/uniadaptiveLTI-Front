@@ -152,6 +152,10 @@ export default function ExportPanel({
 			JSON.stringify(reactFlowInstance.getNodes()) //Deep clone TODO: DO THIS BETTER
 		);
 
+		if (platform == "sakai") {
+			nodesToExport = nodesToExport.filter((node) => node.type !== "generic");
+		}
+
 		const conditionList = [];
 
 		nodesToExport.map((node) => {
@@ -406,6 +410,8 @@ export default function ExportPanel({
 								newNode.closeDate = Date.parse(dateCondition?.dueDate) / 1000;
 							}
 						}
+
+						newNode.dateRestriction = true;
 					}
 
 					if (groupCondition) {

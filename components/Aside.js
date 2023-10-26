@@ -123,10 +123,9 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 			};
 
 			if (selectedOption == "generic") {
-				payload.supportedTypes = getSupportedTypes(platform);
-				payload.sections = metaData.sections.map((section) => {
-					return { id: section.id, position: section.position };
-				});
+				setShowSpinner(false);
+				setAllowResourceSelection(true);
+				return [];
 			}
 
 			const response = await fetchBackEnd(
