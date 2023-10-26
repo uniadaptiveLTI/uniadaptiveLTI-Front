@@ -178,7 +178,7 @@ export default function Admin({ LTISettings }) {
 							<Row>
 								<Col className={styles.paneContainer}>
 									<div style={{ display: "flex", justifyContent: "center" }}>
-										<Form action="#" method="" onSubmit={() => logIn()}>
+										<Form action="#" method="" onSubmit={logIn}>
 											<Form.Label htmlFor={loginInputId}>
 												Introduzca contraseña de administración
 											</Form.Label>
