@@ -418,6 +418,39 @@ export function getPrimaryConditionType(node) {
 }
 
 /**
+ * Checks if specific condition exists
+ *
+ * @export
+ * @param {Object} node - The node to check.
+ * @param {string} typeName - Type name to search for.
+ * @returns {boolean} Returns the true if exists, false if it isn't
+ */
+export function conditionTypeExists(node, typeName) {
+	const recursiveTypeGet = (c, array = []) => {
+		if (c.c) {
+			c.c.forEach((condition) => {
+				if (condition.type != "conditionsGroup") {
+					array.push(condition.type);
+				} else {
+					if (condition.c) {
+						array.push(...recursiveTypeGet(condition, array));
+					}
+				}
+			});
+		}
+
+		return array;
+	};
+	if (node.data.c) {
+		const types = [...new Set(recursiveTypeGet(node.data.c))].filter(
+			(cType) => cType == typeName
+		);
+		return types.length > 0 ? true : false;
+	}
+	return false;
+}
+
+/**
  * Checks if any node in the given array contains a grade present in the metaData.
  *
  * @param {Array} nodeArray - The array of nodes to check.

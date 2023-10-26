@@ -50,6 +50,7 @@ import {
 	getChildrenNodesFromFragmentID,
 	getParentsNode,
 	nodeArrayContainsGrades,
+	reorderFromSection,
 } from "@utils/Nodes";
 import { errorListCheck } from "@utils/ErrorHandling";
 import { toast } from "react-toastify";
@@ -954,9 +955,17 @@ const OverviewFlow = ({ map }, ref) => {
 		const filteredMap = map.map((node) => {
 			return isSupportedTypeInPlatform(platform, node.type)
 				? node
-				: { ...node, type: "generic" };
+				: isSupportedTypeInPlatform(platform, "generic")
+				? { ...node, type: "generic" }
+				: null;
 		});
-		setNewInitialNodes(filteredMap);
+
+		setNewInitialNodes(
+			clampNodesOrder(
+				filteredMap.filter((i) => i != null),
+				platform
+			)
+		);
 
 		setNewInitialEdges(
 			map?.flatMap((parent) => {

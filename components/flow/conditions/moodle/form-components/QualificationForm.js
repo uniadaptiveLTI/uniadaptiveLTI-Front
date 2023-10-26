@@ -2,6 +2,8 @@ import { useImperativeHandle, useLayoutEffect } from "react";
 import { forwardRef } from "react";
 import { useId, useRef, useState } from "react";
 import { Button, Form } from "react-bootstrap";
+import { getNodeById } from "../../../../../utils/Nodes";
+import { hasConditionsNeedingQualifications } from "../../../../../utils/Moodle";
 
 const EnabledInput = ({
 	checkRef,
@@ -51,6 +53,14 @@ const QualificationForm = forwardRef(
 			initialGrade?.hasToBeQualified || false
 		);
 		const [maxError, setMaxError] = useState(false);
+		const childrenNodes = blockData.data.children.map((children) =>
+			getNodeById(children, reactFlowInstance.getNodes())
+		);
+		const [hasQualifiedUsage, setHasQualifiedUsage] = useState(
+			childrenNodes
+				.map((cn) => hasConditionsNeedingQualifications(cn))
+				.some((v) => v === true)
+		);
 		// Refs
 
 		const hasConditionsRef = useRef();
@@ -194,7 +204,17 @@ const QualificationForm = forwardRef(
 								onChange={(e) => {
 									setShowGrades(e.target.checked);
 								}}
+								disabled={hasQualifiedUsage}
 							></Form.Check>
+							<small
+								style={{
+									display: hasQualifiedUsage ? "block" : "none",
+									color: "var(--bs-form-invalid-color)",
+								}}
+							>
+								Existen bloques con condiciones de calificación que requieren la
+								activación de esta opción.
+							</small>
 
 							<fieldset
 								disabled={!showGrades}
