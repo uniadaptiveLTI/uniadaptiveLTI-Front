@@ -417,9 +417,7 @@ function RequisiteModalSakai({
 												true,
 												false
 											)}
-											onClick={() =>
-												deleteRequisite(dateRequisite[0].itemId, true)
-											}
+											onClick={() => deleteRequisite(dateRequisite[0].id, true)}
 										>
 											<FontAwesomeIcon
 												className={styles.cModal}

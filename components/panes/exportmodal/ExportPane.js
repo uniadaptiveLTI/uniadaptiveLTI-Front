@@ -411,7 +411,7 @@ export default function ExportPanel({
 							}
 						}
 
-						newNode.dateRestriction = true;
+						newNode.dateRestricted = true;
 					}
 
 					if (groupCondition) {

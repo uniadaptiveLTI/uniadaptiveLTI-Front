@@ -209,11 +209,11 @@ const QualificationForm = forwardRef(
 							<small
 								style={{
 									display: hasQualifiedUsage ? "block" : "none",
-									color: "var(--bs-form-invalid-color)",
+									color: "red",
 								}}
 							>
-								Existen bloques con condiciones de calificación que requieren la
-								activación de esta opción.
+								Existen bloques con condiciones de finalización de tipo aprobado
+								o suspendido que requieren la activación de esta opción.
 							</small>
 
 							<fieldset

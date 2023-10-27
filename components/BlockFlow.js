@@ -524,7 +524,7 @@ const OverviewFlow = ({ map }, ref) => {
 									"El recurso no puede ser finalizado. Compruebe los ajustes de finalización.",
 									{
 										hideProgressBar: false,
-										autoClose: 4000,
+										autoClose: 6000,
 										type: "error",
 										position: "bottom-center",
 										theme: "light",

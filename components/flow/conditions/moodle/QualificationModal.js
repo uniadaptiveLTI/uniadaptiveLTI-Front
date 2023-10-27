@@ -106,10 +106,10 @@ function QualificationModal({
 										saveG();
 									} else {
 										toast(
-											"No se pudieron cambiar los ajustes de finalización: Hijos requieren que el recurso pueda ser finalizado.",
+											"No se pudieron cambiar los ajustes de finalización: Existen hijos que requieren que el recurso pueda ser finalizado.",
 											{
 												hideProgressBar: false,
-												autoClose: 4000,
+												autoClose: 6000,
 												type: "error",
 												position: "bottom-center",
 												theme: "light",
