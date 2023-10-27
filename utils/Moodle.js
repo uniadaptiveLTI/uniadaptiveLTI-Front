@@ -582,7 +582,7 @@ export function parseMoodleConditionsGroupOut(c) {
 }
 
 /**
- * Checks if completion exists, and if needs a qualification
+ * Checks if completion condition exists in the node, and if needs a qualification
  *
  * @export
  * @param {Object} node - The node to check.
@@ -595,9 +595,41 @@ export function hasConditionsNeedingQualifications(node) {
 			c.c.forEach((condition) => {
 				if (condition.type != "conditionsGroup") {
 					if (condition.type == "completion") {
-						console.log("completion", condition);
-						console.log("e", condition.e);
 						if (condition.e > 1) array.push(condition.type);
+					}
+				} else {
+					if (condition.c) {
+						array.push(...recursiveGet(condition, array));
+					}
+				}
+			});
+		}
+
+		return array;
+	};
+	if (node.data.c) {
+		const types = [...new Set(recursiveGet(node.data.c))];
+		console.log(types);
+		return types.length > 0 ? true : false;
+	}
+	return false;
+}
+
+/**
+ * Checks if completion condition exists in the node
+ *
+ * @export
+ * @param {Object} node - The node to check.
+ * @param {string} typeName - Type name to search for.
+ * @returns {boolean} Returns the true if exists, false if it isn't
+ */
+export function hasConditionsNeedingCompletion(node) {
+	const recursiveGet = (c, array = []) => {
+		if (c.c) {
+			c.c.forEach((condition) => {
+				if (condition.type != "conditionsGroup") {
+					if (condition.type == "completion") {
+						array.push(condition.type);
 					}
 				} else {
 					if (condition.c) {

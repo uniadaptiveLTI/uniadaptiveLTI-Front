@@ -2,10 +2,12 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { Modal, Button, Form, Row, Col, Container } from "react-bootstrap";
 import { getUpdatedArrayById, uniqueId } from "@utils/Utils";
 import { useReactFlow } from "reactflow";
-import { getGradable } from "@utils/TypeDefinitions";
+import { NodeTypes, getGradable } from "@utils/TypeDefinitions";
 import { PlatformContext } from "pages/_app";
 import { getNodeById } from "@utils/Nodes";
 import QualificationForm from "@components/flow/conditions/moodle/form-components/QualificationForm";
+import { hasConditionsNeedingCompletion } from "@utils/Moodle";
+import { toast } from "react-toastify";
 
 function QualificationModal({
 	blockData,
@@ -65,22 +67,58 @@ function QualificationModal({
 						variant="primary"
 						onClick={() => {
 							if (qualificationFormResult?.current?.data) {
-								const currentBlock = getNodeById(
-									blockData.id,
-									reactFlowInstance.getNodes()
+								const childrenNodes = blockData.data.children.map((children) =>
+									getNodeById(children, reactFlowInstance.getNodes())
 								);
-								reactFlowInstance.setNodes(
-									getUpdatedArrayById(
-										{
-											...currentBlock,
-											data: {
-												...currentBlock.data,
-												g: qualificationFormResult.current.data,
-											},
-										},
+								const needingCompletion = childrenNodes
+									.map((cn) => hasConditionsNeedingCompletion(cn))
+									.some((v) => v === true);
+								const newG = qualificationFormResult.current.data;
+
+								const saveG = () => {
+									const currentBlock = getNodeById(
+										blockData.id,
 										reactFlowInstance.getNodes()
-									)
-								);
+									);
+									reactFlowInstance.setNodes(
+										getUpdatedArrayById(
+											{
+												...currentBlock,
+												data: {
+													...currentBlock.data,
+													g: newG,
+												},
+											},
+											reactFlowInstance.getNodes()
+										)
+									);
+								};
+
+								if (needingCompletion) {
+									const currentGradableType = NodeTypes.find(
+										(nt) => nt.type == blockData.type
+									)?.gradable.find((gradable) => gradable.lms == "moodle").type;
+
+									if (
+										(newG.hasConditions && currentGradableType != "simple") ||
+										(newG.hasToBeSeen && currentGradableType == "simple")
+									) {
+										saveG();
+									} else {
+										toast(
+											"No se pudieron cambiar los ajustes de finalización: Hijos requieren que el recurso pueda ser finalizado.",
+											{
+												hideProgressBar: false,
+												autoClose: 4000,
+												type: "error",
+												position: "bottom-center",
+												theme: "light",
+											}
+										);
+									}
+								} else {
+									saveG();
+								}
 							}
 							handleClose();
 						}}

@@ -396,10 +396,14 @@ const OverviewFlow = ({ map }, ref) => {
 		const sourceNodeId = event.source.split("__")[0];
 		const targetNodeId = event.target.split("__")[0];
 
+		let allowLineCreation = true;
+
 		if (sourceNodeId != targetNodeId) {
 			const edgeFound = reactFlowInstance
 				.getEdges()
 				.find((node) => node.id === sourceNodeId + "-" + targetNodeId);
+
+			if (edgeFound) allowLineCreation = false;
 
 			const sourceNode = reactFlowInstance
 				.getNodes()
@@ -422,91 +426,114 @@ const OverviewFlow = ({ map }, ref) => {
 				sourceNode.type != "start" &&
 				sourceNode.type != "end"
 			) {
-				if (!edgeFound) {
+				if (allowLineCreation) {
 					switch (platform) {
 						case "moodle":
-							if (!validTypes.includes(targetNode.type)) {
-								const newCondition = {
-									id: parseInt(Date.now() * Math.random()).toString(),
-									type: "completion",
-									cm: sourceNode.id,
-									showc: true,
-									e: 1,
-								};
+							const blockData = getNodeById(
+								sourceNodeId,
+								reactFlowInstance.getNodes()
+							);
+							const currentGradableType = NodeTypes.find(
+								(nt) => nt.type == blockData.type
+							)?.gradable.find((gradable) => gradable.lms == "moodle").type;
 
-								if (!targetNode.data.c) {
-									targetNode.data.c = {
-										type: "conditionsGroup",
+							if (
+								(blockData.data.g.hasConditions &&
+									currentGradableType != "simple") ||
+								(blockData.data.g.hasToBeSeen &&
+									currentGradableType == "simple")
+							) {
+								if (!validTypes.includes(targetNode.type)) {
+									const newCondition = {
 										id: parseInt(Date.now() * Math.random()).toString(),
-										op: "&",
+										type: "completion",
+										cm: sourceNode.id,
 										showc: true,
-										c: [newCondition],
+										e: 1,
 									};
-								} else {
-									targetNode.data.c.c.push(newCondition);
-								}
-							} else {
-								if (!targetNode.data.c) {
-									targetNode.data.c = {
-										type: "conditionsGroup",
-										id: parseInt(Date.now() * Math.random()).toString(),
-										method: "&",
-										showc: true,
-										criteriatype: 0,
-									};
-								}
 
-								const conditions = targetNode.data.c?.params;
-
-								if (conditions) {
-									const conditionExists = conditions.find(
-										(condition) => condition.type === "completion"
-									);
-
-									if (conditionExists) {
-										const newConditionAppend = {
-											id: sourceNode.id,
+									if (!targetNode.data.c) {
+										targetNode.data.c = {
+											type: "conditionsGroup",
+											id: parseInt(Date.now() * Math.random()).toString(),
+											op: "&",
+											showc: true,
+											c: [newCondition],
 										};
+									} else {
+										targetNode.data.c.c.push(newCondition);
+									}
+								} else {
+									if (!targetNode.data.c) {
+										targetNode.data.c = {
+											type: "conditionsGroup",
+											id: parseInt(Date.now() * Math.random()).toString(),
+											method: "&",
+											showc: true,
+											criteriatype: 0,
+										};
+									}
 
-										conditionExists.params.push(newConditionAppend);
+									const conditions = targetNode.data.c?.params;
+
+									if (conditions) {
+										const conditionExists = conditions.find(
+											(condition) => condition.type === "completion"
+										);
+
+										if (conditionExists) {
+											const newConditionAppend = {
+												id: sourceNode.id,
+											};
+
+											conditionExists.params.push(newConditionAppend);
+										} else {
+											const newCondition = {
+												id: parseInt(Date.now() * Math.random()).toString(),
+												type: "completion",
+												params: [
+													{
+														id: sourceNode.id,
+													},
+												],
+												method: "&",
+												criteriatype: 1,
+											};
+
+											targetNode.data.c.params.push(newCondition);
+										}
 									} else {
 										const newCondition = {
 											id: parseInt(Date.now() * Math.random()).toString(),
 											type: "completion",
+											criteriatype: 1,
 											params: [
 												{
 													id: sourceNode.id,
 												},
 											],
 											method: "&",
-											criteriatype: 1,
 										};
 
-										targetNode.data.c.params.push(newCondition);
+										targetNode.data.c.params = [newCondition];
 									}
-								} else {
-									const newCondition = {
-										id: parseInt(Date.now() * Math.random()).toString(),
-										type: "completion",
-										criteriatype: 1,
-										params: [
-											{
-												id: sourceNode.id,
-											},
-										],
-										method: "&",
-									};
-
-									targetNode.data.c.params = [newCondition];
 								}
+							} else {
+								allowLineCreation = false;
+								toast(
+									"El recurso no puede ser finalizado. Compruebe los ajustes de finalización.",
+									{
+										hideProgressBar: false,
+										autoClose: 4000,
+										type: "error",
+										position: "bottom-center",
+										theme: "light",
+									}
+								);
 							}
 
 							if (targetNode.type === "badge") {
-								if (
-									sourceNode.data.g &&
-									sourceNode.data.g &&
-									!sourceNode.data.g.hasToBeQualified
-								) {
+								if (sourceNode.data.g && !sourceNode.data.g.hasToBeQualified) {
 									sourceNode.data.g.hasToBeQualified = true;
 								}
 							}
@@ -546,8 +573,6 @@ const OverviewFlow = ({ map }, ref) => {
 								(set) => set.type === "PARENT" && set.operator === "AND"
 							);
 
-							console.log(targetNode);
-
 							subRootAnd.subConditions.push({
 								type: "SCORE",
 								siteId: metaData.course_id,
@@ -562,22 +587,23 @@ const OverviewFlow = ({ map }, ref) => {
 				}
 			}
 
-			//FIXME: Check if line already drawn
-			setEdges([
-				...edges,
-				{
-					id: sourceNodeId + "-" + targetNodeId,
-					source: sourceNodeId,
-					target: targetNodeId,
-				},
-			]);
+			if (allowLineCreation) {
+				setEdges([
+					...edges,
+					{
+						id: sourceNodeId + "-" + targetNodeId,
+						source: sourceNodeId,
+						target: targetNodeId,
+					},
+				]);
 
-			setNodes(
-				getUpdatedArrayById(
-					[sourceNode, targetNode],
-					reactFlowInstance.getNodes()
-				)
-			);
+				setNodes(
+					getUpdatedArrayById(
+						[sourceNode, targetNode],
+						reactFlowInstance.getNodes()
+					)
+				);
+			}
 		}
 	};
 
