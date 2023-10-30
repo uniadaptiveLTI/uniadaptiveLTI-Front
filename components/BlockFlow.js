@@ -961,7 +961,8 @@ const OverviewFlow = ({ map }, ref) => {
 						reactFlowInstance.getNodes()
 					);
 					if (!parentFragment.data.expanded) {
-						getNodeDOMById(node.id).style.visibility = "hidden";
+						const fragment = getNodeDOMById(node.id);
+						if (fragment) fragment.style.visibility = "hidden";
 					}
 				}
 			}

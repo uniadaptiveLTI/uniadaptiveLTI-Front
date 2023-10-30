@@ -1,3 +1,4 @@
+import { toast } from "react-toastify";
 import { getSectionNodes } from "./Nodes";
 import { uniqueId } from "./Utils";
 
@@ -64,59 +65,74 @@ export function sakaiTypeSwitch(node) {
 }
 
 export function createNewSakaiMap(nodes, lesson, metadata, maps) {
-	const endX = Math.max(...nodes.map((node) => node.position.x)) + 125;
-	const midY = nodes.map((node) => node.position.y).sort((a, b) => a - b)[
-		Math.floor(nodes.length / 2)
-	];
+	const endX =
+		Math.max(...nodes.map((node) => node.position.x)) + 125 >= 125
+			? Math.max(...nodes.map((node) => node.position.x)) + 125
+			: 125;
+	const midY =
+		nodes.map((node) => node.position.y).sort((a, b) => a - b)[
+			Math.floor(nodes.length / 2)
+		] || 0;
 
-	nodes.forEach((node) => {
-		if (node.data.gradeRequisites) {
-			const parentNodes = [];
+	const isEmpty = nodes.length < 1;
+	if (!isEmpty) {
+		nodes.forEach((node) => {
+			if (node.data.gradeRequisites) {
+				const parentNodes = [];
 
-			let rootParent = node.data.gradeRequisites
-				? { ...node.data.gradeRequisites, id: uniqueId() }
-				: undefined;
-			console.log(rootParent);
-			delete rootParent?.argument;
-			delete rootParent?.siteId;
-			delete rootParent?.toolId;
-			delete rootParent?.hasParent;
+				let rootParent = node.data.gradeRequisites
+					? { ...node.data.gradeRequisites, id: uniqueId() }
+					: undefined;
+				console.log(rootParent);
+				delete rootParent?.argument;
+				delete rootParent?.siteId;
+				delete rootParent?.toolId;
+				delete rootParent?.hasParent;
 
-			const parsedRequisites = {
-				...rootParent,
-				subConditions:
-					rootParent?.subConditions == undefined
-						? []
-						: sakaiConditionalIDAdder(
-								rootParent.subConditions,
-								nodes,
-								parentNodes
-						  ),
-			};
+				const parsedRequisites = {
+					...rootParent,
+					subConditions:
+						rootParent?.subConditions == undefined
+							? []
+							: sakaiConditionalIDAdder(
+									rootParent.subConditions,
+									nodes,
+									parentNodes
+							  ),
+				};
 
-			parentNodes.forEach((parentNode) => {
-				const parentFound = nodes.find((node) => node.id == parentNode);
-				if (parentFound) {
-					parentFound.data.children.push(node.id);
-				}
-			});
+				parentNodes.forEach((parentNode) => {
+					const parentFound = nodes.find((node) => node.id == parentNode);
+					if (parentFound) {
+						parentFound.data.children.push(node.id);
+					}
+				});
 
-			delete node?.data?.sakaiImportId;
-			node.data.gradeRequisites = parsedRequisites;
-		}
-	});
+				delete node?.data?.sakaiImportId;
+				node.data.gradeRequisites = parsedRequisites;
+			}
+		});
+	} else {
+		toast("Lección vacía, creado un mapa vacío en su lugar.", {
+			hideProgressBar: false,
+			autoClose: 4000,
+			type: "info",
+			position: "bottom-center",
+			theme: "light",
+		});
+	}
 
-	//FIXME: DO ME PROPERLY
 	const newMap = {
 		id: uniqueId(),
-		name:
-			lesson != undefined
-				? `Mapa importado desde ${
-						metadata.lessons.find(
-							(metaDataLesson) => metaDataLesson.id === lesson
-						).name
-				  } (${maps.length})`
-				: `Mapa importado desde ${metadata.name} (${maps.length})`,
+		name: isEmpty
+			? `Nuevo Mapa ${maps.length - 1}`
+			: lesson != undefined
+			? `Mapa importado desde ${
+					metadata.lessons.find(
+						(metaDataLesson) => metaDataLesson.id === lesson
+					).name
+			  } (${maps.length})`
+			: `Mapa importado desde ${metadata.name} (${maps.length})`,
 		versions: [
 			{
 				id: uniqueId(),
