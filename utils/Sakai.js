@@ -23,6 +23,46 @@ export function getLastPositionInSakaiColumn(section, column, nodeArray) {
 	return maxPosition;
 }
 
+/**
+ * Method to reorder the sakaiRequisites in a custom order
+ * @param {Object} requisites - Requisites as an object
+ * @returns {Object} Sorted requisites
+ */
+export function reOrderSakaiRequisites(requisites) {
+	const customSort = (a, b) => {
+		const typeOrder = {
+			date: 1,
+			dateException: 2,
+			group: 3,
+		};
+
+		return typeOrder[a.type] - typeOrder[b.type];
+	};
+
+	const sortedArray = [...requisites].sort(customSort);
+
+	return sortedArray;
+}
+
+export function sakaiTypeSwitch(node) {
+	switch (node.type) {
+		case "resource":
+		case "html":
+		case "text":
+			return { type: 1, contentRef: node.id.toString() };
+		case "assign":
+			return { type: 3, contentRef: "/assignment/" + node.id };
+		case "exam":
+			return { type: 4, contentRef: "/sam_pub/" + node.id };
+		case "url":
+			return { type: 6, contentRef: node.id.toString() };
+		case "forum":
+			return { type: 8, contentRef: "/forum_forum/" + node.id };
+		case "folder":
+			return { type: 20, contentRef: node.id.toString() };
+	}
+}
+
 export function createNewSakaiMap(nodes, lesson, metadata, maps) {
 	const endX = Math.max(...nodes.map((node) => node.position.x)) + 125;
 	const midY = nodes.map((node) => node.position.y).sort((a, b) => a - b)[
@@ -221,6 +261,11 @@ function sakaiConditionalIDAdder(subConditions, nodes, parentNodes) {
 	return subConditions;
 }
 
+/**
+ * Clamps and reorders the nodes for Sakai.
+ * @param {Array} nodeArray - Node array.
+ * @returns {Array} The reordered node array.
+ */
 export function clampNodesOrderSakai(nodeArray) {
 	const newArray = [];
 	let maxSection = 0;

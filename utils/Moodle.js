@@ -1,7 +1,19 @@
 import { useReactFlow } from "reactflow";
 import { getNodeById } from "./Nodes";
-import { getUpdatedArrayById, uniqueId, parseDate } from "./Utils";
+import {
+	getUpdatedArrayById,
+	uniqueId,
+	parseDate,
+	LMSResourceToId,
+} from "./Utils";
 
+/**
+ * Parses a Moodle resource to a LTI Node.
+ * @param {Object} badge - Moodle's node.
+ * @param {Number} newX - X position for the badge in the map.
+ * @param {Number} newY - Y position for the badge in the map.
+ * @returns {Object} LTI's resource's node.
+ */
 export function parseMoodleNode(node, newX, newY) {
 	const newNode = {};
 
@@ -23,8 +35,14 @@ export function parseMoodleNode(node, newX, newY) {
 	return newNode;
 }
 
+/**
+ * Parses a Moodle badge
+ * @param {Object} badge - Moodle's badge.
+ * @param {Number} newX - X position for the badge in the map.
+ * @param {Number} newY - Y position for the badge in the map.
+ * @returns {Object} LTI's badge node.
+ */
 export function parseMoodleBadges(badge, newX, newY) {
-	console.log(badge);
 	const newNode = {};
 	newNode.id = String(uniqueId());
 	newNode.type = "badge";
@@ -34,10 +52,14 @@ export function parseMoodleBadges(badge, newX, newY) {
 		c: parseMoodleBadgeParams(badge.params), //Adapted in "createNewMoodleMap" (as we need all the IDs)
 		lmsResource: String(badge.id),
 	};
-	console.log(newNode);
 	return newNode;
 }
 
+/**
+ * Transforms Moodle's badge's conditions to LTI's badge's conditions.
+ * @param {Array} conditions - Moodle's badge's conditions
+ * @returns {Array} LTI's badge's conditions
+ */
 export function parseMoodleBadgeParams(conditions) {
 	let parsedBadgesConditions = {};
 	conditions?.map((condition) => {
@@ -131,6 +153,11 @@ export function parseMoodleBadgeParams(conditions) {
 	}
 }
 
+/**
+ * Transforms moodle's condition types to a string based ones.
+ * @param {Number} criteriaType - Moodle's condition type.
+ * @returns {String} Returns the correspondent condition type in string.
+ */
 function getMoodleConditionType(criteriaType) {
 	switch (criteriaType) {
 		case 0:
@@ -148,11 +175,22 @@ function getMoodleConditionType(criteriaType) {
 	}
 }
 
+/**
+ * Creates a new map given a node array, the metadata and the current maps array.
+ * @param {Array} nodes - Nodes array.
+ * @param {Object} metadata - Metadata object.
+ * @param {Array} maps - Maps array.
+ * @returns {Object} Returns the new map.
+ */
 export function createNewMoodleMap(nodes, metadata, maps) {
-	const endX = Math.max(...nodes.map((node) => node.position.x)) + 125;
-	const midY = nodes.map((node) => node.position.y).sort((a, b) => a - b)[
-		Math.floor(nodes.length / 2)
-	];
+	const endX =
+		Math.max(...nodes.map((node) => node.position.x)) + 125 >= 125
+			? Math.max(...nodes.map((node) => node.position.x)) + 125
+			: 125;
+	const midY =
+		nodes.map((node) => node.position.y).sort((a, b) => a - b)[
+			Math.floor(nodes.length / 2)
+		] || 0;
 
 	const conditionatedNodes = nodes.map((node) => {
 		if (node.type !== "badge") {
@@ -190,8 +228,7 @@ export function createNewMoodleMap(nodes, metadata, maps) {
 						param.params.length >= 1
 					) {
 						param.params = param.params.filter((node) => {
-							moodleConditionalBadgeIDAdder(node, nodes);
-							return node.id;
+							return LMSResourceToId(node.id, nodes);
 						});
 						return param.params.length >= 1;
 					}
@@ -241,14 +278,20 @@ export function createNewMoodleMap(nodes, metadata, maps) {
 	return newMap;
 }
 
-function moodleConditionalIDAdder(objArray, nodes) {
+/**
+ * Parses the resource conditions to node conditions. (From LMS to LTI)
+ * @param {Array} conditionArray - Condition array.
+ * @param {Array} nodes - Node array
+ * @returns {Array} A node array with the correct conditions.
+ */
+function moodleConditionalIDAdder(conditionArray, nodes) {
 	// Create a deep copy of the original array
-	let newArray = JSON.parse(JSON.stringify(objArray));
+	let newArray = JSON.parse(JSON.stringify(conditionArray));
 	console.log(newArray);
 	for (let i = 0; i < newArray.length; i++) {
 		if (typeof newArray[i] === "object" && newArray[i] !== null) {
-			if (objArray[i].type === "completion") {
-				newArray[i].cm = moodleLMSResourceToId(newArray[i].cm, nodes);
+			if (conditionArray[i].type === "completion") {
+				newArray[i].cm = LMSResourceToId(newArray[i].cm, nodes);
 				if (!newArray[i].cm) {
 					newArray = newArray.filter((item, index) => index !== i);
 					i--;
@@ -256,8 +299,8 @@ function moodleConditionalIDAdder(objArray, nodes) {
 				}
 			}
 
-			if (objArray[i].type === "grade") {
-				newArray[i].cm = moodleLMSResourceToId(newArray[i].id, nodes);
+			if (conditionArray[i].type === "grade") {
+				newArray[i].cm = LMSResourceToId(newArray[i].id, nodes);
 				if (!newArray[i].cm) {
 					newArray = newArray.filter((item, index) => index !== i);
 					i--;
@@ -265,16 +308,15 @@ function moodleConditionalIDAdder(objArray, nodes) {
 				}
 			}
 
-			if (objArray[i].type === "date") {
+			if (conditionArray[i].type === "date") {
 				newArray[i].t = parseDate(newArray[i].t);
-				console.log(newArray[i]);
 			}
 
-			if (objArray[i].type === "group") {
+			if (conditionArray[i].type === "group") {
 				newArray[i].groupId = newArray[i].id;
 			}
 
-			if (objArray[i].type === "grouping") {
+			if (conditionArray[i].type === "grouping") {
 				newArray[i].groupingId = newArray[i].id;
 			}
 
@@ -285,7 +327,6 @@ function moodleConditionalIDAdder(objArray, nodes) {
 			if ("c" in newArray[i]) {
 				newArray[i].type = "conditionsGroup";
 				newArray[i].c = moodleConditionalIDAdder(newArray[i].c, nodes);
-				console.log(newArray[i]);
 			}
 		}
 	}
@@ -293,63 +334,66 @@ function moodleConditionalIDAdder(objArray, nodes) {
 	return newArray;
 }
 
-function moodleConditionalBadgeIDAdder(objArray, nodes) {
-	objArray.id = moodleLMSResourceToId(objArray.id, nodes);
-}
-
-function moodleFlowConditionalsExtractor(objArray) {
+/**
+ * Gets the IDs used in the completion and grade conditions.
+ * @param {Array} conditionArray - Condition array.
+ * @returns {Array} An array of the IDs used.
+ */
+function moodleFlowConditionalsExtractor(conditionArray) {
 	let cmValues = [];
-	if (objArray) {
-		for (let i = 0; i < objArray.length; i++) {
-			if (typeof objArray[i] === "object" && objArray[i] !== null) {
+	if (conditionArray) {
+		for (let i = 0; i < conditionArray.length; i++) {
+			if (typeof conditionArray[i] === "object" && conditionArray[i] !== null) {
 				// If the object has type "completion" or "grade", add the value of "cm" to the array
-				if (objArray[i].type === "completion" || objArray[i].type === "grade") {
-					if (objArray[i].cm) cmValues.push(objArray[i].cm);
+				if (
+					conditionArray[i].type === "completion" ||
+					conditionArray[i].type === "grade"
+				) {
+					if (conditionArray[i].cm) cmValues.push(conditionArray[i].cm);
 				}
 
 				// If the object has a property "c", enter that property
-				if ("c" in objArray[i]) {
+				if ("c" in conditionArray[i]) {
 					cmValues = cmValues.concat(
-						moodleFlowConditionalsExtractor(objArray[i].c)
+						moodleFlowConditionalsExtractor(conditionArray[i].c)
 					);
 				}
 			}
 		}
-
-		return cmValues;
 	}
+
+	return cmValues;
 }
 
-function moodleLMSResourceToId(resourceId, nodes) {
-	console.log(resourceId, nodes);
-	const node = nodes.find((node) => node.data.lmsResource == resourceId);
-	return node ? node.id : undefined;
-}
-
-function moodleParentingSetter(objArray) {
+/**
+ * Sets the correct children for the nodes.
+ * @param {Array} nodeArray - Node array.
+ * @returns {Array} The array with the correct children.
+ */
+function moodleParentingSetter(nodeArray) {
 	// Create a deep copy of the original array
-	const newArray = JSON.parse(JSON.stringify(objArray));
+	const newArray = JSON.parse(JSON.stringify(nodeArray));
 
-	for (let i = 0; i < objArray.length; i++) {
-		if (objArray[i]?.type !== "badge") {
-			if (objArray[i]?.data?.c) {
-				const parents = moodleFlowConditionalsExtractor(objArray[i].data.c.c);
+	for (let i = 0; i < nodeArray.length; i++) {
+		if (nodeArray[i]?.type !== "badge") {
+			if (nodeArray[i]?.data?.c) {
+				const parents = moodleFlowConditionalsExtractor(nodeArray[i].data.c.c);
 				console.log("parents", parents);
 				if (parents) {
 					if (parents.length > 0) {
 						parents.forEach((parent) => {
-							const parentFound = objArray.find((node) => node.id == parent);
+							const parentFound = nodeArray.find((node) => node.id == parent);
 							if (parentFound) {
 								newArray
 									.find((node) => node.id == parentFound.id)
-									.data.children.push(objArray[i].id);
+									.data.children.push(nodeArray[i].id);
 							}
 						});
 					}
 				}
 			}
 		} else {
-			const completionCondition = objArray[i].data?.c?.params?.find(
+			const completionCondition = nodeArray[i].data?.c?.params?.find(
 				(condition) => condition.type == "completion"
 			);
 			if (completionCondition) {
@@ -359,11 +403,11 @@ function moodleParentingSetter(objArray) {
 				});
 
 				parents.forEach((parent) => {
-					const parentFound = objArray.find((node) => node.id == parent);
+					const parentFound = nodeArray.find((node) => node.id == parent);
 					if (parentFound) {
 						newArray
 							.find((node) => node.id == parentFound.id)
-							.data.children.push(objArray[i].id);
+							.data.children.push(nodeArray[i].id);
 					}
 				});
 			}
@@ -373,6 +417,11 @@ function moodleParentingSetter(objArray) {
 	return newArray;
 }
 
+/**
+ * Clamps and reorders the nodes for Moodle.
+ * @param {Array} nodeArray - Node array.
+ * @returns {Array} The reordered node array.
+ */
 export function clampNodesOrderMoodle(nodeArray) {
 	const newArray = [];
 	let maxSection = 0;
@@ -400,6 +449,13 @@ export function clampNodesOrderMoodle(nodeArray) {
 	return getUpdatedArrayById(newArray, nodeArray);
 }
 
+/**
+ * Parses the badges to the moodle format (Used in the exportation)
+ * @param {Object} node - Reactflow's Node.
+ * @param {Array} nodeArray - Node array.
+ * @param {Object} metaData - metaData object.
+ * @returns {Object} The node with the correct condition format.
+ */
 export function parseMoodleBadgeToExport(node, nodeArray, metaData) {
 	let newNode = node;
 	let newConditions = [];
@@ -530,6 +586,11 @@ export function parseMoodleBadgeToExport(node, nodeArray, metaData) {
 	return newNode;
 }
 
+/**
+ * Parses the gradables to a correct format depending of the node type.
+ * @param {Object} node - Reactflow's Node.
+ * @returns {Object} The node with the parsed gradables.
+ */
 export function parseMoodleCalifications(node) {
 	if (node.g) {
 		if (node.type != "generic") {
@@ -556,6 +617,11 @@ export function parseMoodleCalifications(node) {
 	}
 }
 
+/**
+ * Removes the property type from the conditions of the type "conditionsGroup"
+ * @param {Object} c - Node conditions property
+ * @returns {Array} New node conditions property
+ */
 export function parseMoodleConditionsGroupOut(c) {
 	const newC = { ...c };
 

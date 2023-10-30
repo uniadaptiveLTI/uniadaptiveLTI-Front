@@ -30,11 +30,12 @@ import GradeForm from "@components/flow/conditions/sakai/form-components/GradeFo
 import styles from "/styles/RequisiteModalSakai.module.css";
 import { MetaDataContext } from "/pages/_app.js";
 import DateComponent from "@components/flow/conditions/sakai/condition-components/DateComponent";
-import { parseDate, uniqueId, reOrderSakaiRequisites } from "@utils/Utils";
+import { parseDate, uniqueId } from "@utils/Utils";
 import DateExceptionComponent from "@components/flow/conditions/sakai/condition-components/DateExceptionComponent";
 import GroupComponent from "@components/flow/conditions/sakai/condition-components/GroupComponent";
 import GradeComponent from "@components/flow/conditions/sakai/condition-components/GradeComponent";
 import { getAutomaticReusableStyles } from "@utils/Colors";
+import { reOrderSakaiRequisites } from "@utils/Sakai";
 
 function RequisiteModalSakai({
 	blockData,

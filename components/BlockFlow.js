@@ -40,7 +40,6 @@ import {
 	updateBadgeConditions,
 	capitalizeFirstLetter,
 	clampNodesOrder,
-	sakaiTypeSwitch,
 } from "@utils/Utils";
 import {
 	getNodeByNodeDOM,

@@ -342,8 +342,26 @@ function Header({ LTISettings }, ref) {
 		localMetaData = metaData,
 		localMaps = maps
 	) => {
-		const uniqueId = () => parseInt(Date.now() * Math.random()).toString();
-		console.log(lesson, localMetaData, localMaps);
+		const emptyNewVersion = [
+			{
+				id: uniqueId(),
+				position: { x: 0, y: 0 },
+				type: "start",
+				deletable: false,
+				data: {
+					label: "Entrada",
+				},
+			},
+			{
+				id: uniqueId(),
+				position: { x: 125, y: 0 },
+				type: "end",
+				deletable: false,
+				data: {
+					label: "Salida",
+				},
+			},
+		];
 
 		let data;
 		if (!LTISettings.debugging.dev_files) {
@@ -387,20 +405,27 @@ function Header({ LTISettings }, ref) {
 		const validTypes = [];
 		NodeTypes.map((node) => validTypes.push(node.type));
 		const nodes = [];
-		console.log(data, validTypes);
-		data.map((node) => {
-			switch (platform) {
-				case "moodle":
-					nodes.push(parseMoodleNode(node, newX, newY));
-					newX += 125;
-					break;
-				case "sakai":
-					parseSakaiNode(nodes, node, newX, newY, validTypes);
-					newX += 125;
-					break;
-			}
-		});
 
+		const isEmptyMap = data.length < 1;
+
+		if (isEmptyMap) {
+			data.map((node) => {
+				switch (platform) {
+					case "moodle":
+						nodes.push(parseMoodleNode(node, newX, newY));
+						newX += 125;
+						break;
+					case "sakai":
+						parseSakaiNode(nodes, node, newX, newY, validTypes);
+						newX += 125;
+						break;
+				}
+			});
+		} else {
+			data = emptyNewVersion;
+		}
+
+		//Bring badges
 		switch (platform) {
 			case "moodle":
 				localMetaData.badges.map((badge) => {
@@ -415,7 +440,6 @@ function Header({ LTISettings }, ref) {
 
 		console.log("JSON FILTRADO Y ADAPTADO: ", nodes);
 
-		//FIXME: JUST MOODLE
 		let platformNewMap;
 		if (platform == "moodle") {
 			platformNewMap = createNewMoodleMap(nodes, localMetaData, localMaps);

@@ -10,13 +10,7 @@ import { NodeTypes } from "@utils/TypeDefinitions";
 import { MapInfoContext, PlatformContext } from "pages/_app";
 import { getBackupURL } from "@utils/Platform";
 import { ActionNodes } from "@utils/Nodes";
-import {
-	fetchBackEnd,
-	getHTTPPrefix,
-	getSectionIDFromPosition,
-	saveVersion,
-	sakaiTypeSwitch,
-} from "@utils/Utils";
+import { fetchBackEnd, saveVersion } from "@utils/Utils";
 import { toast } from "react-toastify";
 import {
 	parseMoodleBadgeToExport,
@@ -24,6 +18,7 @@ import {
 	parseMoodleConditionsGroupOut,
 } from "@utils/Moodle";
 import LessonSelector from "@components/forms/components/LessonSelector";
+import { sakaiTypeSwitch } from "@utils/Sakai";
 
 export default function ExportPanel({
 	errorList,
@@ -167,7 +162,6 @@ export default function ExportPanel({
 				let blockResource = reactFlowInstance
 					.getNodes()
 					.find((node) => node.id == newCondition.itemId).data.lmsResource;
-
 				newCondition.itemId = sakaiTypeSwitch({
 					id: blockResource,
 					type: newCondition.itemType,
