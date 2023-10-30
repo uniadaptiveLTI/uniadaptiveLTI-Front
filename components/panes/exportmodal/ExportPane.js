@@ -397,7 +397,7 @@ export default function ExportPanel({
 							newNode.openDate = Date.parse(dateCondition?.openingDate) / 1000;
 						}
 
-						if (node.type === "exam" && node.type === "assign") {
+						if (node.type === "exam" || node.type === "assign") {
 							if (dateCondition.dueDate) {
 								newNode.dueDate = Date.parse(dateCondition?.dueDate) / 1000;
 							}
@@ -407,7 +407,7 @@ export default function ExportPanel({
 							}
 						} else {
 							if (dateCondition.dueDate) {
-								newNode.closeDate = Date.parse(dateCondition?.dueDate) / 1000;
+								newNode.dueDate = Date.parse(dateCondition?.dueDate) / 1000;
 							}
 						}
 
