@@ -28,8 +28,6 @@ import {
 	MetaDataContext,
 	notImplemented,
 } from "/pages/_app.js";
-import FinalNode from "./flow/nodes/FinalNode.js";
-import InitialNode from "./flow/nodes/InitialNode.js";
 import FragmentNode from "./flow/nodes/FragmentNode.js";
 import {
 	uniqueId,
@@ -40,6 +38,7 @@ import {
 	updateBadgeConditions,
 	capitalizeFirstLetter,
 	clampNodesOrder,
+	handleNameCollision,
 } from "@utils/Utils";
 import {
 	getNodeByNodeDOM,
@@ -48,8 +47,6 @@ import {
 	getNodeById,
 	getChildrenNodesFromFragmentID,
 	getParentsNode,
-	nodeArrayContainsGrades,
-	reorderFromSection,
 } from "@utils/Nodes";
 import { errorListCheck } from "@utils/ErrorHandling";
 import { toast } from "react-toastify";
@@ -110,9 +107,7 @@ const nodeTypes = {
 	reflist: ElementNode,
 	text: ElementNode,
 	//LTI
-	end: FinalNode,
 	fragment: FragmentNode,
-	start: InitialNode,
 };
 
 const edgeTypes = {
@@ -231,7 +226,7 @@ const OverviewFlow = ({ map }, ref) => {
 	 * @param {ReactFlowInstance} reactFlowInstance - The ReactFlow instance.
 	 */
 	const onInit = (reactFlowInstance) => {
-		console.log("Blockflow loaded:", reactFlowInstance);
+		console.info(`🗺️ Blockflow loaded: `, reactFlowInstance);
 	};
 
 	const getSelectedEdges = (edgeArray = reactFlowInstance.getEdges()) => {
@@ -376,14 +371,6 @@ const OverviewFlow = ({ map }, ref) => {
 	 * @param {Node} node - The clicked node.
 	 */
 	const onNodeClick = (e, node) => {
-		if (node.type == "start" || node.type == "end") {
-			reactFlowInstance.setNodes(
-				reactFlowInstance.getNodes().map((n) => {
-					n.selected = false;
-					return n;
-				})
-			);
-		}
 		setSnapToGrid(true);
 	};
 
@@ -420,11 +407,7 @@ const OverviewFlow = ({ map }, ref) => {
 				}
 			}
 
-			if (
-				targetNode &&
-				sourceNode.type != "start" &&
-				sourceNode.type != "end"
-			) {
+			if (targetNode) {
 				if (allowLineCreation) {
 					switch (platform) {
 						case "moodle":
@@ -677,8 +660,6 @@ const OverviewFlow = ({ map }, ref) => {
 			const blockNodeDelete = updatedBlocksArray.find(
 				(obj) => obj.id === edge.source
 			);
-
-			console.log(blockNodeDelete);
 
 			// If the node to be deleted exists and has children, update its children and conditions
 			if (blockNodeDelete && blockNodeDelete.children) {
@@ -1067,9 +1048,6 @@ const OverviewFlow = ({ map }, ref) => {
 		currentNodes.map((node) => (node.selected ? selectedCount++ : null));
 		if (selectedCount <= 1) {
 			setCMBlockData(node);
-			if (node.type == "start" || node.type == "end") {
-				setCMContainsReservedNodes(true);
-			}
 			setContextMenuOrigin("block");
 		} else {
 			const selectedNodes = getSelectedNodes(currentNodes);
@@ -1262,6 +1240,8 @@ const OverviewFlow = ({ map }, ref) => {
 
 		localStorage.setItem("clipboard", JSON.stringify(clipboardData));
 
+		console.info(`❓ New clipboard data:`, clipboardData);
+
 		if (cleanedSelection.length > 0) {
 			toast(
 				"Se han copiado " + cleanedSelection.length + " bloque(s) abstractos",
@@ -1326,6 +1306,12 @@ const OverviewFlow = ({ map }, ref) => {
 					position: { x: newX[index], y: newY[index] },
 					data: {
 						...block.data,
+						label: handleNameCollision(
+							block.data.label,
+							reactFlowInstance.getNodes().map((node) => node?.data?.label),
+							false,
+							"("
+						),
 						children:
 							filteredChildren?.length === 0 ? undefined : filteredChildren,
 						c: undefined,
@@ -1488,7 +1474,7 @@ const OverviewFlow = ({ map }, ref) => {
 				};
 			}
 		}
-		console.log(newBlockCreated);
+		console.info(`❓ New block created: `, newBlockCreated);
 		errorListCheck(newBlockCreated, errorList, setErrorList, false);
 
 		setShowContextualMenu(false);
@@ -1566,7 +1552,16 @@ const OverviewFlow = ({ map }, ref) => {
 							selectedNodes.map((pNode) => pNode.id).includes(oNode.id)
 						)
 				);
+				/*selectedNodes = selectedNodes.map((node) =>
+					getNodeById(node.id, reactFlowInstance.getNodes())
+				);*/
 				console.log(filteredNodes);
+				console.log(selectedNodes);
+				console.log(
+					selectedNodes.map((node) =>
+						getNodeById(node.id, reactFlowInstance.getNodes())
+					)
+				);
 
 				let minX = Infinity;
 				let minY = Infinity;
@@ -1726,13 +1721,53 @@ const OverviewFlow = ({ map }, ref) => {
 			}
 			setRelationStarter();
 			reactFlowInstance.setNodes(newNodesData);
-			if (origin.type != "start" && origin.type != "end") {
-				if (!validTypes.includes(end.type)) {
+			if (!validTypes.includes(end.type)) {
+				const newCondition = {
+					id: parseInt(Date.now() * Math.random()).toString(),
+					type: "completion",
+					cm: origin.id,
+					e: 1,
+				};
+
+				if (!end.data.c) {
+					end.data.c = {
+						type: "conditionsGroup",
+						id: parseInt(Date.now() * Math.random()).toString(),
+						op: "&",
+						c: [newCondition],
+					};
+				} else {
+					end.data.c.c.push(newCondition);
+				}
+			} else {
+				const conditions = end.data.c?.c;
+
+				let conditionExists = false;
+
+				if (conditions != undefined) {
+					conditionExists = conditions.find(
+						(condition) => condition.type === "completion"
+					);
+				}
+
+				if (conditionExists) {
+					const newConditionAppend = {
+						id: origin.id,
+						name: origin.data.label,
+					};
+					conditionExists.activityList.push(newConditionAppend);
+				} else {
 					const newCondition = {
 						id: parseInt(Date.now() * Math.random()).toString(),
 						type: "completion",
-						cm: origin.id,
-						e: 1,
+						activityList: [
+							{
+								id: origin.id,
+								name: origin.data.label,
+							},
+						],
+						op: "&",
+						query: "completed",
 					};
 
 					if (!end.data.c) {
@@ -1744,48 +1779,6 @@ const OverviewFlow = ({ map }, ref) => {
 						};
 					} else {
 						end.data.c.c.push(newCondition);
-					}
-				} else {
-					const conditions = end.data.c?.c;
-
-					let conditionExists = false;
-
-					if (conditions != undefined) {
-						conditionExists = conditions.find(
-							(condition) => condition.type === "completion"
-						);
-					}
-
-					if (conditionExists) {
-						const newConditionAppend = {
-							id: origin.id,
-							name: origin.data.label,
-						};
-						conditionExists.activityList.push(newConditionAppend);
-					} else {
-						const newCondition = {
-							id: parseInt(Date.now() * Math.random()).toString(),
-							type: "completion",
-							activityList: [
-								{
-									id: origin.id,
-									name: origin.data.label,
-								},
-							],
-							op: "&",
-							query: "completed",
-						};
-
-						if (!end.data.c) {
-							end.data.c = {
-								type: "conditionsGroup",
-								id: parseInt(Date.now() * Math.random()).toString(),
-								op: "&",
-								c: [newCondition],
-							};
-						} else {
-							end.data.c.c.push(newCondition);
-						}
 					}
 				}
 			}
@@ -1834,16 +1827,12 @@ const OverviewFlow = ({ map }, ref) => {
 		}
 	};
 
-	const onElementClick = (event, element) => {
-		console.log(event, element);
-	};
-
 	/**
 	 * Handles the showing of a modal.
 	 * @param {string} modal - The modal to show.
 	 */
 	const handleShow = (modal) => {
-		console.log(modal);
+		console.info(`❓ Showing modal: `, modal);
 		const selectedNodes = getSelectedNodes();
 
 		let newCMBlockData = undefined;
@@ -1923,14 +1912,14 @@ const OverviewFlow = ({ map }, ref) => {
 	});
 	useHotkeys("ctrl+v", () => handleNodePaste());
 	useHotkeys("ctrl+x", () => handleNodeCut());
-	useHotkeys("ctrl+z", () => {
+	/*useHotkeys("ctrl+z", () => {
 		notImplemented("deshacer/rehacer");
 		console.log("UNDO");
 	});
 	useHotkeys(["ctrl+shift+z", "ctrl+y"], (e) => {
 		notImplemented("deshacer/rehacer");
 		console.log("REDO");
-	});
+	});*/
 	useHotkeys("ctrl+r", (e) => {
 		e.preventDefault();
 		handleNewRelation(relationStarter);
@@ -1995,7 +1984,6 @@ const OverviewFlow = ({ map }, ref) => {
 				nodeTypes={nodeTypes}
 				edgeTypes={edgeTypes}
 				snapGrid={[125, 275]}
-				onElementClick={onElementClick}
 				snapToGrid={snapToGrid}
 				deleteKeyCode={[]}
 				multiSelectionKeyCode={["Shift"]}

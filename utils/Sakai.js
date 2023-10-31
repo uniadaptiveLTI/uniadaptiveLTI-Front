@@ -10,7 +10,6 @@ import { uniqueId } from "./Utils";
  * @returns {number} The maximum position number in the section, or -Infinity if no nodes match the section.
  */
 export function getLastPositionInSakaiColumn(section, column, nodeArray) {
-	console.log("getLastPositionInSakaiColumn", nodeArray, section, column);
 	const columnNodes = nodeArray.filter(
 		(node) => node.data.indent == column - 1
 	);
@@ -83,7 +82,6 @@ export function createNewSakaiMap(nodes, lesson, metadata, maps) {
 				let rootParent = node.data.gradeRequisites
 					? { ...node.data.gradeRequisites, id: uniqueId() }
 					: undefined;
-				console.log(rootParent);
 				delete rootParent?.argument;
 				delete rootParent?.siteId;
 				delete rootParent?.toolId;
@@ -139,27 +137,7 @@ export function createNewSakaiMap(nodes, lesson, metadata, maps) {
 				name: "Primera versión",
 				lastUpdate: new Date().toLocaleDateString(),
 				default: "true",
-				blocksData: [
-					{
-						id: uniqueId(),
-						position: { x: 0, y: midY },
-						type: "start",
-						deletable: false,
-						data: {
-							label: "Entrada",
-						},
-					},
-					...nodes,
-					{
-						id: uniqueId(),
-						position: { x: endX, y: midY },
-						type: "end",
-						deletable: false,
-						data: {
-							label: "Salida",
-						},
-					},
-				],
+				blocksData: [...nodes],
 			},
 		],
 	};
@@ -167,7 +145,6 @@ export function createNewSakaiMap(nodes, lesson, metadata, maps) {
 }
 
 export function parseSakaiNode(nodes, node, newX, newY, validTypes) {
-	console.log(newX);
 	if (validTypes.includes(node.modname)) {
 		const newNode = {};
 		newNode.id = String(uniqueId());
@@ -205,7 +182,6 @@ export function parseSakaiNode(nodes, node, newX, newY, validTypes) {
 				});
 			}
 		}
-		console.log(node);
 		if (
 			node.modname == "exam" &&
 			node.timeExceptions &&
@@ -273,7 +249,6 @@ function sakaiConditionalIDAdder(subConditions, nodes, parentNodes) {
 		delete rootCondition?.itemId;
 		delete rootCondition?.hasParent;
 	});
-	console.log(subConditions);
 	return subConditions;
 }
 

@@ -6,11 +6,7 @@ describe("thereIsReservedNodesInArray", () => {
 	// Write a test case for checking if there are any reserved nodes in an array of nodes
 	test("should check if there are any reserved nodes in an array of nodes", () => {
 		// Create a sample array of nodes with some reserved node types
-		const nodeArray = [
-			{ id: "1", type: "start", data: { label: "Start" } },
-			{ id: "2", type: "action", data: { label: "Action" } },
-			{ id: "3", type: "end", data: { label: "End" } },
-		];
+		const nodeArray = [{ id: "2", type: "action", data: { label: "Action" } }];
 
 		// Call the function with the array of nodes
 		const result = thereIsReservedNodesInArray(nodeArray);

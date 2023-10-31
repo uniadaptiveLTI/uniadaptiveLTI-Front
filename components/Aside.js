@@ -34,6 +34,7 @@ import {
 	getUpdatedArrayById,
 	orderByPropertyAlphabetically,
 	fetchBackEnd,
+	handleNameCollision,
 } from "@utils/Utils";
 import {
 	ActionNodes,
@@ -136,8 +137,6 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 				payload
 			);
 
-			console.log(response);
-
 			if (
 				!response ||
 				!response.ok ||
@@ -146,6 +145,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 				/* Old error handler
 				throw new Error("Request failed");
 				*/
+				console.error(`❌ Error: `, response.status);
 				toast({
 					hideProgressBar: false,
 					autoClose: 2000,
@@ -309,10 +309,17 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 				)
 			) {
 				const labelCurrent = labelDOM.current;
-
-				labelCurrent.value = resourceOptions.find(
-					(resource) => resource.id == e.target.value
-				).name;
+				labelCurrent.value =
+					resourceOptions.find(
+						(resource) => e.target.value == resource.id && resource.id > -1
+					)?.name ||
+					handleNameCollision(
+						NodeTypes.find((ntype) => nodeSelected.type == ntype.type)
+							.emptyName,
+						reactFlowInstance.getNodes().map((node) => node?.data?.label),
+						false,
+						"("
+					);
 			}
 		}
 	};
@@ -434,8 +441,6 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 							node.data.section == newSection
 					);
 
-				console.log(aNodeWithNewOrderExists, limitedOrder - 1);
-
 				const reorderNodes = (newSection, originalOrder, limitedOrder) => {
 					const [from, to] = [originalOrder, limitedOrder - 1];
 					const reorderedArray = reorderFromSection(
@@ -461,7 +466,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 						to,
 						reactFlowInstance.getNodes()
 					);
-					console.log(reorderedArray, updatedData);
+
 					reactFlowInstance.setNodes([
 						...reactFlowInstance.getNodes(),
 						...reorderedArray,
@@ -470,7 +475,6 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 				};
 
 				const updateNodes = (updatedData) => {
-					console.log(reactFlowInstance.getNodes());
 					reactFlowInstance.setNodes(
 						getUpdatedArrayById(updatedData, reactFlowInstance.getNodes())
 					);
@@ -481,12 +485,10 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 					originalSection != newSection ||
 					(platform == "sakai" && originalIndent != newIndent)
 				) {
-					console.log(originalSection, newSection);
 					if (originalSection == newSection && platform != "sakai") {
 						//Change in order
 						reorderNodes(newSection, originalOrder, limitedOrder);
 					} else {
-						console.log("CAMBIO DE SECCIÓN Y/O IDENTACIÓN");
 						const virtualNodes = reactFlowInstance.getNodes();
 						const forcedPos =
 							platform == "moodle"
@@ -496,7 +498,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 										newIndent,
 										virtualNodes
 								  ) + 1;
-						console.log(forcedPos);
+
 						if (platform == "moodle") updatedData.data.order = forcedPos;
 						if (platform == "sakai") updatedData.data.order = forcedPos - 1;
 						virtualNodes.push(updatedData);
@@ -510,7 +512,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 							);
 						} else {
 							//If the desired position is outside the section
-							console.log(updatedData);
+
 							updateNodes(updatedData);
 						}
 					}
@@ -520,15 +522,12 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 
 				errorListCheck(updatedData, errorList, setErrorList, false);
 			} else {
-				console.log(nodeSelected);
 				//if action node
 				newData = {
 					...nodeSelected.data,
 					label: labelDOM.current.value,
 					lmsResource: type !== "mail" ? lmsResourceDOM.current.value : type,
 				};
-
-				console.log(newData);
 
 				const updatedData = {
 					...nodeSelected,

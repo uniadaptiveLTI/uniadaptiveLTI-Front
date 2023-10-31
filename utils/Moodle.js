@@ -63,7 +63,6 @@ export function parseMoodleBadges(badge, newX, newY) {
 export function parseMoodleBadgeParams(conditions) {
 	let parsedBadgesConditions = {};
 	conditions?.map((condition) => {
-		console.log(condition);
 		let newCondition = {
 			id: uniqueId(),
 			criteriatype: condition.criteriatype,
@@ -82,14 +81,12 @@ export function parseMoodleBadgeParams(conditions) {
 				parsedBadgesConditions = newCondition;
 				break;
 			case "completion":
-				console.log(condition?.params);
 				newCondition.params = [];
 				newCondition.method = condition.method === 1 ? "&" : "|";
 
 				const filteredArray = condition?.params?.filter(
 					(item) => item.name && item.name.includes("module")
 				);
-				console.log(filteredArray);
 
 				filteredArray.map((moduleObj) => {
 					const date = condition?.params?.find((param) =>
@@ -143,7 +140,6 @@ export function parseMoodleBadgeParams(conditions) {
 				parsedBadgesConditions.params.push(newCondition);
 				break;
 		}
-		console.log(newCondition);
 	});
 
 	if (Object.keys(parsedBadgesConditions).length === 0) {
@@ -251,27 +247,7 @@ export function createNewMoodleMap(nodes, metadata, maps) {
 				name: "Primera versión",
 				lastUpdate: new Date().toLocaleDateString(),
 				default: "true",
-				blocksData: [
-					{
-						id: uniqueId(),
-						position: { x: 0, y: midY },
-						type: "start",
-						deletable: false,
-						data: {
-							label: "Entrada",
-						},
-					},
-					...nodesWithChildren,
-					{
-						id: uniqueId(),
-						position: { x: endX, y: midY },
-						type: "end",
-						deletable: false,
-						data: {
-							label: "Salida",
-						},
-					},
-				],
+				blocksData: [...nodesWithChildren],
 			},
 		],
 	};
@@ -287,7 +263,6 @@ export function createNewMoodleMap(nodes, metadata, maps) {
 function moodleConditionalIDAdder(conditionArray, nodes) {
 	// Create a deep copy of the original array
 	let newArray = JSON.parse(JSON.stringify(conditionArray));
-	console.log(newArray);
 	for (let i = 0; i < newArray.length; i++) {
 		if (typeof newArray[i] === "object" && newArray[i] !== null) {
 			if (conditionArray[i].type === "completion") {
@@ -330,7 +305,6 @@ function moodleConditionalIDAdder(conditionArray, nodes) {
 			}
 		}
 	}
-	console.log(newArray);
 	return newArray;
 }
 
@@ -378,7 +352,6 @@ function moodleParentingSetter(nodeArray) {
 		if (nodeArray[i]?.type !== "badge") {
 			if (nodeArray[i]?.data?.c) {
 				const parents = moodleFlowConditionalsExtractor(nodeArray[i].data.c.c);
-				console.log("parents", parents);
 				if (parents) {
 					if (parents.length > 0) {
 						parents.forEach((parent) => {
@@ -445,7 +418,6 @@ export function clampNodesOrderMoodle(nodeArray) {
 		}
 		newArray.push(...newSection);
 	}
-	console.log(nodeArray, getUpdatedArrayById(newArray, nodeArray));
 	return getUpdatedArrayById(newArray, nodeArray);
 }
 
@@ -675,7 +647,6 @@ export function hasConditionsNeedingQualifications(node) {
 	};
 	if (node.data.c) {
 		const types = [...new Set(recursiveGet(node.data.c))];
-		console.log(types);
 		return types.length > 0 ? true : false;
 	}
 	return false;
@@ -709,7 +680,6 @@ export function hasConditionsNeedingCompletion(node) {
 	};
 	if (node.data.c) {
 		const types = [...new Set(recursiveGet(node.data.c))];
-		console.log(types);
 		return types.length > 0 ? true : false;
 	}
 	return false;

@@ -10,31 +10,6 @@
 				"default": true,
 				"blocksData": [
 					{
-						"id": "dev-2A1",
-						"position": {
-							"x": 0,
-							"y": 0
-						},
-						"type": "start",
-						"deletable": false,
-						"data": {
-							"label": "Entrada",
-							"children": ["dev0A1"]
-						}
-					},
-					{
-						"id": "dev-1A1",
-						"position": {
-							"x": 2000,
-							"y": 0
-						},
-						"type": "end",
-						"deletable": false,
-						"data": {
-							"label": "Salida"
-						}
-					},
-					{
 						"id": "dev0A1",
 						"position": {
 							"x": 125,
@@ -572,30 +547,6 @@
 				"lastUpdate": "20/05/2023",
 				"default": true,
 				"blocksData": [
-					{
-						"id": "dev-2A2",
-						"position": {
-							"x": -500,
-							"y": 0
-						},
-						"type": "start",
-						"deletable": false,
-						"data": {
-							"label": "Entrada"
-						}
-					},
-					{
-						"id": "dev-1A2",
-						"position": {
-							"x": 1000,
-							"y": 0
-						},
-						"type": "end",
-						"deletable": false,
-						"data": {
-							"label": "Salida"
-						}
-					},
 					{
 						"id": "1107830181877",
 						"type": "resource",

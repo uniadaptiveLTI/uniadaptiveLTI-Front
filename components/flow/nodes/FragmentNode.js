@@ -381,8 +381,6 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 									reactFlowInstance.getNodes().filter((node) => {
 										if (
 											node.type == "fragment" ||
-											node.type == "start" ||
-											node.type == "end" ||
 											node.id == id ||
 											node.parentNode != undefined
 										) {

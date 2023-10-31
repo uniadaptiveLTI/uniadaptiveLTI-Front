@@ -25,6 +25,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ExportPane from "@components/panes/exportmodal/ExportPane";
+import { SettingsContext } from "pages/_app";
 
 export default forwardRef(function ExportModal(
 	{
@@ -62,6 +63,27 @@ export default forwardRef(function ExportModal(
 	const formatErrorList = () => {
 		console.log(JSON.stringify(metaData));
 	};
+	const { settings } = useContext(SettingsContext);
+	const parsedSettings = JSON.parse(settings);
+	const fitViewOptions = {
+		duration: parsedSettings.reducedAnimations ? 0 : 800,
+		padding: 0.25,
+	};
+
+	function centerToNode(node) {
+		const nodeToCenter = reactFlowInstance
+			.getNodes()
+			.find((rfNode) => rfNode.id == node.id);
+		if (nodeToCenter) {
+			const x = nodeToCenter.position.x + nodeToCenter.width / 2;
+			const y = nodeToCenter.position.y + nodeToCenter.height / 2;
+			reactFlowInstance.setCenter(
+				nodeToCenter.position.x + nodeToCenter.width / 2,
+				nodeToCenter.position.y + nodeToCenter.height / 2,
+				fitViewOptions
+			);
+		}
+	}
 
 	const getErrorList = () => {
 		const nodeArray = reactFlowInstance.getNodes();
@@ -179,78 +201,77 @@ export default forwardRef(function ExportModal(
 		}
 		setEditVersionSelected("");
 		setNodeSelected(blockData);
+		centerToNode(blockData);
 	};
 
 	function generateWarningList(nodeList) {
 		const warningArray = [];
 		nodeList.forEach((node) => {
-			if (node.type !== "start" && node.type !== "end") {
-				const errorEntry = {
-					id: uniqueId(),
-					nodeId: node.id,
-				};
+			const errorEntry = {
+				id: uniqueId(),
+				nodeId: node.id,
+			};
+
+			if (
+				node.type !== "remgroup" &&
+				node.type !== "addgroup" &&
+				node.type !== "fragment" &&
+				node.type !== "mail"
+			) {
+				let childlessNode = false;
+
+				switch (platform) {
+					case "sakai":
+						if (node.type !== "exam" && node.type !== "assign") {
+							childlessNode = true;
+						}
+						break;
+					case "moodle":
+						if (node.type == "badge") {
+							childlessNode = true;
+						}
+				}
 
 				if (
-					node.type !== "remgroup" &&
-					node.type !== "addgroup" &&
-					node.type !== "fragment" &&
-					node.type !== "mail"
+					(!node.data.children || node.data.children.length === 0) &&
+					!childlessNode
 				) {
-					let childlessNode = false;
+					const customEntry = {
+						...errorEntry,
+						seriousness: "warning",
+						type: "childrenNotFound",
+					};
 
-					switch (platform) {
-						case "sakai":
-							if (node.type !== "exam" && node.type !== "assign") {
-								childlessNode = true;
-							}
-							break;
-						case "moodle":
-							if (node.type == "badge") {
-								childlessNode = true;
-							}
+					const errorFound = warningArray.find(
+						(obj) =>
+							obj.nodeId === customEntry.nodeId &&
+							obj.seriousness === customEntry.seriousness &&
+							obj.type === customEntry.type
+					);
+
+					if (!errorFound) {
+						warningArray.push(customEntry);
 					}
+				}
 
-					if (
-						(!node.data.children || node.data.children.length === 0) &&
-						!childlessNode
-					) {
-						const customEntry = {
-							...errorEntry,
-							seriousness: "warning",
-							type: "childrenNotFound",
-						};
+				const parentsNodeArray = getParentsNode(nodeList, node.id);
 
-						const errorFound = warningArray.find(
-							(obj) =>
-								obj.nodeId === customEntry.nodeId &&
-								obj.seriousness === customEntry.seriousness &&
-								obj.type === customEntry.type
-						);
+				if (parentsNodeArray.length <= 0) {
+					const customEntry = {
+						...errorEntry,
+						seriousness: "warning",
+						type: "parentNotFound",
+					};
 
-						if (!errorFound) {
-							warningArray.push(customEntry);
-						}
-					}
+					const errorFound = warningArray.find(
+						(obj) =>
+							obj.nodeId === customEntry.nodeId &&
+							obj.seriousness === customEntry.seriousness &&
+							obj.type === customEntry.type
+					);
 
-					const parentsNodeArray = getParentsNode(nodeList, node.id);
-
-					if (parentsNodeArray.length <= 0) {
-						const customEntry = {
-							...errorEntry,
-							seriousness: "warning",
-							type: "parentNotFound",
-						};
-
-						const errorFound = warningArray.find(
-							(obj) =>
-								obj.nodeId === customEntry.nodeId &&
-								obj.seriousness === customEntry.seriousness &&
-								obj.type === customEntry.type
-						);
-
-						if (!errorFound) {
-							warningArray.push(customEntry);
-						}
+					if (!errorFound) {
+						warningArray.push(customEntry);
 					}
 				}
 			}

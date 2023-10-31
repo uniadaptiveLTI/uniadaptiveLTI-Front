@@ -10,7 +10,7 @@ import { NodeTypes } from "@utils/TypeDefinitions";
  * An array of node types that are reserved and cannot be modified or deleted.
  * @const {string[]}
  */
-export const ReservedNodeTypes = ["start", "end"];
+export const ReservedNodeTypes = []; //Deprecated
 
 /**
  * An array of node types that are actions and can be executed.
@@ -47,7 +47,6 @@ export const getParentsNode = (nodesArray, childId) => {
  * @return {Object|undefined} The node with the same data-id as the DOM element or undefined if not found.
  */
 export const getNodeByNodeDOM = (nodeDOM, nodeArray) => {
-	console.log(nodeDOM);
 	if (Array.isArray(nodeArray)) {
 		return nodeArray.find((node) => node.id == nodeDOM.id);
 	} else {
@@ -255,26 +254,24 @@ export function reorderFromSection(
 			if (from + 1 == to) {
 				from += 1;
 				to -= 1;
-				console.log("Switch");
 			}
-			console.log("to/from", to, from);
 
 			//Sort the array of nodes by their data.order
 			let sortedNodes = sectionNodes.sort(
 				(a, b) => a.data.order - b.data.order
 			);
-			console.log("SORT", sortedNodes);
+
 			//Assign them a new data.order consecutive according to their position in the array
 			for (let i = 0; i < sortedNodes.length; i++) {
 				sortedNodes[i].data.order = i;
 			}
-			console.log("NEW ORDER", sortedNodes);
+
 			//Remove the node you want to move from the array
 			const movedNode = sortedNodes.splice(from, 1)[0];
-			console.log("MOVED NODE", movedNode);
+
 			//Insert it in the desired position
 			sortedNodes.splice(to, 0, movedNode);
-			console.log("INSERTED NODE", sortedNodes);
+
 			//Filter possible nulls
 			const filteredNodes = sectionNodes.filter(
 				(node) => node != null || node != undefined
@@ -283,7 +280,7 @@ export function reorderFromSection(
 			for (let i = 0; i < filteredNodes.length; i++) {
 				filteredNodes[i].data.order = i;
 			}
-			console.log("ASSIGNED ORDER", filteredNodes);
+
 			//Return the modified array;
 			return getUpdatedArrayById(filteredNodes, nodeArray);
 		}
@@ -313,7 +310,7 @@ export function reorderFromSectionAndColumn(
 	const sectionAndColumnNodes = nodeArray.filter(
 		(node) => node.data.section == section && node.data.indent == column - 1
 	);
-	console.log(sectionAndColumnNodes, section, column);
+
 	if (sectionAndColumnNodes.length > 0) {
 		if (swap) {
 			const fromNode = sectionAndColumnNodes.find(

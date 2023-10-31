@@ -18,8 +18,6 @@ export default function FragmentEditor({
 					reactFlowInstance.getNodes().filter((node) => {
 						if (
 							node.type == "fragment" ||
-							node.type == "start" ||
-							node.type == "end" ||
 							node.id == id ||
 							node.parentNode != undefined
 						) {

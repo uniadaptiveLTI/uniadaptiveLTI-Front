@@ -213,16 +213,6 @@ export const NodeTypes = [
 		endHandle: ["moodle"],
 	},
 	{
-		id: 20,
-		type: "start",
-		value: "start",
-		name: "Entrada",
-		emptyName: "Entrada",
-		nodeType: "InitialNode",
-		lms: ["lti"],
-		gradable: [],
-	},
-	{
 		id: 21,
 		type: "text",
 		value: "text",

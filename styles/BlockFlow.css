@@ -45,6 +45,32 @@
 	left: -10px !important;
 }
 
+/*
+.react-flow__handle-left::before :not(react-flow__handle-connecting) {
+	content: "";
+	position: absolute;
+	width: 0;
+	height: 0;
+	top: -1px;
+	right: -3px;
+	border-top: 8px solid transparent;
+	border-bottom: 8px solid transparent;
+	border-left: 15px solid #198754;
+}
+
+.react-flow__handle-left::after :not(react-flow__handle-connecting) {
+	content: "";
+	position: absolute;
+	width: 0;
+	height: 0;
+	top: -5px;
+	right: -8px;
+	border-top: 12px solid transparent;
+	border-bottom: 12px solid transparent;
+	border-left: 23px solid black;
+	z-index: -1;
+}*/
+
 .react-flow__handle-right {
 	border-radius: var(--blockflow-handles-border-radius) !important;
 	background-color: #dc3545 !important;
@@ -84,11 +110,6 @@
 
 .react-flow__node.passthrough {
 	pointer-events: none !important;
-}
-
-.react-flow__node-start,
-.react-flow__node-end {
-	border-radius: 100%;
 }
 
 /** MINIMAP **/
@@ -343,28 +364,6 @@ FALLBACK
 
 /* LTI */
 
-/* Start */
-.react-flow__node-start {
-	background-color: #363638;
-}
-
-.react-flow__node-start:hover,
-.react-flow__node-start:focus-visible,
-.react-flow__node-start:active {
-	background-color: #666668;
-}
-
-/* End */
-.react-flow__node-end {
-	background-color: #363638;
-}
-
-.react-flow__node-end:hover,
-.react-flow__node-end:focus-visible,
-.react-flow__node-end:active {
-	background-color: #666668;
-}
-
 /* Fragment */
 .react-flow__node-fragment {
 	background-color: #00008b;
@@ -407,12 +406,6 @@ FALLBACK
 	background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
 	background-size: 15px 4px, 15px 4px, 4px 15px, 4px 15px;
 	animation: border-dance 0.25s infinite linear;
-}
-
-.react-flow__node-start.selected,
-.react-flow__node-end.selected {
-	background-image: none;
-	animation: none;
 }
 
 @keyframes border-dance {

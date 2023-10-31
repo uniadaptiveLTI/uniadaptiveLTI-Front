@@ -4,7 +4,7 @@ import { DevModeStatusContext } from "/pages/_app";
 import { useContext } from "react";
 import { getTypeIcon } from "@utils/NodeIcons";
 import { MetaDataContext, PlatformContext, SettingsContext } from "pages/_app";
-import { deduplicateById, parseDate } from "@utils/Utils";
+import { deduplicateById, parseDate, uniqueId } from "@utils/Utils";
 import {
 	profileOperatorList,
 	profileQueryList,
@@ -20,32 +20,6 @@ export default function SimpleConditionsMoodle({ id }) {
 	const { settings } = useContext(SettingsContext);
 	const parsedSettings = JSON.parse(settings);
 	let { hoverConditions } = parsedSettings;
-
-	/*const flattenConditions = (conditions) => {
-		const isBadge = getNodeById(id, rfNodes).type === "badge";
-		const recursiveGet = (c, indentation = 1, array = []) => {
-			const conditionNames = isBadge ? c?.params : c?.c;
-			if (conditionNames) {
-				conditionNames.forEach((condition) => {
-					array.push({
-						...condition,
-						indentation,
-						[isBadge ? "c" : "c"]: null,
-					});
-					const moreConditions = isBadge ? condition?.params : condition?.c;
-					if (moreConditions) {
-						array.push(...recursiveGet(condition, indentation + 1, array));
-					}
-				});
-			}
-			return deduplicateById(array);
-		};
-
-		return [
-			{ ...conditions, indentation: 0, [isBadge ? "c" : "c"]: null },
-			...recursiveGet(conditions),
-		];
-	};*/
 
 	const flattenConditions = (conditions) => {
 		const isBadge = getNodeById(id, rfNodes).type === "badge";
@@ -139,6 +113,7 @@ export default function SimpleConditionsMoodle({ id }) {
 			op: "|",
 			parsed: (
 				<a>
+					{" "}
 					<b>CUALQUIERA</b> de las siguientes actividades han sido completadas:
 				</a>
 			),

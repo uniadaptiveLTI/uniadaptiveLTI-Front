@@ -592,3 +592,44 @@ export function LMSResourceToId(resourceId, nodes) {
 	const node = nodes.find((node) => node.data.lmsResource == resourceId);
 	return node ? node.id : undefined;
 }
+
+/**
+ * This function handles name collisions by appending a count and separator to the name if it already exists in the array.
+ * @param {string} name - The name to check for collisions.
+ * @param {string[]} [array=[]] - The array of existing names.
+ * @param {boolean} [forceCount=false] - Whether to force appending a count to the name.
+ * @param {string} [separatorType=""] - The type of separator to use when appending the count.
+ * @returns {string} - The final name after handling collisions.
+ */
+export function handleNameCollision(
+	name,
+	array = [],
+	forceCount = false,
+	separatorType = ""
+) {
+	const prefixSuffixMap = {
+		"[": "]",
+		"(": ")",
+		"{": "}",
+		"<": ">",
+	};
+
+	const prefix = prefixSuffixMap[separatorType] ? separatorType : "";
+	const suffix = prefixSuffixMap[separatorType] || separatorType;
+
+	let nameCount = array.reduce(
+		(count, arrayName) => (arrayName.startsWith(name) ? count + 1 : count),
+		0
+	);
+	let finalName = name;
+
+	if (nameCount > 0 || forceCount) {
+		finalName = `${name} ${prefix}${nameCount + 1}${suffix}`;
+	}
+
+	if (array.includes(finalName)) {
+		return handleNameCollision(finalName, array, false, separatorType);
+	}
+
+	return finalName;
+}

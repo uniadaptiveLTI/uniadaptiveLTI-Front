@@ -17,7 +17,7 @@ export function errorListCheck(data, errorList, setErrorList, deleteFromList) {
 		if (Array.isArray(data)) {
 			data = data[0];
 		}
-		if (data.type !== "fragment") {
+		if (data && data.type !== "fragment") {
 			const isContained = errorArray.some((error) => error.nodeId == data.id);
 			if (isContained) {
 				if (deleteFromList) {
@@ -92,8 +92,6 @@ export function deleteNodeFromErrorList(data, errorList) {
 export function createItemErrors(item, errorArray) {
 	if (
 		!(
-			item.type === "start" ||
-			item.type === "end" ||
 			item.type === "fragment" ||
 			item.type === "remgroup" ||
 			item.type === "addgroup" ||
