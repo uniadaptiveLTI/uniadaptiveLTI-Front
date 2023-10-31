@@ -713,7 +713,8 @@ export default function ExportPanel({
 						defaultToastError,
 						toast,
 						enableExporting,
-						response.successType
+						response.successType,
+						lesson.id
 					);
 				} else {
 					enableExporting(false);

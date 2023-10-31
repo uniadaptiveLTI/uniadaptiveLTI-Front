@@ -438,7 +438,8 @@ export async function saveVersion(
 	defaultToastError,
 	toast,
 	enable,
-	responseData
+	responseData,
+	lesson
 ) {
 	// Helper function to clean the nodes
 	function cleanNodes(nodes) {
@@ -477,6 +478,10 @@ export async function saveVersion(
 				},
 			},
 		};
+
+		if (platform == "sakai") {
+			saveData.lesson_id = lesson;
+		}
 
 		const response = await fetchBackEnd(
 			LTISettings,
