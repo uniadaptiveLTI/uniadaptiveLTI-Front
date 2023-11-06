@@ -441,7 +441,6 @@ export async function saveVersion(
 	responseData,
 	lesson
 ) {
-	console.log("MIRAMEEEE");
 	// Helper function to clean the nodes
 	function cleanNodes(nodes) {
 		return nodes.map((node) => {
