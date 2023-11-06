@@ -1527,7 +1527,7 @@ const OverviewFlow = ({ map }, ref) => {
 			newcurrentBlocksData
 		);
 
-		errorListCheck(finalcurrentBlocksData, errorList, setErrorList);
+		errorListCheck(finalcurrentBlocksData, errorList, setErrorList, false);
 
 		reactFlowInstance.setNodes(finalcurrentBlocksData);
 	};

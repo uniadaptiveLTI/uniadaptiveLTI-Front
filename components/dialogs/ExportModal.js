@@ -58,6 +58,8 @@ export default forwardRef(function ExportModal(
 	const [nodeErrorOrderList, setNodeErrorOrderList] = useState();
 
 	const [nodeWarningChildrenList, setNodeWarningChildrenList] = useState();
+	const [nodeChildrenWithoutRestriction, setNodeChildrenWithoutRestriction] =
+		useState();
 	const [nodeWarningParentList, setNodeWarningParentList] = useState();
 	console.log(errorList);
 	const formatErrorList = () => {
@@ -192,6 +194,22 @@ export default forwardRef(function ExportModal(
 
 		setNodeWarningChildrenList(warningChildrenNotFound);
 		setNodeWarningParentList(warningParentNotFound);
+
+		if (platform && platform == "moodle") {
+			const warningChildrenWithoutRestriction = warningList
+				.filter(
+					(entry) =>
+						entry.seriousness === "warning" &&
+						entry.type === "childrenWithoutRestriction"
+				)
+				.map((error) => ({
+					...error,
+					nodeName: getNodeById(error.nodeId, reactFlowInstance.getNodes())
+						?.data?.label,
+				}));
+
+			setNodeChildrenWithoutRestriction(warningChildrenWithoutRestriction);
+		}
 	}, []);
 
 	const handleEdit = (blockData) => {
@@ -274,9 +292,47 @@ export default forwardRef(function ExportModal(
 						warningArray.push(customEntry);
 					}
 				}
+
+				if (
+					platform &&
+					platform == "moodle" &&
+					node?.data?.children?.length <= 0
+				) {
+					const customEntry = {
+						...errorEntry,
+						seriousness: "warning",
+						type: "childrenWithoutRestriction",
+					};
+
+					const errorFound = warningArray.find(
+						(obj) =>
+							obj.nodeId === customEntry.nodeId &&
+							obj.seriousness === customEntry.seriousness &&
+							obj.type === customEntry.type
+					);
+
+					if (!errorFound) {
+						const currentNodeGradableType = NodeTypes.find(
+							(nt) => nt.type == node.type
+						)?.gradable.find((gradable) => gradable.lms == "moodle").type;
+
+						if (
+							currentNodeGradableType == "simple" &&
+							node?.data?.g?.hasToBeSeen === true
+						) {
+							if (node?.data?.g?.hasToBeSeen === true) {
+								warningArray.push(customEntry);
+							}
+						} else {
+							if (node?.data?.g?.hasConditions === true) {
+								warningArray.push(customEntry);
+							}
+						}
+					}
+				}
 			}
 		});
-
+		console.log(warningArray);
 		return warningArray;
 	}
 
@@ -465,6 +521,43 @@ export default forwardRef(function ExportModal(
 										</div>
 									)}
 							</div>
+
+							{platform && platform == "moodle" && (
+								<div>
+									{nodeChildrenWithoutRestriction != undefined &&
+										nodeChildrenWithoutRestriction.length >= 1 && (
+											<div className="mb-2">
+												<div className="mb-2">
+													<b>
+														Los siguientes bloques no poseen una salida a otro
+														bloque a pesar de tener un ajuste de finalización
+														definido:
+													</b>
+												</div>
+												{nodeChildrenWithoutRestriction.map((entry) => {
+													const node = getNodeById(
+														entry.nodeId,
+														reactFlowInstance.getNodes()
+													);
+													return (
+														<div
+															key={entry.id}
+															onClick={() => handleEdit(node)}
+														>
+															<a role="button" className={styles.iconWarning}>
+																{getTypeIcon(node.type, platform, 16)}
+															</a>{" "}
+															<a role="button" className={styles.nodeWarning}>
+																{entry.nodeName}
+															</a>
+														</div>
+													);
+												})}
+											</div>
+										)}
+								</div>
+							)}
+
 							<div>
 								{nodeWarningParentList != undefined &&
 									nodeWarningParentList.length > 0 && (
