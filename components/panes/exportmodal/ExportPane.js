@@ -401,7 +401,7 @@ export default function ExportPanel({
 							}
 						} else {
 							if (dateCondition.dueDate) {
-								newNode.dueDate = Date.parse(dateCondition?.dueDate) / 1000;
+								newNode.closeDate = Date.parse(dateCondition?.dueDate) / 1000;
 							}
 						}
 
@@ -697,11 +697,10 @@ export default function ExportPanel({
 				"POST",
 				payload
 			);
-
 			if (response) {
 				const ok = response.ok;
 				if (ok) {
-					await saveVersion(
+					saveVersion(
 						rfNodes,
 						metaData,
 						platform,
@@ -714,7 +713,7 @@ export default function ExportPanel({
 						toast,
 						enableExporting,
 						response.successType,
-						lesson.id
+						lesson?.id
 					);
 				} else {
 					enableExporting(false);

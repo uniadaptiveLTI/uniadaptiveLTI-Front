@@ -220,8 +220,8 @@ export function parseSakaiNode(nodes, node, newX, newY, validTypes) {
 
 function sakaiLMSResourceToId(resourceId, nodes) {
 	let node = nodes.find((node) => node.data.sakaiImportId == resourceId);
-	if (node && node.id) {
-		return node.id;
+	if (node) {
+		return node;
 	} else {
 		return undefined;
 	}
@@ -232,20 +232,17 @@ function sakaiConditionalIDAdder(subConditions, nodes, parentNodes) {
 		rootCondition.id = uniqueId();
 		rootCondition.subConditions?.map((childCondition) => {
 			childCondition.id = uniqueId();
-			const newItemId = sakaiLMSResourceToId(childCondition.itemId, nodes);
-			childCondition.itemId = newItemId;
+			const newItem = sakaiLMSResourceToId(childCondition.itemId, nodes);
+			childCondition.itemId = newItem.id;
+			childCondition.itemType = newItem.type;
 
-			delete childCondition?.siteId;
-			delete childCondition?.toolId;
 			delete childCondition?.subConditions;
 			delete childCondition?.hasParent;
 
-			parentNodes.push(newItemId);
+			parentNodes.push(newItem.id);
 		});
 
 		delete rootCondition?.argument;
-		delete rootCondition?.siteId;
-		delete rootCondition?.toolId;
 		delete rootCondition?.itemId;
 		delete rootCondition?.hasParent;
 	});

@@ -441,6 +441,7 @@ export async function saveVersion(
 	responseData,
 	lesson
 ) {
+	console.log("MIRAMEEEE");
 	// Helper function to clean the nodes
 	function cleanNodes(nodes) {
 		return nodes.map((node) => {
@@ -632,4 +633,23 @@ export function handleNameCollision(
 	}
 
 	return finalName;
+}
+
+export function sakaiTypeSwitch(node) {
+	switch (node.type) {
+		case "resource":
+		case "html":
+		case "text":
+			return { type: 1, contentRef: node.id.toString() };
+		case "assign":
+			return { type: 3, contentRef: "/assignment/" + node.id };
+		case "exam":
+			return { type: 4, contentRef: "/sam_pub/" + node.id };
+		case "url":
+			return { type: 6, contentRef: node.id.toString() };
+		case "forum":
+			return { type: 8, contentRef: "/forum_forum/" + node.id };
+		case "folder":
+			return { type: 20, dataDirectory: node.id.toString() };
+	}
 }
