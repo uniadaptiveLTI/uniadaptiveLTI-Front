@@ -9,8 +9,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import styles from "/styles/ContextualMenu.module.css";
 import { Button } from "react-bootstrap";
-import { useRef, forwardRef } from "react";
-
+import { useRef, forwardRef, useContext } from "react";
+import { MetaDataContext } from "pages/_app";
 const Menu = (
 	{
 		handleShowNodeSelector,
@@ -21,6 +21,7 @@ const Menu = (
 	},
 	ref
 ) => {
+	const { metaData } = useContext(MetaDataContext);
 	return (
 		<div ref={ref} className={styles.cM + " "}>
 			<li>
@@ -38,28 +39,30 @@ const Menu = (
 					</div>
 				</Button>
 			</li>
-			<li>
-				<Button
-					variant="light"
-					onClick={() => handleShowNodeSelector("ActionNode")}
-					disabled={!EnableCreate}
-				>
-					<div>
-						<div className={"fa-layers " + styles.layeredIcon}>
-							<FontAwesomeIcon icon={faSquare} />
-							<FontAwesomeIcon
-								icon={faPersonRunning}
-								color="white"
-								style={{ transform: "scale(0.75)" }}
-							/>
-						</div>
+			{metaData.platform != "sakai" && (
+				<li>
+					<Button
+						variant="light"
+						onClick={() => handleShowNodeSelector("ActionNode")}
+						disabled={!EnableCreate}
+					>
 						<div>
-							Crear nuevo bloque de acción...
-							<span>CTRL/Cmd+ALT/Opt+B</span>
+							<div className={"fa-layers " + styles.layeredIcon}>
+								<FontAwesomeIcon icon={faSquare} />
+								<FontAwesomeIcon
+									icon={faPersonRunning}
+									color="white"
+									style={{ transform: "scale(0.75)" }}
+								/>
+							</div>
+							<div>
+								Crear nuevo bloque de acción...
+								<span>CTRL/Cmd+ALT/Opt+B</span>
+							</div>
 						</div>
-					</div>
-				</Button>
-			</li>
+					</Button>
+				</li>
+			)}
 			<li>
 				<Button
 					variant="light"

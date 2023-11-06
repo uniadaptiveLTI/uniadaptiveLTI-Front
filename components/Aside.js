@@ -265,8 +265,8 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 					);
 					uniqueFilteredData.forEach((option) => {
 						return hasUnorderedResources(platform)
-							? (option.bettername = `${option.name}`)
-							: (option.bettername = `${option.name} ${
+							? (option.oname = `${option.name}`)
+							: (option.oname = `${option.name} ${
 									option.section > -1 ? "- Sección: " + option.section : ""
 							  }`);
 					});
@@ -310,9 +310,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 			) {
 				const labelCurrent = labelDOM.current;
 				labelCurrent.value =
-					resourceOptions.find(
-						(resource) => e.target.value == resource.id && resource.id > -1
-					)?.name ||
+					e.target.options[e.target.selectedIndex].text ||
 					handleNameCollision(
 						NodeTypes.find((ntype) => nodeSelected.type == ntype.type)
 							.emptyName,
@@ -829,8 +827,8 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 													</option>
 													{resourceOptions.map((resource) => (
 														<option key={resource.id} value={resource.id}>
-															{resource.bettername != undefined
-																? resource.bettername
+															{resource.oname != undefined
+																? resource.oname
 																: resource.name}
 														</option>
 													))}
@@ -907,7 +905,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 															[...metaData.sections].map((section) => {
 																const newSection = section;
 																if (!section.name.match(/^\d/)) {
-																	section.name =
+																	newSection.name =
 																		platform == "moodle"
 																			? newSection.position +
 																			  "- " +

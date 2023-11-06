@@ -1,16 +1,6 @@
 export const NodeTypes = [
 	{
 		id: 0,
-		type: "addgroup",
-		value: "addgroup",
-		name: "Añadir a grupo",
-		emptyName: "Añadir a grupo",
-		nodeType: "ActionNode",
-		lms: ["sakai"],
-		gradable: [],
-	},
-	{
-		id: 1,
 		type: "assign",
 		value: "assign",
 		name: "Tarea",
@@ -21,7 +11,7 @@ export const NodeTypes = [
 		endHandle: ["moodle", "sakai"],
 	},
 	{
-		id: 2,
+		id: 1,
 		type: "badge",
 		value: "badge",
 		name: "Dar insignia",
@@ -31,7 +21,7 @@ export const NodeTypes = [
 		gradable: [],
 	},
 	{
-		id: 3,
+		id: 2,
 		type: "book",
 		value: "book",
 		name: "Libro",
@@ -42,7 +32,7 @@ export const NodeTypes = [
 		endHandle: ["moodle"],
 	},
 	{
-		id: 4,
+		id: 3,
 		type: "choice",
 		value: "choice",
 		name: "Consulta",
@@ -53,7 +43,7 @@ export const NodeTypes = [
 		endHandle: ["moodle"],
 	},
 	{
-		id: 5,
+		id: 4,
 		type: "end",
 		value: "end",
 		name: "Salida",
@@ -63,7 +53,7 @@ export const NodeTypes = [
 		gradable: [],
 	},
 	{
-		id: 6,
+		id: 5,
 		type: "exam",
 		value: "exam",
 		name: "Examen",
@@ -74,7 +64,7 @@ export const NodeTypes = [
 		endHandle: ["sakai"],
 	},
 	{
-		id: 7,
+		id: 6,
 		type: "folder",
 		value: "folder",
 		name: "Carpeta",
@@ -85,7 +75,7 @@ export const NodeTypes = [
 		endHandle: ["moodle"],
 	},
 	{
-		id: 8,
+		id: 7,
 		type: "forum",
 		value: "forum",
 		name: "Foro",
@@ -96,7 +86,7 @@ export const NodeTypes = [
 		endHandle: ["moodle"],
 	},
 	{
-		id: 9,
+		id: 8,
 		type: "fragment",
 		value: "fragment",
 		name: "Fragmento",
@@ -106,7 +96,7 @@ export const NodeTypes = [
 		gradable: [],
 	},
 	{
-		id: 10,
+		id: 9,
 		type: "generic",
 		value: "generic",
 		name: "Genérico",
@@ -117,7 +107,7 @@ export const NodeTypes = [
 		endHandle: ["moodle"],
 	},
 	{
-		id: 11,
+		id: 10,
 		type: "glossary",
 		value: "glossary",
 		name: "Glosario",
@@ -128,7 +118,7 @@ export const NodeTypes = [
 		endHandle: ["moodle"],
 	},
 	{
-		id: 12,
+		id: 11,
 		type: "html",
 		value: "html",
 		name: "Página HTML",
@@ -139,7 +129,7 @@ export const NodeTypes = [
 		endHandle: [],
 	},
 	{
-		id: 13,
+		id: 12,
 		type: "label",
 		value: "label",
 		name: "Etiqueta",
@@ -149,28 +139,8 @@ export const NodeTypes = [
 		gradable: [{ lms: "moodle", type: "simple" }],
 		endHandle: ["moodle"],
 	},
-	/*{
-		id: 14,
-		type: "lesson",
-		value: "lesson",
-		name: "Lección",
-		nodeType: "ElementNode",
-		lms: ["moodle"],
-		gradable: [{ lms: "moodle", type: "normal" }],
-		endHandle: ["moodle"],
-	},*/
 	{
-		id: 15,
-		type: "mail",
-		value: "mail",
-		name: "Enviar correo",
-		emptyName: "Enviar correo",
-		nodeType: "ActionNode",
-		lms: ["sakai"],
-		gradable: [],
-	},
-	{
-		id: 16,
+		id: 13,
 		type: "page",
 		value: "page",
 		name: "Página",
@@ -181,7 +151,7 @@ export const NodeTypes = [
 		endHandle: ["moodle"],
 	},
 	{
-		id: 17,
+		id: 14,
 		type: "quiz",
 		value: "quiz",
 		name: "Cuestionario",
@@ -192,17 +162,7 @@ export const NodeTypes = [
 		endHandle: ["moodle"],
 	},
 	{
-		id: 18,
-		type: "remgroup",
-		value: "remgroup",
-		name: "Eliminar grupo",
-		emptyName: "Eliminar grupo",
-		nodeType: "ActionNode",
-		lms: ["sakai"],
-		gradable: [],
-	},
-	{
-		id: 19,
+		id: 15,
 		type: "resource",
 		value: "resource",
 		name: "Archivo",
@@ -213,7 +173,7 @@ export const NodeTypes = [
 		endHandle: ["moodle"],
 	},
 	{
-		id: 21,
+		id: 16,
 		type: "text",
 		value: "text",
 		name: "Texto simple",
@@ -224,7 +184,7 @@ export const NodeTypes = [
 		endHandle: [],
 	},
 	{
-		id: 22,
+		id: 17,
 		type: "url",
 		value: "url",
 		name: "URL",
@@ -234,19 +194,8 @@ export const NodeTypes = [
 		gradable: [{ lms: "moodle", type: "simple" }],
 		endHandle: ["moodle"],
 	},
-	/*{
-		id: 23,
-		type: "wiki",
-		value: "wiki",
-		name: "Wiki",
-		emptyName: "Wiki vacío",
-		nodeType: "ElementNode",
-		lms: ["sakai"],
-		gradable: [],
-		endHandle: [],
-	},*/
 	{
-		id: 24,
+		id: 18,
 		type: "workshop",
 		value: "workshop",
 		name: "Taller",

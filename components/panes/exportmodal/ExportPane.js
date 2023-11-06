@@ -670,7 +670,6 @@ export default function ExportPanel({
 		lesson,
 		conditionList
 	) {
-		console.log(nodes);
 		try {
 			const payload = {
 				course: metaData.course_id,

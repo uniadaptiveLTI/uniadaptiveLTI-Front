@@ -47,6 +47,7 @@ import {
 	getNodeById,
 	getChildrenNodesFromFragmentID,
 	getParentsNode,
+	getNodeTypeGradableType,
 } from "@utils/Nodes";
 import { errorListCheck } from "@utils/ErrorHandling";
 import { toast } from "react-toastify";
@@ -415,9 +416,11 @@ const OverviewFlow = ({ map }, ref) => {
 								sourceNodeId,
 								reactFlowInstance.getNodes()
 							);
-							const currentGradableType = NodeTypes.find(
-								(nt) => nt.type == blockData.type
-							)?.gradable.find((gradable) => gradable.lms == "moodle").type;
+
+							const currentGradableType = getNodeTypeGradableType(
+								blockData,
+								platform
+							);
 
 							if (
 								(blockData.data.g.hasConditions &&
@@ -1317,6 +1320,12 @@ const OverviewFlow = ({ map }, ref) => {
 						c: undefined,
 						lmsResource: shouldEmptyResource
 							? undefined
+							: reactFlowInstance
+									.getNodes()
+									.map(
+										(node) => node.data.lmsResource == block.data.lmsResource
+									)
+							? undefined
 							: block.data.lmsResource,
 					},
 				};
@@ -1694,80 +1703,46 @@ const OverviewFlow = ({ map }, ref) => {
 				setRelationStarter();
 				return;
 			}
+			const currentGradableType = getNodeTypeGradableType(origin, platform);
 
-			const newNodesData = reactFlowInstance.getNodes();
-			const oI = newNodesData.findIndex((node) => node.id == origin.id);
-			if (newNodesData[oI].data.children) {
-				const alreadyAChildren = newNodesData[oI].data.children.includes(
-					end.id
-				);
-				if (!alreadyAChildren) {
-					if (newNodesData[oI].data.children) {
-						newNodesData[oI].data.children.push(end.id);
+			if (
+				platform != "moodle" ||
+				(platform == "moodle" &&
+					((currentGradableType == "simple" && origin.data.g?.hasToBeSeen) ||
+						(currentGradableType != "simple" && origin.data.g?.hasConditions)))
+			) {
+				const newNodesData = reactFlowInstance.getNodes();
+				const oI = newNodesData.findIndex((node) => node.id == origin.id);
+				if (newNodesData[oI].data.children) {
+					const alreadyAChildren = newNodesData[oI].data.children.includes(
+						end.id
+					);
+					if (!alreadyAChildren) {
+						if (newNodesData[oI].data.children) {
+							newNodesData[oI].data.children.push(end.id);
+						} else {
+							newNodesData[oI].data.children.push(end.id);
+						}
 					} else {
-						newNodesData[oI].data.children.push(end.id);
+						toast("La relación ya existe, no se ha creado.", {
+							hideProgressBar: false,
+							autoClose: 2000,
+							type: "warning",
+							position: "bottom-center",
+							theme: "light",
+						});
 					}
 				} else {
-					toast("La relación ya existe, no se ha creado.", {
-						hideProgressBar: false,
-						autoClose: 2000,
-						type: "warning",
-						position: "bottom-center",
-						theme: "light",
-					});
+					newNodesData[oI].data.children.push(end.id);
 				}
-			} else {
-				newNodesData[oI].data.children.push(end.id);
-			}
-			setRelationStarter();
-			reactFlowInstance.setNodes(newNodesData);
-			if (!validTypes.includes(end.type)) {
-				const newCondition = {
-					id: parseInt(Date.now() * Math.random()).toString(),
-					type: "completion",
-					cm: origin.id,
-					e: 1,
-				};
-
-				if (!end.data.c) {
-					end.data.c = {
-						type: "conditionsGroup",
-						id: parseInt(Date.now() * Math.random()).toString(),
-						op: "&",
-						c: [newCondition],
-					};
-				} else {
-					end.data.c.c.push(newCondition);
-				}
-			} else {
-				const conditions = end.data.c?.c;
-
-				let conditionExists = false;
-
-				if (conditions != undefined) {
-					conditionExists = conditions.find(
-						(condition) => condition.type === "completion"
-					);
-				}
-
-				if (conditionExists) {
-					const newConditionAppend = {
-						id: origin.id,
-						name: origin.data.label,
-					};
-					conditionExists.activityList.push(newConditionAppend);
-				} else {
+				setRelationStarter();
+				reactFlowInstance.setNodes(newNodesData);
+				if (!validTypes.includes(end.type)) {
 					const newCondition = {
 						id: parseInt(Date.now() * Math.random()).toString(),
 						type: "completion",
-						activityList: [
-							{
-								id: origin.id,
-								name: origin.data.label,
-							},
-						],
-						op: "&",
-						query: "completed",
+						cm: origin.id,
+						e: 1,
 					};
 
 					if (!end.data.c) {
@@ -1780,16 +1755,69 @@ const OverviewFlow = ({ map }, ref) => {
 					} else {
 						end.data.c.c.push(newCondition);
 					}
+				} else {
+					const conditions = end.data.c?.c;
+
+					let conditionExists = false;
+
+					if (conditions != undefined) {
+						conditionExists = conditions.find(
+							(condition) => condition.type === "completion"
+						);
+					}
+
+					if (conditionExists) {
+						const newConditionAppend = {
+							id: origin.id,
+							name: origin.data.label,
+						};
+						conditionExists.activityList.push(newConditionAppend);
+					} else {
+						const newCondition = {
+							id: parseInt(Date.now() * Math.random()).toString(),
+							type: "completion",
+							activityList: [
+								{
+									id: origin.id,
+									name: origin.data.label,
+								},
+							],
+							op: "&",
+							query: "completed",
+						};
+
+						if (!end.data.c) {
+							end.data.c = {
+								type: "conditionsGroup",
+								id: parseInt(Date.now() * Math.random()).toString(),
+								op: "&",
+								c: [newCondition],
+							};
+						} else {
+							end.data.c.c.push(newCondition);
+						}
+					}
 				}
+				setEdges([
+					...edges,
+					{
+						id: origin.id + "-" + end.id,
+						source: origin.id,
+						target: end.id,
+					},
+				]);
+			} else {
+				toast(
+					"El recurso no puede ser finalizado. Compruebe los ajustes de finalización.",
+					{
+						hideProgressBar: false,
+						autoClose: 6000,
+						type: "error",
+						position: "bottom-center",
+						theme: "light",
+					}
+				);
 			}
-			setEdges([
-				...edges,
-				{
-					id: origin.id + "-" + end.id,
-					source: origin.id,
-					target: end.id,
-				},
-			]);
 		} else {
 			const selectedBlocks = reactFlowInstance
 				.getNodes()

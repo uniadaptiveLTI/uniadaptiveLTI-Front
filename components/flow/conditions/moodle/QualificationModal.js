@@ -4,7 +4,7 @@ import { getUpdatedArrayById, uniqueId } from "@utils/Utils";
 import { useReactFlow } from "reactflow";
 import { NodeTypes, getGradable } from "@utils/TypeDefinitions";
 import { PlatformContext } from "pages/_app";
-import { getNodeById } from "@utils/Nodes";
+import { getNodeById, getNodeTypeGradableType } from "@utils/Nodes";
 import QualificationForm from "@components/flow/conditions/moodle/form-components/QualificationForm";
 import { hasConditionsNeedingCompletion } from "@utils/Moodle";
 import { toast } from "react-toastify";
@@ -95,10 +95,10 @@ function QualificationModal({
 								};
 
 								if (needingCompletion) {
-									const currentGradableType = NodeTypes.find(
-										(nt) => nt.type == blockData.type
-									)?.gradable.find((gradable) => gradable.lms == "moodle").type;
-
+									const currentGradableType = getNodeTypeGradableType(
+										blockData,
+										platform
+									);
 									if (
 										(newG.hasConditions && currentGradableType != "simple") ||
 										(newG.hasToBeSeen && currentGradableType == "simple")
