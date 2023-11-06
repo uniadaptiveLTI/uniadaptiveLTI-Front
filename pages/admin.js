@@ -62,7 +62,6 @@ export default function Admin({ LTISettings }) {
 
 	const modifySettings = async (modifiedSettings) => {
 		const newSettings = { ...LTISettings, ...modifiedSettings };
-		console.log(LTISettings, modifiedSettings, newSettings);
 		const response = await fetch("/api/modifyLTISettings/", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },

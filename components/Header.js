@@ -831,11 +831,10 @@ function Header({ LTISettings }, ref) {
 							"api/lti/get_session",
 							"POST"
 						);
-						console.log(response);
 						if (response && response.ok) {
 							const data = response.data;
 
-							console.log("DATOS DEL LMS: ", data);
+							console.log("LMS DATA: ", data);
 							// Usuario
 							setUserData(data[0]);
 							setLoadedUserData(true);

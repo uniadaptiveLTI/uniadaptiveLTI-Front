@@ -63,7 +63,6 @@ const AnimatedEdge =
 						type="target"
 						position={targetPosition}
 						style={animatedStyle}
-						onConnect={(params) => console.log("handle onConnect", params)}
 					/>
 				</g>
 			</>

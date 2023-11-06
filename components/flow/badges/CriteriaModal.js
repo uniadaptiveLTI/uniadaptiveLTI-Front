@@ -239,7 +239,6 @@ function CriteriaModal({
 	}
 
 	function swapConditionGroup(condition) {
-		console.log(condition);
 		const updatedBlockData = deepCopy(blockData);
 		const swapOperator = condition.method === "&" ? "|" : "&";
 

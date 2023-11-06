@@ -61,7 +61,6 @@ export default forwardRef(function ExportModal(
 	const [nodeChildrenWithoutRestriction, setNodeChildrenWithoutRestriction] =
 		useState();
 	const [nodeWarningParentList, setNodeWarningParentList] = useState();
-	console.log(errorList);
 	const formatErrorList = () => {
 		console.log(JSON.stringify(metaData));
 	};
@@ -339,8 +338,6 @@ export default forwardRef(function ExportModal(
 	const [warningCount, setWarningCount] = useState(
 		warningList != undefined ? warningList.length : 0
 	);
-	console.log(warningList);
-	console.log(nodeWarningChildrenList);
 	const [hasWarnings, setHasWarnings] = useState(warningCount > 0);
 
 	useLayoutEffect(() => {

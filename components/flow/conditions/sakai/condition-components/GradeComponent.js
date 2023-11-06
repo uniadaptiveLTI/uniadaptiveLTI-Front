@@ -51,7 +51,6 @@ function GradeComponent({
 
 		// Remove from source AND add to target
 		newSourceSubRoot.subConditions.splice(conditionIndex, 1);
-		console.log(newTargetSubRoot);
 		if (!newTargetSubRoot) {
 			newTargetSubRoot = {
 				type: "PARENT",
@@ -60,14 +59,11 @@ function GradeComponent({
 				operator: newSourceSubRoot.operator == "AND" ? "OR" : "AND",
 			};
 		}
-
-		console.log(newTargetSubRoot);
 		if (newTargetSubRoot?.subConditions) {
 			newTargetSubRoot.subConditions.push(conditionToSwap);
 		} else {
 			newTargetSubRoot.subConditions = [conditionToSwap];
 		}
-		console.log(newTargetSubRoot);
 		const newsubConditions = [newSourceSubRoot, newTargetSubRoot];
 
 		let updatedBlockData = { ...blockData };

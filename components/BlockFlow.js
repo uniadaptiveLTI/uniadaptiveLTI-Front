@@ -1277,9 +1277,7 @@ const OverviewFlow = ({ map }, ref) => {
 			const firstOneInY = Math.min(...originalY);
 			const newX = originalX.map((x) => -firstOneInX + x);
 			const newY = originalY.map((y) => -firstOneInY + y);
-			//FIXME: FRAGMENT PASTING REMOVES CONDITIONS BETWEEN CHILDREN
-			// console.log(originalIDs);
-			// console.log(newIDs);
+			//TODO: FRAGMENT PASTING CONSERVING CONDITIONS BETWEEN CHILDREN
 			const shouldEmptyResource = !(
 				metaData.instance_id == clipboardData.instance_id &&
 				metaData.course_id == clipboardData.course_id &&
@@ -1565,8 +1563,7 @@ const OverviewFlow = ({ map }, ref) => {
 				/*selectedNodes = selectedNodes.map((node) =>
 					getNodeById(node.id, reactFlowInstance.getNodes())
 				);*/
-				console.log(filteredNodes);
-				console.log(selectedNodes);
+
 				console.log(
 					selectedNodes.map((node) =>
 						getNodeById(node.id, reactFlowInstance.getNodes())

@@ -20,8 +20,6 @@ const GroupingComponent = ({
 	moodleGroupings,
 	swapConditionParam,
 }) => {
-	console.log(condition);
-	console.log(moodleGroupings);
 	const groupingFounded = moodleGroupings.find(
 		(grouping) => grouping.id == condition.groupingId
 	);

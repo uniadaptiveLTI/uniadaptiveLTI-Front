@@ -555,7 +555,6 @@ function ConditionModalMoodle({
 		formData.id = uniqueId();
 
 		const updatedBlockData = deepCopy(blockData);
-		console.log(formData);
 		if (edition) {
 			formData.id = conditionEdit.id;
 			if (formData.type == "conditionsGroup") {

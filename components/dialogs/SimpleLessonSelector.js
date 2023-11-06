@@ -16,7 +16,6 @@ export default function SimpleLessonSelector({
 		if (callback && actionClicked) {
 			if (callback instanceof Function) {
 				if (selectDOM) {
-					console.log(selectDOM);
 					callback(Number(selectDOM.current.value));
 				} else {
 					callback();

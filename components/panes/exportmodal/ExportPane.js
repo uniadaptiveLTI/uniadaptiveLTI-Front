@@ -189,13 +189,9 @@ export default function ExportPanel({
 					}
 				});
 
-				console.log(newCondition);
-
 				conditionList.push(newCondition);
 			}
 		});
-
-		console.log(nodesToExport);
 
 		nodesToExport = nodesToExport.filter((node) =>
 			NodeTypes.find((declaration) => {
@@ -339,7 +335,6 @@ export default function ExportPanel({
 		}
 
 		console.log("nodesReadyToExport", nodesReadyToExport);
-		console.log(platform);
 		if (platform === "sakai") {
 			const lessonFind = metaData.lessons.find(
 				(lesson) => lesson.id === Number(selectDOM.current.value)
@@ -483,7 +478,6 @@ export default function ExportPanel({
 						.sort((a, b) => a.order - b.order);
 
 					filteredArray.map((node) => {
-						console.log(node);
 						const nodeTypeParsed = sakaiTypeSwitch(node);
 						resultJson.push({
 							pageId: Number(lessonFind.page_id),
@@ -509,9 +503,7 @@ export default function ExportPanel({
 								node.indent === jsonObj.indent
 						)
 						.sort((a, b) => a.order - b.order);
-					console.log(filteredArray);
 					filteredArray.map((node) => {
-						console.log(node);
 						const nodeTypeParsed = sakaiTypeSwitch(node);
 						resultJson.push({
 							pageId: Number(lessonFind.page_id),
@@ -532,12 +524,6 @@ export default function ExportPanel({
 				return a.indent - b.indent;
 			});
 
-			console.log(sortedSectionColumnPairs);
-
-			console.log(resultJson);
-
-			console.log(sortedSectionColumnPairs);
-			console.log(nodesReadyToExport);
 			console.log(
 				"NODES TO LESSON ITEMS",
 				resultJson,
@@ -553,7 +539,6 @@ export default function ExportPanel({
 				conditionList
 			);
 		} else {
-			console.log("MOODLENODES");
 			const moodleNodes = nodesReadyToExport.map((node) => {
 				let newNode = parseMoodleCalifications(node);
 				newNode = { ...newNode, c: parseMoodleConditionsGroupOut(newNode.c) };

@@ -61,14 +61,12 @@ const DateForm = ({
 
 	const dateInputChange = (paramName, ref) => {
 		setDates((prevDates) => {
-			console.log(prevDates, prevDates[paramName]);
 			if (prevDates) {
 				return {
 					...prevDates,
 					[paramName]: ref.current.value,
 				};
 			}
-			console.log(prevDates);
 			return prevDates;
 		});
 	};

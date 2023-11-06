@@ -63,7 +63,6 @@ export default function FragmentEditor({
 		newChild.expandParent = true;
 		newChild.position = { x: fragmentCenter.x, y: fragmentCenter.y };
 
-		console.log(fragment.style);
 		if (fragment.style.width <= 68) {
 			fragment.style.width = 125;
 		}

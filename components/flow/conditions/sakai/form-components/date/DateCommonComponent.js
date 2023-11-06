@@ -19,7 +19,6 @@ const DateCommonComponent = ({
 	useLayoutEffect(() => {
 		const openingValue = openingDateRef.current.value;
 		const dueDate = dueDateRef.current.value;
-		console.log(openingValue);
 		setDates({
 			openingDate: openingValue,
 			dueDate: dueDate,
