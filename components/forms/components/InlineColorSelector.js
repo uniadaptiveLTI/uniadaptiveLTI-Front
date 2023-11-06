@@ -20,8 +20,6 @@ export default function InlineColorSelector({
 		setIconColor(getContrastingColor(color));
 	}, [color]);
 
-	console.log(faPalette);
-
 	return (
 		<div
 			style={{

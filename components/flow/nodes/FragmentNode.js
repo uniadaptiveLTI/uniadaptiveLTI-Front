@@ -381,8 +381,6 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 									reactFlowInstance.getNodes().filter((node) => {
 										if (
 											node.type == "fragment" ||
-											node.type == "start" ||
-											node.type == "end" ||
 											node.id == id ||
 											node.parentNode != undefined
 										) {
@@ -455,9 +453,14 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 						handleEdit();
 					}
 				}}
-				/*onKeyDown={(e) => {
+				onKeyDown={(e) => {
+					if (e.key == "e") {
+						data.expanded = !data.expanded;
+						setExpanded(!expanded);
+					}
 					if (e.key == "Enter") handleEdit();
-				}}*/
+				}}
+				tabIndex={0}
 				aria-label={getAriaLabel} //FIXME: Doesn't work
 			>
 				{!expanded && (

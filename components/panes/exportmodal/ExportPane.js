@@ -10,13 +10,7 @@ import { NodeTypes } from "@utils/TypeDefinitions";
 import { MapInfoContext, PlatformContext } from "pages/_app";
 import { getBackupURL } from "@utils/Platform";
 import { ActionNodes } from "@utils/Nodes";
-import {
-	fetchBackEnd,
-	getHTTPPrefix,
-	getSectionIDFromPosition,
-	saveVersion,
-	sakaiTypeSwitch,
-} from "@utils/Utils";
+import { fetchBackEnd, saveVersion } from "@utils/Utils";
 import { toast } from "react-toastify";
 import {
 	parseMoodleBadgeToExport,
@@ -24,6 +18,7 @@ import {
 	parseMoodleConditionsGroupOut,
 } from "@utils/Moodle";
 import LessonSelector from "@components/forms/components/LessonSelector";
+import { sakaiTypeSwitch } from "@utils/Sakai";
 
 export default function ExportPanel({
 	errorList,
@@ -152,6 +147,10 @@ export default function ExportPanel({
 			JSON.stringify(reactFlowInstance.getNodes()) //Deep clone TODO: DO THIS BETTER
 		);
 
+		if (platform == "sakai") {
+			nodesToExport = nodesToExport.filter((node) => node.type !== "generic");
+		}
+
 		const conditionList = [];
 
 		nodesToExport.map((node) => {
@@ -163,7 +162,6 @@ export default function ExportPanel({
 				let blockResource = reactFlowInstance
 					.getNodes()
 					.find((node) => node.id == newCondition.itemId).data.lmsResource;
-
 				newCondition.itemId = sakaiTypeSwitch({
 					id: blockResource,
 					type: newCondition.itemType,
@@ -191,13 +189,9 @@ export default function ExportPanel({
 					}
 				});
 
-				console.log(newCondition);
-
 				conditionList.push(newCondition);
 			}
 		});
-
-		console.log(nodesToExport);
 
 		nodesToExport = nodesToExport.filter((node) =>
 			NodeTypes.find((declaration) => {
@@ -341,7 +335,6 @@ export default function ExportPanel({
 		}
 
 		console.log("nodesReadyToExport", nodesReadyToExport);
-		console.log(platform);
 		if (platform === "sakai") {
 			const lessonFind = metaData.lessons.find(
 				(lesson) => lesson.id === Number(selectDOM.current.value)
@@ -393,7 +386,7 @@ export default function ExportPanel({
 							newNode.openDate = Date.parse(dateCondition?.openingDate) / 1000;
 						}
 
-						if (node.type === "exam" && node.type === "assign") {
+						if (node.type === "exam" || node.type === "assign") {
 							if (dateCondition.dueDate) {
 								newNode.dueDate = Date.parse(dateCondition?.dueDate) / 1000;
 							}
@@ -406,6 +399,8 @@ export default function ExportPanel({
 								newNode.closeDate = Date.parse(dateCondition?.dueDate) / 1000;
 							}
 						}
+
+						newNode.dateRestricted = true;
 					}
 
 					if (groupCondition) {
@@ -483,7 +478,6 @@ export default function ExportPanel({
 						.sort((a, b) => a.order - b.order);
 
 					filteredArray.map((node) => {
-						console.log(node);
 						const nodeTypeParsed = sakaiTypeSwitch(node);
 						resultJson.push({
 							pageId: Number(lessonFind.page_id),
@@ -509,9 +503,7 @@ export default function ExportPanel({
 								node.indent === jsonObj.indent
 						)
 						.sort((a, b) => a.order - b.order);
-					console.log(filteredArray);
 					filteredArray.map((node) => {
-						console.log(node);
 						const nodeTypeParsed = sakaiTypeSwitch(node);
 						resultJson.push({
 							pageId: Number(lessonFind.page_id),
@@ -532,12 +524,6 @@ export default function ExportPanel({
 				return a.indent - b.indent;
 			});
 
-			console.log(sortedSectionColumnPairs);
-
-			console.log(resultJson);
-
-			console.log(sortedSectionColumnPairs);
-			console.log(nodesReadyToExport);
 			console.log(
 				"NODES TO LESSON ITEMS",
 				resultJson,
@@ -553,7 +539,6 @@ export default function ExportPanel({
 				conditionList
 			);
 		} else {
-			console.log("MOODLENODES");
 			const moodleNodes = nodesReadyToExport.map((node) => {
 				let newNode = parseMoodleCalifications(node);
 				newNode = { ...newNode, c: parseMoodleConditionsGroupOut(newNode.c) };
@@ -670,7 +655,6 @@ export default function ExportPanel({
 		lesson,
 		conditionList
 	) {
-		console.log(nodes);
 		try {
 			const payload = {
 				course: metaData.course_id,
@@ -697,11 +681,10 @@ export default function ExportPanel({
 				"POST",
 				payload
 			);
-
 			if (response) {
 				const ok = response.ok;
 				if (ok) {
-					await saveVersion(
+					saveVersion(
 						rfNodes,
 						metaData,
 						platform,
@@ -712,11 +695,96 @@ export default function ExportPanel({
 						defaultToastSuccess,
 						defaultToastError,
 						toast,
-						enableExporting
+						enableExporting,
+						response.successType,
+						lesson?.id
 					);
 				} else {
 					enableExporting(false);
-					throw new Error("No se pudo exportar", defaultToastError);
+
+					if (response.errorType) {
+						const unableToExport = "No se pudo exportar: ";
+						if (platform == "sakai") {
+							switch (response.errorType) {
+								case "PAGE_EXPORT_ERROR":
+									console.log(
+										"%c ❌ Los bloques no comparten el mismo identificador de página (pageId) // Codigo de error: PAGE_EXPORT_ERROR",
+										"background: #FFD7DC; color: black; padding: 4px;"
+									);
+									throw new Error(
+										unableToExport +
+											"Los bloques no comparten el mismo identificador de página (pageId)",
+										defaultToastError
+									);
+								case "LESSON_COPY_ERROR":
+									console.log(
+										"%c ❌ No se pudo hacer una copia de seguridad de la página de contenidos a exportar // Codigo de error: LESSON_COPY_ERROR",
+										"background: #FFD7DC; color: black; padding: 4px;"
+									);
+									throw new Error(
+										unableToExport +
+											"No se pudo hacer una copia de seguridad de la página de contenidos a exportar",
+										defaultToastError
+									);
+								case "LESSON_DELETE_ERROR":
+									console.log(
+										"%c ❌ No se ha podido reconstruir la página de contenidos // Codigo de error: LESSON_DELETE_ERROR",
+										"background: #FFD7DC; color: black; padding: 4px;"
+									);
+									throw new Error(
+										unableToExport +
+											"No se ha podido reconstruir la página de contenidos",
+										defaultToastError
+									);
+								case "FATAL_ERROR":
+									console.log(
+										"%c ❌ No se ha podido reestablecer la copia de seguridad // Codigo de error: FATAL_ERROR",
+										"background: #FFD7DC; color: black; padding: 4px;"
+									);
+									throw new Error(
+										unableToExport +
+											"No se ha podido reestablecer la copia de seguridad",
+										defaultToastError
+									);
+								case "LESSON_ITEMS_CREATION_ERROR":
+									console.log(
+										"%c ❌ Se ha reestablecido la copia de seguridad de la página de contenidos // Codigo de error: LESSON_ITEMS_CREATION_ERROR",
+										"background: #FFD7DC; color: black; padding: 4px;"
+									);
+									throw new Error(
+										unableToExport +
+											"Se ha reestablecido la copia de seguridad de la página de contenidos",
+										defaultToastError
+									);
+								case "LESSON_ITEMS_WITHOUT_CONDITIONS_CREATION_ERROR":
+									console.log(
+										"%c ❌ Se ha reestablecido la copia de seguridad de la página de contenidos pero las condiciones no // Codigo de error: LESSON_ITEMS_WITHOUT_CONDITIONS_CREATION_ERROR",
+										"background: #FFD7DC; color: black; padding: 4px;"
+									);
+									throw new Error(
+										unableToExport +
+											"Se ha reestablecido la copia de seguridad de la página de contenidos pero las condiciones no",
+										defaultToastError
+									);
+								case "NODE_UPDATE_ERROR":
+									console.log(
+										"%c ❌ No se han podido actualizar los bloques // Codigo de error: NODE_UPDATE_ERROR",
+										"background: #FFD7DC; color: black; padding: 4px;"
+									);
+									throw new Error(
+										unableToExport + "No se han podido actualizar los bloques",
+										defaultToastError
+									);
+							}
+						} else {
+							switch (response.errorType) {
+								case "":
+									break;
+							}
+						}
+					} else {
+						throw new Error("No se pudo exportar", defaultToastError);
+					}
 				}
 			} else {
 				enableExporting(false);

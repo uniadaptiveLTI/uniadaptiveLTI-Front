@@ -28,8 +28,6 @@ import {
 	MetaDataContext,
 	notImplemented,
 } from "/pages/_app.js";
-import FinalNode from "./flow/nodes/FinalNode.js";
-import InitialNode from "./flow/nodes/InitialNode.js";
 import FragmentNode from "./flow/nodes/FragmentNode.js";
 import {
 	uniqueId,
@@ -40,7 +38,7 @@ import {
 	updateBadgeConditions,
 	capitalizeFirstLetter,
 	clampNodesOrder,
-	sakaiTypeSwitch,
+	handleNameCollision,
 } from "@utils/Utils";
 import {
 	getNodeByNodeDOM,
@@ -49,7 +47,7 @@ import {
 	getNodeById,
 	getChildrenNodesFromFragmentID,
 	getParentsNode,
-	nodeArrayContainsGrades,
+	getNodeTypeGradableType,
 } from "@utils/Nodes";
 import { errorListCheck } from "@utils/ErrorHandling";
 import { toast } from "react-toastify";
@@ -110,9 +108,7 @@ const nodeTypes = {
 	reflist: ElementNode,
 	text: ElementNode,
 	//LTI
-	end: FinalNode,
 	fragment: FragmentNode,
-	start: InitialNode,
 };
 
 const edgeTypes = {
@@ -231,7 +227,7 @@ const OverviewFlow = ({ map }, ref) => {
 	 * @param {ReactFlowInstance} reactFlowInstance - The ReactFlow instance.
 	 */
 	const onInit = (reactFlowInstance) => {
-		console.log("Blockflow loaded:", reactFlowInstance);
+		console.info(`🗺️ Blockflow loaded: `, reactFlowInstance);
 	};
 
 	const getSelectedEdges = (edgeArray = reactFlowInstance.getEdges()) => {
@@ -376,14 +372,6 @@ const OverviewFlow = ({ map }, ref) => {
 	 * @param {Node} node - The clicked node.
 	 */
 	const onNodeClick = (e, node) => {
-		if (node.type == "start" || node.type == "end") {
-			reactFlowInstance.setNodes(
-				reactFlowInstance.getNodes().map((n) => {
-					n.selected = false;
-					return n;
-				})
-			);
-		}
 		setSnapToGrid(true);
 	};
 
@@ -395,10 +383,14 @@ const OverviewFlow = ({ map }, ref) => {
 		const sourceNodeId = event.source.split("__")[0];
 		const targetNodeId = event.target.split("__")[0];
 
+		let allowLineCreation = true;
+
 		if (sourceNodeId != targetNodeId) {
 			const edgeFound = reactFlowInstance
 				.getEdges()
 				.find((node) => node.id === sourceNodeId + "-" + targetNodeId);
+
+			if (edgeFound) allowLineCreation = false;
 
 			const sourceNode = reactFlowInstance
 				.getNodes()
@@ -416,96 +408,118 @@ const OverviewFlow = ({ map }, ref) => {
 				}
 			}
 
-			if (
-				targetNode &&
-				sourceNode.type != "start" &&
-				sourceNode.type != "end"
-			) {
-				if (!edgeFound) {
+			if (targetNode) {
+				if (allowLineCreation) {
 					switch (platform) {
 						case "moodle":
-							if (!validTypes.includes(targetNode.type)) {
-								const newCondition = {
-									id: parseInt(Date.now() * Math.random()).toString(),
-									type: "completion",
-									cm: sourceNode.id,
-									showc: true,
-									e: 1,
-								};
+							const blockData = getNodeById(
+								sourceNodeId,
+								reactFlowInstance.getNodes()
+							);
 
-								if (!targetNode.data.c) {
-									targetNode.data.c = {
-										type: "conditionsGroup",
+							const currentGradableType = getNodeTypeGradableType(
+								blockData,
+								platform
+							);
+
+							if (
+								(blockData.data.g.hasConditions &&
+									currentGradableType != "simple") ||
+								(blockData.data.g.hasToBeSeen &&
+									currentGradableType == "simple")
+							) {
+								if (!validTypes.includes(targetNode.type)) {
+									const newCondition = {
 										id: parseInt(Date.now() * Math.random()).toString(),
-										op: "&",
+										type: "completion",
+										cm: sourceNode.id,
 										showc: true,
-										c: [newCondition],
+										e: 1,
 									};
-								} else {
-									targetNode.data.c.c.push(newCondition);
-								}
-							} else {
-								if (!targetNode.data.c) {
-									targetNode.data.c = {
-										type: "conditionsGroup",
-										id: parseInt(Date.now() * Math.random()).toString(),
-										method: "&",
-										showc: true,
-										criteriatype: 0,
-									};
-								}
 
-								const conditions = targetNode.data.c?.params;
-
-								if (conditions) {
-									const conditionExists = conditions.find(
-										(condition) => condition.type === "completion"
-									);
-
-									if (conditionExists) {
-										const newConditionAppend = {
-											id: sourceNode.id,
+									if (!targetNode.data.c) {
+										targetNode.data.c = {
+											type: "conditionsGroup",
+											id: parseInt(Date.now() * Math.random()).toString(),
+											op: "&",
+											showc: true,
+											c: [newCondition],
 										};
+									} else {
+										targetNode.data.c.c.push(newCondition);
+									}
+								} else {
+									if (!targetNode.data.c) {
+										targetNode.data.c = {
+											type: "conditionsGroup",
+											id: parseInt(Date.now() * Math.random()).toString(),
+											method: "&",
+											showc: true,
+											criteriatype: 0,
+										};
+									}
 
-										conditionExists.params.push(newConditionAppend);
+									const conditions = targetNode.data.c?.params;
+
+									if (conditions) {
+										const conditionExists = conditions.find(
+											(condition) => condition.type === "completion"
+										);
+
+										if (conditionExists) {
+											const newConditionAppend = {
+												id: sourceNode.id,
+											};
+
+											conditionExists.params.push(newConditionAppend);
+										} else {
+											const newCondition = {
+												id: parseInt(Date.now() * Math.random()).toString(),
+												type: "completion",
+												params: [
+													{
+														id: sourceNode.id,
+													},
+												],
+												method: "&",
+												criteriatype: 1,
+											};
+
+											targetNode.data.c.params.push(newCondition);
+										}
 									} else {
 										const newCondition = {
 											id: parseInt(Date.now() * Math.random()).toString(),
 											type: "completion",
+											criteriatype: 1,
 											params: [
 												{
 													id: sourceNode.id,
 												},
 											],
 											method: "&",
-											criteriatype: 1,
 										};
 
-										targetNode.data.c.params.push(newCondition);
+										targetNode.data.c.params = [newCondition];
 									}
-								} else {
-									const newCondition = {
-										id: parseInt(Date.now() * Math.random()).toString(),
-										type: "completion",
-										criteriatype: 1,
-										params: [
-											{
-												id: sourceNode.id,
-											},
-										],
-										method: "&",
-									};
-
-									targetNode.data.c.params = [newCondition];
 								}
+							} else {
+								allowLineCreation = false;
+								toast(
+									"El recurso no puede ser finalizado. Compruebe los ajustes de finalización.",
+									{
+										hideProgressBar: false,
+										autoClose: 6000,
+										type: "error",
+										position: "bottom-center",
+										theme: "light",
+									}
+								);
 							}
 
 							if (targetNode.type === "badge") {
-								if (
-									sourceNode.data.g &&
-									!sourceNode.data.g.completionTracking
-								) {
-									sourceNode.data.g.completionTracking = 1;
+								if (sourceNode.data.g && !sourceNode.data.g.hasToBeQualified) {
+									sourceNode.data.g.hasToBeQualified = true;
 								}
 							}
 
@@ -544,8 +558,6 @@ const OverviewFlow = ({ map }, ref) => {
 								(set) => set.type === "PARENT" && set.operator === "AND"
 							);
 
-							console.log(targetNode);
-
 							subRootAnd.subConditions.push({
 								type: "SCORE",
 								siteId: metaData.course_id,
@@ -560,22 +572,23 @@ const OverviewFlow = ({ map }, ref) => {
 				}
 			}
 
-			//FIXME: Check if line already drawn
-			setEdges([
-				...edges,
-				{
-					id: sourceNodeId + "-" + targetNodeId,
-					source: sourceNodeId,
-					target: targetNodeId,
-				},
-			]);
+			if (allowLineCreation) {
+				setEdges([
+					...edges,
+					{
+						id: sourceNodeId + "-" + targetNodeId,
+						source: sourceNodeId,
+						target: targetNodeId,
+					},
+				]);
 
-			setNodes(
-				getUpdatedArrayById(
-					[sourceNode, targetNode],
-					reactFlowInstance.getNodes()
-				)
-			);
+				setNodes(
+					getUpdatedArrayById(
+						[sourceNode, targetNode],
+						reactFlowInstance.getNodes()
+					)
+				);
+			}
 		}
 	};
 
@@ -650,8 +663,6 @@ const OverviewFlow = ({ map }, ref) => {
 			const blockNodeDelete = updatedBlocksArray.find(
 				(obj) => obj.id === edge.source
 			);
-
-			console.log(blockNodeDelete);
 
 			// If the node to be deleted exists and has children, update its children and conditions
 			if (blockNodeDelete && blockNodeDelete.children) {
@@ -847,6 +858,7 @@ const OverviewFlow = ({ map }, ref) => {
 			finalNodeArray
 		);
 
+		setRelationStarter(); //Empties relation memory in case the deleted block was used
 		return finalReorderedNodeArray;
 	};
 
@@ -934,7 +946,8 @@ const OverviewFlow = ({ map }, ref) => {
 						reactFlowInstance.getNodes()
 					);
 					if (!parentFragment.data.expanded) {
-						getNodeDOMById(node.id).style.visibility = "hidden";
+						const fragment = getNodeDOMById(node.id);
+						if (fragment) fragment.style.visibility = "hidden";
 					}
 				}
 			}
@@ -953,9 +966,17 @@ const OverviewFlow = ({ map }, ref) => {
 		const filteredMap = map.map((node) => {
 			return isSupportedTypeInPlatform(platform, node.type)
 				? node
-				: { ...node, type: "generic" };
+				: isSupportedTypeInPlatform(platform, "generic")
+				? { ...node, type: "generic", data: { ...node.data, g: undefined } }
+				: null;
 		});
-		setNewInitialNodes(filteredMap);
+
+		setNewInitialNodes(
+			clampNodesOrder(
+				filteredMap.filter((i) => i != null),
+				platform
+			)
+		);
 
 		setNewInitialEdges(
 			map?.flatMap((parent) => {
@@ -1031,9 +1052,6 @@ const OverviewFlow = ({ map }, ref) => {
 		currentNodes.map((node) => (node.selected ? selectedCount++ : null));
 		if (selectedCount <= 1) {
 			setCMBlockData(node);
-			if (node.type == "start" || node.type == "end") {
-				setCMContainsReservedNodes(true);
-			}
 			setContextMenuOrigin("block");
 		} else {
 			const selectedNodes = getSelectedNodes(currentNodes);
@@ -1226,6 +1244,8 @@ const OverviewFlow = ({ map }, ref) => {
 
 		localStorage.setItem("clipboard", JSON.stringify(clipboardData));
 
+		console.info(`❓ New clipboard data:`, clipboardData);
+
 		if (cleanedSelection.length > 0) {
 			toast(
 				"Se han copiado " + cleanedSelection.length + " bloque(s) abstractos",
@@ -1257,9 +1277,7 @@ const OverviewFlow = ({ map }, ref) => {
 			const firstOneInY = Math.min(...originalY);
 			const newX = originalX.map((x) => -firstOneInX + x);
 			const newY = originalY.map((y) => -firstOneInY + y);
-			//FIXME: FRAGMENT PASTING REMOVES CONDITIONS BETWEEN CHILDREN
-			// console.log(originalIDs);
-			// console.log(newIDs);
+			//TODO: FRAGMENT PASTING CONSERVING CONDITIONS BETWEEN CHILDREN
 			const shouldEmptyResource = !(
 				metaData.instance_id == clipboardData.instance_id &&
 				metaData.course_id == clipboardData.course_id &&
@@ -1290,10 +1308,22 @@ const OverviewFlow = ({ map }, ref) => {
 					position: { x: newX[index], y: newY[index] },
 					data: {
 						...block.data,
+						label: handleNameCollision(
+							block.data.label,
+							reactFlowInstance.getNodes().map((node) => node?.data?.label),
+							false,
+							"("
+						),
 						children:
 							filteredChildren?.length === 0 ? undefined : filteredChildren,
 						c: undefined,
 						lmsResource: shouldEmptyResource
+							? undefined
+							: reactFlowInstance
+									.getNodes()
+									.map(
+										(node) => node.data.lmsResource == block.data.lmsResource
+									)
 							? undefined
 							: block.data.lmsResource,
 					},
@@ -1452,7 +1482,7 @@ const OverviewFlow = ({ map }, ref) => {
 				};
 			}
 		}
-		console.log(newBlockCreated);
+		console.info(`❓ New block created: `, newBlockCreated);
 		errorListCheck(newBlockCreated, errorList, setErrorList, false);
 
 		setShowContextualMenu(false);
@@ -1505,7 +1535,7 @@ const OverviewFlow = ({ map }, ref) => {
 			newcurrentBlocksData
 		);
 
-		errorListCheck(finalcurrentBlocksData, errorList, setErrorList);
+		errorListCheck(finalcurrentBlocksData, errorList, setErrorList, false);
 
 		reactFlowInstance.setNodes(finalcurrentBlocksData);
 	};
@@ -1530,7 +1560,15 @@ const OverviewFlow = ({ map }, ref) => {
 							selectedNodes.map((pNode) => pNode.id).includes(oNode.id)
 						)
 				);
-				console.log(filteredNodes);
+				/*selectedNodes = selectedNodes.map((node) =>
+					getNodeById(node.id, reactFlowInstance.getNodes())
+				);*/
+
+				console.log(
+					selectedNodes.map((node) =>
+						getNodeById(node.id, reactFlowInstance.getNodes())
+					)
+				);
 
 				let minX = Infinity;
 				let minY = Infinity;
@@ -1663,34 +1701,40 @@ const OverviewFlow = ({ map }, ref) => {
 				setRelationStarter();
 				return;
 			}
+			const currentGradableType = getNodeTypeGradableType(origin, platform);
 
-			const newNodesData = reactFlowInstance.getNodes();
-			const oI = newNodesData.findIndex((node) => node.id == origin.id);
-			if (newNodesData[oI].data.children) {
-				const alreadyAChildren = newNodesData[oI].data.children.includes(
-					end.id
-				);
-				if (!alreadyAChildren) {
-					if (newNodesData[oI].data.children) {
-						newNodesData[oI].data.children.push(end.id);
+			if (
+				platform != "moodle" ||
+				(platform == "moodle" &&
+					((currentGradableType == "simple" && origin.data.g?.hasToBeSeen) ||
+						(currentGradableType != "simple" && origin.data.g?.hasConditions)))
+			) {
+				const newNodesData = reactFlowInstance.getNodes();
+				const oI = newNodesData.findIndex((node) => node.id == origin.id);
+				if (newNodesData[oI].data.children) {
+					const alreadyAChildren = newNodesData[oI].data.children.includes(
+						end.id
+					);
+					if (!alreadyAChildren) {
+						if (newNodesData[oI].data.children) {
+							newNodesData[oI].data.children.push(end.id);
+						} else {
+							newNodesData[oI].data.children.push(end.id);
+						}
 					} else {
-						newNodesData[oI].data.children.push(end.id);
+						toast("La relación ya existe, no se ha creado.", {
+							hideProgressBar: false,
+							autoClose: 2000,
+							type: "warning",
+							position: "bottom-center",
+							theme: "light",
+						});
 					}
 				} else {
-					toast("La relación ya existe, no se ha creado.", {
-						hideProgressBar: false,
-						autoClose: 2000,
-						type: "warning",
-						position: "bottom-center",
-						theme: "light",
-					});
+					newNodesData[oI].data.children.push(end.id);
 				}
-			} else {
-				newNodesData[oI].data.children.push(end.id);
-			}
-			setRelationStarter();
-			reactFlowInstance.setNodes(newNodesData);
-			if (origin.type != "start" && origin.type != "end") {
+				setRelationStarter();
+				reactFlowInstance.setNodes(newNodesData);
 				if (!validTypes.includes(end.type)) {
 					const newCondition = {
 						id: parseInt(Date.now() * Math.random()).toString(),
@@ -1752,15 +1796,26 @@ const OverviewFlow = ({ map }, ref) => {
 						}
 					}
 				}
+				setEdges([
+					...edges,
+					{
+						id: origin.id + "-" + end.id,
+						source: origin.id,
+						target: end.id,
+					},
+				]);
+			} else {
+				toast(
+					"El recurso no puede ser finalizado. Compruebe los ajustes de finalización.",
+					{
+						hideProgressBar: false,
+						autoClose: 6000,
+						type: "error",
+						position: "bottom-center",
+						theme: "light",
+					}
+				);
 			}
-			setEdges([
-				...edges,
-				{
-					id: origin.id + "-" + end.id,
-					source: origin.id,
-					target: end.id,
-				},
-			]);
 		} else {
 			const selectedBlocks = reactFlowInstance
 				.getNodes()
@@ -1798,16 +1853,12 @@ const OverviewFlow = ({ map }, ref) => {
 		}
 	};
 
-	const onElementClick = (event, element) => {
-		console.log(event, element);
-	};
-
 	/**
 	 * Handles the showing of a modal.
 	 * @param {string} modal - The modal to show.
 	 */
 	const handleShow = (modal) => {
-		console.log(modal);
+		console.info(`❓ Showing modal: `, modal);
 		const selectedNodes = getSelectedNodes();
 
 		let newCMBlockData = undefined;
@@ -1887,14 +1938,14 @@ const OverviewFlow = ({ map }, ref) => {
 	});
 	useHotkeys("ctrl+v", () => handleNodePaste());
 	useHotkeys("ctrl+x", () => handleNodeCut());
-	useHotkeys("ctrl+z", () => {
+	/*useHotkeys("ctrl+z", () => {
 		notImplemented("deshacer/rehacer");
 		console.log("UNDO");
 	});
 	useHotkeys(["ctrl+shift+z", "ctrl+y"], (e) => {
 		notImplemented("deshacer/rehacer");
 		console.log("REDO");
-	});
+	});*/
 	useHotkeys("ctrl+r", (e) => {
 		e.preventDefault();
 		handleNewRelation(relationStarter);
@@ -1959,7 +2010,6 @@ const OverviewFlow = ({ map }, ref) => {
 				nodeTypes={nodeTypes}
 				edgeTypes={edgeTypes}
 				snapGrid={[125, 275]}
-				onElementClick={onElementClick}
 				snapToGrid={snapToGrid}
 				deleteKeyCode={[]}
 				multiSelectionKeyCode={["Shift"]}

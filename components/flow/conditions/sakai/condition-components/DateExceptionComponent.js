@@ -35,7 +35,6 @@ const DateExceptionComponent = ({
 							entityInfo = "Grupo: " + group.name;
 						}
 					}
-
 					return (
 						<Row
 							className="align-items-center"
@@ -58,7 +57,7 @@ const DateExceptionComponent = ({
 							<Col className="col-md-auto">
 								<Button
 									variant="light"
-									onClick={() => deleteRequisite(item.itemId, true)}
+									onClick={() => deleteRequisite(item.id, true)}
 								>
 									<div>
 										<FontAwesomeIcon icon={faTrashCan} />

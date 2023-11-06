@@ -2,10 +2,12 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { Modal, Button, Form, Row, Col, Container } from "react-bootstrap";
 import { getUpdatedArrayById, uniqueId } from "@utils/Utils";
 import { useReactFlow } from "reactflow";
-import { getGradable } from "@utils/TypeDefinitions";
+import { NodeTypes, getGradable } from "@utils/TypeDefinitions";
 import { PlatformContext } from "pages/_app";
-import { getNodeById } from "@utils/Nodes";
+import { getNodeById, getNodeTypeGradableType } from "@utils/Nodes";
 import QualificationForm from "@components/flow/conditions/moodle/form-components/QualificationForm";
+import { hasConditionsNeedingCompletion } from "@utils/Moodle";
+import { toast } from "react-toastify";
 
 function QualificationModal({
 	blockData,
@@ -39,7 +41,9 @@ function QualificationModal({
 	return (
 		<Modal size="xl" show={showConditionsModal} onHide={handleClose}>
 			<Modal.Header closeButton>
-				<Modal.Title>Calificaciones de "{blockData.data.label}"</Modal.Title>
+				<Modal.Title>
+					Ajustes de finalización de "{blockData.data.label}"
+				</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
 				{/*gradeConditionType*/}
@@ -62,25 +66,63 @@ function QualificationModal({
 					<Button
 						variant="primary"
 						onClick={() => {
-							const currentBlock = getNodeById(
-								blockData.id,
-								reactFlowInstance.getNodes()
-							);
-							reactFlowInstance.setNodes(
-								getUpdatedArrayById(
-									{
-										...currentBlock,
-										data: {
-											...currentBlock.data,
-											g: qualificationFormResult.current.data,
-										},
-									},
-									reactFlowInstance.getNodes()
-								)
-							);
+							if (qualificationFormResult?.current?.data) {
+								const childrenNodes = blockData.data.children.map((children) =>
+									getNodeById(children, reactFlowInstance.getNodes())
+								);
+								const needingCompletion = childrenNodes
+									.map((cn) => hasConditionsNeedingCompletion(cn))
+									.some((v) => v === true);
+								const newG = qualificationFormResult.current.data;
 
+								const saveG = () => {
+									const currentBlock = getNodeById(
+										blockData.id,
+										reactFlowInstance.getNodes()
+									);
+									reactFlowInstance.setNodes(
+										getUpdatedArrayById(
+											{
+												...currentBlock,
+												data: {
+													...currentBlock.data,
+													g: newG,
+												},
+											},
+											reactFlowInstance.getNodes()
+										)
+									);
+								};
+
+								if (needingCompletion) {
+									const currentGradableType = getNodeTypeGradableType(
+										blockData,
+										platform
+									);
+									if (
+										(newG.hasConditions && currentGradableType != "simple") ||
+										(newG.hasToBeSeen && currentGradableType == "simple")
+									) {
+										saveG();
+									} else {
+										toast(
+											"No se pudieron cambiar los ajustes de finalización: Existen hijos que requieren que el recurso pueda ser finalizado.",
+											{
+												hideProgressBar: false,
+												autoClose: 6000,
+												type: "error",
+												position: "bottom-center",
+												theme: "light",
+											}
+										);
+									}
+								} else {
+									saveG();
+								}
+							}
 							handleClose();
 						}}
+						disabled={Boolean(!qualificationFormResult?.current?.data)}
 					>
 						Guardar
 					</Button>

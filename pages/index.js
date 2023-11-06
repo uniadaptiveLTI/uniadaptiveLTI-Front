@@ -189,7 +189,7 @@ export default function Home({ LTISettings }) {
 			</Head>
 			{LTISettings && (
 				<Layout LTISettings={LTISettings}>
-					{currentBlocksData != "" && currentBlocksData != undefined ? (
+					{currentBlocksData !== "" && currentBlocksData !== undefined ? (
 						<BlockFlow map={currentBlocksData}></BlockFlow>
 					) : (
 						<EmptySelector />

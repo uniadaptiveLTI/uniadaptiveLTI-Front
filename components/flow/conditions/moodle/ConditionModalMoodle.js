@@ -1,6 +1,7 @@
 import React, { useEffect, useContext, useRef, useState } from "react";
 import styles from "/styles/ConditionModalMoodle.module.css";
 import { Modal, Button, Form, Row, Col, Container } from "react-bootstrap";
+import { getNodeById } from "@utils/Nodes";
 import Condition from "./Condition";
 import {
 	faEdit,
@@ -554,7 +555,6 @@ function ConditionModalMoodle({
 		formData.id = uniqueId();
 
 		const updatedBlockData = deepCopy(blockData);
-		console.log(formData);
 		if (edition) {
 			formData.id = conditionEdit.id;
 			if (formData.type == "conditionsGroup") {
@@ -866,7 +866,16 @@ function ConditionModalMoodle({
 								required
 							>
 								<option value="completion">Finalización</option>
-								<option value="grade">Calificación</option>
+								{(getNodeById(conditionEdit.cm, reactFlowInstance.getNodes())
+									.type == "quiz" ||
+									getNodeById(conditionEdit.cm, reactFlowInstance.getNodes())
+										.type == "assign" ||
+									getNodeById(conditionEdit.cm, reactFlowInstance.getNodes())
+										.type == "workshop" ||
+									getNodeById(conditionEdit.cm, reactFlowInstance.getNodes())
+										.type == "forum") && (
+									<option value="grade">Calificación</option>
+								)}
 							</Form.Select>
 							<hr />
 						</>

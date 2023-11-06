@@ -1,5 +1,6 @@
 import React, { useId } from "react";
 import { Form } from "react-bootstrap";
+import { getGradableTypes } from "@utils/TypeDefinitions";
 import { getNodeById } from "@utils/Nodes";
 
 function CompletionForm({
@@ -10,6 +11,7 @@ function CompletionForm({
 	nodes,
 }) {
 	const coId = useId();
+	const sourceNode = getNodeById(conditionEdit.cm, nodes);
 	return (
 		<Form.Group
 			style={{
@@ -31,7 +33,7 @@ function CompletionForm({
 					Bloque:
 				</Form.Label>
 				<Form.Label>
-					<strong>{getNodeById(conditionEdit.cm, nodes).data.label}</strong>
+					<strong>{sourceNode?.data?.label}</strong>
 				</Form.Label>
 			</div>
 			<div className="d-flex align-items-baseline col-12 col-lg-6 col-xl-4">
@@ -50,8 +52,13 @@ function CompletionForm({
 					{/* The value is in that order refering to Moodle DB table schem */}
 					<option value="1">debe estar completa</option>
 					<option value="0">no debe estar completa</option>
-					<option value="2">debe estar completa y aprobada</option>
-					<option value="3">debe estar completa y suspendida</option>
+					{getGradableTypes("moodle").includes(sourceNode?.type) &&
+						sourceNode?.data?.g?.hasToBeQualified && (
+							<>
+								<option value="2">debe estar completa y aprobada</option>
+								<option value="3">debe estar completa y suspendida</option>
+							</>
+						)}
 				</Form.Select>
 			</div>
 		</Form.Group>

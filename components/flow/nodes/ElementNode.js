@@ -223,15 +223,20 @@ function ElementNode({
 					isConnectableEnd="false"
 				/>
 			)}
-			{getNodeById(id, reactFlowInstance.getNodes()).parentNode && (
-				<NodeToolbar position="left" offset={25}>
-					<FocusTrap
-						focusTrapOptions={{
-							clickOutsideDeactivates: true,
-							returnFocusOnDeactivate: true,
-						}}
-					>
-						<div className={styles.blockToolbar}>
+
+			<NodeToolbar position="left" offset={25}>
+				<FocusTrap
+					focusTrapOptions={{
+						clickOutsideDeactivates: true,
+						returnFocusOnDeactivate: true,
+					}}
+				>
+					<div className={styles.blockToolbar}>
+						<Button variant="dark" onClick={handleEdit} title="Editar elemento">
+							<FontAwesomeIcon icon={faEdit} />
+							<span className="visually-hidden">Editar elemento</span>
+						</Button>
+						{getNodeById(id, reactFlowInstance.getNodes()).parentNode && (
 							<Button
 								variant="dark"
 								onClick={extractSelf}
@@ -240,10 +245,11 @@ function ElementNode({
 								<FontAwesomeIcon icon={faRightFromBracket} />
 								<span className="visually-hidden">Sacar del fragmento</span>
 							</Button>
-						</div>
-					</FocusTrap>
-				</NodeToolbar>
-			)}
+						)}
+					</div>
+				</FocusTrap>
+			</NodeToolbar>
+
 			<div
 				id={id}
 				className={
@@ -263,6 +269,7 @@ function ElementNode({
 				onKeyDown={(e) => {
 					if (e.key == "Enter") handleEdit();
 				}}
+				tabIndex={0}
 				onMouseEnter={() => setIsHovered(true)}
 				onMouseLeave={() => setIsHovered(false)}
 			>

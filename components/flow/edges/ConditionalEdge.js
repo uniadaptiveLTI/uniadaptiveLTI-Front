@@ -143,6 +143,8 @@ const ConditionalEdge = ({
 									<br />
 								</>
 							);
+						} else {
+							return `Completado`;
 						}
 					} else {
 						return `Completado`;

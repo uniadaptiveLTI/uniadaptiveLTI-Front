@@ -30,20 +30,6 @@ export default function CustomControls({
 	const toggleDetails = () => setDetails(!details);
 	const toggleInteractive = () => setInteractive(!interactive);
 	const toggleMinimap = () => setMinimap(!minimap);
-	const centerToStart = () => {
-		const startNode = reactFlowInstance
-			.getNodes()
-			.find((node) => node.type === "start");
-		if (startNode) {
-			const x = startNode.position.x + startNode.width / 2;
-			const y = startNode.position.y + startNode.height / 2;
-			reactFlowInstance.setCenter(
-				startNode.position.x + startNode.width / 2,
-				startNode.position.y + startNode.height / 2,
-				fitViewOptions
-			);
-		}
-	};
 	const fitMap = () => {
 		reactFlowInstance.fitView(fitViewOptions);
 	};
@@ -78,9 +64,6 @@ export default function CustomControls({
 			</Button>
 			<Button title="Fit map" onClick={fitMap} variant="light">
 				<FontAwesomeIcon icon={faArrowsToDot} />
-			</Button>
-			<Button title="Move to start" onClick={centerToStart} variant="light">
-				<FontAwesomeIcon icon={faFlagCheckered} />
 			</Button>
 			<Button title="Show/hide details" onClick={toggleDetails} variant="light">
 				<FontAwesomeIcon icon={details ? faSquarePollHorizontal : faSquare} />

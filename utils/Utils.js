@@ -392,6 +392,12 @@ export function parseDate(date, dateComplete) {
 	}
 }
 
+/**
+ * Method to parse the given date using day, month and year, in case dateComplete param true then add hour and minute
+ * @param {String} date - Date string, or UNIX Date
+ * @param {boolean} full - (Default: true) Boolean to define change if full date or partial date
+ * @returns {String} Returns formatted date string
+ */
 export function parseDateToString(date, full = true) {
 	const year = date.getFullYear();
 	const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -405,6 +411,21 @@ export function parseDateToString(date, full = true) {
 	}
 }
 
+/**
+ * Method to used to save the node version
+ * @param {Node} rfNodes - Node Array
+ * @param {Object} metaData - metaData object
+ * @param {String} platform - Platform string
+ * @param {Object} userData - userData object
+ * @param {Object} mapSelected - current map object
+ * @param {Object} versionJson - current version object
+ * @param {Object} LTISettings - LTISettings object
+ * @param {defaultToastSuccess} defaultToastSuccess - Toast Success Settings Object
+ * @param {defaultToastError} defaultToastSuccess - Toast Error Settings Object
+ * @param {Function} toast - Toast function
+ * @param {Boolean} enable - Date string, or UNIX Date
+ * @param {Object} responseData - responseData object
+ */
 export async function saveVersion(
 	rfNodes,
 	metaData,
@@ -416,7 +437,9 @@ export async function saveVersion(
 	defaultToastSuccess,
 	defaultToastError,
 	toast,
-	enable
+	enable,
+	responseData,
+	lesson
 ) {
 	// Helper function to clean the nodes
 	function cleanNodes(nodes) {
@@ -456,6 +479,10 @@ export async function saveVersion(
 			},
 		};
 
+		if (platform == "sakai") {
+			saveData.lesson_id = lesson;
+		}
+
 		const response = await fetchBackEnd(
 			LTISettings,
 			sessionStorage.getItem("token"),
@@ -465,11 +492,69 @@ export async function saveVersion(
 		);
 
 		if (response && response.ok) {
-			// If the response is successful, show the success message
-			toast(successMessage, defaultToastSuccess);
+			if (responseData) {
+				switch (responseData) {
+					case "SUCCESSFUL_EXPORT":
+						console.log(
+							"%c ✔ La exportación y el guardado de la página de contenidos se han completado con éxito.",
+							"background: #D7FFD7; color: black; padding: 4px;"
+						);
+						toast(
+							"La exportación y el guardado de la página de contenidos se han completado con éxito.",
+							defaultToastSuccess
+						);
+						break;
+					case "SUCCESSFUL_EXPORT_WITHOUT_CONDITIONS":
+						console.log(
+							"%c ✔ La exportación (sin condiciones) y el guardado de la página de contenidos se han completado con éxito.",
+							"background: #D7FFD7; color: black; padding: 4px;"
+						);
+						toast(
+							"La exportación (sin condiciones) y el guardado de la página de contenidos se han completado con éxito.",
+							defaultToastSuccess
+						);
+						break;
+				}
+			} else {
+				// If the response is successful, show the success message
+				console.log(
+					"%c ✔ Versión guardada con éxito",
+					"background: #D7FFD7; color: black; padding: 4px;"
+				);
+				toast(successMessage, defaultToastSuccess);
+			}
 		} else {
-			// If the response is not successful, show the error message
-			toast(errorMessage, defaultToastError);
+			if (responseData) {
+				switch (responseData) {
+					case "SUCCESSFUL_EXPORT":
+						console.log(
+							"%c ⚠️ La exportación se ha completado con éxito, el guardado ha fallado",
+							"background: #FFE3D7; color: black; padding: 4px;"
+						);
+						toast(
+							"La exportación se ha completado con éxito, el guardado ha fallado",
+							defaultToastError
+						);
+						break;
+					case "SUCCESSFUL_EXPORT_WITHOUT_CONDITIONS":
+						console.log(
+							"%c ⚠️ La exportación (sin condiciones) se ha completado con éxito, el guardado ha fallado",
+							"background: #FFE3D7; color: black; padding: 4px;"
+						);
+						toast(
+							"La exportación (sin condiciones) se ha completado con éxito, el guardado ha fallado",
+							defaultToastError
+						);
+						break;
+				}
+			} else {
+				console.log(
+					"%c ❌ No se pudo guardar",
+					"background: #FFD7DC; color: black; padding: 4px;"
+				);
+				// If the response is not successful, show the error message
+				toast(errorMessage, defaultToastError);
+			}
 		}
 	} catch (e) {
 		// If an error occurs when making the request, show the error message and log the error in the console
@@ -480,22 +565,12 @@ export async function saveVersion(
 	}
 }
 
-export function reOrderSakaiRequisites(requisites) {
-	const customSort = (a, b) => {
-		const typeOrder = {
-			date: 1,
-			dateException: 2,
-			group: 3,
-		};
-
-		return typeOrder[a.type] - typeOrder[b.type];
-	};
-
-	const sortedArray = [...requisites].sort(customSort);
-
-	return sortedArray;
-}
-
+/**
+ * Redirects to the correct clampNodesOrder given the platform
+ * @param {Array} nodeArray - ReactFlow's node array.
+ * @param {String} platform - The platform name as a string
+ * @returns {Array} The reordered node array.
+ */
 export function clampNodesOrder(nodeArray, platform) {
 	switch (platform) {
 		case "moodle":
@@ -507,23 +582,73 @@ export function clampNodesOrder(nodeArray, platform) {
 	}
 }
 
+/**
+ * Gets the ID of a node given its lmsResource ID
+ * @param {String} resourceId - Id on string.
+ * @param {Array} nodes - Node array.
+ * @returns {String} The ID of the node.
+ */
+export function LMSResourceToId(resourceId, nodes) {
+	const node = nodes.find((node) => node.data.lmsResource == resourceId);
+	return node ? node.id : undefined;
+}
+
+/**
+ * This function handles name collisions by appending a count and separator to the name if it already exists in the array.
+ * @param {string} name - The name to check for collisions.
+ * @param {string[]} [array=[]] - The array of existing names.
+ * @param {boolean} [forceCount=false] - Whether to force appending a count to the name.
+ * @param {string} [separatorType=""] - The type of separator to use when appending the count.
+ * @returns {string} - The final name after handling collisions.
+ */
+export function handleNameCollision(
+	name,
+	array = [],
+	forceCount = false,
+	separatorType = ""
+) {
+	const prefixSuffixMap = {
+		"[": "]",
+		"(": ")",
+		"{": "}",
+		"<": ">",
+	};
+
+	const prefix = prefixSuffixMap[separatorType] ? separatorType : "";
+	const suffix = prefixSuffixMap[separatorType] || separatorType;
+
+	let nameCount = array.reduce(
+		(count, arrayName) => (arrayName.startsWith(name) ? count + 1 : count),
+		0
+	);
+	let finalName = name;
+
+	if (nameCount > 0 || forceCount) {
+		finalName = `${name} ${prefix}${nameCount + 1}${suffix}`;
+	}
+
+	if (array.includes(finalName)) {
+		return handleNameCollision(finalName, array, false, separatorType);
+	}
+
+	return finalName;
+}
+
 export function sakaiTypeSwitch(node) {
 	switch (node.type) {
 		case "resource":
-			return { type: 1, contentRef: node.id.toString() };
 		case "html":
-			return { type: 1, contentRef: node.id.toString() };
 		case "text":
-			return { type: 5, contentRef: node.id.toString() };
-		case "url":
-			return { type: 6, contentRef: node.id.toString() };
-		/* IS NOT SUPPORTED case "folder":
-			return { type: 20, contentRef: "" };*/
-		case "exam":
-			return { type: 4, contentRef: "/sam_pub/" + node.id };
+			return { type: 1, contentRef: node.id.toString() };
 		case "assign":
 			return { type: 3, contentRef: "/assignment/" + node.id };
+		case "exam":
+			return { type: 4, contentRef: "/sam_pub/" + node.id };
+		case "url":
+			return { type: 6, contentRef: node.id.toString() };
 		case "forum":
 			return { type: 8, contentRef: "/forum_forum/" + node.id };
+		case "folder":
+			return { type: 20, dataDirectory: node.id.toString() };
 	}
 }

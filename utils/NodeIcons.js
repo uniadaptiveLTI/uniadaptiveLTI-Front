@@ -249,20 +249,6 @@ export function getTypeIcon(type, platform, desiredSize = 32) {
 		// case "contents":
 		// 	return <FontAwesomeIcon icon={faFileLines} />;
 		//LTI
-		case "start":
-			return (
-				<FontAwesomeIcon
-					icon={faCaretDown}
-					style={{ transform: "rotate(-90deg)" }}
-				/>
-			);
-		case "end":
-			return (
-				<FontAwesomeIcon
-					icon={faCaretDown}
-					style={{ transform: "rotate(90deg)" }}
-				/>
-			);
 		case "fragment":
 			return <FontAwesomeIcon icon={faCubes} />;
 		default:
@@ -341,10 +327,6 @@ export const getTypeStaticColor = (type, platform) => {
 				case "workshop":
 					return "#A378FF";
 				//LTI
-				case "start":
-					return "#363638";
-				case "end":
-					return "#363638";
 				case "fragment":
 					return "#00008b";
 				default:
@@ -396,10 +378,6 @@ export const getTypeStaticColor = (type, platform) => {
 				case "resources":
 					return "#eb9408";
 				//LTI
-				case "start":
-					return "#363638";
-				case "end":
-					return "#363638";
 				case "fragment":
 					return "#00008b";
 				default:

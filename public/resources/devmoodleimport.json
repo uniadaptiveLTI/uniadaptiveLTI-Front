@@ -180,8 +180,18 @@
 		}
 	},
 	{
-		"name": "Archivo 1",
-		"modname": "resource",
+		"name": "Taller 1",
+		"modname": "workshop",
+		"g": {
+			"hasConditions": true,
+			"hasToBeSeen": true,
+			"hasToBeQualified": true,
+			"data": {
+				"min": 5,
+				"max": 10,
+				"hasToSelect": false
+			}
+		},
 		"id": "16",
 		"has_califications": false,
 		"order": 0,

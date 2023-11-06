@@ -30,11 +30,12 @@ import GradeForm from "@components/flow/conditions/sakai/form-components/GradeFo
 import styles from "/styles/RequisiteModalSakai.module.css";
 import { MetaDataContext } from "/pages/_app.js";
 import DateComponent from "@components/flow/conditions/sakai/condition-components/DateComponent";
-import { parseDate, uniqueId, reOrderSakaiRequisites } from "@utils/Utils";
+import { parseDate, uniqueId } from "@utils/Utils";
 import DateExceptionComponent from "@components/flow/conditions/sakai/condition-components/DateExceptionComponent";
 import GroupComponent from "@components/flow/conditions/sakai/condition-components/GroupComponent";
 import GradeComponent from "@components/flow/conditions/sakai/condition-components/GradeComponent";
 import { getAutomaticReusableStyles } from "@utils/Colors";
+import { reOrderSakaiRequisites } from "@utils/Sakai";
 
 function RequisiteModalSakai({
 	blockData,
@@ -55,7 +56,6 @@ function RequisiteModalSakai({
 
 	useEffect(() => {
 		if (conditionEdit) {
-			console.log(conditionEdit);
 			// FUTURE FEATURE EDIT DATE EXCEPTION??
 			switch (conditionEdit.type) {
 				case "date":
@@ -129,7 +129,6 @@ function RequisiteModalSakai({
 				}
 
 				if (dates["closeTime"]) {
-					console.log("CLOSE TIME DEFINED");
 					const closeTimeRefValue = new Date(dates["closeTime"]);
 
 					if (dueDateRefValue >= closeTimeRefValue) {
@@ -143,7 +142,6 @@ function RequisiteModalSakai({
 					}
 
 					if (openingDateRefValue >= closeTimeRefValue) {
-						console.log(openingDateRefValue, closeTimeRefValue);
 						message.push({
 							id: 3,
 							message:
@@ -154,14 +152,11 @@ function RequisiteModalSakai({
 					}
 				}
 			} else {
-				console.log("Fecha vacia");
 				message.push({
 					id: 4,
 					message: "Todas los campos deben poseer un formato de fecha correcto",
 				});
 			}
-
-			console.log(message);
 			setErrorForm(message);
 		}
 	}, [dates]);
@@ -222,7 +217,6 @@ function RequisiteModalSakai({
 				requisiteId,
 				blockData.data.gradeRequisites.subConditions
 			);
-			console.log(updatedBlockData.data.gradeRequisites);
 			updatedBlockData.data.gradeRequisites?.subConditions?.forEach(
 				(logicalSet) => {
 					logicalSet.subConditions = logicalSet.subConditions?.filter(
@@ -282,8 +276,6 @@ function RequisiteModalSakai({
 				formData.operator = exceptionSelectRef.current.value;
 		}
 
-		console.log(formData);
-
 		const updatedBlockData = { ...blockData };
 
 		if (conditionEdit) {
@@ -329,7 +321,6 @@ function RequisiteModalSakai({
 						}
 					}
 				);
-				console.log(updatedBlockData.data.gradeRequisites);
 			}
 		} else {
 			if (!updatedBlockData.data.requisites) {
@@ -417,9 +408,7 @@ function RequisiteModalSakai({
 												true,
 												false
 											)}
-											onClick={() =>
-												deleteRequisite(dateRequisite[0].itemId, true)
-											}
+											onClick={() => deleteRequisite(dateRequisite[0].id, true)}
 										>
 											<FontAwesomeIcon
 												className={styles.cModal}

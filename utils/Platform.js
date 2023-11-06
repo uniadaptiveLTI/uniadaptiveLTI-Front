@@ -156,8 +156,3 @@ export function getSupportedTypes(platform) {
 		if (declaration.lms.includes(platform)) return declaration.type;
 	}).map((validDeclaration) => validDeclaration.type);
 }
-
-export function getResetOnTypeChange(platform) {
-	if (platform == "moodle") return ["grades"];
-	if (platform == "sakai") return ["requisites"];
-}

@@ -10,6 +10,7 @@ import { Modal, Button, Container, Col, Row } from "react-bootstrap";
 import { PlatformContext } from "/pages/_app";
 import { NodeTypes, getGradableTypes } from "@utils/TypeDefinitions";
 import {
+	handleNameCollision,
 	orderByPropertyAlphabetically,
 	parseBool,
 	uniqueId,
@@ -94,7 +95,13 @@ export default forwardRef(function NodeSelector(
 		const data = {};
 		const section = getMaxSectionFromSelection();
 		if (nodeType == "ElementNode") {
-			data.label = NodeTypes.find((ntype) => type == ntype.type).emptyName;
+			data.label = handleNameCollision(
+				NodeTypes.find((ntype) => type == ntype.type).emptyName,
+				rfNodes.map((node) => node?.data?.label),
+				false,
+				"("
+			);
+
 			data.children = [];
 			data.section =
 				section == undefined || section == Infinity || section == -Infinity
@@ -105,15 +112,14 @@ export default forwardRef(function NodeSelector(
 			data.indent = 0;
 			if (platform == "moodle" && getGradableTypes("moodle").includes(type))
 				data.g = {
-					completionTracking: 0,
+					hasConditions: false,
 					hasToBeSeen: false,
 					hasToBeQualified: false,
-					qualificationToPass: 0,
-					attemptsAllowed: 0,
-					qualificationMethod: 0,
-					requiredType: 1,
-					hasTimeLimit: false,
-					timeLimit: 0,
+					data: {
+						min: 0,
+						max: 0,
+						hasToSelect: false,
+					},
 				};
 		} else {
 			data.label = name;

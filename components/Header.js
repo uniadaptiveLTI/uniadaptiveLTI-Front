@@ -61,6 +61,7 @@ import {
 	getHTTPPrefix,
 	saveVersion,
 	fetchBackEnd,
+	handleNameCollision,
 } from "@utils/Utils.js";
 import { isNodeArrayEqual } from "@utils/Nodes";
 import { errorListCheck } from "@utils/ErrorHandling";
@@ -266,72 +267,49 @@ function Header({ LTISettings }, ref) {
 	 * Handles the creation of a new map.
 	 */
 	const handleNewMap = (e, data, localMaps = maps) => {
-		const handleNameCollision = (name, maps = localMaps) => {
-			let repeated = false;
-			let finalName = name;
-			localMaps.forEach((map) => {
-				if (map.name == name) repeated = true;
-			});
-
-			if (repeated) {
-				let nameCount = localMaps.filter((map) =>
-					map.name.startsWith(name)
-				).length;
-				finalName = name + ` (${nameCount + 1})`;
-			}
-			return finalName;
-		};
-
 		const emptyNewMap = {
 			id: uniqueId(),
-			name: handleNameCollision("Nuevo Mapa " + localMaps.length),
+			name: handleNameCollision(
+				"Nuevo Mapa",
+				localMaps.map((map) => map.name),
+				true,
+				"("
+			),
 			versions: [
 				{
 					id: uniqueId(),
 					name: "Primera versión",
 					lastUpdate: new Date().toLocaleDateString(),
 					default: "true",
-					blocksData: [
-						{
-							id: uniqueId(),
-							position: { x: 0, y: 0 },
-							type: "start",
-							deletable: false,
-							data: {
-								label: "Entrada",
-							},
-						},
-						{
-							id: uniqueId(),
-							position: { x: 125, y: 0 },
-							type: "end",
-							deletable: false,
-							data: {
-								label: "Salida",
-							},
-						},
-					],
+					blocksData: new Array(),
 				},
 			],
 		};
-		console.log(emptyNewMap);
 		const encodedNewMap = encodeURIComponent(emptyNewMap);
+		const newMap = {
+			...data,
+			id: uniqueId(),
+			name: handleNameCollision(
+				"Nuevo Mapa",
+				localMaps.map((map) => map.name),
+				true,
+				"("
+			),
+		};
 
-		const newMaps = [
-			...localMaps,
-			data
-				? {
-						...data,
-						id: uniqueId(),
-						name: handleNameCollision("Nuevo Mapa " + localMaps.length),
-				  }
-				: emptyNewMap,
-		];
+		const newMaps = [...localMaps, data ? newMap : emptyNewMap];
+
+		console.info(`🗺️ New map added: `, data ? newMap : emptyNewMap);
 
 		setMaps(newMaps);
 		setLastMapCreated(emptyNewMap.id);
 		toast(
-			`Mapa: ${handleNameCollision("Nuevo Mapa " + localMaps.length)} creado`,
+			`Mapa: ${handleNameCollision(
+				"Nuevo Mapa",
+				localMaps.map((map) => map.name),
+				true,
+				"("
+			)} creado`,
 			defaultToastSuccess
 		);
 		setMapCount((prev) => prev + 1);
@@ -342,8 +320,7 @@ function Header({ LTISettings }, ref) {
 		localMetaData = metaData,
 		localMaps = maps
 	) => {
-		const uniqueId = () => parseInt(Date.now() * Math.random()).toString();
-		console.log(lesson, localMetaData, localMaps);
+		const emptyNewVersion = [];
 
 		let data;
 		if (!LTISettings.debugging.dev_files) {
@@ -379,32 +356,37 @@ function Header({ LTISettings }, ref) {
 				data = await response.json();
 			}
 		}
-
-		console.log("JSON RECIBIDO: ", data);
+		console.info(`❓ JSON:`, data);
 
 		let newX = 125;
 		let newY = 0;
 		const validTypes = [];
 		NodeTypes.map((node) => validTypes.push(node.type));
 		const nodes = [];
-		console.log(data, validTypes);
-		data.map((node) => {
-			switch (platform) {
-				case "moodle":
-					nodes.push(parseMoodleNode(node, newX, newY));
-					newX += 125;
-					break;
-				case "sakai":
-					parseSakaiNode(nodes, node, newX, newY, validTypes);
-					newX += 125;
-					break;
-			}
-		});
 
+		const isEmptyMap = data.length < 1;
+
+		if (!isEmptyMap) {
+			data.map((node) => {
+				switch (platform) {
+					case "moodle":
+						nodes.push(parseMoodleNode(node, newX, newY));
+						newX += 125;
+						break;
+					case "sakai":
+						parseSakaiNode(nodes, node, newX, newY, validTypes);
+						newX += 125;
+						break;
+				}
+			});
+		} else {
+			data = emptyNewVersion;
+		}
+
+		//Bring badges
 		switch (platform) {
 			case "moodle":
 				localMetaData.badges.map((badge) => {
-					console.log(badge);
 					nodes.push(parseMoodleBadges(badge, newX, newY));
 					newX += 125;
 				});
@@ -413,26 +395,21 @@ function Header({ LTISettings }, ref) {
 				break;
 		}
 
-		console.log("JSON FILTRADO Y ADAPTADO: ", nodes);
-
-		//FIXME: JUST MOODLE
 		let platformNewMap;
 		if (platform == "moodle") {
 			platformNewMap = createNewMoodleMap(nodes, localMetaData, localMaps);
 		} else {
-			console.log(lesson);
 			platformNewMap = createNewSakaiMap(
 				nodes,
 				lesson,
 				localMetaData,
 				localMaps
 			);
-			console.log(platformNewMap);
 		}
 
 		const newMaps = [...localMaps, platformNewMap];
 
-		console.log("JSON CONVERTIDO EN UN MAPA: ", platformNewMap);
+		console.info(`🗺️ New map added: `, platformNewMap);
 
 		setMaps(newMaps);
 		setLastMapCreated(platformNewMap.id);
@@ -455,48 +432,19 @@ function Header({ LTISettings }, ref) {
 	 * Handles the creation of a new version.
 	 */
 	const handleNewVersion = (e, data) => {
-		const handleNameCollision = (name) => {
-			let repeated = false;
-			let finalName = name;
-			selectedMap.versions.forEach((map) => {
-				if (map.name == name) repeated = true;
-			});
-
-			if (repeated) {
-				let nameCount = selectedMap.versions.filter((map) =>
-					map.name.startsWith(name)
-				).length;
-				finalName = name + ` (${nameCount + 1})`;
-			}
-			return finalName;
-		};
-
 		const selectedMap = getMapById(selectMapDOM.current.value);
+		let finalName = handleNameCollision(
+			"Nueva Versión",
+			selectedMap.versions.map((version) => version.name),
+			true,
+			"("
+		);
 		const emptyNewVersion = {
 			id: uniqueId(),
-			name: handleNameCollision("Nueva Versión " + selectedMap.versions.length),
+			name: finalName,
 			lastUpdate: new Date().toLocaleDateString(),
 			default: "true",
-			blocksData: [
-				{
-					id: uniqueId(),
-					position: { x: 0, y: 0 },
-					type: "start",
-					deletable: false,
-					data: {
-						label: "Entrada",
-					},
-				},
-				{
-					id: uniqueId(),
-					position: { x: 125, y: 0 },
-					type: "end",
-					deletable: false,
-					data: {
-						label: "Salida",
-					},
-				},
-			],
+			blocksData: new Array(),
 		};
 
 		const newFullVersion = data
@@ -504,9 +452,7 @@ function Header({ LTISettings }, ref) {
 					...data,
 					id: uniqueId(),
 					lastUpdate: new Date().toLocaleDateString(),
-					name: handleNameCollision(
-						"Nueva Versión " + selectedMap.versions.length
-					),
+					name: finalName,
 					default: false,
 			  }
 			: emptyNewVersion;
@@ -520,12 +466,7 @@ function Header({ LTISettings }, ref) {
 		setMaps(newMaps);
 		setVersions(modifiedMap.versions);
 		setLastVersionCreated(newFullVersion);
-		toast(
-			`Versión: ${handleNameCollision(
-				"Nueva Versión " + selectedMap.versions.length
-			)} creada`,
-			defaultToastSuccess
-		);
+		toast(`Versión: ${finalName} creada`, defaultToastSuccess);
 	};
 
 	/**
@@ -534,32 +475,20 @@ function Header({ LTISettings }, ref) {
 	 * @param {string} mapId - The id of the map to create a new version for.
 	 */
 	const handleNewVersionIn = (data, mapId) => {
-		const handleNameCollision = (name, selectedMap) => {
-			let repeated = false;
-			let finalName = name;
-			selectedMap.versions.forEach((map) => {
-				if (map.name == name) repeated = true;
-			});
-
-			if (repeated) {
-				let nameCount = selectedMap.versions.filter((map) =>
-					map.name.startsWith(name)
-				).length;
-				finalName = name + ` (${nameCount + 1})`;
-			}
-			return finalName;
-		};
 		const selectedMap = getMapById(mapId);
+		let finalName = handleNameCollision(
+			"Nueva Versión",
+			selectedMap.versions.map((version) => version.name),
+			true,
+			"("
+		);
 		const newMapVersions = [
 			...selectedMap.versions,
 			{
 				...data,
 				id: uniqueId(),
 				lastUpdate: new Date().toLocaleDateString(),
-				name: handleNameCollision(
-					"Nueva Versión " + selectedMap.versions.length,
-					selectedMap
-				),
+				name: finalName,
 				default: false,
 			},
 		];
@@ -577,13 +506,7 @@ function Header({ LTISettings }, ref) {
 			modifiedMap.versions[selectedMap.versions.length - 1].blocksData
 		);
 
-		toast(
-			`Versión: ${handleNameCollision(
-				"Nueva Versión " + selectedMap.versions.length,
-				selectedMap
-			)} creada`,
-			defaultToastSuccess
-		);
+		toast(`Versión: ${finalName} creada`, defaultToastSuccess);
 	};
 
 	/**
@@ -690,7 +613,6 @@ function Header({ LTISettings }, ref) {
 		const versionId = selectedVersion.id;
 		const mapId = selectMapDOM.current.value;
 		const versionCount = maps.find((map) => map.id == mapId).versions.length;
-		console.log(versionCount);
 		if (versionCount > 1) {
 			if (!LTISettings.debugging.dev_files) {
 				try {
@@ -909,11 +831,10 @@ function Header({ LTISettings }, ref) {
 							"api/lti/get_session",
 							"POST"
 						);
-						console.log(response);
 						if (response && response.ok) {
 							const data = response.data;
 
-							console.log("DATOS DEL LMS: ", data);
+							console.log("LMS DATA: ", data);
 							// Usuario
 							setUserData(data[0]);
 							setLoadedUserData(true);
@@ -983,7 +904,7 @@ function Header({ LTISettings }, ref) {
 			}
 		} catch (e) {
 			toast(e, defaultToastError);
-			console.error(e, e.log);
+			console.error(`❌ Error: `, e, e.log);
 		}
 	}, []);
 
@@ -1013,7 +934,6 @@ function Header({ LTISettings }, ref) {
 					setErrorList,
 					false
 				);
-				//console.log(selectedVersion.blocksData);
 				setCurrentBlocksData(selectedVersion.blocksData);
 			}
 		}
@@ -1161,10 +1081,11 @@ function Header({ LTISettings }, ref) {
 				defaultToastSuccess,
 				defaultToastError,
 				toast,
-				enableSaving
+				enableSaving,
+				undefined
 			);
 		} catch (error) {
-			console.log(error);
+			console.error(`❌ Error: `, error);
 		}
 	};
 
@@ -1364,7 +1285,7 @@ function Header({ LTISettings }, ref) {
 								className={`btn-light d-flex align-items-center p-2 ${styles.actionButtons}`}
 								onClick={() =>
 									window.open(
-										"https://docs.google.com/document/d/1mbLlx_1A9a-6aNAb8n_amQxxwZocZeawbat_Bs152Sw/edit?usp=sharing",
+										"https://docs.google.com/document/d/1mbLlx_1A9a-6aNAb8n_amQxxwZocZeawbat_Bs152Sw",
 										"_blank"
 									)
 								}
@@ -1387,7 +1308,7 @@ function Header({ LTISettings }, ref) {
 									}}
 								>
 									{errorList && errorList.length >= 1 && (
-										<span class="d-flex gap-1 position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+										<span className="d-flex gap-1 position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
 											<FontAwesomeIcon icon={faTriangleExclamation} />
 										</span>
 									)}

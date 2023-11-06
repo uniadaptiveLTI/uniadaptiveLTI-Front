@@ -85,7 +85,7 @@ const Menu = (
 							<div>
 								<FontAwesomeIcon icon={faCheckSquare} />
 								<div>
-									Editar calificaciones
+									Editar ajustes de finalización
 									<span>CTRL/Cmd+ALT/Opt+E</span>
 								</div>
 							</div>

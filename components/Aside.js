@@ -7,6 +7,7 @@ import {
 	faCompress,
 	faCircleQuestion,
 } from "@fortawesome/free-solid-svg-icons";
+import { toast } from "react-toastify";
 import { useReactFlow } from "reactflow";
 import {
 	Tooltip,
@@ -33,6 +34,7 @@ import {
 	getUpdatedArrayById,
 	orderByPropertyAlphabetically,
 	fetchBackEnd,
+	handleNameCollision,
 } from "@utils/Utils";
 import {
 	ActionNodes,
@@ -122,10 +124,9 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 			};
 
 			if (selectedOption == "generic") {
-				payload.supportedTypes = getSupportedTypes(platform);
-				payload.sections = metaData.sections.map((section) => {
-					return { id: section.id, position: section.position };
-				});
+				setShowSpinner(false);
+				setAllowResourceSelection(true);
+				return [];
 			}
 
 			const response = await fetchBackEnd(
@@ -136,13 +137,24 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 				payload
 			);
 
-			console.log(response);
-
-			if (!response) {
+			if (
+				!response ||
+				!response.ok ||
+				(response?.ok && response?.ok == false)
+			) {
+				/* Old error handler
 				throw new Error("Request failed");
+				*/
+				console.error(`❌ Error: `, response.status);
+				toast({
+					hideProgressBar: false,
+					autoClose: 2000,
+					type: "error",
+					position: "bottom-center",
+				});
 			}
 
-			const data = response.data;
+			const data = response.data.items;
 
 			setShowSpinner(false);
 			setAllowResourceSelection(true);
@@ -253,8 +265,8 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 					);
 					uniqueFilteredData.forEach((option) => {
 						return hasUnorderedResources(platform)
-							? (option.bettername = `${option.name}`)
-							: (option.bettername = `${option.name} ${
+							? (option.oname = `${option.name}`)
+							: (option.oname = `${option.name} ${
 									option.section > -1 ? "- Sección: " + option.section : ""
 							  }`);
 					});
@@ -297,10 +309,15 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 				)
 			) {
 				const labelCurrent = labelDOM.current;
-
-				labelCurrent.value = resourceOptions.find(
-					(resource) => resource.id == e.target.value
-				).name;
+				labelCurrent.value =
+					e.target.options[e.target.selectedIndex].text ||
+					handleNameCollision(
+						NodeTypes.find((ntype) => nodeSelected.type == ntype.type)
+							.emptyName,
+						reactFlowInstance.getNodes().map((node) => node?.data?.label),
+						false,
+						"("
+					);
 			}
 		}
 	};
@@ -422,8 +439,6 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 							node.data.section == newSection
 					);
 
-				console.log(aNodeWithNewOrderExists, limitedOrder - 1);
-
 				const reorderNodes = (newSection, originalOrder, limitedOrder) => {
 					const [from, to] = [originalOrder, limitedOrder - 1];
 					const reorderedArray = reorderFromSection(
@@ -449,7 +464,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 						to,
 						reactFlowInstance.getNodes()
 					);
-					console.log(reorderedArray, updatedData);
+
 					reactFlowInstance.setNodes([
 						...reactFlowInstance.getNodes(),
 						...reorderedArray,
@@ -458,7 +473,6 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 				};
 
 				const updateNodes = (updatedData) => {
-					console.log(reactFlowInstance.getNodes());
 					reactFlowInstance.setNodes(
 						getUpdatedArrayById(updatedData, reactFlowInstance.getNodes())
 					);
@@ -469,12 +483,10 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 					originalSection != newSection ||
 					(platform == "sakai" && originalIndent != newIndent)
 				) {
-					console.log(originalSection, newSection);
 					if (originalSection == newSection && platform != "sakai") {
 						//Change in order
 						reorderNodes(newSection, originalOrder, limitedOrder);
 					} else {
-						console.log("CAMBIO DE SECCIÓN Y/O IDENTACIÓN");
 						const virtualNodes = reactFlowInstance.getNodes();
 						const forcedPos =
 							platform == "moodle"
@@ -484,7 +496,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 										newIndent,
 										virtualNodes
 								  ) + 1;
-						console.log(forcedPos);
+
 						if (platform == "moodle") updatedData.data.order = forcedPos;
 						if (platform == "sakai") updatedData.data.order = forcedPos - 1;
 						virtualNodes.push(updatedData);
@@ -498,7 +510,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 							);
 						} else {
 							//If the desired position is outside the section
-							console.log(updatedData);
+
 							updateNodes(updatedData);
 						}
 					}
@@ -508,15 +520,12 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 
 				errorListCheck(updatedData, errorList, setErrorList, false);
 			} else {
-				console.log(nodeSelected);
 				//if action node
 				newData = {
 					...nodeSelected.data,
 					label: labelDOM.current.value,
 					lmsResource: type !== "mail" ? lmsResourceDOM.current.value : type,
 				};
-
-				console.log(newData);
 
 				const updatedData = {
 					...nodeSelected,
@@ -818,8 +827,8 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 													</option>
 													{resourceOptions.map((resource) => (
 														<option key={resource.id} value={resource.id}>
-															{resource.bettername != undefined
-																? resource.bettername
+															{resource.oname != undefined
+																? resource.oname
 																: resource.name}
 														</option>
 													))}
@@ -896,7 +905,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 															[...metaData.sections].map((section) => {
 																const newSection = section;
 																if (!section.name.match(/^\d/)) {
-																	section.name =
+																	newSection.name =
 																		platform == "moodle"
 																			? newSection.position +
 																			  "- " +

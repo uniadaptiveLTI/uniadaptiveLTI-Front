@@ -25,18 +25,29 @@ export default function Admin({ LTISettings }) {
 	const loginInputId = useId();
 
 	const logIn = async () => {
-		try {
-			setLastPassword(loginInputDOM.current.value);
-			const response = await fetch("/api/auth/", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(loginInputDOM.current.value),
-			});
-			const result = await response.json();
-			setAuth(result.valid);
+		if (!LTISettings.debugging.dev_files) {
+			try {
+				setLastPassword(loginInputDOM.current.value);
+				const response = await fetch("/api/auth/", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(loginInputDOM.current.value),
+				});
+				const result = await response.json();
+				setAuth(result.valid);
 
-			if (!result.valid) {
-				toast("Contraseña incorrecta.", {
+				if (!result.valid) {
+					toast("Contraseña incorrecta.", {
+						hideProgressBar: false,
+						autoClose: 4000,
+						type: "error",
+						position: "bottom-center",
+						theme: "light",
+					});
+				}
+			} catch (e) {
+				setAuth(false);
+				toast("No se puede conectar con el servidor.", {
 					hideProgressBar: false,
 					autoClose: 4000,
 					type: "error",
@@ -44,21 +55,13 @@ export default function Admin({ LTISettings }) {
 					theme: "light",
 				});
 			}
-		} catch (e) {
-			setAuth(false);
-			toast("No se puede conectar con el servidor.", {
-				hideProgressBar: false,
-				autoClose: 4000,
-				type: "error",
-				position: "bottom-center",
-				theme: "light",
-			});
+		} else {
+			setAuth(true);
 		}
 	};
 
 	const modifySettings = async (modifiedSettings) => {
 		const newSettings = { ...LTISettings, ...modifiedSettings };
-		console.log(LTISettings, modifiedSettings, newSettings);
 		const response = await fetch("/api/modifyLTISettings/", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
@@ -174,7 +177,7 @@ export default function Admin({ LTISettings }) {
 							<Row>
 								<Col className={styles.paneContainer}>
 									<div style={{ display: "flex", justifyContent: "center" }}>
-										<Form>
+										<Form action="#" method="" onSubmit={logIn}>
 											<Form.Label htmlFor={loginInputId}>
 												Introduzca contraseña de administración
 											</Form.Label>
