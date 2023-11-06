@@ -858,6 +858,7 @@ const OverviewFlow = ({ map }, ref) => {
 			finalNodeArray
 		);
 
+		setRelationStarter(); //Empties relation memory in case the deleted block was used
 		return finalReorderedNodeArray;
 	};
 
