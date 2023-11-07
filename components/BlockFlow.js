@@ -423,10 +423,11 @@ const OverviewFlow = ({ map }, ref) => {
 							);
 
 							if (
-								(blockData.data.g.hasConditions &&
+								currentGradableType &&
+								((blockData.data.g.hasConditions &&
 									currentGradableType != "simple") ||
-								(blockData.data.g.hasToBeSeen &&
-									currentGradableType == "simple")
+									(blockData.data.g.hasToBeSeen &&
+										currentGradableType == "simple"))
 							) {
 								if (!validTypes.includes(targetNode.type)) {
 									const newCondition = {

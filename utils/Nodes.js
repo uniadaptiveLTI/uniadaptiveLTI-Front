@@ -471,7 +471,9 @@ export function nodeArrayContainsGrades(nodeArray, metaData) {
  * @returns {string} The gradable type of the node for the given platform.
  */
 export function getNodeTypeGradableType(node, platform) {
-	return NodeTypes.find((nt) => nt.type == node.type)?.gradable.find(
-		(gradable) => gradable.lms == platform
-	).type;
+	return (
+		NodeTypes.find((nt) => nt.type == node.type)?.gradable.find(
+			(gradable) => gradable.lms == platform
+		)?.type || ""
+	);
 }

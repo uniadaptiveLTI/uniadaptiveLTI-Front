@@ -100,8 +100,9 @@ function QualificationModal({
 										platform
 									);
 									if (
-										(newG.hasConditions && currentGradableType != "simple") ||
-										(newG.hasToBeSeen && currentGradableType == "simple")
+										currentGradableType &&
+										((newG.hasConditions && currentGradableType != "simple") ||
+											(newG.hasToBeSeen && currentGradableType == "simple"))
 									) {
 										saveG();
 									} else {

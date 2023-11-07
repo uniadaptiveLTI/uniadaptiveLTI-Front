@@ -11,6 +11,7 @@ import {
 	orderByPropertyAlphabetically,
 	getNodeById,
 	getParentsNode,
+	getNodeTypeGradableType,
 } from "@utils/Nodes";
 import { uniqueId } from "@utils/Utils";
 import { getTypeIcon, getTypeStaticColor } from "@utils/NodeIcons";
@@ -311,11 +312,14 @@ export default forwardRef(function ExportModal(
 					);
 
 					if (!errorFound) {
-						const currentNodeGradableType = NodeTypes.find(
-							(nt) => nt.type == node.type
-						)?.gradable.find((gradable) => gradable.lms == "moodle").type;
+						console.log(node);
+						const currentNodeGradableType = getNodeTypeGradableType(
+							node,
+							platform
+						);
 
 						if (
+							currentNodeGradableType &&
 							currentNodeGradableType == "simple" &&
 							node?.data?.g?.hasToBeSeen === true
 						) {
