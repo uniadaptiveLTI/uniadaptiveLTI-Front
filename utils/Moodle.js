@@ -208,6 +208,24 @@ export function createNewMoodleMap(nodes, metadata, maps) {
 						: moodleConditionalIDAdder(conditions.c, nodes),
 			};
 
+			//Import show/showc
+			if (parsedConditions.showc || parsedConditions.show) {
+				if (parsedConditions.showc) {
+					const showc = parsedConditions.showc;
+					delete parsedConditions.showc;
+					if (parsedConditions.c && Array.isArray(showc)) {
+						for (let i = 0; i < showc.length; i++) {
+							parsedConditions.c[i].showc = showc[i];
+						}
+					}
+				}
+				if (parsedConditions.show) {
+					const show = parsedConditions.show;
+					parsedConditions.showc = show;
+					delete parsedConditions.show;
+				}
+			}
+
 			if (
 				parsedConditions &&
 				parsedConditions.c &&
