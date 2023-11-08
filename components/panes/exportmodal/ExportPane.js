@@ -242,8 +242,6 @@ export default function ExportPanel({
 				}
 
 				specifyRecursiveConditionType(data.c);
-
-				//deleteRecursiveId(data.c);
 				deleteRecursiveNull(data.c);
 				data.c = deleteEmptyC(data.c);
 			}

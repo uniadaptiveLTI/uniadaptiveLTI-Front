@@ -117,7 +117,7 @@ export default forwardRef(function NodeSelector(
 					hasToBeQualified: false,
 					data: {
 						min: 0,
-						max: 0,
+						max: type == "quiz" ? 10 : 100,
 						hasToSelect: false,
 					},
 				};

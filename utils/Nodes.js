@@ -34,6 +34,20 @@ export const getNodeById = (id, nodeArray) => {
 	}
 };
 
+/**
+ * Gets a node from an array of nodes by its lmsResource.
+ * @param {string} lmsResource - The lmsResource of the node to get.
+ * @param {Object[]} nodeArray - The array of nodes to search in.
+ * @return {Object|undefined} The node with the given lmsResource or undefined if not found.
+ */
+export const getNodeByLMSResource = (lmsResource, nodeArray) => {
+	if (Array.isArray(nodeArray)) {
+		return nodeArray.find((node) => node.data.lmsResource == lmsResource);
+	} else {
+		return undefined;
+	}
+};
+
 export const getParentsNode = (nodesArray, childId) => {
 	return nodesArray.filter(
 		(node) => node.data.children && node.data.children.includes(childId)

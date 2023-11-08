@@ -121,6 +121,8 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 			const payload = {
 				type:
 					selectedOption == "generic" ? "unsupported" : encodedSelectedOption,
+				supportedTypes:
+					selectedOption == "generic" ? getSupportedTypes(platform) : undefined,
 			};
 
 			if (selectedOption == "generic") {
@@ -309,21 +311,25 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 				)
 			) {
 				const labelCurrent = labelDOM.current;
+				//TODO: Test it even more
 				labelCurrent.value =
-					e.target.options[e.target.selectedIndex].text ||
-					handleNameCollision(
-						NodeTypes.find((ntype) => nodeSelected.type == ntype.type)
-							.emptyName,
-						reactFlowInstance.getNodes().map((node) => node?.data?.label),
-						false,
-						"("
-					);
+					platform == "moodle"
+						? resourceOptions.find(
+								(resource) => e.target.value == resource.id && resource.id > -1
+						  )?.name
+						: e.target.options[e.target.selectedIndex].text ||
+						  handleNameCollision(
+								NodeTypes.find((ntype) => nodeSelected.type == ntype.type)
+									.emptyName,
+								reactFlowInstance.getNodes().map((node) => node?.data?.label),
+								false,
+								"("
+						  );
 			}
 		}
 	};
 
 	const handleSelect = (event) => {
-		// FIXME Del cambio de calquier tipo a mail el icono refresh no se mapea por lo que no puede pillar las referencia
 		setSelectedOption(event.target.value);
 	};
 
