@@ -326,8 +326,9 @@ const OverviewFlow = ({ map }, ref) => {
 			});
 		}
 
-		if (target?.type == "fragment") {
-			if (target.data.expanded) {
+		if (target?.type == "fragment" && node.type != "fragment") {
+			console.log(node);
+			if (target.data.expanded && node.parentNode == undefined) {
 				//Adds node to target fragment
 				const relPos = {
 					x: node.position.x - target.position.x,
