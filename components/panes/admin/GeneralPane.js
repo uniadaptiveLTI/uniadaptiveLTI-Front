@@ -1,3 +1,4 @@
+import { fetchBackEnd } from "@utils/Utils";
 import styles from "/styles/AdminPane.module.css";
 import { useEffect, useState } from "react";
 import { Col, Row } from "react-bootstrap";
@@ -49,30 +50,30 @@ export default function GeneralPane({ LTISettings }) {
 
 	async function getBackStatus() {
 		if (!LTISettings.debugging.dev_files) {
-			const response = await fetch("/api/auth/", {
-				//TODO: MOVE IT TO THE BACK END
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify("ping"),
-			});
-			const result = await response.json();
-			const pong = result.response;
+			let pong = false;
+			try {
+				const response = await fetchBackEnd(
+					LTISettings,
+					sessionStorage.getItem("token"),
+					"api/lti/branding/ping",
+					"POST",
+					{ ping: "ping" }
+				);
+				const result = await response;
+				pong = result.pong;
+			} catch (e) {
+				console.error("No se puede conectar con el back end");
+			}
 
-			if (pong) {
+			if (pong == "pong") {
 				setIsBackOnline(true);
-				return (
-					<span style={{ color: "var(--success-background-color)" }}>OK</span>
-				);
+				return <span style={{ color: "var(--bs-success)" }}>OK</span>;
 			} else {
-				return (
-					<span style={{ color: "var(--error-background-color)" }}>Error</span>
-				);
+				return <span style={{ color: "var(--bs-error)" }}>Error</span>;
 			}
 		} else {
 			return (
-				<span style={{ color: "var(--warning-background-color)" }}>
-					Using DEV_FILES
-				</span>
+				<span style={{ color: "var(--bs-warning)" }}>Using DEV_FILES</span>
 			);
 		}
 	}
@@ -143,18 +144,6 @@ export default function GeneralPane({ LTISettings }) {
 								{LTISettings.debugging.dev_files
 									? "USING LOCAL FILES"
 									: LTISettings.back_url}
-							</li>
-							<li>
-								<b>Fecha y hora de inicio:</b>{" "}
-								{LTISettings.debugging.dev_files
-									? "USING LOCAL FILES"
-									: "Ver abajo"}
-							</li>
-							<li>
-								<b>Tiempo online:</b>{" "}
-								{LTISettings.debugging.dev_files
-									? "USING LOCAL FILES"
-									: "Faltan funciones en el back"}
 							</li>
 						</ul>
 					</Col>
