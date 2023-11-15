@@ -7,27 +7,29 @@ import { Col, Row, Button, Form } from "react-bootstrap";
 
 export default function BrandingPane({ modifySettings, LTISettings }) {
 	const favFallbackDOM = useRef(null);
-	const favFallbackId = useId();
 	const favx16DOM = useRef(null);
-	const favx16Id = useId();
 	const [rtfavx16URL, setRTfavx16URL] = useState(
 		LTISettings.branding.faviconx16_path
 	);
 	const favx32DOM = useRef(null);
-	const favx32Id = useId();
 	const [rtfavx32URL, setRTfavx32URL] = useState(
 		LTISettings.branding.faviconx32_path
 	);
 	const favx180DOM = useRef(null);
-	const favx180Id = useId();
 	const [rtfavx180URL, setRTfavx180URL] = useState(
 		LTISettings.branding.faviconx180_path
 	);
 	const logoDOM = useRef(null);
-	const logoId = useId();
 	const [rtLogoURL, setRTLogoURL] = useState(LTISettings.branding.logo_path);
 	const smallLogoDOM = useRef(null);
-	const smallLogoId = useId();
+
+	const FAVICON_FALLBACK_ID = useId();
+	const FAVICON_X16_ID = useId();
+	const FAVICON_X32_ID = useId();
+	const FAVICON_X180_ID = useId();
+	const LOGO_ID = useId();
+	const SMALL_LOGO_ID = useId();
+
 	const [rtSmallLogoURL, setRTSmallLogoURL] = useState(
 		LTISettings.branding.small_logo_path
 	);
@@ -253,23 +255,23 @@ export default function BrandingPane({ modifySettings, LTISettings }) {
 			<Form>
 				<Row>
 					<Col>
-						<Form.Label htmlFor={favFallbackId}>
+						<Form.Label htmlFor={FAVICON_FALLBACK_ID}>
 							Fallback (Ha de ser editado manualmente)
 						</Form.Label>
 						<Form.Control
 							type="url"
 							ref={favFallbackDOM}
-							id={favFallbackId}
+							id={FAVICON_FALLBACK_ID}
 							defaultValue={"favicon.ico"}
 							disabled={true}
 						></Form.Control>
 					</Col>
 					<Col>
-						<Form.Label htmlFor={favx16Id}>x16</Form.Label>
+						<Form.Label htmlFor={FAVICON_X16_ID}>x16</Form.Label>
 						<Form.Control
 							type="url"
 							ref={favx16DOM}
-							id={favx16Id}
+							id={FAVICON_X16_ID}
 							defaultValue={LTISettings.branding.faviconx16_path}
 							onChange={(e) => setRTfavx16URL(e.target.value)}
 						></Form.Control>
@@ -277,21 +279,21 @@ export default function BrandingPane({ modifySettings, LTISettings }) {
 				</Row>
 				<Row>
 					<Col>
-						<Form.Label htmlFor={favx32Id}>x32</Form.Label>
+						<Form.Label htmlFor={FAVICON_X32_ID}>x32</Form.Label>
 						<Form.Control
 							type="url"
 							ref={favx32DOM}
-							id={favx32Id}
+							id={FAVICON_X32_ID}
 							defaultValue={LTISettings.branding.faviconx32_path}
 							onChange={(e) => setRTfavx32URL(e.target.value)}
 						></Form.Control>
 					</Col>
 					<Col>
-						<Form.Label htmlFor={favx180Id}>x180</Form.Label>
+						<Form.Label htmlFor={FAVICON_X180_ID}>x180</Form.Label>
 						<Form.Control
 							type="url"
 							ref={favx180DOM}
-							id={favx180Id}
+							id={FAVICON_X180_ID}
 							defaultValue={LTISettings.branding.faviconx180_path}
 							onChange={(e) => setRTfavx180URL(e.target.value)}
 						></Form.Control>
@@ -330,23 +332,23 @@ export default function BrandingPane({ modifySettings, LTISettings }) {
 			<Form>
 				<Row>
 					<Col>
-						<Form.Label htmlFor={logoId}>URL hacia el logo</Form.Label>
+						<Form.Label htmlFor={LOGO_ID}>URL hacia el logo</Form.Label>
 						<Form.Control
 							type="url"
 							ref={logoDOM}
-							id={logoId}
+							id={LOGO_ID}
 							defaultValue={LTISettings.branding.logo_path}
 							onChange={(e) => setRTLogoURL(e.target.value)}
 						></Form.Control>
 					</Col>
 					<Col>
-						<Form.Label htmlFor={smallLogoId}>
+						<Form.Label htmlFor={SMALL_LOGO_ID}>
 							URL hacia el logo reducido
 						</Form.Label>
 						<Form.Control
 							type="url"
 							ref={smallLogoDOM}
-							id={smallLogoId}
+							id={SMALL_LOGO_ID}
 							defaultValue={LTISettings.branding.small_logo_path}
 							onChange={(e) => setRTSmallLogoURL(e.target.value)}
 						></Form.Control>

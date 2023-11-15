@@ -22,74 +22,78 @@ function GradeComponent({
 }) {
 	const { metaData } = useContext(MetaDataContext);
 
-	const logicalSetAnd = gradeConditions?.subConditions.find(
+	const LOGICAL_SET_AND = gradeConditions?.subConditions.find(
 		(item) => item.operator === "AND"
 	);
 
-	const logicalSetOr = gradeConditions?.subConditions.find(
+	const LOGICAL_SET_OR = gradeConditions?.subConditions.find(
 		(item) => item.operator === "OR"
 	);
 
 	function swapConditionToSubRoot(targetSubRoot, conditionIndex) {
-		const conditionToSwap =
+		const CONDITION_TO_SWAP =
 			targetSubRoot === "AND"
-				? logicalSetAnd.subConditions[conditionIndex]
-				: logicalSetOr.subConditions[conditionIndex];
+				? LOGICAL_SET_AND.subConditions[conditionIndex]
+				: LOGICAL_SET_OR.subConditions[conditionIndex];
 
-		const sourceSubRoot =
-			targetSubRoot === "AND" ? logicalSetAnd : logicalSetOr;
-		const targetSubRootData =
-			targetSubRoot === "AND" ? logicalSetOr : logicalSetAnd;
+		const SOURCE_SUB_ROOT_DATA =
+			targetSubRoot === "AND" ? LOGICAL_SET_AND : LOGICAL_SET_OR;
+		const TARGET_SUBROOT_DATA =
+			targetSubRoot === "AND" ? LOGICAL_SET_OR : LOGICAL_SET_AND;
 
 		// Clone the arrays to avoid modifying the original state directly
-		let newSourceSubRoot = sourceSubRoot ? sourceSubRoot : undefined;
-		let newTargetSubRoot = targetSubRootData ? targetSubRootData : undefined;
+		let NEW_SOURCE_SUBROOT = SOURCE_SUB_ROOT_DATA
+			? SOURCE_SUB_ROOT_DATA
+			: undefined;
+		let NEW_TARGET_SUBROOT = TARGET_SUBROOT_DATA
+			? TARGET_SUBROOT_DATA
+			: undefined;
 
-		if (sourceSubRoot) {
-			newSourceSubRoot = { ...sourceSubRoot };
+		if (SOURCE_SUB_ROOT_DATA) {
+			NEW_SOURCE_SUBROOT = { ...SOURCE_SUB_ROOT_DATA };
 		}
 
 		// Remove from source AND add to target
-		newSourceSubRoot.subConditions.splice(conditionIndex, 1);
-		if (!newTargetSubRoot) {
-			newTargetSubRoot = {
+		NEW_SOURCE_SUBROOT.subConditions.splice(conditionIndex, 1);
+		if (!NEW_TARGET_SUBROOT) {
+			NEW_TARGET_SUBROOT = {
 				type: "PARENT",
 				siteId: metaData.course_id,
 				toolId: "sakai.conditions",
-				operator: newSourceSubRoot.operator == "AND" ? "OR" : "AND",
+				operator: NEW_SOURCE_SUBROOT.operator == "AND" ? "OR" : "AND",
 			};
 		}
-		if (newTargetSubRoot?.subConditions) {
-			newTargetSubRoot.subConditions.push(conditionToSwap);
+		if (NEW_TARGET_SUBROOT?.subConditions) {
+			NEW_TARGET_SUBROOT.subConditions.push(CONDITION_TO_SWAP);
 		} else {
-			newTargetSubRoot.subConditions = [conditionToSwap];
+			NEW_TARGET_SUBROOT.subConditions = [CONDITION_TO_SWAP];
 		}
-		const newsubConditions = [newSourceSubRoot, newTargetSubRoot];
+		const NEW_SUBCONDITIONS = [NEW_SOURCE_SUBROOT, NEW_TARGET_SUBROOT];
 
 		let updatedBlockData = { ...blockData };
 
-		updatedBlockData.data.gradeRequisites.subConditions = newsubConditions;
+		updatedBlockData.data.gradeRequisites.subConditions = NEW_SUBCONDITIONS;
 
 		setBlockData(updatedBlockData);
 	}
 
 	return (
 		<>
-			{((logicalSetAnd?.subConditions &&
-				logicalSetAnd.subConditions.length >= 1) ||
-				(logicalSetOr?.subConditions &&
-					logicalSetOr?.subConditions.length >= 1)) && (
+			{((LOGICAL_SET_AND?.subConditions &&
+				LOGICAL_SET_AND.subConditions.length >= 1) ||
+				(LOGICAL_SET_OR?.subConditions &&
+					LOGICAL_SET_OR?.subConditions.length >= 1)) && (
 				<div>
 					<Row className="align-items-center">
 						<Col>
 							<div>
 								Se <b>deben cumplir TODAS</b> las siguientes condiciones:
 							</div>
-							{logicalSetAnd?.subConditions &&
-								logicalSetAnd?.subConditions.length >= 1 &&
-								logicalSetAnd?.subConditions.map((condition, index) => {
+							{LOGICAL_SET_AND?.subConditions &&
+								LOGICAL_SET_AND?.subConditions.length >= 1 &&
+								LOGICAL_SET_AND?.subConditions.map((condition, index) => {
 									let lastIndex =
-										logicalSetAnd.subConditions.length - 1 === index;
+										LOGICAL_SET_AND.subConditions.length - 1 === index;
 									return (
 										<LogicalSetComponent
 											lastIndex={lastIndex}
@@ -100,11 +104,11 @@ function GradeComponent({
 										></LogicalSetComponent>
 									);
 								})}
-							{((logicalSetAnd &&
-								logicalSetAnd.subConditions &&
-								logicalSetAnd.subConditions.length <= 0) ||
-								!logicalSetAnd ||
-								!logicalSetAnd.subConditions) && (
+							{((LOGICAL_SET_AND &&
+								LOGICAL_SET_AND.subConditions &&
+								LOGICAL_SET_AND.subConditions.length <= 0) ||
+								!LOGICAL_SET_AND ||
+								!LOGICAL_SET_AND.subConditions) && (
 								<Container
 									className="mb-0 mt-3"
 									style={{ padding: "10px", border: "1px solid #C7C7C7" }}
@@ -130,11 +134,11 @@ function GradeComponent({
 							<div>
 								Se <b>debe cumplir UNA</b> de las siguientes condiciones:
 							</div>
-							{logicalSetOr?.subConditions &&
-								logicalSetOr?.subConditions.length >= 1 &&
-								logicalSetOr.subConditions.map((condition, index) => {
+							{LOGICAL_SET_OR?.subConditions &&
+								LOGICAL_SET_OR?.subConditions.length >= 1 &&
+								LOGICAL_SET_OR.subConditions.map((condition, index) => {
 									let lastIndex =
-										logicalSetOr.subConditions.length - 1 === index;
+										LOGICAL_SET_OR.subConditions.length - 1 === index;
 									return (
 										<LogicalSetComponent
 											lastIndex={lastIndex}
@@ -145,9 +149,9 @@ function GradeComponent({
 										></LogicalSetComponent>
 									);
 								})}
-							{((logicalSetOr?.subConditions &&
-								logicalSetOr?.subConditions.length <= 0) ||
-								!logicalSetOr?.subConditions) && (
+							{((LOGICAL_SET_OR?.subConditions &&
+								LOGICAL_SET_OR?.subConditions.length <= 0) ||
+								!LOGICAL_SET_OR?.subConditions) && (
 								<Container
 									className="mb-3 mt-3"
 									style={{ padding: "10px", border: "1px solid #C7C7C7" }}
@@ -165,10 +169,10 @@ function GradeComponent({
 					</Row>
 				</div>
 			)}
-			{(logicalSetAnd?.subConditions?.length <= 0 ||
-				!logicalSetAnd?.subConditions) &&
-				(logicalSetOr?.subConditions?.length <= 0 ||
-					!logicalSetOr?.subConditions) && (
+			{(LOGICAL_SET_AND?.subConditions?.length <= 0 ||
+				!LOGICAL_SET_AND?.subConditions) &&
+				(LOGICAL_SET_OR?.subConditions?.length <= 0 ||
+					!LOGICAL_SET_OR?.subConditions) && (
 					<div>
 						Actualmente no existe ninguna condición de calificación asociada a
 						este bloque, para crear una, deberás realizar una línea o conexión

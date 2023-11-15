@@ -18,7 +18,7 @@ function QualificationModal({
 	const { platform } = useContext(PlatformContext);
 	const qualificationFormResult = useRef();
 
-	const gradeConditionType = getGradable(platform)
+	const GRADE_CONDITION_TYPE = getGradable(platform)
 		.find((declaration) => declaration.type == blockData.type)
 		.gradable.find((gradableDec) => gradableDec.lms == platform).type; //Returns the type of gradable for this node type for this platform
 
@@ -50,7 +50,7 @@ function QualificationModal({
 
 				<QualificationForm
 					ref={qualificationFormResult}
-					gradeConditionType={gradeConditionType}
+					gradeConditionType={GRADE_CONDITION_TYPE}
 					blockData={blockData}
 					reactFlowInstance={reactFlowInstance}
 					initialGrade={{
@@ -67,25 +67,25 @@ function QualificationModal({
 						variant="primary"
 						onClick={() => {
 							if (qualificationFormResult?.current?.data) {
-								const childrenNodes = blockData.data.children.map((children) =>
+								const CHILDREN_NODES = blockData.data.children.map((children) =>
 									getNodeById(children, reactFlowInstance.getNodes())
 								);
-								const needingCompletion = childrenNodes
-									.map((cn) => hasConditionsNeedingCompletion(cn))
-									.some((v) => v === true);
+								const NEEDING_COMPLETION = CHILDREN_NODES.map((cn) =>
+									hasConditionsNeedingCompletion(cn)
+								).some((v) => v === true);
 								const newG = qualificationFormResult.current.data;
 
 								const saveG = () => {
-									const currentBlock = getNodeById(
+									const CURRENT_NODE = getNodeById(
 										blockData.id,
 										reactFlowInstance.getNodes()
 									);
 									reactFlowInstance.setNodes(
 										getUpdatedArrayById(
 											{
-												...currentBlock,
+												...CURRENT_NODE,
 												data: {
-													...currentBlock.data,
+													...CURRENT_NODE.data,
 													g: newG,
 												},
 											},
@@ -94,15 +94,16 @@ function QualificationModal({
 									);
 								};
 
-								if (needingCompletion) {
-									const currentGradableType = getNodeTypeGradableType(
+								if (NEEDING_COMPLETION) {
+									const CURRENT_GRADABLE_TYPE = getNodeTypeGradableType(
 										blockData,
 										platform
 									);
 									if (
-										currentGradableType &&
-										((newG.hasConditions && currentGradableType != "simple") ||
-											(newG.hasToBeSeen && currentGradableType == "simple"))
+										CURRENT_GRADABLE_TYPE &&
+										((newG.hasConditions &&
+											CURRENT_GRADABLE_TYPE != "simple") ||
+											(newG.hasToBeSeen && CURRENT_GRADABLE_TYPE == "simple"))
 									) {
 										saveG();
 									} else {

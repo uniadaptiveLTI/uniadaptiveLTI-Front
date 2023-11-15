@@ -2,7 +2,7 @@ import React, { useId } from "react";
 import { Form } from "react-bootstrap";
 
 const GroupForm = ({ conditionOperator, moodleGroups, conditionEdit }) => {
-	const coId = useId();
+	const CONDITION_OPERATOR_ID = useId();
 	return (
 		<Form.Group
 			style={{
@@ -14,14 +14,14 @@ const GroupForm = ({ conditionOperator, moodleGroups, conditionEdit }) => {
 		>
 			<div className="d-flex align-items-baseline col-12 col-lg-6 col-xl-4">
 				<Form.Label
-					htmlFor={coId}
+					htmlFor={CONDITION_OPERATOR_ID}
 					className="me-4"
 					style={{ minWidth: "125px" }}
 				>
 					Grupo:{" "}
 				</Form.Label>
 				<Form.Select
-					id={coId}
+					id={CONDITION_OPERATOR_ID}
 					ref={conditionOperator}
 					defaultValue={conditionEdit?.groupId}
 				>

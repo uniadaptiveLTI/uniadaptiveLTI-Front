@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Col, Row } from "react-bootstrap";
 
 export default function GeneralPane({ LTISettings }) {
-	const intervals = [];
+	const INTERVALS = [];
 	let [secondsPassed, setSecondsPassed] = useState(0);
 	const [frontData, setFrontData] = useState({ uptime: 0 });
 	const [frontUptimeString, setFrontUptimeString] = useState("Cargando...");
@@ -25,10 +25,10 @@ export default function GeneralPane({ LTISettings }) {
 				setFrontData(data);
 			});
 		getBackStatus().then((data) => setBackStatus(data));
-		const resourceInterval = setInterval(() => getResourceUsage(), 1000);
+		const RESOURCE_INTERVAL = setInterval(() => getResourceUsage(), 1000);
 		return () => {
 			clearInterval(timerInterval);
-			clearInterval(resourceInterval);
+			clearInterval(RESOURCE_INTERVAL);
 		};
 	}, []);
 
@@ -41,8 +41,8 @@ export default function GeneralPane({ LTISettings }) {
 
 	function getTimeFromSecondsString(seconds) {
 		if (seconds) {
-			const time = getTimeFromSeconds(seconds);
-			return `${time.hours}h, ${time.minutes}m, ${time.seconds}s`;
+			const TIME = getTimeFromSeconds(seconds);
+			return `${TIME.hours}h, ${TIME.minutes}m, ${TIME.seconds}s`;
 		} else {
 			return "Cargando...";
 		}
@@ -52,15 +52,15 @@ export default function GeneralPane({ LTISettings }) {
 		if (!LTISettings.debugging.dev_files) {
 			let pong = false;
 			try {
-				const response = await fetchBackEnd(
+				const RESPONSE = await fetchBackEnd(
 					LTISettings,
 					sessionStorage.getItem("token"),
 					"api/lti/branding/ping",
 					"POST",
 					{ ping: "ping" }
 				);
-				const result = await response;
-				pong = result.pong;
+				const RESULT = await RESPONSE;
+				pong = RESULT.pong;
 			} catch (e) {
 				console.error("No se puede conectar con el back end");
 			}
@@ -79,13 +79,13 @@ export default function GeneralPane({ LTISettings }) {
 	}
 
 	async function getResourceUsage() {
-		const response = await fetch("/api/getResourceUsage/", {
+		const RESPONSE = await fetch("/api/getResourceUsage/", {
 			//TODO: MOVE IT TO THE BACK END
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 		});
-		const resources = await response.json();
-		setResourceUsage(resources);
+		const RESOURCES = await RESPONSE.json();
+		setResourceUsage(RESOURCES);
 	}
 
 	function getLocaleTime(time) {

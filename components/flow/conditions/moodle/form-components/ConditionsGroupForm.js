@@ -8,7 +8,7 @@ const ConditionsGroupForm = ({
 	conditionOperator,
 	conditionSubOperator,
 }) => {
-	const cId = useId();
+	const CONDITION_ID = useId();
 	return (
 		<>
 			<Form.Group
@@ -21,14 +21,14 @@ const ConditionsGroupForm = ({
 			>
 				<div className="d-flex align-items-baseline col-12 col-lg-7 col-xl-5">
 					<Form.Label
-						htmlFor={cId}
+						htmlFor={CONDITION_ID}
 						className="me-4"
 						style={{ minWidth: "170px" }}
 					>
 						Operador:{" "}
 					</Form.Label>
 					<Form.Select
-						id={cId}
+						id={CONDITION_ID}
 						ref={conditionOperator}
 						defaultValue={conditionEdit?.op.includes("!") ? "!" : "!!"}
 					>
@@ -38,14 +38,14 @@ const ConditionsGroupForm = ({
 				</div>
 				<div className="d-flex align-items-baseline col-12 col-lg-7 col-xl-5">
 					<Form.Label
-						htmlFor={cId}
+						htmlFor={CONDITION_ID}
 						className="me-4"
 						style={{ minWidth: "170px" }}
 					>
 						Condición:{" "}
 					</Form.Label>
 					<Form.Select
-						id={cId}
+						id={CONDITION_ID}
 						ref={conditionSubOperator}
 						defaultValue={conditionEdit?.op.includes("&") ? "&" : "|"}
 					>

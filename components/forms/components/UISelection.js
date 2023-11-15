@@ -5,11 +5,11 @@ export default function UISelection({
 	currentSelection = -1,
 	setSelection = () => {},
 }) {
-	const selectedStyle = {
+	const SELECTED_STYLE = {
 		background: getRootStyle("--main-third-background-color"),
 		border: "var(--main-borders)",
 	};
-	const unselectedStyle = {
+	const UNSELECTED_STYLE = {
 		background: getRootStyle("--main-background-color"),
 		border: "var(--main-borders)",
 	};
@@ -32,7 +32,7 @@ export default function UISelection({
 						display: "flex",
 						flexDirection: "column",
 						marginRight: "4px",
-						...(currentSelection == 0 ? selectedStyle : unselectedStyle),
+						...(currentSelection == 0 ? SELECTED_STYLE : UNSELECTED_STYLE),
 						//Aside
 					}}
 				>
@@ -40,7 +40,7 @@ export default function UISelection({
 						style={{
 							height: "40px",
 							marginTop: "10px",
-							...(currentSelection == 0 ? selectedStyle : unselectedStyle),
+							...(currentSelection == 0 ? SELECTED_STYLE : UNSELECTED_STYLE),
 						}}
 					></div>
 				</Col>
@@ -59,7 +59,7 @@ export default function UISelection({
 							display: "flex",
 							alignContent: "center",
 							marginBottom: "4px",
-							...(currentSelection == 1 ? selectedStyle : unselectedStyle),
+							...(currentSelection == 1 ? SELECTED_STYLE : UNSELECTED_STYLE),
 							//Header
 						}}
 					>
@@ -68,7 +68,7 @@ export default function UISelection({
 								height: "15px",
 								maxWidth: "200px",
 								marginLeft: "15px",
-								...(currentSelection == 1 ? selectedStyle : unselectedStyle),
+								...(currentSelection == 1 ? SELECTED_STYLE : UNSELECTED_STYLE),
 							}}
 						></div>
 					</Row>
@@ -84,7 +84,7 @@ export default function UISelection({
 						style={{
 							position: "relative",
 							height: "196px",
-							...(currentSelection == 2 ? selectedStyle : unselectedStyle),
+							...(currentSelection == 2 ? SELECTED_STYLE : UNSELECTED_STYLE),
 							//Blockflow
 						}}
 					>
@@ -107,7 +107,7 @@ export default function UISelection({
 								width: "25px",
 								left: "10px",
 								bottom: "10px",
-								...(currentSelection == 3 ? selectedStyle : unselectedStyle),
+								...(currentSelection == 3 ? SELECTED_STYLE : UNSELECTED_STYLE),
 								//Blockflow--Controls
 							}}
 						></div>
@@ -130,7 +130,7 @@ export default function UISelection({
 								width: "100px",
 								right: "10px",
 								bottom: "10px",
-								...(currentSelection == 4 ? selectedStyle : unselectedStyle),
+								...(currentSelection == 4 ? SELECTED_STYLE : UNSELECTED_STYLE),
 								//Blockflow--Minimap
 							}}
 						></div>

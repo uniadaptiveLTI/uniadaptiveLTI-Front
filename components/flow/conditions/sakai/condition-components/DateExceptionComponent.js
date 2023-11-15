@@ -11,28 +11,28 @@ const DateExceptionComponent = ({
 	parseDate,
 	deleteRequisite,
 }) => {
-	const dateExceptionArray = requisites.filter(
+	const DATE_EXCEPTION_ARRAY = requisites.filter(
 		(item) => item.type === "dateException"
 	);
 
 	return (
 		<Container className="mb-3 mt-3">
 			<div>
-				{dateExceptionArray.map((item, index) => {
+				{DATE_EXCEPTION_ARRAY.map((item, index) => {
 					let entityInfo = null;
 
 					if (item.op === "user") {
-						const user = sakaiUsers.find((user) => user.id === item.entityId);
+						const USER = sakaiUsers.find((user) => user.id === item.entityId);
 
-						if (user) {
-							entityInfo = "Usuario: " + user.name;
+						if (USER) {
+							entityInfo = "Usuario: " + USER.name;
 						}
 					} else if (item.op === "group") {
-						const group = sakaiGroups.find(
+						const GROUP = sakaiGroups.find(
 							(group) => group.id === item.entityId
 						);
-						if (group) {
-							entityInfo = "Grupo: " + group.name;
+						if (GROUP) {
+							entityInfo = "Grupo: " + GROUP.name;
 						}
 					}
 					return (

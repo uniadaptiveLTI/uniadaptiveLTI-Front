@@ -36,10 +36,10 @@ const RoleComponent = ({
 					)}
 					<ul>
 						{condition.params.map((option) => {
-							const role = roleList.find(
+							const ROLE = roleList.find(
 								(role) => role.id.toString() === option
 							);
-							return <li key={role.id}>{role.name}</li>;
+							return <li key={ROLE.id}>{ROLE.name}</li>;
 						})}
 					</ul>
 					<div>{condition.description}</div>

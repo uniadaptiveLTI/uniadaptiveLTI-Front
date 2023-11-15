@@ -10,18 +10,18 @@ const DateCommonComponent = ({
 	calculateDefaultDateTime,
 	dateInputChange,
 }) => {
-	const cqId = useId();
-	const coId = useId();
+	const CONDITION_QUERY_ID = useId();
+	const CONDITION_OPERATOR_ID = useId();
 
-	const defaultValueFiveMinutes =
+	const DEFAULT_VALUE_5_MINUTES =
 		conditionEdit?.openingDate || calculateDefaultDateTime(5);
 
 	useLayoutEffect(() => {
-		const openingValue = openingDateRef.current.value;
-		const dueDate = dueDateRef.current.value;
+		const OPENING_VALUE = openingDateRef.current.value;
+		const DUE_DATE = dueDateRef.current.value;
 		setDates({
-			openingDate: openingValue,
-			dueDate: dueDate,
+			openingDate: OPENING_VALUE,
+			dueDate: DUE_DATE,
 		});
 	}, []);
 
@@ -29,14 +29,14 @@ const DateCommonComponent = ({
 		<>
 			<div className="d-flex align-items-baseline col-12 col-lg-6 col-xl-6">
 				<Form.Label
-					htmlFor={cqId}
+					htmlFor={CONDITION_QUERY_ID}
 					className="me-4"
 					style={{ minWidth: "125px", marginLeft: "20px" }}
 				>
 					Desde:{" "}
 				</Form.Label>
 				<Form.Control
-					id={cqId}
+					id={CONDITION_QUERY_ID}
 					ref={openingDateRef}
 					onChange={() => {
 						dateInputChange("openingDate", openingDateRef);
@@ -52,14 +52,14 @@ const DateCommonComponent = ({
 			</div>
 			<div className="d-flex align-items-baseline col-12 col-lg-6 col-xl-6">
 				<Form.Label
-					htmlFor={coId}
+					htmlFor={CONDITION_OPERATOR_ID}
 					className="me-4"
 					style={{ minWidth: "125px", marginLeft: "20px" }}
 				>
 					Hasta:{" "}
 				</Form.Label>
 				<Form.Control
-					id={coId}
+					id={CONDITION_OPERATOR_ID}
 					ref={dueDateRef}
 					type="datetime-local"
 					onChange={() => {
@@ -68,7 +68,7 @@ const DateCommonComponent = ({
 					defaultValue={
 						conditionEdit?.dueDate
 							? conditionEdit.dueDate
-							: defaultValueFiveMinutes
+							: DEFAULT_VALUE_5_MINUTES
 					}
 				/>
 			</div>

@@ -1,85 +1,61 @@
 import { updateBadgeConditions } from "@utils/Utils";
 
 describe("updateBadgeConditions", () => {
-	test("should remove the completion condition if it has only one activity in the list", () => {
+	it('should remove the source node from the target node conditions if the condition type is "completion" and there is more than one entry', () => {
 		const blockNodeTarget = {
 			data: {
 				c: {
-					c: [
+					params: [
 						{
 							type: "completion",
-							activityList: [
-								{
-									id: "a1",
-								},
-							],
+							params: [{ id: "1" }, { id: "2" }],
 						},
 					],
 				},
 			},
 		};
-		const blockNodeSource = {
-			id: "a1",
-		};
+		const blockNodeSource = { id: "1" };
 		updateBadgeConditions(blockNodeTarget, blockNodeSource);
-		expect(blockNodeTarget.data.c.c).toEqual([]);
+		expect(blockNodeTarget.data.c.params[0].params).toEqual([{ id: "2" }]);
 	});
 
-	test("should remove the specific activity from the completion condition if it has more than one activity in the list", () => {
+	it('should remove the "completion" condition type from the target node conditions if there is only one entry', () => {
 		const blockNodeTarget = {
 			data: {
 				c: {
-					c: [
+					params: [
 						{
 							type: "completion",
-							activityList: [
-								{
-									id: "a1",
-								},
-								{
-									id: "a2",
-								},
-							],
+							params: [{ id: "1" }],
 						},
 					],
 				},
 			},
 		};
-		const blockNodeSource = {
-			id: "a1",
-		};
+		const blockNodeSource = { id: "1" };
 		updateBadgeConditions(blockNodeTarget, blockNodeSource);
-		expect(blockNodeTarget.data.c.c).toEqual([
-			{
-				type: "completion",
-				activityList: [
-					{
-						id: "a2",
-					},
-				],
-			},
-		]);
+		expect(blockNodeTarget.data.c.params).toEqual([]);
 	});
 
-	test("should do nothing if the completion condition does not exist", () => {
+	it('should not modify the target node conditions if the condition type is not "completion"', () => {
 		const blockNodeTarget = {
 			data: {
 				c: {
-					c: [
+					params: [
 						{
-							type: "grade",
+							type: "other",
+							params: [{ id: "1" }],
 						},
 					],
 				},
 			},
 		};
-		const blockNodeSource = {
-			id: "a1",
-		};
+		const blockNodeSource = { id: "1" };
 		updateBadgeConditions(blockNodeTarget, blockNodeSource);
-		expect(blockNodeTarget.data.c.c).toEqual([
+		expect(blockNodeTarget.data.c.params).toEqual([
 			{
-				type: "grade",
+				type: "other",
+				params: [{ id: "1" }],
 			},
 		]);
 	});

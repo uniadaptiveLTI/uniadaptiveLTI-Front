@@ -213,12 +213,12 @@ export const NodeTypes = [
  * @returns {Array<Object>} A new array with the IDs of the objects reordered.
  */
 const reorderIds = (array) => {
-	const unsortedArray = [];
+	const UNSORTED_ARRAY = [];
 	for (const [index, entry] of array.entries()) {
-		unsortedArray.push({ ...entry, id: index });
+		UNSORTED_ARRAY.push({ ...entry, id: index });
 	}
-	const newArray = unsortedArray.sort((a, b) => a.id > b.id);
-	return newArray;
+	const NEW_ARRAY = UNSORTED_ARRAY.sort((a, b) => a.id > b.id);
+	return NEW_ARRAY;
 };
 
 /**
@@ -227,9 +227,9 @@ const reorderIds = (array) => {
  */
 export const getBlockFlowTypes = () => {
 	return NodeTypes.flatMap((node) => {
-		const type = node.type;
-		const nodeType = node.nodeType;
-		return { [type]: nodeType };
+		const TYPE = node.type;
+		const NODE_TYPE = node.nodeType;
+		return { [TYPE]: NODE_TYPE };
 	});
 };
 
@@ -265,10 +265,10 @@ export const getLTITypes = () => {
 export const getGradable = (platform) => {
 	return NodeTypes.filter((declaration) => {
 		if (declaration.gradable.length > 0) {
-			const gradableObj = declaration.gradable.find(
+			const GRADABLE_OBJ = declaration.gradable.find(
 				(gradable) => gradable.lms == platform
 			);
-			if (gradableObj) return true;
+			if (GRADABLE_OBJ) return true;
 			return false;
 		}
 	});

@@ -11,24 +11,24 @@ const DateLimitComponent = ({
 	calculateDefaultDateTime,
 	dateInputChange,
 }) => {
-	const cqId = useId();
-	const coId = useId();
+	const CONDITION_QUERY_ID = useId();
+	const CONDITION_OPERATOR_ID = useId();
 
-	const defaultValueFiveMinutes =
+	const DEFAULT_VALUE_5_MINUTES =
 		conditionEdit?.openingDate || calculateDefaultDateTime(5);
 
-	const defaultValueTenMinutes =
+	const DEFAULT_VALUE_10_MINUTES =
 		conditionEdit?.openingDate || calculateDefaultDateTime(10);
 
 	useLayoutEffect(() => {
-		const openingValue = openingDateRef.current.value;
-		const dueDate = dueDateRef.current.value;
-		const closeTime = closeTimeRef.current.value;
+		const OPENING_VALUE = openingDateRef.current.value;
+		const DUE_DATE = dueDateRef.current.value;
+		const CLOSE_TIME = closeTimeRef.current.value;
 
 		setDates({
-			openingDate: openingValue,
-			dueDate: dueDate,
-			closeTime: closeTime,
+			openingDate: OPENING_VALUE,
+			dueDate: DUE_DATE,
+			closeTime: CLOSE_TIME,
 		});
 	}, []);
 
@@ -36,14 +36,14 @@ const DateLimitComponent = ({
 		<>
 			<div className="d-flex align-items-baseline col-12 col-lg-8 col-xl-8">
 				<Form.Label
-					htmlFor={cqId}
+					htmlFor={CONDITION_QUERY_ID}
 					className="me-4"
 					style={{ minWidth: "160px" }}
 				>
 					Fecha de apertura:{" "}
 				</Form.Label>
 				<Form.Control
-					id={coId}
+					id={CONDITION_OPERATOR_ID}
 					type="datetime-local"
 					ref={openingDateRef}
 					onChange={() => {
@@ -58,14 +58,14 @@ const DateLimitComponent = ({
 			</div>
 			<div className="d-flex align-items-baseline col-12 col-lg-8 col-xl-8">
 				<Form.Label
-					htmlFor={coId}
+					htmlFor={CONDITION_OPERATOR_ID}
 					className="me-4"
 					style={{ minWidth: "160px" }}
 				>
 					Fecha de entrega:{" "}
 				</Form.Label>
 				<Form.Control
-					id={coId}
+					id={CONDITION_OPERATOR_ID}
 					type="datetime-local"
 					ref={dueDateRef}
 					onChange={() => {
@@ -74,20 +74,20 @@ const DateLimitComponent = ({
 					defaultValue={
 						conditionEdit?.dueDate
 							? conditionEdit.dueDate
-							: defaultValueFiveMinutes
+							: DEFAULT_VALUE_5_MINUTES
 					}
 				/>
 			</div>
 			<div className="d-flex align-items-baseline col-12 col-lg-8 col-xl-8">
 				<Form.Label
-					htmlFor={coId}
+					htmlFor={CONDITION_OPERATOR_ID}
 					className="me-4"
 					style={{ minWidth: "160px" }}
 				>
 					Fecha límite:{" "}
 				</Form.Label>
 				<Form.Control
-					id={coId}
+					id={CONDITION_OPERATOR_ID}
 					type="datetime-local"
 					ref={closeTimeRef}
 					onChange={() => {
@@ -96,7 +96,7 @@ const DateLimitComponent = ({
 					defaultValue={
 						conditionEdit?.closeTime
 							? conditionEdit.closeTime
-							: defaultValueTenMinutes
+							: DEFAULT_VALUE_10_MINUTES
 					}
 				/>
 			</div>

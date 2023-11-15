@@ -18,17 +18,17 @@ export function errorListCheck(data, errorList, setErrorList, deleteFromList) {
 			data = data[0];
 		}
 		if (data && data.type !== "fragment") {
-			const isContained = errorArray.some((error) => error.nodeId == data.id);
-			if (isContained) {
+			const IS_CONTAINED = errorArray.some((error) => error.nodeId == data.id);
+			if (IS_CONTAINED) {
 				if (deleteFromList) {
-					const updatedList = errorList.filter(
+					const UPDATED_LIST = errorList.filter(
 						(item) => item.nodeId !== data.id
 					);
-					setErrorList(updatedList);
+					setErrorList(UPDATED_LIST);
 				} else {
-					const updatedList = deleteNodeFromErrorList(data, errorList);
+					const UPDATED_LIST = deleteNodeFromErrorList(data, errorList);
 
-					setErrorList(updatedList);
+					setErrorList(UPDATED_LIST);
 				}
 			} else {
 				createItemErrors(data, errorArray);
@@ -98,26 +98,26 @@ export function createItemErrors(item, errorArray) {
 			item.type === "mail"
 		)
 	) {
-		const errorEntry = {
+		const ERROR_ENTRY = {
 			id: uniqueId(),
 			nodeId: item.id,
 		};
 		if (!item.data.lmsResource) {
-			const customEntry = {
-				...errorEntry,
+			const CUSTOM_ENTRY = {
+				...ERROR_ENTRY,
 				severity: "error",
 				type: "resourceNotFound",
 			};
 
-			const errorFound = errorArray.find(
+			const ERROR_FOUND = errorArray.find(
 				(obj) =>
-					obj.nodeId === customEntry.nodeId &&
-					obj.severity === customEntry.severity &&
-					obj.type === customEntry.type
+					obj.nodeId === CUSTOM_ENTRY.nodeId &&
+					obj.severity === CUSTOM_ENTRY.severity &&
+					obj.type === CUSTOM_ENTRY.type
 			);
 
-			if (!errorFound) {
-				errorArray.push(customEntry);
+			if (!ERROR_FOUND) {
+				errorArray.push(CUSTOM_ENTRY);
 			}
 		}
 
@@ -127,21 +127,21 @@ export function createItemErrors(item, errorArray) {
 				item.data.section < 0) &&
 			item.type !== "badge"
 		) {
-			const customEntry = {
-				...errorEntry,
+			const CUSTOM_ENTRY = {
+				...ERROR_ENTRY,
 				severity: "error",
 				type: "sectionNotFound",
 			};
 
-			const errorFound = errorArray.find(
+			const ERROR_FOUND = errorArray.find(
 				(obj) =>
-					obj.nodeId === customEntry.nodeId &&
-					obj.severity === customEntry.severity &&
-					obj.type === customEntry.type
+					obj.nodeId === CUSTOM_ENTRY.nodeId &&
+					obj.severity === CUSTOM_ENTRY.severity &&
+					obj.type === CUSTOM_ENTRY.type
 			);
 
-			if (!errorFound) {
-				errorArray.push(customEntry);
+			if (!ERROR_FOUND) {
+				errorArray.push(CUSTOM_ENTRY);
 			}
 		}
 
@@ -149,21 +149,21 @@ export function createItemErrors(item, errorArray) {
 			(item.data.order == undefined || item.data.order == -Infinity) &&
 			item.type !== "badge"
 		) {
-			const customEntry = {
-				...errorEntry,
+			const CUSTOM_ENTRY = {
+				...ERROR_ENTRY,
 				severity: "error",
 				type: "orderNotFound",
 			};
 
-			const errorFound = errorArray.find(
+			const ERROR_FOUND = errorArray.find(
 				(obj) =>
-					obj.nodeId === customEntry.nodeId &&
-					obj.severity === customEntry.severity &&
-					obj.type === customEntry.type
+					obj.nodeId === CUSTOM_ENTRY.nodeId &&
+					obj.severity === CUSTOM_ENTRY.severity &&
+					obj.type === CUSTOM_ENTRY.type
 			);
 
-			if (!errorFound) {
-				errorArray.push(customEntry);
+			if (!ERROR_FOUND) {
+				errorArray.push(CUSTOM_ENTRY);
 			}
 		}
 	}

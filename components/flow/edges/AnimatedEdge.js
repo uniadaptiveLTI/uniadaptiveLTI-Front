@@ -13,7 +13,7 @@ const AnimatedEdge =
 		targetPosition,
 		style = {},
 	}) => {
-		const edgePath = getBezierPath({
+		const EDGE_PATH = getBezierPath({
 			sourceX,
 			sourceY,
 			targetX,
@@ -23,13 +23,13 @@ const AnimatedEdge =
 		});
 
 		// Animation properties
-		const animationDuration = "0.5s";
-		const animationDelay = "0.1s";
+		const ANIMATION_DURATION = "0.5s";
+		const ANIMATION_DELAY = "0.1s";
 
-		const animatedStyle = {
+		const ANIMATED_STYLE = {
 			animation:
 				clickedEdgeId === id
-					? `fade-in ${animationDuration} linear ${animationDelay}`
+					? `fade-in ${ANIMATION_DURATION} linear ${ANIMATION_DELAY}`
 					: "none",
 			...style,
 		};
@@ -38,16 +38,16 @@ const AnimatedEdge =
 			<>
 				<path
 					id={id}
-					style={animatedStyle}
+					style={ANIMATED_STYLE}
 					className="react-flow__edge-path"
-					d={edgePath}
+					d={EDGE_PATH}
 					markerEnd={getMarkerEnd()}
 					onClick={() => clickedEdgeId !== id && clickedEdgeId(id)}
 				/>
 				<path
-					style={animatedStyle}
+					style={ANIMATED_STYLE}
 					className="react-flow__edge-path animated"
-					d={edgePath}
+					d={EDGE_PATH}
 					markerEnd={getMarkerEnd()}
 					onClick={() => clickedEdgeId !== id && clickedEdgeId(id)}
 				/>
@@ -62,7 +62,7 @@ const AnimatedEdge =
 					<Handle
 						type="target"
 						position={targetPosition}
-						style={animatedStyle}
+						style={ANIMATED_STYLE}
 					/>
 				</g>
 			</>

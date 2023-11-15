@@ -15,25 +15,23 @@ export default function SimpleConditionsSakai({ id }) {
 	const { devModeStatus } = useContext(DevModeStatusContext);
 	const { metaData } = useContext(MetaDataContext);
 	const rfNodes = useNodes();
-	const { platform } = useContext(PlatformContext);
-	const conditions = getNodeById(id, rfNodes)?.data?.requisites || undefined;
-	const requisites = getNodeById(id, rfNodes)?.data?.requisites || undefined;
+	const REQUISITES = getNodeById(id, rfNodes)?.data?.requisites || undefined;
 
 	const reactFlowInstance = useReactFlow();
-	const nodes = reactFlowInstance.getNodes();
+	const NODES = reactFlowInstance.getNodes();
 
-	const dateRequisite = requisites?.find((item) => item.type === "date");
-	const dateExceptionArray = requisites?.filter(
+	const DATE_REQUISITE = REQUISITES?.find((item) => item.type === "date");
+	const DATE_EXCEPTION_ARRAY = REQUISITES?.filter(
 		(item) => item.type === "dateException"
 	);
-	const groupRequisite = requisites?.find((item) => item.type === "group");
+	const GROUP_REQUISITE = REQUISITES?.find((item) => item.type === "group");
 
-	const grades = getNodeById(id, rfNodes)?.data?.gradeRequisites || undefined;
+	const GRADES = getNodeById(id, rfNodes)?.data?.gradeRequisites || undefined;
 	const { settings } = useContext(SettingsContext);
-	const parsedSettings = JSON.parse(settings);
-	let { hoverConditions } = parsedSettings;
+	const PARSED_SETTINGS = JSON.parse(settings);
+	let { hoverConditions } = PARSED_SETTINGS;
 
-	const operatorLabel = [
+	const OPERATOR_LABEL = [
 		{ op: "SMALLER_THAN", label: "<" },
 		{ op: "SMALLER_THAN_OR_EQUAL_TO", label: "<=" },
 		{ op: "EQUAL_TO", label: "=" },
@@ -42,7 +40,7 @@ export default function SimpleConditionsSakai({ id }) {
 	];
 
 	function hasRequisiteType(type) {
-		return requisites?.some((requisitesItem) => requisitesItem.type === type);
+		return REQUISITES?.some((requisitesItem) => requisitesItem.type === type);
 	}
 
 	const parseConditions = () => {
@@ -61,11 +59,11 @@ export default function SimpleConditionsSakai({ id }) {
 									<div style={{ marginLeft: "48px" }}>
 										<div>
 											La fecha de apertura establecida es:{" "}
-											<b>{parseDate(dateRequisite.openingDate, true)}</b>
+											<b>{parseDate(DATE_REQUISITE.openingDate, true)}</b>
 										</div>
 										<div>
 											La fecha de entrega establecida es:{" "}
-											<b>{parseDate(dateRequisite.dueDate, true)}</b>
+											<b>{parseDate(DATE_REQUISITE.dueDate, true)}</b>
 										</div>
 									</div>
 								</div>
@@ -76,30 +74,30 @@ export default function SimpleConditionsSakai({ id }) {
 						{hasRequisiteType("dateException") && (
 							<div style={{ marginTop: "10px" }}>
 								<b style={{ marginLeft: "24px" }}>Excepciones de fecha</b>
-								{dateExceptionArray.map((date) => {
-									const sakaiUsers = metaData.user_members;
+								{DATE_EXCEPTION_ARRAY.map((date) => {
+									const SAKAI_USERS = metaData.user_members;
 									let entityInfo = null;
 
 									if (date.op === "user") {
-										const user = sakaiUsers.find(
+										const USER = SAKAI_USERS.find(
 											(user) => user.id === date.entityId
 										);
 
-										if (user) {
+										if (USER) {
 											entityInfo = (
 												<div>
-													Usuario: <b>{user.name}</b>
+													Usuario: <b>{USER.name}</b>
 												</div>
 											);
 										}
 									} else if (date.op === "group") {
-										const group = metaData.sakai_groups.find(
+										const GROUP = metaData.sakai_groups.find(
 											(group) => group.id === date.entityId
 										);
-										if (group) {
+										if (GROUP) {
 											entityInfo = (
 												<span>
-													Grupo: <b>{group.name}</b>
+													Grupo: <b>{GROUP.name}</b>
 												</span>
 											);
 										}
@@ -132,14 +130,14 @@ export default function SimpleConditionsSakai({ id }) {
 								<b style={{ marginLeft: "24px" }}>
 									Grupos con permisos de acceso
 								</b>
-								{groupRequisite.groupList.map((groupItem) => {
-									const group = metaData.sakai_groups.find(
+								{GROUP_REQUISITE.groupList.map((groupItem) => {
+									const GROUP = metaData.sakai_groups.find(
 										(group) => group.id === groupItem.id
 									);
 
 									return (
 										<li key={groupItem.id} style={{ marginLeft: "48px" }}>
-											{group.name}
+											{GROUP.name}
 										</li>
 									);
 								})}
@@ -161,41 +159,41 @@ export default function SimpleConditionsSakai({ id }) {
 		return finalDOM;
 	};
 
-	const andLogicalSet = grades?.subConditions?.find(
+	const AND_LOGICAL_SET = GRADES?.subConditions?.find(
 		(logicalSet) => logicalSet.operator === "AND"
 	);
 
-	const orLogicalSet = grades?.subConditions?.find(
+	const OR_LOGICAL_SET = GRADES?.subConditions?.find(
 		(logicalSet) => logicalSet.operator === "OR"
 	);
 
 	const parseGrades = () => {
 		let finalDOM = [
 			<div>
-				{((andLogicalSet && andLogicalSet?.subConditions.length >= 1) ||
-					(orLogicalSet && orLogicalSet?.subConditions.length >= 1)) && (
+				{((AND_LOGICAL_SET && AND_LOGICAL_SET?.subConditions.length >= 1) ||
+					(OR_LOGICAL_SET && OR_LOGICAL_SET?.subConditions.length >= 1)) && (
 					<>
 						<b>Calificación requerida:</b>
-						{andLogicalSet && andLogicalSet.subConditions.length >= 1 && (
+						{AND_LOGICAL_SET && AND_LOGICAL_SET.subConditions.length >= 1 && (
 							<Container>
 								<div>
 									Se <b>deben cumplir TODAS</b> las siguientes condiciones
 								</div>
 								<Container>
 									<ul className="mb-0">
-										{andLogicalSet.subConditions.map((condition, index) => {
-											const node = nodes.find(
+										{AND_LOGICAL_SET.subConditions.map((condition, index) => {
+											const NODE = NODES.find(
 												(node) => node.id === condition.itemId
 											);
 
-											const operatorInfo = operatorLabel.find(
+											const OPERATOR_INFO = OPERATOR_LABEL.find(
 												(opInfo) => opInfo.op === condition.operator
 											);
 
 											// Render each condition here
 											return (
 												<li key={condition.id}>
-													{node.data.label} {operatorInfo.label}{" "}
+													{NODE.data.label} {OPERATOR_INFO.label}{" "}
 													{condition.argument}
 												</li>
 											);
@@ -204,34 +202,34 @@ export default function SimpleConditionsSakai({ id }) {
 								</Container>
 							</Container>
 						)}
-						{orLogicalSet &&
-							andLogicalSet &&
-							orLogicalSet.subConditions.length >= 1 &&
-							andLogicalSet.subConditions.length >= 1 && (
+						{OR_LOGICAL_SET &&
+							AND_LOGICAL_SET &&
+							OR_LOGICAL_SET.subConditions.length >= 1 &&
+							AND_LOGICAL_SET.subConditions.length >= 1 && (
 								<Container className="mb-2 mt-2">
 									<b>Y</b>
 								</Container>
 							)}
-						{orLogicalSet && orLogicalSet.subConditions.length >= 1 && (
+						{OR_LOGICAL_SET && OR_LOGICAL_SET.subConditions.length >= 1 && (
 							<Container>
 								<div>
 									Solo se debe <b>cumplir UNA</b> de las siguientes condiciones
 								</div>
 								<Container>
 									<ul>
-										{orLogicalSet.subConditions.map((condition) => {
-											const node = nodes.find(
+										{OR_LOGICAL_SET.subConditions.map((condition) => {
+											const NODE = NODES.find(
 												(node) => node.id === condition.itemId
 											);
 
-											const operatorInfo = operatorLabel.find(
+											const OPERATOR_INFO = OPERATOR_LABEL.find(
 												(opInfo) => opInfo.op === condition.operator
 											);
 
 											// Render each condition here
 											return (
 												<li key={condition.id}>
-													{node.data.label} {operatorInfo.label}{" "}
+													{NODE.data.label} {OPERATOR_INFO.label}{" "}
 													{condition.argument}
 												</li>
 											);
@@ -242,11 +240,11 @@ export default function SimpleConditionsSakai({ id }) {
 						)}
 					</>
 				)}
-				{((!andLogicalSet && !orLogicalSet) ||
-					(andLogicalSet &&
-						andLogicalSet.subConditions.length < 1 &&
-						andLogicalSet &&
-						orLogicalSet.subConditions.length < 1)) && (
+				{((!AND_LOGICAL_SET && !OR_LOGICAL_SET) ||
+					(AND_LOGICAL_SET &&
+						AND_LOGICAL_SET.subConditions.length < 1 &&
+						AND_LOGICAL_SET &&
+						OR_LOGICAL_SET.subConditions.length < 1)) && (
 					<div>
 						{JSON.stringify(getNodeById(id, rfNodes))}
 						Actualmente no existe ninguna condición de calificación asociada a
@@ -262,7 +260,7 @@ export default function SimpleConditionsSakai({ id }) {
 	};
 
 	let finalString = undefined;
-	const devString = <div>{JSON.stringify(getNodeById(id, rfNodes))}</div>;
+	const DEV_STRING = <div>{JSON.stringify(getNodeById(id, rfNodes))}</div>;
 
 	if (hoverConditions && hoverConditions == true) {
 		finalString = parseConditions();
@@ -272,7 +270,7 @@ export default function SimpleConditionsSakai({ id }) {
 					<b>{getNodeById(id, rfNodes).data.label}</b>
 				</p>
 				<hr />
-				<dev>{devModeStatus ? [devString, ...finalString] : finalString}</dev>
+				<dev>{devModeStatus ? [DEV_STRING, ...finalString] : finalString}</dev>
 			</div>
 		);
 	} else {
@@ -283,7 +281,7 @@ export default function SimpleConditionsSakai({ id }) {
 					<b>{getNodeById(id, rfNodes).data.label}</b>
 				</p>
 				<hr />
-				<dev>{devModeStatus ? [devString, ...finalString] : finalString}</dev>
+				<dev>{devModeStatus ? [DEV_STRING, ...finalString] : finalString}</dev>
 			</div>
 		);
 	}

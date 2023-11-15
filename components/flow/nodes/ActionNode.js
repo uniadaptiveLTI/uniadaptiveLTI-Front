@@ -34,10 +34,10 @@ import SimpleConditionsSakai from "@components/flow/conditions/SimpleConditionsS
 import { useEffect } from "react";
 
 const getHumanDesc = (type) => {
-	const node = NodeTypes.find((node) => node.type == type);
+	const NODE = NodeTypes.find((node) => node.type == type);
 	let humanType = "";
-	if (node) {
-		humanType = node.name;
+	if (NODE) {
+		humanType = NODE.name;
 	} else {
 		humanType = "Acción";
 	}
@@ -78,8 +78,8 @@ function ActionNode({ id, type, data, selected, dragging, isConnectable }) {
 	const reactFlowInstance = useReactFlow();
 	const { settings } = useContext(SettingsContext);
 	const [isHovered, setIsHovered] = useState(false);
-	const parsedSettings = JSON.parse(settings);
-	const { highContrast, reducedAnimations } = parsedSettings;
+	const PARSED_SETTINGS = JSON.parse(settings);
+	const { highContrast, reducedAnimations } = PARSED_SETTINGS;
 	const { platform } = useContext(PlatformContext);
 	const rfNodes = useNodes();
 
@@ -88,35 +88,35 @@ function ActionNode({ id, type, data, selected, dragging, isConnectable }) {
 	);
 
 	const handleEdit = () => {
-		const blockData = getNodeById(id, reactFlowInstance.getNodes());
+		const BLOCKDATA = getNodeById(id, reactFlowInstance.getNodes());
 		if (expandedAside != true) {
 			setExpandedAside(true);
 		}
 		setEditVersionSelected("");
-		setNodeSelected(blockData);
+		setNodeSelected(BLOCKDATA);
 	};
 
 	const extractSelf = () => {
-		const fragment = getNodeById(
+		const FRAGMENT = getNodeById(
 			getNodeById(id, reactFlowInstance.getNodes()).parentNode,
 			reactFlowInstance
 		);
-		const childToRemove = getNodeById(id, reactFlowInstance.getNodes());
+		const CHILD_TO_REMOVE = getNodeById(id, reactFlowInstance.getNodes());
 
-		delete childToRemove.parentNode;
-		delete childToRemove.expandParent;
-		childToRemove.position = childToRemove.positionAbsolute;
+		delete CHILD_TO_REMOVE.parentNode;
+		delete CHILD_TO_REMOVE.expandParent;
+		CHILD_TO_REMOVE.position = CHILD_TO_REMOVE.positionAbsolute;
 
-		fragment.data.innerNodes = fragment.data.innerNodes.filter(
-			(node) => node.id != childToRemove.id
+		FRAGMENT.data.innerNodes = FRAGMENT.data.innerNodes.filter(
+			(node) => node.id != CHILD_TO_REMOVE.id
 		);
-		fragment.zIndex = -1;
+		FRAGMENT.zIndex = -1;
 		reactFlowInstance.setNodes(
-			getUpdatedArrayById(fragment, [
+			getUpdatedArrayById(FRAGMENT, [
 				...reactFlowInstance
 					.getNodes()
-					.filter((node) => childToRemove.id != node.id),
-				childToRemove,
+					.filter((node) => CHILD_TO_REMOVE.id != node.id),
+				CHILD_TO_REMOVE,
 			])
 		);
 	};

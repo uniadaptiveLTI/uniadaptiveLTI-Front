@@ -8,13 +8,13 @@ import { clampNodesOrderSakai } from "./Sakai";
  * @returns {Object[]} A new array with the updated entries. If an entry in the original array does not have a matching id in the updatedEntry, it is returned unchanged.
  */
 export const getUpdatedArrayById = (updatedEntry, originalArray) => {
-	const newEntries = Array.isArray(updatedEntry)
+	const NEW_ENTRIES = Array.isArray(updatedEntry)
 		? updatedEntry
 		: [updatedEntry];
 
 	if (originalArray.length > 0) {
 		return originalArray.map((oldEntry) => {
-			const newEntry = newEntries.find((entry) => entry.id === oldEntry.id);
+			const newEntry = NEW_ENTRIES.find((entry) => entry.id === oldEntry.id);
 			return newEntry ? { ...oldEntry, ...newEntry } : oldEntry;
 		});
 	} else {
@@ -154,9 +154,9 @@ export function isUnique(value, array) {
  * @returns {string} The base64 encoded version of the given string.
  */
 export function base64Encode(string = "") {
-	const buffer = Buffer.from(string, "utf-8");
-	const base64 = buffer.toString("base64");
-	return base64;
+	const BUFFER = Buffer.from(string, "utf-8");
+	const BASE64 = BUFFER.toString("base64");
+	return BASE64;
 }
 
 /**
@@ -165,9 +165,9 @@ export function base64Encode(string = "") {
  * @returns {string} The decoded version of the given base64 string.
  */
 export function base64Decode(base64 = "") {
-	const buffer = Buffer.from(base64, "base64");
-	const string = buffer.toString("utf-8");
-	return string;
+	const BUFFER = Buffer.from(base64, "base64");
+	const BASE64 = BUFFER.toString("utf-8");
+	return BASE64;
 }
 
 /**
@@ -178,9 +178,9 @@ export function base64Decode(base64 = "") {
  * @returns {Array} A new array with the element moved from the specified index to the specified index.
  */
 export function arrayMoveByIndex(from, to, array) {
-	const newArray = [...array];
-	newArray.splice(to, 0, newArray.splice(from, 1)[0]);
-	return newArray;
+	const NEW_ARRAY = [...array];
+	NEW_ARRAY.splice(to, 0, NEW_ARRAY.splice(from, 1)[0]);
+	return NEW_ARRAY;
 }
 
 /**
@@ -191,11 +191,11 @@ export function arrayMoveByIndex(from, to, array) {
  * @returns {Array<Object>} A new array with the element moved from the specified ID to after the specified ID.
  */
 export function arrayMoveById(from, to, array) {
-	const newArray = [...array];
-	const fromIndex = newArray.findIndex((item) => item.id == from);
-	const toIndex = newArray.findIndex((item) => item.id == to);
-	newArray.splice(toIndex, 0, newArray.splice(fromIndex, 1)[0]);
-	return newArray;
+	const NEW_ARRAY = [...array];
+	const FORM_INDEX = NEW_ARRAY.findIndex((item) => item.id == from);
+	const TO_INDEX = NEW_ARRAY.findIndex((item) => item.id == to);
+	NEW_ARRAY.splice(TO_INDEX, 0, NEW_ARRAY.splice(FORM_INDEX, 1)[0]);
+	return NEW_ARRAY;
 }
 
 /**
@@ -210,8 +210,8 @@ export function searchConditionForTypes(jsonData, targetTypes, results) {
 	}
 
 	if (jsonData.c && Array.isArray(jsonData.c)) {
-		for (const condition of jsonData.c) {
-			searchConditionForTypes(condition, targetTypes, results);
+		for (const CONDITION of jsonData.c) {
+			searchConditionForTypes(CONDITION, targetTypes, results);
 		}
 	}
 }
@@ -251,16 +251,16 @@ export function updateBadgeConditions(blockNodeTarget, blockNodeSource) {
 	let conditions = blockNodeTarget.data.c.params;
 
 	// Find method to get the condition of type completion
-	const conditionExists = conditions.find(
+	const CONDITION_EXISTS = conditions.find(
 		(condition) => condition.type === "completion"
 	);
 
 	// Condition to know if the condition exists
-	if (conditionExists) {
+	if (CONDITION_EXISTS) {
 		// Condition to check if the activity list has more than one entry
-		if (conditionExists.params.length > 1) {
+		if (CONDITION_EXISTS.params.length > 1) {
 			// Filter method to delete the specific node from the activity list
-			conditionExists.params = conditionExists.params.filter(
+			CONDITION_EXISTS.params = CONDITION_EXISTS.params.filter(
 				(node) => node.id !== blockNodeSource.id
 			);
 		} else {
@@ -315,20 +315,20 @@ export async function fetchBackEnd(
 	method = "GET",
 	load
 ) {
-	const fetchURL = getFetchUrl(LTISettings, webservice);
+	const FETCH_URL = getFetchUrl(LTISettings, webservice);
 	let fetchResponse;
 
 	if (method === "POST") {
-		const response = await fetch(fetchURL, {
+		const RESPONSE = await fetch(FETCH_URL, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ ...load, token }),
 		});
-		fetchResponse = await response.json();
+		fetchResponse = await RESPONSE.json();
 	} else if (method === "GET") {
 		fetchResponse = (
 			await fetch(
-				fetchURL + `?${new URLSearchParams({ ...load, token }).toString()}`
+				FETCH_URL + `?${new URLSearchParams({ ...load, token }).toString()}`
 			)
 		).json();
 	}
@@ -399,15 +399,15 @@ export function parseDate(date, dateComplete) {
  * @returns {String} Returns formatted date string
  */
 export function parseDateToString(date, full = true) {
-	const year = date.getFullYear();
-	const month = String(date.getMonth() + 1).padStart(2, "0");
-	const day = String(date.getDate()).padStart(2, "0");
+	const YEAR = date.getFullYear();
+	const MONTH = String(date.getMonth() + 1).padStart(2, "0");
+	const DAY = String(date.getDate()).padStart(2, "0");
 	if (full) {
-		const hours = String(date.getHours()).padStart(2, "0");
-		const minutes = String(date.getMinutes()).padStart(2, "0");
-		return `${year}-${month}-${day}T${hours}:${minutes}`;
+		const HOURS = String(date.getHours()).padStart(2, "0");
+		const MINUTES = String(date.getMinutes()).padStart(2, "0");
+		return `${YEAR}-${MONTH}-${DAY}T${HOURS}:${MINUTES}`;
 	} else {
-		return `${year}-${month}-${day}`;
+		return `${YEAR}-${MONTH}-${DAY}`;
 	}
 }
 
@@ -458,12 +458,12 @@ export async function saveVersion(
 		});
 	}
 	// Clean the nodes using the helper function
-	const cleanedNodes = cleanNodes(rfNodes);
+	const CLEANED_NODES = cleanNodes(rfNodes);
 	// Define constants for the success and error messages
-	const successMessage = "Versión guardada con éxito";
-	const errorMessage = "No se pudo guardar";
+	const SUCCESS_MESSAGE = "Versión guardada con éxito";
+	const ERROR_MESSAGE = "No se pudo guardar";
 	try {
-		const saveData = {
+		const SAVE_DATA = {
 			instance_id: metaData.instance_id,
 			course_id: metaData.course_id,
 			platform: platform,
@@ -474,24 +474,24 @@ export async function saveVersion(
 				versions: {
 					...versionJson,
 					lastUpdate: new Date().toLocaleString("es-ES"),
-					blocksData: cleanedNodes,
+					blocksData: CLEANED_NODES,
 				},
 			},
 		};
 
 		if (platform == "sakai") {
-			saveData.lesson_id = lesson;
+			SAVE_DATA.lesson_id = lesson;
 		}
 
-		const response = await fetchBackEnd(
+		const RESPONSE = await fetchBackEnd(
 			LTISettings,
 			sessionStorage.getItem("token"),
 			"api/lti/store_version",
 			"POST",
-			{ saveData: saveData }
+			{ saveData: SAVE_DATA }
 		);
 
-		if (response && response.ok) {
+		if (RESPONSE && RESPONSE.ok) {
 			if (responseData) {
 				switch (responseData) {
 					case "SUCCESSFUL_EXPORT":
@@ -521,7 +521,7 @@ export async function saveVersion(
 					"%c ✔ Versión guardada con éxito",
 					"background: #D7FFD7; color: black; padding: 4px;"
 				);
-				toast(successMessage, defaultToastSuccess);
+				toast(SUCCESS_MESSAGE, defaultToastSuccess);
 			}
 		} else {
 			if (responseData) {
@@ -553,13 +553,13 @@ export async function saveVersion(
 					"background: #FFD7DC; color: black; padding: 4px;"
 				);
 				// If the response is not successful, show the error message
-				toast(errorMessage, defaultToastError);
+				toast(ERROR_MESSAGE, defaultToastError);
 			}
 		}
 	} catch (e) {
 		// If an error occurs when making the request, show the error message and log the error in the console
 		console.error(e);
-		toast(errorMessage, defaultToastError);
+		toast(ERROR_MESSAGE, defaultToastError);
 	} finally {
 		enable(false);
 	}
@@ -589,8 +589,8 @@ export function clampNodesOrder(nodeArray, platform) {
  * @returns {String} The ID of the node.
  */
 export function LMSResourceToId(resourceId, nodes) {
-	const node = nodes.find((node) => node.data.lmsResource == resourceId);
-	return node ? node.id : undefined;
+	const NODE = nodes.find((node) => node.data.lmsResource == resourceId);
+	return NODE ? NODE.id : undefined;
 }
 
 /**
@@ -607,15 +607,15 @@ export function handleNameCollision(
 	forceCount = false,
 	separatorType = ""
 ) {
-	const prefixSuffixMap = {
+	const PREFIX_SUFFIX_MAP = {
 		"[": "]",
 		"(": ")",
 		"{": "}",
 		"<": ">",
 	};
 
-	const prefix = prefixSuffixMap[separatorType] ? separatorType : "";
-	const suffix = prefixSuffixMap[separatorType] || separatorType;
+	const PREFIX = PREFIX_SUFFIX_MAP[separatorType] ? separatorType : "";
+	const SUFFIX = PREFIX_SUFFIX_MAP[separatorType] || separatorType;
 
 	let nameCount = array.reduce(
 		(count, arrayName) => (arrayName.startsWith(name) ? count + 1 : count),
@@ -624,7 +624,7 @@ export function handleNameCollision(
 	let finalName = name;
 
 	if (nameCount > 0 || forceCount) {
-		finalName = `${name} ${prefix}${nameCount + 1}${suffix}`;
+		finalName = `${name} ${PREFIX}${nameCount + 1}${SUFFIX}`;
 	}
 
 	if (array.includes(finalName)) {
@@ -632,23 +632,4 @@ export function handleNameCollision(
 	}
 
 	return finalName;
-}
-
-export function sakaiTypeSwitch(node) {
-	switch (node.type) {
-		case "resource":
-		case "html":
-		case "text":
-			return { type: 1, contentRef: node.id.toString() };
-		case "assign":
-			return { type: 3, contentRef: "/assignment/" + node.id };
-		case "exam":
-			return { type: 4, contentRef: "/sam_pub/" + node.id };
-		case "url":
-			return { type: 6, contentRef: node.id.toString() };
-		case "forum":
-			return { type: 8, contentRef: "/forum_forum/" + node.id };
-		case "folder":
-			return { type: 20, dataDirectory: node.id.toString() };
-	}
 }

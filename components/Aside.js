@@ -67,7 +67,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 	const [allowResourceSelection, setAllowResourceSelection] = useState(true);
 
 	const { platform, setPlatform } = useContext(PlatformContext);
-	const shownTypes = getVisibilityOptions(platform);
+	const SHOWN_TYPES = getVisibilityOptions(platform);
 	const { nodeSelected, setNodeSelected } = useContext(NodeInfoContext);
 	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
 	const { editVersionSelected, setEditVersionSelected } =
@@ -78,7 +78,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 	const parsedSettings = JSON.parse(settings);
 	let { reducedAnimations, autoHideAside } = parsedSettings;
 	//References
-	const autoFocus = useRef(null);
+	const autofocus = useRef(null);
 	const labelDOM = useRef(null);
 	const optionsDOM = useRef(null);
 	const resourceDOM = useRef(null);
@@ -107,11 +107,14 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 
 	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
 
-	const moodleResource = orderByPropertyAlphabetically(
+	const MOODLE_RESOURCE_NAMES = orderByPropertyAlphabetically(
 		getMoodleTypes(),
 		"name"
 	);
-	const sakaiResource = orderByPropertyAlphabetically(getSakaiTypes(), "name");
+	const SAKAI_RESOURCE_NAMES = orderByPropertyAlphabetically(
+		getSakaiTypes(),
+		"name"
+	);
 
 	const fetchResources = async (selectedOption) => {
 		try {
@@ -131,7 +134,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 				return [];
 			}
 
-			const response = await fetchBackEnd(
+			const RESPONSE = await fetchBackEnd(
 				LTISettings,
 				sessionStorage.getItem("token"),
 				"api/lti/get_modules_by_type",
@@ -140,14 +143,14 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 			);
 
 			if (
-				!response ||
-				!response.ok ||
-				(response?.ok && response?.ok == false)
+				!RESPONSE ||
+				!RESPONSE.ok ||
+				(RESPONSE?.ok && RESPONSE?.ok == false)
 			) {
 				/* Old error handler
 				throw new Error("Request failed");
 				*/
-				console.error(`❌ Error: `, response.status);
+				console.error(`❌ Error: `, RESPONSE.status);
 				toast({
 					hideProgressBar: false,
 					autoClose: 2000,
@@ -156,11 +159,11 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 				});
 			}
 
-			const data = response.data.items;
+			const DATA = RESPONSE.data.items;
 
 			setShowSpinner(false);
 			setAllowResourceSelection(true);
-			return data;
+			return DATA;
 		} catch (e) {
 			// const error = new Error(
 			// 	"No se pudieron obtener los datos del curso desde el LMS.\n" + e
@@ -178,7 +181,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 			if (LTISettings.debugging.dev_files) {
 				setResourceOptions([]);
 				setTimeout(() => {
-					const data = [
+					const DATA = [
 						{
 							id: 0,
 							name: `${capitalizeFirstLetter(
@@ -204,10 +207,10 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 							)} D`,
 						},
 					];
-					const filteredData = [];
-					data.forEach((resource) => {
+					const FILTERED_DATA = [];
+					DATA.forEach((resource) => {
 						if (!getUsedResources().includes(resource.id)) {
-							filteredData.push(resource);
+							FILTERED_DATA.push(resource);
 						}
 					});
 
@@ -215,35 +218,35 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 					if (nodeSelected && nodeSelected.data) {
 						if (nodeSelected.data.lmsResource != undefined) {
 							if (nodeSelected.data.lmsResource != "") {
-								const lmsRes = nodeSelected.data.lmsResource;
-								const storedRes = data.find(
-									(resource) => resource.id == lmsRes
+								const LMS_RESOURCE = nodeSelected.data.lmsResource;
+								const STORED_RESOURCE = DATA.find(
+									(resource) => resource.id == LMS_RESOURCE
 								);
 
-								if (storedRes != undefined) {
-									filteredData.push(storedRes);
+								if (STORED_RESOURCE != undefined) {
+									FILTERED_DATA.push(STORED_RESOURCE);
 								}
 							}
 						}
 					}
 
-					const uniqueFilteredData = orderByPropertyAlphabetically(
-						deduplicateById(filteredData),
+					const UNIQUE_FILTERED_DATA = orderByPropertyAlphabetically(
+						deduplicateById(FILTERED_DATA),
 						"name"
 					);
-					uniqueFilteredData.unshift({
+					UNIQUE_FILTERED_DATA.unshift({
 						id: -1,
 						name: NodeTypes.filter((node) => node.type == selectedOption)[0]
 							.emptyName,
 					});
-					setResourceOptions(uniqueFilteredData);
+					setResourceOptions(UNIQUE_FILTERED_DATA);
 				}, 1000);
 			} else {
 				fetchResources(selectedOption).then((data) => {
-					const filteredData = [];
+					const FILTERED_DATA = [];
 					data.forEach((resource) => {
 						if (!getUsedResources().includes(resource.id)) {
-							filteredData.push(resource);
+							FILTERED_DATA.push(resource);
 						}
 					});
 					//Adds current resource if exists
@@ -256,29 +259,29 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 								);
 
 								if (storedRes != undefined) {
-									filteredData.push(storedRes);
+									FILTERED_DATA.push(storedRes);
 								}
 							}
 						}
 					}
-					const uniqueFilteredData = orderByPropertyAlphabetically(
-						deduplicateById(filteredData),
+					const UNIQUE_FILTERED_DATA = orderByPropertyAlphabetically(
+						deduplicateById(FILTERED_DATA),
 						"name"
 					);
-					uniqueFilteredData.forEach((option) => {
+					UNIQUE_FILTERED_DATA.forEach((option) => {
 						return hasUnorderedResources(platform)
 							? (option.oname = `${option.name}`)
 							: (option.oname = `${option.name} ${
 									option.section > -1 ? "- Sección: " + option.section : ""
 							  }`);
 					});
-					uniqueFilteredData.unshift({
+					UNIQUE_FILTERED_DATA.unshift({
 						id: -1,
 						name: NodeTypes.filter((node) => node.type == selectedOption)[0]
 							.emptyName,
 					});
 
-					setResourceOptions(uniqueFilteredData);
+					setResourceOptions(UNIQUE_FILTERED_DATA);
 				});
 			}
 		}
@@ -335,38 +338,38 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 
 	useEffect(() => {
 		if (nodeSelected) {
-			const labelCurrent = labelDOM.current;
-			const typeCurrent = resourceDOM.current;
-			const lmsVisibilityCurrent = lmsVisibilityDOM.current;
-			const sectionCurrent = sectionDOM.current;
-			const orderCurrent = orderDOM.current;
-			const indentCurrent = indentDOM.current;
+			const CURRENT_LABEL = labelDOM.current;
+			const CURRENT_TYPE = resourceDOM.current;
+			const CURRENT_LMS_VISIBILITY = lmsVisibilityDOM.current;
+			const CURRENT_SECTION = sectionDOM.current;
+			const CURRENT_ORDER = orderDOM.current;
+			const CURRENT_INDENT = indentDOM.current;
 
-			if (labelCurrent) {
-				labelCurrent.value = nodeSelected.data.label;
+			if (CURRENT_LABEL) {
+				CURRENT_LABEL.value = nodeSelected.data.label;
 			}
 
-			if (typeCurrent) {
-				typeCurrent.value = nodeSelected.type;
+			if (CURRENT_TYPE) {
+				CURRENT_TYPE.value = nodeSelected.type;
 			}
 
-			if (lmsVisibilityCurrent) {
-				lmsVisibilityCurrent.value = nodeSelected.data.lmsVisibility;
+			if (CURRENT_LMS_VISIBILITY) {
+				CURRENT_LMS_VISIBILITY.value = nodeSelected.data.lmsVisibility;
 			}
 
-			if (sectionCurrent) {
-				sectionCurrent.value = nodeSelected.data.section;
+			if (CURRENT_SECTION) {
+				CURRENT_SECTION.value = nodeSelected.data.section;
 			}
 
-			if (orderCurrent) {
-				orderCurrent.value = nodeSelected.data.order + 1;
+			if (CURRENT_ORDER) {
+				CURRENT_ORDER.value = nodeSelected.data.order + 1;
 			}
 
-			if (indentCurrent) {
+			if (CURRENT_INDENT) {
 				if (platform == "sakai") {
-					indentCurrent.value = nodeSelected.data.indent + 1;
+					CURRENT_INDENT.value = nodeSelected.data.indent + 1;
 				} else {
-					indentCurrent.value = nodeSelected.data.indent;
+					CURRENT_INDENT.value = nodeSelected.data.indent;
 				}
 			}
 
@@ -378,8 +381,8 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 	 * Focuses into the aside if autoHideAside is active and autoFocus is visible
 	 */
 	useEffect(() => {
-		if (autoFocus && autoHideAside) {
-			autoFocus.current.focus();
+		if (autofocus && autoHideAside) {
+			autofocus.current.focus();
 		}
 	});
 
@@ -388,7 +391,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 	 */
 	const updateBlock = () => {
 		if (nodeSelected.type != "fragment") {
-			let type = resourceDOM.current.value;
+			const RESOURCE_TYPE = resourceDOM.current.value;
 			let newData;
 			if (!ActionNodes.includes(nodeSelected.type)) {
 				//if element node
@@ -401,7 +404,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 					order: originalOrder,
 				} = nodeSelected.data;
 
-				const limitedOrder = Math.min(
+				const LIMITED_ORDER = Math.min(
 					Math.max(orderDOM.current.value, 0),
 					platform != "sakai"
 						? getLastPositionInSection(
@@ -414,7 +417,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 								reactFlowInstance.getNodes()
 						  ) + 1
 				);
-				let limitedindent = Math.min(Math.max(indentDOM.current.value, 0), 16);
+				let LIMITED_INDENT = Math.min(Math.max(indentDOM.current.value, 0), 16);
 
 				newData = {
 					...nodeSelected.data,
@@ -426,34 +429,34 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 						? "hidden"
 						: "hidden_until_access",
 					section: newSection,
-					order: limitedOrder - 1,
-					indent: platform == "sakai" ? limitedindent - 1 : limitedindent,
+					order: LIMITED_ORDER - 1,
+					indent: platform == "sakai" ? LIMITED_INDENT - 1 : LIMITED_INDENT,
 				};
 
-				const updatedData = {
+				const UPDATED_DATA = {
 					...nodeSelected,
 					id: nodeSelected.id,
 					type: resourceDOM.current.value,
 					data: newData,
 				};
 
-				const aNodeWithNewOrderExists = reactFlowInstance
+				const NODE_WITH_NEW_ORDER_EXISTS = reactFlowInstance
 					.getNodes()
 					.some(
 						(node) =>
-							node.data.order == limitedOrder - 1 &&
+							node.data.order == LIMITED_ORDER - 1 &&
 							node.data.section == newSection
 					);
 
 				const reorderNodes = (newSection, originalOrder, limitedOrder) => {
-					const [from, to] = [originalOrder, limitedOrder - 1];
+					const [FROM, TO] = [originalOrder, limitedOrder - 1];
 					const reorderedArray = reorderFromSection(
 						newSection,
-						from,
-						to,
+						FROM,
+						TO,
 						reactFlowInstance.getNodes()
 					);
-					reactFlowInstance.setNodes([...reorderedArray, updatedData]);
+					reactFlowInstance.setNodes([...reorderedArray, UPDATED_DATA]);
 				};
 
 				const reorderNodesColumn = (
@@ -462,19 +465,19 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 					originalOrder,
 					limitedOrder
 				) => {
-					const [from, to] = [originalOrder, limitedOrder - 1];
+					const [FROM, TO] = [originalOrder, limitedOrder - 1];
 					const reorderedArray = reorderFromSectionAndColumn(
 						newSection,
 						newColumn,
-						from,
-						to,
+						FROM,
+						TO,
 						reactFlowInstance.getNodes()
 					);
 
 					reactFlowInstance.setNodes([
 						...reactFlowInstance.getNodes(),
 						...reorderedArray,
-						updatedData,
+						UPDATED_DATA,
 					]);
 				};
 
@@ -485,13 +488,13 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 				};
 
 				if (
-					aNodeWithNewOrderExists ||
+					NODE_WITH_NEW_ORDER_EXISTS ||
 					originalSection != newSection ||
 					(platform == "sakai" && originalIndent != newIndent)
 				) {
 					if (originalSection == newSection && platform != "sakai") {
 						//Change in order
-						reorderNodes(newSection, originalOrder, limitedOrder);
+						reorderNodes(newSection, originalOrder, LIMITED_ORDER);
 					} else {
 						const virtualNodes = reactFlowInstance.getNodes();
 						const forcedPos =
@@ -503,69 +506,72 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 										virtualNodes
 								  ) + 1;
 
-						if (platform == "moodle") updatedData.data.order = forcedPos;
-						if (platform == "sakai") updatedData.data.order = forcedPos - 1;
-						virtualNodes.push(updatedData);
-						if (!(limitedOrder - 1 > forcedPos)) {
+						if (platform == "moodle") UPDATED_DATA.data.order = forcedPos;
+						if (platform == "sakai") UPDATED_DATA.data.order = forcedPos - 1;
+						virtualNodes.push(UPDATED_DATA);
+						if (!(LIMITED_ORDER - 1 > forcedPos)) {
 							//If the desired position is inside the section
 							reorderNodesColumn(
 								newSection,
 								newIndent,
 								forcedPos + 1,
-								limitedOrder
+								LIMITED_ORDER
 							);
 						} else {
 							//If the desired position is outside the section
 
-							updateNodes(updatedData);
+							updateNodes(UPDATED_DATA);
 						}
 					}
 				} else {
-					updateNodes(updatedData);
+					updateNodes(UPDATED_DATA);
 				}
 
-				errorListCheck(updatedData, errorList, setErrorList, false);
+				errorListCheck(UPDATED_DATA, errorList, setErrorList, false);
 			} else {
 				//if action node
 				newData = {
 					...nodeSelected.data,
 					label: labelDOM.current.value,
-					lmsResource: type !== "mail" ? lmsResourceDOM.current.value : type,
+					lmsResource:
+						RESOURCE_TYPE !== "mail"
+							? lmsResourceDOM.current.value
+							: RESOURCE_TYPE,
 				};
 
-				const updatedData = {
+				const UPDATED_DATA = {
 					...nodeSelected,
 					id: nodeSelected.id,
 					type: resourceDOM.current.value,
 					data: newData,
 				};
 
-				errorListCheck(updatedData, errorList, setErrorList, false);
+				errorListCheck(UPDATED_DATA, errorList, setErrorList, false);
 
 				reactFlowInstance.setNodes(
-					getUpdatedArrayById(updatedData, reactFlowInstance.getNodes())
+					getUpdatedArrayById(UPDATED_DATA, reactFlowInstance.getNodes())
 				);
 
-				errorListCheck(updatedData, errorList, setErrorList);
+				errorListCheck(UPDATED_DATA, errorList, setErrorList);
 			}
 
 			if (autoHideAside) {
 				setExpandedAside(false);
 			}
 		} else {
-			const newData = {
+			const NEW_DATA = {
 				...nodeSelected.data,
 				label: labelDOM.current.value,
 			};
 
-			const updatedData = {
+			const UPDATED_DATA = {
 				...nodeSelected,
 				id: nodeSelected.id,
-				data: newData,
+				data: NEW_DATA,
 			};
 
 			reactFlowInstance.setNodes(
-				getUpdatedArrayById(updatedData, reactFlowInstance.getNodes())
+				getUpdatedArrayById(UPDATED_DATA, reactFlowInstance.getNodes())
 			);
 		}
 	};
@@ -595,21 +601,21 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 	};
 
 	const getUsedResources = () => {
-		const nodes = reactFlowInstance.getNodes();
-		const usedResources = [];
-		nodes.map((node) => {
+		const NODES = reactFlowInstance.getNodes();
+		const USED_RESOURCES = [];
+		NODES.map((node) => {
 			if (node.data.lmsResource != undefined) {
-				usedResources.push(node.data.lmsResource);
+				USED_RESOURCES.push(node.data.lmsResource);
 			}
 		});
-		return usedResources;
+		return USED_RESOURCES;
 	};
 
 	return (
 		<aside id="aside" className={`${className} ${styles.aside}`}>
 			<div className={"text-center p-2"}>
 				<div
-					ref={autoFocus}
+					ref={autofocus}
 					role="button"
 					onClick={() => setExpandedAside(false)}
 					className={
@@ -721,7 +727,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 											onChange={handleSelect}
 										>
 											{platform == "moodle"
-												? moodleResource.map((option) => {
+												? MOODLE_RESOURCE_NAMES.map((option) => {
 														if (
 															(ActionNodes.includes(nodeSelected.type) &&
 																option.nodeType == "ActionNode") ||
@@ -735,7 +741,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 															);
 														}
 												  })
-												: sakaiResource.map((option) => {
+												: SAKAI_RESOURCE_NAMES.map((option) => {
 														if (
 															(ActionNodes.includes(nodeSelected.type) &&
 																option.nodeType == "ActionNode") ||
@@ -884,7 +890,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 												id={lmsVisibilityDOMId}
 												defaultValue={nodeSelected.data.lmsVisibility}
 											>
-												{orderByPropertyAlphabetically(shownTypes, "name").map(
+												{orderByPropertyAlphabetically(SHOWN_TYPES, "name").map(
 													(option) => (
 														<option key={option.value} value={option.value}>
 															{option.name}

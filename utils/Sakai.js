@@ -10,17 +10,17 @@ import { uniqueId } from "./Utils";
  * @returns {number} The maximum position number in the section, or -Infinity if no nodes match the section.
  */
 export function getLastPositionInSakaiColumn(section, column, nodeArray) {
-	const columnNodes = nodeArray.filter(
+	const COLUMN_NODES = nodeArray.filter(
 		(node) => node.data.indent == column - 1
 	);
-	const sectionNodes = columnNodes.filter(
+	const SECTION_NODES = COLUMN_NODES.filter(
 		(node) => node.data.section == section
 	);
-	const maxPosition = Math.max(
-		...sectionNodes.map((node) => node.data.order),
+	const MAX_POSITION = Math.max(
+		...SECTION_NODES.map((node) => node.data.order),
 		-1
 	);
-	return maxPosition;
+	return MAX_POSITION;
 }
 
 /**
@@ -30,20 +30,27 @@ export function getLastPositionInSakaiColumn(section, column, nodeArray) {
  */
 export function reOrderSakaiRequisites(requisites) {
 	const customSort = (a, b) => {
-		const typeOrder = {
+		const TYPE_ORDER = {
 			date: 1,
 			dateException: 2,
 			group: 3,
 		};
 
-		return typeOrder[a.type] - typeOrder[b.type];
+		return TYPE_ORDER[a.type] - TYPE_ORDER[b.type];
 	};
 
-	const sortedArray = [...requisites].sort(customSort);
+	const SORTED_ARRAY = [...requisites].sort(customSort);
 
-	return sortedArray;
+	return SORTED_ARRAY;
 }
 
+/**
+ * Switches the type of a Sakai node and returns an object with the new type and content reference.
+ *
+ * @export
+ * @param {Object} node - The Sakai node to switch the type of.
+ * @returns {Object} - An object containing the new type and content reference.
+ */
 export function sakaiTypeSwitch(node) {
 	switch (node.type) {
 		case "resource":
@@ -63,21 +70,31 @@ export function sakaiTypeSwitch(node) {
 	}
 }
 
+/**
+ * Creates a new Sakai map from the given nodes, lesson, metadata, and maps.
+ *
+ * @export
+ * @param {Array} nodes - The array of nodes to create the map from.
+ * @param {Object} lesson - The lesson to create the map from.
+ * @param {Object} metadata - The metadata to create the map from.
+ * @param {Array} maps - The array of maps to create the map from.
+ * @returns {Object} - The new Sakai map.
+ */
 export function createNewSakaiMap(nodes, lesson, metadata, maps) {
-	const endX =
+	const END_X =
 		Math.max(...nodes.map((node) => node.position.x)) + 125 >= 125
 			? Math.max(...nodes.map((node) => node.position.x)) + 125
 			: 125;
-	const midY =
+	const MID_Y =
 		nodes.map((node) => node.position.y).sort((a, b) => a - b)[
 			Math.floor(nodes.length / 2)
 		] || 0;
 
-	const isEmpty = nodes.length < 1;
-	if (!isEmpty) {
+	const IS_EMPTY = nodes.length < 1;
+	if (!IS_EMPTY) {
 		nodes.forEach((node) => {
 			if (node.data.gradeRequisites) {
-				const parentNodes = [];
+				const PARENT_NODES = [];
 
 				let rootParent = node.data.gradeRequisites
 					? { ...node.data.gradeRequisites, id: uniqueId() }
@@ -87,7 +104,7 @@ export function createNewSakaiMap(nodes, lesson, metadata, maps) {
 				delete rootParent?.toolId;
 				delete rootParent?.hasParent;
 
-				const parsedRequisites = {
+				const PARSED_REQUISITES = {
 					...rootParent,
 					subConditions:
 						rootParent?.subConditions == undefined
@@ -95,19 +112,19 @@ export function createNewSakaiMap(nodes, lesson, metadata, maps) {
 							: sakaiConditionalIDAdder(
 									rootParent.subConditions,
 									nodes,
-									parentNodes
+									PARENT_NODES
 							  ),
 				};
 
-				parentNodes.forEach((parentNode) => {
-					const parentFound = nodes.find((node) => node.id == parentNode);
-					if (parentFound) {
-						parentFound.data.children.push(node.id);
+				PARENT_NODES.forEach((parentNode) => {
+					const PARENT_FOUND = nodes.find((node) => node.id == parentNode);
+					if (PARENT_FOUND) {
+						PARENT_FOUND.data.children.push(node.id);
 					}
 				});
 
 				delete node?.data?.sakaiImportId;
-				node.data.gradeRequisites = parsedRequisites;
+				node.data.gradeRequisites = PARSED_REQUISITES;
 			}
 		});
 	} else {
@@ -120,9 +137,9 @@ export function createNewSakaiMap(nodes, lesson, metadata, maps) {
 		});
 	}
 
-	const newMap = {
+	const NEW_MAP = {
 		id: uniqueId(),
-		name: isEmpty
+		name: IS_EMPTY
 			? `Nuevo Mapa ${maps.length - 1}`
 			: lesson != undefined
 			? `Mapa importado desde ${
@@ -141,16 +158,26 @@ export function createNewSakaiMap(nodes, lesson, metadata, maps) {
 			},
 		],
 	};
-	return newMap;
+	return NEW_MAP;
 }
 
+/**
+ * Parses a Sakai node and adds it to the nodes array if it is of a valid type.
+ *
+ * @export
+ * @param {Array} nodes - The array to which the parsed node will be added.
+ * @param {Object} node - The Sakai node to be parsed.
+ * @param {number} newX - The x-coordinate for the new node's position.
+ * @param {number} newY - The y-coordinate for the new node's position.
+ * @param {Array} validTypes - The array of valid node types.
+ */
 export function parseSakaiNode(nodes, node, newX, newY, validTypes) {
 	if (validTypes.includes(node.modname)) {
-		const newNode = {};
-		newNode.id = String(uniqueId());
-		newNode.type = node.modname;
-		newNode.position = { x: newX, y: newY };
-		newNode.data = {
+		const NEW_NODE = {};
+		NEW_NODE.id = String(uniqueId());
+		NEW_NODE.type = node.modname;
+		NEW_NODE.position = { x: newX, y: newY };
+		NEW_NODE.data = {
 			label: node.name,
 			section: node.section,
 			indent: node.indent,
@@ -162,9 +189,9 @@ export function parseSakaiNode(nodes, node, newX, newY, validTypes) {
 			gradeRequisites: !node.gradeRequisites ? undefined : node.gradeRequisites,
 		};
 
-		if (newNode.type == "exam" || newNode.type == "assign") {
+		if (NEW_NODE.type == "exam" || NEW_NODE.type == "assign") {
 			if (node && node?.openDate && node?.dueDate && node?.closeDate) {
-				newNode.data.requisites.push({
+				NEW_NODE.data.requisites.push({
 					id: String(uniqueId()),
 					type: "date",
 					openingDate: node.openDate,
@@ -174,7 +201,7 @@ export function parseSakaiNode(nodes, node, newX, newY, validTypes) {
 			}
 		} else {
 			if (node && node?.openDate && node?.dueDate) {
-				newNode.data.requisites.push({
+				NEW_NODE.data.requisites.push({
 					id: String(uniqueId()),
 					type: "date",
 					openingDate: node.openDate,
@@ -188,7 +215,7 @@ export function parseSakaiNode(nodes, node, newX, newY, validTypes) {
 			node.timeExceptions.length >= 1
 		) {
 			node.timeExceptions.map((exception) =>
-				newNode.data.requisites.push({
+				NEW_NODE.data.requisites.push({
 					id: String(uniqueId()),
 					type: "dateException",
 					op: exception.forEntityRef.includes("group") ? "group" : "user",
@@ -201,24 +228,31 @@ export function parseSakaiNode(nodes, node, newX, newY, validTypes) {
 		}
 
 		if (node.groups && node.groups.length >= 1) {
-			const groupCondition = {
+			const GROUP_CONDITION = {
 				id: String(uniqueId()),
 				type: "group",
 				groupList: [],
 			};
 
-			groupCondition.groupList = node.groups.map((group, groupIndex) => ({
+			GROUP_CONDITION.groupList = node.groups.map((group, groupIndex) => ({
 				id: group,
 				index: groupIndex,
 			}));
 
-			newNode.data.requisites.push(groupCondition);
+			NEW_NODE.data.requisites.push(GROUP_CONDITION);
 		}
-		nodes.push(newNode);
+		nodes.push(NEW_NODE);
 	}
 }
 
-function sakaiLMSResourceToId(resourceId, nodes) {
+/**
+ * Finds a node in the nodes array that matches the given resource ID.
+ *
+ * @param {string} resourceId - The resource ID to search for.
+ * @param {Array} nodes - The array of nodes to search in.
+ * @returns {Object|undefined} - The node that matches the resource ID, or undefined if no match is found.
+ */
+export function sakaiLMSResourceToId(resourceId, nodes) {
 	let node = nodes.find((node) => node.data.sakaiImportId == resourceId);
 	if (node) {
 		return node;
@@ -227,19 +261,27 @@ function sakaiLMSResourceToId(resourceId, nodes) {
 	}
 }
 
-function sakaiConditionalIDAdder(subConditions, nodes, parentNodes) {
+/**
+ * Adds a unique ID to each sub-condition and updates the item ID and type.
+ *
+ * @param {Array} subConditions - The array of sub-conditions to update.
+ * @param {Array} nodes - The array of nodes to search in for the item ID.
+ * @param {Array} parentNodes - The array to which the new item ID will be added.
+ * @returns {Array} - The updated array of sub-conditions.
+ */
+export function sakaiConditionalIDAdder(subConditions, nodes, parentNodes) {
 	subConditions.map((rootCondition) => {
 		rootCondition.id = uniqueId();
 		rootCondition.subConditions?.map((childCondition) => {
 			childCondition.id = uniqueId();
-			const newItem = sakaiLMSResourceToId(childCondition.itemId, nodes);
-			childCondition.itemId = newItem.id;
-			childCondition.itemType = newItem.type;
+			const NEW_ITEM = sakaiLMSResourceToId(childCondition.itemId, nodes);
+			childCondition.itemId = NEW_ITEM.id;
+			childCondition.itemType = NEW_ITEM.type;
 
 			delete childCondition?.subConditions;
 			delete childCondition?.hasParent;
 
-			parentNodes.push(newItem.id);
+			parentNodes.push(NEW_ITEM.id);
 		});
 
 		delete rootCondition?.argument;
@@ -255,37 +297,37 @@ function sakaiConditionalIDAdder(subConditions, nodes, parentNodes) {
  * @returns {Array} The reordered node array.
  */
 export function clampNodesOrderSakai(nodeArray) {
-	const newArray = [];
+	const NEW_ARRAY = [];
 	let maxSection = 0;
 	nodeArray.forEach((node) => {
 		if (maxSection < (node.data.section || 0))
 			maxSection = node.data.section || 0;
 	});
 	for (let i = 0; i <= maxSection; i++) {
-		const sectionArray = nodeArray.filter(
+		const SECTION_ARRAY = nodeArray.filter(
 			(node) => (node.data.section || 0) == i
 		);
 		let maxIndent = 0;
-		sectionArray.forEach((node) => {
+		SECTION_ARRAY.forEach((node) => {
 			if (maxIndent < (node.data.indent || 0))
 				maxIndent = node.data.indent || 0;
 		});
 		for (let j = 0; j <= maxIndent; j++) {
-			const indentArray = sectionArray.filter(
+			const INDENT_ARRAY = SECTION_ARRAY.filter(
 				(node) => (node.data.indent || 0) == j
 			);
-			indentArray.sort((a, b) => {
+			INDENT_ARRAY.sort((a, b) => {
 				if (a.data.order === undefined) return -1;
 				if (b.data.order === undefined) return 1;
 				return a.data.order - b.data.order;
 			});
-			for (let k = 0; k < indentArray.length; k++) {
-				newArray.push({
-					...indentArray[k],
-					data: { ...indentArray[k].data, order: k },
+			for (let k = 0; k < INDENT_ARRAY.length; k++) {
+				NEW_ARRAY.push({
+					...INDENT_ARRAY[k],
+					data: { ...INDENT_ARRAY[k].data, order: k },
 				});
 			}
 		}
 	}
-	return newArray;
+	return NEW_ARRAY;
 }

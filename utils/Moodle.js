@@ -15,12 +15,12 @@ import {
  * @returns {Object} LTI's resource's node.
  */
 export function parseMoodleNode(node, newX, newY) {
-	const newNode = {};
+	const NEW_NODE = {};
 
-	newNode.id = String(uniqueId());
-	newNode.type = node.modname;
-	newNode.position = { x: newX, y: newY };
-	newNode.data = {
+	NEW_NODE.id = String(uniqueId());
+	NEW_NODE.type = node.modname;
+	NEW_NODE.position = { x: newX, y: newY };
+	NEW_NODE.data = {
 		label: node.name,
 		indent: node.indent,
 		section: node.section,
@@ -32,7 +32,7 @@ export function parseMoodleNode(node, newX, newY) {
 		lmsVisibility: node.visible,
 	};
 
-	return newNode;
+	return NEW_NODE;
 }
 
 /**
@@ -43,16 +43,16 @@ export function parseMoodleNode(node, newX, newY) {
  * @returns {Object} LTI's badge node.
  */
 export function parseMoodleBadges(badge, newX, newY) {
-	const newNode = {};
-	newNode.id = String(uniqueId());
-	newNode.type = "badge";
-	newNode.position = { x: newX, y: newY };
-	newNode.data = {
+	const NEW_NODE = {};
+	NEW_NODE.id = String(uniqueId());
+	NEW_NODE.type = "badge";
+	NEW_NODE.position = { x: newX, y: newY };
+	NEW_NODE.data = {
 		label: badge.name,
 		c: parseMoodleBadgeParams(badge.params), //Adapted in "createNewMoodleMap" (as we need all the IDs)
 		lmsResource: String(badge.id),
 	};
-	return newNode;
+	return NEW_NODE;
 }
 
 /**
@@ -84,11 +84,11 @@ export function parseMoodleBadgeParams(conditions) {
 				newCondition.params = [];
 				newCondition.method = condition.method === 1 ? "&" : "|";
 
-				const filteredArray = condition?.params?.filter(
+				const FILTERED_ARRAY = condition?.params?.filter(
 					(item) => item.name && item.name.includes("module")
 				);
 
-				filteredArray.map((moduleObj) => {
+				FILTERED_ARRAY.map((moduleObj) => {
 					const date = condition?.params?.find((param) =>
 						param.name.includes("bydate_" + moduleObj.value)
 					);
@@ -121,19 +121,19 @@ export function parseMoodleBadgeParams(conditions) {
 				parsedBadgesConditions.params.push(newCondition);
 				break;
 			case "courseCompletion":
-				const grade = condition?.params?.find((param) =>
+				const GRADE = condition?.params?.find((param) =>
 					param.name.includes("grade")
 				);
-				const date = condition?.params?.find((param) =>
+				const DATE = condition?.params?.find((param) =>
 					param.name.includes("bydate")
 				);
 
-				if (grade) {
-					newCondition.method = grade.value;
+				if (GRADE) {
+					newCondition.method = GRADE.value;
 				}
 
-				if (date) {
-					var dateObj = new Date(date.value * 1000);
+				if (DATE) {
+					var dateObj = new Date(DATE.value * 1000);
 					newCondition.dateTo = parseDate(dateObj);
 				}
 
@@ -179,16 +179,16 @@ function getMoodleConditionType(criteriaType) {
  * @returns {Object} Returns the new map.
  */
 export function createNewMoodleMap(nodes, metadata, maps) {
-	const endX =
+	const END_X =
 		Math.max(...nodes.map((node) => node.position.x)) + 125 >= 125
 			? Math.max(...nodes.map((node) => node.position.x)) + 125
 			: 125;
-	const midY =
+	const MID_Y =
 		nodes.map((node) => node.position.y).sort((a, b) => a - b)[
 			Math.floor(nodes.length / 2)
 		] || 0;
 
-	const conditionatedNodes = nodes.map((node) => {
+	const CONDITIONATED_NODES = nodes.map((node) => {
 		if (node.type !== "badge") {
 			let conditions;
 			if (node.data.c && (!node.data.c.c || node.data.c.c.length < 1)) {
@@ -200,7 +200,7 @@ export function createNewMoodleMap(nodes, metadata, maps) {
 					type: "conditionsGroup",
 				};
 			}
-			const parsedConditions = {
+			const PARSED_CONDITIONS = {
 				...conditions,
 				c:
 					conditions?.c == undefined
@@ -210,36 +210,36 @@ export function createNewMoodleMap(nodes, metadata, maps) {
 
 			//Import show/showc
 			if (
-				parsedConditions.showc != undefined ||
-				parsedConditions.show != undefined
+				PARSED_CONDITIONS.showc != undefined ||
+				PARSED_CONDITIONS.show != undefined
 			) {
-				if (parsedConditions.showc != undefined) {
-					const showc = [...parsedConditions.showc];
-					delete parsedConditions.showc;
+				if (PARSED_CONDITIONS.showc != undefined) {
+					const SHOWC = [...PARSED_CONDITIONS.showc];
+					delete PARSED_CONDITIONS.showc;
 					if (
-						parsedConditions.c &&
-						parsedConditions.c.length > 0 &&
-						Array.isArray(showc)
+						PARSED_CONDITIONS.c &&
+						PARSED_CONDITIONS.c.length > 0 &&
+						Array.isArray(SHOWC)
 					) {
-						for (let i = 0; i < showc.length; i++) {
-							parsedConditions.c[i].showc = showc[i];
+						for (let i = 0; i < SHOWC.length; i++) {
+							PARSED_CONDITIONS.c[i].showc = SHOWC[i];
 						}
 					}
 				}
 
-				if (parsedConditions.show != undefined) {
-					const show = parsedConditions.show;
-					parsedConditions.showc = show;
-					delete parsedConditions.show;
+				if (PARSED_CONDITIONS.show != undefined) {
+					const SHOW = PARSED_CONDITIONS.show;
+					PARSED_CONDITIONS.showc = SHOW;
+					delete PARSED_CONDITIONS.show;
 				}
 			}
 
 			if (
-				parsedConditions &&
-				parsedConditions.c &&
-				parsedConditions.c.length >= 1
+				PARSED_CONDITIONS &&
+				PARSED_CONDITIONS.c &&
+				PARSED_CONDITIONS.c.length >= 1
 			) {
-				node.data.c = parsedConditions;
+				node.data.c = PARSED_CONDITIONS;
 			}
 		} else {
 			if (node.data.c && node.data.c.params) {
@@ -262,9 +262,9 @@ export function createNewMoodleMap(nodes, metadata, maps) {
 		return node;
 	});
 
-	const nodesWithChildren = moodleParentingSetter(conditionatedNodes);
+	const NODES_WITH_CHILDREN = moodleParentingSetter(CONDITIONATED_NODES);
 
-	const newMap = {
+	const NEW_MAP = {
 		id: uniqueId(),
 		name: `Mapa importado desde ${metadata.name} (${maps.length})`,
 		versions: [
@@ -273,11 +273,11 @@ export function createNewMoodleMap(nodes, metadata, maps) {
 				name: "Primera versión",
 				lastUpdate: new Date().toLocaleDateString(),
 				default: "true",
-				blocksData: [...nodesWithChildren],
+				blocksData: [...NODES_WITH_CHILDREN],
 			},
 		],
 	};
-	return newMap;
+	return NEW_MAP;
 }
 
 /**
@@ -372,48 +372,48 @@ function moodleFlowConditionalsExtractor(conditionArray) {
  */
 function moodleParentingSetter(nodeArray) {
 	// Create a deep copy of the original array
-	const newArray = JSON.parse(JSON.stringify(nodeArray));
+	const NEW_ARRAY = JSON.parse(JSON.stringify(nodeArray));
 
 	for (let i = 0; i < nodeArray.length; i++) {
 		if (nodeArray[i]?.type !== "badge") {
 			if (nodeArray[i]?.data?.c) {
-				const parents = moodleFlowConditionalsExtractor(nodeArray[i].data.c.c);
-				if (parents) {
-					if (parents.length > 0) {
-						parents.forEach((parent) => {
-							const parentFound = nodeArray.find((node) => node.id == parent);
-							if (parentFound) {
-								newArray
-									.find((node) => node.id == parentFound.id)
-									.data.children.push(nodeArray[i].id);
+				const PARENTS = moodleFlowConditionalsExtractor(nodeArray[i].data.c.c);
+				if (PARENTS) {
+					if (PARENTS.length > 0) {
+						PARENTS.forEach((parent) => {
+							const PARENT_FOUND = nodeArray.find((node) => node.id == parent);
+							if (PARENT_FOUND) {
+								NEW_ARRAY.find(
+									(node) => node.id == PARENT_FOUND.id
+								).data.children.push(nodeArray[i].id);
 							}
 						});
 					}
 				}
 			}
 		} else {
-			const completionCondition = nodeArray[i].data?.c?.params?.find(
+			const COMPLETION_CONDITION = nodeArray[i].data?.c?.params?.find(
 				(condition) => condition.type == "completion"
 			);
-			if (completionCondition) {
+			if (COMPLETION_CONDITION) {
 				let parents = [];
-				completionCondition.params.map((node) => {
+				COMPLETION_CONDITION.params.map((node) => {
 					parents.push(node.id);
 				});
 
 				parents.forEach((parent) => {
-					const parentFound = nodeArray.find((node) => node.id == parent);
-					if (parentFound) {
-						newArray
-							.find((node) => node.id == parentFound.id)
-							.data.children.push(nodeArray[i].id);
+					const PARENT_FOUND = nodeArray.find((node) => node.id == parent);
+					if (PARENT_FOUND) {
+						NEW_ARRAY.find(
+							(node) => node.id == PARENT_FOUND.id
+						).data.children.push(nodeArray[i].id);
 					}
 				});
 			}
 		}
 	}
 
-	return newArray;
+	return NEW_ARRAY;
 }
 
 /**
@@ -422,29 +422,29 @@ function moodleParentingSetter(nodeArray) {
  * @returns {Array} The reordered node array.
  */
 export function clampNodesOrderMoodle(nodeArray) {
-	const newArray = [];
+	const NEW_ARRAY = [];
 	let maxSection = 0;
 	nodeArray.forEach((node) => {
 		if (maxSection < node.data.section) maxSection = node.data.section;
 	});
 	for (let i = 0; i <= maxSection; i++) {
-		const newSection = [];
-		const sectionArray = nodeArray.filter((node) => node.data.section == i);
+		const NEW_SECTION = [];
+		const SECTION_ARRAY = nodeArray.filter((node) => node.data.section == i);
 		// Sort sectionArray by data.order, undefined values go first
-		sectionArray.sort((a, b) => {
+		SECTION_ARRAY.sort((a, b) => {
 			if (a.data.order === undefined) return -1;
 			if (b.data.order === undefined) return 1;
 			return a.data.order - b.data.order;
 		});
-		for (let k = 0; k < sectionArray.length; k++) {
-			newSection.push({
-				...sectionArray[k],
-				data: { ...sectionArray[k].data, order: k },
+		for (let k = 0; k < SECTION_ARRAY.length; k++) {
+			NEW_SECTION.push({
+				...SECTION_ARRAY[k],
+				data: { ...SECTION_ARRAY[k].data, order: k },
 			});
 		}
-		newArray.push(...newSection);
+		NEW_ARRAY.push(...NEW_SECTION);
 	}
-	return getUpdatedArrayById(newArray, nodeArray);
+	return getUpdatedArrayById(NEW_ARRAY, nodeArray);
 }
 
 /**
@@ -463,28 +463,28 @@ export function parseMoodleBadgeToExport(node, nodeArray, metaData) {
 			return getNodeById(id, nodeArray)?.data?.lmsResource;
 		};
 
-		const criteriaType = condition.criteriatype;
-		const newMethod = condition.op == "&" ? 1 : 2;
+		const CRITERIA_TYPE = condition.criteriatype;
+		const NEW_METHOD = condition.op == "&" ? 1 : 2;
 		if (condition.c) delete condition.c;
 		switch (condition.type) {
 			case "conditionsGroup": {
 				return {
-					criteriatype: criteriaType,
-					method: newMethod,
+					criteriatype: CRITERIA_TYPE,
+					method: NEW_METHOD,
 					params: [],
 					descriptionformat: 1,
 					description: "",
 				};
 			}
 			case "completion": {
-				const array = [];
+				const ARRAY = [];
 				condition.params.map((param) => {
-					array.push({
+					ARRAY.push({
 						name: `module_${getResourceById(param.id)}`,
 						value: getResourceById(param.id),
 					});
 					if (param.date) {
-						array.push({
+						ARRAY.push({
 							name: `bydate_${getResourceById(param.id)}`,
 							value: (Date.parse(param.date) / 1000).toString(), //UNIX
 						});
@@ -493,17 +493,17 @@ export function parseMoodleBadgeToExport(node, nodeArray, metaData) {
 				return {
 					descriptionformat: 1,
 					description: "",
-					criteriatype: criteriaType,
-					method: newMethod,
-					params: array,
+					criteriatype: CRITERIA_TYPE,
+					method: NEW_METHOD,
+					params: ARRAY,
 				};
 			}
 			case "badgeList":
 				return {
 					descriptionformat: 1,
 					description: "",
-					criteriatype: criteriaType,
-					method: newMethod,
+					criteriatype: CRITERIA_TYPE,
+					method: NEW_METHOD,
 					params: condition.params.map((param) => {
 						return {
 							name: `badge_${param}`,
@@ -515,8 +515,8 @@ export function parseMoodleBadgeToExport(node, nodeArray, metaData) {
 				return {
 					descriptionformat: 1,
 					description: "",
-					criteriatype: criteriaType,
-					method: newMethod,
+					criteriatype: CRITERIA_TYPE,
+					method: NEW_METHOD,
 					params: condition.params.map((param) => {
 						return {
 							name: `competency_${param}`,
@@ -528,8 +528,8 @@ export function parseMoodleBadgeToExport(node, nodeArray, metaData) {
 				return {
 					descriptionformat: 1,
 					description: "",
-					criteriatype: criteriaType,
-					method: newMethod,
+					criteriatype: CRITERIA_TYPE,
+					method: NEW_METHOD,
 					params: condition.params.map((param) => {
 						return {
 							name: `role_${param}`,
@@ -538,21 +538,21 @@ export function parseMoodleBadgeToExport(node, nodeArray, metaData) {
 					}),
 				};
 			case "courseCompletion":
-				const array = [];
-				array.push({
+				const ARRAY = [];
+				ARRAY.push({
 					name: `course_${metaData.course_id}`,
 					value: metaData.course_id,
 				});
 
 				if (condition.method) {
-					array.push({
+					ARRAY.push({
 						name: `grade_${metaData.course_id}`,
 						value: condition.method,
 					});
 				}
 
 				if (condition.dateTo) {
-					array.push({
+					ARRAY.push({
 						name: `bydate_${metaData.course_id}`,
 						value: (Date.parse(condition.dateTo) / 1000).toString(),
 					});
@@ -561,9 +561,9 @@ export function parseMoodleBadgeToExport(node, nodeArray, metaData) {
 				return {
 					descriptionformat: 1,
 					description: "",
-					criteriatype: criteriaType,
+					criteriatype: CRITERIA_TYPE,
 					method: 1,
-					params: array,
+					params: ARRAY,
 				};
 		}
 
@@ -571,9 +571,9 @@ export function parseMoodleBadgeToExport(node, nodeArray, metaData) {
 	};
 
 	if (node.c) {
-		const flatConditions = [node.c, ...node.c.params];
+		const FLAT_CONDITIONS = [node.c, ...node.c.params];
 
-		flatConditions.map((condition) => {
+		FLAT_CONDITIONS.map((condition) => {
 			newConditions.push(extractCondition(condition));
 		});
 
@@ -621,28 +621,28 @@ export function parseMoodleCalifications(node) {
  * @returns {Array} New node conditions property
  */
 export function parseMoodleConditionsGroupOut(c) {
-	const newC = { ...c };
+	const NEWC = { ...c };
 
 	if (c) {
 		if (c.type == "conditionsGroup") {
-			delete newC.type;
+			delete NEWC.type;
 		}
 
 		if (c.c) {
 			if (Array.isArray(c.c)) {
-				newC.c = c.c.map((item) => {
+				NEWC.c = c.c.map((item) => {
 					if (item.c) {
 						return parseMoodleConditionsGroupOut(item);
 					}
 					return item;
 				});
 			} else if (typeof c.c === "object" && c.c !== null) {
-				newC.c = parseMoodleConditionsGroupOut(c.c);
+				NEWC.c = parseMoodleConditionsGroupOut(c.c);
 			}
 		}
 	}
 
-	return newC;
+	return NEWC;
 }
 
 /**
@@ -672,8 +672,8 @@ export function hasConditionsNeedingQualifications(node) {
 		return array;
 	};
 	if (node.data.c) {
-		const types = [...new Set(recursiveGet(node.data.c))];
-		return types.length > 0 ? true : false;
+		const TYPES = [...new Set(recursiveGet(node.data.c))];
+		return TYPES.length > 0 ? true : false;
 	}
 	return false;
 }
@@ -705,8 +705,8 @@ export function hasConditionsNeedingCompletion(node) {
 		return array;
 	};
 	if (node.data.c) {
-		const types = [...new Set(recursiveGet(node.data.c))];
-		return types.length > 0 ? true : false;
+		const TYPES = [...new Set(recursiveGet(node.data.c))];
+		return TYPES.length > 0 ? true : false;
 	}
 	return false;
 }

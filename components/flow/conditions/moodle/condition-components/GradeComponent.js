@@ -21,10 +21,10 @@ function GradeComponent({
 	swapConditionParam,
 }) {
 	const reactFlowInstance = useReactFlow();
-	const nodes = reactFlowInstance.getNodes();
+	const NODES = reactFlowInstance.getNodes();
 
-	const node = nodes.find((node) => node.id === condition.cm);
-	const mainCondition = conditionsList.c.some((c) => c.id === condition.id);
+	const NODE = NODES.find((node) => node.id === condition.cm);
+	const MAIN_CONDITION = conditionsList.c.some((c) => c.id === condition.id);
 
 	return (
 		<Container
@@ -32,7 +32,7 @@ function GradeComponent({
 			style={{ padding: "10px", border: "1px solid #C7C7C7" }}
 		>
 			<Row className="align-items-center">
-				{mainCondition &&
+				{MAIN_CONDITION &&
 					(conditionsList.op === "&" || conditionsList.op === "!|") && (
 						<Col className="col-1">
 							<Button
@@ -58,7 +58,7 @@ function GradeComponent({
 								<strong>
 									{">="} {condition.min}
 								</strong>{" "}
-								en <strong>{node.data.label}</strong>
+								en <strong>{NODE.data.label}</strong>
 							</div>
 						)}
 						{!condition.min && condition.max && (
@@ -67,7 +67,7 @@ function GradeComponent({
 								<strong>
 									{"<"} {condition.max}
 								</strong>{" "}
-								en <strong>{node.data.label}</strong>
+								en <strong>{NODE.data.label}</strong>
 							</div>
 						)}
 						{condition.min && condition.max && (
@@ -80,7 +80,7 @@ function GradeComponent({
 								<strong>
 									{"<"} {condition.max}
 								</strong>{" "}
-								en <strong>{node.data.label}</strong>
+								en <strong>{NODE.data.label}</strong>
 							</div>
 						)}
 					</div>

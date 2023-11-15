@@ -10,8 +10,8 @@ function CompletionForm({
 	conditionEdit,
 	nodes,
 }) {
-	const coId = useId();
-	const sourceNode = getNodeById(conditionEdit.cm, nodes);
+	const CONDITION_OPERATOR_ID = useId();
+	const SOURCE_NODE = getNodeById(conditionEdit.cm, nodes);
 	return (
 		<Form.Group
 			style={{
@@ -33,27 +33,27 @@ function CompletionForm({
 					Bloque:
 				</Form.Label>
 				<Form.Label>
-					<strong>{sourceNode?.data?.label}</strong>
+					<strong>{SOURCE_NODE?.data?.label}</strong>
 				</Form.Label>
 			</div>
 			<div className="d-flex align-items-baseline col-12 col-lg-6 col-xl-4">
 				<Form.Label
-					htmlFor={coId}
+					htmlFor={CONDITION_OPERATOR_ID}
 					className="me-4"
 					style={{ minWidth: "125px" }}
 				>
 					Condición:{" "}
 				</Form.Label>
 				<Form.Select
-					id={coId}
+					id={CONDITION_OPERATOR_ID}
 					ref={conditionQuery}
 					defaultValue={conditionEdit?.e}
 				>
 					{/* The value is in that order refering to Moodle DB table schem */}
 					<option value="1">debe estar completa</option>
 					<option value="0">no debe estar completa</option>
-					{getGradableTypes("moodle").includes(sourceNode?.type) &&
-						sourceNode?.data?.g?.hasToBeQualified && (
+					{getGradableTypes("moodle").includes(SOURCE_NODE?.type) &&
+						SOURCE_NODE?.data?.g?.hasToBeQualified && (
 							<>
 								<option value="2">debe estar completa y aprobada</option>
 								<option value="3">debe estar completa y suspendida</option>

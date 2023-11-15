@@ -1,10 +1,10 @@
 export default function handler(req, res) {
-	const password = req.body;
-	const adminPassword = process.env.ADMIN_PASSWORD;
+	const PASSWORD = req.body;
+	const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
 	try {
-		if (adminPassword) {
-			if (password == adminPassword) {
+		if (ADMIN_PASSWORD) {
+			if (PASSWORD == ADMIN_PASSWORD) {
 				res.status(200).json({
 					valid: true,
 				});

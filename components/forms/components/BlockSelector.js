@@ -20,10 +20,10 @@ export default forwardRef(function BlockSelector(
 ) {
 	const reactFlowInstance = useReactFlow();
 	const rfNodes = useNodes();
-	const defaultArray = nodeArray ? nodeArray : rfNodes;
+	const DEFAULT_ARRAY = nodeArray ? nodeArray : rfNodes;
 	const { platform } = useContext(PlatformContext);
-	const [selectedType, setSelectedType] = useState(defaultArray[0]?.type);
-	const styleSize = size ? styles["x" + size] : styles.x16;
+	const [selectedType, setSelectedType] = useState(DEFAULT_ARRAY[0]?.type);
+	const STYLE_SIZE = size ? styles["x" + size] : styles.x16;
 	const localRef = useRef(null);
 	useImperativeHandle(ref, () => ({
 		getLocalRef: () => {
@@ -34,7 +34,7 @@ export default forwardRef(function BlockSelector(
 	return (
 		<InputGroup className="mb-3">
 			<InputGroup.Text>
-				<div className={styleSize}>
+				<div className={STYLE_SIZE}>
 					{getTypeIcon(selectedType, platform, nearestPowerOfTwo(size))}
 				</div>
 			</InputGroup.Text>
@@ -48,7 +48,7 @@ export default forwardRef(function BlockSelector(
 					setSelectedType(getNodeById(localRef.current.value, rfNodes)?.type);
 				}}
 			>
-				{defaultArray.map((node) => (
+				{DEFAULT_ARRAY.map((node) => (
 					<option key={node.id} value={node.id}>
 						{node.data.label}
 					</option>

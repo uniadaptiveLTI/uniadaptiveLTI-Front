@@ -48,19 +48,19 @@ function CriteriaModal({
 
 	const { metaData, setMetaData } = useContext(MetaDataContext);
 
-	const roleList = metaData.role_list;
-	const badgeList = metaData.badges;
-	const skillsList = metaData.skills;
+	const ROLE_LIST = metaData.role_list;
+	const BADGE_LIST = metaData.badges;
+	const SKILL_LIST = metaData.skills;
 
 	const [lmsResourceList, setLmsResourceList] = useState([]);
 
 	const addCondition = (conditionId) => {
 		if (blockData.data.c.id != conditionId) {
-			const foundCondition = findConditionById(
+			const FOUND_CONDITION = findConditionById(
 				conditionId,
 				blockData.data.c.params
 			);
-			setEditing(foundCondition);
+			setEditing(FOUND_CONDITION);
 		} else {
 			setEditing(blockData.data.c);
 		}
@@ -70,13 +70,13 @@ function CriteriaModal({
 		if (blockData.data.c) {
 			addCondition(blockData.data.c.id);
 		} else {
-			const firstConditionGroup = {
+			const FIRST_CONDITION_GROUP = {
 				type: "conditionsGroup",
 				criteriatype: 0,
 				id: parseInt(Date.now() * Math.random()).toString(),
 				method: "&",
 			};
-			setEditing(firstConditionGroup);
+			setEditing(FIRST_CONDITION_GROUP);
 		}
 	};
 
@@ -85,16 +85,16 @@ function CriteriaModal({
 			return null;
 		}
 
-		const foundCondition = conditions.find((condition) => condition.id === id);
-		if (foundCondition) {
-			return foundCondition;
+		const FOUND_CONDITION = conditions.find((condition) => condition.id === id);
+		if (FOUND_CONDITION) {
+			return FOUND_CONDITION;
 		}
 
-		for (const condition of conditions) {
-			if (condition.params) {
-				const innerCondition = findConditionById(id, condition.c);
-				if (innerCondition) {
-					return innerCondition;
+		for (const CONDITION of conditions) {
+			if (CONDITION.params) {
+				const INNER_CONDITION = findConditionById(id, CONDITION.c);
+				if (INNER_CONDITION) {
+					return INNER_CONDITION;
 				}
 			}
 		}
@@ -121,12 +121,12 @@ function CriteriaModal({
 		setBlockData();
 		setShowConditionsModal(false);
 
-		const updatedLmsResourceList = lmsResourceList.map((item) => ({
+		const UPDATED_LMS_RESOURCE_LIST = lmsResourceList.map((item) => ({
 			...item,
 			checkboxEnabled: false,
 		}));
 
-		setLmsResourceList(updatedLmsResourceList);
+		setLmsResourceList(UPDATED_LMS_RESOURCE_LIST);
 	};
 
 	const handleSelectChange = (event) => {
@@ -136,27 +136,27 @@ function CriteriaModal({
 		setCheckedIds([]);
 		setCheckboxValues([]);
 
-		const updatedLmsResourceList = lmsResourceList.map((item) => ({
+		const UPDATED_LMS_RESOURCE_LIST = lmsResourceList.map((item) => ({
 			...item,
 			checkboxEnabled: false,
 		}));
 
-		setLmsResourceList(updatedLmsResourceList);
+		setLmsResourceList(UPDATED_LMS_RESOURCE_LIST);
 	};
 
 	function deleteConditionById(conditions, id) {
 		for (let i = 0; i < conditions.length; i++) {
-			const condition = conditions[i];
-			if (condition.id === id) {
+			const CONDITION = conditions[i];
+			if (CONDITION.id === id) {
 				conditions.splice(i, 1);
 				if (conditions.length === 0) {
 					conditions = undefined;
 				}
 				return true;
-			} else if (condition.params) {
-				if (deleteConditionById(condition.params, id)) {
-					if (condition.params.length === 0) {
-						condition.params = undefined;
+			} else if (CONDITION.params) {
+				if (deleteConditionById(CONDITION.params, id)) {
+					if (CONDITION.params.length === 0) {
+						CONDITION.params = undefined;
 					}
 					return true;
 				}
@@ -179,22 +179,22 @@ function CriteriaModal({
 
 	const deleteCondition = (conditionId) => {
 		// We found the condition to delete
-		const foundCondition = findConditionById(
+		const FOUND_CONDITION = findConditionById(
 			conditionId,
 			blockData.data.c.params
 		);
 
 		// If clause to check if the condition is completion type
-		if (foundCondition.type === "completion") {
+		if (FOUND_CONDITION.type === "completion") {
 			// Constant to retrieve the activityList of the completion condition
-			const activityList = foundCondition.params;
+			const ACTIVITY_LIST = FOUND_CONDITION.params;
 
 			// Get method to retrieve the actual edges
-			const edges = reactFlowInstance.getEdges();
+			const EDGES = reactFlowInstance.getEdges();
 
 			// Filter method to get all the edges using the ids inside the activityList
-			const edgesToDelete = edges.filter((edge) =>
-				activityList.some(
+			const edgesToDelete = EDGES.filter((edge) =>
+				ACTIVITY_LIST.some(
 					(condition) => condition.id + "-" + blockData.id === edge.id
 				)
 			);
@@ -203,25 +203,25 @@ function CriteriaModal({
 			onEdgesDelete(edgesToDelete);
 
 			// Filter method to get all the edges except for those that match the provided IDs
-			const filteredEdges = edges.filter(
+			const FILTERED_EDGES = EDGES.filter(
 				(edge) =>
-					!activityList.some(
+					!ACTIVITY_LIST.some(
 						(condition) => edge.id === condition.id + "-" + blockData.id
 					)
 			);
 
 			// Set method to stablish the new updated edges
-			reactFlowInstance.setEdges(filteredEdges);
+			reactFlowInstance.setEdges(FILTERED_EDGES);
 		}
 
 		// Method to create a copy of the blockData
-		const blockDataCopy = deepCopy(blockData);
+		const BLOCKDATA_COPY = deepCopy(blockData);
 
 		// Delete method to delete the condition by ID
-		deleteConditionById(blockDataCopy.data.c.params, conditionId);
+		deleteConditionById(BLOCKDATA_COPY.data.c.params, conditionId);
 
 		// Set method to set the updated blockData
-		setBlockData(blockDataCopy);
+		setBlockData(BLOCKDATA_COPY);
 	};
 
 	function updateConditionOp(jsonObj, id, newOp) {
@@ -239,11 +239,11 @@ function CriteriaModal({
 	}
 
 	function swapConditionGroup(condition) {
-		const updatedBlockData = deepCopy(blockData);
-		const swapOperator = condition.method === "&" ? "|" : "&";
+		const UPDATED_BLOCKDATA = deepCopy(blockData);
+		const SWAP_OPERATOR = condition.method === "&" ? "|" : "&";
 
-		updateConditionOp(updatedBlockData.data.c, condition.id, swapOperator);
-		setBlockData(updatedBlockData);
+		updateConditionOp(UPDATED_BLOCKDATA.data.c, condition.id, SWAP_OPERATOR);
+		setBlockData(UPDATED_BLOCKDATA);
 	}
 
 	useEffect(() => {
@@ -254,12 +254,12 @@ function CriteriaModal({
 			if (conditionEdit.type == "completion") {
 				setCheckboxValues(conditionEdit.params);
 
-				const transformedData = conditionEdit.params.map((item) => ({
+				const TRANSFORMED_DATA = conditionEdit.params.map((item) => ({
 					...item,
 					checkboxEnabled: item.date !== undefined ? true : false,
 				}));
 
-				setLmsResourceList(transformedData);
+				setLmsResourceList(TRANSFORMED_DATA);
 			}
 			if (
 				conditionEdit.type == "role" ||
@@ -293,77 +293,77 @@ function CriteriaModal({
 	};
 
 	const handleSecondCheckboxChange = (index) => {
-		const updatedList = [...lmsResourceList];
-		const currentCheckbox = updatedList[index];
+		const UPDATED_LIST = [...lmsResourceList];
+		const CURRENT_CHECKBOX = UPDATED_LIST[index];
 
 		const dateInputs = document.querySelectorAll('input[type="date"]');
 
 		for (let i = 0; i < dateInputs.length; i++) {
-			if (dateInputs[i].id === currentCheckbox.id.toString()) {
-				if (!currentCheckbox.checkboxEnabled) {
-					const updatedArray = checkboxValues.map((item) => {
+			if (dateInputs[i].id === CURRENT_CHECKBOX.id.toString()) {
+				if (!CURRENT_CHECKBOX.checkboxEnabled) {
+					const UPDATED_ARRAY = checkboxValues.map((item) => {
 						if (item.id === dateInputs[i].id) {
 							return { ...item, date: dateInputs[i].value };
 						}
 						return item;
 					});
 
-					setCheckboxValues(updatedArray);
+					setCheckboxValues(UPDATED_ARRAY);
 				} else {
-					const updatedArray = checkboxValues.map((item) => {
+					const UPDATED_ARRAY = checkboxValues.map((item) => {
 						if (item.id === dateInputs[i].id) {
 							return { ...item, date: undefined };
 						}
 						return item;
 					});
 
-					setCheckboxValues(updatedArray);
+					setCheckboxValues(UPDATED_ARRAY);
 				}
 				break;
 			}
 		}
 
-		currentCheckbox.checkboxEnabled = !currentCheckbox.checkboxEnabled;
+		CURRENT_CHECKBOX.checkboxEnabled = !CURRENT_CHECKBOX.checkboxEnabled;
 
-		setLmsResourceList(updatedList);
+		setLmsResourceList(UPDATED_LIST);
 	};
 
 	const handleDateChange = (index) => {
-		const updatedList = [...lmsResourceList];
-		const currentCheckbox = updatedList[index];
+		const UPDATED_LIST = [...lmsResourceList];
+		const CURRENT_CHECKBOX = UPDATED_LIST[index];
 
-		const dateInputs = document.querySelectorAll('input[type="date"]');
+		const DATE_INPUTS = document.querySelectorAll('input[type="date"]');
 
-		for (let i = 0; i < dateInputs.length; i++) {
-			if (dateInputs[i].id === currentCheckbox.id.toString()) {
-				if (currentCheckbox.checkboxEnabled) {
-					const updatedArray = checkboxValues.map((item) => {
-						if (item.id === dateInputs[i].id) {
-							return { ...item, date: dateInputs[i].value };
+		for (let i = 0; i < DATE_INPUTS.length; i++) {
+			if (DATE_INPUTS[i].id === CURRENT_CHECKBOX.id.toString()) {
+				if (CURRENT_CHECKBOX.checkboxEnabled) {
+					const UPDATED_ARRAY = checkboxValues.map((item) => {
+						if (item.id === DATE_INPUTS[i].id) {
+							return { ...item, date: DATE_INPUTS[i].value };
 						}
 						return item;
 					});
 
-					setCheckboxValues(updatedArray);
+					setCheckboxValues(UPDATED_ARRAY);
 				} else {
-					const updatedArray = checkboxValues.map((item) => {
-						if (item.id === dateInputs[i].id) {
+					const UPDATED_ARRAY = checkboxValues.map((item) => {
+						if (item.id === DATE_INPUTS[i].id) {
 							return { ...item, date: undefined };
 						}
 						return item;
 					});
 
-					setCheckboxValues(updatedArray);
+					setCheckboxValues(UPDATED_ARRAY);
 				}
 				break;
 			}
 		}
 
-		setLmsResourceList(updatedList);
+		setLmsResourceList(UPDATED_LIST);
 	};
 
 	const handleSubmit = (edition) => {
-		const formData = {
+		const FORM_DATA = {
 			type: selectedOption,
 			method: edition ? conditionEdit.method : "method",
 			id: edition ? conditionEdit.id : uniqueId(),
@@ -371,51 +371,51 @@ function CriteriaModal({
 
 		switch (selectedOption) {
 			case "role":
-				formData.criteriatype = 2;
-				formData.method = conditionOperator.current.value;
-				formData.params = checkedIds;
+				FORM_DATA.criteriatype = 2;
+				FORM_DATA.method = conditionOperator.current.value;
+				FORM_DATA.params = checkedIds;
 				break;
 			case "courseCompletion":
-				formData.criteriatype = 4;
-				formData.method = conditionOperator.current.value;
+				FORM_DATA.criteriatype = 4;
+				FORM_DATA.method = conditionOperator.current.value;
 				if (isDateEnabled) {
-					formData.dateTo = conditionObjective.current.value;
+					FORM_DATA.dateTo = conditionObjective.current.value;
 				} else {
-					formData.dateTo = undefined;
+					FORM_DATA.dateTo = undefined;
 				}
 				break;
 			case "badgeList":
-				formData.criteriatype = 7;
-				formData.method = conditionOperator.current.value;
-				formData.params = checkedIds;
+				FORM_DATA.criteriatype = 7;
+				FORM_DATA.method = conditionOperator.current.value;
+				FORM_DATA.params = checkedIds;
 				break;
 			case "completion":
-				formData.criteriatype = 1;
-				formData.params = checkboxValues;
+				FORM_DATA.criteriatype = 1;
+				FORM_DATA.params = checkboxValues;
 				break;
 			case "skills":
-				formData.criteriatype = 9;
-				formData.method = conditionOperator.current.value;
-				formData.params = checkedIds;
+				FORM_DATA.criteriatype = 9;
+				FORM_DATA.method = conditionOperator.current.value;
+				FORM_DATA.params = checkedIds;
 				break;
 			default:
 				break;
 		}
 
-		const updatedBlockData = deepCopy(blockData);
+		const UPDATED_BLOCKSDATA = deepCopy(blockData);
 
 		if (edition) {
-			const updatedBlockData = {
+			const UPDATED_BLOCKDATA = {
 				...blockData,
 				data: {
 					...blockData.data,
 					c: {
 						...blockData.data.c,
 						params: blockData.data.c.params.map((condition) => {
-							if (condition.id === formData.id) {
+							if (condition.id === FORM_DATA.id) {
 								return {
 									...condition,
-									...formData,
+									...FORM_DATA,
 								};
 							}
 							return condition;
@@ -424,29 +424,29 @@ function CriteriaModal({
 				},
 			};
 
-			setBlockData(updatedBlockData);
+			setBlockData(UPDATED_BLOCKDATA);
 		} else {
-			const updatedCondition = {
+			const UPDATED_CONDITION = {
 				...editing,
-				params: editing.params ? [...editing.params, formData] : [formData],
+				params: editing.params ? [...editing.params, FORM_DATA] : [FORM_DATA],
 			};
 
-			if (!updatedBlockData.data.c) {
-				updatedBlockData.data.c = updatedCondition;
-				setBlockData(updatedBlockData);
+			if (!UPDATED_BLOCKSDATA.data.c) {
+				UPDATED_BLOCKSDATA.data.c = UPDATED_CONDITION;
+				setBlockData(UPDATED_BLOCKSDATA);
 			} else {
-				const updatedBlockData = {
+				const UPDATED_BLOCKDATA = {
 					...blockData,
 					data: {
 						...blockData.data,
 						c: {
 							...blockData.data.c,
-							params: [...blockData.data.c.params, formData],
+							params: [...blockData.data.c.params, FORM_DATA],
 						},
 					},
 				};
 
-				setBlockData(updatedBlockData);
+				setBlockData(UPDATED_BLOCKDATA);
 			}
 		}
 
@@ -459,8 +459,8 @@ function CriteriaModal({
 	};
 
 	const shouldRenderOption = (type) => {
-		const conditions = blockData.data.c?.params;
-		if (conditions) {
+		const CONDITIONS = blockData.data.c?.params;
+		if (CONDITIONS) {
 			if (conditionEdit) {
 				if (conditionEdit.type == type) {
 					return true;
@@ -469,7 +469,7 @@ function CriteriaModal({
 				}
 			} else {
 				if (type != "completion") {
-					return !conditions.some((condition) => condition.type === type);
+					return !CONDITIONS.some((condition) => condition.type === type);
 				}
 			}
 		} else {
@@ -480,11 +480,11 @@ function CriteriaModal({
 	};
 
 	const allTypesUsed = () => {
-		const conditions = blockData.data.c?.params;
-		const types = ["role", "courseCompletion", "badgeList", "skills"];
+		const CONDITIONS = blockData.data.c?.params;
+		const TYPES = ["role", "courseCompletion", "badgeList", "skills"];
 
-		return types.every((type) =>
-			conditions?.some((condition) => condition.type === type)
+		return TYPES.every((type) =>
+			CONDITIONS?.some((condition) => condition.type === type)
 		);
 	};
 
@@ -541,9 +541,9 @@ function CriteriaModal({
 									return (
 										<Criteria
 											condition={condition}
-											roleList={roleList}
-											badgeList={badgeList}
-											skillsList={skillsList}
+											roleList={ROLE_LIST}
+											badgeList={BADGE_LIST}
+											skillsList={SKILL_LIST}
 											deleteCondition={deleteCondition}
 											addCondition={addCondition}
 											setSelectedOption={setSelectedOption}
@@ -601,7 +601,7 @@ function CriteriaModal({
 						conditionEdit={conditionEdit}
 						conditionOperator={conditionOperator}
 						handleCheckboxChange={handleCheckboxChange}
-						roleList={roleList}
+						roleList={ROLE_LIST}
 					/>
 				)}
 				{editing && selectedOption === "courseCompletion" && (
@@ -620,7 +620,7 @@ function CriteriaModal({
 						conditionOperator={conditionOperator}
 						selectedBadges={conditionEdit?.badgeList}
 						setCheckedIds={setCheckedIds}
-						badgeList={badgeList}
+						badgeList={BADGE_LIST}
 						handleCheckboxChange={handleCheckboxChange}
 					/>
 				)}
@@ -638,7 +638,7 @@ function CriteriaModal({
 					<SkillsForm
 						conditionEdit={conditionEdit}
 						conditionOperator={conditionOperator}
-						skillsList={skillsList}
+						skillsList={SKILL_LIST}
 						handleCheckboxChange={handleCheckboxChange}
 					/>
 				)}

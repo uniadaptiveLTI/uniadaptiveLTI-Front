@@ -9,15 +9,15 @@ const GroupForm = ({
 	setInitalGroups,
 	conditionEdit,
 }) => {
-	const coId = useId();
+	const CONDITION_OPERATOR_ID = useId();
 
 	const handleCheckboxChange = (id, index) => {
-		const e = groupsRef[index];
-		if (e.current.checked == true) {
+		const GROUP = groupsRef[index];
+		if (GROUP.current.checked == true) {
 			setInitalGroups([...initalGroups, { id: id, index: index }]);
 		} else {
-			const filteredArray = initalGroups.filter((group) => group.id !== id);
-			setInitalGroups(filteredArray);
+			const FILTERED_ARRAY = initalGroups.filter((group) => group.id !== id);
+			setInitalGroups(FILTERED_ARRAY);
 		}
 	};
 
@@ -32,7 +32,7 @@ const GroupForm = ({
 		>
 			<div className="me-0">
 				<Form.Label
-					htmlFor={coId}
+					htmlFor={CONDITION_OPERATOR_ID}
 					className="me-4"
 					style={{ minWidth: "125px" }}
 				>

@@ -8,7 +8,7 @@ const CompletionForm = ({
 	handleDateChange,
 	handleSecondCheckboxChange,
 }) => {
-	const cId = useId();
+	const CONDITION_ID = useId();
 
 	const reactFlowInstance = useReactFlow();
 
@@ -26,12 +26,12 @@ const CompletionForm = ({
 			</div>
 			<div className="me-0">
 				{lmsResourceList.map((option, index) => {
-					const nodes = reactFlowInstance.getNodes();
+					const NODES = reactFlowInstance.getNodes();
 
-					const node = nodes.find((node) => node.id === option.id);
+					const NODE = NODES.find((node) => node.id === option.id);
 					return (
 						<div key={index}>
-							<div>{node.data.label}</div>
+							<div>{NODE.data.label}</div>
 							<Row style={{ marginBottom: "0.125rem" }}>
 								<Col>
 									<Form.Control

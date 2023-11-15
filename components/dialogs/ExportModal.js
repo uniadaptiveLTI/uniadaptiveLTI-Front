@@ -66,9 +66,9 @@ export default forwardRef(function ExportModal(
 		console.log(JSON.stringify(metaData));
 	};
 	const { settings } = useContext(SettingsContext);
-	const parsedSettings = JSON.parse(settings);
-	const fitViewOptions = {
-		duration: parsedSettings.reducedAnimations ? 0 : 800,
+	const PARSED_SETTINGS = JSON.parse(settings);
+	const FITVIEW_OPTIONS = {
+		duration: PARSED_SETTINGS.reducedAnimations ? 0 : 800,
 		padding: 0.25,
 	};
 
@@ -82,25 +82,25 @@ export default forwardRef(function ExportModal(
 			reactFlowInstance.setCenter(
 				nodeToCenter.position.x + nodeToCenter.width / 2,
 				nodeToCenter.position.y + nodeToCenter.height / 2,
-				fitViewOptions
+				FITVIEW_OPTIONS
 			);
 		}
 	}
 
 	const getErrorList = () => {
-		const nodeArray = reactFlowInstance.getNodes();
-		const nodeList = errorList.map((error) =>
-			getNodeById(error.nodeId, nodeArray)
+		const NODE_ARRAY = reactFlowInstance.getNodes();
+		const NODE_LIST = errorList.map((error) =>
+			getNodeById(error.nodeId, NODE_ARRAY)
 		);
 
-		const nodeLIs = nodeList.map((node) => (
+		const NODE_LIS = NODE_LIST.map((node) => (
 			<div key={node.id}>
 				{/*<FontAwesomeIcon icon={faExclamationTriangle}></FontAwesomeIcon>*/}
 				{getTypeIcon(node.type, platform, 16)} {node.data.label}
 			</div>
 		));
-		const nodeUL = <div>{nodeLIs}</div>;
-		setNodeErrorList(nodeUL);
+		const NODE_UL = <div>{NODE_LIS}</div>;
+		setNodeErrorList(NODE_UL);
 	};
 
 	function handleClose(actionClicked) {
@@ -116,25 +116,25 @@ export default forwardRef(function ExportModal(
 
 	useLayoutEffect(() => {
 		if (key) {
-			const keyToClassMap = {
+			const KEY_TO_CLASS_MAP = {
 				error: "errorTabs",
 				warning: "warningTabs",
 				success: "successTabs",
 			};
 
-			const newTabsClassName = keyToClassMap[key] || "";
-			setTabsClassName(newTabsClassName);
+			const NEW_TABS_CLASS_NAME = KEY_TO_CLASS_MAP[key] || "";
+			setTabsClassName(NEW_TABS_CLASS_NAME);
 		}
 	}, [key]);
 
 	useLayoutEffect(() => {
-		const warningList = generateWarningList(reactFlowInstance.getNodes());
-		setWarningList(warningList);
+		const WARNING_LIST = generateWarningList(reactFlowInstance.getNodes());
+		setWarningList(WARNING_LIST);
 
 		console.log("Error List: ", errorList);
-		console.log("Warning List: ", warningList);
+		console.log("Warning List: ", WARNING_LIST);
 
-		const errorResourceNotFound = errorList
+		const ERROR_RESOURCE_NOT_FOUND = errorList
 			.filter(
 				(entry) =>
 					entry.severity === "error" && entry.type === "resourceNotFound"
@@ -145,7 +145,7 @@ export default forwardRef(function ExportModal(
 					?.label,
 			}));
 
-		const errorSectionNotFound = errorList
+		const ERROR_SECTION_NOT_FOUND = errorList
 			.filter(
 				(entry) =>
 					entry.severity === "error" && entry.type === "sectionNotFound"
@@ -156,7 +156,7 @@ export default forwardRef(function ExportModal(
 					?.label,
 			}));
 
-		const errorOrderNotFound = errorList
+		const ERROR_ORDER_NOT_FOUND = errorList
 			.filter(
 				(entry) => entry.severity === "error" && entry.type === "orderNotFound"
 			)
@@ -166,49 +166,43 @@ export default forwardRef(function ExportModal(
 					?.label,
 			}));
 
-		const warningChildrenNotFound = warningList
-			.filter(
-				(entry) =>
-					entry.seriousness === "warning" && entry.type === "childrenNotFound"
-			)
-			.map((error) => ({
-				...error,
-				nodeName: getNodeById(error.nodeId, reactFlowInstance.getNodes())?.data
-					?.label,
-			}));
+		const WARNING_CHILDREN_NOT_FOUND = WARNING_LIST.filter(
+			(entry) =>
+				entry.seriousness === "warning" && entry.type === "childrenNotFound"
+		).map((error) => ({
+			...error,
+			nodeName: getNodeById(error.nodeId, reactFlowInstance.getNodes())?.data
+				?.label,
+		}));
 
-		const warningParentNotFound = warningList
-			.filter(
-				(entry) =>
-					entry.seriousness === "warning" && entry.type === "parentNotFound"
-			)
-			.map((error) => ({
-				...error,
-				nodeName: getNodeById(error.nodeId, reactFlowInstance.getNodes())?.data
-					?.label,
-			}));
+		const WARNING_PARENT_NOT_FOUND = WARNING_LIST.filter(
+			(entry) =>
+				entry.seriousness === "warning" && entry.type === "parentNotFound"
+		).map((error) => ({
+			...error,
+			nodeName: getNodeById(error.nodeId, reactFlowInstance.getNodes())?.data
+				?.label,
+		}));
 
-		setNodeErrorResourceList(errorResourceNotFound);
-		setNodeErrorSectionList(errorSectionNotFound);
-		setNodeErrorOrderList(errorOrderNotFound);
+		setNodeErrorResourceList(ERROR_RESOURCE_NOT_FOUND);
+		setNodeErrorSectionList(ERROR_SECTION_NOT_FOUND);
+		setNodeErrorOrderList(ERROR_ORDER_NOT_FOUND);
 
-		setNodeWarningChildrenList(warningChildrenNotFound);
-		setNodeWarningParentList(warningParentNotFound);
+		setNodeWarningChildrenList(WARNING_CHILDREN_NOT_FOUND);
+		setNodeWarningParentList(WARNING_PARENT_NOT_FOUND);
 
 		if (platform && platform == "moodle") {
-			const warningChildrenWithoutRestriction = warningList
-				.filter(
-					(entry) =>
-						entry.seriousness === "warning" &&
-						entry.type === "childrenWithoutRestriction"
-				)
-				.map((error) => ({
-					...error,
-					nodeName: getNodeById(error.nodeId, reactFlowInstance.getNodes())
-						?.data?.label,
-				}));
+			const WARNING_CHILDREN_WITHOUT_RESTRICTION = WARNING_LIST.filter(
+				(entry) =>
+					entry.seriousness === "warning" &&
+					entry.type === "childrenWithoutRestriction"
+			).map((error) => ({
+				...error,
+				nodeName: getNodeById(error.nodeId, reactFlowInstance.getNodes())?.data
+					?.label,
+			}));
 
-			setNodeChildrenWithoutRestriction(warningChildrenWithoutRestriction);
+			setNodeChildrenWithoutRestriction(WARNING_CHILDREN_WITHOUT_RESTRICTION);
 		}
 	}, []);
 
@@ -223,9 +217,9 @@ export default forwardRef(function ExportModal(
 	};
 
 	function generateWarningList(nodeList) {
-		const warningArray = [];
+		const WARNING_ARRAY = [];
 		nodeList.forEach((node) => {
-			const errorEntry = {
+			const ERROR_ENTRY = {
 				id: uniqueId(),
 				nodeId: node.id,
 			};
@@ -254,42 +248,42 @@ export default forwardRef(function ExportModal(
 					(!node.data.children || node.data.children.length === 0) &&
 					!childlessNode
 				) {
-					const customEntry = {
-						...errorEntry,
+					const CUSTOM_ENTRY = {
+						...ERROR_ENTRY,
 						seriousness: "warning",
 						type: "childrenNotFound",
 					};
 
-					const errorFound = warningArray.find(
+					const ERROR_FOUND = WARNING_ARRAY.find(
 						(obj) =>
-							obj.nodeId === customEntry.nodeId &&
-							obj.seriousness === customEntry.seriousness &&
-							obj.type === customEntry.type
+							obj.nodeId === CUSTOM_ENTRY.nodeId &&
+							obj.seriousness === CUSTOM_ENTRY.seriousness &&
+							obj.type === CUSTOM_ENTRY.type
 					);
 
-					if (!errorFound) {
-						warningArray.push(customEntry);
+					if (!ERROR_FOUND) {
+						WARNING_ARRAY.push(CUSTOM_ENTRY);
 					}
 				}
 
-				const parentsNodeArray = getParentsNode(nodeList, node.id);
+				const PARENTS_NODE_ARRAY = getParentsNode(nodeList, node.id);
 
-				if (parentsNodeArray.length <= 0) {
-					const customEntry = {
-						...errorEntry,
+				if (PARENTS_NODE_ARRAY.length <= 0) {
+					const CUSTOM_ENTRY = {
+						...ERROR_ENTRY,
 						seriousness: "warning",
 						type: "parentNotFound",
 					};
 
-					const errorFound = warningArray.find(
+					const errorFound = WARNING_ARRAY.find(
 						(obj) =>
-							obj.nodeId === customEntry.nodeId &&
-							obj.seriousness === customEntry.seriousness &&
-							obj.type === customEntry.type
+							obj.nodeId === CUSTOM_ENTRY.nodeId &&
+							obj.seriousness === CUSTOM_ENTRY.seriousness &&
+							obj.type === CUSTOM_ENTRY.type
 					);
 
 					if (!errorFound) {
-						warningArray.push(customEntry);
+						WARNING_ARRAY.push(CUSTOM_ENTRY);
 					}
 				}
 
@@ -298,45 +292,45 @@ export default forwardRef(function ExportModal(
 					platform == "moodle" &&
 					node?.data?.children?.length <= 0
 				) {
-					const customEntry = {
-						...errorEntry,
+					const CUSTOM_ENTRY = {
+						...ERROR_ENTRY,
 						seriousness: "warning",
 						type: "childrenWithoutRestriction",
 					};
 
-					const errorFound = warningArray.find(
+					const errorFound = WARNING_ARRAY.find(
 						(obj) =>
-							obj.nodeId === customEntry.nodeId &&
-							obj.seriousness === customEntry.seriousness &&
-							obj.type === customEntry.type
+							obj.nodeId === CUSTOM_ENTRY.nodeId &&
+							obj.seriousness === CUSTOM_ENTRY.seriousness &&
+							obj.type === CUSTOM_ENTRY.type
 					);
 
 					if (!errorFound) {
 						console.log(node);
-						const currentNodeGradableType = getNodeTypeGradableType(
+						const CURRENT_NODE_GRADABLE_TYPE = getNodeTypeGradableType(
 							node,
 							platform
 						);
 
 						if (
-							currentNodeGradableType &&
-							currentNodeGradableType == "simple" &&
+							CURRENT_NODE_GRADABLE_TYPE &&
+							CURRENT_NODE_GRADABLE_TYPE == "simple" &&
 							node?.data?.g?.hasToBeSeen === true
 						) {
 							if (node?.data?.g?.hasToBeSeen === true) {
-								warningArray.push(customEntry);
+								WARNING_ARRAY.push(CUSTOM_ENTRY);
 							}
 						} else {
 							if (node?.data?.g?.hasConditions === true) {
-								warningArray.push(customEntry);
+								WARNING_ARRAY.push(CUSTOM_ENTRY);
 							}
 						}
 					}
 				}
 			}
 		});
-		console.log(warningArray);
-		return warningArray;
+		console.log(WARNING_ARRAY);
+		return WARNING_ARRAY;
 	}
 
 	const [warningCount, setWarningCount] = useState(
@@ -345,9 +339,9 @@ export default forwardRef(function ExportModal(
 	const [hasWarnings, setHasWarnings] = useState(warningCount > 0);
 
 	useLayoutEffect(() => {
-		const count = warningList != undefined ? warningList.length : 0;
-		setWarningCount(count);
-		setHasWarnings(count > 0);
+		const COUNT = warningList != undefined ? warningList.length : 0;
+		setWarningCount(COUNT);
+		setHasWarnings(COUNT > 0);
 	}, [warningList]);
 
 	return (
@@ -407,14 +401,14 @@ export default forwardRef(function ExportModal(
 										<b>Los siguientes bloques no poseen un recurso asociado:</b>
 									</div>
 									{nodeErrorResourceList.map((entry) => {
-										const node = getNodeById(
+										const NODE = getNodeById(
 											entry.nodeId,
 											reactFlowInstance.getNodes()
 										);
 										return (
-											<div key={entry.id} onClick={() => handleEdit(node)}>
+											<div key={entry.id} onClick={() => handleEdit(NODE)}>
 												<a role="button" className={styles.iconError}>
-													{getTypeIcon(node.type, platform, 16)}
+													{getTypeIcon(NODE.type, platform, 16)}
 												</a>{" "}
 												<a role="button" className={styles.nodeError}>
 													{entry.nodeName}
@@ -433,14 +427,14 @@ export default forwardRef(function ExportModal(
 										</b>
 									</div>
 									{nodeErrorSectionList.map((entry) => {
-										const node = getNodeById(
+										const NODE = getNodeById(
 											entry.nodeId,
 											reactFlowInstance.getNodes()
 										);
 										return (
-											<div key={entry.id} onClick={() => handleEdit(node)}>
+											<div key={entry.id} onClick={() => handleEdit(NODE)}>
 												<a role="button" className={styles.iconError}>
-													{getTypeIcon(node.type, platform, 16)}
+													{getTypeIcon(NODE.type, platform, 16)}
 												</a>{" "}
 												<a role="button" className={styles.nodeError}>
 													{entry.nodeName}
@@ -457,14 +451,14 @@ export default forwardRef(function ExportModal(
 										<b>Los siguientes bloques no poseen un orden asignado:</b>
 									</div>
 									{nodeErrorOrderList.map((entry) => {
-										const node = getNodeById(
+										const NODE = getNodeById(
 											entry.nodeId,
 											reactFlowInstance.getNodes()
 										);
 										return (
-											<div key={entry.id} onClick={() => handleEdit(node)}>
+											<div key={entry.id} onClick={() => handleEdit(NODE)}>
 												<a role="button" className={styles.iconError}>
-													{getTypeIcon(node.type, platform, 16)}
+													{getTypeIcon(NODE.type, platform, 16)}
 												</a>{" "}
 												<a role="button" className={styles.nodeError}>
 													{entry.nodeName}
@@ -504,14 +498,14 @@ export default forwardRef(function ExportModal(
 												</b>
 											</div>
 											{nodeWarningChildrenList.map((entry) => {
-												const node = getNodeById(
+												const NODE = getNodeById(
 													entry.nodeId,
 													reactFlowInstance.getNodes()
 												);
 												return (
-													<div key={entry.id} onClick={() => handleEdit(node)}>
+													<div key={entry.id} onClick={() => handleEdit(NODE)}>
 														<a role="button" className={styles.iconWarning}>
-															{getTypeIcon(node.type, platform, 16)}
+															{getTypeIcon(NODE.type, platform, 16)}
 														</a>{" "}
 														<a role="button" className={styles.nodeWarning}>
 															{entry.nodeName}
@@ -536,17 +530,17 @@ export default forwardRef(function ExportModal(
 													</b>
 												</div>
 												{nodeChildrenWithoutRestriction.map((entry) => {
-													const node = getNodeById(
+													const NODE = getNodeById(
 														entry.nodeId,
 														reactFlowInstance.getNodes()
 													);
 													return (
 														<div
 															key={entry.id}
-															onClick={() => handleEdit(node)}
+															onClick={() => handleEdit(NODE)}
 														>
 															<a role="button" className={styles.iconWarning}>
-																{getTypeIcon(node.type, platform, 16)}
+																{getTypeIcon(NODE.type, platform, 16)}
 															</a>{" "}
 															<a role="button" className={styles.nodeWarning}>
 																{entry.nodeName}
@@ -567,14 +561,14 @@ export default forwardRef(function ExportModal(
 												<b>Los siguientes bloques no poseen un bloque padre:</b>
 											</div>
 											{nodeWarningParentList.map((entry) => {
-												const node = getNodeById(
+												const NODE = getNodeById(
 													entry.nodeId,
 													reactFlowInstance.getNodes()
 												);
 												return (
-													<div key={entry.id} onClick={() => handleEdit(node)}>
+													<div key={entry.id} onClick={() => handleEdit(NODE)}>
 														<a role="button" className={styles.iconWarning}>
-															{getTypeIcon(node.type, platform, 16)}
+															{getTypeIcon(NODE.type, platform, 16)}
 														</a>{" "}
 														<a role="button" className={styles.nodeWarning}>
 															{entry.nodeName}

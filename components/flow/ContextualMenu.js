@@ -32,7 +32,7 @@ export default forwardRef(function ContextualMenu(
 ) {
 	const { expanded: expandedAside } = useContext(ExpandedAsideContext);
 
-	const asideBounds = expandedAside
+	const ASIDE_BOUNDS = expandedAside
 		? document.getElementsByTagName("aside")[0]?.getBoundingClientRect()
 		: 0;
 
@@ -61,10 +61,10 @@ export default forwardRef(function ContextualMenu(
 
 			if (blockData) {
 				if (Array.isArray(blockData)) {
-					const invalidNodes = blockData.filter(
+					const INVALID_NODES = blockData.filter(
 						(node) => node.type == "fragment" || node.parentNode != undefined
 					);
-					if (invalidNodes.length > 0) {
+					if (INVALID_NODES.length > 0) {
 						setEnableCreateFragment(false);
 					} else {
 						setEnableCreateFragment(true);
@@ -82,7 +82,7 @@ export default forwardRef(function ContextualMenu(
 				ref={ref}
 				style={{
 					top: `${y}px`,
-					left: `${x + (asideBounds && asideBounds.width)}px`,
+					left: `${x + (ASIDE_BOUNDS && ASIDE_BOUNDS.width)}px`,
 				}}
 				className={styles.cM + " "}
 			>

@@ -12,7 +12,7 @@ export default function FragmentEditor({
 	id,
 }) {
 	const reactFlowInstance = useReactFlow();
-	const selectableBlocks =
+	const SELECTABLE_BLOCKS =
 		mode == "add"
 			? orderByLabelAlphabetically(
 					reactFlowInstance.getNodes().filter((node) => {
@@ -30,8 +30,8 @@ export default function FragmentEditor({
 			: orderByLabelAlphabetically(
 					reactFlowInstance.getNodes().filter((node) => node.parentNode == id)
 			  );
-	const fragment = getNodeById(id, reactFlowInstance.getNodes());
-	const [selectedID, setSelectedID] = useState(selectableBlocks[0]?.id);
+	const FRAGMENT = getNodeById(id, reactFlowInstance.getNodes());
+	const [selectedID, setSelectedID] = useState(SELECTABLE_BLOCKS[0]?.id);
 
 	function handleClose(actionClicked) {
 		if (actionClicked) {
@@ -50,80 +50,83 @@ export default function FragmentEditor({
 	}
 
 	function addNewChildren() {
-		const fragment = getNodeById(id, reactFlowInstance.getNodes());
-		const newChild = getNodeById(selectedID, reactFlowInstance.getNodes());
+		const FRAGMENT = getNodeById(id, reactFlowInstance.getNodes());
+		const NEW_CHILD = getNodeById(selectedID, reactFlowInstance.getNodes());
 
 		const nodeCenterOffset = { x: 34, y: 34 };
 		const fragmentCenter = {
-			x: fragment.style.width / 2 - nodeCenterOffset.x,
-			y: fragment.style.height / 2 - nodeCenterOffset.y,
+			x: FRAGMENT.style.width / 2 - nodeCenterOffset.x,
+			y: FRAGMENT.style.height / 2 - nodeCenterOffset.y,
 		};
 
-		newChild.parentNode = id;
-		newChild.expandParent = true;
-		newChild.position = { x: fragmentCenter.x, y: fragmentCenter.y };
+		NEW_CHILD.parentNode = id;
+		NEW_CHILD.expandParent = true;
+		NEW_CHILD.position = { x: fragmentCenter.x, y: fragmentCenter.y };
 
-		if (fragment.style.width <= 68) {
-			fragment.style.width = 125;
+		if (FRAGMENT.style.width <= 68) {
+			FRAGMENT.style.width = 125;
 		}
-		if (fragment.style.height <= 68) {
-			fragment.style.height = 200;
+		if (FRAGMENT.style.height <= 68) {
+			FRAGMENT.style.height = 200;
 		}
 
-		fragment.data.innerNodes = [
-			...fragment.data.innerNodes,
-			{ id: newChild.id, position: newChild.position },
+		FRAGMENT.data.innerNodes = [
+			...FRAGMENT.data.innerNodes,
+			{ id: NEW_CHILD.id, position: NEW_CHILD.position },
 		];
-		fragment.zIndex = -1;
+		FRAGMENT.zIndex = -1;
 
 		reactFlowInstance.setNodes(
-			getUpdatedArrayById(fragment, [
+			getUpdatedArrayById(FRAGMENT, [
 				...reactFlowInstance
 					.getNodes()
-					.filter((node) => newChild.id != node.id),
-				newChild,
+					.filter((node) => NEW_CHILD.id != node.id),
+				NEW_CHILD,
 			])
 		);
 	}
 
 	function removeChildren() {
-		const fragment = getNodeById(id, reactFlowInstance.getNodes());
-		const childToRemove = getNodeById(selectedID, reactFlowInstance.getNodes());
-		const bounds = document
+		const FRAGMENT = getNodeById(id, reactFlowInstance.getNodes());
+		const CHILD_TO_REMOVE = getNodeById(
+			selectedID,
+			reactFlowInstance.getNodes()
+		);
+		const BOUNDS = document
 			.getElementById("reactFlowWrapper")
 			?.getBoundingClientRect();
 
 		const viewPortCenter = reactFlowInstance.project({
-			x: bounds.width / 2,
-			y: bounds.height / 2,
+			x: BOUNDS.width / 2,
+			y: BOUNDS.height / 2,
 		});
 
-		delete childToRemove.parentNode;
-		delete childToRemove.expandParent;
-		childToRemove.position = viewPortCenter;
+		delete CHILD_TO_REMOVE.parentNode;
+		delete CHILD_TO_REMOVE.expandParent;
+		CHILD_TO_REMOVE.position = viewPortCenter;
 
-		fragment.data.innerNodes = fragment.data.innerNodes.filter(
-			(node) => node.id != childToRemove.id
+		FRAGMENT.data.innerNodes = FRAGMENT.data.innerNodes.filter(
+			(node) => node.id != CHILD_TO_REMOVE.id
 		);
-		fragment.zIndex = -1;
+		FRAGMENT.zIndex = -1;
 
 		reactFlowInstance.setNodes(
-			getUpdatedArrayById(fragment, [
+			getUpdatedArrayById(FRAGMENT, [
 				...reactFlowInstance
 					.getNodes()
-					.filter((node) => childToRemove.id != node.id),
-				childToRemove,
+					.filter((node) => CHILD_TO_REMOVE.id != node.id),
+				CHILD_TO_REMOVE,
 			])
 		);
 	}
 
 	useEffect(() => {
-		setSelectedID(selectableBlocks[0].id);
+		setSelectedID(SELECTABLE_BLOCKS[0].id);
 	}, [showDialog]);
 	return (
 		<Modal show={showDialog} onHide={() => handleClose()}>
 			<Modal.Header closeButton>
-				<Modal.Title>Editando "{fragment.data.label}"</Modal.Title>
+				<Modal.Title>Editando "{FRAGMENT.data.label}"</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
 				<Form>
@@ -132,7 +135,7 @@ export default function FragmentEditor({
 					</Form.Label>
 					<BlockSelector
 						size={32}
-						nodeArray={selectableBlocks}
+						nodeArray={SELECTABLE_BLOCKS}
 						onChange={(e) => setSelectedID(e.target.value)}
 						autoFocus
 					></BlockSelector>

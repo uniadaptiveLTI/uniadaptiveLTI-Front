@@ -24,9 +24,9 @@ const DateForm = ({
 	conditionEdit,
 }) => {
 	function calculateDefaultDateTime(minutesToAdd) {
-		const targetTime = new Date();
-		targetTime.setMinutes(targetTime.getMinutes() + minutesToAdd);
-		return targetTime.toISOString().slice(0, 16);
+		const TARGET_TIME = new Date();
+		TARGET_TIME.setMinutes(TARGET_TIME.getMinutes() + minutesToAdd);
+		return TARGET_TIME.toISOString().slice(0, 16);
 	}
 
 	const handleCheckboxChange = (checkboxName, checked, ref) => {

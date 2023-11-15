@@ -36,7 +36,7 @@ import { ToastContainer } from "react-toastify";
 import { toast } from "react-toastify";
 import { useIsOnline } from "react-use-is-online";
 
-const sessionStart = Date.now();
+const SESSION_START = Date.now();
 
 export default function App({ Component, pageProps }) {
 	const [settings, setSettings] = useState(
@@ -66,7 +66,7 @@ export default function App({ Component, pageProps }) {
 
 	useEffect(() => {
 		if (isOnline) {
-			if (Date.now() > sessionStart + 500) {
+			if (Date.now() > SESSION_START + 500) {
 				//Small delay so it doesn't show up at start
 				connectionRestored();
 			}

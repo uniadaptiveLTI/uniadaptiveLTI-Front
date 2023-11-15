@@ -2,16 +2,16 @@ import fs from "fs/promises";
 import path from "path";
 
 export default function handler(req, res) {
-	const object = req.body;
-	const settings = object.settings;
-	const password = object.password;
-	const adminPassword = process.env.ADMIN_PASSWORD;
+	const OBJECT = req.body;
+	const SETTINGS = OBJECT.settings;
+	const PASSWORD = OBJECT.password;
+	const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
 	try {
-		if (adminPassword) {
-			if (password == adminPassword) {
-				const filePath = path.join(process.cwd(), "configuration.json");
-				fs.writeFile(filePath, JSON.stringify(settings, null, "\t")).then(
+		if (ADMIN_PASSWORD) {
+			if (PASSWORD == ADMIN_PASSWORD) {
+				const FILE_PATH = path.join(process.cwd(), "configuration.json");
+				fs.writeFile(FILE_PATH, JSON.stringify(SETTINGS, null, "\t")).then(
 					res.status(200).json({
 						ok: true,
 					})

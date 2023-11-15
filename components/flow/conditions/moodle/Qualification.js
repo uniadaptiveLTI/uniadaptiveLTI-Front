@@ -12,8 +12,8 @@ const Qualification = ({
 	expandedCondition,
 }) => {
 	const { settings, setSettings } = useContext(SettingsContext);
-	const parsedSettings = JSON.parse(settings);
-	let { reducedAnimations } = parsedSettings;
+	const PARSED_SETTINGS = JSON.parse(settings);
+	let { reducedAnimations } = PARSED_SETTINGS;
 	return (
 		<div
 			className={

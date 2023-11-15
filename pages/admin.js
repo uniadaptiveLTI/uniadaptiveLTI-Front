@@ -11,8 +11,8 @@ import path from "path";
 import Head from "next/head";
 
 export async function getStaticProps() {
-	const filePath = path.join(process.cwd(), "configuration.json");
-	const LTISettings = JSON.parse(await fs.readFile(filePath));
+	const FILE_PATH = path.join(process.cwd(), "configuration.json");
+	const LTISettings = JSON.parse(await fs.readFile(FILE_PATH));
 	return { props: { LTISettings } };
 }
 
@@ -22,21 +22,21 @@ export default function Admin({ LTISettings }) {
 	const [lastPassword, setLastPassword] = useState("");
 
 	const loginInputDOM = useRef();
-	const loginInputId = useId();
+	const LOGIN_INPUT_ID = useId();
 
 	const logIn = async () => {
 		if (!LTISettings.debugging.dev_files) {
 			try {
 				setLastPassword(loginInputDOM.current.value);
-				const response = await fetch("/api/auth/", {
+				const RESPONSE = await fetch("/api/auth/", {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify(loginInputDOM.current.value),
 				});
-				const result = await response.json();
-				setAuth(result.valid);
+				const RESULT = await RESPONSE.json();
+				setAuth(RESULT.valid);
 
-				if (!result.valid) {
+				if (!RESULT.valid) {
 					toast("Contraseña incorrecta.", {
 						hideProgressBar: false,
 						autoClose: 4000,
@@ -61,14 +61,14 @@ export default function Admin({ LTISettings }) {
 	};
 
 	const modifySettings = async (modifiedSettings) => {
-		const newSettings = { ...LTISettings, ...modifiedSettings };
-		const response = await fetch("/api/modifyLTISettings/", {
+		const NEW_SETTINGS = { ...LTISettings, ...modifiedSettings };
+		const RESPONSE = await fetch("/api/modifyLTISettings/", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ password: lastPassword, settings: newSettings }),
+			body: JSON.stringify({ password: lastPassword, settings: NEW_SETTINGS }),
 		});
-		const result = await response.json();
-		if (result.ok) {
+		const RESULT = await RESPONSE.json();
+		if (RESULT.ok) {
 			toast(
 				"Se han modificado los ajustes. Reinicia para aplicar los cambios.",
 				{
@@ -178,12 +178,12 @@ export default function Admin({ LTISettings }) {
 								<Col className={styles.paneContainer}>
 									<div style={{ display: "flex", justifyContent: "center" }}>
 										<Form action="#" method="" onSubmit={logIn}>
-											<Form.Label htmlFor={loginInputId}>
+											<Form.Label htmlFor={LOGIN_INPUT_ID}>
 												Introduzca contraseña de administración
 											</Form.Label>
 											<Form.Control
 												ref={loginInputDOM}
-												id={loginInputId}
+												id={LOGIN_INPUT_ID}
 												type="password"
 												placeholder="Contraseña"
 											></Form.Control>

@@ -39,7 +39,7 @@ export default forwardRef(function SectionSelector(
 	ref
 ) {
 	const rfNodes = useNodes();
-	const sections = metaData.sections;
+	const SECTIONS = metaData.sections;
 	const [selectors, setSelectors] = useState();
 	const [selectionStatus, setSelectionStatus] = useState([]);
 	const [updateSelectors, setUpdateSelectors] = useState(false);
@@ -69,8 +69,8 @@ export default forwardRef(function SectionSelector(
 			if (allowModularSelection) {
 				setSelectionStatus([]);
 
-				const orderedSelectors = orderByPropertyAlphabetically(
-					sections.map((section, idx) => {
+				const ORDERED_SELECTORS = orderByPropertyAlphabetically(
+					SECTIONS.map((section, idx) => {
 						return {
 							position: String(section.position), //ToString to be sorted
 							html: (
@@ -116,7 +116,7 @@ export default forwardRef(function SectionSelector(
 					}),
 					"position"
 				).map((orderedSection) => orderedSection.html);
-				orderedSelectors.unshift(
+				ORDERED_SELECTORS.unshift(
 					<div
 						className="my-2"
 						style={{ display: "flex", alignItems: "center" }}
@@ -150,7 +150,7 @@ export default forwardRef(function SectionSelector(
 						)}
 					</div>
 				);
-				setSelectors(orderedSelectors);
+				setSelectors(ORDERED_SELECTORS);
 			} else {
 				setSelectors(
 					<div
@@ -191,16 +191,16 @@ export default forwardRef(function SectionSelector(
 	}, [waitForWarnings == false]);
 
 	function toggleInnerSelectors(e) {
-		const targetStatus = e.target.checked;
+		const TARGET_STATUS = e.target.checked;
 		innerSelectors.current.forEach((input) => {
-			input.checked = targetStatus;
-			input.disabled = targetStatus;
+			input.checked = TARGET_STATUS;
+			input.disabled = TARGET_STATUS;
 			return input;
 		});
 		setSelectionStatus((prev) => {
-			prev.all = targetStatus;
-			if (targetStatus) {
-				prev = sections.map((section) => section.id);
+			prev.all = TARGET_STATUS;
+			if (TARGET_STATUS) {
+				prev = SECTIONS.map((section) => section.id);
 			} else {
 				prev = [];
 			}
@@ -209,13 +209,13 @@ export default forwardRef(function SectionSelector(
 	}
 
 	function toggleMainSelector(e) {
-		const targetStatus = e.target.checked;
+		const TARGET_STATUS = e.target.checked;
 		if (platform == "moodle") {
-			const sectionIds = sections.map((section) => section.id);
-			setSelectionStatus(targetStatus ? sectionIds : []);
+			const SECTION_IDS = SECTIONS.map((section) => section.id);
+			setSelectionStatus(TARGET_STATUS ? SECTION_IDS : []);
 		} else {
 			setSelectionStatus(
-				targetStatus
+				TARGET_STATUS
 					? [...new Set(rfNodes.map((node) => node.data.section))] //GET ALL SECTIONS USED
 					: []
 			);
@@ -226,14 +226,14 @@ export default forwardRef(function SectionSelector(
 		if (updateSelectors) {
 			setUpdateSelectors(false);
 
-			const newSelSections = [];
+			const NEW_SELECTED_SECTIONS = [];
 			innerSelectors.current.forEach((selector) => {
 				const targetStatus = selector.checked;
 				if (targetStatus) {
-					newSelSections.push(Number(selector.dataset.id));
+					NEW_SELECTED_SECTIONS.push(Number(selector.dataset.id));
 				}
 			});
-			setSelectionStatus(newSelSections);
+			setSelectionStatus(NEW_SELECTED_SECTIONS);
 		}
 	}, [updateSelectors]);
 
@@ -246,37 +246,39 @@ export default forwardRef(function SectionSelector(
 	}, [selectionStatus]);
 
 	function getErrorsPerSection() {
-		const errorSearch = errorList.map((error) => {
+		const ERROR_SEARCH = errorList.map((error) => {
 			return {
 				id: error.nodeId,
 				section: getNodeById(error.nodeId, rfNodes).data.section,
 			};
 		});
-		const warningSearch = warningList.map((warning) => {
+		const WARNING_SEARCH = warningList.map((warning) => {
 			return {
 				id: warning.nodeId,
 				section: getNodeById(warning.nodeId, rfNodes).data.section,
 			};
 		});
 
-		const errorSum = getDuplicates(errorSearch.map((errorS) => errorS.section));
-		const warningSum = getDuplicates(
-			warningSearch.map((warningS) => warningS.section)
+		const ERROR_SUM = getDuplicates(
+			ERROR_SEARCH.map((errorS) => errorS.section)
+		);
+		const WARNING_SUM = getDuplicates(
+			WARNING_SEARCH.map((warningS) => warningS.section)
 		);
 
-		const errorPerSectionArray = [];
-		const warningsPerSectionArray = [];
-		for (const section in errorSum) {
-			const sectionErrors = errorSum[section];
-			errorPerSectionArray[section] = sectionErrors;
+		const ERRORS_PER_SECTION_ARRAY = [];
+		const WARNINGS_PER_SECTION_ARRAY = [];
+		for (const SECTION in ERROR_SUM) {
+			const SECTION_ERRORRS = ERROR_SUM[SECTION];
+			ERRORS_PER_SECTION_ARRAY[SECTION] = SECTION_ERRORRS;
 		}
-		for (const section in warningSum) {
-			const sectionWarnings = warningSum[section];
-			warningsPerSectionArray[section] = sectionWarnings;
+		for (const SECTION in WARNING_SUM) {
+			const SECTION_WARNINGS = WARNING_SUM[SECTION];
+			WARNINGS_PER_SECTION_ARRAY[SECTION] = SECTION_WARNINGS;
 		}
 
-		setErrorsPerSection(errorPerSectionArray);
-		setWarningsPerSection(warningsPerSectionArray);
+		setErrorsPerSection(ERRORS_PER_SECTION_ARRAY);
+		setWarningsPerSection(WARNINGS_PER_SECTION_ARRAY);
 	}
 
 	return (
