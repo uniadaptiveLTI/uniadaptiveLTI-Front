@@ -80,10 +80,11 @@ export default function Layout({ LTISettings, children }) {
 	 */
 	function getHeaderHeight() {
 		if (typeof window != "undefined") {
-			const header = headerDOM.current;
-			if (header) {
-				const headerHeight = header.getBoundingClientRect().height;
-				return window.innerHeight - headerHeight;
+			const CURRENT_HEADER = headerDOM.current;
+			if (CURRENT_HEADER) {
+				const CURRENT_HEADER_HEIGHT =
+					CURRENT_HEADER.getBoundingClientRect().height;
+				return window.innerHeight - CURRENT_HEADER_HEIGHT;
 			}
 		} else {
 			return "100vh";

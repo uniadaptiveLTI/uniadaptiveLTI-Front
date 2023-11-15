@@ -30,7 +30,7 @@ function Condition({
 	moodleGroupings,
 	conditionsGroupOperatorList,
 }) {
-	const completionQueryList = [
+	const COMPLETION_QUERY_LIST = [
 		{ id: 1, name: "debe estar completa" },
 		{ id: 0, name: "no debe estar completa" },
 		{ id: 2, name: "debe estar completa y aprobada" },
@@ -82,7 +82,7 @@ function Condition({
 					setConditionEdit={setConditionEdit}
 					upCondition={upCondition}
 					downCondition={downCondition}
-					completionQueryList={completionQueryList}
+					completionQueryList={COMPLETION_QUERY_LIST}
 					deleteCondition={deleteCondition}
 					swapConditionParam={swapConditionParam}
 				/>

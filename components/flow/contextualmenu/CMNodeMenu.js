@@ -36,7 +36,7 @@ const Menu = (
 	ref
 ) => {
 	const { platform } = useContext(PlatformContext);
-	const gradableTypes = getGradableTypes(platform);
+	const GRADABLE_TYPES = getGradableTypes(platform);
 
 	return (
 		<div ref={ref} className={styles.cM + " "}>
@@ -75,7 +75,7 @@ const Menu = (
 				</li>
 			)}
 			{["fragment"].includes(blockData.type) == false &&
-				gradableTypes.includes(blockData.type) && (
+				GRADABLE_TYPES.includes(blockData.type) && (
 					<li>
 						<Button
 							variant="light"
@@ -222,9 +222,9 @@ export default function CMBlockMenu({
 	EnableDelete = false,
 }) {
 	const ref = useRef(null);
-	const focus = !(blockData.type == "end" && relationStarter == undefined);
+	const FOCUS = !(blockData.type == "end" && relationStarter == undefined);
 
-	return focus ? (
+	return FOCUS ? (
 		<FocusTrap
 			focusTrapOptions={{
 				clickOutsideDeactivates: true,

@@ -54,24 +54,27 @@ export default forwardRef(function NodeSelector(
 	}, [modalRef.current?.getBoundingClientRect()]);
 
 	function rescaleGrid() {
-		const modalBounds = modalRef.current.getBoundingClientRect();
-		const mwidth = modalBounds.width;
+		const MODAL_BOUNDS = modalRef.current.getBoundingClientRect();
+		const MODAL_WIDTH = MODAL_BOUNDS.width;
 		let styleToLoad = null;
-		if (mwidth < 499) styleToLoad = styles.selectionContainer;
-		if (mwidth >= 499 && mwidth < 799)
+		if (MODAL_WIDTH < 499) styleToLoad = styles.selectionContainer;
+		if (MODAL_WIDTH >= 499 && MODAL_WIDTH < 799)
 			styleToLoad = styles.selectionContainerMD;
-		if (mwidth >= 799) styleToLoad = styles.selectionContainerXL;
+		if (MODAL_WIDTH >= 799) styleToLoad = styles.selectionContainerXL;
 		setWidthStyle(styleToLoad);
 	}
 
 	function getFilteredBlockSelection() {
-		const lmsBlocks = NodeTypes.filter((node) => node.lms.includes(platform));
-		const typeBlocks = lmsBlocks.filter((node) => node.nodeType == type);
-		const orderedSelection = orderByPropertyAlphabetically(typeBlocks, "name");
+		const LMS_BLOCKS = NodeTypes.filter((node) => node.lms.includes(platform));
+		const TYPE_BLOCKS = LMS_BLOCKS.filter((node) => node.nodeType == type);
+		const ORDERED_SELECTION = orderByPropertyAlphabetically(
+			TYPE_BLOCKS,
+			"name"
+		);
 
 		return (
 			<div className={widthStyle}>
-				{orderedSelection.map((selectedElement) =>
+				{ORDERED_SELECTION.map((selectedElement) =>
 					SelectionElement(selectedElement)
 				)}
 			</div>
@@ -79,10 +82,10 @@ export default forwardRef(function NodeSelector(
 	}
 
 	function getMaxSectionFromSelection() {
-		const selectedNodes = rfNodes.filter((node) => node.selected);
+		const SELECTED_NODES = rfNodes.filter((node) => node.selected);
 		let maxSection = 0;
-		if (selectedNodes.length > 0) {
-			maxSection = Math.max(...selectedNodes.map((node) => node.data.section));
+		if (SELECTED_NODES.length > 0) {
+			maxSection = Math.max(...SELECTED_NODES.map((node) => node.data.section));
 		}
 		return maxSection > -1 ? maxSection : getLowestSection(rfNodes); //TODO: Test in sakai
 	}
@@ -90,28 +93,28 @@ export default forwardRef(function NodeSelector(
 	function SelectionElement(selectedElement) {
 		const { nodeType, type, name } = selectedElement;
 
-		const typeColor = getTypeStaticColor(type, platform);
-		const typeIcon = getTypeIcon(type, platform, 32);
-		const data = {};
-		const section = getMaxSectionFromSelection();
+		const TYPE_COLOR = getTypeStaticColor(type, platform);
+		const TYPE_ICON = getTypeIcon(type, platform, 32);
+		const DATA = {};
+		const SECTION = getMaxSectionFromSelection();
 		if (nodeType == "ElementNode") {
-			data.label = handleNameCollision(
+			DATA.label = handleNameCollision(
 				NodeTypes.find((ntype) => type == ntype.type).emptyName,
 				rfNodes.map((node) => node?.data?.label),
 				false,
 				"("
 			);
 
-			data.children = [];
-			data.section =
-				section == undefined || section == Infinity || section == -Infinity
+			DATA.children = [];
+			DATA.section =
+				SECTION == undefined || SECTION == Infinity || SECTION == -Infinity
 					? startingSectionID(platform)
-					: section;
-			data.order = getLastPositionInSection(section, rfNodes) + 1;
-			data.lmsVisibility = getDefaultVisibility(platform);
-			data.indent = 0;
+					: SECTION;
+			DATA.order = getLastPositionInSection(SECTION, rfNodes) + 1;
+			DATA.lmsVisibility = getDefaultVisibility(platform);
+			DATA.indent = 0;
 			if (platform == "moodle" && getGradableTypes("moodle").includes(type))
-				data.g = {
+				DATA.g = {
 					hasConditions: false,
 					hasToBeSeen: false,
 					hasToBeQualified: false,
@@ -122,7 +125,7 @@ export default forwardRef(function NodeSelector(
 					},
 				};
 		} else {
-			data.label = name;
+			DATA.label = name;
 		}
 		return (
 			<div key={type} className={styles.cardContainer + " nodeSelectionItem"}>
@@ -131,18 +134,18 @@ export default forwardRef(function NodeSelector(
 					role="button"
 					tabIndex={0}
 					onClick={() => {
-						callback({ id: uniqueId(), type: type, data: { ...data } });
+						callback({ id: uniqueId(), type: type, data: { ...DATA } });
 						toggleDialog();
 					}}
 					onKeyDown={(e) => {
 						if (e.code == "Enter") {
-							callback({ id: uniqueId(), type: type, data: { ...data } });
+							callback({ id: uniqueId(), type: type, data: { ...DATA } });
 							toggleDialog();
 						}
 					}}
 				>
-					<div className={styles.block} style={{ background: typeColor }}>
-						{typeIcon}
+					<div className={styles.block} style={{ background: TYPE_COLOR }}>
+						{TYPE_ICON}
 					</div>
 					<span>{devModeStatus ? type : name}</span>
 				</div>

@@ -14,7 +14,7 @@ export default function InlineColorSelector({
 	const [showSelector, setShowSelector] = useState(false);
 	const [iconColor, setIconColor] = useState("#000");
 
-	const labelID = useId();
+	const LABEL_ID = useId();
 
 	useEffect(() => {
 		setIconColor(getContrastingColor(color));
@@ -26,10 +26,10 @@ export default function InlineColorSelector({
 				position: "relative",
 			}}
 		>
-			{label && <Form.Label htmlFor={labelID}>{label}</Form.Label>}
+			{label && <Form.Label htmlFor={LABEL_ID}>{label}</Form.Label>}
 			<InputGroup>
 				<Form.Control
-					id={id && label.length == 0 ? id : labelID}
+					id={id && label.length == 0 ? id : LABEL_ID}
 					value={color}
 					onChange={(e) => setColor(e.target.value)}
 					styles={{

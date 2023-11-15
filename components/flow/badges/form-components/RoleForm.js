@@ -8,7 +8,7 @@ const RoleForm = ({
 	roleList,
 	handleCheckboxChange,
 }) => {
-	const cId = useId();
+	const CONDITION_ID = useId();
 	return (
 		<Form.Group
 			style={{
@@ -19,9 +19,9 @@ const RoleForm = ({
 			className="p-4"
 		>
 			<div className="d-flex flex-row gap-2 align-items-baseline col-12 col-lg-8 col-xl-6">
-				<Form.Label htmlFor={cId}>Condición: </Form.Label>
+				<Form.Label htmlFor={CONDITION_ID}>Condición: </Form.Label>
 				<Form.Select
-					id={cId}
+					id={CONDITION_ID}
 					ref={conditionOperator}
 					defaultValue={conditionEdit?.method}
 				>

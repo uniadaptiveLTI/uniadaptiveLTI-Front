@@ -25,48 +25,48 @@ export function setRootStyle(style = "", value = "") {
  */
 export function applyBranding(LTISettings) {
 	if (LTISettings && LTISettings.branding) {
-		const branding = LTISettings.branding;
+		const BRANDING = LTISettings.branding;
 
-		if (branding.main) {
-			const main = branding.main;
-			setRootStyle("--main-font-color", main.fontColor);
-			setRootStyle("--bs-body-color", main.fontColor); //Replacing bootstrap defaults
+		if (BRANDING.main) {
+			const MAIN = BRANDING.main;
+			setRootStyle("--main-font-color", MAIN.fontColor);
+			setRootStyle("--bs-body-color", MAIN.fontColor); //Replacing bootstrap defaults
 			//FIXME: setRootStyle("--bs-modal-color", main.fontColor); //Replacing bootstrap defaults
 
-			setRootStyle("--main-font-family", main.fontFamily);
-			setRootStyle("--bs-body-font-family", main.fontFamily); //Replacing bootstrap defaults
+			setRootStyle("--main-font-family", MAIN.fontFamily);
+			setRootStyle("--bs-body-font-family", MAIN.fontFamily); //Replacing bootstrap defaults
 
-			setRootStyle("--main-background-color", main.backgroundColor);
-			setRootStyle("--bs-body-bg", main.backgroundColor); //Replacing bootstrap defaults
+			setRootStyle("--main-background-color", MAIN.backgroundColor);
+			setRootStyle("--bs-body-bg", MAIN.backgroundColor); //Replacing bootstrap defaults
 			//FIXME: setRootStyle("--bs-modal-bg", main.backgroundColor + " !important"); //Replacing bootstrap defaults
 
 			setRootStyle(
 				"--main-secondary-background-color",
-				main.secondaryBackgroundColor
+				MAIN.secondaryBackgroundColor
 			);
-			setRootStyle("--bs-secondary-bg", main.secondaryBackgroundColor); //Replacing bootstrap defaults
+			setRootStyle("--bs-secondary-bg", MAIN.secondaryBackgroundColor); //Replacing bootstrap defaults
 
-			setRootStyle("--main-third-background-color", main.thirdBackgroundColor);
-			setRootStyle("--bs-tertiary-bg", main.thirdBackgroundColor); //Replacing bootstrap defaults
+			setRootStyle("--main-third-background-color", MAIN.thirdBackgroundColor);
+			setRootStyle("--bs-tertiary-bg", MAIN.thirdBackgroundColor); //Replacing bootstrap defaults
 
 			//setRootStyle("--main-border-color", main.borderColor);
 			//FIXME: MODALS setRootStyle("--bs-border-color", main.borderColor); //Replacing bootstrap defaults
-			setRootStyle("--main-border-radius", main.borderRadius);
-			setRootStyle("--bs-border-radius", main.borderRadius); //Replacing bootstrap defaults
+			setRootStyle("--main-border-radius", MAIN.borderRadius);
+			setRootStyle("--bs-border-radius", MAIN.borderRadius); //Replacing bootstrap defaults
 		}
-		if (branding.header) {
-			const header = branding.header;
+		if (BRANDING.header) {
+			const HEADER = BRANDING.header;
 
-			setRootStyle("--header-font-color", header.fontColor);
-			setRootStyle("--header-font-family", header.fontFamily);
-			setRootStyle("--header-background-color", header.backgroundColor);
+			setRootStyle("--header-font-color", HEADER.fontColor);
+			setRootStyle("--header-font-family", HEADER.fontFamily);
+			setRootStyle("--header-background-color", HEADER.backgroundColor);
 
-			if (header.actionButtons) {
-				const actionButtons = header.actionButtons;
+			if (HEADER.actionButtons) {
+				const ACTION_BUTTONS = HEADER.actionButtons;
 
 				setRootStyle(
 					"--header-action-buttons-border-radius",
-					actionButtons.borderRadius
+					ACTION_BUTTONS.borderRadius
 				);
 				/*setRootStyle(
 					"--header-action-buttons-border",
@@ -74,154 +74,154 @@ export function applyBranding(LTISettings) {
 				); HAS TO BE REPLACED */
 				setRootStyle(
 					"--header-action-buttons-background-color",
-					actionButtons.backgroundColor
+					ACTION_BUTTONS.backgroundColor
 				);
 				setRootStyle(
 					"--header-action-buttons-svg-filter",
-					actionButtons.svgFilter
+					ACTION_BUTTONS.svgFilter
 				);
 			}
 
-			if (header.versionDropdown) {
-				const vD = header.versionDropdown;
+			if (HEADER.versionDropdown) {
+				const VERSION_DROPDOWN = HEADER.versionDropdown;
 
 				setRootStyle(
 					"--header-version-dropdown-container-font-color",
-					vD.fontColor
+					VERSION_DROPDOWN.fontColor
 				);
 				setRootStyle(
 					"--header-version-dropdown-container-font-family",
-					vD.fontFamily
+					VERSION_DROPDOWN.fontFamily
 				);
 				setRootStyle(
 					"--header-version-dropdown-container-background-color",
-					vD.backgroundColor
+					VERSION_DROPDOWN.backgroundColor
 				);
 				setRootStyle(
 					"--header-version-dropdown-box-shadow-color",
-					vD.boxShadowColor
+					VERSION_DROPDOWN.boxShadowColor
 				);
 			}
 
 			setRootStyle(
 				"--header-user-image-border-radius",
-				header.userImageBorderRadius
+				HEADER.userImageBorderRadius
 			);
 
 			setRootStyle(
 				"--header-user-image-border-width",
-				header.userImageBorderWidth
+				HEADER.userImageBorderWidth
 			);
 			setRootStyle(
 				"--header-user-image-border-color",
-				header.userImageBorderColor
+				HEADER.userImageBorderColor
 			);
 		}
-		if (branding.aside) {
-			const aside = branding.aside;
+		if (BRANDING.aside) {
+			const ASIDE = BRANDING.aside;
 
-			setRootStyle("--aside-font-color", aside.fontColor);
-			setRootStyle("--aside-font-family", aside.fontFamily);
-			setRootStyle("--aside-background-color", aside.backgroundColor);
+			setRootStyle("--aside-font-color", ASIDE.fontColor);
+			setRootStyle("--aside-font-family", ASIDE.fontFamily);
+			setRootStyle("--aside-background-color", ASIDE.backgroundColor);
 
-			if (aside.collapse) {
-				const collapse = aside.collapse;
+			if (ASIDE.collapse) {
+				const COLLAPSE = ASIDE.collapse;
 
-				setRootStyle("--aside-collapse-icon-color", collapse.fontColor);
+				setRootStyle("--aside-collapse-icon-color", COLLAPSE.fontColor);
 				setRootStyle(
 					"--aside-collapse-icon-background-color",
-					collapse.backgroundColor
+					COLLAPSE.backgroundColor
 				);
 			}
 
-			if (aside.logo) {
-				const logo = aside.logo;
+			if (ASIDE.logo) {
+				const LOGO = ASIDE.logo;
 
-				setRootStyle("--aside-logo-background-color", logo.backgroundColor);
+				setRootStyle("--aside-logo-background-color", LOGO.backgroundColor);
 			}
 		}
-		if (branding.blockflow) {
-			const blockflow = LTISettings.branding.blockflow;
+		if (BRANDING.blockflow) {
+			const BLOCKFLOW = LTISettings.branding.blockflow;
 
-			setRootStyle("--blockflow-font-color", blockflow.fontColor);
-			setRootStyle("--blockflow-font-family", blockflow.fontFamily);
-			setRootStyle("--blockflow-background-color", blockflow.backgroundColor);
+			setRootStyle("--blockflow-font-color", BLOCKFLOW.fontColor);
+			setRootStyle("--blockflow-font-family", BLOCKFLOW.fontFamily);
+			setRootStyle("--blockflow-background-color", BLOCKFLOW.backgroundColor);
 
-			if (blockflow.label) {
-				const label = blockflow.label;
-				setRootStyle("--blockflow-label-font-color", label.fontColor);
-				setRootStyle("--blockflow-label-font-family", label.fontFamily);
+			if (BLOCKFLOW.label) {
+				const LABEL = BLOCKFLOW.label;
+				setRootStyle("--blockflow-label-font-color", LABEL.fontColor);
+				setRootStyle("--blockflow-label-font-family", LABEL.fontFamily);
 				setRootStyle(
 					"--blockflow-label-background-color",
-					label.backgroundColor
+					LABEL.backgroundColor
 				);
 			}
 
-			if (blockflow.hover) {
-				const hover = blockflow.hover;
-				setRootStyle("--blockflow-hover-font-color", hover.fontColor);
-				setRootStyle("--blockflow-hover-font-family", hover.fontFamily);
+			if (BLOCKFLOW.hover) {
+				const HOVER = BLOCKFLOW.hover;
+				setRootStyle("--blockflow-hover-font-color", HOVER.fontColor);
+				setRootStyle("--blockflow-hover-font-family", HOVER.fontFamily);
 				setRootStyle(
 					"--blockflow-hover-background-color",
-					hover.backgroundColor
+					HOVER.backgroundColor
 				);
 			}
 
 			setRootStyle(
 				"--blockflow-inner-box-shadow-color",
-				blockflow.innerBoxShadowColor
+				BLOCKFLOW.innerBoxShadowColor
 			);
 
-			if (blockflow.node) {
-				const node = blockflow.node;
-				setRootStyle("--blockflow-node-border-width", node.borderWidth);
-				setRootStyle("--blockflow-node-border-color", node.borderColor);
-				setRootStyle("--blockflow-node-border-radius", node.borderRadius);
+			if (BLOCKFLOW.node) {
+				const NODE = BLOCKFLOW.node;
+				setRootStyle("--blockflow-node-border-width", NODE.borderWidth);
+				setRootStyle("--blockflow-node-border-color", NODE.borderColor);
+				setRootStyle("--blockflow-node-border-radius", NODE.borderRadius);
 				setRootStyle(
 					"--blockflow-handles-border-radius",
-					node.handlesBorderRadius
+					NODE.handlesBorderRadius
 				);
 			}
 
-			if (blockflow.edge) {
-				const edge = blockflow.edge;
-				setRootStyle("--blockflow-edge-font-color", edge.fontColor);
-				setRootStyle("--blockflow-edge-background-color", edge.backgroundColor);
-				setRootStyle("--blockflow-edge-border-width", edge.borderWidth);
-				setRootStyle("--blockflow-edge-border-color", edge.borderColor);
-				setRootStyle("--blockflow-edge-border-radius", edge.borderRadius);
+			if (BLOCKFLOW.edge) {
+				const EDGE = BLOCKFLOW.edge;
+				setRootStyle("--blockflow-edge-font-color", EDGE.fontColor);
+				setRootStyle("--blockflow-edge-background-color", EDGE.backgroundColor);
+				setRootStyle("--blockflow-edge-border-width", EDGE.borderWidth);
+				setRootStyle("--blockflow-edge-border-color", EDGE.borderColor);
+				setRootStyle("--blockflow-edge-border-radius", EDGE.borderRadius);
 			}
 
-			if (blockflow.controls) {
-				const controls = blockflow.controls;
+			if (BLOCKFLOW.controls) {
+				const CONTROLS = BLOCKFLOW.controls;
 
-				setRootStyle("--blockflow-controls-border", controls.border);
+				setRootStyle("--blockflow-controls-border", CONTROLS.border);
 
-				if (controls.button) {
-					const button = controls.button;
+				if (CONTROLS.button) {
+					const BUTTON = CONTROLS.button;
 					setRootStyle(
 						"--blockflow-controls-button-font-color",
-						button.fontColor
+						BUTTON.fontColor
 					);
 					setRootStyle(
 						"--blockflow-controls-button-background-color",
-						button.backgroundColor
+						BUTTON.backgroundColor
 					);
-					setRootStyle("--blockflow-controls-button-border", button.border);
+					setRootStyle("--blockflow-controls-button-border", BUTTON.border);
 					setRootStyle(
 						"--blockflow-controls-button-svg-filter",
-						button.svgFilter
+						BUTTON.svgFilter
 					);
 				}
 			}
 
-			if (blockflow.minimap) {
-				const minimap = blockflow.minimap;
+			if (BLOCKFLOW.minimap) {
+				const MINIMAP = BLOCKFLOW.minimap;
 
-				setRootStyle("--blockflow-minimap-border", minimap.border);
+				setRootStyle("--blockflow-minimap-border", MINIMAP.border);
 				setRootStyle(
 					"--blockflow-minimap-background-color",
-					minimap.backgroundColor
+					MINIMAP.backgroundColor
 				);
 			}
 		}
@@ -327,7 +327,7 @@ export function getAutomaticTextColorsObject(color) {
 	};
 }
 
-const reusableTypes = [
+const REUSABLE_TYPES = [
 	"primary",
 	"secondary",
 	"light",
@@ -351,34 +351,34 @@ export function getAutomaticReusableStyles(
 	hasBorders = true,
 	hasRadius = true
 ) {
-	const bgColor = getRootStyle(`--${type}-background-color`);
-	const border = hasBorders ? getRootStyle(`--${type}-border`) : "none";
-	const borderRadius = hasRadius
+	const BACKGROUND_COLOR = getRootStyle(`--${type}-background-color`);
+	const BORDER = hasBorders ? getRootStyle(`--${type}-border`) : "none";
+	const BORDER_RADIUS = hasRadius
 		? getRootStyle(`--${type}-border-radius`)
 		: "0";
-	if (reusableTypes.includes(type)) {
+	if (REUSABLE_TYPES.includes(type)) {
 		let color = "";
 		if (type != "dev") {
 			color = containsText
-				? getContrastingTextColor(bgColor)
-				: getContrastingColor(bgColor);
+				? getContrastingTextColor(BACKGROUND_COLOR)
+				: getContrastingColor(BACKGROUND_COLOR);
 		} else {
 			color = "#fffff";
 		}
 		return {
 			color: color,
-			background: bgColor,
+			background: BACKGROUND_COLOR,
 			//border: border,
 			//borderRadius: borderRadius,
 			fontWeight: type == "dev" ? "bolder" : "inherit",
 			textShadow: type == "dev" ? "0 0 5px BLACK" : "inherit",
 		};
 	} else {
-		const errorColor = "#FF00FF";
+		const ERROR_COLOR = "#FF00FF";
 
 		return {
 			color: "#ffffff",
-			background: errorColor,
+			background: ERROR_COLOR,
 			border: hasBorders ? "4px dotted white" : "none",
 			borderRadius: hasRadius ? "100%" : "0",
 		};

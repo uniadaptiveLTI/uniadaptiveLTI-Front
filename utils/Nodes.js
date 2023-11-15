@@ -1,5 +1,4 @@
 import {
-	arrayMoveByIndex,
 	getByProperty,
 	getUpdatedArrayById,
 	orderByPropertyAlphabetically,
@@ -48,6 +47,12 @@ export const getNodeByLMSResource = (lmsResource, nodeArray) => {
 	}
 };
 
+/**
+ * Gets the parents of a node
+ * @param {Object[]} nodesArray
+ * @param {Object[]} childId
+ * @returns
+ */
 export const getParentsNode = (nodesArray, childId) => {
 	return nodesArray.filter(
 		(node) => node.data.children && node.data.children.includes(childId)
@@ -67,7 +72,6 @@ export const getNodeByNodeDOM = (nodeDOM, nodeArray) => {
 		return undefined;
 	}
 };
-
 /**
  * Checks if there are any reserved nodes in an array of nodes.
  * @param {Object[]} nodeArray - The array of nodes to check.

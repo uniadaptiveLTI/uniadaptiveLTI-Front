@@ -78,14 +78,14 @@ import {
 } from "@utils/Moodle";
 import { createNewSakaiMap, parseSakaiNode } from "@utils/Sakai";
 
-const defaultToastSuccess = {
+const DEFAULT_TOAST_SUCCESS = {
 	hideProgressBar: false,
 	autoClose: 2000,
 	type: "success",
 	position: "bottom-center",
 };
 
-const defaultToastError = {
+const DEFAULT_TOAST_ERROR = {
 	hideProgressBar: false,
 	autoClose: 2000,
 	type: "error",
@@ -123,7 +123,7 @@ function Header({ LTISettings }, ref) {
 
 	const [loadedUserData, setLoadedUserData] = useState();
 	const [loadedMetaData, setLoadedMetaData] = useState();
-	const emptyMap = { id: -1, name: "Seleccionar un mapa" };
+	const EMPTY_MAP = { id: -1, name: "Seleccionar un mapa" };
 	const [loadedMaps, setLoadedMaps] = useState(false);
 	const { metaData, setMetaData } = useContext(MetaDataContext);
 	const [userData, setUserData] = useState({});
@@ -157,15 +157,15 @@ function Header({ LTISettings }, ref) {
 
 	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
 
-	const reactFlowInstance = useReactFlow();
+	const REACTFLOW_INSTANCE = useReactFlow();
 	const { currentBlocksData, setCurrentBlocksData } =
 		useContext(BlocksDataContext);
 	const { isOffline } = useContext(OnlineContext);
 	const { settings, setSettings } = useContext(SettingsContext);
 	const ccId = useId();
 
-	const parsedSettings = JSON.parse(settings);
-	let { reducedAnimations } = parsedSettings;
+	const PARSED_SETTINGS = JSON.parse(settings);
+	let { reducedAnimations } = PARSED_SETTINGS;
 	/**
 	 * Updates the version of an object in an array of versions.
 	 * @param {Object} newVersion - The new version object to update.
@@ -220,7 +220,7 @@ function Header({ LTISettings }, ref) {
 			if (selectedMap.versions) {
 				if (!LTISettings.debugging.dev_files) {
 					try {
-						const response = await fetchBackEnd(
+						const RESPONSE = await fetchBackEnd(
 							LTISettings,
 							sessionStorage.getItem("token"),
 							"api/lti/get_version",
@@ -228,7 +228,7 @@ function Header({ LTISettings }, ref) {
 							{ version_id: selectedMap.versions[0].id }
 						);
 
-						const data = response.data;
+						const data = RESPONSE.data;
 
 						if (!data.invalid) {
 							setVersions(selectedMap.versions);
@@ -267,7 +267,7 @@ function Header({ LTISettings }, ref) {
 	 * Handles the creation of a new map.
 	 */
 	const handleNewMap = (e, data, localMaps = maps) => {
-		const emptyNewMap = {
+		const EMPTY_NEW_MAP = {
 			id: uniqueId(),
 			name: handleNameCollision(
 				"Nuevo Mapa",
@@ -285,8 +285,8 @@ function Header({ LTISettings }, ref) {
 				},
 			],
 		};
-		const encodedNewMap = encodeURIComponent(emptyNewMap);
-		const newMap = {
+
+		const NEW_MAP = {
 			...data,
 			id: uniqueId(),
 			name: handleNameCollision(
@@ -297,12 +297,12 @@ function Header({ LTISettings }, ref) {
 			),
 		};
 
-		const newMaps = [...localMaps, data ? newMap : emptyNewMap];
+		const NEW_MAPS = [...localMaps, data ? NEW_MAP : EMPTY_NEW_MAP];
 
-		console.info(`🗺️ New map added: `, data ? newMap : emptyNewMap);
+		console.info(`🗺️ New map added: `, data ? NEW_MAP : EMPTY_NEW_MAP);
 
-		setMaps(newMaps);
-		setLastMapCreated(emptyNewMap.id);
+		setMaps(NEW_MAPS);
+		setLastMapCreated(EMPTY_NEW_MAP.id);
 		toast(
 			`Mapa: ${handleNameCollision(
 				"Nuevo Mapa",
@@ -310,7 +310,7 @@ function Header({ LTISettings }, ref) {
 				true,
 				"("
 			)} creado`,
-			defaultToastSuccess
+			DEFAULT_TOAST_SUCCESS
 		);
 		setMapCount((prev) => prev + 1);
 	};
@@ -320,7 +320,7 @@ function Header({ LTISettings }, ref) {
 		localMetaData = metaData,
 		localMaps = maps
 	) => {
-		const emptyNewVersion = [];
+		const EMPTY_NEW_VERSION = [];
 
 		let data;
 		if (!LTISettings.debugging.dev_files) {
@@ -335,7 +335,7 @@ function Header({ LTISettings }, ref) {
 			if (!response.ok) {
 				toast(
 					`Ha ocurrido un error durante la importación del mapa`,
-					defaultToastError
+					DEFAULT_TOAST_ERROR
 				);
 				throw new Error("Request failed");
 			}
@@ -350,44 +350,44 @@ function Header({ LTISettings }, ref) {
 					endpointJson = "devsakaiimport.json";
 			}
 
-			const response = await fetch(`resources/${endpointJson}`);
+			const RESPONSE = await fetch(`resources/${endpointJson}`);
 
-			if (response) {
-				data = await response.json();
+			if (RESPONSE) {
+				data = await RESPONSE.json();
 			}
 		}
 		console.info(`❓ JSON:`, data);
 
 		let newX = 125;
 		let newY = 0;
-		const validTypes = [];
-		NodeTypes.map((node) => validTypes.push(node.type));
-		const nodes = [];
+		const VALID_TYPES = [];
+		NodeTypes.map((node) => VALID_TYPES.push(node.type));
+		const NODES = [];
 
-		const isEmptyMap = data.length < 1;
+		const IS_EMPTY_MAP = data.length < 1;
 
-		if (!isEmptyMap) {
+		if (!IS_EMPTY_MAP) {
 			data.map((node) => {
 				switch (platform) {
 					case "moodle":
-						nodes.push(parseMoodleNode(node, newX, newY));
+						NODES.push(parseMoodleNode(node, newX, newY));
 						newX += 125;
 						break;
 					case "sakai":
-						parseSakaiNode(nodes, node, newX, newY, validTypes);
+						parseSakaiNode(NODES, node, newX, newY, VALID_TYPES);
 						newX += 125;
 						break;
 				}
 			});
 		} else {
-			data = emptyNewVersion;
+			data = EMPTY_NEW_VERSION;
 		}
 
 		//Bring badges
 		switch (platform) {
 			case "moodle":
 				localMetaData.badges.map((badge) => {
-					nodes.push(parseMoodleBadges(badge, newX, newY));
+					NODES.push(parseMoodleBadges(badge, newX, newY));
 					newX += 125;
 				});
 				break;
@@ -397,10 +397,10 @@ function Header({ LTISettings }, ref) {
 
 		let platformNewMap;
 		if (platform == "moodle") {
-			platformNewMap = createNewMoodleMap(nodes, localMetaData, localMaps);
+			platformNewMap = createNewMoodleMap(NODES, localMetaData, localMaps);
 		} else {
 			platformNewMap = createNewSakaiMap(
-				nodes,
+				NODES,
 				lesson,
 				localMetaData,
 				localMaps
@@ -413,7 +413,7 @@ function Header({ LTISettings }, ref) {
 
 		setMaps(newMaps);
 		setLastMapCreated(platformNewMap.id);
-		toast(`Mapa: ${platformNewMap.name} creado`, defaultToastSuccess);
+		toast(`Mapa: ${platformNewMap.name} creado`, DEFAULT_TOAST_SUCCESS);
 		setMapCount((prev) => prev + 1);
 		// } catch (e) {
 		// 	// toast(
@@ -432,41 +432,41 @@ function Header({ LTISettings }, ref) {
 	 * Handles the creation of a new version.
 	 */
 	const handleNewVersion = (e, data) => {
-		const selectedMap = getMapById(selectMapDOM.current.value);
-		let finalName = handleNameCollision(
+		const SELECTED_MAP = getMapById(selectMapDOM.current.value);
+		let FINAL_NAME = handleNameCollision(
 			"Nueva Versión",
-			selectedMap.versions.map((version) => version.name),
+			SELECTED_MAP.versions.map((version) => version.name),
 			true,
 			"("
 		);
-		const emptyNewVersion = {
+		const EMPTY_NEW_VERSION = {
 			id: uniqueId(),
-			name: finalName,
+			name: FINAL_NAME,
 			lastUpdate: new Date().toLocaleDateString(),
 			default: "true",
 			blocksData: new Array(),
 		};
 
-		const newFullVersion = data
+		const NEW_FULL_VERSION = data
 			? {
 					...data,
 					id: uniqueId(),
 					lastUpdate: new Date().toLocaleDateString(),
-					name: finalName,
+					name: FINAL_NAME,
 					default: false,
 			  }
-			: emptyNewVersion;
+			: EMPTY_NEW_VERSION;
 
-		const newMapVersions = [...selectedMap.versions, newFullVersion];
-		let modifiedMap = selectedMap;
-		modifiedMap.versions = newMapVersions;
-		const mapIndex = maps.findIndex((m) => m.id == selectedMap.id);
-		const newMaps = [...maps];
-		newMaps[mapIndex] = selectedMap;
-		setMaps(newMaps);
+		const NEW_MAP_VERSIONS = [...SELECTED_MAP.versions, NEW_FULL_VERSION];
+		let modifiedMap = SELECTED_MAP;
+		modifiedMap.versions = NEW_MAP_VERSIONS;
+		const MAP_INDEX = maps.findIndex((m) => m.id == SELECTED_MAP.id);
+		const NEW_MAPS = [...maps];
+		NEW_MAPS[MAP_INDEX] = SELECTED_MAP;
+		setMaps(NEW_MAPS);
 		setVersions(modifiedMap.versions);
-		setLastVersionCreated(newFullVersion);
-		toast(`Versión: ${finalName} creada`, defaultToastSuccess);
+		setLastVersionCreated(NEW_FULL_VERSION);
+		toast(`Versión: ${FINAL_NAME} creada`, DEFAULT_TOAST_SUCCESS);
 	};
 
 	/**
@@ -475,15 +475,15 @@ function Header({ LTISettings }, ref) {
 	 * @param {string} mapId - The id of the map to create a new version for.
 	 */
 	const handleNewVersionIn = (data, mapId) => {
-		const selectedMap = getMapById(mapId);
+		const SELECTED_MAP = getMapById(mapId);
 		let finalName = handleNameCollision(
 			"Nueva Versión",
-			selectedMap.versions.map((version) => version.name),
+			SELECTED_MAP.versions.map((version) => version.name),
 			true,
 			"("
 		);
-		const newMapVersions = [
-			...selectedMap.versions,
+		const NEW_MAP_VERSIONS = [
+			...SELECTED_MAP.versions,
 			{
 				...data,
 				id: uniqueId(),
@@ -493,20 +493,20 @@ function Header({ LTISettings }, ref) {
 			},
 		];
 
-		let modifiedMap = selectedMap;
-		modifiedMap.versions = newMapVersions;
-		const mapIndex = maps.findIndex((m) => m.id == selectedMap.id);
-		const newMaps = [...maps];
-		newMaps[mapIndex] = modifiedMap;
-		setMaps(newMaps);
+		let modifiedMap = SELECTED_MAP;
+		modifiedMap.versions = NEW_MAP_VERSIONS;
+		const MAP_INDEX = maps.findIndex((m) => m.id == SELECTED_MAP.id);
+		const NEW_MAPS = [...maps];
+		NEW_MAPS[MAP_INDEX] = modifiedMap;
+		setMaps(NEW_MAPS);
 		setVersions(modifiedMap.versions);
 		setMapSelected(modifiedMap);
-		setSelectedVersion(modifiedMap.versions[selectedMap.versions.length - 1]);
+		setSelectedVersion(modifiedMap.versions[SELECTED_MAP.versions.length - 1]);
 		setCurrentBlocksData(
-			modifiedMap.versions[selectedMap.versions.length - 1].blocksData
+			modifiedMap.versions[SELECTED_MAP.versions.length - 1].blocksData
 		);
 
-		toast(`Versión: ${finalName} creada`, defaultToastSuccess);
+		toast(`Versión: ${finalName} creada`, DEFAULT_TOAST_SUCCESS);
 	};
 
 	/**
@@ -547,52 +547,52 @@ function Header({ LTISettings }, ref) {
 	 * Handles the deletion of an map.
 	 */
 	const deleteMap = async () => {
-		const mapId = selectMapDOM.current.value;
-		if (mapId != -1) {
+		const MAP_ID = selectMapDOM.current.value;
+		if (MAP_ID != -1) {
 			if (!LTISettings.debugging.dev_files) {
 				try {
-					const response = await fetchBackEnd(
+					const RESPONSE = await fetchBackEnd(
 						LTISettings,
 						sessionStorage.getItem("token"),
 						"api/lti/delete_map_by_id",
 						"POST",
-						{ id: Number(mapId) }
+						{ id: Number(MAP_ID) }
 					);
 
-					if (response) {
-						if (!response.ok) {
+					if (RESPONSE) {
+						if (!RESPONSE.ok) {
 							throw `Ha ocurrido un error.`;
 						} else {
 							//FIXME: Load map "shell"
 							setLoadedMaps(false);
-							const response = await fetchBackEnd(
+							const RESPONSE = await fetchBackEnd(
 								LTISettings,
 								sessionStorage.getItem("token"),
 								"api/lti/get_session",
 								"POST"
 							);
-							const data = response.data;
-							const maps = [emptyMap, ...data[2].maps];
-							setMaps(maps);
-							setMapCount(maps.length);
+							const DATA = RESPONSE.data;
+							const MAPS = [EMPTY_MAP, ...DATA[2].maps];
+							setMaps(MAPS);
+							setMapCount(MAPS.length);
 							setLoadedMaps(true);
 							changeToMapSelection();
-							toast(`Mapa eliminado con éxito.`, defaultToastSuccess);
+							toast(`Mapa eliminado con éxito.`, DEFAULT_TOAST_SUCCESS);
 						}
 					} else {
 						throw `Ha ocurrido un error.`;
 					}
 				} catch (e) {
-					toast(`Ha ocurrido un error.`, defaultToastError);
+					toast(`Ha ocurrido un error.`, DEFAULT_TOAST_ERROR);
 				}
 			} else {
-				setMaps((prevMaps) => prevMaps.filter((map) => map.id != mapId));
-				toast(`Mapa eliminado con éxito.`, defaultToastSuccess);
+				setMaps((prevMaps) => prevMaps.filter((map) => map.id != MAP_ID));
+				toast(`Mapa eliminado con éxito.`, DEFAULT_TOAST_SUCCESS);
 				changeToMapSelection();
 				setMapCount((prev) => prev - 1);
 			}
 		} else {
-			toast(`No puedes eliminar este mapa.`, defaultToastError);
+			toast(`No puedes eliminar este mapa.`, DEFAULT_TOAST_ERROR);
 		}
 	};
 
@@ -610,10 +610,10 @@ function Header({ LTISettings }, ref) {
 	 * Handles the deletion of a version.
 	 */
 	const deleteVersion = async () => {
-		const versionId = selectedVersion.id;
-		const mapId = selectMapDOM.current.value;
-		const versionCount = maps.find((map) => map.id == mapId).versions.length;
-		if (versionCount > 1) {
+		const VERSION_ID = selectedVersion.id;
+		const MAP_ID = selectMapDOM.current.value;
+		const VERSION_COUNT = maps.find((map) => map.id == MAP_ID).versions.length;
+		if (VERSION_COUNT > 1) {
 			if (!LTISettings.debugging.dev_files) {
 				try {
 					const response = await fetchBackEnd(
@@ -621,7 +621,7 @@ function Header({ LTISettings }, ref) {
 						sessionStorage.getItem("token"),
 						"api/lti/delete_version_by_id",
 						"POST",
-						{ id: Number(versionId) }
+						{ id: Number(VERSION_ID) }
 					);
 					if (response) {
 						if (!response.ok) {
@@ -640,60 +640,63 @@ function Header({ LTISettings }, ref) {
 							// 		setLoadedMaps(true);
 							// 	});
 							setVersions((versions) =>
-								versions.filter((version) => version.id != versionId)
+								versions.filter((version) => version.id != VERSION_ID)
 							);
 
-							const firstVersion = versions.find(
-								(version) => version.id != versionId
+							const FIRST_VERSION = versions.find(
+								(version) => version.id != VERSION_ID
 							);
-							setSelectedVersion(firstVersion || versions[0] || null);
+							setSelectedVersion(FIRST_VERSION || versions[0] || null);
 
-							const newMapVersions = mapSelected.versions.filter(
-								(version) => version.id != versionId
+							const NEW_MAP_VERSIONS = mapSelected.versions.filter(
+								(version) => version.id != VERSION_ID
 							);
-							const modifiedMap = { ...mapSelected, versions: newMapVersions };
-							const mapIndex = maps.findIndex((m) => m.id === mapSelected.id);
-							const newMaps = [...maps];
-							newMaps[mapIndex] = modifiedMap;
-							setMaps(newMaps);
-							setVersions(modifiedMap.versions);
+							const MODIFIED_MAP = {
+								...mapSelected,
+								versions: NEW_MAP_VERSIONS,
+							};
+							const MAP_INDEX = maps.findIndex((m) => m.id === mapSelected.id);
+							const NEW_MAPS = [...maps];
+							NEW_MAPS[MAP_INDEX] = MODIFIED_MAP;
+							setMaps(NEW_MAPS);
+							setVersions(MODIFIED_MAP.versions);
 							setCurrentBlocksData(
-								firstVersion?.blocksData || versions[0]?.blocksData
+								FIRST_VERSION?.blocksData || versions[0]?.blocksData
 							);
-							toast(`Versión eliminada con éxito.`, defaultToastSuccess);
+							toast(`Versión eliminada con éxito.`, DEFAULT_TOAST_SUCCESS);
 						}
 					} else {
 						throw `Ha ocurrido un error.`;
 					}
 				} catch (e) {
-					toast(`Ha ocurrido un error.`, defaultToastError);
+					toast(`Ha ocurrido un error.`, DEFAULT_TOAST_ERROR);
 				}
 			} else {
 				setVersions((versions) =>
-					versions.filter((version) => version.id != versionId)
+					versions.filter((version) => version.id != VERSION_ID)
 				);
 
-				const firstVersion = versions.find(
-					(version) => version.id != versionId
+				const FIRST_VERSION = versions.find(
+					(version) => version.id != VERSION_ID
 				);
-				setSelectedVersion(firstVersion || versions[0] || null);
+				setSelectedVersion(FIRST_VERSION || versions[0] || null);
 
-				const newMapVersions = mapSelected.versions.filter(
-					(version) => version.id != versionId
+				const NEW_MAP_VERSIONS = mapSelected.versions.filter(
+					(version) => version.id != VERSION_ID
 				);
-				const modifiedMap = { ...mapSelected, versions: newMapVersions };
-				const mapIndex = maps.findIndex((m) => m.id === mapSelected.id);
-				const newMaps = [...maps];
-				newMaps[mapIndex] = modifiedMap;
-				setMaps(newMaps);
-				setVersions(modifiedMap.versions);
+				const MODIFIED_MAP = { ...mapSelected, versions: NEW_MAP_VERSIONS };
+				const MAP_INDEX = maps.findIndex((m) => m.id === mapSelected.id);
+				const NEW_MAPS = [...maps];
+				NEW_MAPS[MAP_INDEX] = MODIFIED_MAP;
+				setMaps(NEW_MAPS);
+				setVersions(MODIFIED_MAP.versions);
 				setCurrentBlocksData(
-					firstVersion?.blocksData || versions[0]?.blocksData
+					FIRST_VERSION?.blocksData || versions[0]?.blocksData
 				);
-				toast(`Versión eliminada con éxito.`, defaultToastSuccess);
+				toast(`Versión eliminada con éxito.`, DEFAULT_TOAST_SUCCESS);
 			}
 		} else {
-			toast(`No puedes eliminar esta versión.`, defaultToastError);
+			toast(`No puedes eliminar esta versión.`, DEFAULT_TOAST_ERROR);
 		}
 	};
 
@@ -744,7 +747,7 @@ function Header({ LTISettings }, ref) {
 						autoClose: 2000,
 						position: "bottom-center",
 					});
-					const jsonCleanedBlockData = jsonObject.data.map((node) => {
+					const JSON_CLEANED_BLOCKDATA = jsonObject.data.map((node) => {
 						node.data = {
 							...node.data,
 							children: undefined,
@@ -757,7 +760,7 @@ function Header({ LTISettings }, ref) {
 						};
 						return node;
 					});
-					setCurrentBlocksData(jsonCleanedBlockData);
+					setCurrentBlocksData(JSON_CLEANED_BLOCKDATA);
 				} else {
 					toast("No se puede importar, datos incompatibles.", {
 						type: "error",
@@ -780,17 +783,17 @@ function Header({ LTISettings }, ref) {
 				fetch("resources/devmaps.json")
 					.then((response) => response.json())
 					.then((data) => {
-						const maps = [emptyMap, ...data];
-						setMaps(maps);
+						const MAPS = [EMPTY_MAP, ...data];
+						setMaps(MAPS);
 						setLoadedMaps(true);
-						setMapCount(maps.length);
+						setMapCount(MAPS.length);
 					})
 					.catch((e) => {
-						const error = new Error(
+						const ERROR = new Error(
 							"No se pudieron obtener los datos del curso desde los archivos locales."
 						);
-						error.log = e;
-						throw error;
+						ERROR.log = e;
+						throw ERROR;
 					});
 				fetch("resources/devmeta.json")
 					.then((response) => response.json())
@@ -803,11 +806,11 @@ function Header({ LTISettings }, ref) {
 						setLoadedMetaData(true);
 					})
 					.catch((e) => {
-						const error = new Error(
+						const ERROR = new Error(
 							"No se pudieron obtener los metadatos del curso desde los archivos locales."
 						);
-						error.log = e;
-						throw error;
+						ERROR.log = e;
+						throw ERROR;
 					});
 				fetch("resources/devuser.json")
 					.then((response) => response.json())
@@ -816,41 +819,41 @@ function Header({ LTISettings }, ref) {
 						setLoadedUserData(true);
 					})
 					.catch((e) => {
-						const error = new Error(
+						const ERROR = new Error(
 							"No se pudieron obtener los datos del usuario desde los archivos locales."
 						);
-						error.log = e;
-						throw error;
+						ERROR.log = e;
+						throw ERROR;
 					});
 			} else {
 				const loadResources = async (token) => {
 					try {
-						const response = await fetchBackEnd(
+						const RESPONSE = await fetchBackEnd(
 							LTISettings,
 							token,
 							"api/lti/get_session",
 							"POST"
 						);
-						if (response && response.ok) {
-							const data = response.data;
+						if (RESPONSE && RESPONSE.ok) {
+							const DATA = RESPONSE.data;
 
-							console.log("LMS DATA: ", data);
+							console.log("LMS DATA: ", DATA);
 							// Usuario
-							setUserData(data[0]);
+							setUserData(DATA[0]);
 							setLoadedUserData(true);
 
 							//Metadata
-							setPlatform(data[1].platform);
+							setPlatform(DATA[1].platform);
 							setMetaData({
-								...data[1],
+								...DATA[1],
 								back_url: LTISettings.back_url,
 							}); //FIXME: This should be the course website in moodle
 							setLoadedMetaData(true);
 
 							//Maps
-							const maps = [emptyMap, ...data[2].maps];
-							setMaps(maps);
-							setMapCount(maps.length);
+							const MAPS = [EMPTY_MAP, ...DATA[2].maps];
+							setMaps(MAPS);
+							setMapCount(MAPS.length);
 							setLoadedMaps(true);
 						} else {
 							alert(
@@ -869,22 +872,22 @@ function Header({ LTISettings }, ref) {
 					}
 				};
 
-				const params = new URLSearchParams(window.location.href.split("?")[1]);
-				const token = params.get("token");
+				const PARAMS = new URLSearchParams(window.location.href.split("?")[1]);
+				const TOKEN = PARAMS.get("token");
 				let newUrl = window.location.href.split("?")[0];
 				window.history.replaceState({}, document.title, newUrl);
-				if (token) {
+				if (TOKEN) {
 					//if there is a token in the url
-					sessionStorage.setItem("token", token);
-					loadResources(token);
+					sessionStorage.setItem("token", TOKEN);
+					loadResources(TOKEN);
 				} else {
 					//if there isn't a token in the url
 					let attempts = 0;
-					const maxAttempts = 20;
-					const interval = setInterval(() => {
-						const storedToken = sessionStorage.getItem("token");
-						if (storedToken == undefined) {
-							if (attempts < maxAttempts) {
+					const MAX_ATTEMPTS = 20;
+					const INTERVAL = setInterval(() => {
+						const STORED_TOKEN = sessionStorage.getItem("token");
+						if (STORED_TOKEN == undefined) {
+							if (attempts < MAX_ATTEMPTS) {
 								attempts++;
 							} else {
 								if (!LTISettings.debugging.dev_files) {
@@ -893,17 +896,17 @@ function Header({ LTISettings }, ref) {
 									);
 									window.close();
 								}
-								clearInterval(interval);
+								clearInterval(INTERVAL);
 							}
 						} else {
-							loadResources(storedToken);
-							clearInterval(interval);
+							loadResources(STORED_TOKEN);
+							clearInterval(INTERVAL);
 						}
 					}, 100);
 				}
 			}
 		} catch (e) {
-			toast(e, defaultToastError);
+			toast(e, DEFAULT_TOAST_ERROR);
 			console.error(`❌ Error: `, e, e.log);
 		}
 	}, []);
@@ -956,8 +959,8 @@ function Header({ LTISettings }, ref) {
 
 	//Gets if the nodes and the loaded version are different
 	useEffect(() => {
-		if (reactFlowInstance && currentBlocksData) {
-			const rfNodes = [...reactFlowInstance?.getNodes()].map((e) => {
+		if (REACTFLOW_INSTANCE && currentBlocksData) {
+			const REACTFLOW_NODES = [...REACTFLOW_INSTANCE?.getNodes()].map((e) => {
 				delete e.height;
 				delete e.width;
 				delete e.positionAbsolute;
@@ -968,8 +971,8 @@ function Header({ LTISettings }, ref) {
 				delete e.y;
 				return e;
 			});
-			if (rfNodes.length > 0) {
-				if (isNodeArrayEqual(rfNodes, currentBlocksData)) {
+			if (REACTFLOW_NODES.length > 0) {
+				if (isNodeArrayEqual(REACTFLOW_NODES, currentBlocksData)) {
 					setSaveButtonColor("success");
 				} else {
 					setSaveButtonColor("warning");
@@ -980,7 +983,7 @@ function Header({ LTISettings }, ref) {
 		} else {
 			setSaveButtonColor("light");
 		}
-	}, [reactFlowInstance?.getNodes()]); //TODO: Make it respond to node movement
+	}, [REACTFLOW_INSTANCE?.getNodes()]); //TODO: Make it respond to node movement
 
 	/**
 	 * A React component that renders a logo.
@@ -1078,8 +1081,8 @@ function Header({ LTISettings }, ref) {
 				mapSelected,
 				selectedVersion,
 				LTISettings,
-				defaultToastSuccess,
-				defaultToastError,
+				DEFAULT_TOAST_SUCCESS,
+				DEFAULT_TOAST_ERROR,
 				toast,
 				enableSaving,
 				undefined

@@ -7,7 +7,7 @@ const BadgeListForm = ({
 	badgeList,
 	handleCheckboxChange,
 }) => {
-	const blId = useId();
+	const BADGE_LABEL_ID = useId();
 	return (
 		<Form.Group
 			style={{
@@ -18,11 +18,11 @@ const BadgeListForm = ({
 			className="p-4"
 		>
 			<div className="d-flex flex-row gap-2 align-items-baseline col-12 col-lg-10 col-xl-7">
-				<Form.Label htmlFor={blId} style={{ width: "250px" }}>
+				<Form.Label htmlFor={BADGE_LABEL_ID} style={{ width: "250px" }}>
 					Condición:
 				</Form.Label>
 				<Form.Select
-					id={blId}
+					id={BADGE_LABEL_ID}
 					ref={conditionOperator}
 					defaultValue={conditionEdit?.method}
 				>

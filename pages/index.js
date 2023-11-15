@@ -29,8 +29,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 export async function getStaticProps() {
-	const filePath = path.join(process.cwd(), "configuration.json");
-	const LTISettings = JSON.parse(await fs.readFile(filePath));
+	const FILE_PATH = path.join(process.cwd(), "configuration.json");
+	const LTISettings = JSON.parse(await fs.readFile(FILE_PATH));
 	return { props: { LTISettings } };
 }
 

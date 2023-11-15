@@ -49,14 +49,14 @@ export default function ExportPanel({
 	const exportButtonRef = useRef(null);
 	const selectDOM = useRef(null);
 
-	const defaultToastSuccess = {
+	const DEFAULT_TOAST_SUCCESS = {
 		hideProgressBar: false,
 		autoClose: 2000,
 		type: "success",
 		position: "bottom-center",
 	};
 
-	const defaultToastError = {
+	const DEFAULT_TOAST_ERROR = {
 		hideProgressBar: false,
 		autoClose: 2000,
 		type: "error",
@@ -70,7 +70,7 @@ export default function ExportPanel({
 		}
 	}
 
-	const backupURL = getBackupURL(platform, metaData);
+	const BACKUP_URL = getBackupURL(platform, metaData);
 	const handleSelectionChange = (selectionInfo) => {
 		if (selectionInfo != undefined && selectionInfo.selection != []) {
 			const hasSelectedErrors = () => {
@@ -151,7 +151,7 @@ export default function ExportPanel({
 			nodesToExport = nodesToExport.filter((node) => node.type !== "generic");
 		}
 
-		const conditionList = [];
+		const CONDITION_LIST = [];
 
 		nodesToExport.map((node) => {
 			if (
@@ -189,7 +189,7 @@ export default function ExportPanel({
 					}
 				});
 
-				conditionList.push(newCondition);
+				CONDITION_LIST.push(newCondition);
 			}
 		});
 
@@ -204,7 +204,7 @@ export default function ExportPanel({
 				}
 			})
 		);
-		const fullNodes = JSON.parse(JSON.stringify(nodesToExport));
+		const FULL_NODES = JSON.parse(JSON.stringify(nodesToExport));
 
 		//Deletting unnecessary info and flattening the nodes
 		nodesToExport = nodesToExport.map((node) => {
@@ -216,34 +216,34 @@ export default function ExportPanel({
 					break;
 			}
 			delete node.data.lmsResource;
-			const data = node.data;
-			if (data.c) {
-				const finalshowc = [];
-				if (data.c.op == "&" || data.c.op == "!|") {
-					delete data.c.showc;
-					if (data.c.c)
-						if (Array.isArray(data.c.c)) {
-							data.c.c.forEach((innerCondition) => {
-								finalshowc.push(innerCondition.showc);
+			const DATA = node.data;
+			if (DATA.c) {
+				const FINAL_SHOWC = [];
+				if (DATA.c.op == "&" || DATA.c.op == "!|") {
+					delete DATA.c.showc;
+					if (DATA.c.c)
+						if (Array.isArray(DATA.c.c)) {
+							DATA.c.c.forEach((innerCondition) => {
+								FINAL_SHOWC.push(innerCondition.showc);
 								deleteRecursiveShowC(innerCondition);
 							});
 						}
-					data.c.showc = finalshowc;
+					DATA.c.showc = FINAL_SHOWC;
 				} else {
-					if (data.c.c)
-						if (Array.isArray(data.c.c)) {
-							data.c.c.forEach((innerCondition) => {
+					if (DATA.c.c)
+						if (Array.isArray(DATA.c.c)) {
+							DATA.c.c.forEach((innerCondition) => {
 								deleteRecursiveShowC(innerCondition);
 							});
 						}
-					data.c.show = data.c.showc;
-					delete data.c.id;
-					delete data.c.showc;
+					DATA.c.show = DATA.c.showc;
+					delete DATA.c.id;
+					delete DATA.c.showc;
 				}
 
-				specifyRecursiveConditionType(data.c);
-				deleteRecursiveNull(data.c);
-				data.c = deleteEmptyC(data.c);
+				specifyRecursiveConditionType(DATA.c);
+				deleteRecursiveNull(DATA.c);
+				DATA.c = deleteEmptyC(DATA.c);
 			}
 
 			delete node.x;
@@ -258,63 +258,65 @@ export default function ExportPanel({
 			delete node.selected;
 			delete node.parentNode;
 			delete node.expandParent;
-			const type = node.type;
+			const TYPE = node.type;
 			switch (platform) {
 				case "moodle":
 					delete node.type;
 					break;
 				case "sakai":
-					node.c = data.requisites;
+					node.c = DATA.requisites;
 					node.pageId = Number(selectDOM.current.value);
 					break;
 			}
-			if (ActionNodes.includes(type)) {
-				const actionNode = {
+			if (ActionNodes.includes(TYPE)) {
+				const ACTION_NODE = {
 					...node,
-					...data,
-					actionType: type,
+					...DATA,
+					actionType: TYPE,
 				};
 				if (platform == "moodle") {
-					if (type == "badge") {
+					if (TYPE == "badge") {
 						return parseMoodleBadgeToExport(
-							actionNode,
+							ACTION_NODE,
 							reactFlowInstance.getNodes(),
 							metaData
 						);
 					}
 				} else {
-					return actionNode;
+					return ACTION_NODE;
 				}
 			} else {
-				return { ...node, ...data };
+				return { ...node, ...DATA };
 			}
 		});
 
 		let nodesAsString = JSON.stringify(nodesToExport);
 		//Replacing block Ids by the resource ids
-		fullNodes.forEach((fullNode) => {
-			const originalId = fullNode.id;
-			const lmsResource =
+		FULL_NODES.forEach((fullNode) => {
+			const ORIGINAL_ID = fullNode.id;
+			const LMS_RESOURCE =
 				fullNode.data.lmsResource == undefined
 					? "-1"
 					: fullNode.data.lmsResource;
-			const regex = new RegExp('"' + originalId + '"', "g");
+			const REGEX = new RegExp('"' + ORIGINAL_ID + '"', "g");
 			nodesAsString = nodesAsString.replace(
-				regex,
-				platform == "moodle" ? lmsResource : JSON.stringify(String(lmsResource))
+				REGEX,
+				platform == "moodle"
+					? LMS_RESOURCE
+					: JSON.stringify(String(LMS_RESOURCE))
 			);
 		});
 
 		let nodesReadyToExport = JSON.parse(nodesAsString);
 		if (platform == "moodle") {
 			nodesReadyToExport.filter((node) => {
-				const section = metaData.sections.find(
+				const SECTION = metaData.sections.find(
 					(section) => section.position == node.section
 				);
 
 				//Change section position for section id
-				if (section != undefined) {
-					node.section = section.id;
+				if (SECTION != undefined) {
+					node.section = SECTION.id;
 				}
 
 				if (node.id == "") {
@@ -323,10 +325,10 @@ export default function ExportPanel({
 					node.id = Number(node.id);
 				}
 
-				if (section && currentSelectionInfo.selection.includes(section.id))
+				if (SECTION && currentSelectionInfo.selection.includes(SECTION.id))
 					return true;
 
-				if (!section) {
+				if (!SECTION) {
 					return true;
 				}
 			});
@@ -334,19 +336,19 @@ export default function ExportPanel({
 
 		console.log("nodesReadyToExport", nodesReadyToExport);
 		if (platform === "sakai") {
-			const lessonFind = metaData.lessons.find(
+			const LESSON_FIND = metaData.lessons.find(
 				(lesson) => lesson.id === Number(selectDOM.current.value)
 			);
 
-			const uniqueSectionColumnPairs = new Set();
+			const UNIQUE_SECTION_COLUMN_PAIRS = new Set();
 
-			const sortedSectionColumnPairs = nodesReadyToExport
+			const SORTED_SECTION_COLUMN_PAIRS = nodesReadyToExport
 				.filter((item) => {
 					const { section, indent } = item;
 					const pairString = `${section}-${indent}`;
 
-					if (!uniqueSectionColumnPairs.has(pairString)) {
-						uniqueSectionColumnPairs.add(pairString);
+					if (!UNIQUE_SECTION_COLUMN_PAIRS.has(pairString)) {
+						UNIQUE_SECTION_COLUMN_PAIRS.add(pairString);
 						return true;
 					}
 
@@ -354,7 +356,7 @@ export default function ExportPanel({
 				})
 				.map(({ section, indent }) => ({ section, indent }));
 
-			sortedSectionColumnPairs.sort((a, b) => {
+			SORTED_SECTION_COLUMN_PAIRS.sort((a, b) => {
 				// Compare by "section" first
 				if (a.section < b.section) return -1;
 				if (a.section > b.section) return 1;
@@ -365,63 +367,66 @@ export default function ExportPanel({
 
 			let nodesToUpdateRequest = [];
 			nodesReadyToExport.map((node) => {
-				const newNode = { ...node };
-				if (newNode.c && newNode.c.length >= 1) {
-					const dateCondition = newNode.c.find(
+				const NEW_NODE = { ...node };
+				if (NEW_NODE.c && NEW_NODE.c.length >= 1) {
+					const DATE_CONDITION = NEW_NODE.c.find(
 						(condition) => condition.type === "date"
 					);
 
-					const groupCondition = newNode.c.find(
+					const GROUP_CONDITION = NEW_NODE.c.find(
 						(condition) => condition.type === "group"
 					);
 
-					const dateExceptionCheck = newNode.c.some(
+					const DATE_EXCEPTION_CHECK = NEW_NODE.c.some(
 						(condition) => condition.type === "dateException"
 					);
 
-					if (dateCondition) {
-						if (dateCondition.openingDate) {
-							newNode.openDate = Date.parse(dateCondition?.openingDate) / 1000;
+					if (DATE_CONDITION) {
+						if (DATE_CONDITION.openingDate) {
+							NEW_NODE.openDate =
+								Date.parse(DATE_CONDITION?.openingDate) / 1000;
 						}
 
 						if (node.type === "exam" || node.type === "assign") {
-							if (dateCondition.dueDate) {
-								newNode.dueDate = Date.parse(dateCondition?.dueDate) / 1000;
+							if (DATE_CONDITION.dueDate) {
+								NEW_NODE.dueDate = Date.parse(DATE_CONDITION?.dueDate) / 1000;
 							}
 
-							if (dateCondition?.closeTime) {
-								newNode.closeDate = Date.parse(dateCondition?.closeTime) / 1000;
+							if (DATE_CONDITION?.closeTime) {
+								NEW_NODE.closeDate =
+									Date.parse(DATE_CONDITION?.closeTime) / 1000;
 							}
 						} else {
-							if (dateCondition.dueDate) {
-								newNode.closeDate = Date.parse(dateCondition?.dueDate) / 1000;
+							if (DATE_CONDITION.dueDate) {
+								NEW_NODE.closeDate = Date.parse(DATE_CONDITION?.dueDate) / 1000;
 							}
 						}
 
-						newNode.dateRestricted = true;
+						NEW_NODE.dateRestricted = true;
 					}
 
-					if (groupCondition) {
-						newNode.groupRefs = [];
-						groupCondition.groupList.map((group) => {
-							newNode.groupRefs.push(group.id);
+					if (GROUP_CONDITION) {
+						NEW_NODE.groupRefs = [];
+						GROUP_CONDITION.groupList.map((group) => {
+							NEW_NODE.groupRefs.push(group.id);
 						});
 					}
 
-					if (dateExceptionCheck) {
-						newNode.timeExceptions = [];
+					if (DATE_EXCEPTION_CHECK) {
+						NEW_NODE.timeExceptions = [];
 
-						let dateExceptionFiltered = newNode.c.filter(
+						let dateExceptionFiltered = NEW_NODE.c.filter(
 							(condition) => condition.type === "dateException"
 						);
 						dateExceptionFiltered.map((exception) => {
-							const newException = {};
-							newException.openDate = Date.parse(exception?.openingDate) / 1000;
-							newException.dueDate = Date.parse(exception?.dueDate) / 1000;
-							newException.closeDate = Date.parse(exception?.closeTime) / 1000;
+							const NEW_EXCEPTION = {};
+							NEW_EXCEPTION.openDate =
+								Date.parse(exception?.openingDate) / 1000;
+							NEW_EXCEPTION.dueDate = Date.parse(exception?.dueDate) / 1000;
+							NEW_EXCEPTION.closeDate = Date.parse(exception?.closeTime) / 1000;
 
 							if (exception.op && exception.op === "group") {
-								newException.forEntityRef =
+								NEW_EXCEPTION.forEntityRef =
 									"/site/" +
 									metaData.course_id +
 									"/group/" +
@@ -429,45 +434,45 @@ export default function ExportPanel({
 							}
 
 							if (exception.op && exception.op === "user") {
-								newException.forEntityRef = "/user/" + exception.entityId;
+								NEW_EXCEPTION.forEntityRef = "/user/" + exception.entityId;
 							}
 
-							newNode.timeExceptions.push(newException);
+							NEW_NODE.timeExceptions.push(NEW_EXCEPTION);
 						});
 					}
 
-					newNode.type = sakaiExportTypeSwitch(newNode.type);
+					NEW_NODE.type = sakaiExportTypeSwitch(NEW_NODE.type);
 
-					delete newNode.label;
-					delete newNode.c;
-					delete newNode.children;
-					delete newNode.indent;
-					delete newNode.lmsVisibility;
-					delete newNode.requisites;
-					delete newNode.pageId;
-					delete newNode.order;
-					delete newNode.section;
+					delete NEW_NODE.label;
+					delete NEW_NODE.c;
+					delete NEW_NODE.children;
+					delete NEW_NODE.indent;
+					delete NEW_NODE.lmsVisibility;
+					delete NEW_NODE.requisites;
+					delete NEW_NODE.pageId;
+					delete NEW_NODE.order;
+					delete NEW_NODE.section;
 
-					nodesToUpdateRequest.push(newNode);
+					nodesToUpdateRequest.push(NEW_NODE);
 				}
 			});
 
-			console.log("CONDITION LIST", conditionList);
+			console.log("CONDITION LIST", CONDITION_LIST);
 
 			let resultJson = [];
-			const sectionProcessed = {};
+			const SECTION_PROCESSED = {};
 
-			sortedSectionColumnPairs.map((jsonObj) => {
-				if (!sectionProcessed[jsonObj.section]) {
+			SORTED_SECTION_COLUMN_PAIRS.map((jsonObj) => {
+				if (!SECTION_PROCESSED[jsonObj.section]) {
 					// Process the section if it hasn't been processed yet
 					resultJson.push({
-						pageId: Number(lessonFind.page_id),
+						pageId: Number(LESSON_FIND.page_id),
 						type: 14,
 						title: "",
 						format: "section",
 					});
 
-					const filteredArray = nodesReadyToExport
+					const FILTERED_ARRAY = nodesReadyToExport
 						.filter(
 							(node) =>
 								node.section === jsonObj.section &&
@@ -475,45 +480,45 @@ export default function ExportPanel({
 						)
 						.sort((a, b) => a.order - b.order);
 
-					filteredArray.map((node) => {
-						const nodeTypeParsed = sakaiTypeSwitch(node);
+					FILTERED_ARRAY.map((node) => {
+						const NODE_TYPE_PARSED = sakaiTypeSwitch(node);
 						resultJson.push({
-							pageId: Number(lessonFind.page_id),
-							type: nodeTypeParsed.type,
+							pageId: Number(LESSON_FIND.page_id),
+							type: NODE_TYPE_PARSED.type,
 							title: node.label,
-							contentRef: nodeTypeParsed.contentRef,
+							contentRef: NODE_TYPE_PARSED.contentRef,
 						});
 					});
 
-					sectionProcessed[jsonObj.section] = true; // Mark the section as processed
+					SECTION_PROCESSED[jsonObj.section] = true; // Mark the section as processed
 				} else {
 					resultJson.push({
-						pageId: Number(lessonFind.page_id),
+						pageId: Number(LESSON_FIND.page_id),
 						type: 14,
 						title: "",
 						format: "column",
 					});
 
-					const filteredArray = nodesReadyToExport
+					const FILTERED_ARRAY = nodesReadyToExport
 						.filter(
 							(node) =>
 								node.section === jsonObj.section &&
 								node.indent === jsonObj.indent
 						)
 						.sort((a, b) => a.order - b.order);
-					filteredArray.map((node) => {
-						const nodeTypeParsed = sakaiTypeSwitch(node);
+					FILTERED_ARRAY.map((node) => {
+						const NODE_TYPE_PARSED = sakaiTypeSwitch(node);
 						resultJson.push({
-							pageId: Number(lessonFind.page_id),
-							type: nodeTypeParsed.type,
+							pageId: Number(LESSON_FIND.page_id),
+							type: NODE_TYPE_PARSED.type,
 							title: node.label,
-							contentRef: nodeTypeParsed.contentRef,
+							contentRef: NODE_TYPE_PARSED.contentRef,
 						});
 					});
 				}
 			});
 
-			sortedSectionColumnPairs.sort((a, b) => {
+			SORTED_SECTION_COLUMN_PAIRS.sort((a, b) => {
 				// Compare by "section" first
 				if (a.section < b.section) return -1;
 				if (a.section > b.section) return 1;
@@ -533,18 +538,18 @@ export default function ExportPanel({
 				nodesReadyToExport,
 				resultJson,
 				nodesToUpdateRequest,
-				lessonFind,
-				conditionList
+				LESSON_FIND,
+				CONDITION_LIST
 			);
 		} else {
-			const moodleNodes = nodesReadyToExport.map((node) => {
+			const MOODLE_NODES = nodesReadyToExport.map((node) => {
 				let newNode = parseMoodleCalifications(node);
 				newNode = { ...newNode, c: parseMoodleConditionsGroupOut(newNode.c) };
 				delete newNode.children;
 				delete newNode.type;
 				return newNode;
 			});
-			sendNodes(moodleNodes);
+			sendNodes(MOODLE_NODES);
 		}
 	};
 
@@ -585,8 +590,8 @@ export default function ExportPanel({
 	}
 
 	function deleteRecursiveNull(obj) {
-		const is_obj = (x) => x !== null && typeof x === "object";
-		const is_arr = (x) => Array.isArray(x);
+		const isObj = (x) => x !== null && typeof x === "object";
+		const isArray = (x) => Array.isArray(x);
 
 		const nullish = (x) => x === null;
 
@@ -595,9 +600,9 @@ export default function ExportPanel({
 				.map((x) => Object.entries(x))
 				.map((x) =>
 					x.map(([k, v]) =>
-						is_arr(v)
-							? [k, v.map((vv) => (is_obj(vv) ? clean(vv) : vv))]
-							: is_obj(v)
+						isArray(v)
+							? [k, v.map((vv) => (isObj(vv) ? clean(vv) : vv))]
+							: isObj(v)
 							? [k, clean(v)]
 							: [k, v]
 					)
@@ -654,7 +659,7 @@ export default function ExportPanel({
 		conditionList
 	) {
 		try {
-			const payload = {
+			const PAYLOAD = {
 				course: metaData.course_id,
 				instance: metaData.instance_id,
 				userId: userData.user_id,
@@ -664,24 +669,24 @@ export default function ExportPanel({
 			};
 
 			if (platform == "sakai") {
-				payload.lessonId = lesson.id;
-				payload.nodes = resultJson;
-				payload.nodesToUpdate = resultJsonSecondary;
-				payload.conditionList = conditionList;
+				PAYLOAD.lessonId = lesson.id;
+				PAYLOAD.nodes = resultJson;
+				PAYLOAD.nodesToUpdate = resultJsonSecondary;
+				PAYLOAD.conditionList = conditionList;
 			} else {
-				payload.nodes = nodes;
+				PAYLOAD.nodes = nodes;
 			}
 
-			const response = await fetchBackEnd(
+			const RESPONSE = await fetchBackEnd(
 				LTISettings,
 				sessionStorage.getItem("token"),
 				"api/lti/export_version",
 				"POST",
-				payload
+				PAYLOAD
 			);
-			if (response) {
-				const ok = response.ok;
-				if (ok) {
+			if (RESPONSE) {
+				const OK = RESPONSE.ok;
+				if (OK) {
 					saveVersion(
 						rfNodes,
 						metaData,
@@ -690,29 +695,29 @@ export default function ExportPanel({
 						mapSelected,
 						selectedVersion,
 						LTISettings,
-						defaultToastSuccess,
-						defaultToastError,
+						DEFAULT_TOAST_SUCCESS,
+						DEFAULT_TOAST_ERROR,
 						toast,
 						enableExporting,
-						response.successType,
+						RESPONSE.successType,
 						lesson?.id
 					);
 				} else {
 					enableExporting(false);
 
-					if (response.errorType) {
-						const unableToExport = "No se pudo exportar: ";
+					if (RESPONSE.errorType) {
+						const UNABLE_TO_EXPORT = "No se pudo exportar: ";
 						if (platform == "sakai") {
-							switch (response.errorType) {
+							switch (RESPONSE.errorType) {
 								case "PAGE_EXPORT_ERROR":
 									console.log(
 										"%c ❌ Los bloques no comparten el mismo identificador de página (pageId) // Codigo de error: PAGE_EXPORT_ERROR",
 										"background: #FFD7DC; color: black; padding: 4px;"
 									);
 									throw new Error(
-										unableToExport +
+										UNABLE_TO_EXPORT +
 											"Los bloques no comparten el mismo identificador de página (pageId)",
-										defaultToastError
+										DEFAULT_TOAST_ERROR
 									);
 								case "LESSON_COPY_ERROR":
 									console.log(
@@ -720,9 +725,9 @@ export default function ExportPanel({
 										"background: #FFD7DC; color: black; padding: 4px;"
 									);
 									throw new Error(
-										unableToExport +
+										UNABLE_TO_EXPORT +
 											"No se pudo hacer una copia de seguridad de la página de contenidos a exportar",
-										defaultToastError
+										DEFAULT_TOAST_ERROR
 									);
 								case "LESSON_DELETE_ERROR":
 									console.log(
@@ -730,9 +735,9 @@ export default function ExportPanel({
 										"background: #FFD7DC; color: black; padding: 4px;"
 									);
 									throw new Error(
-										unableToExport +
+										UNABLE_TO_EXPORT +
 											"No se ha podido reconstruir la página de contenidos",
-										defaultToastError
+										DEFAULT_TOAST_ERROR
 									);
 								case "FATAL_ERROR":
 									console.log(
@@ -740,9 +745,9 @@ export default function ExportPanel({
 										"background: #FFD7DC; color: black; padding: 4px;"
 									);
 									throw new Error(
-										unableToExport +
+										UNABLE_TO_EXPORT +
 											"No se ha podido reestablecer la copia de seguridad",
-										defaultToastError
+										DEFAULT_TOAST_ERROR
 									);
 								case "LESSON_ITEMS_CREATION_ERROR":
 									console.log(
@@ -750,9 +755,9 @@ export default function ExportPanel({
 										"background: #FFD7DC; color: black; padding: 4px;"
 									);
 									throw new Error(
-										unableToExport +
+										UNABLE_TO_EXPORT +
 											"Se ha reestablecido la copia de seguridad de la página de contenidos",
-										defaultToastError
+										DEFAULT_TOAST_ERROR
 									);
 								case "LESSON_ITEMS_WITHOUT_CONDITIONS_CREATION_ERROR":
 									console.log(
@@ -760,9 +765,9 @@ export default function ExportPanel({
 										"background: #FFD7DC; color: black; padding: 4px;"
 									);
 									throw new Error(
-										unableToExport +
+										UNABLE_TO_EXPORT +
 											"Se ha reestablecido la copia de seguridad de la página de contenidos pero las condiciones no",
-										defaultToastError
+										DEFAULT_TOAST_ERROR
 									);
 								case "NODE_UPDATE_ERROR":
 									console.log(
@@ -770,26 +775,27 @@ export default function ExportPanel({
 										"background: #FFD7DC; color: black; padding: 4px;"
 									);
 									throw new Error(
-										unableToExport + "No se han podido actualizar los bloques",
-										defaultToastError
+										UNABLE_TO_EXPORT +
+											"No se han podido actualizar los bloques",
+										DEFAULT_TOAST_ERROR
 									);
 							}
 						} else {
-							switch (response.errorType) {
+							switch (RESPONSE.errorType) {
 								case "":
 									break;
 							}
 						}
 					} else {
-						throw new Error("No se pudo exportar", defaultToastError);
+						throw new Error("No se pudo exportar", DEFAULT_TOAST_ERROR);
 					}
 				}
 			} else {
 				enableExporting(false);
-				throw new Error("No se pudo exportar", defaultToastError);
+				throw new Error("No se pudo exportar", DEFAULT_TOAST_ERROR);
 			}
 		} catch (e) {
-			toast("No se pudo exportar", defaultToastError);
+			toast("No se pudo exportar", DEFAULT_TOAST_ERROR);
 		}
 
 		enableExporting(false);
@@ -864,10 +870,10 @@ export default function ExportPanel({
 					/>
 				)}
 			</Button>
-			{backupURL && (
+			{BACKUP_URL && (
 				<p>
 					<b>Atención: </b>{" "}
-					<a href={backupURL} target="_blank">
+					<a href={BACKUP_URL} target="_blank">
 						se recomienda hacer una copia de seguridad del curso.
 					</a>
 				</p>

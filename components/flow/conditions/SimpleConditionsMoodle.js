@@ -15,15 +15,15 @@ export default function SimpleConditionsMoodle({ id }) {
 	const { metaData } = useContext(MetaDataContext);
 	const rfNodes = useNodes();
 	const { platform } = useContext(PlatformContext);
-	const conditions = getNodeById(id, rfNodes)?.data?.c || undefined;
-	const qualifications = getNodeById(id, rfNodes)?.data?.g || undefined;
+	const CONDITIONS = getNodeById(id, rfNodes)?.data?.c || undefined;
+	const QUALIFICATIONS = getNodeById(id, rfNodes)?.data?.g || undefined;
 	const { settings } = useContext(SettingsContext);
-	const parsedSettings = JSON.parse(settings);
-	let { hoverConditions } = parsedSettings;
+	const PARSED_SETTINGS = JSON.parse(settings);
+	let { hoverConditions } = PARSED_SETTINGS;
 
 	const flattenConditions = (conditions) => {
-		const isBadge = getNodeById(id, rfNodes).type === "badge";
-		if (!isBadge) {
+		const IS_A_BADGE = getNodeById(id, rfNodes).type === "badge";
+		if (!IS_A_BADGE) {
 			const recursiveGet = (c, identation = 1, array = []) => {
 				if (c.c) {
 					c.c.forEach((condition) => {
@@ -41,16 +41,16 @@ export default function SimpleConditionsMoodle({ id }) {
 			];
 		} else {
 			const recursiveGet = (c, indentation = 1, array = []) => {
-				const conditionNames = c?.params;
-				if (conditionNames) {
-					conditionNames.forEach((condition) => {
+				const CONDITION_NAMES = c?.params;
+				if (CONDITION_NAMES) {
+					CONDITION_NAMES.forEach((condition) => {
 						array.push({
 							...condition,
 							indentation,
 							c: null,
 						});
-						const moreConditions = condition.params;
-						if (moreConditions) {
+						const MORE_CONDITIONS = condition.params;
+						if (MORE_CONDITIONS) {
 							array.push(...recursiveGet(condition, indentation + 1, array));
 						}
 					});
@@ -59,13 +59,13 @@ export default function SimpleConditionsMoodle({ id }) {
 			};
 
 			return [
-				{ ...conditions, indentation: 0, [isBadge ? "c" : "c"]: null },
+				{ ...conditions, indentation: 0, [IS_A_BADGE ? "c" : "c"]: null },
 				...recursiveGet(conditions),
 			];
 		}
 	};
 
-	const parsedConditionsGroup = [
+	const PARSED_CONDITIONS_GROUP = [
 		{
 			op: "&",
 			parsed: (
@@ -100,7 +100,7 @@ export default function SimpleConditionsMoodle({ id }) {
 		},
 	];
 
-	const parsedCompletionBadge = [
+	const PARSED_COMPLETION_BADGE = [
 		{
 			op: "&",
 			parsed: (
@@ -120,7 +120,7 @@ export default function SimpleConditionsMoodle({ id }) {
 		},
 	];
 
-	const parsedBadgeListBadge = [
+	const PARSED_BADGE_LIST_BADGE = [
 		{
 			op: "&",
 			parsed: (
@@ -140,7 +140,7 @@ export default function SimpleConditionsMoodle({ id }) {
 		},
 	];
 
-	const parsedSkillsListBadge = [
+	const PARSED_SKILLS_LIST_BADGE = [
 		{
 			op: "&",
 			parsed: (
@@ -175,7 +175,10 @@ export default function SimpleConditionsMoodle({ id }) {
 
 					finalDOM.push(
 						<p style={prefix}>
-							{parsedConditionsGroup.find((pcg) => operator == pcg.op)?.parsed}{" "}
+							{
+								PARSED_CONDITIONS_GROUP.find((pcg) => operator == pcg.op)
+									?.parsed
+							}{" "}
 						</p>
 					); //FIXME: It Does not show empty message
 					break;
@@ -205,7 +208,7 @@ export default function SimpleConditionsMoodle({ id }) {
 							<>
 								<p style={prefix}>
 									{
-										parsedCompletionBadge.find((pcg) => c.method == pcg.op)
+										PARSED_COMPLETION_BADGE.find((pcg) => c.method == pcg.op)
 											.parsed
 									}
 								</p>
@@ -254,18 +257,18 @@ export default function SimpleConditionsMoodle({ id }) {
 					}
 					break;
 				case "date":
-					const parsedDate = new Date(c.t).toLocaleDateString("es-ES");
-					if (parsedDate != "Invalid Date")
+					const PARSED_DATE = new Date(c.t).toLocaleDateString("es-ES");
+					if (PARSED_DATE != "Invalid Date")
 						finalDOM.push(
 							<p style={prefix}>
 								{
 									(c.d = ">=" ? (
 										<>
-											A partir del: <b>{parsedDate}</b>
+											A partir del: <b>{PARSED_DATE}</b>
 										</>
 									) : (
 										<>
-											Antes del: <b>{parsedDate}</b>
+											Antes del: <b>{PARSED_DATE}</b>
 										</>
 									))
 								}
@@ -374,11 +377,11 @@ export default function SimpleConditionsMoodle({ id }) {
 								los siguientes roles:
 								<ul>
 									{c.params.map((option) => {
-										const roleList = metaData.role_list;
-										const roleFounded = roleList.find(
+										const ROLE_LIST = metaData.role_list;
+										const ROLE_FOUNDED = ROLE_LIST.find(
 											(roleMeta) => roleMeta.id.toString() === option.toString()
 										);
-										return <li key={roleFounded.id}>{roleFounded.name}</li>;
+										return <li key={ROLE_FOUNDED.id}>{ROLE_FOUNDED.name}</li>;
 									})}
 								</ul>
 							</p>
@@ -425,16 +428,19 @@ export default function SimpleConditionsMoodle({ id }) {
 					finalDOM.push(
 						<>
 							<p style={prefix}>
-								{parsedBadgeListBadge.find((pcg) => c.method == pcg.op).parsed}
+								{
+									PARSED_BADGE_LIST_BADGE.find((pcg) => c.method == pcg.op)
+										.parsed
+								}
 							</p>
 							<ul style={prefix}>
 								{c.params.map((badge) => {
-									const metaBadgeList = metaData.badges;
-									const badgeFounded = metaBadgeList.find(
+									const METADATA_BADGE_LIST = metaData.badges;
+									const BADGE_FOUND = METADATA_BADGE_LIST.find(
 										(metaBadge) => metaBadge.id.toString() === badge
 									);
 
-									return <li key={badgeFounded.id}>{badgeFounded.name}</li>;
+									return <li key={BADGE_FOUND.id}>{BADGE_FOUND.name}</li>;
 								})}
 							</ul>
 						</>
@@ -444,17 +450,20 @@ export default function SimpleConditionsMoodle({ id }) {
 					finalDOM.push(
 						<>
 							<p style={prefix}>
-								{parsedSkillsListBadge.find((pcg) => c.method == pcg.op).parsed}
+								{
+									PARSED_SKILLS_LIST_BADGE.find((pcg) => c.method == pcg.op)
+										.parsed
+								}
 							</p>
 							<ul style={prefix}>
 								{c.params.map((skill) => {
-									const metaSkillsList = metaData.skills;
+									const METADATA_SKILLS_LIST = metaData.skills;
 
-									const skillFounded = metaSkillsList.find(
+									const SKILL_FOUND = METADATA_SKILLS_LIST.find(
 										(metaSkill) => metaSkill.id.toString() === skill.toString()
 									);
 
-									return <li key={skillFounded.id}>{skillFounded.name}</li>;
+									return <li key={SKILL_FOUND.id}>{SKILL_FOUND.name}</li>;
 								})}
 							</ul>
 						</>
@@ -468,14 +477,15 @@ export default function SimpleConditionsMoodle({ id }) {
 		return finalDOM;
 	};
 	const parseQualifications = (q) => {
-		const used = q.hasConditions || q.hasToBeQualified || q.hasToBeSeen;
+		const IS_BEING_QUALIFIED =
+			q.hasConditions || q.hasToBeQualified || q.hasToBeSeen;
 		let finalDOM = [
 			<p>
 				<b>Para que el elemento se considere finalizado:</b>
 			</p>,
 		];
 
-		if (used) {
+		if (IS_BEING_QUALIFIED) {
 			if (q && q.hasToBeSeen == 1) {
 				finalDOM.push(<p style={{ marginLeft: 24 }}>Debe de ser visto.</p>);
 			}
@@ -525,12 +535,12 @@ export default function SimpleConditionsMoodle({ id }) {
 		return finalDOM;
 	};
 
-	const devString = <div>{JSON.stringify(getNodeById(id, rfNodes))}</div>;
-	if ((conditions && hoverConditions) || (qualifications && !hoverConditions)) {
+	const DEV_STRING = <div>{JSON.stringify(getNodeById(id, rfNodes))}</div>;
+	if ((CONDITIONS && hoverConditions) || (QUALIFICATIONS && !hoverConditions)) {
 		//Show the preference
 		let finalString = hoverConditions
-			? parseConditions(flattenConditions(conditions))
-			: parseQualifications(qualifications);
+			? parseConditions(flattenConditions(CONDITIONS))
+			: parseQualifications(QUALIFICATIONS);
 
 		return (
 			<div>
@@ -538,31 +548,33 @@ export default function SimpleConditionsMoodle({ id }) {
 					<b>{getNodeById(id, rfNodes).data.label}</b>
 				</p>
 				<hr />
-				<div>{devModeStatus ? [devString, ...finalString] : finalString}</div>
+				<div>{devModeStatus ? [DEV_STRING, ...finalString] : finalString}</div>
 			</div>
 		);
 	} else {
 		if (
-			(conditions && hoverConditions) ||
-			(qualifications && !hoverConditions)
+			(CONDITIONS && hoverConditions) ||
+			(QUALIFICATIONS && !hoverConditions)
 		) {
 			//Show the preference
 			let finalString = hoverConditions
-				? parseConditions(flattenConditions(conditions))
-				: parseQualifications(qualifications);
+				? parseConditions(flattenConditions(CONDITIONS))
+				: parseQualifications(QUALIFICATIONS);
 			return (
 				<div>
 					<p>
 						<b>{getNodeById(id, rfNodes).data.label}</b>
 					</p>
 					<hr />
-					<div>{devModeStatus ? [devString, ...finalString] : finalString}</div>
+					<div>
+						{devModeStatus ? [DEV_STRING, ...finalString] : finalString}
+					</div>
 				</div>
 			);
 		} else {
 			//If unable to show the preference, show the alternative
-			if (conditions && !qualifications) {
-				let finalString = parseConditions(flattenConditions(conditions));
+			if (CONDITIONS && !QUALIFICATIONS) {
+				let finalString = parseConditions(flattenConditions(CONDITIONS));
 				return (
 					<div>
 						<p>
@@ -570,7 +582,7 @@ export default function SimpleConditionsMoodle({ id }) {
 						</p>
 						<hr />
 						<div>
-							{devModeStatus ? [devString, ...finalString] : finalString}
+							{devModeStatus ? [DEV_STRING, ...finalString] : finalString}
 						</div>
 					</div>
 				);

@@ -22,10 +22,10 @@ const CompletionComponent = ({
 	swapConditionParam,
 }) => {
 	const reactFlowInstance = useReactFlow();
-	const nodes = reactFlowInstance.getNodes();
+	const NODES = reactFlowInstance.getNodes();
 
-	const node = nodes.find((node) => node.id === condition.cm);
-	const mainCondition = conditionsList.c.some((c) => c.id === condition.id);
+	const NODE = NODES.find((node) => node.id === condition.cm);
+	const MAIN_CONDITION = conditionsList.c.some((c) => c.id === condition.id);
 
 	return (
 		<Container
@@ -33,7 +33,7 @@ const CompletionComponent = ({
 			style={{ padding: "10px", border: "1px solid #C7C7C7" }}
 		>
 			<Row className="align-items-center">
-				{mainCondition &&
+				{MAIN_CONDITION &&
 					(conditionsList.op === "&" || conditionsList.op === "!|") && (
 						<Col className="col-1">
 							<Button
@@ -53,7 +53,7 @@ const CompletionComponent = ({
 				<Col style={{ width: "531px", flex: "0 0 auto" }}>
 					<div>Tipo: Finalización</div>
 					<div>
-						La actividad <strong>{node.data.label}</strong>{" "}
+						La actividad <strong>{NODE.data.label}</strong>{" "}
 						{completionQueryList.find((item) => item.id === condition.e)?.name}
 					</div>
 				</Col>

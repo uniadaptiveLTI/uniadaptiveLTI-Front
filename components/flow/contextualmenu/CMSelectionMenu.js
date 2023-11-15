@@ -103,8 +103,8 @@ export default function CMSelectionMenu({
 	EnableDelete = false,
 }) {
 	const ref = useRef(null);
-	const focus = EnableCopy || EnableCut || EnableDelete || EnableCreateFragment;
-	return focus ? (
+	const FOCUS = EnableCopy || EnableCut || EnableDelete || EnableCreateFragment;
+	return FOCUS ? (
 		<FocusTrap
 			focusTrapOptions={{
 				clickOutsideDeactivates: true,

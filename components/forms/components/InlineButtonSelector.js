@@ -21,10 +21,10 @@ export default function InlineButtonSelector({
 	label,
 	btnLabel = "Ejemplo",
 }) {
-	const line = border.line;
-	const InitialLineWidth = line.split(" ")[0];
-	const InitialLineColor = line.split(" ")[2];
-	const radius = border.radius;
+	const LINE = border.line;
+	const INITIAL_LINE_WIDTH = LINE.split(" ")[0];
+	const INITIAL_LINE_COLOR = LINE.split(" ")[2];
+	const RADIUS = border.radius;
 
 	const [selectedOption, setSelectedOption] = useState(
 		border.line == "none" || border.line == undefined || border.line == ""
@@ -36,18 +36,18 @@ export default function InlineButtonSelector({
 			: 2
 	);
 
-	const primaryBGColor = getRootStyle("--primary-background-color");
-	const primaryBorderColor = primaryBGColor;
-	const primaryIconColor = getContrastingColor(primaryBGColor);
-	const lightBGColor = getRootStyle("--light-background-color");
-	const secondaryBorderColor = lightBGColor;
-	const secondaryIconColor = getContrastingColor(lightBGColor);
+	const PRIMARY_BACKGROUND_COLOR = getRootStyle("--primary-background-color");
+	const PRIMARY_BORDER_COLOR = PRIMARY_BACKGROUND_COLOR;
+	const PRIMARY_ICON_COLOR = getContrastingColor(PRIMARY_BACKGROUND_COLOR);
+	const LIGHT_BACKGROUND_COLOR = getRootStyle("--light-background-color");
+	const SECONDARY_BORDER_COLOR = LIGHT_BACKGROUND_COLOR;
+	const SECONDARY_ICON_COLOR = getContrastingColor(LIGHT_BACKGROUND_COLOR);
 
-	const [lineColor, setLineColor] = useState(InitialLineColor);
-	const [lineWidth, setLineWidth] = useState(InitialLineWidth);
-	const [borderRadius, setBorderRadius] = useState(radius);
+	const [lineColor, setLineColor] = useState(INITIAL_LINE_COLOR);
+	const [lineWidth, setLineWidth] = useState(INITIAL_LINE_WIDTH);
+	const [borderRadius, setBorderRadius] = useState(RADIUS);
 
-	const labelID = useId();
+	const LABEL_ID = useId();
 
 	const lineColorDOM = useRef();
 	const borderRadiusDOM = useRef();
@@ -69,7 +69,7 @@ export default function InlineButtonSelector({
 
 	return (
 		<>
-			{label && <Form.Label htmlFor={labelID}>{label}</Form.Label>}
+			{label && <Form.Label htmlFor={LABEL_ID}>{label}</Form.Label>}
 			<div
 				className={"mb-1"}
 				style={{
@@ -81,7 +81,7 @@ export default function InlineButtonSelector({
 				}}
 			>
 				<InlineColorSelector
-					id={labelID}
+					id={LABEL_ID}
 					color={background}
 					setColor={setBackground}
 				/>
@@ -89,11 +89,16 @@ export default function InlineButtonSelector({
 					<Button
 						onClick={() => setSelectedOption(0)}
 						style={{
-							background: selectedOption == 0 ? primaryBGColor : lightBGColor,
+							background:
+								selectedOption == 0
+									? PRIMARY_BACKGROUND_COLOR
+									: LIGHT_BACKGROUND_COLOR,
 							color:
-								selectedOption == 0 ? primaryIconColor : secondaryIconColor,
+								selectedOption == 0 ? PRIMARY_ICON_COLOR : SECONDARY_ICON_COLOR,
 							borderColor:
-								selectedOption == 0 ? primaryBorderColor : secondaryBorderColor,
+								selectedOption == 0
+									? PRIMARY_BORDER_COLOR
+									: SECONDARY_BORDER_COLOR,
 						}}
 					>
 						<FontAwesomeIcon icon={faBorderNone} />
@@ -101,11 +106,16 @@ export default function InlineButtonSelector({
 					<Button
 						onClick={() => setSelectedOption(1)}
 						style={{
-							background: selectedOption == 1 ? primaryBGColor : lightBGColor,
+							background:
+								selectedOption == 1
+									? PRIMARY_BACKGROUND_COLOR
+									: LIGHT_BACKGROUND_COLOR,
 							color:
-								selectedOption == 1 ? primaryIconColor : secondaryIconColor,
+								selectedOption == 1 ? PRIMARY_ICON_COLOR : SECONDARY_ICON_COLOR,
 							borderColor:
-								selectedOption == 1 ? primaryBorderColor : secondaryBorderColor,
+								selectedOption == 1
+									? PRIMARY_BORDER_COLOR
+									: SECONDARY_BORDER_COLOR,
 						}}
 					>
 						<FontAwesomeIcon icon={faBorderAll} />
@@ -113,11 +123,16 @@ export default function InlineButtonSelector({
 					<Button
 						onClick={() => setSelectedOption(2)}
 						style={{
-							background: selectedOption == 2 ? primaryBGColor : lightBGColor,
+							background:
+								selectedOption == 2
+									? PRIMARY_BACKGROUND_COLOR
+									: LIGHT_BACKGROUND_COLOR,
 							color:
-								selectedOption == 2 ? primaryIconColor : secondaryIconColor,
+								selectedOption == 2 ? PRIMARY_ICON_COLOR : SECONDARY_ICON_COLOR,
 							borderColor:
-								selectedOption == 2 ? primaryBorderColor : secondaryBorderColor,
+								selectedOption == 2
+									? PRIMARY_BORDER_COLOR
+									: SECONDARY_BORDER_COLOR,
 						}}
 					>
 						<FontAwesomeIcon icon={faBorderTopLeft} />
@@ -172,7 +187,7 @@ export default function InlineButtonSelector({
 						<Form.Control
 							className={"me-4"}
 							ref={borderRadiusDOM}
-							defaultValue={radius}
+							defaultValue={RADIUS}
 							style={{ width: "auto" }}
 							onChange={(e) => setBorderRadius(e.target.value)}
 						></Form.Control>

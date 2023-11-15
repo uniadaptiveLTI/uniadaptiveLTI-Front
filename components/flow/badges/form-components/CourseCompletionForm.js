@@ -10,7 +10,7 @@ const CourseCompletionForm = ({
 	handleDateCheckboxChange,
 	isDateEnabled,
 }) => {
-	const ccId = useId();
+	const COURSE_COMPLETION_FORM_ID = useId();
 	return (
 		<Form.Group
 			style={{
@@ -21,14 +21,14 @@ const CourseCompletionForm = ({
 		>
 			<div className="d-flex flex-row gap-2 align-items-baseline col-12 col-lg-9 col-xl-7">
 				<Form.Label
-					htmlFor={ccId}
+					htmlFor={COURSE_COMPLETION_FORM_ID}
 					className="flex-grow-1 p-4"
 					style={{ width: "300px" }}
 				>
 					Calificación mínima:{" "}
 				</Form.Label>
 				<Form.Control
-					id={ccId}
+					id={COURSE_COMPLETION_FORM_ID}
 					ref={conditionOperator}
 					type="number"
 					min="0"

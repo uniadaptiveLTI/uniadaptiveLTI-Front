@@ -17,9 +17,9 @@ const GroupComponent = ({
 	setConditionEdit,
 	deleteRequisite,
 }) => {
-	const groupArray = requisites.find((item) => item.type === "group");
+	const GROUP_ARRAY = requisites.find((item) => item.type === "group");
 
-	const sortedGroupList = groupArray.groupList.sort(
+	const SORTED_GROUP_LIST = GROUP_ARRAY.groupList.sort(
 		(a, b) => a.index - b.index
 	);
 
@@ -31,12 +31,12 @@ const GroupComponent = ({
 			<Row className="align-items-center">
 				<Col>
 					<ul>
-						{sortedGroupList.map((item, index) => {
-							const group = sakaiGroups.find((group) => group.id === item.id);
+						{SORTED_GROUP_LIST.map((item, index) => {
+							const GROUP = sakaiGroups.find((group) => group.id === item.id);
 
 							return (
 								<li key={index}>
-									{group ? group.name : "Grupo no encontrado"}
+									{GROUP ? GROUP.name : "Grupo no encontrado"}
 								</li>
 							);
 						})}

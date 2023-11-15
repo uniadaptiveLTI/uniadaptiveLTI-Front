@@ -20,11 +20,11 @@ const GroupingComponent = ({
 	moodleGroupings,
 	swapConditionParam,
 }) => {
-	const groupingFounded = moodleGroupings.find(
+	const GROUPING_FOUNDED = moodleGroupings.find(
 		(grouping) => grouping.id == condition.groupingId
 	);
 
-	const mainCondition = conditionsList.c.some((c) => c.id === condition.id);
+	const MAIN_CONDITION = conditionsList.c.some((c) => c.id === condition.id);
 
 	return (
 		<Container
@@ -32,7 +32,7 @@ const GroupingComponent = ({
 			style={{ padding: "10px", border: "1px solid #C7C7C7" }}
 		>
 			<Row className="align-items-center">
-				{mainCondition &&
+				{MAIN_CONDITION &&
 					(conditionsList.op === "&" || conditionsList.op === "!|") && (
 						<Col className="col-1">
 							<Button
@@ -53,7 +53,7 @@ const GroupingComponent = ({
 					<div>Tipo: Agrupamiento ({getConditionIcon("grouping")})</div>
 					<div>
 						Se pertenezca al agrupamiento{" "}
-						<strong>{groupingFounded.name}</strong>
+						<strong>{GROUPING_FOUNDED.name}</strong>
 					</div>
 				</Col>
 				<Col className="d-flex align-items-center justify-content-end gap-2">

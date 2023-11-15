@@ -17,14 +17,14 @@ const DateComponent = ({
 	setConditionEdit,
 	deleteRequisite,
 }) => {
-	const dateArray = requisites.filter((item) => item.type === "date");
+	const DATE_ARRAY = requisites.filter((item) => item.type === "date");
 
 	return (
 		<Container
 			className="mb-3 mt-3"
 			style={{ padding: "10px", border: "1px solid #C7C7C7" }}
 		>
-			{dateArray.map((item, index) => (
+			{DATE_ARRAY.map((item, index) => (
 				<Row className="align-items-center">
 					<Col>
 						{item.openingDate && (

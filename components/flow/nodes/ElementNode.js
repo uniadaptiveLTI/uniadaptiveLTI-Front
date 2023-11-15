@@ -63,8 +63,8 @@ function ElementNode({
 	const { errorList } = useContext(ErrorListContext);
 	const { settings, setSettings } = useContext(SettingsContext);
 	const reactFlowInstance = useReactFlow();
-	const parsedSettings = JSON.parse(settings);
-	const { highContrast, showDetails, reducedAnimations } = parsedSettings;
+	const PARSED_SETTINGS = JSON.parse(settings);
+	const { highContrast, showDetails, reducedAnimations } = PARSED_SETTINGS;
 	const [hasErrors, setHasErrors] = useState(false);
 	const [hasWarnings, setHasWarnings] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
@@ -74,12 +74,12 @@ function ElementNode({
 	);
 
 	const getParentExpanded = () => {
-		const nodes = rfNodes;
-		const parentID = getNodeById(id, nodes).parentNode;
+		const NODES = rfNodes;
+		const PARENT_ID = getNodeById(id, NODES).parentNode;
 
-		if (parentID) {
+		if (PARENT_ID) {
 			//If is part of a fragment
-			const parent = getNodeById(parentID, nodes);
+			const parent = getNodeById(PARENT_ID, NODES);
 
 			return parent.data.expanded;
 		} else {
@@ -89,22 +89,22 @@ function ElementNode({
 	};
 
 	const handleEdit = () => {
-		const currentNodes = reactFlowInstance.getNodes();
-		const blockData = getNodeById(id, currentNodes);
+		const CURRENT_NODES = reactFlowInstance.getNodes();
+		const BLOCKDATA = getNodeById(id, CURRENT_NODES);
 		if (expandedAside != true) {
 			setExpandedAside(true);
 		}
 		reactFlowInstance.setNodes(
 			getUpdatedArrayById(
 				{
-					...getNodeById(id, currentNodes),
+					...getNodeById(id, CURRENT_NODES),
 					selected: false,
 				},
-				currentNodes
+				CURRENT_NODES
 			)
 		);
 		setEditVersionSelected("");
-		setNodeSelected(blockData);
+		setNodeSelected(BLOCKDATA);
 	};
 
 	const getAriaLabel = () => {
@@ -151,40 +151,40 @@ function ElementNode({
 	};
 
 	const extractSelf = () => {
-		const fragment = getNodeById(
+		const FRAGMENT = getNodeById(
 			getNodeById(id, reactFlowInstance.getNodes()).parentNode,
 			reactFlowInstance.getNodes()
 		);
-		const childToRemove = getNodeById(id, reactFlowInstance.getNodes());
+		const CHILD_TO_REMOVE = getNodeById(id, reactFlowInstance.getNodes());
 
-		delete childToRemove.parentNode;
-		delete childToRemove.expandParent;
-		childToRemove.position = childToRemove.positionAbsolute;
+		delete CHILD_TO_REMOVE.parentNode;
+		delete CHILD_TO_REMOVE.expandParent;
+		CHILD_TO_REMOVE.position = CHILD_TO_REMOVE.positionAbsolute;
 
-		fragment.data.innerNodes = fragment.data.innerNodes.filter(
-			(node) => node.id != childToRemove.id
+		FRAGMENT.data.innerNodes = FRAGMENT.data.innerNodes.filter(
+			(node) => node.id != CHILD_TO_REMOVE.id
 		);
-		fragment.zIndex = -1;
+		FRAGMENT.zIndex = -1;
 		reactFlowInstance.setNodes(
-			getUpdatedArrayById(fragment, [
+			getUpdatedArrayById(FRAGMENT, [
 				...reactFlowInstance
 					.getNodes()
-					.filter((node) => childToRemove.id != node.id),
-				childToRemove,
+					.filter((node) => CHILD_TO_REMOVE.id != node.id),
+				CHILD_TO_REMOVE,
 			])
 		);
 	};
 
 	const getSelfErrors = () => {
-		const relatedErrors = errorList.filter((error) => error.nodeId == id);
-		const errors = relatedErrors.filter(
+		const RELATED_ERRORS = errorList.filter((error) => error.nodeId == id);
+		const ERRORS = RELATED_ERRORS.filter(
 			(rerrors) => rerrors.severity == "error"
 		);
-		const warnings = relatedErrors.filter(
+		const WARNINGS = RELATED_ERRORS.filter(
 			(rerrors) => rerrors.severity == "warning"
 		);
-		setHasErrors(errors.length > 0);
-		setHasWarnings(warnings.length > 0);
+		setHasErrors(ERRORS.length > 0);
+		setHasWarnings(WARNINGS.length > 0);
 	};
 
 	useEffect(() => {

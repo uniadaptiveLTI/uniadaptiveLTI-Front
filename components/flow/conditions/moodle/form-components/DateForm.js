@@ -7,8 +7,8 @@ const DateForm = ({
 	conditionEdit,
 	handleDateChange,
 }) => {
-	const cqId = useId();
-	const coId = useId();
+	const CONDITION_QUERY_ID = useId();
+	const CONDITION_OPERATOR_ID = useId();
 	return (
 		<Form.Group
 			style={{
@@ -20,14 +20,14 @@ const DateForm = ({
 		>
 			<div className="d-flex align-items-baseline col-12 col-lg-6 col-xl-4">
 				<Form.Label
-					htmlFor={cqId}
+					htmlFor={CONDITION_QUERY_ID}
 					className="me-4"
 					style={{ minWidth: "125px" }}
 				>
 					Condición:{" "}
 				</Form.Label>
 				<Form.Select
-					id={cqId}
+					id={CONDITION_QUERY_ID}
 					ref={conditionQuery}
 					defaultValue={conditionEdit?.d}
 				>
@@ -37,7 +37,7 @@ const DateForm = ({
 			</div>
 			<div className="d-flex align-items-baseline col-12 col-lg-6 col-xl-4">
 				<Form.Label
-					htmlFor={coId}
+					htmlFor={CONDITION_OPERATOR_ID}
 					className="me-4"
 					style={{ minWidth: "125px" }}
 				>
@@ -45,7 +45,7 @@ const DateForm = ({
 				</Form.Label>
 				<Form.Control
 					ref={conditionOperator}
-					id={coId}
+					id={CONDITION_OPERATOR_ID}
 					type="date"
 					onChange={handleDateChange}
 					defaultValue={

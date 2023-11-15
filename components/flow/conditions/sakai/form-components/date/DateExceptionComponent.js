@@ -17,24 +17,23 @@ const DateExceptionComponent = ({
 	calculateDefaultDateTime,
 	dateInputChange,
 }) => {
-	const cqId = useId();
-	const coId = useId();
+	const CONDIITON_QUERY_ID = useId();
+	const CONDITION_OPERATOR_ID = useId();
 
 	const selectExceptionChange = (ref) => {
 		setExceptionSelected(ref.current.value);
 	};
 
-	const defaultValueFiveMinutes = calculateDefaultDateTime(5);
+	const DEFAULT_VALUE_5_MINUTES = calculateDefaultDateTime(5);
 
-	const defaultValueTenMinutes = calculateDefaultDateTime(10);
+	const DEFAULT_VALUE_10_MINUTES = calculateDefaultDateTime(10);
 
 	useLayoutEffect(() => {
-		const openingValue = openingDateRef.current.value;
-		const dueDate = dueDateRef.current.value;
-		console.log(openingValue);
+		const OPENING_VALUE = openingDateRef.current.value;
+		const DUE_DATE = dueDateRef.current.value;
 		setDates({
-			openingDate: openingValue,
-			dueDate: dueDate,
+			openingDate: OPENING_VALUE,
+			dueDate: DUE_DATE,
 		});
 	}, []);
 
@@ -70,14 +69,14 @@ const DateExceptionComponent = ({
 			</div>
 			<div className="d-flex align-items-baseline col-12 col-lg-6 col-xl-6">
 				<Form.Label
-					htmlFor={cqId}
+					htmlFor={CONDIITON_QUERY_ID}
 					className="me-4"
 					style={{ minWidth: "160px" }}
 				>
 					Fecha de apertura:{" "}
 				</Form.Label>
 				<Form.Control
-					id={cqId}
+					id={CONDIITON_QUERY_ID}
 					ref={openingDateRef}
 					onChange={() => {
 						dateInputChange("openingDate", openingDateRef);
@@ -93,38 +92,40 @@ const DateExceptionComponent = ({
 			</div>
 			<div className="d-flex align-items-baseline col-12 col-lg-6 col-xl-6">
 				<Form.Label
-					htmlFor={coId}
+					htmlFor={CONDITION_OPERATOR_ID}
 					className="me-4"
 					style={{ minWidth: "160px" }}
 				>
 					Fecha de entrega:{" "}
 				</Form.Label>
 				<Form.Control
-					id={coId}
+					id={CONDITION_OPERATOR_ID}
 					ref={dueDateRef}
 					type="datetime-local"
 					onChange={() => {
 						dateInputChange("dueDate", dueDateRef);
 					}}
-					defaultValue={requisiteEdit ? requisiteEdit : defaultValueFiveMinutes}
+					defaultValue={requisiteEdit ? requisiteEdit : DEFAULT_VALUE_5_MINUTES}
 				/>
 			</div>
 			<div className="d-flex align-items-baseline col-12 col-lg-6 col-xl-6">
 				<Form.Label
-					htmlFor={coId}
+					htmlFor={CONDITION_OPERATOR_ID}
 					className="me-4"
 					style={{ minWidth: "160px" }}
 				>
 					Fecha límite:{" "}
 				</Form.Label>
 				<Form.Control
-					id={coId}
+					id={CONDITION_OPERATOR_ID}
 					type="datetime-local"
 					ref={closeTimeRef}
 					onChange={() => {
 						dateInputChange("closeTime", closeTimeRef);
 					}}
-					defaultValue={requisiteEdit ? requisiteEdit : defaultValueTenMinutes}
+					defaultValue={
+						requisiteEdit ? requisiteEdit : DEFAULT_VALUE_10_MINUTES
+					}
 				/>
 			</div>
 			{errorForm && errorForm.length >= 1 && (

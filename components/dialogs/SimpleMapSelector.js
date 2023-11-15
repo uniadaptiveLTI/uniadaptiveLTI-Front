@@ -12,7 +12,7 @@ export default function SimpleMapSelector({
 	selectedVersion,
 }) {
 	const selectDOM = useRef(null);
-	const selectLabel = useId();
+	const SELECT_LABEL_ID = useId();
 	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
 
 	function handleClose(actionClicked) {
@@ -33,12 +33,12 @@ export default function SimpleMapSelector({
 			<Modal.Body>
 				<Form>
 					<Form.Group className="mb-3">
-						<Form.Label htmlFor={selectLabel} className="mb-1">
+						<Form.Label htmlFor={SELECT_LABEL_ID} className="mb-1">
 							Seleccione un mapa de los siguientes
 						</Form.Label>
 						<Form.Select
 							ref={selectDOM}
-							id={selectLabel}
+							id={SELECT_LABEL_ID}
 							className="w-100"
 							defaultValue={mapSelected.id}
 						>

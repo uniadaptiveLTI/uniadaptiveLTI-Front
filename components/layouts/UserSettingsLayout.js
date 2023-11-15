@@ -32,11 +32,11 @@ export default function UserSettingsLayout({ children, paneRef, LTISettings }) {
 	useEffect(() => {
 		if (paneRef.current) {
 			setCurrentPane(paneRef.current);
-			const refs = [];
+			const REFS = [];
 			Object.keys(paneRef.current).forEach((ref) =>
-				refs.push(paneRef.current[ref])
+				REFS.push(paneRef.current[ref])
 			);
-			setCurrentPaneRefs(orderByPropertyAlphabetically(refs, "name"));
+			setCurrentPaneRefs(orderByPropertyAlphabetically(REFS, "name"));
 		}
 	}, [paneRef.current]);
 

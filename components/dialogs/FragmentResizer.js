@@ -14,18 +14,18 @@ export default function FragmentResizer({
 	const rfNodes = useNodes();
 	const fragment = getNodeById(id, rfNodes);
 	const { settings, setSettings } = useContext(SettingsContext);
-	const parsedSettings = JSON.parse(settings);
-	const { snappingInFragment } = parsedSettings;
+	const PARSED_SETTINGS = JSON.parse(settings);
+	const { snappingInFragment } = PARSED_SETTINGS;
 	const [width, setWidth] = useState(Math.ceil(fragment.style.width / 125));
 	const [height, setHeight] = useState(Math.ceil(fragment.style.height / 225));
-	const maxWidth = 25;
-	const maxHeight = 5;
-	const widthControl = useRef(null);
-	const heightControl = useRef(null);
+	const MAX_WIDTH = 25;
+	const MAX_HEIGHT = 5;
+	const WIDTH_CONTROL = useRef(null);
+	const HEIGHT_CONTROL = useRef(null);
 	function handleClose(actionClicked) {
 		if (callback && actionClicked) {
 			if (callback instanceof Function) {
-				callback(Math.min(height, maxHeight), Math.min(width, maxWidth));
+				callback(Math.min(height, MAX_HEIGHT), Math.min(width, MAX_WIDTH));
 				reactFlowInstance.fitView();
 			} else {
 				console.warn("Callback isn't a function");
@@ -35,21 +35,21 @@ export default function FragmentResizer({
 	}
 
 	useEffect(() => {
-		if (widthControl.value > maxWidth) {
-			widthControl.value = maxWidth;
+		if (WIDTH_CONTROL.value > MAX_WIDTH) {
+			WIDTH_CONTROL.value = MAX_WIDTH;
 		}
 
-		if (heightControl.value > maxHeight) {
-			heightControl.value = maxHeight;
+		if (HEIGHT_CONTROL.value > MAX_HEIGHT) {
+			HEIGHT_CONTROL.value = MAX_HEIGHT;
 		}
-	}, [widthControl.value, heightControl.value]);
+	}, [WIDTH_CONTROL.value, HEIGHT_CONTROL.value]);
 
 	useEffect(() => {
 		setWidth(Math.ceil(fragment.style.width / 125));
 		setHeight(Math.ceil(fragment.style.height / 200));
-		if (widthControl.current && heightControl.current) {
-			widthControl.current.value = Math.ceil(fragment.style.width / 125);
-			heightControl.current.value = Math.ceil(fragment.style.height / 225);
+		if (WIDTH_CONTROL.current && HEIGHT_CONTROL.current) {
+			WIDTH_CONTROL.current.value = Math.ceil(fragment.style.width / 125);
+			HEIGHT_CONTROL.current.value = Math.ceil(fragment.style.height / 225);
 		}
 	}, [showDialog]);
 	return (
@@ -63,14 +63,14 @@ export default function FragmentResizer({
 						<div>
 							Contendrá{" "}
 							<Form.Control
-								ref={widthControl}
+								ref={WIDTH_CONTROL}
 								defaultValue={width}
 								type="number"
 								min={1}
-								max={maxWidth}
+								max={MAX_WIDTH}
 								onChange={(e) => setWidth(e.target.value)}
 								onInput={(e) =>
-									(e.target.value = Math.min(e.target.value, maxWidth))
+									(e.target.value = Math.min(e.target.value, MAX_WIDTH))
 								}
 								style={{ display: "inline-block", maxWidth: "4em" }}
 							/>{" "}
@@ -79,14 +79,14 @@ export default function FragmentResizer({
 						<div>
 							Contendrá{" "}
 							<Form.Control
-								ref={heightControl}
+								ref={HEIGHT_CONTROL}
 								defaultValue={height}
 								type="number"
 								min={1}
-								max={maxHeight}
+								max={MAX_HEIGHT}
 								onChange={(e) => setHeight(e.target.value)}
 								onInput={(e) =>
-									(e.target.value = Math.min(e.target.value, maxHeight))
+									(e.target.value = Math.min(e.target.value, MAX_HEIGHT))
 								}
 								style={{ display: "inline-block", maxWidth: "4em" }}
 								autoFocus

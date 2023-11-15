@@ -41,12 +41,12 @@ const ConditionalEdge = ({
 	const [animatedLine, setAnimatedLine] = useState(false);
 
 	function findConditionByParentId(subConditions, blockNodeId) {
-		for (const subCondition of subConditions) {
-			const foundCondition = subCondition.subConditions?.find((condition) => {
+		for (const SUBCONDITION of subConditions) {
+			const FOUND_CONDITION = SUBCONDITION.subConditions?.find((condition) => {
 				return condition.itemId === blockNodeId;
 			});
-			if (foundCondition) {
-				return foundCondition;
+			if (FOUND_CONDITION) {
+				return FOUND_CONDITION;
 			}
 		}
 
@@ -54,43 +54,43 @@ const ConditionalEdge = ({
 	}
 
 	useEffect(() => {
-		const shouldAnimate = lineType == "or" ? true : false;
+		const SHOULD_ANIMATE = lineType == "or" ? true : false;
 		setAnimatedLine(lineType == "or" ? true : false);
-		animated = shouldAnimate;
-		rfEdges.find((edge) => edge.id == id).animated = shouldAnimate;
+		animated = SHOULD_ANIMATE;
+		rfEdges.find((edge) => edge.id == id).animated = SHOULD_ANIMATE;
 	}, [lineType]);
 
 	// FIXME: GET ALL CHILDREN AND SHOW ONLY 2 CONDITIONS MAX
 	const getSelfCondition = () => {
-		const targetNode = getNodeById(target, rfNodes);
-		const sourceNode = getNodeById(source, rfNodes);
+		const TARGET_NODE = getNodeById(target, rfNodes);
+		const SOURCE_NODE = getNodeById(source, rfNodes);
 		//console.log(targetNode, sourceNode);
 
 		switch (platform) {
 			case "moodle":
-				if (targetNode && targetNode.data && targetNode.data.c) {
-					const conditions = targetNode.data.c;
+				if (TARGET_NODE && TARGET_NODE.data && TARGET_NODE.data.c) {
+					const CONDITIONS = TARGET_NODE.data.c;
 					let condition = undefined;
-					if (targetNode.type !== "badge") {
-						condition = findConditionById(sourceNode.id, conditions.c);
+					if (TARGET_NODE.type !== "badge") {
+						condition = findConditionById(SOURCE_NODE.id, CONDITIONS.c);
 					} else {
-						condition = findConditionById(sourceNode.id, conditions.params);
+						condition = findConditionById(SOURCE_NODE.id, CONDITIONS.params);
 					}
 
 					if (condition) {
-						if (sourceNode && sourceNode.data && sourceNode.data.label) {
+						if (SOURCE_NODE && SOURCE_NODE.data && SOURCE_NODE.data.label) {
 							return getReadableCondition(condition, source);
 						}
 					}
 				}
 			case "sakai":
-				if (sourceNode && targetNode && targetNode.data.gradeRequisites) {
-					const condition = findConditionByParentId(
-						targetNode.data.gradeRequisites.subConditions,
-						sourceNode.id
+				if (SOURCE_NODE && TARGET_NODE && TARGET_NODE.data.gradeRequisites) {
+					const CONDITION = findConditionByParentId(
+						TARGET_NODE.data.gradeRequisites.subConditions,
+						SOURCE_NODE.id
 					);
 
-					return getReadableCondition(condition);
+					return getReadableCondition(CONDITION);
 				}
 		}
 	};
@@ -121,12 +121,12 @@ const ConditionalEdge = ({
 					}
 				} else if (condition.params) {
 					//TODO: CHANGE THIS
-					const sourceNode = getNodeById(source, rfNodes);
-					const matchingCondition = condition.params.find(
-						(node) => node.id === sourceNode.id
+					const SOURCE_NODE = getNodeById(source, rfNodes);
+					const MATCHING_CONDITION = condition.params.find(
+						(node) => node.id === SOURCE_NODE.id
 					);
 
-					if (matchingCondition) {
+					if (MATCHING_CONDITION) {
 						switch (condition.op) {
 							case "|":
 								if (lineType != "OR") setLineType("OR");
@@ -135,11 +135,11 @@ const ConditionalEdge = ({
 								if (lineType != "AND") setLineType("AND");
 						}
 
-						if (matchingCondition?.date) {
+						if (MATCHING_CONDITION?.date) {
 							return (
 								<>
 									Completado antes del <br></br>{" "}
-									{parseDate(matchingCondition.date)}
+									{parseDate(MATCHING_CONDITION.date)}
 									<br />
 								</>
 							);
@@ -175,23 +175,23 @@ const ConditionalEdge = ({
 			return null;
 		}
 
-		const foundCondition = conditions.find((condition) => condition.cm === id);
+		const FOUND_CONDITION = conditions.find((condition) => condition.cm === id);
 		//console.log(conditions);
-		if (foundCondition) {
-			return foundCondition;
+		if (FOUND_CONDITION) {
+			return FOUND_CONDITION;
 		} else {
-			const foundActionCondition = conditions.find(
+			const FOUND_ACTION_CONDITION = conditions.find(
 				(condition) => condition.type === "completion"
 			);
 
-			if (foundActionCondition) return foundActionCondition;
+			if (FOUND_ACTION_CONDITION) return FOUND_ACTION_CONDITION;
 		}
 
-		for (const condition of conditions) {
-			if (condition.c) {
-				const innerCondition = findConditionById(id, condition.c);
-				if (innerCondition) {
-					return innerCondition;
+		for (const CONDITION of conditions) {
+			if (CONDITION.c) {
+				const INNER_CONDITION = findConditionById(id, CONDITION.c);
+				if (INNER_CONDITION) {
+					return INNER_CONDITION;
 				}
 			}
 		}
@@ -209,9 +209,9 @@ const ConditionalEdge = ({
 				if (child.id === id) {
 					return jsonObj;
 				} else if (child.type === "conditionsGroup") {
-					const parent = findParent(child, id);
-					if (parent) {
-						return parent;
+					const PARENT = findParent(child, id);
+					if (PARENT) {
+						return PARENT;
 					}
 				}
 			}
@@ -229,9 +229,9 @@ const ConditionalEdge = ({
 					continue; // Skip the child with the given ID
 				}
 				if (child.type === "conditionsGroup") {
-					const foundChildren = findChildren(child, id, excludedId);
-					if (foundChildren.length > 0) {
-						children = children.concat(foundChildren); // Found children in the child's subtree
+					const FOUND_CHILDREN = findChildren(child, id, excludedId);
+					if (FOUND_CHILDREN.length > 0) {
+						children = children.concat(FOUND_CHILDREN); // Found children in the child's subtree
 					}
 				}
 				children.push(child); // Add the child to the result

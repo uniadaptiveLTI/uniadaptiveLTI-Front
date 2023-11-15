@@ -25,8 +25,8 @@ export default function CustomControls({
 	fitViewOptions,
 }) {
 	const { settings, setSettings } = useContext(SettingsContext);
-	const parsedSettings = JSON.parse(settings);
-	const [details, setDetails] = useState(parsedSettings.showDetails);
+	const PARSED_SETTINGS = JSON.parse(settings);
+	const [details, setDetails] = useState(PARSED_SETTINGS.showDetails);
 	const toggleDetails = () => setDetails(!details);
 	const toggleInteractive = () => setInteractive(!interactive);
 	const toggleMinimap = () => setMinimap(!minimap);
@@ -43,15 +43,15 @@ export default function CustomControls({
 
 	useLayoutEffect(() => {
 		//Set settings with changes
-		const newSettings = JSON.parse(settings);
-		newSettings.showDetails = details;
-		setSettings(JSON.stringify(newSettings));
+		const NEW_SETTINGS = JSON.parse(settings);
+		NEW_SETTINGS.showDetails = details;
+		setSettings(JSON.stringify(NEW_SETTINGS));
 	}, [details]);
 
 	useLayoutEffect(() => {
 		//React to settings changes
-		const newSettings = JSON.parse(settings);
-		setDetails(newSettings.showDetails);
+		const NEW_SETTINGS = JSON.parse(settings);
+		setDetails(NEW_SETTINGS.showDetails);
 	}, [settings]);
 
 	return (

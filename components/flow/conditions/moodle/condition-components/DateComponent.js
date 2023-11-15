@@ -21,7 +21,7 @@ const DateComponent = ({
 	deleteCondition,
 	swapConditionParam,
 }) => {
-	const mainCondition = conditionsList.c.some((c) => c.id === condition.id);
+	const MAIN_CONDITION = conditionsList.c.some((c) => c.id === condition.id);
 
 	return (
 		<Container
@@ -29,7 +29,7 @@ const DateComponent = ({
 			style={{ padding: "10px", border: "1px solid #C7C7C7" }}
 		>
 			<Row className="align-items-center">
-				{mainCondition &&
+				{MAIN_CONDITION &&
 					(conditionsList.op === "&" || conditionsList.op === "!|") && (
 						<Col className="col-1">
 							<Button

@@ -45,7 +45,7 @@ const EnabledInput = ({
 
 const QualificationForm = forwardRef(
 	({ gradeConditionType, blockData, reactFlowInstance, initialGrade }, ref) => {
-		const nodes = reactFlowInstance.getNodes();
+		const NODES = reactFlowInstance.getNodes();
 		const [showExtra, setShowExtra] = useState(
 			initialGrade?.hasConditions || false
 		);
@@ -53,13 +53,13 @@ const QualificationForm = forwardRef(
 			initialGrade?.hasToBeQualified || false
 		);
 		const [maxError, setMaxError] = useState(false);
-		const childrenNodes = blockData.data.children.map((children) =>
+		const CHILDREN_NODES = blockData.data.children.map((children) =>
 			getNodeById(children, reactFlowInstance.getNodes())
 		);
 		const [hasQualifiedUsage, setHasQualifiedUsage] = useState(
-			childrenNodes
-				.map((cn) => hasConditionsNeedingQualifications(cn))
-				.some((v) => v === true)
+			CHILDREN_NODES.map((cn) => hasConditionsNeedingQualifications(cn)).some(
+				(v) => v === true
+			)
 		);
 		// Refs
 
@@ -73,8 +73,8 @@ const QualificationForm = forwardRef(
 
 		// IDs
 
-		const minID = useId();
-		const maxID = useId();
+		const MIN_ID = useId();
+		const MAX_ID = useId();
 
 		function getRequired(type) {
 			let requirementArray = [false, false, false];
@@ -87,11 +87,11 @@ const QualificationForm = forwardRef(
 
 		function updateRef() {
 			let qualificationResult = {};
-			const requirementArray = getRequired(blockData.type);
+			const REQUIREMENT_ARRY = getRequired(blockData.type);
 
-			const checkedQualified = hasToBeQualifiedRef.current?.checked || false;
-			const minValue = Number(minRef.current?.value) || 0;
-			const maxValue =
+			const CHECKED_QUALIFIED = hasToBeQualifiedRef.current?.checked || false;
+			const MIN_VALUE = Number(minRef.current?.value) || 0;
+			const MAX_VALUE =
 				blockData.type != "quiz" ? Number(maxRef.current?.value) || 0 : 0;
 
 			const getResult = () => {
@@ -101,8 +101,8 @@ const QualificationForm = forwardRef(
 					hasToBeQualified: hasToBeQualifiedRef.current?.checked || false,
 					data: hasConditionsRef.current?.checked
 						? {
-								min: minValue,
-								max: maxValue,
+								min: MIN_VALUE,
+								max: MAX_VALUE,
 								hasToSelect: hasToSelectRef.current?.checked || false,
 						  }
 						: {
@@ -114,29 +114,29 @@ const QualificationForm = forwardRef(
 			};
 
 			//Tests if variables are correct
-			if (checkedQualified) {
+			if (CHECKED_QUALIFIED) {
 				if (
-					!requirementArray[0] &&
-					!requirementArray[1] &&
-					!requirementArray[2]
+					!REQUIREMENT_ARRY[0] &&
+					!REQUIREMENT_ARRY[1] &&
+					!REQUIREMENT_ARRY[2]
 				)
 					return getResult();
 
 				if (
-					requirementArray[0] &&
-					minValue > 0 &&
-					!requirementArray[1] &&
-					!requirementArray[2]
+					REQUIREMENT_ARRY[0] &&
+					MIN_VALUE > 0 &&
+					!REQUIREMENT_ARRY[1] &&
+					!REQUIREMENT_ARRY[2]
 				)
 					return getResult();
 
 				if (
-					requirementArray[0] &&
-					minValue > 0 &&
-					requirementArray[1] &&
-					maxValue > 0 &&
+					REQUIREMENT_ARRY[0] &&
+					MIN_VALUE > 0 &&
+					REQUIREMENT_ARRY[1] &&
+					MAX_VALUE > 0 &&
 					!maxError &&
-					!requirementArray[2]
+					!REQUIREMENT_ARRY[2]
 				)
 					return getResult();
 
@@ -230,12 +230,12 @@ const QualificationForm = forwardRef(
 										display: gradeConditionType != "choice" ? "flex" : "none",
 									}}
 								>
-									<Form.Label htmlFor={minID} style={{ width: "350px" }}>
+									<Form.Label htmlFor={MIN_ID} style={{ width: "350px" }}>
 										Calificación para aprobar
 									</Form.Label>
 									<Form.Control
 										ref={minRef}
-										id={minID}
+										id={MIN_ID}
 										type="number"
 										step="0.01"
 										min="1"
@@ -261,13 +261,13 @@ const QualificationForm = forwardRef(
 											: "none",
 									}}
 								>
-									<Form.Label htmlFor={maxID} style={{ width: "350px" }}>
+									<Form.Label htmlFor={MAX_ID} style={{ width: "350px" }}>
 										Calificación máxima
 									</Form.Label>
 									<div className="d-flex flex-column w-100">
 										<Form.Control
 											ref={maxRef}
-											id={maxID}
+											id={MAX_ID}
 											type="number"
 											step="0.01"
 											min="1"

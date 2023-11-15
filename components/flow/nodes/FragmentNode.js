@@ -41,8 +41,8 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 	const { devModeStatus } = useContext(DevModeStatusContext);
 	const reactFlowInstance = useReactFlow();
 	const { settings, setSettings } = useContext(SettingsContext);
-	const parsedSettings = JSON.parse(settings);
-	const { highContrast, showDetails, reducedAnimations } = parsedSettings;
+	const PARSED_SETTINGS = JSON.parse(settings);
+	const { highContrast, showDetails, reducedAnimations } = PARSED_SETTINGS;
 	const [originalChildrenStatus, setOriginalChildrenStatus] = useState(
 		data.innerNodes
 	);
@@ -56,10 +56,10 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 	const [originalExpandedSize, setOriginalExpandedSize] = useState();
 
 	const handleEdit = () => {
-		const blockData = getNodeById(id, reactFlowInstance.getNodes());
+		const BLOCKDATA = getNodeById(id, reactFlowInstance.getNodes());
 		setExpandedAside(true);
 		setEditVersionSelected("");
-		setNodeSelected(blockData);
+		setNodeSelected(BLOCKDATA);
 	};
 
 	const getInnerNodes = () => {
@@ -68,113 +68,113 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 
 	useLayoutEffect(() => {
 		//Asigns children on creation/render
-		const changesArray = [];
+		const CHANGES_ARRAY = [];
 		data.innerNodes.map((innerNode) => {
-			const node = getNodeById(innerNode.id, reactFlowInstance.getNodes());
-			if (node) {
-				node.parentNode = id;
-				node.expandParent = true;
-				node.position = innerNode.position;
-				changesArray.push(node);
+			const NODE = getNodeById(innerNode.id, reactFlowInstance.getNodes());
+			if (NODE) {
+				NODE.parentNode = id;
+				NODE.expandParent = true;
+				NODE.position = innerNode.position;
+				CHANGES_ARRAY.push(NODE);
 			}
 		});
 
 		reactFlowInstance.setNodes(
-			getUpdatedArrayById(changesArray, reactFlowInstance.getNodes())
+			getUpdatedArrayById(CHANGES_ARRAY, reactFlowInstance.getNodes())
 		);
 	}, []);
 
 	useLayoutEffect(() => {
 		//Sets nodes on map load and on following updates
-		const currentInnerNodes = getInnerNodes();
-		const currentNode = getNodeById(id, reactFlowInstance.getNodes());
-		const styles = currentNode.style
-			? currentNode.style
+		const CURRENT_INNER_NODES = getInnerNodes();
+		const CURRENT_NODE = getNodeById(id, reactFlowInstance.getNodes());
+		const STYLES = CURRENT_NODE.style
+			? CURRENT_NODE.style
 			: { height: 68, width: 68 };
 
-		if (currentInnerNodes) {
+		if (CURRENT_INNER_NODES) {
 			if (!expanded) {
 				//Moves the position of the invisible blocks on the top of the node
-				const newInnerNodes = currentInnerNodes.map((node) => {
+				const NEW_INNER_NODES = CURRENT_INNER_NODES.map((node) => {
 					{
 						node.position = { x: 0, y: 0 };
 						return node;
 					}
 				});
 
-				const updatedNodes = reactFlowInstance.getNodes().map((node) => {
-					const matchingNode = newInnerNodes.find(
+				const UPDATED_NODES = reactFlowInstance.getNodes().map((node) => {
+					const MATCHING_NODE = NEW_INNER_NODES.find(
 						(innerNode) => innerNode.id === node.id
 					);
-					if (matchingNode) {
+					if (MATCHING_NODE) {
 						return {
 							...node,
-							...matchingNode,
+							...MATCHING_NODE,
 						};
 					}
 					return node;
 				});
 
-				if (currentInnerNodes.length == 0) {
+				if (CURRENT_INNER_NODES.length == 0) {
 					setOriginalExpandedSize({ width: 193, height: 200 });
 				} else {
-					if (styles.width != 68 && styles.height != 68)
+					if (STYLES.width != 68 && STYLES.height != 68)
 						setOriginalExpandedSize({
-							width: styles.width,
-							height: styles.height,
+							width: STYLES.width,
+							height: STYLES.height,
 						});
 				}
 
-				styles.width = styles.height = 68;
+				STYLES.width = STYLES.height = 68;
 
 				reactFlowInstance.setNodes(
 					getUpdatedArrayById(
-						[...updatedNodes, { ...currentNode, style: styles }],
+						[...UPDATED_NODES, { ...CURRENT_NODE, style: STYLES }],
 						reactFlowInstance.getNodes()
 					)
 				);
 			} else {
 				//Moves the position of the visible blocks to its stored positions
-				const maxPositions = { x: 0, y: 0 };
-				const newInnerNodes = currentInnerNodes.map((node, index) => {
+				const MAX_POSITIONS = { x: 0, y: 0 };
+				const NEW_INNER_NODES = CURRENT_INNER_NODES.map((node, index) => {
 					{
-						const nodeX = data.innerNodes[index].position.x;
-						const nodeY = data.innerNodes[index].position.y;
+						const NODE_X = data.innerNodes[index].position.x;
+						const NODE_Y = data.innerNodes[index].position.y;
 						node.position = {
-							x: nodeX,
-							y: nodeY,
+							x: NODE_X,
+							y: NODE_Y,
 						};
-						maxPositions.x < nodeX ? (maxPositions.x = nodeX) : null;
-						maxPositions.y < nodeY ? (maxPositions.y = nodeY) : null;
+						MAX_POSITIONS.x < NODE_X ? (MAX_POSITIONS.x = NODE_X) : null;
+						MAX_POSITIONS.y < NODE_Y ? (MAX_POSITIONS.y = NODE_Y) : null;
 
 						return node;
 					}
 				});
 
-				const updatedNodes = reactFlowInstance.getNodes().map((node) => {
-					const matchingNode = newInnerNodes.find(
+				const UPDATED_NODES = reactFlowInstance.getNodes().map((node) => {
+					const MATCHING_NODE = NEW_INNER_NODES.find(
 						(innerNode) => innerNode.id === node.id
 					);
-					if (matchingNode) {
+					if (MATCHING_NODE) {
 						return {
 							...node,
-							...matchingNode,
+							...MATCHING_NODE,
 						};
 					}
 					return node;
 				});
 
 				if (!originalExpandedSize) {
-					styles.width = maxPositions.x + 68;
-					styles.height = maxPositions.y + 68;
+					STYLES.width = MAX_POSITIONS.x + 68;
+					STYLES.height = MAX_POSITIONS.y + 68;
 				} else {
-					styles.width = originalExpandedSize.width;
-					styles.height = originalExpandedSize.height;
+					STYLES.width = originalExpandedSize.width;
+					STYLES.height = originalExpandedSize.height;
 				}
 
 				reactFlowInstance.setNodes(
 					getUpdatedArrayById(
-						[...updatedNodes, { ...currentNode, style: styles }],
+						[...UPDATED_NODES, { ...CURRENT_NODE, style: STYLES }],
 						reactFlowInstance.getNodes()
 					)
 				);
@@ -214,7 +214,7 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 
 	const restrictedChildren = (width, height) => {
 		//Forces children to be in bounds
-		const result = getInnerNodes().map((children) => {
+		const RESULT = getInnerNodes().map((children) => {
 			let cwidth = children.position.x;
 			let cheight = children.position.y;
 
@@ -226,66 +226,66 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 			}
 			return { id: children.id, position: { x: cwidth, y: cheight } };
 		});
-		return result;
+		return RESULT;
 	};
 
 	const handleResizeEnd = (e, p) => {
-		const newWidth = p.width - 68;
-		const newHeight = p.height - 126;
+		const NEW_WIDTH = p.width - 68;
+		const NEW_HEIGHT = p.height - 126;
 
-		const restrictedChildrenArray = restrictedChildren(newWidth, newHeight);
+		const RESTRICTED_CHILDREN_ARRAY = restrictedChildren(NEW_WIDTH, NEW_HEIGHT);
 
-		const updatedInfo = {
+		const UPDATED_INFO = {
 			id: id,
-			data: { ...data, innerNodes: restrictedChildrenArray },
+			data: { ...data, innerNodes: RESTRICTED_CHILDREN_ARRAY },
 		};
 
 		reactFlowInstance.setNodes(
 			getUpdatedArrayById(
-				[updatedInfo, ...restrictedChildrenArray],
+				[UPDATED_INFO, ...RESTRICTED_CHILDREN_ARRAY],
 				reactFlowInstance.getNodes()
 			)
 		);
 	};
 
 	const resizeFragment = (height, width) => {
-		const currentNode = getNodeById(id, reactFlowInstance.getNodes());
-		const style = { height: height * 200, width: width * 125 };
-		currentNode.style = style;
-		currentNode.height = style.height;
-		currentNode.width = style.width;
+		const CURRENT_NODE = getNodeById(id, reactFlowInstance.getNodes());
+		const STYLE = { height: height * 200, width: width * 125 };
+		CURRENT_NODE.style = STYLE;
+		CURRENT_NODE.height = STYLE.height;
+		CURRENT_NODE.width = STYLE.width;
 
-		const restrictedChildrenArray = restrictedChildren(
-			style.width - 125,
-			style.height - 200
+		const RESTRICTED_CHILDREN_ARRAY = restrictedChildren(
+			STYLE.width - 125,
+			STYLE.height - 200
 		);
 
 		let updatedChildrenBlockData = [];
-		for (const [index, childNode] of originalChildrenStatus.entries()) {
-			const newNode = getNodeById(childNode.id, reactFlowInstance.getNodes());
-			newNode.position.x = restrictedChildrenArray[index].position.x;
-			newNode.position.y = restrictedChildrenArray[index].position.y;
+		for (const [INDEX, CHILD_NODE] of originalChildrenStatus.entries()) {
+			const NEW_NODE = getNodeById(CHILD_NODE.id, reactFlowInstance.getNodes());
+			NEW_NODE.position.x = RESTRICTED_CHILDREN_ARRAY[INDEX].position.x;
+			NEW_NODE.position.y = RESTRICTED_CHILDREN_ARRAY[INDEX].position.y;
 
 			updatedChildrenBlockData.push({
-				id: childNode.id,
-				x: restrictedChildrenArray[index].x,
-				y: restrictedChildrenArray[index].y,
+				id: CHILD_NODE.id,
+				x: RESTRICTED_CHILDREN_ARRAY[INDEX].x,
+				y: RESTRICTED_CHILDREN_ARRAY[INDEX].y,
 			});
 		}
 
 		reactFlowInstance.setNodes(
 			getUpdatedArrayById(
-				[currentNode, ...updatedChildrenBlockData],
+				[CURRENT_NODE, ...updatedChildrenBlockData],
 				reactFlowInstance.getNodes()
 			)
 		);
 	};
 
 	const dismantleSelf = () => {
-		const currentNode = getNodeById(id, reactFlowInstance.getNodes());
-		const innerNodes = getInnerNodes();
+		const CURRENT_NODE = getNodeById(id, reactFlowInstance.getNodes());
+		const INNER_NODE = getInnerNodes();
 
-		const updatedInnerNodes = innerNodes.map((node) => {
+		const UPDATED_INNER_NODES = INNER_NODE.map((node) => {
 			node.parentNode = undefined;
 			node.expandParent = false;
 			node.position = node.positionAbsolute;
@@ -294,7 +294,7 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 
 		reactFlowInstance.setNodes(
 			getUpdatedArrayById(
-				updatedInnerNodes,
+				UPDATED_INNER_NODES,
 				reactFlowInstance.getNodes().filter((node) => node.id != id)
 			)
 		);

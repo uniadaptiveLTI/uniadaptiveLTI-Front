@@ -42,7 +42,6 @@ import {
 } from "@utils/Utils";
 import {
 	getNodeByNodeDOM,
-	thereIsReservedNodesInArray,
 	getNodeDOMById,
 	getNodeById,
 	getChildrenNodesFromFragmentID,
@@ -67,13 +66,13 @@ import { isSupportedTypeInPlatform } from "@utils/Platform.js";
 import CustomControls from "./flow/CustomControls.js";
 import SimpleActionDialog from "./dialogs/SimpleActionDialog.js";
 
-const minimapStyle = {
+const MINIMAP_STYLE = {
 	height: 120,
 };
 
-const deleteKeyCodes = ["Backspace", "Delete"];
+const DELETE_KEY_CODES = ["Backspace", "Delete"];
 
-const nodeTypes = {
+const NODE_TYPES = {
 	addgroup: ActionNode,
 	assign: ElementNode,
 	folder: ElementNode,
@@ -111,7 +110,7 @@ const nodeTypes = {
 	fragment: FragmentNode,
 };
 
-const edgeTypes = {
+const EDGE_TYPES = {
 	conditionalEdge: ConditionalEdge,
 };
 
@@ -171,7 +170,7 @@ const OverviewFlow = ({ map }, ref) => {
 
 	const [showRequisitesModal, setShowRequisitesModal] = useState(false);
 
-	const deletePressed = useKeyPress(deleteKeyCodes);
+	const deletePressed = useKeyPress(DELETE_KEY_CODES);
 	useEffect(() => {
 		addEventListeners(document.body, [
 			{
@@ -272,15 +271,15 @@ const OverviewFlow = ({ map }, ref) => {
 	 * @param {Node} node - The node being dragged.
 	 */
 	const onNodeDrag = (event, node) => {
-		const centerX = node.position.x + node.width / 2;
-		const centerY = node.position.y + node.height / 2;
+		const NODE_CENTER_X = node.position.x + node.width / 2;
+		const NODE_CENTER_Y = node.position.y + node.height / 2;
 
 		const targetNode = nodes.find(
 			(n) =>
-				centerX > n.position.x &&
-				centerX < n.position.x + n.width &&
-				centerY > n.position.y &&
-				centerY < n.position.y + n.height &&
+				NODE_CENTER_X > n.position.x &&
+				NODE_CENTER_X < n.position.x + n.width &&
+				NODE_CENTER_Y > n.position.y &&
+				NODE_CENTER_Y < n.position.y + n.height &&
 				n.id !== node.id
 		);
 
@@ -662,18 +661,18 @@ const OverviewFlow = ({ map }, ref) => {
 			}
 
 			// Find the node to be deleted in the updated blocks array
-			const blockNodeDelete = updatedBlocksArray.find(
+			const NODE_DELETED = updatedBlocksArray.find(
 				(obj) => obj.id === edge.source
 			);
 
 			// If the node to be deleted exists and has children, update its children and conditions
-			if (blockNodeDelete && blockNodeDelete.children) {
-				blockNodeDelete.children = blockNodeDelete.children.filter(
+			if (NODE_DELETED && NODE_DELETED.children) {
+				NODE_DELETED.children = NODE_DELETED.children.filter(
 					(child) => child !== edge.target
 				);
 
-				if (blockNodeDelete.children.length === 0) {
-					blockNodeDelete.children = undefined;
+				if (NODE_DELETED.children.length === 0) {
+					NODE_DELETED.children = undefined;
 				}
 			}
 		});
@@ -706,7 +705,7 @@ const OverviewFlow = ({ map }, ref) => {
 		//Close Aside
 		setExpandedAside(false);
 		// Array of blocks that its children or conditions are being updated
-		var updatedBlocks = [];
+		let updatedNodes = [];
 
 		//For each fragment in the selection, adds its children.
 		blocks.forEach((block) => {
@@ -726,39 +725,39 @@ const OverviewFlow = ({ map }, ref) => {
 		// Iteration of the blocks to delete
 		blocks.map((block) => {
 			// Get method to retreive the parents nodes from a block
-			const parentsNode = getParentsNode(
+			const PARENTS_NODE = getParentsNode(
 				reactFlowInstance.getNodes(),
 				block.id
 			);
 
 			// Iteration of the parents nodes
-			parentsNode.map((parentNode) => {
+			PARENTS_NODE.map((parentNode) => {
 				// Condition to check if one of the parents it isn't being deleted
 				if (!blocks.some((block) => block.id === parentNode.id)) {
 					// Find method to check if the parent is already edited
-					const foundParentNode = updatedBlocks.find(
+					const FOUND_PARENT_NODE = updatedNodes.find(
 						(block) => block.id === parentNode.id
 					);
 
 					// Condition to check if the parent is already edited
-					if (foundParentNode) {
+					if (FOUND_PARENT_NODE) {
 						// Constant that updates the existing parent
-						const updatedNode = {
-							...foundParentNode,
+						const UPDATED_NODE = {
+							...FOUND_PARENT_NODE,
 							data: {
-								...foundParentNode.data,
-								children: foundParentNode.data.children.filter(
+								...FOUND_PARENT_NODE.data,
+								children: FOUND_PARENT_NODE.data.children.filter(
 									(childId) => !childId.includes(block.id)
 								),
 							},
 						};
 
 						// Map method to update the array of the blocks updated
-						const updatedBlocksArray = updatedBlocks.map((block) =>
-							block.id === parentNode.id ? updatedNode : block
+						const UPDATED_NODE_ARRAY = updatedNodes.map((block) =>
+							block.id === parentNode.id ? UPDATED_NODE : block
 						);
 
-						updatedBlocks = updatedBlocksArray;
+						updatedNodes = UPDATED_NODE_ARRAY;
 					} else {
 						// Filter method to update the children
 						parentNode.data.children = parentNode.data.children.filter(
@@ -766,23 +765,23 @@ const OverviewFlow = ({ map }, ref) => {
 						);
 
 						// Push method to store the updated node
-						updatedBlocks.push(parentNode);
+						updatedNodes.push(parentNode);
 					}
 				}
 			});
 
-			var nodeArray = reactFlowInstance.getNodes();
+			let nodeArray = reactFlowInstance.getNodes();
 
 			// Filter method to retrieve only the nodes that are the children of a block
 			if (block.data.children) {
-				const childrenNodes = nodeArray.filter((node) =>
+				const CHILDREN_NODES = nodeArray.filter((node) =>
 					block.data.children.includes(node.id.toString())
 				);
 
 				// Iteration of the children nodes
-				childrenNodes.map((childrenNode) => {
+				CHILDREN_NODES.map((childrenNode) => {
 					// Find method to check if the children is already edited
-					const foundChildrenNode = updatedBlocks.find(
+					const foundChildrenNode = updatedNodes.find(
 						(block) => block.id === childrenNode.id
 					);
 
@@ -823,7 +822,7 @@ const OverviewFlow = ({ map }, ref) => {
 						}
 
 						// Push method to store the updated node
-						updatedBlocks.push(childrenNode);
+						updatedNodes.push(childrenNode);
 					}
 				});
 			}
@@ -831,7 +830,7 @@ const OverviewFlow = ({ map }, ref) => {
 
 		// Update method to update the full array of nodes with the updated nodes
 		let updatedNodeArray = getUpdatedArrayById(
-			updatedBlocks,
+			updatedNodes,
 			reactFlowInstance.getNodes()
 		);
 
@@ -843,21 +842,21 @@ const OverviewFlow = ({ map }, ref) => {
 		});
 
 		//Clamp nodes order to avoid gaps
-		const finalNodeArray = getUpdatedArrayById(
+		const FINAL_NODE_ARRAY = getUpdatedArrayById(
 			clampNodesOrder(updatedNodeArray, platform),
 			updatedNodeArray
 		);
 
 		// Set method to update the full array of nodes
-		reactFlowInstance.setNodes(finalNodeArray);
+		reactFlowInstance.setNodes(FINAL_NODE_ARRAY);
 
 		// Check method for errors
 		errorListCheck(blocks, errorList, setErrorList, true);
 
 		//Reordering
 		const finalReorderedNodeArray = getUpdatedArrayById(
-			clampNodesOrder(finalNodeArray, platform),
-			finalNodeArray
+			clampNodesOrder(FINAL_NODE_ARRAY, platform),
+			FINAL_NODE_ARRAY
 		);
 
 		setRelationStarter(); //Empties relation memory in case the deleted block was used
@@ -965,7 +964,7 @@ const OverviewFlow = ({ map }, ref) => {
 	}, [map]);
 
 	useEffect(() => {
-		const filteredMap = map.map((node) => {
+		const FILTERED_MAP = map.map((node) => {
 			return isSupportedTypeInPlatform(platform, node.type)
 				? node
 				: isSupportedTypeInPlatform(platform, "generic")
@@ -975,7 +974,7 @@ const OverviewFlow = ({ map }, ref) => {
 
 		setNewInitialNodes(
 			clampNodesOrder(
-				filteredMap.filter((i) => i != null),
+				FILTERED_MAP.filter((i) => i != null),
 				platform
 			)
 		);
@@ -1010,18 +1009,18 @@ const OverviewFlow = ({ map }, ref) => {
 					edge.type = "conditionalEdge";
 
 					if (edge.target) {
-						const targetNode = getNodeById(
+						const TARGET_NODE = getNodeById(
 							edge.target,
 							reactFlowInstance.getNodes()
 						);
-						const actionNodes = NodeTypes.map((declaration) => {
+						const ACTION_NODES = NodeTypes.map((declaration) => {
 							if (declaration.nodeType == "ActionNode") return declaration.type;
 						});
-						if (targetNode)
-							if (actionNodes.includes(targetNode.type)) {
-								if (targetNode.data.c) {
-									if (Array.isArray(targetNode.data.c.c)) {
-										targetNode.data.c.c.forEach((condition) => {
+						if (TARGET_NODE)
+							if (ACTION_NODES.includes(TARGET_NODE.type)) {
+								if (TARGET_NODE.data.c) {
+									if (Array.isArray(TARGET_NODE.data.c.c)) {
+										TARGET_NODE.data.c.c.forEach((condition) => {
 											if (condition.type == "completed") {
 												if (condition.op == "|") {
 													edge.animated = true;
@@ -1059,7 +1058,7 @@ const OverviewFlow = ({ map }, ref) => {
 			const selectedNodes = getSelectedNodes(currentNodes);
 			setContextMenuOrigin("nodesselection");
 			setCMBlockData(selectedNodes);
-			setCMContainsReservedNodes(thereIsReservedNodesInArray(selectedNodes));
+			setCMContainsReservedNodes(``);
 		}
 
 		setShowContextualMenu(true);
@@ -1098,7 +1097,7 @@ const OverviewFlow = ({ map }, ref) => {
 
 		console.log(selectedNodes, reactFlowInstance);
 		setCMBlockData(selectedNodes);
-		setCMContainsReservedNodes(thereIsReservedNodesInArray(selectedNodes));
+		setCMContainsReservedNodes([]);
 		setShowContextualMenu(true);
 	};
 
@@ -1109,17 +1108,22 @@ const OverviewFlow = ({ map }, ref) => {
 	 * @returns {Object[]} - The updated array of objects with the specified child removed.
 	 */
 	const filterRelatedChildrenById = (id, arr) => {
-		return arr.map((b) => {
-			if (b.children?.includes(id)) {
-				const updatedChildren = b.children.filter((childId) => childId !== id);
+		return arr.map((node) => {
+			if (node.children?.includes(id)) {
+				const UPDATED_CHILDREN = node.children.filter(
+					(childId) => childId !== id
+				);
 				return {
-					...b,
-					children: updatedChildren.length ? updatedChildren : undefined,
+					...node,
+					children: UPDATED_CHILDREN.length ? UPDATED_CHILDREN : undefined,
 				};
-			} else if (b.children?.length) {
-				return { ...b, children: filterRelatedChildrenById(id, b.children) };
+			} else if (node.children?.length) {
+				return {
+					...node,
+					children: filterRelatedChildrenById(id, node.children),
+				};
 			} else {
-				return b;
+				return node;
 			}
 		});
 	};
@@ -1131,27 +1135,27 @@ const OverviewFlow = ({ map }, ref) => {
 	 * @returns {Object[]} - The updated array of objects with the specified condition filtered.
 	 */
 	const filterRelatedConditionsById = (unlockId, arr) => {
-		return arr.map((b) => {
-			if (b.data?.c?.length) {
-				const updatedConditions = b.data.c.filter(
+		return arr.map((node) => {
+			if (node.data?.c?.length) {
+				const UPDATED_CONDITIONS = node.data.c.filter(
 					(condition) => condition.unlockId !== unlockId
 				);
 				return {
-					...b,
+					...node,
 					data: {
-						c: updatedConditions.length ? updatedConditions : undefined,
+						c: UPDATED_CONDITIONS.length ? UPDATED_CONDITIONS : undefined,
 					},
 				};
-			} else if (b.data?.children?.length) {
+			} else if (node.data?.children?.length) {
 				return {
-					...b,
+					...node,
 					data: {
-						...b.data,
-						children: filterRelatedConditionsById(unlockId, b.data.children),
+						...node.data,
+						children: filterRelatedConditionsById(unlockId, node.data.children),
 					},
 				};
 			} else {
-				return b;
+				return node;
 			}
 		});
 	};
@@ -1163,14 +1167,14 @@ const OverviewFlow = ({ map }, ref) => {
 	 * @returns {Node[]} The updated array with the children added.
 	 */
 	const addFragmentChildrenFromFragment = (fragment, arr) => {
-		const parentNode = fragment.id;
-		const fragmentChildren = reactFlowInstance
+		const PARENT_NODE = fragment.id;
+		const FRAGMENT_CHILDREN = reactFlowInstance
 			.getNodes()
-			.filter((node) => node.parentNode == parentNode);
-		const filteredArr = arr.filter((oNode) =>
-			fragmentChildren.map((cNode) => cNode.id).includes(oNode.id)
+			.filter((node) => node.parentNode == PARENT_NODE);
+		const FILTERED_CHILDREN_ARRAY = arr.filter((oNode) =>
+			FRAGMENT_CHILDREN.map((cNode) => cNode.id).includes(oNode.id)
 		);
-		return [...filteredArr, ...fragmentChildren];
+		return [...FILTERED_CHILDREN_ARRAY, ...FRAGMENT_CHILDREN];
 	};
 
 	//TODO: REVISAR
@@ -1207,23 +1211,26 @@ const OverviewFlow = ({ map }, ref) => {
 			blockDataSet.push(...blockData);
 		}
 
-		const selected = deduplicateById([...blockDataSet, ...selectedNodes]);
+		const SELECTED = deduplicateById([...blockDataSet, ...selectedNodes]);
 
-		const childrenArray = [];
-		selected.forEach((node) => {
+		const CHILDREN_ARRAY = [];
+		SELECTED.forEach((node) => {
 			if (node.type == "fragment") {
 				const fragmentID = node.id;
 				const children = getChildrenNodesFromFragmentID(
 					fragmentID,
 					reactFlowInstance.getNodes()
 				);
-				childrenArray.push(...children);
+				CHILDREN_ARRAY.push(...children);
 			}
 		});
 
-		const completeSelection = deduplicateById([...childrenArray, ...selected]);
+		const COMPLETE_SELECTION = deduplicateById([
+			...CHILDREN_ARRAY,
+			...SELECTED,
+		]);
 
-		const cleanedSelection = completeSelection.map((node) => {
+		const CLEANED_SELECTION = COMPLETE_SELECTION.map((node) => {
 			delete node.dragging;
 			delete node.width;
 			delete node.height;
@@ -1237,20 +1244,20 @@ const OverviewFlow = ({ map }, ref) => {
 			return node;
 		});
 
-		const clipboardData = {
+		const CLIPBOARD_DATA = {
 			instance_id: metaData.instance_id,
 			course_id: metaData.course_id,
 			platform: metaData.platform, //Redundant, just in case
-			data: cleanedSelection,
+			data: CLEANED_SELECTION,
 		};
 
-		localStorage.setItem("clipboard", JSON.stringify(clipboardData));
+		localStorage.setItem("clipboard", JSON.stringify(CLIPBOARD_DATA));
 
-		console.info(`❓ New clipboard data:`, clipboardData);
+		console.info(`❓ New clipboard data:`, CLIPBOARD_DATA);
 
-		if (cleanedSelection.length > 0) {
+		if (CLEANED_SELECTION.length > 0) {
 			toast(
-				"Se han copiado " + cleanedSelection.length + " bloque(s) abstractos",
+				"Se han copiado " + CLEANED_SELECTION.length + " bloque(s) abstractos",
 				{
 					hideProgressBar: false,
 					autoClose: 2000,
@@ -1266,32 +1273,40 @@ const OverviewFlow = ({ map }, ref) => {
 	 * Handles the pasting of nodes.
 	 */
 	const handleNodePaste = () => {
-		const clipboardData = JSON.parse(localStorage.getItem("clipboard"));
-		if (clipboardData && clipboardData.data && clipboardData.data.length > 0) {
-			const copiedBlocks = clipboardData.data;
-			const newBlocksToPaste = [...copiedBlocks];
+		const CLIPBOARD_DATA = JSON.parse(localStorage.getItem("clipboard"));
+		if (
+			CLIPBOARD_DATA &&
+			CLIPBOARD_DATA.data &&
+			CLIPBOARD_DATA.data.length > 0
+		) {
+			const COPIED_BLOCKS = CLIPBOARD_DATA.data;
+			const NEW_BLOCKS_TO_PASTE = [...COPIED_BLOCKS];
 
-			const originalIDs = newBlocksToPaste.map((block) => block.id);
-			const newIDs = newBlocksToPaste.map(() => uniqueId());
-			const originalX = newBlocksToPaste.map((block) => block.position.x);
-			const originalY = newBlocksToPaste.map((block) => block.position.y);
-			const firstOneInX = Math.min(...originalX);
-			const firstOneInY = Math.min(...originalY);
-			const newX = originalX.map((x) => -firstOneInX + x);
-			const newY = originalY.map((y) => -firstOneInY + y);
-			//TODO: FRAGMENT PASTING CONSERVING CONDITIONS BETWEEN CHILDREN
-			const shouldEmptyResource = !(
-				metaData.instance_id == clipboardData.instance_id &&
-				metaData.course_id == clipboardData.course_id &&
-				metaData.platform == clipboardData.platform
+			const ORIGINAL_ID_ARRAY = NEW_BLOCKS_TO_PASTE.map((block) => block.id);
+			const NEW_ID_ARRAY = NEW_BLOCKS_TO_PASTE.map(() => uniqueId());
+			const ORIGINAL_X_ARRAY = NEW_BLOCKS_TO_PASTE.map(
+				(block) => block.position.x
 			);
-			const newBlocks = newBlocksToPaste.map((block, index) => {
+			const ORIGINAL_Y_ARRAY = NEW_BLOCKS_TO_PASTE.map(
+				(block) => block.position.y
+			);
+			const LOWER_X = Math.min(...ORIGINAL_X_ARRAY);
+			const LOWER_Y = Math.min(...ORIGINAL_Y_ARRAY);
+			const NEW_X_ARRAY = ORIGINAL_X_ARRAY.map((x) => -LOWER_X + x);
+			const NEY_Y_ARRAY = ORIGINAL_Y_ARRAY.map((y) => -LOWER_Y + y);
+			//TODO: FRAGMENT PASTING CONSERVING CONDITIONS BETWEEN CHILDREN
+			const SHOULD_EMPTY_RESOURCE = !(
+				metaData.instance_id == CLIPBOARD_DATA.instance_id &&
+				metaData.course_id == CLIPBOARD_DATA.course_id &&
+				metaData.platform == CLIPBOARD_DATA.platform
+			);
+			const newBlocks = NEW_BLOCKS_TO_PASTE.map((block, index) => {
 				let newID;
 				let originalID;
 
 				let filteredChildren = block.children
 					?.map((child) => {
-						newID = newIDs[originalIDs.indexOf(child)];
+						newID = NEW_ID_ARRAY[ORIGINAL_ID_ARRAY.indexOf(child)];
 						originalID = child;
 						return newID;
 					})
@@ -1299,15 +1314,15 @@ const OverviewFlow = ({ map }, ref) => {
 
 				//(Fragment) Adds the new parent to the children
 				if (block.parentNode) {
-					const parentIndex = originalIDs.findIndex(
+					const parentIndex = ORIGINAL_ID_ARRAY.findIndex(
 						(id) => id == block.parentNode
 					);
-					block.parentNode = newIDs[parentIndex];
+					block.parentNode = NEW_ID_ARRAY[parentIndex];
 				}
 				return {
 					...block,
-					id: newIDs[index],
-					position: { x: newX[index], y: newY[index] },
+					id: NEW_ID_ARRAY[index],
+					position: { x: NEW_X_ARRAY[index], y: NEY_Y_ARRAY[index] },
 					data: {
 						...block.data,
 						label: handleNameCollision(
@@ -1319,7 +1334,7 @@ const OverviewFlow = ({ map }, ref) => {
 						children:
 							filteredChildren?.length === 0 ? undefined : filteredChildren,
 						c: undefined,
-						lmsResource: shouldEmptyResource
+						lmsResource: SHOULD_EMPTY_RESOURCE
 							? undefined
 							: reactFlowInstance
 									.getNodes()
@@ -1331,28 +1346,30 @@ const OverviewFlow = ({ map }, ref) => {
 					},
 				};
 			});
-			if (copiedBlocks.length <= 1) {
+			if (COPIED_BLOCKS.length <= 1) {
 				createBlock(newBlocks[0], newBlocks[0].x, newBlocks[0].y);
 			} else {
 				const addToInnerNodes = (blocks) => {
 					//Updates innerNodes with the new IDs
-					const innerNodes = blocks.filter((block) => block.parentNode);
+					const INNER_NODES = blocks.filter((block) => block.parentNode);
 
-					innerNodes.map((innerNode) => {
-						const currentIDIndex = newIDs.findIndex((id) => id == innerNode.id);
-						const oldID = originalIDs[currentIDIndex];
-						const currentParent = blocks.find(
+					INNER_NODES.map((innerNode) => {
+						const CURRENT_ID_INDEX = NEW_ID_ARRAY.findIndex(
+							(id) => id == innerNode.id
+						);
+						const OLD_ID = ORIGINAL_ID_ARRAY[CURRENT_ID_INDEX];
+						const CURRENT_PARENT = blocks.find(
 							(block) => block.id == innerNode.parentNode
 						);
-						const storedIdIndex = currentParent.data.innerNodes.findIndex(
-							(innerNode) => innerNode.id == oldID
+						const STORED_ID_INDEX = CURRENT_PARENT.data.innerNodes.findIndex(
+							(innerNode) => innerNode.id == OLD_ID
 						);
-						currentParent.data.innerNodes[storedIdIndex].id = innerNode.id;
+						CURRENT_PARENT.data.innerNodes[STORED_ID_INDEX].id = innerNode.id;
 					});
 
-					const outerNodes = blocks.filter((block) => !block.parentNode);
+					const OUTER_NODES = blocks.filter((block) => !block.parentNode);
 
-					return [...outerNodes, ...innerNodes]; //This order is needed for it to render correctly
+					return [...OUTER_NODES, ...INNER_NODES]; //This order is needed for it to render correctly
 				};
 				createBlockBulk(addToInnerNodes(newBlocks));
 			}
@@ -1364,15 +1381,15 @@ const OverviewFlow = ({ map }, ref) => {
 	 * @param {Node[]} [blockData=[]] - The nodes to cut.
 	 */
 	const handleNodeCut = (blockData = []) => {
-		const selectedNodes = reactFlowInstance
+		const SELECTED_NODES = reactFlowInstance
 			.getNodes()
 			.filter((n) => n.selected == true);
 		handleNodeCopy(blockData);
-		if (selectedNodes.length > 1) {
+		if (SELECTED_NODES.length > 1) {
 			handleNodeSelectionDeletion();
 		} else {
-			if (selectedNodes.length == 1) {
-				blockData = selectedNodes[0];
+			if (SELECTED_NODES.length == 1) {
+				blockData = SELECTED_NODES[0];
 			}
 			handleNodeDeletion(blockData);
 		}
@@ -1385,24 +1402,26 @@ const OverviewFlow = ({ map }, ref) => {
 	 */
 	const createBlock = (blockData) => {
 		//TODO: Block selector
-		const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
-		const aside = document.getElementById("aside");
-		const asideBounds = aside ? aside?.getBoundingClientRect() : { width: 0 };
+		const REACTFLOW_BOUNDS = reactFlowWrapper.current?.getBoundingClientRect();
+		const ASIDE_DOM = document.getElementById("aside");
+		const ASIDE_BOUNDS = ASIDE_DOM
+			? ASIDE_DOM?.getBoundingClientRect()
+			: { width: 0 };
 
-		const preferredPosition = contextMenuDOM
+		const PREFERRED_POSSITION = contextMenuDOM
 			? { x: cMX, y: cMY }
 			: { x: currentMousePosition.x, y: currentMousePosition.y };
 
 		let flowPos = reactFlowInstance.project({
-			x: preferredPosition.x - reactFlowBounds.left,
-			y: preferredPosition.y - reactFlowBounds.top,
+			x: PREFERRED_POSSITION.x - REACTFLOW_BOUNDS.left,
+			y: PREFERRED_POSSITION.y - REACTFLOW_BOUNDS.top,
 		});
 
-		const asideOffset = expandedAside
-			? Math.floor(asideBounds.width / 125) * 125
+		const ASIDE_OFFSET = expandedAside
+			? Math.floor(ASIDE_BOUNDS.width / 125) * 125
 			: 0;
 
-		flowPos.x += asideOffset;
+		flowPos.x += ASIDE_OFFSET;
 
 		let newBlockCreated;
 
@@ -1441,8 +1460,8 @@ const OverviewFlow = ({ map }, ref) => {
 							newBlockCreated = {
 								...blockData,
 								position: {
-									x: blockData.position.x + asideOffset + flowPos.x,
-									y: blockData.position.y + asideOffset + flowPos.y,
+									x: blockData.position.x + ASIDE_OFFSET + flowPos.x,
+									y: blockData.position.y + ASIDE_OFFSET + flowPos.y,
 								},
 							};
 						} else {
@@ -1505,61 +1524,61 @@ const OverviewFlow = ({ map }, ref) => {
 	 * @param {Node[]} clipboardData - The data for the new blocks.
 	 */
 	const createBlockBulk = (clipboardData) => {
-		const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
+		const REACTFLOW_BOUNDS = reactFlowWrapper.current?.getBoundingClientRect();
 
-		const preferredPosition = contextMenuDOM
+		const PREFERRED_POSITION = contextMenuDOM
 			? { x: currentMousePosition.x, y: currentMousePosition.y }
 			: { x: cMX, y: cMY };
 
 		let flowPos = reactFlowInstance.project({
-			x: preferredPosition.x - reactFlowBounds.left,
-			y: preferredPosition.y - reactFlowBounds.top,
+			x: PREFERRED_POSITION.x - REACTFLOW_BOUNDS.left,
+			y: PREFERRED_POSITION.y - REACTFLOW_BOUNDS.top,
 		});
 
-		const asideOffset = expandedAside
+		const ASIDE_OFFSET = expandedAside
 			? Math.floor(asideBounds.width / 125) * 125
 			: 0;
 
-		flowPos.x += asideOffset;
-		const newBlocks = clipboardData.map((blockData) => {
+		flowPos.x += ASIDE_OFFSET;
+		const NEW_BLOCKS = clipboardData.map((blockData) => {
 			return {
 				...blockData,
-				x: blockData.x + asideOffset + flowPos.x,
-				y: blockData.y + asideOffset + flowPos.y,
+				x: blockData.x + ASIDE_OFFSET + flowPos.x,
+				y: blockData.y + ASIDE_OFFSET + flowPos.y,
 				data: { ...blockData.data, order: Infinity },
 			};
 		});
 		setShowContextualMenu(false);
 
-		let newcurrentBlocksData = [...reactFlowInstance.getNodes(), ...newBlocks];
-		const finalcurrentBlocksData = getUpdatedArrayById(
+		let newcurrentBlocksData = [...reactFlowInstance.getNodes(), ...NEW_BLOCKS];
+		const FINAL_CURRENT_BLOCKSDATA = getUpdatedArrayById(
 			clampNodesOrder(newcurrentBlocksData, platform),
 			newcurrentBlocksData
 		);
 
-		errorListCheck(finalcurrentBlocksData, errorList, setErrorList, false);
+		errorListCheck(FINAL_CURRENT_BLOCKSDATA, errorList, setErrorList, false);
 
-		reactFlowInstance.setNodes(finalcurrentBlocksData);
+		reactFlowInstance.setNodes(FINAL_CURRENT_BLOCKSDATA);
 	};
 
 	/**
 	 * Handles the creation of a new fragment.
 	 */
 	const handleFragmentCreation = () => {
-		const selectedNodes = getSelectedNodes();
+		const SELECTED_NODES = getSelectedNodes();
 
 		if (
-			!selectedNodes.filter(
+			!SELECTED_NODES.filter(
 				(node) => node.type == "fragment" || node.parentNode != undefined
 			).length > 0
 		) {
-			if (selectedNodes.length > 0) {
+			if (SELECTED_NODES.length > 0) {
 				//Delete the original nodes to put them after the fragment, so appear after the fragment and extendParent takes effect
 				const filteredNodes = deleteBlocks(
 					reactFlowInstance
 						.getNodes()
 						.filter((oNode) =>
-							selectedNodes.map((pNode) => pNode.id).includes(oNode.id)
+							SELECTED_NODES.map((pNode) => pNode.id).includes(oNode.id)
 						)
 				);
 				/*selectedNodes = selectedNodes.map((node) =>
@@ -1567,7 +1586,7 @@ const OverviewFlow = ({ map }, ref) => {
 				);*/
 
 				console.log(
-					selectedNodes.map((node) =>
+					SELECTED_NODES.map((node) =>
 						getNodeById(node.id, reactFlowInstance.getNodes())
 					)
 				);
@@ -1576,60 +1595,60 @@ const OverviewFlow = ({ map }, ref) => {
 				let minY = Infinity;
 				let maxX = 0;
 				let maxY = 0;
-				const innerNodes = [];
-				for (const node of selectedNodes) {
+				const INNER_NODES = [];
+				for (const node of SELECTED_NODES) {
 					minX = Math.min(minX, node.position.x);
 					minY = Math.min(minY, node.position.y);
 					maxX = Math.max(maxX, node.position.x);
 					maxY = Math.max(maxY, node.position.y);
 				}
-				for (const node of selectedNodes) {
-					innerNodes.push({
-						id: node.id,
-						position: { x: node.position.x - minX, y: node.position.y - minY },
+				for (const NODE of SELECTED_NODES) {
+					INNER_NODES.push({
+						id: NODE.id,
+						position: { x: NODE.position.x - minX, y: NODE.position.y - minY },
 					});
 				}
 
-				const newFragmentID = uniqueId();
+				const NEW_FRAGMENT_ID = uniqueId();
 
-				const newFragment = {
-					id: newFragmentID,
+				const NEW_FRAGMENT = {
+					id: NEW_FRAGMENT_ID,
 					position: { x: minX, y: minY },
 					type: "fragment",
 					style: { height: maxY - minY + 68, width: maxX - minX + 68 },
 					zIndex: -1,
 					data: {
 						label: "Nuevo Fragmento",
-						innerNodes: innerNodes,
+						innerNodes: INNER_NODES,
 						expanded: true,
 					},
 				};
 
-				const parentedNodes = selectedNodes.map((node) => {
-					node.parentNode = newFragmentID;
+				const PRESENTED_NODES = SELECTED_NODES.map((node) => {
+					node.parentNode = NEW_FRAGMENT_ID;
 					node.expandParent = true;
 					return node;
 				});
 
 				reactFlowInstance.setNodes([
 					...filteredNodes,
-					newFragment,
-					...parentedNodes,
+					NEW_FRAGMENT,
+					...PRESENTED_NODES,
 				]);
 			} else {
 				//No blocks selected
-				const bounds = document
+				const BOUNDS = document
 					.getElementById("reactFlowWrapper")
 					?.getBoundingClientRect();
 
-				const viewPortCenter = reactFlowInstance.project({
-					x: bounds.width / 2,
-					y: bounds.height / 2,
+				const VIEWPORT_CENTER = reactFlowInstance.project({
+					x: BOUNDS.width / 2,
+					y: BOUNDS.height / 2,
 				});
 
-				const newFragment = {
+				const NEW_FRAGMENT = {
 					id: uniqueId(),
-					position: viewPortCenter,
+					position: VIEWPORT_CENTER,
 					type: "fragment",
 					style: { height: 68, width: 68 },
 					zIndex: -1,
@@ -1641,7 +1660,7 @@ const OverviewFlow = ({ map }, ref) => {
 				};
 
 				reactFlowInstance.setNodes([
-					newFragment,
+					NEW_FRAGMENT,
 					...reactFlowInstance.getNodes(),
 				]);
 			}
@@ -1674,13 +1693,13 @@ const OverviewFlow = ({ map }, ref) => {
 	 */
 	const handleNodeSelectionDeletion = () => {
 		setShowContextualMenu(false);
-		const selectedNodes = getSelectedNodes();
-		const clipboardData = [];
-		for (let node of selectedNodes) {
-			clipboardData.push(getNodeByNodeDOM(node, reactFlowInstance.getNodes()));
+		const SELECTED_NODES = getSelectedNodes();
+		const CLIPBOARD_DATA = [];
+		for (let NODE of SELECTED_NODES) {
+			CLIPBOARD_DATA.push(getNodeByNodeDOM(NODE, reactFlowInstance.getNodes()));
 		}
 
-		deleteBlocks(clipboardData);
+		deleteBlocks(CLIPBOARD_DATA);
 	};
 
 	/**
@@ -1703,25 +1722,28 @@ const OverviewFlow = ({ map }, ref) => {
 				setRelationStarter();
 				return;
 			}
-			const currentGradableType = getNodeTypeGradableType(origin, platform);
+			const CURRENT_GRADABLE_TYPE = getNodeTypeGradableType(origin, platform);
 
 			if (
 				platform != "moodle" ||
 				(platform == "moodle" &&
-					((currentGradableType == "simple" && origin.data.g?.hasToBeSeen) ||
-						(currentGradableType != "simple" && origin.data.g?.hasConditions)))
+					((CURRENT_GRADABLE_TYPE == "simple" && origin.data.g?.hasToBeSeen) ||
+						(CURRENT_GRADABLE_TYPE != "simple" &&
+							origin.data.g?.hasConditions)))
 			) {
-				const newNodesData = reactFlowInstance.getNodes();
-				const oI = newNodesData.findIndex((node) => node.id == origin.id);
-				if (newNodesData[oI].data.children) {
-					const alreadyAChildren = newNodesData[oI].data.children.includes(
-						end.id
-					);
-					if (!alreadyAChildren) {
-						if (newNodesData[oI].data.children) {
-							newNodesData[oI].data.children.push(end.id);
+				const NEW_NODES_DATA = reactFlowInstance.getNodes();
+				const ORIGINAL_INDEX = NEW_NODES_DATA.findIndex(
+					(node) => node.id == origin.id
+				);
+				if (NEW_NODES_DATA[ORIGINAL_INDEX].data.children) {
+					const IS_ALREADY_A_CHILDREN = NEW_NODES_DATA[
+						ORIGINAL_INDEX
+					].data.children.includes(end.id);
+					if (!IS_ALREADY_A_CHILDREN) {
+						if (NEW_NODES_DATA[ORIGINAL_INDEX].data.children) {
+							NEW_NODES_DATA[ORIGINAL_INDEX].data.children.push(end.id);
 						} else {
-							newNodesData[oI].data.children.push(end.id);
+							NEW_NODES_DATA[ORIGINAL_INDEX].data.children.push(end.id);
 						}
 					} else {
 						toast("La relación ya existe, no se ha creado.", {
@@ -1733,12 +1755,12 @@ const OverviewFlow = ({ map }, ref) => {
 						});
 					}
 				} else {
-					newNodesData[oI].data.children.push(end.id);
+					NEW_NODES_DATA[ORIGINAL_INDEX].data.children.push(end.id);
 				}
 				setRelationStarter();
-				reactFlowInstance.setNodes(newNodesData);
+				reactFlowInstance.setNodes(NEW_NODES_DATA);
 				if (!validTypes.includes(end.type)) {
-					const newCondition = {
+					const NEW_CONDITION = {
 						id: parseInt(Date.now() * Math.random()).toString(),
 						type: "completion",
 						cm: origin.id,
@@ -1750,30 +1772,30 @@ const OverviewFlow = ({ map }, ref) => {
 							type: "conditionsGroup",
 							id: parseInt(Date.now() * Math.random()).toString(),
 							op: "&",
-							c: [newCondition],
+							c: [NEW_CONDITION],
 						};
 					} else {
-						end.data.c.c.push(newCondition);
+						end.data.c.c.push(NEW_CONDITION);
 					}
 				} else {
-					const conditions = end.data.c?.c;
+					const CONDITIONS = end.data.c?.c;
 
 					let conditionExists = false;
 
-					if (conditions != undefined) {
-						conditionExists = conditions.find(
+					if (CONDITIONS != undefined) {
+						conditionExists = CONDITIONS.find(
 							(condition) => condition.type === "completion"
 						);
 					}
 
 					if (conditionExists) {
-						const newConditionAppend = {
+						const NEW_CONDITION_TO_APPEND = {
 							id: origin.id,
 							name: origin.data.label,
 						};
-						conditionExists.activityList.push(newConditionAppend);
+						conditionExists.activityList.push(NEW_CONDITION_TO_APPEND);
 					} else {
-						const newCondition = {
+						const NEW_CONDITION = {
 							id: parseInt(Date.now() * Math.random()).toString(),
 							type: "completion",
 							activityList: [
@@ -1791,10 +1813,10 @@ const OverviewFlow = ({ map }, ref) => {
 								type: "conditionsGroup",
 								id: parseInt(Date.now() * Math.random()).toString(),
 								op: "&",
-								c: [newCondition],
+								c: [NEW_CONDITION],
 							};
 						} else {
-							end.data.c.c.push(newCondition);
+							end.data.c.c.push(NEW_CONDITION);
 						}
 					}
 				}
@@ -1819,12 +1841,12 @@ const OverviewFlow = ({ map }, ref) => {
 				);
 			}
 		} else {
-			const selectedBlocks = reactFlowInstance
+			const SELECTED_BLOCKS = reactFlowInstance
 				.getNodes()
 				.filter((block) => block.selected == true);
-			if (selectedBlocks.length == 1) {
+			if (SELECTED_BLOCKS.length == 1) {
 				if (relationStarter == undefined) {
-					setRelationStarter(selectedBlocks[0]);
+					setRelationStarter(SELECTED_BLOCKS[0]);
 
 					toast("Iniciando relación...", {
 						hideProgressBar: false,
@@ -1841,7 +1863,7 @@ const OverviewFlow = ({ map }, ref) => {
 						position: "bottom-center",
 						theme: "light",
 					});
-					handleNewRelation(relationStarter, selectedBlocks[0]);
+					handleNewRelation(relationStarter, SELECTED_BLOCKS[0]);
 				}
 			} else {
 				toast("Selección inválida", {
@@ -1861,15 +1883,15 @@ const OverviewFlow = ({ map }, ref) => {
 	 */
 	const handleShow = (modal) => {
 		console.info(`❓ Showing modal: `, modal);
-		const selectedNodes = getSelectedNodes();
+		const SELECTED_NODES = getSelectedNodes();
 
 		let newCMBlockData = undefined;
-		if (selectedNodes.length == 1 && cMBlockData == undefined) {
-			newCMBlockData = selectedNodes[0];
+		if (SELECTED_NODES.length == 1 && cMBlockData == undefined) {
+			newCMBlockData = SELECTED_NODES[0];
 		}
 
 		if (newCMBlockData || cMBlockData) {
-			if (selectedNodes.length == 1 && cMBlockData == undefined) {
+			if (SELECTED_NODES.length == 1 && cMBlockData == undefined) {
 				setCMBlockData(newCMBlockData);
 			}
 
@@ -1903,21 +1925,21 @@ const OverviewFlow = ({ map }, ref) => {
 	};
 
 	useEffect(() => {
-		const fragments = getByProperty(
+		const FRAGMENT_NODES = getByProperty(
 			"type",
 			"fragment",
 			reactFlowInstance.getNodes()
 		).filter((fragment) => fragment.data.expanded == true);
-		const fragmentDOMArray = [];
-		fragments.map((fragment) =>
-			fragmentDOMArray.push(getNodeDOMById(fragment.id))
+		const FRAGMENT_DOM_ARRAY = [];
+		FRAGMENT_NODES.map((fragment) =>
+			FRAGMENT_DOM_ARRAY.push(getNodeDOMById(fragment.id))
 		);
 		if (fragmentPassthrough) {
-			fragmentDOMArray.map((fragmentDOM) =>
+			FRAGMENT_DOM_ARRAY.map((fragmentDOM) =>
 				fragmentDOM.classList.add("passthrough")
 			);
 		} else {
-			fragmentDOMArray.map((fragmentDOM) =>
+			FRAGMENT_DOM_ARRAY.map((fragmentDOM) =>
 				fragmentDOM.classList.remove("passthrough")
 			);
 		}
@@ -2009,8 +2031,8 @@ const OverviewFlow = ({ map }, ref) => {
 				onSelectionContextMenu={onSelectionContextMenu}
 				fitView
 				proOptions={{ hideAttribution: true }}
-				nodeTypes={nodeTypes}
-				edgeTypes={edgeTypes}
+				nodeTypes={NODE_TYPES}
+				edgeTypes={EDGE_TYPES}
 				snapGrid={[125, 275]}
 				snapToGrid={snapToGrid}
 				deleteKeyCode={[]}
@@ -2027,7 +2049,7 @@ const OverviewFlow = ({ map }, ref) => {
 				{minimap && (
 					<MiniMap
 						nodeColor={(node) => getTypeStaticColor(node, platform)}
-						style={minimapStyle}
+						style={MINIMAP_STYLE}
 						zoomable
 						pannable
 					/>

@@ -25,25 +25,25 @@ const SimpleActionDialogWrapper = () => {
 	);
 };
 
-const customRender = (ui, options) =>
+const CUSTOM_RENDER = (ui, options) =>
 	render(ui, { wrapper: SimpleActionDialogWrapper, ...options });
 
 test("Load and render the Simple aaction Dialog", async () => {
 	// ARRANGE
-	const r = customRender();
+	const render = CUSTOM_RENDER();
 
 	// TEST INITIAL VALUES
 
-	expect(r.findByText("Testing Title"));
-	expect(r.findByText("This is the body of the modal"));
+	expect(render.findByText("Testing Title"));
+	expect(render.findByText("This is the body of the modal"));
 	expect(
-		r.getByRole("button", {
+		render.getByRole("button", {
 			name: "Cerrar",
 			variant: "Secondary",
 		})
 	);
 	expect(
-		r.getByRole("button", {
+		render.getByRole("button", {
 			name: "Ok",
 			variant: "primary",
 			onClick: () => {},
@@ -54,5 +54,5 @@ test("Load and render the Simple aaction Dialog", async () => {
 	await userEvent.click(screen.getByText("Ok"));
 
 	// ASSERT - TO DISAPPEAR
-	expect(r.container.firstChild).toBeEmptyDOMElement();
+	expect(render.container.firstChild).toBeEmptyDOMElement();
 });
