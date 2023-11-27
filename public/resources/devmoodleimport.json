@@ -54,7 +54,7 @@
 		"name": "EXAMEN A",
 		"modname": "quiz",
 		"id": "9",
-		"has_califications": false,
+		"has_califications": true,
 		"order": 1,
 		"section": 1,
 		"indent": 0,

@@ -319,7 +319,14 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 					platform == "moodle"
 						? resourceOptions.find(
 								(resource) => e.target.value == resource.id && resource.id > -1
-						  )?.name
+						  )?.name ||
+						  handleNameCollision(
+								NodeTypes.find((ntype) => nodeSelected.type == ntype.type)
+									.emptyName,
+								reactFlowInstance.getNodes().map((node) => node?.data?.label),
+								false,
+								"("
+						  )
 						: e.target.options[e.target.selectedIndex].text ||
 						  handleNameCollision(
 								NodeTypes.find((ntype) => nodeSelected.type == ntype.type)
@@ -642,7 +649,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 				<Form
 					action="#"
 					method=""
-					onSubmit={allowResourceSelection ? updateBlock : false}
+					onSubmit={allowResourceSelection ? updateBlock : null}
 				>
 					<div className="container-fluid">
 						<Form.Group className="mb-3">
