@@ -127,6 +127,13 @@ function ActionNode({ id, type, data, selected, dragging, isConnectable }) {
 		);
 	}, [JSON.stringify(data?.c)]);
 
+	const shouldApplyAnimation =
+		nodeSelected && nodeSelected.id === id && expandedAside;
+
+	const containerClassName = !reducedAnimations
+		? styles.nodeSelected
+		: styles.nodeSelectedNoAnimated;
+
 	return (
 		<>
 			{isHovered && selected && !dragging && platform == "moodle" && (
@@ -178,7 +185,7 @@ function ActionNode({ id, type, data, selected, dragging, isConnectable }) {
 					" " +
 					(highContrast && styles.highContrast + " highContrast ") +
 					" " +
-					(reducedAnimations && styles.noAnimation + " noAnimation")
+					(shouldApplyAnimation && containerClassName)
 				}
 				aria-label={getAriaLabel} //FIXME: Doesn't work
 				onMouseEnter={() => setIsHovered(true)}
