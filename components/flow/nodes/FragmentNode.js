@@ -321,6 +321,14 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 			end
 		);
 	};
+
+	const shouldApplyAnimation =
+		nodeSelected && nodeSelected.id === id && expandedAside;
+
+	const containerClassName = !reducedAnimations
+		? styles.nodeSelected
+		: styles.nodeSelectedNoAnimated;
+
 	return (
 		<>
 			{expanded && (
@@ -440,7 +448,7 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 					" " +
 					(highContrast && styles.highContrast + " highContrast ") +
 					" " +
-					(reducedAnimations && styles.noAnimation + " noAnimation") +
+					(!expanded && shouldApplyAnimation && containerClassName) +
 					" " +
 					(expanded && "expandedFragment")
 				}

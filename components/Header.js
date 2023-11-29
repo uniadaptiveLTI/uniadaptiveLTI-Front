@@ -387,7 +387,7 @@ function Header({ LTISettings }, ref) {
 		switch (platform) {
 			case "moodle":
 				localMetaData.badges.map((badge) => {
-					NODES.push(parseMoodleBadges(badge, newX, newY));
+					nodes.push(parseMoodleBadges(badge, newX, newY, nodes));
 					newX += 125;
 				});
 				break;
@@ -735,6 +735,7 @@ function Header({ LTISettings }, ref) {
 				jsonObject.platform == platform
 			) {
 				setCurrentBlocksData(jsonObject.data);
+				errorListCheck(jsonObject.data, errorList, setErrorList, false);
 				toast("Importado con éxito.", {
 					type: "success",
 					autoClose: 2000,
@@ -761,6 +762,12 @@ function Header({ LTISettings }, ref) {
 						return node;
 					});
 					setCurrentBlocksData(JSON_CLEANED_BLOCKDATA);
+					errorListCheck(
+						JSON_CLEANED_BLOCKDATA,
+						errorList,
+						setErrorList,
+						false
+					);
 				} else {
 					toast("No se puede importar, datos incompatibles.", {
 						type: "error",

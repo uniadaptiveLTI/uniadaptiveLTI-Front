@@ -397,27 +397,6 @@ FALLBACK
 	background-color: #1d1da920;
 }
 
-.react-flow__node.selected {
-	width: max-content;
-	background-image: linear-gradient(90deg, white 50%, transparent 50%),
-		linear-gradient(90deg, white 50%, transparent 50%),
-		linear-gradient(0deg, white 50%, transparent 50%),
-		linear-gradient(0deg, white 50%, transparent 50%);
-	background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
-	background-size: 15px 4px, 15px 4px, 4px 15px, 4px 15px;
-	animation: border-dance 0.25s infinite linear;
-}
-
-@keyframes border-dance {
-	0% {
-		background-position: left top, right bottom, left bottom, right top;
-	}
-	100% {
-		background-position: left 15px top, right 15px bottom, left bottom 15px,
-			right top 15px;
-	}
-}
-
 /* NodeSelector */
 
 .nodeSelectionItem img,
@@ -429,25 +408,6 @@ FALLBACK
 
 .react-flow__node:has(.noAnimation) {
 	transition: none;
-}
-
-.react-flow__node.selected:has(.noAnimation) {
-	background-image: none;
-	animation: none;
-}
-
-.react-flow__node.selected:has(.noAnimation)::after {
-	z-index: -1;
-	content: " ";
-	position: absolute;
-	margin: auto;
-	right: -50%;
-	top: -50%;
-	min-width: 8em;
-	min-height: 8em;
-	background-color: rgba(29, 29, 169, 0.5);
-	border: 4px solid rgba(255, 165, 0, 0.5);
-	border-radius: 100%;
 }
 
 @media screen and (prefers-reduced-motion: reduce) {

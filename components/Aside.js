@@ -183,25 +183,25 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 				setTimeout(() => {
 					const DATA = [
 						{
-							id: 0,
+							id: "0",
 							name: `${capitalizeFirstLetter(
 								NodeTypes.filter((node) => node.type == selectedOption)[0].name
 							)} A`,
 						},
 						{
-							id: 1,
+							id: "1",
 							name: `${capitalizeFirstLetter(
 								NodeTypes.filter((node) => node.type == selectedOption)[0].name
 							)} B`,
 						},
 						{
-							id: 2,
+							id: "2",
 							name: `${capitalizeFirstLetter(
 								NodeTypes.filter((node) => node.type == selectedOption)[0].name
 							)} C`,
 						},
 						{
-							id: 3,
+							id: "3",
 							name: `${capitalizeFirstLetter(
 								NodeTypes.filter((node) => node.type == selectedOption)[0].name
 							)} D`,

@@ -102,7 +102,7 @@ export function createItemErrors(item, errorArray) {
 			id: uniqueId(),
 			nodeId: item.id,
 		};
-		if (!item.data.lmsResource) {
+		if (item.data.lmsResource == undefined || item.data.lmsResource == "-1") {
 			const CUSTOM_ENTRY = {
 				...ERROR_ENTRY,
 				severity: "error",

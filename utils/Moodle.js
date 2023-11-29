@@ -42,14 +42,14 @@ export function parseMoodleNode(node, newX, newY) {
  * @param {Number} newY - Y position for the badge in the map.
  * @returns {Object} LTI's badge node.
  */
-export function parseMoodleBadges(badge, newX, newY) {
-	const NEW_NODE = {};
-	NEW_NODE.id = String(uniqueId());
-	NEW_NODE.type = "badge";
-	NEW_NODE.position = { x: newX, y: newY };
-	NEW_NODE.data = {
+export function parseMoodleBadges(badge, newX, newY, nodes) {
+	const newNode = {};
+	newNode.id = String(uniqueId());
+	newNode.type = "badge";
+	newNode.position = { x: newX, y: newY };
+	newNode.data = {
 		label: badge.name,
-		c: parseMoodleBadgeParams(badge.params), //Adapted in "createNewMoodleMap" (as we need all the IDs)
+		c: parseMoodleBadgeParams(badge.params, nodes), //Adapted in "createNewMoodleMap" (as we need all the IDs)
 		lmsResource: String(badge.id),
 	};
 	return NEW_NODE;
@@ -60,7 +60,7 @@ export function parseMoodleBadges(badge, newX, newY) {
  * @param {Array} conditions - Moodle's badge's conditions
  * @returns {Array} LTI's badge's conditions
  */
-export function parseMoodleBadgeParams(conditions) {
+export function parseMoodleBadgeParams(conditions, nodes) {
 	let parsedBadgesConditions = {};
 	conditions?.map((condition) => {
 		let newCondition = {
@@ -100,10 +100,16 @@ export function parseMoodleBadgeParams(conditions) {
 						dateJsonObj = parseDate(dateObj);
 					}
 
-					newCondition.params.push({
-						id: moduleObj.value,
-						date: date ? dateJsonObj : undefined,
-					});
+					let newId = nodes.find(
+						(node) => node?.data?.lmsResource == moduleObj?.value
+					).id;
+
+					if (newId) {
+						newCondition?.params.push({
+							id: newId,
+							date: date ? dateJsonObj : undefined,
+						});
+					}
 				});
 
 				parsedBadgesConditions.params.push(newCondition);
@@ -240,22 +246,6 @@ export function createNewMoodleMap(nodes, metadata, maps) {
 				PARSED_CONDITIONS.c.length >= 1
 			) {
 				node.data.c = PARSED_CONDITIONS;
-			}
-		} else {
-			if (node.data.c && node.data.c.params) {
-				node.data.c.params = node.data.c.params.filter((param) => {
-					if (
-						param.type === "completion" &&
-						param.params &&
-						param.params.length >= 1
-					) {
-						param.params = param.params.filter((node) => {
-							return LMSResourceToId(node.id, nodes);
-						});
-						return param.params.length >= 1;
-					}
-					return true;
-				});
 			}
 		}
 
