@@ -134,7 +134,7 @@
 		{ "id": "2", "name": "Competencia 2" },
 		{ "id": "3", "name": "Competencia 3" }
 	],
-	"grades": [1],
+	"grades": ["1"],
 	"userMembers": [
 		{ "id": 1, "name": "Maria" },
 		{ "id": 2, "name": "Noe" },

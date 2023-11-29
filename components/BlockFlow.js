@@ -638,10 +638,11 @@ const OverviewFlow = ({ map }, ref) => {
 					case "moodle":
 						if (blockNodeTarget.data.c) {
 							if (!validTypes.includes(blockNodeTarget.type)) {
-								deleteConditionById(
-									blockNodeTarget.data.c.c,
-									blockNodeSource.id
-								);
+								if (blockNodeSource?.id)
+									deleteConditionById(
+										blockNodeTarget.data.c.c,
+										blockNodeSource.id
+									);
 							} else {
 								updateBadgeConditions(blockNodeTarget, blockNodeSource);
 							}
@@ -865,14 +866,24 @@ const OverviewFlow = ({ map }, ref) => {
 
 	const deleteElements = (nodes, edges, force = false) => {
 		let continueDeletion = true;
+
+		const getRelatedNodes = (nodes) => {
+			const childrenNodes = nodes.flatMap((node) =>
+				getByProperty("parentNode", node.id, reactFlowInstance.getNodes())
+			);
+			return childrenNodes;
+		};
+		const allNodes = [...nodes, ...getRelatedNodes(nodes)];
+
 		if (force == false && platform === "moodle") {
 			if (
-				nodes.filter((node) => metaData.grades.includes(node.data.lmsResource))
-					.length > 0
+				allNodes.filter((node) =>
+					metaData.grades.includes(node.data.lmsResource)
+				).length > 0
 			) {
 				continueDeletion = false;
 				confirmDeletionModalCallbackRef.current = () =>
-					deleteElements(nodes, edges, true);
+					deleteElements(allNodes, edges, true);
 				setShowConfirmDeletionModal(true);
 			}
 		}
@@ -1097,7 +1108,7 @@ const OverviewFlow = ({ map }, ref) => {
 
 		console.log(selectedNodes, reactFlowInstance);
 		setCMBlockData(selectedNodes);
-		setCMContainsReservedNodes([]);
+		setCMContainsReservedNodes();
 		setShowContextualMenu(true);
 	};
 
@@ -1386,7 +1397,7 @@ const OverviewFlow = ({ map }, ref) => {
 			.filter((n) => n.selected == true);
 		handleNodeCopy(blockData);
 		if (SELECTED_NODES.length > 1) {
-			handleNodeSelectionDeletion();
+			handleNodeSelectionDeletion(SELECTED_NODES);
 		} else {
 			if (SELECTED_NODES.length == 1) {
 				blockData = SELECTED_NODES[0];
@@ -1567,24 +1578,26 @@ const OverviewFlow = ({ map }, ref) => {
 	const handleFragmentCreation = () => {
 		const SELECTED_NODES = getSelectedNodes();
 
+		function getExternalChildren(nodesInside, nodesOutside) {
+			// Get all children from nodesInside
+			let children = nodesInside.flatMap(
+				(nodeInside) => nodeInside.children || []
+			);
+
+			// Filter nodesOutside based on children
+			let result = nodesOutside.filter((nodeOutside) =>
+				children.includes(nodeOutside.id)
+			);
+
+			return result;
+		}
+
 		if (
 			!SELECTED_NODES.filter(
 				(node) => node.type == "fragment" || node.parentNode != undefined
 			).length > 0
 		) {
 			if (SELECTED_NODES.length > 0) {
-				//Delete the original nodes to put them after the fragment, so appear after the fragment and extendParent takes effect
-				const filteredNodes = deleteBlocks(
-					reactFlowInstance
-						.getNodes()
-						.filter((oNode) =>
-							SELECTED_NODES.map((pNode) => pNode.id).includes(oNode.id)
-						)
-				);
-				/*selectedNodes = selectedNodes.map((node) =>
-					getNodeById(node.id, reactFlowInstance.getNodes())
-				);*/
-
 				console.log(
 					SELECTED_NODES.map((node) =>
 						getNodeById(node.id, reactFlowInstance.getNodes())
@@ -1627,11 +1640,36 @@ const OverviewFlow = ({ map }, ref) => {
 				const PRESENTED_NODES = SELECTED_NODES.map((node) => {
 					node.parentNode = NEW_FRAGMENT_ID;
 					node.expandParent = true;
-					return node;
+					return JSON.parse(JSON.stringify(node));
 				});
 
+				// Get the nodes to preserve the conditions for
+				const EXTERNAL_CHILDREN_NODES = JSON.parse(
+					JSON.stringify(
+						getExternalChildren(
+							PRESENTED_NODES,
+							reactFlowInstance
+								.getNodes()
+								.filter(
+									(oNode) =>
+										!SELECTED_NODES.map((pNode) => pNode.id).includes(oNode.id)
+								)
+						)
+					)
+				);
+
+				//Delete the original nodes to put them after the fragment, so appear after the fragment and extendParent takes effect
+				const FILTERED_NODES = deleteBlocks(
+					reactFlowInstance
+						.getNodes()
+						.filter((oNode) =>
+							SELECTED_NODES.map((pNode) => pNode.id).includes(oNode.id)
+						)
+				);
+
 				reactFlowInstance.setNodes([
-					...filteredNodes,
+					...FILTERED_NODES,
+					...EXTERNAL_CHILDREN_NODES,
 					NEW_FRAGMENT,
 					...PRESENTED_NODES,
 				]);
@@ -1685,21 +1723,22 @@ const OverviewFlow = ({ map }, ref) => {
 	const handleNodeDeletion = (blockData) => {
 		setShowContextualMenu(false);
 		setNodeSelected();
-		return deleteBlocks([blockData]);
+		deleteElements([blockData], []);
 	};
 
 	/**
 	 * Handles the deletion of multiple selected nodes.
 	 */
-	const handleNodeSelectionDeletion = () => {
+	const handleNodeSelectionDeletion = (node = []) => {
 		setShowContextualMenu(false);
 		const SELECTED_NODES = getSelectedNodes();
 		const CLIPBOARD_DATA = [];
 		for (let NODE of SELECTED_NODES) {
 			CLIPBOARD_DATA.push(getNodeByNodeDOM(NODE, reactFlowInstance.getNodes()));
 		}
+		console.log(CLIPBOARD_DATA);
 
-		deleteBlocks(CLIPBOARD_DATA);
+		deleteElements([...CLIPBOARD_DATA, node], []);
 	};
 
 	/**

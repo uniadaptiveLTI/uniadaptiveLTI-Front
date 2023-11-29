@@ -309,7 +309,7 @@ export default function ExportPanel({
 
 		let nodesReadyToExport = JSON.parse(nodesAsString);
 		if (platform == "moodle") {
-			nodesReadyToExport.filter((node) => {
+			nodesReadyToExport = nodesReadyToExport.filter((node) => {
 				const SECTION = metaData.sections.find(
 					(section) => section.position == node.section
 				);
