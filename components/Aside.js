@@ -649,7 +649,10 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 				<Form
 					action="#"
 					method=""
-					onSubmit={allowResourceSelection ? updateBlock : null}
+					onSubmit={(e) => {
+						e.preventDefault();
+						allowResourceSelection ? updateBlock(e) : null;
+					}}
 				>
 					<div className="container-fluid">
 						<Form.Group className="mb-3">
@@ -922,7 +925,9 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 													{metaData.sections &&
 														orderByPropertyAlphabetically(
 															[...metaData.sections].map((section) => {
-																const newSection = section;
+																const newSection = JSON.parse(
+																	JSON.stringify(section)
+																);
 																if (!section.name.match(/^\d/)) {
 																	newSection.name =
 																		platform == "moodle"
@@ -1021,7 +1026,10 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 					className="container-fluid"
 					action="#"
 					method=""
-					onSubmit={updateMap}
+					onSubmit={(e) => {
+						e.preventDefault();
+						updateMap(e);
+					}}
 				>
 					<Form.Group className="mb-3">
 						<div
@@ -1072,7 +1080,10 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 					className="container-fluid"
 					action="#"
 					method=""
-					onSubmit={updateVersion}
+					onSubmit={(e) => {
+						e.preventDefault();
+						updateVersion(e);
+					}}
 				>
 					<Form.Group className="mb-3">
 						<div
