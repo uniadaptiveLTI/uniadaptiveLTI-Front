@@ -3,7 +3,10 @@ import styles from "/styles/ExportModal.module.css";
 import { Alert, Button, Spinner } from "react-bootstrap";
 import SectionSelector from "@components/forms/components/SectionSelector";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faExclamationTriangle } from "@fortawesome/free-solid-svg-icons";
+import {
+	faCircleQuestion,
+	faExclamationTriangle,
+} from "@fortawesome/free-solid-svg-icons";
 import { getRootStyle } from "@utils/Colors";
 import { useReactFlow, useNodes } from "reactflow";
 import { NodeTypes } from "@utils/TypeDefinitions";
@@ -19,6 +22,7 @@ import {
 } from "@utils/Moodle";
 import LessonSelector from "@components/forms/components/LessonSelector";
 import { sakaiTypeSwitch } from "@utils/Sakai";
+import { getSectionNodes } from "../../../utils/Nodes";
 
 export default function ExportPanel({
 	errorList,
@@ -71,6 +75,7 @@ export default function ExportPanel({
 	}
 
 	const BACKUP_URL = getBackupURL(platform, metaData);
+
 	const handleSelectionChange = (selectionInfo) => {
 		if (selectionInfo != undefined && selectionInfo.selection != []) {
 			const hasSelectedErrors = () => {
@@ -141,6 +146,29 @@ export default function ExportPanel({
 			// Handle error
 		}
 	};
+
+	/**
+	 * Searches for any section or all the sections for nodes.
+	 * @param {String} level "section" or "map".
+	 * @returns {Boolean} returns true if its empty.
+	 */
+	const seekEmpty = (level = "section") => {
+		const nodes = reactFlowInstance.getNodes();
+		const emptySections = [];
+		metaData.sections.map((section) => {
+			const sectionNodes = getSectionNodes(section.position, nodes);
+			emptySections.push(sectionNodes.length < 1);
+		});
+		if (level == "section") {
+			return emptySections.includes(true);
+		}
+		if (level == "map") {
+			return emptySections.every((val) => val == true);
+		}
+		return false;
+	};
+	const HAS_UNUSED_SECTIONS = seekEmpty("section");
+	const EMPTY_MAP = seekEmpty("map");
 
 	const exportMap = async () => {
 		let nodesToExport = JSON.parse(
@@ -834,7 +862,20 @@ export default function ExportPanel({
 				</Alert>
 			)}
 
-			{currentSelectionInfo.selection.length < 0 && (
+			{hasWarnings && (
+				<Alert variant={"warning"}>
+					<strong>Atención: </strong>
+					<a
+						role="button"
+						className={styles.nodeWarning}
+						onClick={() => changeTab("warning")}
+					>{`Tiene ${warningCount} ${
+						warningCount > 1 ? "advertencias" : "advertencia"
+					}.`}</a>
+				</Alert>
+			)}
+
+			{currentSelectionInfo.selection.length < 1 && (
 				<Alert variant={"danger"}>
 					<strong>Atención: </strong>
 					<a
@@ -847,7 +888,9 @@ export default function ExportPanel({
 
 			<Button
 				ref={exportButtonRef}
-				disabled={hasErrors || currentSelectionInfo.selection.length <= 0}
+				disabled={
+					hasErrors || currentSelectionInfo.selection.length < 1 || EMPTY_MAP
+				}
 				onClick={exportAndSave}
 			>
 				{!exporting && <div>Guardar y exportar</div>}
@@ -870,24 +913,25 @@ export default function ExportPanel({
 					/>
 				)}
 			</Button>
-			{BACKUP_URL && (
-				<p>
+			{EMPTY_MAP && (
+				<Alert variant={"danger"}>
+					<b>Atención: </b> No se puede exportar un mapa vacío.
+				</Alert>
+			)}
+
+			{HAS_UNUSED_SECTIONS && !EMPTY_MAP && (
+				<Alert variant={"info"}>
+					{<FontAwesomeIcon icon={faCircleQuestion} />} Es posible que no este
+					utilizando alguna sección. Cabe remarcar que los bloques no utilizados
+					en el mapa no sufrirán cambios.
+				</Alert>
+			)}
+			{BACKUP_URL && !EMPTY_MAP && (
+				<Alert variant={"info"}>
 					<b>Atención: </b>{" "}
 					<a href={BACKUP_URL} target="_blank">
 						se recomienda hacer una copia de seguridad del curso.
 					</a>
-				</p>
-			)}
-			{hasWarnings && (
-				<Alert variant={"warning"}>
-					<strong>Atención: </strong>
-					<a
-						role="button"
-						className={styles.nodeWarning}
-						onClick={() => changeTab("warning")}
-					>{`Tiene ${warningCount} ${
-						warningCount > 1 ? "advertencias" : "advertencia"
-					}.`}</a>
 				</Alert>
 			)}
 		</>
