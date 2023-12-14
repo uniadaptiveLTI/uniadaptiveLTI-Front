@@ -62,6 +62,7 @@ import {
 	saveVersion,
 	fetchBackEnd,
 	handleNameCollision,
+	saveVersions,
 } from "@utils/Utils.js";
 import { isNodeArrayEqual } from "@utils/Nodes";
 import { errorListCheck } from "@utils/ErrorHandling";
@@ -77,6 +78,7 @@ import {
 	parseMoodleBadges,
 } from "@utils/Moodle";
 import { createNewSakaiMap, parseSakaiNode } from "@utils/Sakai";
+import { UserDataContext } from "../pages/_app";
 
 const DEFAULT_TOAST_SUCCESS = {
 	hideProgressBar: false,
@@ -126,8 +128,7 @@ function Header({ LTISettings }, ref) {
 	const EMPTY_MAP = { id: -1, name: "Seleccionar un mapa" };
 	const [loadedMaps, setLoadedMaps] = useState(false);
 	const { metaData, setMetaData } = useContext(MetaDataContext);
-	const [userData, setUserData] = useState({});
-
+	const { userData, setUserData } = useContext(UserDataContext);
 	const [selectedVersion, setSelectedVersion] = useState();
 	const fileImportDOM = useRef(null);
 	const [saveButtonColor, setSaveButtonColor] = useState("light");
@@ -217,36 +218,44 @@ function Header({ LTISettings }, ref) {
 		if (selectedMap) {
 			setMapSelected(selectedMap);
 
-			if (selectedMap.versions) {
-				if (!LTISettings.debugging.dev_files) {
-					try {
-						const RESPONSE = await fetchBackEnd(
+			if (!LTISettings.debugging.dev_files) {
+				try {
+					const MAP_RESPONSE = await fetchBackEnd(
+						LTISettings,
+						sessionStorage.getItem("token"),
+						"api/lti/get_map",
+						"POST",
+						{ map_id: selectedMap.id }
+					);
+
+					const MAP_DATA = MAP_RESPONSE.data;
+					if (!MAP_DATA.invalid) {
+						const VERSIONS_RESPONSE = await fetchBackEnd(
 							LTISettings,
 							sessionStorage.getItem("token"),
-							"api/lti/get_version",
+							"api/lti/get_versions",
 							"POST",
-							{ version_id: selectedMap.versions[0].id }
+							{ map_id: MAP_DATA.created_id }
 						);
 
-						const data = RESPONSE.data;
-
-						if (!data.invalid) {
-							setVersions(selectedMap.versions);
-							setSelectedVersion(selectedMap.versions[0]);
-							setCurrentBlocksData(data.blocks_data);
+						const VERSIONS_DATA = VERSIONS_RESPONSE.data;
+						if (!VERSIONS_DATA.invalid) {
+							setVersions(VERSIONS_DATA);
+							setSelectedVersion(VERSIONS_DATA[0]);
+							setCurrentBlocksData(VERSIONS_DATA[0].blocks_data);
 						} else {
-							setVersions(selectedMap.versions);
-							setSelectedVersion(selectedMap.versions[0]);
-							setCurrentBlocksData(selectedMap.versions[0].blocksData);
+							console.error("Error, datos de versiones inválidos");
 						}
-					} catch (error) {
-						console.error("Error:", error);
+					} else {
+						console.error("Error, datos de mapa inválidos");
 					}
-				} else {
-					setVersions(selectedMap.versions);
-					setSelectedVersion(selectedMap.versions[0]);
-					setCurrentBlocksData(selectedMap.versions[0].blocksData);
+				} catch (error) {
+					console.error("Error:", error);
 				}
+			} else {
+				setVersions(selectedMap.versions);
+				setSelectedVersion(selectedMap.versions[0]);
+				setCurrentBlocksData(selectedMap.versions[0].blocks_data);
 			}
 			if (selectedMap.id == -1) {
 				changeToMapSelection();
@@ -266,7 +275,12 @@ function Header({ LTISettings }, ref) {
 	/**
 	 * Handles the creation of a new map.
 	 */
-	const handleNewMap = (e, data, localMaps = maps) => {
+	const handleNewMap = async (
+		data,
+		localMetaData = metaData,
+		localUserData = userData,
+		localMaps = maps
+	) => {
 		const EMPTY_NEW_MAP = {
 			id: uniqueId(),
 			name: handleNameCollision(
@@ -281,7 +295,7 @@ function Header({ LTISettings }, ref) {
 					name: "Primera versión",
 					lastUpdate: new Date().toLocaleDateString(),
 					default: "true",
-					blocksData: new Array(),
+					blocks_data: new Array(),
 				},
 			],
 		};
@@ -296,13 +310,27 @@ function Header({ LTISettings }, ref) {
 				"("
 			),
 		};
+		if (!LTISettings.debugging.dev_files)
+			await saveVersions(
+				data ? NEW_MAP.versions : EMPTY_NEW_MAP.versions,
+				localMetaData,
+				platform,
+				localUserData,
+				data ? NEW_MAP : EMPTY_NEW_MAP,
+				LTISettings,
+				DEFAULT_TOAST_SUCCESS,
+				DEFAULT_TOAST_ERROR,
+				toast,
+				enableSaving,
+				undefined
+			);
 
 		const NEW_MAPS = [...localMaps, data ? NEW_MAP : EMPTY_NEW_MAP];
 
-		console.info(`🗺️ New map added: `, data ? NEW_MAP : EMPTY_NEW_MAP);
+		console.info(`:world_map: New map added: `, data ? NEW_MAP : EMPTY_NEW_MAP);
 
 		setMaps(NEW_MAPS);
-		setLastMapCreated(EMPTY_NEW_MAP.id);
+		setLastMapCreated(data ? NEW_MAP.id : EMPTY_NEW_MAP.id);
 		toast(
 			`Mapa: ${handleNameCollision(
 				"Nuevo Mapa",
@@ -318,6 +346,7 @@ function Header({ LTISettings }, ref) {
 	const handleImportedMap = async (
 		lesson,
 		localMetaData = metaData,
+		localUserData = userData,
 		localMaps = maps
 	) => {
 		const EMPTY_NEW_VERSION = [];
@@ -356,7 +385,7 @@ function Header({ LTISettings }, ref) {
 				data = await RESPONSE.json();
 			}
 		}
-		console.info(`❓ JSON:`, data);
+		console.info(`:question: JSON:`, data);
 
 		let newX = 125;
 		let newY = 0;
@@ -387,7 +416,7 @@ function Header({ LTISettings }, ref) {
 		switch (platform) {
 			case "moodle":
 				localMetaData.badges.map((badge) => {
-					nodes.push(parseMoodleBadges(badge, newX, newY, nodes));
+					NODES.push(parseMoodleBadges(badge, newX, newY));
 					newX += 125;
 				});
 				break;
@@ -406,22 +435,29 @@ function Header({ LTISettings }, ref) {
 				localMaps
 			);
 		}
+		if (!LTISettings.debugging.dev_files)
+			saveVersions(
+				platformNewMap.versions,
+				localMetaData,
+				platform,
+				localUserData,
+				platformNewMap,
+				LTISettings,
+				DEFAULT_TOAST_SUCCESS,
+				DEFAULT_TOAST_ERROR,
+				toast,
+				enableSaving,
+				undefined
+			);
 
 		const newMaps = [...localMaps, platformNewMap];
 
-		console.info(`🗺️ New map added: `, platformNewMap);
+		console.info(`:world_map: New map added: `, platformNewMap);
 
 		setMaps(newMaps);
 		setLastMapCreated(platformNewMap.id);
 		toast(`Mapa: ${platformNewMap.name} creado`, DEFAULT_TOAST_SUCCESS);
 		setMapCount((prev) => prev + 1);
-		// } catch (e) {
-		// 	// toast(
-		// 	// 	`Ha ocurrido un error durante la importación del mapa`,
-		// 	// 	defaultToastError
-		// 	// );
-		// 	// throw new Error("Request failed");
-		// }
 	};
 
 	const handleImportedMapFromLesson = () => {
@@ -431,42 +467,11 @@ function Header({ LTISettings }, ref) {
 	/**
 	 * Handles the creation of a new version.
 	 */
-	const handleNewVersion = (e, data) => {
+	///AQUI
+	const handleNewVersion = (data) => {
 		const SELECTED_MAP = getMapById(selectMapDOM.current.value);
-		let FINAL_NAME = handleNameCollision(
-			"Nueva Versión",
-			SELECTED_MAP.versions.map((version) => version.name),
-			true,
-			"("
-		);
-		const EMPTY_NEW_VERSION = {
-			id: uniqueId(),
-			name: FINAL_NAME,
-			lastUpdate: new Date().toLocaleDateString(),
-			default: "true",
-			blocksData: new Array(),
-		};
 
-		const NEW_FULL_VERSION = data
-			? {
-					...data,
-					id: uniqueId(),
-					lastUpdate: new Date().toLocaleDateString(),
-					name: FINAL_NAME,
-					default: false,
-			  }
-			: EMPTY_NEW_VERSION;
-
-		const NEW_MAP_VERSIONS = [...SELECTED_MAP.versions, NEW_FULL_VERSION];
-		let modifiedMap = SELECTED_MAP;
-		modifiedMap.versions = NEW_MAP_VERSIONS;
-		const MAP_INDEX = maps.findIndex((m) => m.id == SELECTED_MAP.id);
-		const NEW_MAPS = [...maps];
-		NEW_MAPS[MAP_INDEX] = SELECTED_MAP;
-		setMaps(NEW_MAPS);
-		setVersions(modifiedMap.versions);
-		setLastVersionCreated(NEW_FULL_VERSION);
-		toast(`Versión: ${FINAL_NAME} creada`, DEFAULT_TOAST_SUCCESS);
+		handleNewVersionIn(data, SELECTED_MAP.id);
 	};
 
 	/**
@@ -474,7 +479,7 @@ function Header({ LTISettings }, ref) {
 	 * @param {Object} data - The data for the new version of the map.
 	 * @param {string} mapId - The id of the map to create a new version for.
 	 */
-	const handleNewVersionIn = (data, mapId) => {
+	const handleNewVersionIn = async (data, mapId) => {
 		const SELECTED_MAP = getMapById(mapId);
 		let finalName = handleNameCollision(
 			"Nueva Versión",
@@ -482,31 +487,68 @@ function Header({ LTISettings }, ref) {
 			true,
 			"("
 		);
-		const NEW_MAP_VERSIONS = [
-			...SELECTED_MAP.versions,
-			{
-				...data,
-				id: uniqueId(),
-				lastUpdate: new Date().toLocaleDateString(),
-				name: finalName,
-				default: false,
-			},
-		];
 
-		let modifiedMap = SELECTED_MAP;
-		modifiedMap.versions = NEW_MAP_VERSIONS;
-		const MAP_INDEX = maps.findIndex((m) => m.id == SELECTED_MAP.id);
-		const NEW_MAPS = [...maps];
-		NEW_MAPS[MAP_INDEX] = modifiedMap;
-		setMaps(NEW_MAPS);
-		setVersions(modifiedMap.versions);
-		setMapSelected(modifiedMap);
-		setSelectedVersion(modifiedMap.versions[SELECTED_MAP.versions.length - 1]);
-		setCurrentBlocksData(
-			modifiedMap.versions[SELECTED_MAP.versions.length - 1].blocksData
+		const NEW_VERSION = data
+			? {
+					...data,
+					id: uniqueId(),
+					map_id: SELECTED_MAP.id,
+					lastUpdate: new Date().toLocaleDateString(),
+					name: finalName,
+					default: false,
+			  }
+			: {
+					blocks_data: [],
+					id: uniqueId(),
+					map_id: SELECTED_MAP.id,
+					lastUpdate: new Date().toLocaleDateString(),
+					name: finalName,
+					default: false,
+			  };
+
+		const NEW_MAP_VERSIONS = [...SELECTED_MAP.versions, NEW_VERSION];
+		const response = await fetchBackEnd(
+			LTISettings,
+			sessionStorage.getItem("token"),
+			"api/lti/add_version",
+			"POST",
+			{ version: NEW_VERSION }
 		);
 
-		toast(`Versión: ${finalName} creada`, DEFAULT_TOAST_SUCCESS);
+		if (!response.ok) {
+			toast(
+				`Ha ocurrido un error durante la creación del mapa`,
+				DEFAULT_TOAST_ERROR
+			);
+			throw new Error("Request failed");
+		} else {
+			const response = await fetchBackEnd(
+				LTISettings,
+				sessionStorage.getItem("token"),
+				"api/lti/get_versions",
+				"POST",
+				{ map_id: SELECTED_MAP.id }
+			);
+
+			if (!response.ok) {
+				toast(
+					`Ha ocurrido un error durante la carga del mapa`,
+					DEFAULT_TOAST_ERROR
+				);
+				throw new Error("Request failed");
+			} else {
+				SELECTED_MAP.versions = response.data;
+				setVersions(response.data);
+				setMapSelected(SELECTED_MAP);
+				setSelectedVersion(
+					SELECTED_MAP.versions[SELECTED_MAP.versions.length - 1]
+				);
+				setCurrentBlocksData(
+					SELECTED_MAP.versions[SELECTED_MAP.versions.length - 1].blocks_data
+				);
+			}
+			toast(`Versión: ${finalName} creada`, DEFAULT_TOAST_SUCCESS);
+		}
 	};
 
 	/**
@@ -661,7 +703,7 @@ function Header({ LTISettings }, ref) {
 							setMaps(NEW_MAPS);
 							setVersions(MODIFIED_MAP.versions);
 							setCurrentBlocksData(
-								FIRST_VERSION?.blocksData || versions[0]?.blocksData
+								FIRST_VERSION?.blocks_data || versions[0]?.blocks_data
 							);
 							toast(`Versión eliminada con éxito.`, DEFAULT_TOAST_SUCCESS);
 						}
@@ -691,7 +733,7 @@ function Header({ LTISettings }, ref) {
 				setMaps(NEW_MAPS);
 				setVersions(MODIFIED_MAP.versions);
 				setCurrentBlocksData(
-					FIRST_VERSION?.blocksData || versions[0]?.blocksData
+					FIRST_VERSION?.blocks_data || versions[0]?.blocks_data
 				);
 				toast(`Versión eliminada con éxito.`, DEFAULT_TOAST_SUCCESS);
 			}
@@ -928,10 +970,12 @@ function Header({ LTISettings }, ref) {
 
 	useEffect(() => {
 		if (lastMapCreated != undefined) handleMapChange(lastMapCreated);
+		setLastMapCreated(undefined);
 	}, [lastMapCreated]);
 
 	useEffect(() => {
 		if (lastVersionCreated != undefined) setSelectedVersion(lastVersionCreated);
+		setLastVersionCreated(undefined);
 	}, [lastVersionCreated]);
 
 	useEffect(() => {
@@ -939,12 +983,12 @@ function Header({ LTISettings }, ref) {
 			if (selectedVersion.id != versionJson.id) {
 				resetEdit();
 				errorListCheck(
-					selectedVersion.blocksData,
+					selectedVersion.blocks_data,
 					errorList,
 					setErrorList,
 					false
 				);
-				setCurrentBlocksData(selectedVersion.blocksData);
+				setCurrentBlocksData(selectedVersion.blocks_data);
 			}
 		}
 	}, [selectedVersion]);
@@ -1074,7 +1118,9 @@ function Header({ LTISettings }, ref) {
 
 	function enableSaving(boolean) {
 		setSaving(boolean);
-		saveButtonRef.current.disabled = boolean;
+		if (saveButtonRef.current) {
+			saveButtonRef.current.disabled = boolean;
+		}
 	}
 
 	const saveActualVersion = async () => {
@@ -1189,7 +1235,7 @@ function Header({ LTISettings }, ref) {
 									/>
 								</Dropdown.Toggle>
 								<Dropdown.Menu>
-									<Dropdown.Item onClick={handleNewMap}>
+									<Dropdown.Item onClick={() => handleNewMap()}>
 										Nuevo mapa vacío
 									</Dropdown.Item>
 									{!hasLessons(platform) && (
@@ -1204,11 +1250,16 @@ function Header({ LTISettings }, ref) {
 									)}
 									{mapSelected.id >= 0 && (
 										<>
-											<Dropdown.Item onClick={handleNewVersion}>
+											<Dropdown.Item onClick={() => handleNewVersion()}>
 												Nueva versión vacía
 											</Dropdown.Item>
 											<Dropdown.Item
-												onClick={(e) => handleNewVersion(e, selectedVersion)}
+												onClick={() =>
+													handleNewVersion({
+														...selectedVersion,
+														blocks_data: REACTFLOW_INSTANCE.getNodes(),
+													})
+												}
 											>
 												Nueva versión desde la actual
 											</Dropdown.Item>

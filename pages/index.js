@@ -11,6 +11,7 @@ import {
 	DevModeStatusContext,
 	PlatformContext,
 	MetaDataContext,
+	UserDataContext,
 } from "./_app";
 import BlockFlow from "/components/BlockFlow";
 import Layout from "../components/Layout";
@@ -33,7 +34,6 @@ export async function getStaticProps() {
 	const LTISettings = JSON.parse(await fs.readFile(FILE_PATH));
 	return { props: { LTISettings } };
 }
-
 function EmptySelector() {
 	const {
 		mapCount,
@@ -48,6 +48,7 @@ function EmptySelector() {
 	const { platform } = useContext(PlatformContext);
 	const [buttonStyles, setButtonStyles] = useState({});
 	const { metaData } = useContext(MetaDataContext);
+	const { userData } = useContext(UserDataContext);
 
 	useLayoutEffect(() => {
 		setButtonStyles(getAutomaticReusableStyles("light", true, true, false));
@@ -80,7 +81,7 @@ function EmptySelector() {
 							<Col>
 								<Button
 									variant="light"
-									onClick={() => funcCreateMap(null, null, maps)}
+									onClick={() => funcCreateMap(null, metaData, userData, maps)}
 									className="w-100"
 									style={{
 										...buttonStyles,
@@ -98,7 +99,9 @@ function EmptySelector() {
 								{hasLessons(platform) ? (
 									<Button
 										variant="light"
-										onClick={() => funcImportMapFromLesson(null, maps)}
+										onClick={() =>
+											funcImportMapFromLesson(null, metaData, userData, maps)
+										}
 										className="w-100"
 										style={{
 											...buttonStyles,
@@ -116,7 +119,9 @@ function EmptySelector() {
 								) : (
 									<Button
 										variant="light"
-										onClick={() => funcImportMap(undefined, metaData, maps)}
+										onClick={() =>
+											funcImportMap(undefined, metaData, userData, maps)
+										}
 										className="w-100"
 										style={{
 											...buttonStyles,

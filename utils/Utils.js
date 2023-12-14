@@ -471,11 +471,13 @@ export async function saveVersion(
 			map: {
 				id: mapSelected.id,
 				name: mapSelected.name,
-				versions: {
-					...versionJson,
-					lastUpdate: new Date().toLocaleString("es-ES"),
-					blocksData: CLEANED_NODES,
-				},
+				versions: [
+					{
+						...versionJson,
+						lastUpdate: new Date().toLocaleString("es-ES"),
+						blocks_data: CLEANED_NODES,
+					},
+				],
 			},
 		};
 
@@ -491,77 +493,199 @@ export async function saveVersion(
 			{ saveData: SAVE_DATA }
 		);
 
-		if (RESPONSE && RESPONSE.ok) {
-			if (responseData) {
-				switch (responseData) {
-					case "SUCCESSFUL_EXPORT":
-						console.log(
-							"%c ✔ La exportación y el guardado de la página de contenidos se han completado con éxito.",
-							"background: #D7FFD7; color: black; padding: 4px;"
-						);
-						toast(
-							"La exportación y el guardado de la página de contenidos se han completado con éxito.",
-							defaultToastSuccess
-						);
-						break;
-					case "SUCCESSFUL_EXPORT_WITHOUT_CONDITIONS":
-						console.log(
-							"%c ✔ La exportación (sin condiciones) y el guardado de la página de contenidos se han completado con éxito.",
-							"background: #D7FFD7; color: black; padding: 4px;"
-						);
-						toast(
-							"La exportación (sin condiciones) y el guardado de la página de contenidos se han completado con éxito.",
-							defaultToastSuccess
-						);
-						break;
-				}
-			} else {
-				// If the response is successful, show the success message
-				console.log(
-					"%c ✔ Versión guardada con éxito",
-					"background: #D7FFD7; color: black; padding: 4px;"
-				);
-				toast(SUCCESS_MESSAGE, defaultToastSuccess);
-			}
-		} else {
-			if (responseData) {
-				switch (responseData) {
-					case "SUCCESSFUL_EXPORT":
-						console.log(
-							"%c ⚠️ La exportación se ha completado con éxito, el guardado ha fallado",
-							"background: #FFE3D7; color: black; padding: 4px;"
-						);
-						toast(
-							"La exportación se ha completado con éxito, el guardado ha fallado",
-							defaultToastError
-						);
-						break;
-					case "SUCCESSFUL_EXPORT_WITHOUT_CONDITIONS":
-						console.log(
-							"%c ⚠️ La exportación (sin condiciones) se ha completado con éxito, el guardado ha fallado",
-							"background: #FFE3D7; color: black; padding: 4px;"
-						);
-						toast(
-							"La exportación (sin condiciones) se ha completado con éxito, el guardado ha fallado",
-							defaultToastError
-						);
-						break;
-				}
-			} else {
-				console.log(
-					"%c ❌ No se pudo guardar",
-					"background: #FFD7DC; color: black; padding: 4px;"
-				);
-				// If the response is not successful, show the error message
-				toast(ERROR_MESSAGE, defaultToastError);
-			}
-		}
+		saveVersionErrors(
+			RESPONSE,
+			responseData,
+			toast,
+			SUCCESS_MESSAGE,
+			defaultToastSuccess,
+			ERROR_MESSAGE,
+			defaultToastError
+		);
 	} catch (e) {
 		// If an error occurs when making the request, show the error message and log the error in the console
 		console.error(e);
 		toast(ERROR_MESSAGE, defaultToastError);
 	} finally {
 		enable(false);
+	}
+}
+
+/**
+ * Method to used to save map
+ * @param {Node} versions - Version array
+ * @param {Object} metaData - metaData object
+ * @param {String} platform - Platform string
+ * @param {Object} userData - userData object
+ * @param {Object} mapSelected - current map object
+ * @param {Object} LTISettings - LTISettings object
+ * @param {defaultToastSuccess} defaultToastSuccess - Toast Success Settings Object
+ * @param {defaultToastError} defaultToastSuccess - Toast Error Settings Object
+ * @param {Function} toast - Toast function
+ * @param {Boolean} enable - Date string, or UNIX Date
+ * @param {Object} responseData - responseData object
+ */
+export async function saveVersions(
+	versions,
+	metaData,
+	platform,
+	userData,
+	mapSelected,
+	LTISettings,
+	defaultToastSuccess,
+	defaultToastError,
+	toast,
+	enable,
+	responseData,
+	lesson
+) {
+	// Helper function to clean the nodes
+	function cleanNodes(nodes) {
+		if (nodes == undefined) {
+			return [];
+		}
+		return nodes.map((node) => {
+			// Copy the node object without the properties that want to be removed
+			const {
+				height,
+				width,
+				positionAbsolute,
+				dragging,
+				selected,
+				targetPosition,
+				...cleanedNode
+			} = node;
+			return cleanedNode;
+		});
+	}
+	// Clean the versions using the helper function
+	const CLEANED_VERSIONS = versions.map((version) => {
+		return {
+			...version,
+			blocks_data: cleanNodes(version.blocks_data),
+			lastUpdate: new Date().toLocaleString("es-ES"),
+		};
+	});
+	// Define constants for the success and error messages
+	const SUCCESS_MESSAGE = "Versión guardada con éxito";
+	const ERROR_MESSAGE = "No se pudo guardar";
+	try {
+		const SAVE_DATA = {
+			instance_id: metaData.instance_id,
+			course_id: metaData.course_id,
+			platform: platform,
+			user_id: userData.user_id,
+			map: {
+				id: mapSelected.id,
+				name: mapSelected.name,
+				versions: {
+					...CLEANED_VERSIONS,
+				},
+			},
+		};
+		if (platform == "sakai") {
+			SAVE_DATA.lesson_id = lesson;
+		}
+
+		const RESPONSE = await fetchBackEnd(
+			LTISettings,
+			sessionStorage.getItem("token"),
+			"api/lti/store_version",
+			"POST",
+			{ saveData: SAVE_DATA }
+		);
+
+		saveVersionErrors(
+			RESPONSE,
+			responseData,
+			toast,
+			SUCCESS_MESSAGE,
+			defaultToastSuccess,
+			ERROR_MESSAGE,
+			defaultToastError
+		);
+	} catch (e) {
+		// If an error occurs when making the request, show the error message and log the error in the console
+		console.error(e);
+		toast(ERROR_MESSAGE, defaultToastError);
+	} finally {
+		enable(false);
+	}
+}
+
+function saveVersionErrors(
+	response,
+	responseData,
+	toast,
+	SUCCESS_MESSAGE,
+	defaultToastSuccess,
+	ERROR_MESSAGE,
+	defaultToastError
+) {
+	if (response && response.ok) {
+		if (responseData) {
+			switch (responseData) {
+				case "SUCCESSFUL_EXPORT":
+					console.log(
+						"%c ✔ La exportación y el guardado de la página de contenidos se han completado con éxito.",
+						"background: #D7FFD7; color: black; padding: 4px;"
+					);
+					toast(
+						"La exportación y el guardado de la página de contenidos se han completado con éxito.",
+						defaultToastSuccess
+					);
+					break;
+				case "SUCCESSFUL_EXPORT_WITHOUT_CONDITIONS":
+					console.log(
+						"%c ✔ La exportación (sin condiciones) y el guardado de la página de contenidos se han completado con éxito.",
+						"background: #D7FFD7; color: black; padding: 4px;"
+					);
+					toast(
+						"La exportación (sin condiciones) y el guardado de la página de contenidos se han completado con éxito.",
+						defaultToastSuccess
+					);
+					break;
+			}
+		} else {
+			// If the response is successful, show the success message
+			console.log(
+				"%c ✔ Versión guardada con éxito",
+				"background: #D7FFD7; color: black; padding: 4px;"
+			);
+			toast(SUCCESS_MESSAGE, defaultToastSuccess);
+		}
+	} else {
+		if (responseData) {
+			switch (responseData) {
+				case "SUCCESSFUL_EXPORT":
+					console.log(
+						"%c :warning: La exportación se ha completado con éxito, el guardado ha fallado",
+						"background: #FFE3D7; color: black; padding: 4px;"
+					);
+					toast(
+						"La exportación se ha completado con éxito, el guardado ha fallado",
+						defaultToastError
+					);
+					break;
+				case "SUCCESSFUL_EXPORT_WITHOUT_CONDITIONS":
+					console.log(
+						"%c :warning: La exportación (sin condiciones) se ha completado con éxito, el guardado ha fallado",
+						"background: #FFE3D7; color: black; padding: 4px;"
+					);
+					toast(
+						"La exportación (sin condiciones) se ha completado con éxito, el guardado ha fallado",
+						defaultToastError
+					);
+					break;
+			}
+		} else {
+			console.log(
+				"%c :x: No se pudo guardar",
+				"background: #FFD7DC; color: black; padding: 4px;"
+			);
+			// If the response is not successful, show the error message
+			toast(ERROR_MESSAGE, defaultToastError);
+		}
 	}
 }
 

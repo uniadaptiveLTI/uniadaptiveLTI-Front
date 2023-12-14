@@ -28,6 +28,7 @@ export const MainDOMContext = createContext(); //
 export const OnlineContext = createContext(); //Contains true/false if online
 export const ReactFlowInstanceContext = createContext(); //Contains reactFlowInstance (deprecated)
 export const MetaDataContext = createContext(); //Contains metadata information
+export const UserDataContext = createContext(); //Contains userdata information
 export const DevModeStatusContext = createContext(false); //Stores the dev_mode status so it can be passed to the nodes.
 export const HeaderToEmptySelectorContext = createContext(); //References functionally from the Header to be able to use it in the empty selector.
 
