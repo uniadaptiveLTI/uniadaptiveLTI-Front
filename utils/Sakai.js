@@ -154,7 +154,7 @@ export function createNewSakaiMap(nodes, lesson, metadata, maps) {
 				name: "Primera versión",
 				lastUpdate: new Date().toLocaleDateString(),
 				default: "true",
-				blocksData: [...nodes],
+				blocks_data: [...nodes],
 			},
 		],
 	};

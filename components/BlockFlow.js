@@ -941,6 +941,7 @@ const OverviewFlow = ({ map }, ref) => {
 	/**
 	 * Handles the loading of the map.
 	 */
+
 	const onLoad = () => {
 		if (map != prevMap) {
 			reactFlowInstance.fitView(fitViewOptions);

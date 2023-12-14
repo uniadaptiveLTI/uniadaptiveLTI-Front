@@ -13,14 +13,15 @@ import {
 	MainDOMContext,
 	MetaDataContext,
 	HeaderToEmptySelectorContext,
+	UserDataContext,
 } from "../pages/_app.js";
 import { applyBranding } from "@utils/Colors";
 
 export default function Layout({ LTISettings, children }) {
 	const [platform, setPlatform] = useState("moodle"); //default to moodle in testing phase
 	const [metaData, setMetaData] = useState();
+	const [userData, setUserData] = useState();
 	const [sections, setSections] = useState();
-
 	const [nodeSelected, setNodeSelected] = useState("");
 	const [mapSelected, setMapSelected] = useState("");
 	const [activeMap, setActiveMap] = useState("");
@@ -67,11 +68,15 @@ export default function Layout({ LTISettings, children }) {
 	]);
 
 	useLayoutEffect(() => {
-		setMainDOM(mainDOMRef);
+		if (typeof window != "undefined") {
+			setMainDOM(mainDOMRef);
+		}
 	}, [mainDOMRef]);
 
 	useLayoutEffect(() => {
-		applyBranding(LTISettings);
+		if (typeof window != "undefined") {
+			applyBranding(LTISettings);
+		}
 	}, [LTISettings]);
 
 	/**
@@ -94,106 +99,108 @@ export default function Layout({ LTISettings, children }) {
 	return (
 		<PlatformContext.Provider value={{ platform, setPlatform }}>
 			<MetaDataContext.Provider value={{ metaData, setMetaData }}>
-				<NodeInfoContext.Provider value={{ nodeSelected, setNodeSelected }}>
-					<MapInfoContext.Provider
-						value={{ mapSelected, setMapSelected, activeMap, setActiveMap }}
-					>
-						<VersionInfoContext.Provider
-							value={{ editVersionSelected, setEditVersionSelected }}
+				<UserDataContext.Provider value={{ userData, setUserData }}>
+					<NodeInfoContext.Provider value={{ nodeSelected, setNodeSelected }}>
+						<MapInfoContext.Provider
+							value={{ mapSelected, setMapSelected, activeMap, setActiveMap }}
 						>
-							<VersionJsonContext.Provider
-								value={{ versionJson, setVersionJson }}
+							<VersionInfoContext.Provider
+								value={{ editVersionSelected, setEditVersionSelected }}
 							>
-								<HeaderToEmptySelectorContext.Provider
-									value={{
-										mapCount,
-										setMapCount,
-										mapNames,
-										setMapNames,
-										allowUseStatus,
-										setAllowUseStatus,
-										maps,
-										setMaps,
-										funcCreateMap,
-										setFuncCreateMap,
-										funcImportMap,
-										setFuncImportMap,
-										funcImportMapFromLesson,
-										setFuncImportMapFromLesson,
-										funcMapChange,
-										setFuncMapChange,
-									}}
+								<VersionJsonContext.Provider
+									value={{ versionJson, setVersionJson }}
 								>
-									<ExpandedAsideContext.Provider
-										value={{ expandedAside, setExpandedAside }}
+									<HeaderToEmptySelectorContext.Provider
+										value={{
+											mapCount,
+											setMapCount,
+											mapNames,
+											setMapNames,
+											allowUseStatus,
+											setAllowUseStatus,
+											maps,
+											setMaps,
+											funcCreateMap,
+											setFuncCreateMap,
+											funcImportMap,
+											setFuncImportMap,
+											funcImportMapFromLesson,
+											setFuncImportMapFromLesson,
+											funcMapChange,
+											setFuncMapChange,
+										}}
 									>
-										<MainDOMContext.Provider value={{ mainDOM, setMainDOM }}>
-											<ReactFlowProvider>
-												<Container
-													className="g-0"
-													fluid
-													style={{ minHeight: 100 + "vh" }}
-												>
-													<div
-														className="row g-0"
-														style={{ height: 100 + "vh" }}
+										<ExpandedAsideContext.Provider
+											value={{ expandedAside, setExpandedAside }}
+										>
+											<MainDOMContext.Provider value={{ mainDOM, setMainDOM }}>
+												<ReactFlowProvider>
+													<Container
+														className="g-0"
+														fluid
+														style={{ minHeight: 100 + "vh" }}
 													>
-														<Aside
-															LTISettings={LTISettings}
-															className={
-																expandedAside
-																	? "col-12 col-sm-4 col-md-3 col-xl-2"
-																	: "d-none"
-															}
-														/>
-														<Container
-															fluid
-															className={
-																expandedAside
-																	? "col-12 col-sm-8 col-md-9 col-xl-10 g-0"
-																	: "g-0"
-															}
-															style={{
-																display: "flex",
-																flexDirection: "column",
-															}}
+														<div
+															className="row g-0"
+															style={{ height: 100 + "vh" }}
 														>
+															<Aside
+																LTISettings={LTISettings}
+																className={
+																	expandedAside
+																		? "col-12 col-sm-4 col-md-3 col-xl-2"
+																		: "d-none"
+																}
+															/>
 															<Container
-																className="g-0"
 																fluid
-																style={{ flex: "1 0 auto" }}
+																className={
+																	expandedAside
+																		? "col-12 col-sm-8 col-md-9 col-xl-10 g-0"
+																		: "g-0"
+																}
+																style={{
+																	display: "flex",
+																	flexDirection: "column",
+																}}
 															>
-																<Header
-																	LTISettings={LTISettings}
-																	ref={headerDOM}
-																/>
-
-																<main
-																	id="main"
-																	ref={mainDOMRef}
-																	style={{
-																		height: fixedMainHeight,
-																		overflow: "overlay",
-																		scrollBehavior: "smooth",
-																		position: "relative",
-																		boxShadow:
-																			"inset 0 0 10px var(--blockflow-inner-box-shadow-color)",
-																	}}
+																<Container
+																	className="g-0"
+																	fluid
+																	style={{ flex: "1 0 auto" }}
 																>
-																	{children}
-																</main>
+																	<Header
+																		LTISettings={LTISettings}
+																		ref={headerDOM}
+																	/>
+
+																	<main
+																		id="main"
+																		ref={mainDOMRef}
+																		style={{
+																			height: fixedMainHeight,
+																			overflow: "overlay",
+																			scrollBehavior: "smooth",
+																			position: "relative",
+																			boxShadow:
+																				"inset 0 0 10px var(--blockflow-inner-box-shadow-color)",
+																		}}
+																	>
+																		{children}
+																	</main>
+																</Container>
 															</Container>
-														</Container>
-													</div>
-												</Container>
-											</ReactFlowProvider>
-										</MainDOMContext.Provider>
-									</ExpandedAsideContext.Provider>
-								</HeaderToEmptySelectorContext.Provider>
-							</VersionJsonContext.Provider>
-						</VersionInfoContext.Provider>
-					</MapInfoContext.Provider>
-				</NodeInfoContext.Provider>
+														</div>
+													</Container>
+												</ReactFlowProvider>
+											</MainDOMContext.Provider>
+										</ExpandedAsideContext.Provider>
+									</HeaderToEmptySelectorContext.Provider>
+								</VersionJsonContext.Provider>
+							</VersionInfoContext.Provider>
+						</MapInfoContext.Provider>
+					</NodeInfoContext.Provider>
+				</UserDataContext.Provider>
 			</MetaDataContext.Provider>
 		</PlatformContext.Provider>
 	);
