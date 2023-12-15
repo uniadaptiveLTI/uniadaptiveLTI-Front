@@ -46,6 +46,8 @@ export default function ExportPanel({
 	const [errorCount, setErrorCount] = useState(0);
 	const [hasWarnings, setHasWarnings] = useState(false);
 	const [warningCount, setWarningCount] = useState(0);
+	const [selectedErrorCount, setSelectedErrorCount] = useState(0);
+	const [selectedWarningCount, setSelectedWarningCount] = useState(0);
 	const [currentSelectionInfo, setCurrentSelectionInfo] = useState({
 		selection: [],
 	});
@@ -75,56 +77,41 @@ export default function ExportPanel({
 	}
 
 	const BACKUP_URL = getBackupURL(platform, metaData);
-
 	const handleSelectionChange = (selectionInfo) => {
 		if (selectionInfo != undefined && selectionInfo.selection != []) {
-			const hasSelectedErrors = () => {
-				for (let i = 0; i < selectionInfo.selection.length; i++) {
-					if (selectionInfo.errors[selectionInfo.selection[i]] !== undefined) {
-						return true;
-					}
-				}
-				return false;
-			};
+			const hasSelectedErrors = () =>
+				selectionInfo.selection
+					.map((selection) => {
+						return selectionInfo.errors[selection - 1] > 0;
+					})
+					.some((result) => result == true);
+
 			const getSelectedErrorCount = () => {
-				let sum = 0;
-				for (let i = 0; i < selectionInfo.selection.length; i++) {
-					if (selectionInfo.errors[selectionInfo.selection[i]] !== undefined) {
-						let error = selectionInfo.errors[selectionInfo.selection[i]];
-						if (error === null) {
-							error = 0;
-						}
-						sum += error;
-					}
-				}
-				return sum;
+				const errorCount = selectionInfo.selection
+					.map((selection) => {
+						const error = selectionInfo.errors[selection - 1];
+						return error === undefined ? 0 : error;
+					})
+					.reduce((total, actual) => total + actual, 0);
+
+				return errorCount || 0;
 			};
-			const hasSelectedWarnings = () => {
-				for (let i = 0; i < selectionInfo.selection.length; i++) {
-					if (
-						selectionInfo.warnings[selectionInfo.selection[i]] !== undefined &&
-						selectionInfo.warnings[selectionInfo.selection[i]] !== 0
-					) {
-						return true;
-					}
-				}
-				return false;
-			};
+			const hasSelectedWarnings = () =>
+				selectionInfo.selection
+					.map((selection) => {
+						return selectionInfo.warnings[selection - 1] > 0;
+					})
+					.some((result) => result == true);
 
 			const getSelectedWarningCount = () => {
-				let sum = 0;
-				for (let i = 0; i < selectionInfo.selection.length; i++) {
-					if (
-						selectionInfo.warnings[selectionInfo.selection[i]] !== undefined
-					) {
-						let warning = selectionInfo.warnings[selectionInfo.selection[i]];
-						if (warning === null) {
-							warning = 0;
-						}
-						sum += warning;
-					}
-				}
-				return sum;
+				const warningCount = selectionInfo.selection
+					.map((selection) => {
+						const warning = selectionInfo.warnings[selection - 1];
+						return warning === undefined ? 0 : warning;
+					})
+					.reduce((total, actual) => total + actual, 0);
+
+				return warningCount || 0;
 			};
 
 			setAbleToExport(
@@ -485,8 +472,6 @@ export default function ExportPanel({
 				}
 			});
 
-			console.log("CONDITION LIST", CONDITION_LIST);
-
 			let resultJson = [];
 			const SECTION_PROCESSED = {};
 
@@ -555,13 +540,6 @@ export default function ExportPanel({
 				return a.indent - b.indent;
 			});
 
-			console.log(
-				"NODES TO LESSON ITEMS",
-				resultJson,
-				"NODES TO UPDATE",
-				nodesToUpdateRequest,
-				metaData
-			);
 			sendNodes(
 				nodesReadyToExport,
 				resultJson,
@@ -849,28 +827,28 @@ export default function ExportPanel({
 				></LessonSelector>
 			)}
 
-			{hasErrors && (
+			{selectedErrorCount > 0 && (
 				<Alert variant={"danger"}>
 					<strong>Atención: </strong>
 					<a
 						role="button"
 						className={styles.nodeError}
 						onClick={() => changeTab("error")}
-					>{`No es posible exportar debido a ${errorCount} ${
-						errorCount > 1 ? "errores" : "error"
+					>{`No es posible exportar debido a ${selectedErrorCount} ${
+						selectedErrorCount > 1 ? "errores" : "error"
 					}.`}</a>
 				</Alert>
 			)}
 
-			{hasWarnings && (
+			{selectedWarningCount > 0 && (
 				<Alert variant={"warning"}>
 					<strong>Atención: </strong>
 					<a
 						role="button"
 						className={styles.nodeWarning}
 						onClick={() => changeTab("warning")}
-					>{`Tiene ${warningCount} ${
-						warningCount > 1 ? "advertencias" : "advertencia"
+					>{`Tiene ${selectedWarningCount} ${
+						selectedWarningCount > 1 ? "advertencias" : "advertencia"
 					}.`}</a>
 				</Alert>
 			)}
