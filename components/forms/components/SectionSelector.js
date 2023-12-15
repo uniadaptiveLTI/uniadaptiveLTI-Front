@@ -55,7 +55,7 @@ export default forwardRef(function SectionSelector(
 		if (showErrors == false) setWaitForWarnings(false);
 	}, []);
 
-	//Checks if it has  to wait for the warnings to generate
+	//Checks if it has errors or warnings (has to wait for the warnings to generate)
 	useLayoutEffect(() => {
 		if (showErrors == true && warningList != undefined) {
 			getErrorsPerSection();
