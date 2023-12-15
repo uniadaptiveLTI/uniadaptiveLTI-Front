@@ -195,6 +195,7 @@ const QualificationForm = forwardRef(
 								label={"El estudiante debe ver esta actividad para finalizarla"}
 								defaultChecked={initialGrade?.hasToBeSeen || false}
 							></Form.Check>
+
 							<Form.Check
 								ref={hasToBeQualifiedRef}
 								label={
@@ -205,11 +206,15 @@ const QualificationForm = forwardRef(
 									setShowGrades(e.target.checked);
 								}}
 								disabled={hasQualifiedUsage}
+								style={{
+									display: gradeConditionType == "choice" ? "none" : "inherit",
+								}}
 							></Form.Check>
 							<small
 								style={{
 									display: hasQualifiedUsage ? "block" : "none",
 									color: "red",
+									display: gradeConditionType == "choice" ? "none" : "inherit",
 								}}
 							>
 								Existen bloques con condiciones de finalización de tipo aprobado

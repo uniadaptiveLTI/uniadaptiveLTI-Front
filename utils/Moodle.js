@@ -43,11 +43,11 @@ export function parseMoodleNode(node, newX, newY) {
  * @returns {Object} LTI's badge node.
  */
 export function parseMoodleBadges(badge, newX, newY, nodes) {
-	const newNode = {};
-	newNode.id = String(uniqueId());
-	newNode.type = "badge";
-	newNode.position = { x: newX, y: newY };
-	newNode.data = {
+	const NEW_NODE = {};
+	NEW_NODE.id = String(uniqueId());
+	NEW_NODE.type = "badge";
+	NEW_NODE.position = { x: newX, y: newY };
+	NEW_NODE.data = {
 		label: badge.name,
 		c: parseMoodleBadgeParams(badge.params, nodes), //Adapted in "createNewMoodleMap" (as we need all the IDs)
 		lmsResource: String(badge.id),

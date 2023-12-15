@@ -55,7 +55,7 @@ export default forwardRef(function SectionSelector(
 		if (showErrors == false) setWaitForWarnings(false);
 	}, []);
 
-	//Checks if it has  to wait for the warnings to generate
+	//Checks if it has errors or warnings (has to wait for the warnings to generate)
 	useLayoutEffect(() => {
 		if (showErrors == true && warningList != undefined) {
 			getErrorsPerSection();
@@ -88,23 +88,25 @@ export default forwardRef(function SectionSelector(
 									/>
 									{showErrors && (
 										<div className="d-flex ms-2" style={{ gap: "10px" }}>
-											{errorsPerSection[section.id] > 0 && (
+											{errorsPerSection[section.position] > 0 && (
 												<FontAwesomeIcon
 													icon={faExclamationCircle}
 													style={{
 														color: getRootStyle("--error-background-color"),
 													}}
-													title={`${errorsPerSection[section.id]} error(es)`}
+													title={`${
+														errorsPerSection[section.position]
+													} error(es)`}
 												/>
 											)}
-											{warningsPerSection[section.id] > 0 && (
+											{warningsPerSection[section.position] > 0 && (
 												<FontAwesomeIcon
 													icon={faExclamationTriangle}
 													style={{
 														color: getRootStyle("--warning-background-color"),
 													}}
 													title={`${
-														warningsPerSection[section.id]
+														warningsPerSection[section.position]
 													} advertencia(s)`}
 												/>
 											)}
@@ -128,22 +130,28 @@ export default forwardRef(function SectionSelector(
 						/>
 						{showErrors && (
 							<div className="d-flex ms-2" style={{ gap: "10px" }}>
-								{errorList.length > 0 && (
+								{errorList.filter((error) => error !== undefined).length >
+									0 && (
 									<FontAwesomeIcon
 										icon={faExclamationCircle}
 										style={{
 											color: getRootStyle("--error-background-color"),
 										}}
-										title={`${errorList.length} error(es)`}
+										title={`${
+											errorList.filter((error) => error !== undefined).length
+										} error(es)`}
 									/>
 								)}
-								{warningList.length > 0 && (
+								{warningList.filter((error) => error !== undefined).length >
+									0 && (
 									<FontAwesomeIcon
 										icon={faExclamationTriangle}
 										style={{
 											color: getRootStyle("--warning-background-color"),
 										}}
-										title={`${warningList.length} advertencia(s)`}
+										title={`${
+											warningList.filter((error) => error !== undefined).length
+										} advertencia(s)`}
 									/>
 								)}
 							</div>
@@ -276,7 +284,7 @@ export default forwardRef(function SectionSelector(
 			const SECTION_WARNINGS = WARNING_SUM[SECTION];
 			WARNINGS_PER_SECTION_ARRAY[SECTION] = SECTION_WARNINGS;
 		}
-
+		console.log("ERRORS_PER_SECTION_ARRAY", ERRORS_PER_SECTION_ARRAY);
 		setErrorsPerSection(ERRORS_PER_SECTION_ARRAY);
 		setWarningsPerSection(WARNINGS_PER_SECTION_ARRAY);
 	}

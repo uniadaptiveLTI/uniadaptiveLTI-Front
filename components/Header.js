@@ -416,7 +416,7 @@ function Header({ LTISettings }, ref) {
 		switch (platform) {
 			case "moodle":
 				localMetaData.badges.map((badge) => {
-					NODES.push(parseMoodleBadges(badge, newX, newY));
+					NODES.push(parseMoodleBadges(badge, newX, newY, NODES));
 					newX += 125;
 				});
 				break;
