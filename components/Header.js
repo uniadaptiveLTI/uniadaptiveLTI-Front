@@ -793,9 +793,9 @@ function Header({ LTISettings }, ref) {
 					const JSON_CLEANED_BLOCKDATA = jsonObject.data.map((node) => {
 						node.data = {
 							...node.data,
-							children: undefined,
-							c: undefined,
-							g: undefined,
+							children: node.data.children,
+							c: node.data.c,
+							g: node.data.g,
 							lmsResource: undefined,
 							section: 0,
 							order: 0,
