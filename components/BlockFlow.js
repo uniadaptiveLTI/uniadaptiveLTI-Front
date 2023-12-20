@@ -424,6 +424,7 @@ const OverviewFlow = ({ map }, ref) => {
 
 							if (
 								currentGradableType &&
+								blockData.data.g &&
 								((blockData.data.g.hasConditions &&
 									currentGradableType != "simple") ||
 									(blockData.data.g.hasToBeSeen &&
