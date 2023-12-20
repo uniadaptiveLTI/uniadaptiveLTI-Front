@@ -1590,6 +1590,7 @@ const OverviewFlow = ({ map }, ref) => {
 	 * Handles the creation of a new fragment.
 	 */
 	const handleFragmentCreation = () => {
+		setShowContextualMenu(false);
 		const SELECTED_NODES = getSelectedNodes();
 
 		function getExternalChildren(nodesInside, nodesOutside) {
