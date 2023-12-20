@@ -775,7 +775,7 @@ const OverviewFlow = ({ map }, ref) => {
 			let nodeArray = reactFlowInstance.getNodes();
 
 			// Filter method to retrieve only the nodes that are the children of a block
-			if (block.data.children) {
+			if (block.data?.children) {
 				const CHILDREN_NODES = nodeArray.filter((node) =>
 					block.data.children.includes(node.id.toString())
 				);
@@ -879,7 +879,7 @@ const OverviewFlow = ({ map }, ref) => {
 		if (force == false && platform === "moodle") {
 			if (
 				allNodes.filter((node) =>
-					metaData.grades.includes(node.data.lmsResource)
+					metaData.grades.includes(node.data?.lmsResource)
 				).length > 0
 			) {
 				continueDeletion = false;
@@ -1214,7 +1214,7 @@ const OverviewFlow = ({ map }, ref) => {
 	 * Handles the copying of nodes.
 	 * @param {Node[]} [blockData=[]] - The nodes to copy.
 	 */
-	const handleNodeCopy = (blockData = []) => {
+	const handleNodeCopy = (blockData = [], lmsResource = false) => {
 		setShowContextualMenu(false);
 
 		const selectedNodes = getSelectedNodes();
@@ -1249,7 +1249,7 @@ const OverviewFlow = ({ map }, ref) => {
 			delete node.height;
 			delete node.positionAbsolute;
 			delete node.selected;
-			if (node.data) {
+			if (!lmsResource && node.data) {
 				if (node.datalmsResource < 0) {
 					delete node.lmsResource;
 				}
@@ -1262,6 +1262,7 @@ const OverviewFlow = ({ map }, ref) => {
 			course_id: metaData.course_id,
 			platform: metaData.platform, //Redundant, just in case
 			data: CLEANED_SELECTION,
+			type: !lmsResource ? "copy" : "cut",
 		};
 
 		localStorage.setItem("clipboard", JSON.stringify(CLIPBOARD_DATA));
@@ -1294,7 +1295,6 @@ const OverviewFlow = ({ map }, ref) => {
 		) {
 			const COPIED_BLOCKS = CLIPBOARD_DATA.data;
 			const NEW_BLOCKS_TO_PASTE = [...COPIED_BLOCKS];
-
 			const ORIGINAL_ID_ARRAY = NEW_BLOCKS_TO_PASTE.map((block) => block.id);
 			const NEW_ID_ARRAY = NEW_BLOCKS_TO_PASTE.map(() => uniqueId());
 			const ORIGINAL_X_ARRAY = NEW_BLOCKS_TO_PASTE.map(
@@ -1332,6 +1332,26 @@ const OverviewFlow = ({ map }, ref) => {
 					);
 					block.parentNode = NEW_ID_ARRAY[parentIndex];
 				}
+
+				let newLmsResource;
+
+				if (
+					CLIPBOARD_DATA.type == "copy" ||
+					(CLIPBOARD_DATA.type == "cut" && SHOULD_EMPTY_RESOURCE)
+				) {
+					newLmsResource = undefined;
+				} else {
+					if (
+						reactFlowInstance
+							.getNodes()
+							.some((node) => node.data.lmsResource == block.data.lmsResource)
+					) {
+						newLmsResource = undefined;
+					} else {
+						newLmsResource = block.data.lmsResource;
+					}
+				}
+
 				return {
 					...block,
 					id: NEW_ID_ARRAY[index],
@@ -1344,21 +1364,13 @@ const OverviewFlow = ({ map }, ref) => {
 							false,
 							"("
 						),
-						children:
-							filteredChildren?.length === 0 ? undefined : filteredChildren,
+						children: !filteredChildren ? [] : filteredChildren,
 						c: undefined,
-						lmsResource: SHOULD_EMPTY_RESOURCE
-							? undefined
-							: reactFlowInstance
-									.getNodes()
-									.map(
-										(node) => node.data.lmsResource == block.data.lmsResource
-									)
-							? undefined
-							: block.data.lmsResource,
+						lmsResource: newLmsResource,
 					},
 				};
 			});
+
 			if (COPIED_BLOCKS.length <= 1) {
 				createBlock(newBlocks[0], newBlocks[0].x, newBlocks[0].y);
 			} else {
@@ -1397,7 +1409,7 @@ const OverviewFlow = ({ map }, ref) => {
 		const SELECTED_NODES = reactFlowInstance
 			.getNodes()
 			.filter((n) => n.selected == true);
-		handleNodeCopy(blockData);
+		handleNodeCopy(blockData, true);
 		if (SELECTED_NODES.length > 1) {
 			handleNodeSelectionDeletion(SELECTED_NODES);
 		} else {

@@ -90,80 +90,86 @@ export function deleteNodeFromErrorList(data, errorList) {
  * @param {Array} errorArray - The array to add the created errors to.
  */
 export function createItemErrors(item, errorArray) {
-	if (
-		!(
-			item.type === "fragment" ||
-			item.type === "remgroup" ||
-			item.type === "addgroup" ||
-			item.type === "mail"
-		)
-	) {
-		const ERROR_ENTRY = {
-			id: uniqueId(),
-			nodeId: item.id,
-		};
-		if (item.data.lmsResource == undefined || item.data.lmsResource == "-1") {
-			const CUSTOM_ENTRY = {
-				...ERROR_ENTRY,
-				severity: "error",
-				type: "resourceNotFound",
-			};
-
-			const ERROR_FOUND = errorArray.find(
-				(obj) =>
-					obj.nodeId === CUSTOM_ENTRY.nodeId &&
-					obj.severity === CUSTOM_ENTRY.severity &&
-					obj.type === CUSTOM_ENTRY.type
-			);
-
-			if (!ERROR_FOUND) {
-				errorArray.push(CUSTOM_ENTRY);
-			}
-		}
-
+	if (item != undefined && item?.data) {
 		if (
-			(item.data.section === null ||
-				item.data.section === undefined ||
-				item.data.section < 0) &&
-			item.type !== "badge"
+			!(
+				item.type === "fragment" ||
+				item.type === "remgroup" ||
+				item.type === "addgroup" ||
+				item.type === "mail"
+			)
 		) {
-			const CUSTOM_ENTRY = {
-				...ERROR_ENTRY,
-				severity: "error",
-				type: "sectionNotFound",
+			const ERROR_ENTRY = {
+				id: uniqueId(),
+				nodeId: item.id,
 			};
 
-			const ERROR_FOUND = errorArray.find(
-				(obj) =>
-					obj.nodeId === CUSTOM_ENTRY.nodeId &&
-					obj.severity === CUSTOM_ENTRY.severity &&
-					obj.type === CUSTOM_ENTRY.type
-			);
+			if (
+				item.data?.lmsResource == undefined ||
+				item.data?.lmsResource == "-1"
+			) {
+				const CUSTOM_ENTRY = {
+					...ERROR_ENTRY,
+					severity: "error",
+					type: "resourceNotFound",
+				};
 
-			if (!ERROR_FOUND) {
-				errorArray.push(CUSTOM_ENTRY);
+				const ERROR_FOUND = errorArray.find(
+					(obj) =>
+						obj.nodeId === CUSTOM_ENTRY.nodeId &&
+						obj.severity === CUSTOM_ENTRY.severity &&
+						obj.type === CUSTOM_ENTRY.type
+				);
+
+				if (!ERROR_FOUND) {
+					errorArray.push(CUSTOM_ENTRY);
+				}
 			}
-		}
 
-		if (
-			(item.data.order == undefined || item.data.order == -Infinity) &&
-			item.type !== "badge"
-		) {
-			const CUSTOM_ENTRY = {
-				...ERROR_ENTRY,
-				severity: "error",
-				type: "orderNotFound",
-			};
+			if (
+				(item.data.section === null ||
+					item.data.section === undefined ||
+					item.data.section < 0) &&
+				item.type !== "badge"
+			) {
+				const CUSTOM_ENTRY = {
+					...ERROR_ENTRY,
+					severity: "error",
+					type: "sectionNotFound",
+				};
 
-			const ERROR_FOUND = errorArray.find(
-				(obj) =>
-					obj.nodeId === CUSTOM_ENTRY.nodeId &&
-					obj.severity === CUSTOM_ENTRY.severity &&
-					obj.type === CUSTOM_ENTRY.type
-			);
+				const ERROR_FOUND = errorArray.find(
+					(obj) =>
+						obj.nodeId === CUSTOM_ENTRY.nodeId &&
+						obj.severity === CUSTOM_ENTRY.severity &&
+						obj.type === CUSTOM_ENTRY.type
+				);
 
-			if (!ERROR_FOUND) {
-				errorArray.push(CUSTOM_ENTRY);
+				if (!ERROR_FOUND) {
+					errorArray.push(CUSTOM_ENTRY);
+				}
+			}
+
+			if (
+				(item.data.order == undefined || item.data.order == -Infinity) &&
+				item.type !== "badge"
+			) {
+				const CUSTOM_ENTRY = {
+					...ERROR_ENTRY,
+					severity: "error",
+					type: "orderNotFound",
+				};
+
+				const ERROR_FOUND = errorArray.find(
+					(obj) =>
+						obj.nodeId === CUSTOM_ENTRY.nodeId &&
+						obj.severity === CUSTOM_ENTRY.severity &&
+						obj.type === CUSTOM_ENTRY.type
+				);
+
+				if (!ERROR_FOUND) {
+					errorArray.push(CUSTOM_ENTRY);
+				}
 			}
 		}
 	}
