@@ -79,12 +79,12 @@ export default forwardRef(function SectionSelector(
 									className="my-2 ms-4"
 								>
 									<Form.Check
-										key={section.id}
+										key={section.position}
 										ref={(el) => (innerSelectors.current[idx] = el)}
 										onClick={() => setUpdateSelectors(true)}
 										type="switch"
 										label={section.position + "- " + section.name}
-										data-id={section.id}
+										data-id={section.position}
 									/>
 									{showErrors && (
 										<div className="d-flex ms-2" style={{ gap: "10px" }}>
@@ -208,7 +208,7 @@ export default forwardRef(function SectionSelector(
 		setSelectionStatus((prev) => {
 			prev.all = TARGET_STATUS;
 			if (TARGET_STATUS) {
-				prev = SECTIONS.map((section) => section.id);
+				prev = SECTIONS.map((section) => section.position);
 			} else {
 				prev = [];
 			}
@@ -219,12 +219,20 @@ export default forwardRef(function SectionSelector(
 	function toggleMainSelector(e) {
 		const TARGET_STATUS = e.target.checked;
 		if (platform == "moodle") {
-			const SECTION_IDS = SECTIONS.map((section) => section.id);
-			setSelectionStatus(TARGET_STATUS ? SECTION_IDS : []);
+			const SECTION_POSITIONS = SECTIONS.map((section) => section.position);
+			setSelectionStatus(TARGET_STATUS ? SECTION_POSITIONS : []);
 		} else {
 			setSelectionStatus(
 				TARGET_STATUS
-					? [...new Set(rfNodes.map((node) => node.data.section))] //GET ALL SECTIONS USED
+					? [
+							...new Set(
+								rfNodes.map(
+									(node) =>
+										SECTIONS.find((section) => node.data.section == section.id)
+											.position
+								)
+							),
+					  ] //GET ALL SECTIONS USED
 					: []
 			);
 		}

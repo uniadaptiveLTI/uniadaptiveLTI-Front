@@ -41,11 +41,6 @@ export default function ExportPanel({
 	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
 
 	const [exporting, setExporting] = useState(false);
-	const [ableToExport, setAbleToExport] = useState(false);
-	const [hasErrors, setHasErrors] = useState(!ableToExport);
-	const [errorCount, setErrorCount] = useState(0);
-	const [hasWarnings, setHasWarnings] = useState(false);
-	const [warningCount, setWarningCount] = useState(0);
 	const [selectedErrorCount, setSelectedErrorCount] = useState(0);
 	const [selectedWarningCount, setSelectedWarningCount] = useState(0);
 	const [currentSelectionInfo, setCurrentSelectionInfo] = useState({
@@ -79,34 +74,21 @@ export default function ExportPanel({
 	const BACKUP_URL = getBackupURL(platform, metaData);
 	const handleSelectionChange = (selectionInfo) => {
 		if (selectionInfo != undefined && selectionInfo.selection != []) {
-			const hasSelectedErrors = () =>
-				selectionInfo.selection
-					.map((selection) => {
-						return selectionInfo.errors[selection - 1] > 0;
-					})
-					.some((result) => result == true);
-
 			const getSelectedErrorCount = () => {
 				const errorCount = selectionInfo.selection
 					.map((selection) => {
-						const error = selectionInfo.errors[selection - 1];
+						const error = selectionInfo.errors[selection];
 						return error === undefined ? 0 : error;
 					})
 					.reduce((total, actual) => total + actual, 0);
 
 				return errorCount || 0;
 			};
-			const hasSelectedWarnings = () =>
-				selectionInfo.selection
-					.map((selection) => {
-						return selectionInfo.warnings[selection - 1] > 0;
-					})
-					.some((result) => result == true);
 
 			const getSelectedWarningCount = () => {
 				const warningCount = selectionInfo.selection
 					.map((selection) => {
-						const warning = selectionInfo.warnings[selection - 1];
+						const warning = selectionInfo.warnings[selection];
 						return warning === undefined ? 0 : warning;
 					})
 					.reduce((total, actual) => total + actual, 0);
@@ -114,13 +96,8 @@ export default function ExportPanel({
 				return warningCount || 0;
 			};
 
-			setAbleToExport(
-				() => !hasSelectedErrors() && selectionInfo.selection.length > 0
-			);
-			setHasErrors(() => hasSelectedErrors());
-			setErrorCount(() => getSelectedErrorCount());
-			setHasWarnings(() => hasSelectedWarnings());
-			setWarningCount(() => getSelectedWarningCount());
+			setSelectedErrorCount(() => getSelectedErrorCount());
+			setSelectedWarningCount(() => getSelectedWarningCount());
 			setCurrentSelectionInfo(selectionInfo);
 		}
 	};
@@ -867,7 +844,9 @@ export default function ExportPanel({
 			<Button
 				ref={exportButtonRef}
 				disabled={
-					hasErrors || currentSelectionInfo.selection.length < 1 || EMPTY_MAP
+					selectedErrorCount > 0 ||
+					currentSelectionInfo.selection.length < 1 ||
+					EMPTY_MAP
 				}
 				onClick={exportAndSave}
 			>
@@ -881,7 +860,7 @@ export default function ExportPanel({
 						aria-hidden="true"
 					/>
 				)}
-				{warningCount > 0 && (
+				{selectedWarningCount > 0 && (
 					<FontAwesomeIcon
 						icon={faExclamationTriangle}
 						style={{

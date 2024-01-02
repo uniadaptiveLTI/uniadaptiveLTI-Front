@@ -18,22 +18,71 @@ export function errorListCheck(data, errorList, setErrorList, deleteFromList) {
 			data = data[0];
 		}
 		if (data && data.type !== "fragment") {
-			const IS_CONTAINED = errorArray.some((error) => error.nodeId == data.id);
-			if (IS_CONTAINED) {
-				if (deleteFromList) {
-					const UPDATED_LIST = errorList.filter(
-						(item) => item.nodeId !== data.id
-					);
-					setErrorList(UPDATED_LIST);
-				} else {
-					const UPDATED_LIST = deleteNodeFromErrorList(data, errorList);
+			let NODE_ERROR_LIST = errorArray.filter(
+				(error) => error.nodeId == data.id
+			);
 
-					setErrorList(UPDATED_LIST);
+			let resourceErrorFounded = false;
+			let sectionErrorFounded = false;
+			let orderErrorFounded = false;
+
+			NODE_ERROR_LIST.forEach((error) => {
+				switch (error.type) {
+					case "resourceNotFound":
+						console.log(data);
+						if (
+							data.data?.lmsResource != undefined &&
+							data.data?.lmsResource != "-1"
+						) {
+							NODE_ERROR_LIST = NODE_ERROR_LIST.filter(
+								(errorFounded) => error.id !== errorFounded.id
+							);
+						}
+						resourceErrorFounded = true;
+						break;
+					case "sectionNotFound":
+						if (
+							data.data.section !== null &&
+							data.data.section !== undefined &&
+							data.data.section > 0 &&
+							data.type !== "badge"
+						) {
+							NODE_ERROR_LIST = NODE_ERROR_LIST.filter(
+								(errorFounded) => error.id !== errorFounded.id
+							);
+						}
+						sectionErrorFounded = true;
+						break;
+					case "orderNotFound":
+						if (
+							data.data.order !== undefined &&
+							data.data.order !== -Infinity &&
+							data.type !== "badge"
+						) {
+							NODE_ERROR_LIST = NODE_ERROR_LIST.filter(
+								(errorFounded) => error.id !== errorFounded.id
+							);
+						}
+						orderErrorFounded = true;
+						break;
+					default:
+						break;
 				}
-			} else {
-				createItemErrors(data, errorArray);
-				setErrorList(errorArray);
+			});
+
+			if (!resourceErrorFounded) {
+				createErrorByType(data, NODE_ERROR_LIST, "resource");
 			}
+
+			if (!sectionErrorFounded) {
+				createErrorByType(data, NODE_ERROR_LIST, "section");
+			}
+
+			if (!orderErrorFounded) {
+				createErrorByType(data, NODE_ERROR_LIST, "order");
+			}
+
+			setErrorList(NODE_ERROR_LIST);
 		}
 	} else {
 		if (deleteFromList) {
@@ -99,11 +148,21 @@ export function createItemErrors(item, errorArray) {
 				item.type === "mail"
 			)
 		) {
-			const ERROR_ENTRY = {
-				id: uniqueId(),
-				nodeId: item.id,
-			};
+			createErrorByType(item, errorArray, "resource");
+			createErrorByType(item, errorArray, "section");
+			createErrorByType(item, errorArray, "order");
+		}
+	}
+}
 
+function createErrorByType(item, errorArray, type) {
+	const ERROR_ENTRY = {
+		id: uniqueId(),
+		nodeId: item.id,
+	};
+
+	switch (type) {
+		case "resource":
 			if (
 				item.data?.lmsResource == undefined ||
 				item.data?.lmsResource == "-1"
@@ -125,7 +184,8 @@ export function createItemErrors(item, errorArray) {
 					errorArray.push(CUSTOM_ENTRY);
 				}
 			}
-
+			break;
+		case "section":
 			if (
 				(item.data.section === null ||
 					item.data.section === undefined ||
@@ -149,7 +209,8 @@ export function createItemErrors(item, errorArray) {
 					errorArray.push(CUSTOM_ENTRY);
 				}
 			}
-
+			break;
+		case "order":
 			if (
 				(item.data.order == undefined || item.data.order == -Infinity) &&
 				item.type !== "badge"
@@ -171,6 +232,6 @@ export function createItemErrors(item, errorArray) {
 					errorArray.push(CUSTOM_ENTRY);
 				}
 			}
-		}
+			break;
 	}
 }
