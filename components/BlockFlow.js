@@ -1529,7 +1529,7 @@ const OverviewFlow = ({ map }, ref) => {
 			}
 		}
 		console.info(`❓ New block created: `, newBlockCreated);
-		errorListCheck(newBlockCreated, errorList, setErrorList, false);
+		errorListCheck(newBlockCreated, errorList, setErrorList);
 
 		setShowContextualMenu(false);
 

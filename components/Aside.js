@@ -534,7 +534,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 					updateNodes(UPDATED_DATA);
 				}
 
-				errorListCheck(UPDATED_DATA, errorList, setErrorList, false);
+				errorListCheck(UPDATED_DATA, errorList, setErrorList);
 			} else {
 				//if action node
 				newData = {
@@ -553,7 +553,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 					data: newData,
 				};
 
-				errorListCheck(UPDATED_DATA, errorList, setErrorList, false);
+				errorListCheck(UPDATED_DATA, errorList, setErrorList);
 
 				reactFlowInstance.setNodes(
 					getUpdatedArrayById(UPDATED_DATA, reactFlowInstance.getNodes())
