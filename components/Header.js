@@ -255,8 +255,16 @@ function Header({ LTISettings }, ref) {
 				}
 			} else {
 				setVersions(selectedMap.versions);
-				setSelectedVersion(selectedMap.versions[0]);
-				setCurrentBlocksData(selectedMap.versions[0].blocks_data);
+				setSelectedVersion(
+					selectedMap.versions != undefined
+						? selectedMap.versions[0]
+						: undefined
+				);
+				setCurrentBlocksData(
+					selectedMap.versions != undefined
+						? selectedMap.versions[0].blocks_data
+						: undefined
+				);
 			}
 			if (selectedMap.id == -1) {
 				changeToMapSelection();
@@ -331,10 +339,7 @@ function Header({ LTISettings }, ref) {
 
 			const NEW_MAPS = [...localMaps, data ? NEW_MAP : EMPTY_NEW_MAP];
 
-			console.info(
-				`:world_map: New map added: `,
-				data ? NEW_MAP : EMPTY_NEW_MAP
-			);
+			console.info(`🗺️ New map added: `, data ? NEW_MAP : EMPTY_NEW_MAP);
 
 			setMaps(NEW_MAPS);
 			setLastMapCreated(data ? NEW_MAP.id : EMPTY_NEW_MAP.id);
@@ -394,7 +399,7 @@ function Header({ LTISettings }, ref) {
 				data = await RESPONSE.json();
 			}
 		}
-		console.info(`:question: JSON:`, data);
+		console.info(`❓ JSON:`, data);
 
 		let newX = 125;
 		let newY = 0;
@@ -461,7 +466,7 @@ function Header({ LTISettings }, ref) {
 
 		const newMaps = [...localMaps, platformNewMap];
 
-		console.info(`:world_map: New map added: `, platformNewMap);
+		console.info(`🗺️ New map added: `, platformNewMap);
 
 		setMaps(newMaps);
 		setLastMapCreated(platformNewMap.id);

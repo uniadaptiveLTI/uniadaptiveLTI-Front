@@ -95,9 +95,20 @@ export default function App({ Component, pageProps }) {
 	const { isOnline, isOffline } = useIsOnline();
 
 	async function getLTISettings() {
-		const response = await fetchBackEnd(getToken(), "api/lti/get_conf", "POST");
-		console.log(response);
-		setLTISettings(response);
+		if (!process.env.NEXT_PUBLIC_DEV_FILES) {
+			const response = await fetchBackEnd(
+				getToken(),
+				"api/lti/get_conf",
+				"POST"
+			);
+			setLTISettings(response);
+		} else {
+			fetch("resources/devconfiguration.json")
+				.then((response) => response.json())
+				.then((data) => {
+					setLTISettings(data);
+				});
+		}
 	}
 
 	useEffect(() => {

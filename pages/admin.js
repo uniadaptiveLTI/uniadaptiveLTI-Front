@@ -122,7 +122,6 @@ export default function Admin() {
 							sizes="16x16"
 							href={LTISettings.branding.faviconx16_path}
 						/>
-						<link rel="manifest" href="/site.webmanifest" />
 					</Head>
 					<div className={styles.bg}>
 						<Container className={styles.mainContainer}>
