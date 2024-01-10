@@ -187,7 +187,7 @@ export default function BrandingPane({ modifySettings, LTISettings }) {
 	const [
 		blockflowControlsButtonBackgroundColor,
 		setBlockflowControlsButtonBackgroundColor,
-	] = useState(getRootStyle("--blockflow-controls-button-background-color")); //LTISettings.branding.blockflow.controls.button.backgroundColor
+	] = useState(getRootStyle("--blockflow-controls-button-background-color"));
 	const [
 		blockflowControlsButtonFontColor,
 		setBlockflowControlsButtonFontColor,

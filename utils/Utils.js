@@ -534,33 +534,6 @@ export async function saveVersions(
 	responseData,
 	lesson
 ) {
-	// console.log(
-	// 	"🚀 ~ file: Utils.js:538 ~ rfNodes",
-	// 	"versiones",
-	// 	versions,
-	// 	"metaData",
-	// 	metaData,
-	// 	"platform",
-	// 	platform,
-	// 	"userData",
-	// 	userData,
-	// 	"mapSelected",
-	// 	mapSelected,
-	// 	"LTISettings",
-	// 	LTISettings,
-	// 	"defaultToastSuccess",
-	// 	defaultToastSuccess,
-	// 	"defaultToastError",
-	// 	defaultToastError,
-	// 	"toast",
-	// 	toast,
-	// 	"enable",
-	// 	enable,
-	// 	"responseData",
-	// 	responseData,
-	// 	"lesson",
-	// 	lesson
-	// );
 	// Helper function to clean the nodes
 	function cleanNodes(nodes) {
 		if (nodes == undefined) {

@@ -28,13 +28,6 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { parseBool } from "../utils/Utils";
 
-//FIXME:configuration.json
-// export async function getStaticProps() {
-
-// 	const FILE_PATH = path.join(process.cwd(), "configuration.json");
-// 	const LTISettings = JSON.parse(await fs.readFile(FILE_PATH));
-// 	return { props: { LTISettings } };
-// }
 function EmptySelector() {
 	const {
 		mapCount,
@@ -164,10 +157,6 @@ export default function Home() {
 				"DEV_FILES is true, communication with the backend is disabled."
 			);
 		}
-		// if (LTISettings.debugging.dev_mode) {
-		// 	//FIXME:devMode
-		// 	// setDevModeStatus(LTISettings.debugging.dev_mode);
-		// }
 	}, []);
 	return (
 		<>
