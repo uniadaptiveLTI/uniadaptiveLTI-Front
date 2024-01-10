@@ -1,22 +1,19 @@
 import styles from "/styles/Admin.module.css";
 import { Button, Container, Col, Row, Form } from "react-bootstrap";
-import { useId, useRef, useState } from "react";
+import { useContext, useId, useLayoutEffect, useRef, useState } from "react";
 import GeneralPane from "@components/panes/admin/GeneralPane";
 import BrandingPane from "@components/panes/admin/BrandingPane";
 import APIPane from "@components/panes/admin/APIPane";
 import { toast } from "react-toastify";
 
-import fs from "fs/promises";
-import path from "path";
 import Head from "next/head";
+import { fetchBackEnd, parseBool } from "../utils/Utils";
+import { LTISettingsContext } from "./_app";
+import { applyBranding } from "../utils/Colors";
 
-export async function getStaticProps() {
-	const FILE_PATH = path.join(process.cwd(), "configuration.json");
-	const LTISettings = JSON.parse(await fs.readFile(FILE_PATH));
-	return { props: { LTISettings } };
-}
+export default function Admin() {
+	const { LTISettings } = useContext(LTISettingsContext);
 
-export default function Admin({ LTISettings }) {
 	const [activeTab, setActiveTab] = useState(0);
 	const [auth, setAuth] = useState(false);
 	const [lastPassword, setLastPassword] = useState("");
@@ -24,19 +21,25 @@ export default function Admin({ LTISettings }) {
 	const loginInputDOM = useRef();
 	const LOGIN_INPUT_ID = useId();
 
+	useLayoutEffect(() => {
+		if (LTISettings) {
+			applyBranding(LTISettings);
+		}
+	}, [LTISettings]);
+
 	const logIn = async () => {
-		if (!LTISettings.debugging.dev_files) {
+		if (!parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
 			try {
 				setLastPassword(loginInputDOM.current.value);
-				const RESPONSE = await fetch("/api/auth/", {
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify(loginInputDOM.current.value),
-				});
-				const RESULT = await RESPONSE.json();
-				setAuth(RESULT.valid);
+				const RESPONSE = await fetchBackEnd(
+					sessionStorage.getItem("token"),
+					"api/lti/auth",
+					"POST",
+					{ password: loginInputDOM.current.value }
+				);
+				setAuth(RESPONSE.valid);
 
-				if (!RESULT.valid) {
+				if (!RESPONSE.valid) {
 					toast("Contraseña incorrecta.", {
 						hideProgressBar: false,
 						autoClose: 4000,
@@ -62,13 +65,15 @@ export default function Admin({ LTISettings }) {
 
 	const modifySettings = async (modifiedSettings) => {
 		const NEW_SETTINGS = { ...LTISettings, ...modifiedSettings };
-		const RESPONSE = await fetch("/api/modifyLTISettings/", {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ password: lastPassword, settings: NEW_SETTINGS }),
-		});
-		const RESULT = await RESPONSE.json();
-		if (RESULT.ok) {
+
+		const RESPONSE = await fetchBackEnd(
+			sessionStorage.getItem("token"),
+			"api/lti/set_conf",
+			"POST",
+			{ password: lastPassword, settings: NEW_SETTINGS }
+		);
+
+		if (RESPONSE.ok) {
 			toast(
 				"Se han modificado los ajustes. Reinicia para aplicar los cambios.",
 				{
@@ -91,133 +96,144 @@ export default function Admin({ LTISettings }) {
 	};
 	return (
 		<>
-			<Head>
-				<title>Panel de administración - UNI Adaptive</title>
-				<meta name="description" content="Uniadaptive LTI tool" />
-				<meta name="viewport" content="width=device-width, initial-scale=1" />
-				<link
-					rel="apple-touch-icon"
-					sizes="180x180"
-					href={LTISettings.branding.faviconx180_path}
-				/>
-				<link
-					rel="icon"
-					type="image/png"
-					sizes="32x32"
-					href={LTISettings.branding.faviconx32_path}
-				/>
-				<link
-					rel="icon"
-					type="image/png"
-					sizes="16x16"
-					href={LTISettings.branding.faviconx16_path}
-				/>
-				<link rel="manifest" href="/site.webmanifest" />
-			</Head>
-			<div className={styles.bg}>
-				<Container className={styles.mainContainer}>
-					<div>
-						<h1>Panel de administración</h1>
+			{LTISettings && (
+				<>
+					<Head>
+						<title>Panel de administración - UNI Adaptive</title>
+						<meta name="description" content="Uniadaptive LTI tool" />
+						<meta
+							name="viewport"
+							content="width=device-width, initial-scale=1"
+						/>
+						<link
+							rel="apple-touch-icon"
+							sizes="180x180"
+							href={LTISettings.branding.faviconx180_path}
+						/>
+						<link
+							rel="icon"
+							type="image/png"
+							sizes="32x32"
+							href={LTISettings.branding.faviconx32_path}
+						/>
+						<link
+							rel="icon"
+							type="image/png"
+							sizes="16x16"
+							href={LTISettings.branding.faviconx16_path}
+						/>
+						<link rel="manifest" href="/site.webmanifest" />
+					</Head>
+					<div className={styles.bg}>
+						<Container className={styles.mainContainer}>
+							<div>
+								<h1>Panel de administración</h1>
+							</div>
+							<Container className={styles.contentContainer}>
+								{auth ? (
+									<Row>
+										<Col
+											className={styles.navegationTabs}
+											xs="12"
+											sm="3"
+											md="3"
+											xl="2"
+										>
+											<img alt="Logo" src={LTISettings.branding.logo_path} />
+											<div className={styles.logoContainer}></div>
+											<div className={styles.buttonContainer}>
+												<Button variant="dark" onClick={() => setActiveTab(0)}>
+													General
+												</Button>
+												<Button variant="dark" onClick={() => setActiveTab(1)}>
+													Branding
+												</Button>
+												{/* <Button variant="dark" onClick={() => setActiveTab(2)}>
+													Funcionalidad
+												</Button> */}
+												<Button
+													variant="dark"
+													onClick={() => (window.location.href = "/")}
+													style={{ marginTop: "auto" }}
+												>
+													Salir
+												</Button>
+											</div>
+										</Col>
+										<Col
+											className={styles.paneContainer}
+											xs="12"
+											sm="3"
+											md="5"
+											lg="7"
+											xl="10"
+										>
+											{activeTab == 0 && (
+												<GeneralPane LTISettings={LTISettings} />
+											)}
+											{activeTab == 1 && (
+												<BrandingPane
+													modifySettings={modifySettings}
+													LTISettings={LTISettings}
+												/>
+											)}
+											{/* {activeTab == 2 && (
+												<APIPane
+													modifySettings={modifySettings}
+													LTISettings={LTISettings}
+												/>
+											)} */}
+										</Col>
+									</Row>
+								) : (
+									<Row>
+										<Col className={styles.paneContainer}>
+											<div
+												style={{ display: "flex", justifyContent: "center" }}
+											>
+												<Form
+													action="#"
+													method=""
+													onSubmit={(e) => {
+														e.preventDefault();
+														logIn();
+													}}
+												>
+													<Form.Label htmlFor={LOGIN_INPUT_ID}>
+														Introduzca contraseña de administración
+													</Form.Label>
+													<Form.Control
+														ref={loginInputDOM}
+														id={LOGIN_INPUT_ID}
+														type="password"
+														placeholder="Contraseña"
+													></Form.Control>
+													<Button
+														variant="primary"
+														padding="md"
+														style={{ width: "100%", marginTop: "2em" }}
+														onClick={() => logIn()}
+													>
+														Enviar
+													</Button>
+													<Button
+														variant="danger"
+														padding="md"
+														onClick={() => (window.location.href = "/")}
+														style={{ width: "100%", marginTop: "1em" }}
+													>
+														Salir
+													</Button>
+												</Form>
+											</div>
+										</Col>
+									</Row>
+								)}
+							</Container>
+						</Container>
 					</div>
-					<Container className={styles.contentContainer}>
-						{auth ? (
-							<Row>
-								<Col
-									className={styles.navegationTabs}
-									xs="12"
-									sm="3"
-									md="3"
-									xl="2"
-								>
-									<img alt="Logo" src={LTISettings.branding.logo_path} />
-									<div className={styles.logoContainer}></div>
-									<div className={styles.buttonContainer}>
-										<Button variant="dark" onClick={() => setActiveTab(0)}>
-											General
-										</Button>
-										<Button variant="dark" onClick={() => setActiveTab(1)}>
-											Branding
-										</Button>
-										<Button variant="dark" onClick={() => setActiveTab(2)}>
-											Funcionalidad
-										</Button>
-										<Button
-											variant="dark"
-											onClick={() => (window.location.href = "/")}
-											style={{ marginTop: "auto" }}
-										>
-											Salir
-										</Button>
-									</div>
-								</Col>
-								<Col
-									className={styles.paneContainer}
-									xs="12"
-									sm="3"
-									md="5"
-									lg="7"
-									xl="10"
-								>
-									{activeTab == 0 && <GeneralPane LTISettings={LTISettings} />}
-									{activeTab == 1 && (
-										<BrandingPane
-											modifySettings={modifySettings}
-											LTISettings={LTISettings}
-										/>
-									)}
-									{activeTab == 2 && (
-										<APIPane
-											modifySettings={modifySettings}
-											LTISettings={LTISettings}
-										/>
-									)}
-								</Col>
-							</Row>
-						) : (
-							<Row>
-								<Col className={styles.paneContainer}>
-									<div style={{ display: "flex", justifyContent: "center" }}>
-										<Form
-											action="#"
-											method=""
-											onSubmit={(e) => {
-												e.preventDefault();
-												logIn();
-											}}
-										>
-											<Form.Label htmlFor={LOGIN_INPUT_ID}>
-												Introduzca contraseña de administración
-											</Form.Label>
-											<Form.Control
-												ref={loginInputDOM}
-												id={LOGIN_INPUT_ID}
-												type="password"
-												placeholder="Contraseña"
-											></Form.Control>
-											<Button
-												variant="primary"
-												padding="md"
-												style={{ width: "100%", marginTop: "2em" }}
-												onClick={() => logIn()}
-											>
-												Enviar
-											</Button>
-											<Button
-												variant="danger"
-												padding="md"
-												onClick={() => (window.location.href = "/")}
-												style={{ width: "100%", marginTop: "1em" }}
-											>
-												Salir
-											</Button>
-										</Form>
-									</div>
-								</Col>
-							</Row>
-						)}
-					</Container>
-				</Container>
-			</div>
+				</>
+			)}
 		</>
 	);
 }

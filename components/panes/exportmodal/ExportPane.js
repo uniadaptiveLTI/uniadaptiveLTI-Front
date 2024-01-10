@@ -661,7 +661,6 @@ export default function ExportPanel({
 			}
 
 			const RESPONSE = await fetchBackEnd(
-				LTISettings,
 				sessionStorage.getItem("token"),
 				"api/lti/export_version",
 				"POST",
@@ -670,7 +669,7 @@ export default function ExportPanel({
 			if (RESPONSE) {
 				const OK = RESPONSE.ok;
 				if (OK) {
-					saveVersion(
+					await saveVersion(
 						rfNodes,
 						metaData,
 						platform,

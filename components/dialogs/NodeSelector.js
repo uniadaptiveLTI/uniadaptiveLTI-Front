@@ -20,7 +20,6 @@ import styles from "/styles/NodeSelector.module.css";
 import { useNodes } from "reactflow";
 import { getLastPositionInSection, getLowestSection } from "@utils/Nodes";
 import { getDefaultVisibility, startingSectionID } from "@utils/Platform";
-import { DevModeStatusContext } from "pages/_app";
 import { moodleGradableTypes } from "@utils/Moodle";
 
 export default forwardRef(function NodeSelector(
@@ -30,7 +29,6 @@ export default forwardRef(function NodeSelector(
 	const modalRef = useRef(null);
 	const rfNodes = useNodes();
 	const { platform } = useContext(PlatformContext);
-	const { devModeStatus } = useContext(DevModeStatusContext);
 	const [widthStyle, setWidthStyle] = useState(styles.selectionContainer);
 	function handleClose(actionClicked) {
 		if (callback && actionClicked) {
@@ -147,7 +145,9 @@ export default forwardRef(function NodeSelector(
 					<div className={styles.block} style={{ background: TYPE_COLOR }}>
 						{TYPE_ICON}
 					</div>
-					<span>{devModeStatus ? type : name}</span>
+					<span>
+						{parseBool(process.env.NEXT_PUBLIC_DEV_MODE) ? type : name}
+					</span>
 				</div>
 			</div>
 		);

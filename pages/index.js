@@ -8,17 +8,15 @@ import {
 } from "react";
 import {
 	BlocksDataContext,
-	DevModeStatusContext,
 	PlatformContext,
 	MetaDataContext,
 	UserDataContext,
+	LTISettingsContext,
 } from "./_app";
 import BlockFlow from "/components/BlockFlow";
 import Layout from "../components/Layout";
 import { HeaderToEmptySelectorContext } from "./_app";
 
-import fs from "fs/promises";
-import path from "path";
 import { Button, Col, Container, Row } from "react-bootstrap";
 import { hasLessons } from "@utils/Platform";
 import { capitalizeFirstLetter } from "@utils/Utils";
@@ -28,12 +26,15 @@ import {
 	faSquarePlus,
 	faUpRightFromSquare,
 } from "@fortawesome/free-solid-svg-icons";
+import { parseBool } from "../utils/Utils";
 
-export async function getStaticProps() {
-	const FILE_PATH = path.join(process.cwd(), "configuration.json");
-	const LTISettings = JSON.parse(await fs.readFile(FILE_PATH));
-	return { props: { LTISettings } };
-}
+//FIXME:configuration.json
+// export async function getStaticProps() {
+
+// 	const FILE_PATH = path.join(process.cwd(), "configuration.json");
+// 	const LTISettings = JSON.parse(await fs.readFile(FILE_PATH));
+// 	return { props: { LTISettings } };
+// }
 function EmptySelector() {
 	const {
 		mapCount,
@@ -153,53 +154,60 @@ function EmptySelector() {
 	);
 }
 
-export default function Home({ LTISettings }) {
+export default function Home() {
 	const { currentBlocksData } = useContext(BlocksDataContext);
-	const { devModeStatus, setDevModeStatus } = useContext(DevModeStatusContext);
+	const { LTISettings } = useContext(LTISettingsContext);
 
 	useEffect(() => {
-		if (LTISettings.debugging.dev_files) {
+		if (parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
 			console.warn(
 				"DEV_FILES is true, communication with the backend is disabled."
 			);
 		}
-		if (LTISettings.debugging.dev_mode) {
-			setDevModeStatus(LTISettings.debugging.dev_mode);
-		}
+		// if (LTISettings.debugging.dev_mode) {
+		// 	//FIXME:devMode
+		// 	// setDevModeStatus(LTISettings.debugging.dev_mode);
+		// }
 	}, []);
 	return (
 		<>
-			<Head>
-				<title>UNI Adaptive</title>
-				<meta name="description" content="Uniadaptive LTI tool" />
-				<meta name="viewport" content="width=device-width, initial-scale=1" />
-				<link
-					rel="apple-touch-icon"
-					sizes="180x180"
-					href={LTISettings.branding.faviconx180_path}
-				/>
-				<link
-					rel="icon"
-					type="image/png"
-					sizes="32x32"
-					href={LTISettings.branding.faviconx32_path}
-				/>
-				<link
-					rel="icon"
-					type="image/png"
-					sizes="16x16"
-					href={LTISettings.branding.faviconx16_path}
-				/>
-				<link rel="manifest" href="/site.webmanifest" />
-			</Head>
 			{LTISettings && (
-				<Layout LTISettings={LTISettings}>
-					{currentBlocksData !== "" && currentBlocksData !== undefined ? (
-						<BlockFlow map={currentBlocksData}></BlockFlow>
-					) : (
-						<EmptySelector />
-					)}
-				</Layout>
+				<>
+					<Head>
+						<title>UNI Adaptive</title>
+						<meta name="description" content="Uniadaptive LTI tool" />
+						<meta
+							name="viewport"
+							content="width=device-width, initial-scale=1"
+						/>
+
+						<link
+							rel="apple-touch-icon"
+							sizes="180x180"
+							href={LTISettings.branding.faviconx180_path}
+						/>
+						<link
+							rel="icon"
+							type="image/png"
+							sizes="32x32"
+							href={LTISettings.branding.faviconx32_path}
+						/>
+						<link
+							rel="icon"
+							type="image/png"
+							sizes="16x16"
+							href={LTISettings.branding.faviconx16_path}
+						/>
+					</Head>
+
+					<Layout LTISettings={LTISettings}>
+						{currentBlocksData !== "" && currentBlocksData !== undefined ? (
+							<BlockFlow map={currentBlocksData}></BlockFlow>
+						) : (
+							<EmptySelector />
+						)}
+					</Layout>
+				</>
 			)}
 		</>
 	);

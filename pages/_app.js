@@ -29,15 +29,51 @@ export const OnlineContext = createContext(); //Contains true/false if online
 export const ReactFlowInstanceContext = createContext(); //Contains reactFlowInstance (deprecated)
 export const MetaDataContext = createContext(); //Contains metadata information
 export const UserDataContext = createContext(); //Contains userdata information
-export const DevModeStatusContext = createContext(false); //Stores the dev_mode status so it can be passed to the nodes.
 export const HeaderToEmptySelectorContext = createContext(); //References functionally from the Header to be able to use it in the empty selector.
+export const LTISettingsContext = createContext(); //Branding
 
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import { toast } from "react-toastify";
 import { useIsOnline } from "react-use-is-online";
+import { fetchBackEnd, parseBool } from "../utils/Utils";
 
 const SESSION_START = Date.now();
+
+function getToken() {
+	const PARAMS = new URLSearchParams(window.location.href.split("?")[1]);
+	const TOKEN = PARAMS.get("token");
+	let newUrl = window.location.href.split("?")[0];
+	window.history.replaceState({}, document.title, newUrl);
+	if (TOKEN) {
+		//if there is a token in the url
+		sessionStorage.setItem("token", TOKEN);
+		return TOKEN;
+	} else {
+		//if there isn't a token in the url
+		let attempts = 0;
+		const MAX_ATTEMPTS = 20;
+		const INTERVAL = setInterval(() => {
+			const STORED_TOKEN = sessionStorage.getItem("token");
+			if (STORED_TOKEN == undefined) {
+				if (attempts < MAX_ATTEMPTS) {
+					attempts++;
+				} else {
+					if (!parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
+						alert(
+							`Error: Interfaz lanzada sin identificador de sesión apropiado. Vuelva a lanzar la herramienta desde el gestor de contenido. Cerrando.`
+						);
+						window.close();
+					}
+					clearInterval(INTERVAL);
+				}
+			} else {
+				clearInterval(INTERVAL);
+				return STORED_TOKEN;
+			}
+		}, 100);
+	}
+}
 
 export default function App({ Component, pageProps }) {
 	const [settings, setSettings] = useState(
@@ -54,9 +90,15 @@ export default function App({ Component, pageProps }) {
 	const [reactFlowInstance, setReactFlowInstance] = useState();
 	const [errorList, setErrorList] = useState();
 	const [currentBlocksData, setCurrentBlocksData] = useState();
-	const [devModeStatus, setDevModeStatus] = useState(false);
+	const [LTISettings, setLTISettings] = useState();
 
 	const { isOnline, isOffline } = useIsOnline();
+
+	async function getLTISettings() {
+		const response = await fetchBackEnd(getToken(), "api/lti/get_conf", "POST");
+		console.log(response);
+		setLTISettings(response);
+	}
 
 	useEffect(() => {
 		let localSettings = localStorage.getItem("settings");
@@ -71,6 +113,7 @@ export default function App({ Component, pageProps }) {
 				//Small delay so it doesn't show up at start
 				connectionRestored();
 			}
+			getLTISettings();
 		} else {
 			connectionLost();
 		}
@@ -78,24 +121,22 @@ export default function App({ Component, pageProps }) {
 
 	return (
 		<OnlineContext.Provider value={{ isOnline, isOffline }}>
-			<SettingsContext.Provider value={{ settings, setSettings }}>
-				<ReactFlowInstanceContext.Provider
-					value={{ reactFlowInstance, setReactFlowInstance }}
-				>
-					<ErrorListContext.Provider value={{ errorList, setErrorList }}>
-						<BlocksDataContext.Provider
-							value={{ currentBlocksData, setCurrentBlocksData }}
-						>
-							<DevModeStatusContext.Provider
-								value={{ devModeStatus, setDevModeStatus }}
+			<LTISettingsContext.Provider value={{ LTISettings, setLTISettings }}>
+				<SettingsContext.Provider value={{ settings, setSettings }}>
+					<ReactFlowInstanceContext.Provider
+						value={{ reactFlowInstance, setReactFlowInstance }}
+					>
+						<ErrorListContext.Provider value={{ errorList, setErrorList }}>
+							<BlocksDataContext.Provider
+								value={{ currentBlocksData, setCurrentBlocksData }}
 							>
 								<ToastContainer />
 								<Component {...pageProps} />
-							</DevModeStatusContext.Provider>
-						</BlocksDataContext.Provider>
-					</ErrorListContext.Provider>
-				</ReactFlowInstanceContext.Provider>
-			</SettingsContext.Provider>
+							</BlocksDataContext.Provider>
+						</ErrorListContext.Provider>
+					</ReactFlowInstanceContext.Provider>
+				</SettingsContext.Provider>
+			</LTISettingsContext.Provider>
 		</OnlineContext.Provider>
 	);
 }

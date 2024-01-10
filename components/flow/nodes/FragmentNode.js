@@ -31,14 +31,12 @@ import { getNodeDOMById, getNodeById } from "@utils/Nodes";
 import FocusTrap from "focus-trap-react";
 import FragmentResizer from "/components/dialogs/FragmentResizer";
 import FragmentEditor from "/components/dialogs/FragmentEditor";
-import { DevModeStatusContext } from "pages/_app";
 
 function FragmentNode({ id, xPos, yPos, type, data }) {
 	const { nodeSelected, setNodeSelected } = useContext(NodeInfoContext);
 	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
 	const { editVersionSelected, setEditVersionSelected } =
 		useContext(VersionInfoContext);
-	const { devModeStatus } = useContext(DevModeStatusContext);
 	const reactFlowInstance = useReactFlow();
 	const { settings, setSettings } = useContext(SettingsContext);
 	const PARSED_SETTINGS = JSON.parse(settings);
@@ -478,7 +476,7 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 				)}
 				<div>
 					<FontAwesomeIcon icon={faCubes} />
-					{expanded && devModeStatus && (
+					{expanded && parseBool(process.env.NEXT_PUBLIC_DEV_MODE) && (
 						<pre
 							style={{
 								position: "absolute",
