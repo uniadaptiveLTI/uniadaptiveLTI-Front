@@ -1,6 +1,5 @@
 import { useNodes, useReactFlow } from "reactflow";
 import { getNodeById } from "@utils/Nodes";
-import { DevModeStatusContext } from "/pages/_app";
 import { useContext } from "react";
 import { getTypeIcon } from "@utils/NodeIcons";
 import { MetaDataContext, PlatformContext, SettingsContext } from "pages/_app";
@@ -10,9 +9,9 @@ import {
 	profileQueryList,
 } from "@components/flow/conditions/moodle/condition-components/ProfileComponent";
 import { Col, Container } from "react-bootstrap";
+import { parseBool } from "../../../utils/Utils";
 
 export default function SimpleConditionsSakai({ id }) {
-	const { devModeStatus } = useContext(DevModeStatusContext);
 	const { metaData } = useContext(MetaDataContext);
 	const rfNodes = useNodes();
 	const REQUISITES = getNodeById(id, rfNodes)?.data?.requisites || undefined;
@@ -270,7 +269,11 @@ export default function SimpleConditionsSakai({ id }) {
 					<b>{getNodeById(id, rfNodes).data.label}</b>
 				</p>
 				<hr />
-				<dev>{devModeStatus ? [DEV_STRING, ...finalString] : finalString}</dev>
+				<dev>
+					{parseBool(process.env.NEXT_PUBLIC_DEV_MODE)
+						? [DEV_STRING, ...finalString]
+						: finalString}
+				</dev>
 			</div>
 		);
 	} else {
@@ -281,7 +284,11 @@ export default function SimpleConditionsSakai({ id }) {
 					<b>{getNodeById(id, rfNodes).data.label}</b>
 				</p>
 				<hr />
-				<dev>{devModeStatus ? [DEV_STRING, ...finalString] : finalString}</dev>
+				<dev>
+					{parseBool(process.env.NEXT_PUBLIC_DEV_MODE)
+						? [DEV_STRING, ...finalString]
+						: finalString}
+				</dev>
 			</div>
 		);
 	}

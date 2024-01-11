@@ -48,13 +48,7 @@ describe("fetchBackEnd", () => {
 		const webservice = "test";
 		const method = "POST";
 		const load = { foo: "bar" };
-		const data = await fetchBackEnd(
-			LTISettings,
-			token,
-			webservice,
-			method,
-			load
-		);
+		const data = await fetchBackEnd(token, webservice, method, load);
 		expect(data).toEqual({ data: "test" });
 		expect(fetch).toHaveBeenCalledTimes(1);
 		expect(fetch).toHaveBeenCalledWith(
@@ -75,13 +69,7 @@ describe("fetchBackEnd", () => {
 		const webservice = "test";
 		const method = "GET";
 		const load = { foo: "bar" };
-		const data = await fetchBackEnd(
-			LTISettings,
-			token,
-			webservice,
-			method,
-			load
-		);
+		const data = await fetchBackEnd(token, webservice, method, load);
 		expect(data).toEqual({ data: "test" });
 		expect(fetch).toHaveBeenCalledTimes(1);
 		expect(fetch).toHaveBeenCalledWith(

@@ -31,4 +31,4 @@ EXPOSE 3000
 ENV NEXT_MODE=${NEXT_MODE:-production}
 
 # Start the app
-CMD if [ "$NEXT_MODE" = "production" ] ; then node node_modules/next/dist/bin/next start ; else node node_modules/next/dist/bin/next dev ; fi
+CMD if [ "$NEXT_MODE" = "production" ] ; then node_modules/next/dist/bin/next build && node node_modules/next/dist/bin/next start ; else node node_modules/next/dist/bin/next dev ; fi

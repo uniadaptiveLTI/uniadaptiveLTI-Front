@@ -287,48 +287,41 @@ export function getHTTPPrefix() {
 
 /**
  * Constructs a URL for fetching data from the server.
- * @param {Object} LTISettings - An object containing the LTI settings.
  * @param {string} [webservice] - An optional string to be appended to the URL.
  * @returns {string} The constructed URL for fetching data from the server.
  */
-export function getFetchUrl(LTISettings, webservice) {
+export function getFetchUrl(webservice) {
 	return webservice == undefined
-		? `${getHTTPPrefix()}//${LTISettings.back_url}`
-		: `${getHTTPPrefix()}//${LTISettings.back_url}/${webservice}`;
+		? `${getHTTPPrefix()}//${process.env.NEXT_PUBLIC_BACK_URL}`
+		: `${getHTTPPrefix()}//${process.env.NEXT_PUBLIC_BACK_URL}/${webservice}`;
 }
 
 /**
  * Fetches data from the back-end using the specified token, webservice, and method.
  * @async
  * @function
- * @param {Object} LTISettings - The LTI settings object.
  * @param {string} token - The token to use for authentication.
  * @param {string} webservice - The webservice to fetch data from.
  * @param {string} [method="GET"] - The HTTP method to use for the request.
  * @param {Object} [load] - The payload to send with the request.
  * @returns {Promise<Object>} A Promise that resolves to the fetched data.
  */
-export async function fetchBackEnd(
-	LTISettings,
-	token,
-	webservice,
-	method = "GET",
-	load
-) {
-	const FETCH_URL = getFetchUrl(LTISettings, webservice);
+export async function fetchBackEnd(token, webservice, method = "GET", load) {
+	const FETCH_URL = getFetchUrl(webservice);
 	let fetchResponse;
 
 	if (method === "POST") {
 		const RESPONSE = await fetch(FETCH_URL, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ ...load, token }),
+			body: JSON.stringify({ ...load, token: token }),
 		});
 		fetchResponse = await RESPONSE.json();
 	} else if (method === "GET") {
 		fetchResponse = (
 			await fetch(
-				FETCH_URL + `?${new URLSearchParams({ ...load, token }).toString()}`
+				FETCH_URL +
+					`?${new URLSearchParams({ ...load, token: token }).toString()}`
 			)
 		).json();
 	}
@@ -457,6 +450,7 @@ export async function saveVersion(
 			return cleanedNode;
 		});
 	}
+
 	// Clean the nodes using the helper function
 	const CLEANED_NODES = cleanNodes(rfNodes);
 	// Define constants for the success and error messages
@@ -486,7 +480,6 @@ export async function saveVersion(
 		}
 
 		const RESPONSE = await fetchBackEnd(
-			LTISettings,
 			sessionStorage.getItem("token"),
 			"api/lti/store_version",
 			"POST",
@@ -502,10 +495,12 @@ export async function saveVersion(
 			ERROR_MESSAGE,
 			defaultToastError
 		);
+		return true;
 	} catch (e) {
 		// If an error occurs when making the request, show the error message and log the error in the console
 		console.error(e);
 		toast(ERROR_MESSAGE, defaultToastError);
+		return false;
 	} finally {
 		enable(false);
 	}
@@ -588,7 +583,6 @@ export async function saveVersions(
 		}
 
 		const RESPONSE = await fetchBackEnd(
-			LTISettings,
 			sessionStorage.getItem("token"),
 			"api/lti/store_version",
 			"POST",

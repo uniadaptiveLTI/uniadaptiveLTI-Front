@@ -27,7 +27,7 @@ import { Button, Badge } from "react-bootstrap";
 import { getTypeIcon } from "@utils/NodeIcons";
 import { getUpdatedArrayById, parseBool } from "@utils/Utils";
 import { getNodeById, getNumberOfIndependentConditions } from "@utils/Nodes";
-import { DevModeStatusContext } from "pages/_app";
+
 import { NodeTypes } from "@utils/TypeDefinitions";
 import SimpleConditionsMoodle from "@components/flow/conditions/SimpleConditionsMoodle";
 import SimpleConditionsSakai from "@components/flow/conditions/SimpleConditionsSakai";
@@ -73,7 +73,6 @@ function ActionNode({ id, type, data, selected, dragging, isConnectable }) {
 	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
 	const { editVersionSelected, setEditVersionSelected } =
 		useContext(VersionInfoContext);
-	const { devModeStatus } = useContext(DevModeStatusContext);
 
 	const reactFlowInstance = useReactFlow();
 	const { settings } = useContext(SettingsContext);

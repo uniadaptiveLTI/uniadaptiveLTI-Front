@@ -69,7 +69,6 @@ import { errorListCheck } from "@utils/ErrorHandling";
 import download from "downloadjs";
 import { NodeTypes } from "@utils/TypeDefinitions";
 import ExportModal from "@components/dialogs/ExportModal";
-import { DevModeStatusContext } from "pages/_app";
 import UserSettingsModal from "./dialogs/UserSettingsModal";
 import { hasLessons } from "@utils/Platform";
 import {
@@ -79,6 +78,7 @@ import {
 } from "@utils/Moodle";
 import { createNewSakaiMap, parseSakaiNode } from "@utils/Sakai";
 import { UserDataContext } from "../pages/_app";
+import { parseBool } from "../utils/Utils";
 
 const DEFAULT_TOAST_SUCCESS = {
 	hideProgressBar: false,
@@ -95,7 +95,6 @@ const DEFAULT_TOAST_ERROR = {
 };
 
 function Header({ LTISettings }, ref) {
-	const { devModeStatus } = useContext(DevModeStatusContext);
 	const { errorList, setErrorList } = useContext(ErrorListContext);
 	const {
 		mapCount,
@@ -218,44 +217,54 @@ function Header({ LTISettings }, ref) {
 		if (selectedMap) {
 			setMapSelected(selectedMap);
 
-			if (!LTISettings.debugging.dev_files) {
-				try {
-					const MAP_RESPONSE = await fetchBackEnd(
-						LTISettings,
-						sessionStorage.getItem("token"),
-						"api/lti/get_map",
-						"POST",
-						{ map_id: selectedMap.id }
-					);
-
-					const MAP_DATA = MAP_RESPONSE.data;
-					if (!MAP_DATA.invalid) {
-						const VERSIONS_RESPONSE = await fetchBackEnd(
-							LTISettings,
+			if (!parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
+				if (selectedMap.id != -1) {
+					try {
+						const MAP_RESPONSE = await fetchBackEnd(
 							sessionStorage.getItem("token"),
-							"api/lti/get_versions",
+							"api/lti/get_map",
 							"POST",
-							{ map_id: MAP_DATA.created_id }
+							{ map_id: selectedMap.id }
 						);
 
-						const VERSIONS_DATA = VERSIONS_RESPONSE.data;
-						if (!VERSIONS_DATA.invalid) {
-							setVersions(VERSIONS_DATA);
-							setSelectedVersion(VERSIONS_DATA[0]);
-							setCurrentBlocksData(VERSIONS_DATA[0].blocks_data);
+						const MAP_DATA = MAP_RESPONSE.data;
+						if (!MAP_DATA.invalid) {
+							const VERSIONS_RESPONSE = await fetchBackEnd(
+								sessionStorage.getItem("token"),
+								"api/lti/get_versions",
+								"POST",
+								{ map_id: MAP_DATA.created_id }
+							);
+
+							const VERSIONS_DATA = VERSIONS_RESPONSE.data;
+							if (!VERSIONS_DATA.invalid) {
+								setVersions(VERSIONS_DATA);
+								setSelectedVersion(VERSIONS_DATA[0]);
+								setCurrentBlocksData(VERSIONS_DATA[0].blocks_data);
+							} else {
+								console.error("Error, datos de versiones inválidos");
+							}
 						} else {
-							console.error("Error, datos de versiones inválidos");
+							console.error("Error, datos de mapa inválidos");
 						}
-					} else {
-						console.error("Error, datos de mapa inválidos");
+					} catch (error) {
+						console.error("Error:", error);
 					}
-				} catch (error) {
-					console.error("Error:", error);
+				} else {
+					changeToMapSelection();
 				}
 			} else {
 				setVersions(selectedMap.versions);
-				setSelectedVersion(selectedMap.versions[0]);
-				setCurrentBlocksData(selectedMap.versions[0].blocks_data);
+				setSelectedVersion(
+					selectedMap.versions != undefined
+						? selectedMap.versions[0]
+						: undefined
+				);
+				setCurrentBlocksData(
+					selectedMap.versions != undefined
+						? selectedMap.versions[0].blocks_data
+						: undefined
+				);
 			}
 			if (selectedMap.id == -1) {
 				changeToMapSelection();
@@ -310,37 +319,43 @@ function Header({ LTISettings }, ref) {
 				"("
 			),
 		};
-		if (!LTISettings.debugging.dev_files)
-			await saveVersions(
-				data ? NEW_MAP.versions : EMPTY_NEW_MAP.versions,
-				localMetaData,
-				platform,
-				localUserData,
-				data ? NEW_MAP : EMPTY_NEW_MAP,
-				LTISettings,
-				DEFAULT_TOAST_SUCCESS,
-				DEFAULT_TOAST_ERROR,
-				toast,
-				enableSaving,
-				undefined
+
+		try {
+			if (!parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
+				await saveVersions(
+					data ? NEW_MAP.versions : EMPTY_NEW_MAP.versions,
+					localMetaData,
+					platform,
+					localUserData,
+					data ? NEW_MAP : EMPTY_NEW_MAP,
+					LTISettings,
+					DEFAULT_TOAST_SUCCESS,
+					DEFAULT_TOAST_ERROR,
+					toast,
+					enableSaving,
+					undefined
+				);
+			}
+
+			const NEW_MAPS = [...localMaps, data ? NEW_MAP : EMPTY_NEW_MAP];
+
+			console.info(`🗺️ New map added: `, data ? NEW_MAP : EMPTY_NEW_MAP);
+
+			setMaps(NEW_MAPS);
+			setLastMapCreated(data ? NEW_MAP.id : EMPTY_NEW_MAP.id);
+			toast(
+				`Mapa: ${handleNameCollision(
+					"Nuevo Mapa",
+					localMaps.map((map) => map.name),
+					true,
+					"("
+				)} creado`,
+				DEFAULT_TOAST_SUCCESS
 			);
-
-		const NEW_MAPS = [...localMaps, data ? NEW_MAP : EMPTY_NEW_MAP];
-
-		console.info(`:world_map: New map added: `, data ? NEW_MAP : EMPTY_NEW_MAP);
-
-		setMaps(NEW_MAPS);
-		setLastMapCreated(data ? NEW_MAP.id : EMPTY_NEW_MAP.id);
-		toast(
-			`Mapa: ${handleNameCollision(
-				"Nuevo Mapa",
-				localMaps.map((map) => map.name),
-				true,
-				"("
-			)} creado`,
-			DEFAULT_TOAST_SUCCESS
-		);
-		setMapCount((prev) => prev + 1);
+			setMapCount((prev) => prev + 1);
+		} catch (error) {
+			toast(`No se ha podido crear el mapa`, DEFAULT_TOAST_ERROR);
+		}
 	};
 
 	const handleImportedMap = async (
@@ -352,9 +367,8 @@ function Header({ LTISettings }, ref) {
 		const EMPTY_NEW_VERSION = [];
 
 		let data;
-		if (!LTISettings.debugging.dev_files) {
+		if (!parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
 			const response = await fetchBackEnd(
-				LTISettings,
 				sessionStorage.getItem("token"),
 				"api/lti/get_modules",
 				"POST",
@@ -385,7 +399,7 @@ function Header({ LTISettings }, ref) {
 				data = await RESPONSE.json();
 			}
 		}
-		console.info(`:question: JSON:`, data);
+		console.info(`❓ JSON:`, data);
 
 		let newX = 125;
 		let newY = 0;
@@ -435,8 +449,8 @@ function Header({ LTISettings }, ref) {
 				localMaps
 			);
 		}
-		if (!LTISettings.debugging.dev_files)
-			saveVersions(
+		if (!parseBool(process.env.NEXT_PUBLIC_DEV_FILES))
+			await saveVersions(
 				platformNewMap.versions,
 				localMetaData,
 				platform,
@@ -452,7 +466,7 @@ function Header({ LTISettings }, ref) {
 
 		const newMaps = [...localMaps, platformNewMap];
 
-		console.info(`:world_map: New map added: `, platformNewMap);
+		console.info(`🗺️ New map added: `, platformNewMap);
 
 		setMaps(newMaps);
 		setLastMapCreated(platformNewMap.id);
@@ -508,7 +522,6 @@ function Header({ LTISettings }, ref) {
 
 		const NEW_MAP_VERSIONS = [...SELECTED_MAP.versions, NEW_VERSION];
 		const response = await fetchBackEnd(
-			LTISettings,
 			sessionStorage.getItem("token"),
 			"api/lti/add_version",
 			"POST",
@@ -523,7 +536,6 @@ function Header({ LTISettings }, ref) {
 			throw new Error("Request failed");
 		} else {
 			const response = await fetchBackEnd(
-				LTISettings,
 				sessionStorage.getItem("token"),
 				"api/lti/get_versions",
 				"POST",
@@ -591,10 +603,9 @@ function Header({ LTISettings }, ref) {
 	const deleteMap = async () => {
 		const MAP_ID = selectMapDOM.current.value;
 		if (MAP_ID != -1) {
-			if (!LTISettings.debugging.dev_files) {
+			if (!parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
 				try {
 					const RESPONSE = await fetchBackEnd(
-						LTISettings,
 						sessionStorage.getItem("token"),
 						"api/lti/delete_map_by_id",
 						"POST",
@@ -608,7 +619,6 @@ function Header({ LTISettings }, ref) {
 							//FIXME: Load map "shell"
 							setLoadedMaps(false);
 							const RESPONSE = await fetchBackEnd(
-								LTISettings,
 								sessionStorage.getItem("token"),
 								"api/lti/get_session",
 								"POST"
@@ -656,10 +666,9 @@ function Header({ LTISettings }, ref) {
 		const MAP_ID = selectMapDOM.current.value;
 		const VERSION_COUNT = maps.find((map) => map.id == MAP_ID).versions.length;
 		if (VERSION_COUNT > 1) {
-			if (!LTISettings.debugging.dev_files) {
+			if (!parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
 				try {
 					const response = await fetchBackEnd(
-						LTISettings,
 						sessionStorage.getItem("token"),
 						"api/lti/delete_version_by_id",
 						"POST",
@@ -672,7 +681,7 @@ function Header({ LTISettings }, ref) {
 							//FIXME: Load map "shell"
 							// setLoadedMaps(false);
 							// fetch(
-							//	`${getHTTPPrefix()}//${LTISettings.back_url}/lti/get_session`
+							//	`${getHTTPPrefix()}//${process.env.NEXT_PUBLIC_BACK_URL}/lti/get_session`
 							//)
 							// 	.then((response) => response.json())
 							// 	.then((data) => {
@@ -828,7 +837,7 @@ function Header({ LTISettings }, ref) {
 	useLayoutEffect(() => {
 		//Get resources
 		try {
-			if (LTISettings.debugging.dev_files) {
+			if (parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
 				fetch("resources/devmaps.json")
 					.then((response) => response.json())
 					.then((data) => {
@@ -850,7 +859,7 @@ function Header({ LTISettings }, ref) {
 						setPlatform(data.platform);
 						setMetaData({
 							...data,
-							back_url: LTISettings.back_url,
+							back_url: process.env.NEXT_PUBLIC_BACK_URL,
 						});
 						setLoadedMetaData(true);
 					})
@@ -878,7 +887,6 @@ function Header({ LTISettings }, ref) {
 				const loadResources = async (token) => {
 					try {
 						const RESPONSE = await fetchBackEnd(
-							LTISettings,
 							token,
 							"api/lti/get_session",
 							"POST"
@@ -895,7 +903,7 @@ function Header({ LTISettings }, ref) {
 							setPlatform(DATA[1].platform);
 							setMetaData({
 								...DATA[1],
-								back_url: LTISettings.back_url,
+								back_url: process.env.NEXT_PUBLIC_BACK_URL,
 							}); //FIXME: This should be the course website in moodle
 							setLoadedMetaData(true);
 
@@ -921,38 +929,7 @@ function Header({ LTISettings }, ref) {
 					}
 				};
 
-				const PARAMS = new URLSearchParams(window.location.href.split("?")[1]);
-				const TOKEN = PARAMS.get("token");
-				let newUrl = window.location.href.split("?")[0];
-				window.history.replaceState({}, document.title, newUrl);
-				if (TOKEN) {
-					//if there is a token in the url
-					sessionStorage.setItem("token", TOKEN);
-					loadResources(TOKEN);
-				} else {
-					//if there isn't a token in the url
-					let attempts = 0;
-					const MAX_ATTEMPTS = 20;
-					const INTERVAL = setInterval(() => {
-						const STORED_TOKEN = sessionStorage.getItem("token");
-						if (STORED_TOKEN == undefined) {
-							if (attempts < MAX_ATTEMPTS) {
-								attempts++;
-							} else {
-								if (!LTISettings.debugging.dev_files) {
-									alert(
-										`Error: Interfaz lanzada sin identificador de sesión apropiado. Vuelva a lanzar la herramienta desde el gestor de contenido. Cerrando.`
-									);
-									window.close();
-								}
-								clearInterval(INTERVAL);
-							}
-						} else {
-							loadResources(STORED_TOKEN);
-							clearInterval(INTERVAL);
-						}
-					}, 100);
-				}
+				loadResources(sessionStorage.getItem("token"));
 			}
 		} catch (e) {
 			toast(e, DEFAULT_TOAST_ERROR);
@@ -1411,7 +1388,7 @@ function Header({ LTISettings }, ref) {
 											width={48}
 											height={48}
 											style={
-												devModeStatus
+												parseBool(process.env.NEXT_PUBLIC_DEV_MODE)
 													? {
 															background: `var(--dev-background-color)`,
 															padding: "0.30rem",
@@ -1469,7 +1446,7 @@ function Header({ LTISettings }, ref) {
 						Actualmente la versión seleccionada es &quot;
 						<strong>{selectedVersion.name}</strong>&quot;, modificada por última
 						vez <b>{selectedVersion.lastUpdate}</b>.
-						{devModeStatus && (
+						{parseBool(process.env.NEXT_PUBLIC_DEV_MODE) && (
 							<>
 								<br />
 								<div

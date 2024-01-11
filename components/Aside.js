@@ -54,6 +54,7 @@ import {
 	hasUnorderedResources,
 } from "@utils/Platform.js";
 import { getLastPositionInSakaiColumn } from "@utils/Sakai";
+import { parseBool } from "../utils/Utils.js";
 
 export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 	const { errorList, setErrorList } = useContext(ErrorListContext);
@@ -128,14 +129,13 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 					selectedOption == "generic" ? getSupportedTypes(platform) : undefined,
 			};
 
-			if (selectedOption == "generic") {
+			if (selectedOption == "generic" && platform != "moodle") {
 				setShowSpinner(false);
 				setAllowResourceSelection(true);
 				return [];
 			}
 
 			const RESPONSE = await fetchBackEnd(
-				LTISettings,
 				sessionStorage.getItem("token"),
 				"api/lti/get_modules_by_type",
 				"POST",
@@ -178,7 +178,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 		if (!selectedOption) {
 			setResourceOptions([]);
 		} else {
-			if (LTISettings.debugging.dev_files) {
+			if (parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
 				setResourceOptions([]);
 				setTimeout(() => {
 					const DATA = [
@@ -581,6 +581,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 				getUpdatedArrayById(UPDATED_DATA, reactFlowInstance.getNodes())
 			);
 		}
+		console.log(nodeSelected);
 	};
 
 	/**

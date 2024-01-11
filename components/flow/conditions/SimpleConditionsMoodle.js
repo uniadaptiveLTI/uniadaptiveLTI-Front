@@ -1,6 +1,5 @@
 import { useNodes } from "reactflow";
 import { getNodeById } from "@utils/Nodes";
-import { DevModeStatusContext } from "/pages/_app";
 import { useContext } from "react";
 import { getTypeIcon } from "@utils/NodeIcons";
 import { MetaDataContext, PlatformContext, SettingsContext } from "pages/_app";
@@ -9,9 +8,9 @@ import {
 	profileOperatorList,
 	profileQueryList,
 } from "@components/flow/conditions/moodle/condition-components/ProfileComponent";
+import { parseBool } from "../../../utils/Utils";
 
 export default function SimpleConditionsMoodle({ id }) {
-	const { devModeStatus } = useContext(DevModeStatusContext);
 	const { metaData } = useContext(MetaDataContext);
 	const rfNodes = useNodes();
 	const { platform } = useContext(PlatformContext);
@@ -548,7 +547,11 @@ export default function SimpleConditionsMoodle({ id }) {
 					<b>{getNodeById(id, rfNodes).data.label}</b>
 				</p>
 				<hr />
-				<div>{devModeStatus ? [DEV_STRING, ...finalString] : finalString}</div>
+				<div>
+					{parseBool(process.env.NEXT_PUBLIC_DEV_MODE)
+						? [DEV_STRING, ...finalString]
+						: finalString}
+				</div>
 			</div>
 		);
 	} else {
@@ -567,7 +570,9 @@ export default function SimpleConditionsMoodle({ id }) {
 					</p>
 					<hr />
 					<div>
-						{devModeStatus ? [DEV_STRING, ...finalString] : finalString}
+						{parseBool(process.env.NEXT_PUBLIC_DEV_MODE)
+							? [DEV_STRING, ...finalString]
+							: finalString}
 					</div>
 				</div>
 			);
@@ -582,7 +587,9 @@ export default function SimpleConditionsMoodle({ id }) {
 						</p>
 						<hr />
 						<div>
-							{devModeStatus ? [DEV_STRING, ...finalString] : finalString}
+							{parseBool(process.env.NEXT_PUBLIC_DEV_MODE)
+								? [DEV_STRING, ...finalString]
+								: finalString}
 						</div>
 					</div>
 				);

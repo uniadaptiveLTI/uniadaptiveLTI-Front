@@ -775,58 +775,60 @@ const OverviewFlow = ({ map }, ref) => {
 			let nodeArray = reactFlowInstance.getNodes();
 
 			// Filter method to retrieve only the nodes that are the children of a block
-			if (block.data?.children) {
-				const CHILDREN_NODES = nodeArray.filter((node) =>
-					block.data.children.includes(node.id.toString())
-				);
-
-				// Iteration of the children nodes
-				CHILDREN_NODES.map((childrenNode) => {
-					// Find method to check if the children is already edited
-					const foundChildrenNode = updatedNodes.find(
-						(block) => block.id === childrenNode.id
+			if (block.data) {
+				if (block.data.children != undefined) {
+					const CHILDREN_NODES = nodeArray.filter((node) =>
+						block.data.children.includes(node.id.toString())
 					);
 
-					// Condition to check if the children is already edited
-					if (foundChildrenNode) {
-						switch (platform) {
-							case "moodle":
-								if (!validTypes.includes(foundChildrenNode.type)) {
-									// Delete method that updates the conditions of the children node edited
-									deleteConditionById(foundChildrenNode.data?.c?.c, block.id);
-								} else {
-									updateBadgeConditions(foundChildrenNode, block);
-								}
-								break;
-							case "sakai":
-								filterConditionsByParentId(
-									foundChildrenNode.data.gradeRequisites.subConditions,
-									block.id
-								);
-								break;
-						}
-					} else {
-						switch (platform) {
-							case "moodle":
-								if (!validTypes.includes(childrenNode.type)) {
-									// Delete method that updates the conditions of the children node
-									deleteConditionById(childrenNode.data?.c?.c, block.id);
-								} else {
-									updateBadgeConditions(childrenNode, block);
-								}
-								break;
-							case "sakai":
-								filterConditionsByParentId(
-									childrenNode.data.gradeRequisites.subConditions,
-									block.id
-								);
-								break;
-						}
+					// Iteration of the children nodes
+					CHILDREN_NODES.map((childrenNode) => {
+						// Find method to check if the children is already edited
+						const foundChildrenNode = updatedNodes.find(
+							(block) => block.id === childrenNode.id
+						);
 
-						// Push method to store the updated node
-						updatedNodes.push(childrenNode);
-					}
-				});
+						// Condition to check if the children is already edited
+						if (foundChildrenNode) {
+							switch (platform) {
+								case "moodle":
+									if (!validTypes.includes(foundChildrenNode.type)) {
+										// Delete method that updates the conditions of the children node edited
+										deleteConditionById(foundChildrenNode.data?.c?.c, block.id);
+									} else {
+										updateBadgeConditions(foundChildrenNode, block);
+									}
+									break;
+								case "sakai":
+									filterConditionsByParentId(
+										foundChildrenNode.data.gradeRequisites.subConditions,
+										block.id
+									);
+									break;
+							}
+						} else {
+							switch (platform) {
+								case "moodle":
+									if (!validTypes.includes(childrenNode.type)) {
+										// Delete method that updates the conditions of the children node
+										deleteConditionById(childrenNode.data?.c?.c, block.id);
+									} else {
+										updateBadgeConditions(childrenNode, block);
+									}
+									break;
+								case "sakai":
+									filterConditionsByParentId(
+										childrenNode.data.gradeRequisites.subConditions,
+										block.id
+									);
+									break;
+							}
+
+							// Push method to store the updated node
+							updatedNodes.push(childrenNode);
+						}
+					});
+				}
 			}
 		});
 
@@ -1744,16 +1746,10 @@ const OverviewFlow = ({ map }, ref) => {
 	/**
 	 * Handles the deletion of multiple selected nodes.
 	 */
-	const handleNodeSelectionDeletion = (node = []) => {
+	const handleNodeSelectionDeletion = () => {
 		setShowContextualMenu(false);
 		const SELECTED_NODES = getSelectedNodes();
-		const CLIPBOARD_DATA = [];
-		for (let NODE of SELECTED_NODES) {
-			CLIPBOARD_DATA.push(getNodeByNodeDOM(NODE, reactFlowInstance.getNodes()));
-		}
-		console.log(CLIPBOARD_DATA);
-
-		deleteElements([...CLIPBOARD_DATA, node], []);
+		deleteElements(SELECTED_NODES, []);
 	};
 
 	/**

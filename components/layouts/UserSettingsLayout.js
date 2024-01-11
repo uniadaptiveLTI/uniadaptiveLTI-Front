@@ -2,7 +2,8 @@ import { getAutomaticReusableStyles, getRootStyle } from "@utils/Colors";
 import { orderByPropertyAlphabetically } from "@utils/Utils";
 import { useContext, useEffect, useLayoutEffect, useState } from "react";
 import { Button, Col, Container, Row } from "react-bootstrap";
-import { PlatformContext, DevModeStatusContext } from "pages/_app";
+import { parseBool } from "../../utils/Utils";
+import { PlatformContext } from "../../pages/_app";
 
 function ButtonLink({ label, variant, scrollref, className, style }) {
 	return (
@@ -27,7 +28,6 @@ export default function UserSettingsLayout({ children, paneRef, LTISettings }) {
 	const [currentPane, setCurrentPane] = useState(paneRef.current);
 	const [currentPaneRefs, setCurrentPaneRefs] = useState([]);
 	const { platform, setPlatform } = useContext(PlatformContext);
-	const { devModeStatus } = useContext(DevModeStatusContext);
 
 	useEffect(() => {
 		if (paneRef.current) {
@@ -82,7 +82,7 @@ export default function UserSettingsLayout({ children, paneRef, LTISettings }) {
 										scrollref={link.ref}
 									/>
 								))}
-							{devModeStatus && renderButtons && (
+							{parseBool(process.env.NEXT_PUBLIC_DEV_MODE) && renderButtons && (
 								<Button
 									variant="dark"
 									className="py-3 mb-2"

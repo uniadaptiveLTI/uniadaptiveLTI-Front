@@ -1,8 +1,10 @@
 import styles from "/styles/AdminPane.module.css";
 import { useId, useRef } from "react";
 import { Button, Form } from "react-bootstrap";
+import { parseBool } from "../../../utils/Utils";
 
 export default function APIPane({ modifySettings, LTISettings }) {
+	//FIXME:devMode,DEV_FILES,BACK_URL
 	const backURLDOM = useRef(null);
 	const visibleAdminButtonDOM = useRef(null);
 	const devModeDOM = useRef(null);
@@ -21,7 +23,7 @@ export default function APIPane({ modifySettings, LTISettings }) {
 					type="url"
 					ref={backURLDOM}
 					id={BACK_URL_ID}
-					defaultValue={LTISettings.back_url}
+					defaultValue={process.env.NEXT_PUBLIC_BACK_URL}
 				></Form.Control>
 				<Form.Check
 					type="switch"
@@ -41,14 +43,14 @@ export default function APIPane({ modifySettings, LTISettings }) {
 					type="switch"
 					ref={devModeDOM}
 					id={DEV_MODE_ID}
-					defaultChecked={LTISettings.debugging.dev_mode}
+					defaultChecked={parseBool(process.env.NEXT_PUBLIC_DEV_MODE)}
 					label={"Mostrar información extra de depuración. (DEV_MODE)"}
 				></Form.Check>
 				<Form.Check
 					type="switch"
 					ref={devFilesDOM}
-					id={DEV_FILES_ID}
-					defaultChecked={LTISettings.debugging.dev_files}
+					id={parseBool(process.env.NEXT_PUBLIC_DEV_FILES)}
+					defaultChecked={parseBool(process.env.NEXT_PUBLIC_DEV_FILES)}
 					label={
 						"Utilizar archivos de desarrollo. (Permite desarrollar el Front End sin tener una conexión con el Back End) (DEV_FILES)"
 					}
