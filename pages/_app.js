@@ -95,7 +95,7 @@ export default function App({ Component, pageProps }) {
 	const { isOnline, isOffline } = useIsOnline();
 
 	async function getLTISettings() {
-		if (!process.env.NEXT_PUBLIC_DEV_FILES) {
+		if (!parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
 			const response = await fetchBackEnd(
 				getToken(),
 				"api/lti/get_conf",
