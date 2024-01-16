@@ -262,7 +262,7 @@ export function createNewMoodleMap(nodes, metadata, maps) {
 				id: uniqueId(),
 				name: "Primera versión",
 				lastUpdate: new Date().toLocaleDateString(),
-				default: "true",
+				default: false,
 				blocks_data: [...NODES_WITH_CHILDREN],
 			},
 		],

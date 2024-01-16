@@ -100,7 +100,9 @@ export default function UserSettingsLayout({ children, paneRef, LTISettings }) {
 								<Button
 									variant="light"
 									className="py-3 mb-2"
-									onClick={() => (window.location.href = "/admin")}
+									onClick={() =>
+										(window.location.href = window.location.pathname + "admin")
+									}
 									style={{ marginTop: "auto" }}
 								>
 									Panel de administración
