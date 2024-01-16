@@ -119,16 +119,20 @@ export default function ExportPanel({
 	const seekEmpty = (level = "section") => {
 		const nodes = reactFlowInstance.getNodes();
 		const emptySections = [];
-		metaData.sections.map((section) => {
-			const sectionNodes = getSectionNodes(section.position, nodes);
-			emptySections.push(sectionNodes.length < 1);
-		});
-		if (level == "section") {
-			return emptySections.includes(true);
+		// console.log("metaData.sections", metaData.sections);
+		if (platform == "moodle") {
+			metaData.sections.map((section) => {
+				const sectionNodes = getSectionNodes(section.position, nodes);
+				emptySections.push(sectionNodes.length < 1);
+			});
+			if (level == "section") {
+				return emptySections.includes(true);
+			}
+			if (level == "map") {
+				return emptySections.every((val) => val == true);
+			}
 		}
-		if (level == "map") {
-			return emptySections.every((val) => val == true);
-		}
+
 		return false;
 	};
 	const HAS_UNUSED_SECTIONS = seekEmpty("section");
@@ -142,8 +146,11 @@ export default function ExportPanel({
 		if (platform == "sakai") {
 			nodesToExport = nodesToExport.filter((node) => node.type !== "generic");
 		}
+		console.log("🚀 ~ exportMap ~ nodesToExport  150 :", nodesToExport);
+		console.log("perro");
 
 		const CONDITION_LIST = [];
+		console.log(nodesToExport);
 
 		nodesToExport.map((node) => {
 			if (
@@ -151,21 +158,35 @@ export default function ExportPanel({
 				node.data.gradeRequisites.subConditions.length >= 1
 			) {
 				const newCondition = { ...node.data.gradeRequisites };
+				console.log("🚀 ~ nodesToExport.map ~ newCondition:", newCondition);
+
+				console.log(reactFlowInstance.getNodes().map((node) => node.id));
+				console.log(newCondition.itemId);
+
 				let blockResource = reactFlowInstance
 					.getNodes()
 					.find((node) => node.id == newCondition.itemId).data.lmsResource;
+
+				console.log("🚀 ~ nodesToExport.map ~ blockResource:", blockResource);
+				console.log("🚀 ~ nodesToExport.map ~ newCondition:", newCondition);
+
 				newCondition.itemId = sakaiTypeSwitch({
 					id: blockResource,
 					type: newCondition.itemType,
 				}).contentRef;
 
+				console.log("🚀 ~ nodesToExport.map ~ itemId:", newCondition.itemId);
+
+				console.log(2);
 				delete newCondition?.itemType;
 
 				newCondition?.subConditions.map((subCondition) => {
+					console.log(3);
 					if (
 						subCondition.subConditions &&
 						subCondition.subConditions.length >= 1
 					) {
+						console.log(4);
 						subCondition.subConditions.map((childCondition) => {
 							let childResource = reactFlowInstance
 								.getNodes()
@@ -180,8 +201,9 @@ export default function ExportPanel({
 						});
 					}
 				});
-
+				console.log(5);
 				CONDITION_LIST.push(newCondition);
+				console.log(6);
 			}
 		});
 
@@ -328,6 +350,7 @@ export default function ExportPanel({
 
 		console.log("nodesReadyToExport", nodesReadyToExport);
 		if (platform === "sakai") {
+			console.log("SAKAI");
 			const LESSON_FIND = metaData.lessons.find(
 				(lesson) => lesson.id === Number(selectDOM.current.value)
 			);
@@ -682,7 +705,8 @@ export default function ExportPanel({
 						toast,
 						enableExporting,
 						RESPONSE.successType,
-						lesson?.id
+						lesson?.id,
+						true
 					);
 				} else {
 					enableExporting(false);

@@ -39,7 +39,10 @@ export default forwardRef(function SectionSelector(
 	ref
 ) {
 	const rfNodes = useNodes();
-	const SECTIONS = metaData.sections;
+	const SECTIONS =
+		metaData.platform == "moodle"
+			? metaData.sections
+			: [...new Set(rfNodes.map((node) => node.data.section))];
 	const [selectors, setSelectors] = useState();
 	const [selectionStatus, setSelectionStatus] = useState([]);
 	const [updateSelectors, setUpdateSelectors] = useState(false);
@@ -222,14 +225,14 @@ export default forwardRef(function SectionSelector(
 			const SECTION_POSITIONS = SECTIONS.map((section) => section.position);
 			setSelectionStatus(TARGET_STATUS ? SECTION_POSITIONS : []);
 		} else {
+			// console.log(SECTÇIONS);
+			console.log("🚀 ~ toggleMainSelector ~ SECTIONS:", SECTIONS);
 			setSelectionStatus(
 				TARGET_STATUS
 					? [
 							...new Set(
-								rfNodes.map(
-									(node) =>
-										SECTIONS.find((section) => node.data.section == section.id)
-											.position
+								rfNodes.map((node) =>
+									SECTIONS.find((section) => node.data.section == section.id)
 								)
 							),
 					  ] //GET ALL SECTIONS USED

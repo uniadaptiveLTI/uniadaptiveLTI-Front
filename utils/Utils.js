@@ -418,6 +418,7 @@ export function parseDateToString(date, full = true) {
  * @param {Function} toast - Toast function
  * @param {Boolean} enable - Date string, or UNIX Date
  * @param {Object} responseData - responseData object
+ * @param {Boolean} setAsDefault - sets the map as default
  */
 export async function saveVersion(
 	rfNodes,
@@ -432,7 +433,8 @@ export async function saveVersion(
 	toast,
 	enable,
 	responseData,
-	lesson
+	lesson,
+	setAsDefault
 ) {
 	// Helper function to clean the nodes
 	function cleanNodes(nodes) {
@@ -470,6 +472,7 @@ export async function saveVersion(
 						...versionJson,
 						lastUpdate: new Date().toLocaleString("es-ES"),
 						blocks_data: CLEANED_NODES,
+						default: setAsDefault ? true : false,
 					},
 				],
 			},
