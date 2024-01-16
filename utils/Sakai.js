@@ -153,7 +153,7 @@ export function createNewSakaiMap(nodes, lesson, metadata, maps) {
 				id: uniqueId(),
 				name: "Primera versión",
 				lastUpdate: new Date().toLocaleDateString(),
-				default: "true",
+				default: false,
 				blocks_data: [...nodes],
 			},
 		],
@@ -270,24 +270,50 @@ export function sakaiLMSResourceToId(resourceId, nodes) {
  * @returns {Array} - The updated array of sub-conditions.
  */
 export function sakaiConditionalIDAdder(subConditions, nodes, parentNodes) {
+	let deleteConditions = [];
 	subConditions.map((rootCondition) => {
 		rootCondition.id = uniqueId();
 		rootCondition.subConditions?.map((childCondition) => {
 			childCondition.id = uniqueId();
 			const NEW_ITEM = sakaiLMSResourceToId(childCondition.itemId, nodes);
-			childCondition.itemId = NEW_ITEM.id;
-			childCondition.itemType = NEW_ITEM.type;
+			if (NEW_ITEM) {
+				console.log(
+					"🚀 ~ rootCondition.subConditions?.map ~ NEW_ITEM:",
+					NEW_ITEM
+				);
 
-			delete childCondition?.subConditions;
-			delete childCondition?.hasParent;
+				childCondition.itemId = NEW_ITEM.id;
+				childCondition.itemType = NEW_ITEM.type;
 
-			parentNodes.push(NEW_ITEM.id);
+				delete childCondition?.subConditions;
+				delete childCondition?.hasParent;
+
+				parentNodes.push(NEW_ITEM.id);
+			} else {
+				deleteConditions.push(childCondition);
+			}
 		});
 
 		delete rootCondition?.argument;
 		delete rootCondition?.itemId;
 		delete rootCondition?.hasParent;
 	});
+
+	if (deleteConditions && deleteConditions.length >= 1) {
+		deleteConditions.forEach((deleteCondition) => {
+			subConditions = subConditions.map((subCondition) => {
+				console.log(deleteCondition);
+				console.log(subCondition);
+				return {
+					...subCondition,
+					subConditions: subCondition.subConditions.filter(
+						(subCondition) => subCondition.id !== deleteCondition.id
+					),
+				};
+			});
+		});
+	}
+
 	return subConditions;
 }
 

@@ -303,7 +303,7 @@ function Header({ LTISettings }, ref) {
 					id: uniqueId(),
 					name: "Primera versión",
 					lastUpdate: new Date().toLocaleDateString(),
-					default: "true",
+					default: false,
 					blocks_data: new Array(),
 				},
 			],

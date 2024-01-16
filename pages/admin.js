@@ -152,7 +152,10 @@ export default function Admin() {
 												</Button> */}
 												<Button
 													variant="dark"
-													onClick={() => (window.location.href = "/")}
+													onClick={() =>
+														(window.location.href =
+															window.location.pathname.replace("/admin", ""))
+													}
 													style={{ marginTop: "auto" }}
 												>
 													Salir
@@ -218,7 +221,10 @@ export default function Admin() {
 													<Button
 														variant="danger"
 														padding="md"
-														onClick={() => (window.location.href = "/")}
+														onClick={() =>
+															(window.location.href =
+																window.location.pathname.replace("/admin", ""))
+														}
 														style={{ width: "100%", marginTop: "1em" }}
 													>
 														Salir
