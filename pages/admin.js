@@ -10,6 +10,7 @@ import Head from "next/head";
 import { fetchBackEnd, parseBool } from "../utils/Utils";
 import { LTISettingsContext } from "./_app";
 import { applyBranding } from "../utils/Colors";
+import Link from "next/link";
 
 export default function Admin() {
 	const { LTISettings } = useContext(LTISettingsContext);
@@ -150,16 +151,15 @@ export default function Admin() {
 												{/* <Button variant="dark" onClick={() => setActiveTab(2)}>
 													Funcionalidad
 												</Button> */}
-												<Button
-													variant="dark"
-													onClick={() =>
-														(window.location.href =
-															window.location.pathname.replace("/admin", ""))
-													}
-													style={{ marginTop: "auto" }}
+
+												<Link
+													href="/"
+													style={{ marginTop: "auto", width: "100%" }}
 												>
-													Salir
-												</Button>
+													<Button variant="dark" style={{ width: "100%" }}>
+														Salir
+													</Button>
+												</Link>
 											</div>
 										</Col>
 										<Col
@@ -218,17 +218,18 @@ export default function Admin() {
 													>
 														Enviar
 													</Button>
-													<Button
-														variant="danger"
-														padding="md"
-														onClick={() =>
-															(window.location.href =
-																window.location.pathname.replace("/admin", ""))
-														}
+													<Link
+														href="/"
 														style={{ width: "100%", marginTop: "1em" }}
 													>
-														Salir
-													</Button>
+														<Button
+															variant="danger"
+															padding="md"
+															style={{ width: "100%" }}
+														>
+															Salir
+														</Button>
+													</Link>
 												</Form>
 											</div>
 										</Col>

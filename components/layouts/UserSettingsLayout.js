@@ -4,6 +4,7 @@ import { useContext, useEffect, useLayoutEffect, useState } from "react";
 import { Button, Col, Container, Row } from "react-bootstrap";
 import { parseBool } from "../../utils/Utils";
 import { PlatformContext } from "../../pages/_app";
+import Link from "next/link";
 
 function ButtonLink({ label, variant, scrollref, className, style }) {
 	return (
@@ -97,16 +98,18 @@ export default function UserSettingsLayout({ children, paneRef, LTISettings }) {
 								</Button>
 							)}
 							{LTISettings.visibleAdminButton && renderButtons && (
-								<Button
-									variant="light"
-									className="py-3 mb-2"
-									onClick={() =>
-										(window.location.href = window.location.pathname + "admin")
-									}
-									style={{ marginTop: "auto" }}
+								<Link
+									href="/admin"
+									style={{ marginTop: "auto", width: "100%" }}
 								>
-									Panel de administración
-								</Button>
+									<Button
+										variant="light"
+										className="py-3 mb-2"
+										style={{ width: "100%" }}
+									>
+										Panel de administración
+									</Button>
+								</Link>
 							)}
 							{/*renderButtons && (
 								<Button
