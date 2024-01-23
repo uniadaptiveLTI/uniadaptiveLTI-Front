@@ -146,8 +146,7 @@ export default function ExportPanel({
 		if (platform == "sakai") {
 			nodesToExport = nodesToExport.filter((node) => node.type !== "generic");
 		}
-		console.log("🚀 ~ exportMap ~ nodesToExport  150 :", nodesToExport);
-		console.log("perro");
+		// console.log("🚀 ~ exportMap ~ nodesToExport  150 :", nodesToExport);
 
 		const CONDITION_LIST = [];
 		console.log(nodesToExport);
@@ -158,35 +157,32 @@ export default function ExportPanel({
 				node.data.gradeRequisites.subConditions.length >= 1
 			) {
 				const newCondition = { ...node.data.gradeRequisites };
-				console.log("🚀 ~ nodesToExport.map ~ newCondition:", newCondition);
+				// console.log("🚀 ~ nodesToExport.map ~ newCondition:", newCondition);
 
-				console.log(reactFlowInstance.getNodes().map((node) => node.id));
-				console.log(newCondition.itemId);
+				// console.log(reactFlowInstance.getNodes().map((node) => node.id));
+				// console.log(newCondition.itemId);
 
 				let blockResource = reactFlowInstance
 					.getNodes()
 					.find((node) => node.id == newCondition.itemId).data.lmsResource;
 
-				console.log("🚀 ~ nodesToExport.map ~ blockResource:", blockResource);
-				console.log("🚀 ~ nodesToExport.map ~ newCondition:", newCondition);
+				// console.log("🚀 ~ nodesToExport.map ~ blockResource:", blockResource);
+				// console.log("🚀 ~ nodesToExport.map ~ newCondition:", newCondition);
 
 				newCondition.itemId = sakaiTypeSwitch({
 					id: blockResource,
 					type: newCondition.itemType,
 				}).contentRef;
 
-				console.log("🚀 ~ nodesToExport.map ~ itemId:", newCondition.itemId);
+				// console.log("🚀 ~ nodesToExport.map ~ itemId:", newCondition.itemId);
 
-				console.log(2);
 				delete newCondition?.itemType;
 
 				newCondition?.subConditions.map((subCondition) => {
-					console.log(3);
 					if (
 						subCondition.subConditions &&
 						subCondition.subConditions.length >= 1
 					) {
-						console.log(4);
 						subCondition.subConditions.map((childCondition) => {
 							let childResource = reactFlowInstance
 								.getNodes()
@@ -201,9 +197,9 @@ export default function ExportPanel({
 						});
 					}
 				});
-				console.log(5);
+				// console.log(5);
 				CONDITION_LIST.push(newCondition);
-				console.log(6);
+				// console.log(6);
 			}
 		});
 
@@ -339,7 +335,10 @@ export default function ExportPanel({
 					node.id = Number(node.id);
 				}
 
-				if (SECTION && currentSelectionInfo.selection.includes(SECTION.id))
+				if (
+					SECTION &&
+					currentSelectionInfo.selection.includes(SECTION.position)
+				)
 					return true;
 
 				if (!SECTION) {
@@ -664,6 +663,8 @@ export default function ExportPanel({
 		lesson,
 		conditionList
 	) {
+		console.log("🚀 ~ nodes:", nodes);
+
 		try {
 			const PAYLOAD = {
 				course: metaData.course_id,
