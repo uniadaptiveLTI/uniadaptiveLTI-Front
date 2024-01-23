@@ -79,6 +79,7 @@ import {
 import { createNewSakaiMap, parseSakaiNode } from "@utils/Sakai";
 import { UserDataContext } from "../pages/_app";
 import { parseBool } from "../utils/Utils";
+import ConfirmationModal from "./dialogs/ConfirmationModal";
 
 const DEFAULT_TOAST_SUCCESS = {
 	hideProgressBar: false,
@@ -913,10 +914,7 @@ function Header({ LTISettings }, ref) {
 							setMapCount(MAPS.length);
 							setLoadedMaps(true);
 						} else {
-							alert(
-								`Error: No se puede obtener una sesión válida para el curso con los identificadores actuales. ¿Ha expirado la sesión?. Vuelva a alanzar la herramienta desde el gestor de contenido. Cerrando.`
-							);
-							//window.close(); //TODO: DO THIS BETTER
+							handleConfirmationShow();
 						}
 					} catch (e) {
 						toast("No se puede conectar con el servidor.", {
@@ -1139,6 +1137,10 @@ function Header({ LTISettings }, ref) {
 	useEffect(() => {
 		setAllowUseStatus(!(isOffline || !loadedMaps));
 	}, [isOffline, loadedMaps]);
+
+	const [confirmationShow, setConfirmationShow] = useState(false);
+	const handleConfirmationClose = () => setConfirmationShow(false);
+	const handleConfirmationShow = () => setConfirmationShow(true);
 	return (
 		<header ref={ref} className={styles.header}>
 			<Navbar>
@@ -1556,6 +1558,14 @@ function Header({ LTISettings }, ref) {
 					LTISettings={LTISettings}
 				/>
 			)}
+			<ConfirmationModal
+				show={confirmationShow}
+				handleClose={handleConfirmationClose}
+				title="Error"
+				message="No se puede obtener una sesión válida para el curso con los identificadores actuales. ¿Ha expirado la sesión? Vuelva a lanzar la herramienta desde el gestor de contenido."
+				action="Cerrar"
+				callback={() => window.close()}
+			/>
 		</header>
 	);
 }

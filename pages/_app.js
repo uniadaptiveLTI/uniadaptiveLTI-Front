@@ -37,6 +37,7 @@ import { ToastContainer } from "react-toastify";
 import { toast } from "react-toastify";
 import { useIsOnline } from "react-use-is-online";
 import { fetchBackEnd, parseBool } from "../utils/Utils";
+import ConfirmationModal from "../components/dialogs/ConfirmationModal";
 
 const SESSION_START = Date.now();
 
@@ -60,10 +61,7 @@ function getToken() {
 					attempts++;
 				} else {
 					if (!parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
-						alert(
-							`Error: Interfaz lanzada sin identificador de sesión apropiado. Vuelva a lanzar la herramienta desde el gestor de contenido. Cerrando.`
-						);
-						window.close();
+						handleConfirmationShow();
 					}
 					clearInterval(INTERVAL);
 				}
@@ -94,14 +92,26 @@ export default function App({ Component, pageProps }) {
 
 	const { isOnline, isOffline } = useIsOnline();
 
+	const [confirmationShow, setConfirmationShow] = useState(false);
+	const [confirmationMessage, setConfirmationMessage] = useState("");
+	const handleConfirmationClose = () => setConfirmationShow(false);
+	const handleConfirmationShow = () => setConfirmationShow(true);
+
 	async function getLTISettings() {
 		if (!parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
-			const response = await fetchBackEnd(
-				getToken(),
-				"api/lti/get_conf",
-				"POST"
-			);
-			setLTISettings(response);
+			try {
+				const response = await fetchBackEnd(
+					getToken(),
+					"api/lti/get_conf",
+					"POST"
+				);
+				setLTISettings(response);
+			} catch (e) {
+				setConfirmationMessage(
+					"No se puede obtener una sesión válida para el curso con los identificadores actuales. ¿Ha expirado la sesión? Vuelva a lanzar la herramienta desde el gestor de contenido."
+				);
+				handleConfirmationShow();
+			}
 		} else {
 			fetch("resources/devconfiguration.json")
 				.then((response) => response.json())
@@ -143,6 +153,14 @@ export default function App({ Component, pageProps }) {
 							>
 								<ToastContainer />
 								<Component {...pageProps} />
+								<ConfirmationModal
+									show={confirmationShow}
+									handleClose={handleConfirmationClose}
+									title="Error"
+									message={confirmationMessage}
+									action="Cerrar"
+									callback={() => window.close()}
+								/>
 							</BlocksDataContext.Provider>
 						</ErrorListContext.Provider>
 					</ReactFlowInstanceContext.Provider>
