@@ -575,31 +575,27 @@ export function parseMoodleBadgeToExport(node, nodeArray, metaData) {
 }
 
 /**
- * Parses the gradables to a correct format depending of the node type.
+ * Parses the gradables to the format used in the front end.
  * @param {Object} node - Reactflow's Node.
  * @returns {Object} The node with the parsed gradables.
  */
 export function parseMoodleCalifications(node) {
 	if (node.g) {
-		if (node.type != "generic") {
-			const og = node.g;
+		const og = node.g;
 
-			let newGrades;
+		let newGrades;
 
-			newGrades = {
-				hasConditions: og.hasConditions || false,
-				hasToBeSeen: og.hasToBeSeen || false,
-				hasToBeQualified: og.hasToBeQualified || false,
-				data: {
-					min: og.data.min || 0,
-					max: og.data.max || 0,
-					hasToSelect: og.data.hasToSelect || false,
-				},
-			};
-			return { ...node, g: newGrades };
-		} else {
-			return { ...node, g: undefined };
-		}
+		newGrades = {
+			hasConditions: og.hasConditions || false,
+			hasToBeSeen: og.hasToBeSeen || false,
+			hasToBeQualified: og.hasToBeQualified || false,
+			data: {
+				min: og.data.min || 0,
+				max: og.data.max || 0,
+				hasToSelect: og.data.hasToSelect || false,
+			},
+		};
+		return { ...node, g: newGrades };
 	} else {
 		return node;
 	}

@@ -983,7 +983,7 @@ const OverviewFlow = ({ map }, ref) => {
 			return isSupportedTypeInPlatform(platform, node.type)
 				? node
 				: isSupportedTypeInPlatform(platform, "generic")
-				? { ...node, type: "generic", data: { ...node.data, g: undefined } }
+				? { ...node, type: "generic", data: { ...node.data } }
 				: null;
 		});
 
