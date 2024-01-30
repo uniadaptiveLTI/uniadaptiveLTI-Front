@@ -21,18 +21,18 @@ import {
 	Modal,
 	Spinner,
 	DropdownButton,
+	OverlayTrigger,
+	Tooltip,
 } from "react-bootstrap";
 import { useReactFlow, useNodes } from "reactflow";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-	faBell,
 	faCircleQuestion,
 	faCirclePlus,
 	faPencil,
 	faTrash,
 	faFloppyDisk,
 	faTriangleExclamation,
-	faFileExport,
 	faArrowRightToBracket,
 	faEllipsisVertical,
 } from "@fortawesome/free-solid-svg-icons";
@@ -55,9 +55,7 @@ import {
 	base64Decode,
 	base64Encode,
 	capitalizeFirstLetter,
-	orderByPropertyAlphabetically,
 	uniqueId,
-	getHTTPPrefix,
 	saveVersion,
 	fetchBackEnd,
 	handleNameCollision,
@@ -79,6 +77,7 @@ import { createNewSakaiMap, parseSakaiNode } from "@utils/Sakai";
 import { UserDataContext } from "../pages/_app";
 import { parseBool } from "../utils/Utils";
 import ConfirmationModal from "./dialogs/ConfirmationModal";
+import LTIErrorMessage from "/components/messages/LTIErrors";
 
 const DEFAULT_TOAST_SUCCESS = {
 	hideProgressBar: false,
@@ -1328,6 +1327,7 @@ function Header({ LTISettings }, ref) {
 							)}
 
 							<Button
+								variant="light"
 								className={`btn-light d-flex align-items-center p-2 ${styles.actionButtons}`}
 								onClick={() =>
 									window.open(
@@ -1372,42 +1372,62 @@ function Header({ LTISettings }, ref) {
 								" justify-content-center"
 							}
 						>
-							<div
-								className="d-flex flex-row"
-								role="button"
-								onClick={() => handleToUserSettings()}
-								onKeyUp={(e) => handleToUserSettings(e.code)}
-								tabIndex={0}
+							<OverlayTrigger
+								placement="bottom"
+								overlay={
+									<Tooltip>
+										Podrá manipular sus ajustes de usuario desde el menú
+										interno.
+										{loadedUserData && metaData.platform_name && (
+											<>
+												<hr />
+												{`Plataforma: ${capitalizeFirstLetter(platform)}`}
+											</>
+										)}
+									</Tooltip>
+								}
+								trigger={["hover", "focus"]}
 							>
-								<Container className="d-flex flex-column">
-									<div>{loadedUserData ? userData.name : "Cargando..."}</div>
-									<div>{loadedMetaData && capitalizeFirstLetter(platform)}</div>
-								</Container>
-								<div className="mx-auto d-flex align-items-center">
-									{loadedUserData && userData.profile_url && (
-										<img
-											alt="Imagen de perfil"
-											src={
-												userData.profile_url == "default"
-													? "/images/default_image.png"
-													: userData.profile_url
-											} //Used if the LMS does not support profile images.
-											className={styles.userProfile}
-											width={48}
-											height={48}
-											style={
-												parseBool(process.env.NEXT_PUBLIC_DEV_MODE)
-													? {
-															background: `var(--dev-background-color)`,
-															padding: "0.30rem",
-															scale: "1.2",
-													  }
-													: null
-											}
-										></img>
-									)}
-								</div>
-							</div>
+								<Button
+									className="d-flex flex-row"
+									variant="light"
+									onClick={() => handleToUserSettings()}
+								>
+									<Container className="d-flex flex-column">
+										<div>{loadedUserData ? userData.name : "Cargando..."}</div>
+										<div>
+											{loadedMetaData &&
+												(metaData.platform_name
+													? capitalizeFirstLetter(metaData.platform_name)
+													: capitalizeFirstLetter(platform))}
+										</div>
+									</Container>
+									<div className="mx-auto d-flex align-items-center">
+										{loadedUserData && userData.profile_url && (
+											<img
+												alt="Imagen de perfil"
+												src={
+													userData.profile_url == "default"
+														? "/images/default_image.png"
+														: userData.profile_url
+												} //Used if the LMS does not support profile images.
+												className={styles.userProfile}
+												width={48}
+												height={48}
+												style={
+													parseBool(process.env.NEXT_PUBLIC_DEV_MODE)
+														? {
+																background: `var(--dev-background-color)`,
+																padding: "0.30rem",
+																scale: "1.2",
+														  }
+														: null
+												}
+											></img>
+										)}
+									</div>
+								</Button>
+							</OverlayTrigger>
 						</Container>
 					</Nav>
 				</Container>
@@ -1575,7 +1595,7 @@ function Header({ LTISettings }, ref) {
 				show={confirmationShow}
 				handleClose={handleConfirmationClose}
 				title="Error"
-				message="No se puede obtener una sesión válida para el curso con los identificadores actuales. ¿Ha expirado la sesión? Vuelva a lanzar la herramienta desde el gestor de contenido."
+				message={<LTIErrorMessage error={ERROR_INVALID_TOKEN} />}
 				action="Cerrar"
 				callback={() => window.close()}
 			/>

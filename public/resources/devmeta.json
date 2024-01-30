@@ -5,6 +5,7 @@
 	"return_url": "https://real-lms.com/course",
 	"course_id": 0,
 	"platform": "moodle",
+	"platform_name": "Dev_Files",
 	"lessons": [
 		{ "id": 0, "name": "Física", "page_id": "2" },
 		{ "id": 1, "name": "Matemática", "page_id": "3" }

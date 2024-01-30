@@ -12,6 +12,7 @@ import React, {
 	useEffect,
 	useLayoutEffect,
 } from "react";
+import LTIErrorMessage from "/components/messages/LTIErrors";
 
 export const NodeInfoContext = createContext(); // Contains the node data that is being edited
 export const ErrorListContext = createContext(); // Contains an array with error objects
@@ -41,38 +42,6 @@ import ConfirmationModal from "../components/dialogs/ConfirmationModal";
 
 const SESSION_START = Date.now();
 
-function getToken() {
-	const PARAMS = new URLSearchParams(window.location.href.split("?")[1]);
-	const TOKEN = PARAMS.get("token");
-	let newUrl = window.location.href.split("?")[0];
-	window.history.replaceState({}, document.title, newUrl);
-	if (TOKEN) {
-		//if there is a token in the url
-		sessionStorage.setItem("token", TOKEN);
-		return TOKEN;
-	} else {
-		//if there isn't a token in the url
-		let attempts = 0;
-		const MAX_ATTEMPTS = 20;
-		const INTERVAL = setInterval(() => {
-			const STORED_TOKEN = sessionStorage.getItem("token");
-			if (STORED_TOKEN == undefined) {
-				if (attempts < MAX_ATTEMPTS) {
-					attempts++;
-				} else {
-					if (!parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
-						handleConfirmationShow();
-					}
-					clearInterval(INTERVAL);
-				}
-			} else {
-				clearInterval(INTERVAL);
-				return STORED_TOKEN;
-			}
-		}, 100);
-	}
-}
-
 export default function App({ Component, pageProps }) {
 	const [settings, setSettings] = useState(
 		JSON.stringify({
@@ -99,6 +68,38 @@ export default function App({ Component, pageProps }) {
 	const handleConfirmationClose = () => setConfirmationShow(false);
 	const handleConfirmationShow = () => setConfirmationShow(true);
 
+	function getToken() {
+		const PARAMS = new URLSearchParams(window.location.href.split("?")[1]);
+		const TOKEN = PARAMS.get("token");
+		let newUrl = window.location.href.split("?")[0];
+		window.history.replaceState({}, document.title, newUrl);
+		if (TOKEN) {
+			//if there is a token in the url
+			sessionStorage.setItem("token", TOKEN);
+			return TOKEN;
+		} else {
+			//if there isn't a token in the url
+			let attempts = 0;
+			const MAX_ATTEMPTS = 20;
+			const INTERVAL = setInterval(() => {
+				const STORED_TOKEN = sessionStorage.getItem("token");
+				if (STORED_TOKEN == undefined) {
+					if (attempts < MAX_ATTEMPTS) {
+						attempts++;
+					} else {
+						if (!parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
+							handleConfirmationShow();
+						}
+						clearInterval(INTERVAL);
+					}
+				} else {
+					clearInterval(INTERVAL);
+					return STORED_TOKEN;
+				}
+			}, 100);
+		}
+	}
+
 	async function getLTISettings() {
 		if (!parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
 			try {
@@ -110,7 +111,7 @@ export default function App({ Component, pageProps }) {
 				setLTISettings(response);
 			} catch (e) {
 				setConfirmationMessage(
-					"No se puede obtener una sesión válida para el curso con los identificadores actuales. ¿Ha expirado la sesión? Vuelva a lanzar la herramienta desde el gestor de contenido."
+					<LTIErrorMessage error={"ERROR_INVALID_TOKEN"} />
 				);
 				handleConfirmationShow();
 			}
