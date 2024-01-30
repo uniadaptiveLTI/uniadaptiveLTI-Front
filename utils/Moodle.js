@@ -305,14 +305,18 @@ function moodleConditionalIDAdder(conditionArray, nodes) {
 				case "grouping":
 					newArray[i].groupingId = newArray[i].id;
 					break;
-				default:
-					let genericCondition = {
-						type: "generic",
-						data: newArray[i],
-					};
-					console.log(genericCondition);
-					newArray[i] = genericCondition;
+				case "profile":
 					break;
+				default:
+					if (!("c" in newArray[i])) {
+						let genericCondition = {
+							type: "generic",
+							data: newArray[i],
+						};
+						console.log(genericCondition);
+						newArray[i] = genericCondition;
+						break;
+					}
 			}
 
 			console.log(newArray[i]);
