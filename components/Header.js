@@ -15,14 +15,12 @@ import {
 	Button,
 	Container,
 	Dropdown,
-	SplitButton,
 	Form,
 	Nav,
 	Navbar,
 	Modal,
-	Popover,
-	OverlayTrigger,
 	Spinner,
+	DropdownButton,
 } from "react-bootstrap";
 import { useReactFlow, useNodes } from "reactflow";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -36,6 +34,7 @@ import {
 	faTriangleExclamation,
 	faFileExport,
 	faArrowRightToBracket,
+	faEllipsisVertical,
 } from "@fortawesome/free-solid-svg-icons";
 import {
 	NodeInfoContext,
@@ -132,6 +131,7 @@ function Header({ LTISettings }, ref) {
 	const [selectedVersion, setSelectedVersion] = useState();
 	const fileImportDOM = useRef(null);
 	const [saveButtonColor, setSaveButtonColor] = useState("light");
+	const [showDropdown, setShowDropdown] = useState("false");
 
 	const [modalTitle, setModalTitle] = useState();
 	const [modalBody, setModalBody] = useState();
@@ -166,6 +166,7 @@ function Header({ LTISettings }, ref) {
 	const ccId = useId();
 
 	const PARSED_SETTINGS = JSON.parse(settings);
+
 	let { reducedAnimations } = PARSED_SETTINGS;
 	/**
 	 * Updates the version of an object in an array of versions.
@@ -240,8 +241,8 @@ function Header({ LTISettings }, ref) {
 							const VERSIONS_DATA = VERSIONS_RESPONSE.data;
 							if (!VERSIONS_DATA.invalid) {
 								setVersions(VERSIONS_DATA);
+
 								setSelectedVersion(VERSIONS_DATA[0]);
-								setCurrentBlocksData(VERSIONS_DATA[0].blocks_data);
 							} else {
 								console.error("Error, datos de versiones inválidos");
 							}
@@ -256,14 +257,10 @@ function Header({ LTISettings }, ref) {
 				}
 			} else {
 				setVersions(selectedMap.versions);
+
 				setSelectedVersion(
 					selectedMap.versions != undefined
 						? selectedMap.versions[0]
-						: undefined
-				);
-				setCurrentBlocksData(
-					selectedMap.versions != undefined
-						? selectedMap.versions[0].blocks_data
 						: undefined
 				);
 			}
@@ -375,6 +372,8 @@ function Header({ LTISettings }, ref) {
 				"POST",
 				{ lesson: lesson }
 			);
+
+			console.log("EL DIABLO", response);
 
 			if (!response.ok) {
 				toast(
@@ -550,15 +549,8 @@ function Header({ LTISettings }, ref) {
 				);
 				throw new Error("Request failed");
 			} else {
-				SELECTED_MAP.versions = response.data;
 				setVersions(response.data);
 				setMapSelected(SELECTED_MAP);
-				setSelectedVersion(
-					SELECTED_MAP.versions[SELECTED_MAP.versions.length - 1]
-				);
-				setCurrentBlocksData(
-					SELECTED_MAP.versions[SELECTED_MAP.versions.length - 1].blocks_data
-				);
 			}
 			toast(`Versión: ${finalName} creada`, DEFAULT_TOAST_SUCCESS);
 		}
@@ -712,9 +704,6 @@ function Header({ LTISettings }, ref) {
 							NEW_MAPS[MAP_INDEX] = MODIFIED_MAP;
 							setMaps(NEW_MAPS);
 							setVersions(MODIFIED_MAP.versions);
-							setCurrentBlocksData(
-								FIRST_VERSION?.blocks_data || versions[0]?.blocks_data
-							);
 							toast(`Versión eliminada con éxito.`, DEFAULT_TOAST_SUCCESS);
 						}
 					} else {
@@ -742,9 +731,6 @@ function Header({ LTISettings }, ref) {
 				NEW_MAPS[MAP_INDEX] = MODIFIED_MAP;
 				setMaps(NEW_MAPS);
 				setVersions(MODIFIED_MAP.versions);
-				setCurrentBlocksData(
-					FIRST_VERSION?.blocks_data || versions[0]?.blocks_data
-				);
 				toast(`Versión eliminada con éxito.`, DEFAULT_TOAST_SUCCESS);
 			}
 		} else {
@@ -786,7 +772,6 @@ function Header({ LTISettings }, ref) {
 				jsonObject.course_id == metaData.course_id &&
 				jsonObject.platform == platform
 			) {
-				setCurrentBlocksData(jsonObject.data);
 				errorListCheck(jsonObject.data, errorList, setErrorList, false);
 				toast("Importado con éxito.", {
 					type: "success",
@@ -1141,6 +1126,27 @@ function Header({ LTISettings }, ref) {
 	const [confirmationShow, setConfirmationShow] = useState(false);
 	const handleConfirmationClose = () => setConfirmationShow(false);
 	const handleConfirmationShow = () => setConfirmationShow(true);
+
+	async function fetchVersion(id) {
+		try {
+			const VERSION_RESPONSE = await fetchBackEnd(
+				sessionStorage.getItem("token"),
+				"api/lti/get_version",
+				"POST",
+				{ version_id: id }
+			);
+			setCurrentBlocksData(VERSION_RESPONSE.data.blocks_data);
+		} catch (error) {
+			console.error("Error, datos de version inválidos");
+		}
+	}
+
+	useEffect(() => {
+		if (selectedVersion != undefined) {
+			fetchVersion(selectedVersion.id);
+		}
+	}, [selectedVersion]);
+
 	return (
 		<header ref={ref} className={styles.header}>
 			<Navbar>
@@ -1414,12 +1420,10 @@ function Header({ LTISettings }, ref) {
 						}
 					>
 						<div className={styles.mapText}>
-							<SplitButton
+							<DropdownButton
 								ref={selectVersionDOM}
-								value={selectedVersion.id}
+								variant="light"
 								title={selectedVersion.name}
-								onClick={openModalVersions}
-								variant="none"
 								disabled={isOffline || !loadedMaps}
 							>
 								{versions.map((version) => (
@@ -1431,7 +1435,16 @@ function Header({ LTISettings }, ref) {
 										{version.name}
 									</Dropdown.Item>
 								))}
-							</SplitButton>
+							</DropdownButton>
+							<Button
+								onClick={openModalVersions}
+								variant="light"
+								show={showDropdown}
+								disabled={isOffline || !loadedMaps}
+								onMouseLeave={() => setShowDropdown("false")}
+							>
+								<FontAwesomeIcon icon={faEllipsisVertical} />
+							</Button>
 						</div>
 						<div className={styles.mapTriangle}></div>
 					</div>

@@ -715,9 +715,27 @@ function ConditionModalMoodle({
 			} else {
 				saveButton.current.disabled = false;
 			}
+
+			if (
+				(OBJECT_VALUE < 0 || OBJECT_VALUE > 0) &&
+				(conditionEdit.type == "grade" || conditionEdit.type == "courseGrade")
+			) {
+				saveButton.current.disabled = true;
+			} else {
+				saveButton.current.disabled = false;
+			}
 		}
 		if (!IS_OBJECT2_DISABLED) {
 			if (IS_OBJECT2_EMPTY) {
+				saveButton.current.disabled = true;
+			} else {
+				saveButton.current.disabled = false;
+			}
+
+			if (
+				(OBJECT2_VALUE < 0 || OBJECT2_VALUE > 0) &&
+				(conditionEdit.type == "grade" || conditionEdit.type == "courseGrade")
+			) {
 				saveButton.current.disabled = true;
 			} else {
 				saveButton.current.disabled = false;
@@ -729,6 +747,15 @@ function ConditionModalMoodle({
 
 		if (!IS_OBJECT_DISABLED && !IS_OBJECT2_DISABLED) {
 			if (IS_OBJECT_EMPTY || IS_OBJECT2_EMPTY) {
+				saveButton.current.disabled = true;
+			} else {
+				saveButton.current.disabled = false;
+			}
+
+			if (
+				OBJECT2_VALUE <= OBJECT_VALUE &&
+				(conditionEdit.type == "grade" || conditionEdit.type == "courseGrade")
+			) {
 				saveButton.current.disabled = true;
 			} else {
 				saveButton.current.disabled = false;

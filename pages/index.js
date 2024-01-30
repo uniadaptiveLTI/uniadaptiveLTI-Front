@@ -12,12 +12,13 @@ import {
 	MetaDataContext,
 	UserDataContext,
 	LTISettingsContext,
+	MapInfoContext,
 } from "./_app";
 import BlockFlow from "/components/BlockFlow";
 import Layout from "../components/Layout";
 import { HeaderToEmptySelectorContext } from "./_app";
 
-import { Button, Col, Container, Row } from "react-bootstrap";
+import { Button, Col, Container, Row, Spinner } from "react-bootstrap";
 import { hasLessons } from "@utils/Platform";
 import { capitalizeFirstLetter } from "@utils/Utils";
 import { getAutomaticReusableStyles } from "@utils/Colors";
@@ -150,6 +151,7 @@ function EmptySelector() {
 export default function Home() {
 	const { currentBlocksData } = useContext(BlocksDataContext);
 	const { LTISettings } = useContext(LTISettingsContext);
+	const { mapSelected } = useContext(MapInfoContext);
 
 	useEffect(() => {
 		if (parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
@@ -190,8 +192,16 @@ export default function Home() {
 					</Head>
 
 					<Layout LTISettings={LTISettings}>
-						{currentBlocksData !== "" && currentBlocksData !== undefined ? (
-							<BlockFlow map={currentBlocksData}></BlockFlow>
+						{mapSelected !== "" && mapSelected !== undefined ? (
+							currentBlocksData !== "" && currentBlocksData !== undefined ? (
+								<BlockFlow map={currentBlocksData} />
+							) : (
+								<div className="w-100 h-100 d-flex justify-content-center align-items-center">
+									<Spinner animation="border" role="status" size="xl">
+										<span className="visually-hidden">Cargando...</span>
+									</Spinner>
+								</div>
+							)
 						) : (
 							<EmptySelector />
 						)}

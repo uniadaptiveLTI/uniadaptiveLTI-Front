@@ -88,6 +88,8 @@ export default function App({ Component, pageProps }) {
 	const [reactFlowInstance, setReactFlowInstance] = useState();
 	const [errorList, setErrorList] = useState();
 	const [currentBlocksData, setCurrentBlocksData] = useState();
+	const [activeMap, setActiveMap] = useState("");
+	const [mapSelected, setMapSelected] = useState("");
 	const [LTISettings, setLTISettings] = useState();
 
 	const { isOnline, isOffline } = useIsOnline();
@@ -141,32 +143,36 @@ export default function App({ Component, pageProps }) {
 	}, [isOnline]);
 
 	return (
-		<OnlineContext.Provider value={{ isOnline, isOffline }}>
-			<LTISettingsContext.Provider value={{ LTISettings, setLTISettings }}>
-				<SettingsContext.Provider value={{ settings, setSettings }}>
-					<ReactFlowInstanceContext.Provider
-						value={{ reactFlowInstance, setReactFlowInstance }}
-					>
-						<ErrorListContext.Provider value={{ errorList, setErrorList }}>
-							<BlocksDataContext.Provider
-								value={{ currentBlocksData, setCurrentBlocksData }}
-							>
-								<ToastContainer />
-								<Component {...pageProps} />
-								<ConfirmationModal
-									show={confirmationShow}
-									handleClose={handleConfirmationClose}
-									title="Error"
-									message={confirmationMessage}
-									cancel="Cerrar"
-									callbackCancel={() => window.close()}
-								/>
-							</BlocksDataContext.Provider>
-						</ErrorListContext.Provider>
-					</ReactFlowInstanceContext.Provider>
-				</SettingsContext.Provider>
-			</LTISettingsContext.Provider>
-		</OnlineContext.Provider>
+		<MapInfoContext.Provider
+			value={{ mapSelected, setMapSelected, activeMap, setActiveMap }}
+		>
+			<OnlineContext.Provider value={{ isOnline, isOffline }}>
+				<LTISettingsContext.Provider value={{ LTISettings, setLTISettings }}>
+					<SettingsContext.Provider value={{ settings, setSettings }}>
+						<ReactFlowInstanceContext.Provider
+							value={{ reactFlowInstance, setReactFlowInstance }}
+						>
+							<ErrorListContext.Provider value={{ errorList, setErrorList }}>
+								<BlocksDataContext.Provider
+									value={{ currentBlocksData, setCurrentBlocksData }}
+								>
+									<ToastContainer />
+									<Component {...pageProps} />
+									<ConfirmationModal
+										show={confirmationShow}
+										handleClose={handleConfirmationClose}
+										title="Error"
+										message={confirmationMessage}
+										cancel="Cerrar"
+										callbackCancel={() => window.close()}
+									/>
+								</BlocksDataContext.Provider>
+							</ErrorListContext.Provider>
+						</ReactFlowInstanceContext.Provider>
+					</SettingsContext.Provider>
+				</LTISettingsContext.Provider>
+			</OnlineContext.Provider>
+		</MapInfoContext.Provider>
 	);
 }
 

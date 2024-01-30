@@ -248,7 +248,7 @@ export function createNewMoodleMap(nodes, metadata, maps) {
 				node.data.c = PARSED_CONDITIONS;
 			}
 		}
-
+		console.log("NODE: ", node);
 		return node;
 	});
 
