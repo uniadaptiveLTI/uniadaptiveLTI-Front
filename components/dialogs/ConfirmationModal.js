@@ -5,25 +5,45 @@ import Button from "react-bootstrap/Button";
 const ConfirmationModal = ({
 	show,
 	handleClose,
+	backdrop,
 	title,
 	message,
-	action = "Aceptar",
-	callback,
+	cancel = "Cancelar",
+	confirm,
+	callbackCancel,
+	callbackConfirm,
 }) => (
-	<Modal show={show} onHide={handleClose} backdrop="static">
+	<Modal
+		show={show}
+		onHide={handleClose}
+		backdrop={backdrop ? "static" : "false"}
+	>
 		<Modal.Header closeButton>
 			<Modal.Title>{title}</Modal.Title>
 		</Modal.Header>
 		<Modal.Body>{message}</Modal.Body>
 		<Modal.Footer>
+			{confirm && confirm.trim() !== "" && (
+				<Button
+					color="primary"
+					onClick={() => {
+						handleClose();
+						if (callbackConfirm && typeof callbackConfirm == "function")
+							callbackConfirm();
+					}}
+				>
+					{confirm}
+				</Button>
+			)}
 			<Button
 				variant="primary"
 				onClick={() => {
 					handleClose();
-					if (callback && typeof callback === "function") callback();
+					if (callbackCancel && typeof callbackCancel === "function")
+						callbackCancel();
 				}}
 			>
-				{action}
+				{cancel}
 			</Button>
 		</Modal.Footer>
 	</Modal>

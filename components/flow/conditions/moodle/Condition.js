@@ -16,6 +16,7 @@ import ProfileComponent from "./condition-components/ProfileComponent";
 import ConditionsGroupComponent from "./condition-components/ConditionsGroupComponent";
 import CourseGradeForm from "./form-components/CourseGradeForm";
 import CourseGradeComponent from "./condition-components/CourseGradeComponent";
+import GenericComponent from "./condition-components/GenericComponent";
 
 function Condition({
 	condition,
@@ -139,6 +140,18 @@ function Condition({
 					moodleGroups={moodleGroups}
 					moodleGroupings={moodleGroupings}
 					conditionsGroupOperatorList={conditionsGroupOperatorList}
+				/>
+			);
+		case "generic":
+			return (
+				<GenericComponent
+					condition={condition}
+					conditionsList={conditionsList}
+					setConditionEdit={setConditionEdit}
+					upCondition={upCondition}
+					downCondition={downCondition}
+					deleteCondition={deleteCondition}
+					swapConditionParam={swapConditionParam}
 				/>
 			);
 		default:

@@ -239,6 +239,7 @@ export default function Admin() {
 							handleClose={handleConfirmationClose}
 							title="Confirmación"
 							message="Se han modificado los ajustes. Actualiza para aplicar los cambios."
+							cancel="Cerrar"
 						/>
 					</div>
 				</>

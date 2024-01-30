@@ -158,8 +158,8 @@ export default function App({ Component, pageProps }) {
 									handleClose={handleConfirmationClose}
 									title="Error"
 									message={confirmationMessage}
-									action="Cerrar"
-									callback={() => window.close()}
+									cancel="Cerrar"
+									callbackCancel={() => window.close()}
 								/>
 							</BlocksDataContext.Provider>
 						</ErrorListContext.Provider>

@@ -281,35 +281,41 @@ function moodleConditionalIDAdder(conditionArray, nodes) {
 	let newArray = JSON.parse(JSON.stringify(conditionArray));
 	for (let i = 0; i < newArray.length; i++) {
 		if (typeof newArray[i] === "object" && newArray[i] !== null) {
-			if (conditionArray[i].type === "completion") {
-				newArray[i].cm = LMSResourceToId(newArray[i].cm, nodes);
-				if (!newArray[i].cm) {
-					newArray = newArray.filter((item, index) => index !== i);
-					i--;
+			switch (conditionArray[i].type) {
+				case "completion":
+					newArray[i].cm = LMSResourceToId(newArray[i].cm, nodes);
+					if (!newArray[i].cm) {
+						newArray = newArray.filter((item, index) => index !== i);
+						i--;
+					}
 					break;
-				}
-			}
-
-			if (conditionArray[i].type === "grade") {
-				newArray[i].cm = LMSResourceToId(newArray[i].id, nodes);
-				if (!newArray[i].cm) {
-					newArray = newArray.filter((item, index) => index !== i);
-					i--;
+				case "grade":
+					newArray[i].cm = LMSResourceToId(newArray[i].id, nodes);
+					if (!newArray[i].cm) {
+						newArray = newArray.filter((item, index) => index !== i);
+						i--;
+					}
 					break;
-				}
+				case "date":
+					newArray[i].t = parseDate(newArray[i].t);
+					break;
+				case "group":
+					newArray[i].groupId = newArray[i].id;
+					break;
+				case "grouping":
+					newArray[i].groupingId = newArray[i].id;
+					break;
+				default:
+					let genericCondition = {
+						type: "generic",
+						data: newArray[i],
+					};
+					console.log(genericCondition);
+					newArray[i] = genericCondition;
+					break;
 			}
 
-			if (conditionArray[i].type === "date") {
-				newArray[i].t = parseDate(newArray[i].t);
-			}
-
-			if (conditionArray[i].type === "group") {
-				newArray[i].groupId = newArray[i].id;
-			}
-
-			if (conditionArray[i].type === "grouping") {
-				newArray[i].groupingId = newArray[i].id;
-			}
+			console.log(newArray[i]);
 
 			// Add/replace "id" property
 			newArray[i].id = uniqueId();

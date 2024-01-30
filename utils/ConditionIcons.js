@@ -6,6 +6,7 @@ import {
 	faUser,
 	faUserGroup,
 	faUsers,
+	faExclamationTriangle,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
@@ -24,6 +25,6 @@ export function getConditionIcon(type, style = {}, desiredSize = 32) {
 		case "multiple":
 			return <FontAwesomeIcon icon={faPlus} style={style} />;
 		default:
-			return <FontAwesomeIcon icon={faQuestion} style={style} />;
+			return <FontAwesomeIcon icon={faExclamationTriangle} style={style} />;
 	}
 }
