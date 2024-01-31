@@ -7,8 +7,9 @@ import { deduplicateById, parseDate, uniqueId } from "@utils/Utils";
 import {
 	profileOperatorList,
 	profileQueryList,
-} from "@components/flow/conditions/moodle/condition-components/ProfileComponent";
+} from "@components/flow/conditions/moodle/Condition.js";
 import { parseBool } from "../../../utils/Utils";
+import { getConditionIcon } from "../../../utils/ConditionIcons";
 
 export default function SimpleConditionsMoodle({ id }) {
 	const { metaData } = useContext(MetaDataContext);
@@ -466,6 +467,20 @@ export default function SimpleConditionsMoodle({ id }) {
 								})}
 							</ul>
 						</>
+					);
+					break;
+				case "generic":
+					finalDOM.push(
+						<p style={prefix}>
+							{
+								<>
+									{getConditionIcon("generic")}{" "}
+									{c?.data?.type ? c.data.type : "CODE_NOT_FOUND"}
+									{": "}
+									Condición <b>no soportada </b>
+								</>
+							}
+						</p>
 					);
 					break;
 				default:

@@ -1,22 +1,36 @@
-import {
-	faEdit,
-	faPlus,
-	faShuffle,
-	faTrashCan,
-} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
-import { Button, Col, Container, Row } from "react-bootstrap";
-import DateComponent from "./condition-components/DateComponent";
-import GradeComponent from "./condition-components/GradeComponent";
-import CompletionComponent from "./condition-components/CompletionComponent";
-import GroupComponent from "./condition-components/GroupComponent";
-import GroupingComponent from "./condition-components/GroupingComponent";
-import ProfileComponent from "./condition-components/ProfileComponent";
-import ConditionsGroupComponent from "./condition-components/ConditionsGroupComponent";
-import CourseGradeForm from "./form-components/CourseGradeForm";
-import CourseGradeComponent from "./condition-components/CourseGradeComponent";
-import GenericComponent from "./condition-components/GenericComponent";
+import ConditionComponent from "./condition-components/ConditionComponent";
+
+export const COMPLETION_QUERY_LIST = [
+	{ id: 1, name: "debe estar completa" },
+	{ id: 0, name: "no debe estar completa" },
+	{ id: 2, name: "debe estar completa y aprobada" },
+	{ id: 3, name: "debe estar completa y suspendida" },
+];
+
+export const profileOperatorList = [
+	{ value: "firstname", name: "Nombre" },
+	{ value: "lastname", name: "Apellido" },
+	{ value: "city", name: "Ciudad" },
+	{ value: "department", name: "Departamento" },
+	{ value: "address", name: "Dirección" },
+	{ value: "email", name: "Dirección de correo" },
+	{ value: "institution", name: "Institución" },
+	{ value: "idnumber", name: "Número de ID" },
+	{ value: "country", name: "País" },
+	{ value: "phone1", name: "Teléfono" },
+	{ value: "phone2", name: "Teléfono Movil" },
+];
+
+export const profileQueryList = [
+	{ value: "isequalto", name: "es igual a" },
+	{ value: "contains", name: "contiene" },
+	{ value: "doesnotcontain", name: "no contiene" },
+	{ value: "startswith", name: "comienza con" },
+	{ value: "endswith", name: "termina en" },
+	{ value: "isempty", name: "está vacío" },
+	{ value: "isnotempty", name: "no está vacío" },
+];
 
 function Condition({
 	condition,
@@ -31,132 +45,24 @@ function Condition({
 	moodleGroupings,
 	conditionsGroupOperatorList,
 }) {
-	const COMPLETION_QUERY_LIST = [
-		{ id: 1, name: "debe estar completa" },
-		{ id: 0, name: "no debe estar completa" },
-		{ id: 2, name: "debe estar completa y aprobada" },
-		{ id: 3, name: "debe estar completa y suspendida" },
-	];
-
-	switch (condition.type) {
-		case "date":
-			return (
-				<DateComponent
-					condition={condition}
-					conditionsList={conditionsList}
-					setConditionEdit={setConditionEdit}
-					upCondition={upCondition}
-					downCondition={downCondition}
-					deleteCondition={deleteCondition}
-					swapConditionParam={swapConditionParam}
-				/>
-			);
-		case "grade":
-			return (
-				<GradeComponent
-					condition={condition}
-					conditionsList={conditionsList}
-					setConditionEdit={setConditionEdit}
-					upCondition={upCondition}
-					downCondition={downCondition}
-					deleteCondition={deleteCondition}
-					swapConditionParam={swapConditionParam}
-				/>
-			);
-		case "courseGrade":
-			return (
-				<CourseGradeComponent
-					condition={condition}
-					conditionsList={conditionsList}
-					setConditionEdit={setConditionEdit}
-					upCondition={upCondition}
-					downCondition={downCondition}
-					deleteCondition={deleteCondition}
-					swapConditionParam={swapConditionParam}
-				/>
-			);
-		case "completion":
-			return (
-				<CompletionComponent
-					condition={condition}
-					conditionsList={conditionsList}
-					setConditionEdit={setConditionEdit}
-					upCondition={upCondition}
-					downCondition={downCondition}
-					completionQueryList={COMPLETION_QUERY_LIST}
-					deleteCondition={deleteCondition}
-					swapConditionParam={swapConditionParam}
-				/>
-			);
-		case "group":
-			return (
-				<GroupComponent
-					condition={condition}
-					conditionsList={conditionsList}
-					setConditionEdit={setConditionEdit}
-					upCondition={upCondition}
-					downCondition={downCondition}
-					deleteCondition={deleteCondition}
-					moodleGroups={moodleGroups}
-					swapConditionParam={swapConditionParam}
-				/>
-			);
-		case "grouping":
-			return (
-				<GroupingComponent
-					condition={condition}
-					conditionsList={conditionsList}
-					setConditionEdit={setConditionEdit}
-					upCondition={upCondition}
-					downCondition={downCondition}
-					deleteCondition={deleteCondition}
-					moodleGroupings={moodleGroupings}
-					swapConditionParam={swapConditionParam}
-				/>
-			);
-		case "profile":
-			return (
-				<ProfileComponent
-					condition={condition}
-					conditionsList={conditionsList}
-					setConditionEdit={setConditionEdit}
-					upCondition={upCondition}
-					downCondition={downCondition}
-					deleteCondition={deleteCondition}
-					swapConditionParam={swapConditionParam}
-				/>
-			);
-		case "conditionsGroup":
-			return (
-				<ConditionsGroupComponent
-					condition={condition}
-					conditionsList={conditionsList}
-					setConditionEdit={setConditionEdit}
-					upCondition={upCondition}
-					downCondition={downCondition}
-					deleteCondition={deleteCondition}
-					addCondition={addCondition}
-					swapConditionParam={swapConditionParam}
-					moodleGroups={moodleGroups}
-					moodleGroupings={moodleGroupings}
-					conditionsGroupOperatorList={conditionsGroupOperatorList}
-				/>
-			);
-		case "generic":
-			return (
-				<GenericComponent
-					condition={condition}
-					conditionsList={conditionsList}
-					setConditionEdit={setConditionEdit}
-					upCondition={upCondition}
-					downCondition={downCondition}
-					deleteCondition={deleteCondition}
-					swapConditionParam={swapConditionParam}
-				/>
-			);
-		default:
-			return null;
-	}
+	return (
+		<ConditionComponent
+			condition={condition}
+			conditionsList={conditionsList}
+			setConditionEdit={setConditionEdit}
+			upCondition={upCondition}
+			downCondition={downCondition}
+			deleteCondition={deleteCondition}
+			swapConditionParam={swapConditionParam}
+			addCondition={addCondition}
+			completionQueryList={COMPLETION_QUERY_LIST}
+			moodleGroups={moodleGroups}
+			moodleGroupings={moodleGroupings}
+			profileQueryList={profileQueryList}
+			profileOperatorList={profileOperatorList}
+			conditionsGroupOperatorList={conditionsGroupOperatorList}
+		></ConditionComponent>
+	);
 }
 
 export default Condition;

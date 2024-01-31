@@ -8,7 +8,6 @@ import {
 	faEye,
 	faEyeSlash,
 	faPlus,
-	faShuffle,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { getParentsNode } from "@utils/Nodes";

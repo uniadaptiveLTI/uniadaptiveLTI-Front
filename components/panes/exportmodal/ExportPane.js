@@ -157,17 +157,10 @@ export default function ExportPanel({
 				node.data.gradeRequisites.subConditions.length >= 1
 			) {
 				const newCondition = { ...node.data.gradeRequisites };
-				// console.log("🚀 ~ nodesToExport.map ~ newCondition:", newCondition);
-
-				// console.log(reactFlowInstance.getNodes().map((node) => node.id));
-				// console.log(newCondition.itemId);
 
 				let blockResource = reactFlowInstance
 					.getNodes()
 					.find((node) => node.id == newCondition.itemId).data.lmsResource;
-
-				// console.log("🚀 ~ nodesToExport.map ~ blockResource:", blockResource);
-				// console.log("🚀 ~ nodesToExport.map ~ newCondition:", newCondition);
 
 				newCondition.itemId = sakaiTypeSwitch({
 					id: blockResource,
@@ -214,6 +207,7 @@ export default function ExportPanel({
 				}
 			})
 		);
+
 		const FULL_NODES = JSON.parse(JSON.stringify(nodesToExport));
 
 		//Deletting unnecessary info and flattening the nodes
@@ -252,6 +246,12 @@ export default function ExportPanel({
 				}
 
 				specifyRecursiveConditionType(DATA.c);
+
+				if (!ActionNodes.includes(node.type)) {
+					DATA.c = replaceGenericConditions(DATA.c);
+				}
+
+				console.log("DATA C: ", DATA.c);
 				deleteRecursiveNull(DATA.c);
 				DATA.c = deleteEmptyC(DATA.c);
 			}
@@ -617,6 +617,31 @@ export default function ExportPanel({
 				.pop();
 
 		return clean(obj);
+	}
+
+	function replaceGenericConditions(condition) {
+		// Recorrer el array de condiciones
+		for (let i = 0; i < condition.c.length; i++) {
+			// Obtener el elemento actual
+			let element = condition.c[i];
+			console.log(element);
+			// Comprobar si el tipo es "generic"
+			if (element.type === "generic") {
+				console.log("PRE", condition.c[i]);
+				// Reemplazar el elemento con su propiedad "data"
+				condition.c[i] = element.data;
+				console.log("POST", condition.c[i]);
+			}
+
+			// Comprobar si el elemento tiene una propiedad "c" que es un array de JSON
+			if (element.hasOwnProperty("c") && Array.isArray(element.c)) {
+				// Llamar a la función recursiva con ese elemento
+				replaceGenericConditions(element);
+			}
+		}
+		console.log(condition);
+
+		return condition;
 	}
 
 	function specifyRecursiveConditionType(condition) {

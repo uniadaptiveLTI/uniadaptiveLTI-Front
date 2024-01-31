@@ -1595,7 +1595,7 @@ function Header({ LTISettings }, ref) {
 				show={confirmationShow}
 				handleClose={handleConfirmationClose}
 				title="Error"
-				message={<LTIErrorMessage error={ERROR_INVALID_TOKEN} />}
+				message={<LTIErrorMessage error={"ERROR_INVALID_TOKEN"} />}
 				action="Cerrar"
 				callback={() => window.close()}
 			/>
