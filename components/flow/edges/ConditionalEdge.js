@@ -1,6 +1,5 @@
 import { getNodeById } from "@utils/Nodes";
 import { getByProperty, parseDate } from "@utils/Utils";
-import { PlatformContext } from "pages/_app";
 import React, { useEffect, useState } from "react";
 import { useContext } from "react";
 import {
@@ -10,6 +9,7 @@ import {
 	useNodes,
 	useEdges,
 } from "reactflow";
+import { MetaDataContext } from "/pages/_app";
 
 const ConditionalEdge = ({
 	id,
@@ -24,6 +24,7 @@ const ConditionalEdge = ({
 	style = {},
 	animated,
 }) => {
+	const { metaData } = useContext(MetaDataContext);
 	const [edgePath, labelX, labelY] = getBezierPath({
 		sourceX,
 		sourceY,
@@ -32,8 +33,6 @@ const ConditionalEdge = ({
 		targetY,
 		targetPosition,
 	});
-
-	const { platform, setPlatform } = useContext(PlatformContext);
 
 	const rfNodes = useNodes();
 	const rfEdges = useEdges();
@@ -66,7 +65,7 @@ const ConditionalEdge = ({
 		const SOURCE_NODE = getNodeById(source, rfNodes);
 		//console.log(targetNode, sourceNode);
 
-		switch (platform) {
+		switch (metaData.platform) {
 			case "moodle":
 				if (TARGET_NODE && TARGET_NODE.data && TARGET_NODE.data.c) {
 					const CONDITIONS = TARGET_NODE.data.c;
@@ -97,7 +96,7 @@ const ConditionalEdge = ({
 	const getReadableCondition = (condition, source) => {
 		switch (condition?.type) {
 			case "grade":
-				switch (platform) {
+				switch (metaData.platform) {
 					case "moodle":
 						if (condition.min && condition.max) {
 							return `>= ${condition.min} y < ${condition.max} `;

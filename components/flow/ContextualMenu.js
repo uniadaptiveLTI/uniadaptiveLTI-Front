@@ -1,6 +1,6 @@
 import styles from "/styles/ContextualMenu.module.css";
 import { forwardRef, useContext, useState, useLayoutEffect } from "react";
-import { ExpandedAsideContext } from "/pages/_app";
+import { ExpandedAsideContext } from "pages/_app";
 import { useReactFlow } from "reactflow";
 import CMNodeMenu from "./contextualmenu/CMNodeMenu";
 import CMPaneMenu from "./contextualmenu/CMPaneMenu";

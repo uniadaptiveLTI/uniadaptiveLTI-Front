@@ -8,11 +8,10 @@ import {
 } from "react";
 import {
 	BlocksDataContext,
-	PlatformContext,
-	MetaDataContext,
 	UserDataContext,
 	LTISettingsContext,
 	MapInfoContext,
+	MetaDataContext,
 } from "./_app";
 import BlockFlow from "/components/BlockFlow";
 import Layout from "../components/Layout";
@@ -40,7 +39,6 @@ function EmptySelector() {
 		funcImportMapFromLesson,
 		funcMapChange,
 	} = useContext(HeaderToEmptySelectorContext);
-	const { platform } = useContext(PlatformContext);
 	const [buttonStyles, setButtonStyles] = useState({});
 	const { metaData } = useContext(MetaDataContext);
 	const { userData } = useContext(UserDataContext);
@@ -91,7 +89,7 @@ function EmptySelector() {
 								</Button>
 							</Col>
 							<Col>
-								{hasLessons(platform) ? (
+								{hasLessons(metaData.platform) ? (
 									<Button
 										variant="light"
 										onClick={() =>
@@ -107,7 +105,8 @@ function EmptySelector() {
 										<div className="d-flex justify-content-center align-items-center m-1">
 											<FontAwesomeIcon icon={faUpRightFromSquare} />
 											<p className="m-1">
-												Importar desde {capitalizeFirstLetter(platform)}...
+												Importar desde{" "}
+												{capitalizeFirstLetter(metaData.platform)}...
 											</p>
 										</div>
 									</Button>
@@ -127,7 +126,8 @@ function EmptySelector() {
 										<div className="d-flex justify-content-center align-items-center m-1">
 											<FontAwesomeIcon icon={faUpRightFromSquare} />
 											<p className="m-1">
-												Importar desde {capitalizeFirstLetter(platform)}
+												Importar desde{" "}
+												{capitalizeFirstLetter(metaData.platform)}
 											</p>
 										</div>
 									</Button>
@@ -152,6 +152,11 @@ export default function Home() {
 	const { currentBlocksData } = useContext(BlocksDataContext);
 	const { LTISettings } = useContext(LTISettingsContext);
 	const { mapSelected } = useContext(MapInfoContext);
+	let [metaDataReady, setMetaDataReady] = useState(false);
+
+	useEffect(() => {
+		if (MetaDataContext) setMetaDataReady(true);
+	}, [MetaDataContext]);
 
 	useEffect(() => {
 		if (parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
@@ -192,8 +197,8 @@ export default function Home() {
 					</Head>
 
 					<Layout LTISettings={LTISettings}>
-						{mapSelected !== "" && mapSelected !== undefined ? (
-							currentBlocksData !== "" && currentBlocksData !== undefined ? (
+						{mapSelected !== undefined ? (
+							currentBlocksData !== undefined && metaDataReady ? (
 								<BlockFlow map={currentBlocksData} />
 							) : (
 								<div className="w-100 h-100 d-flex justify-content-center align-items-center">

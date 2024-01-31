@@ -7,7 +7,6 @@ import {
 	useState,
 } from "react";
 import { Modal, Button, Container, Col, Row } from "react-bootstrap";
-import { PlatformContext } from "/pages/_app";
 import { NodeTypes, getGradableTypes } from "@utils/TypeDefinitions";
 import {
 	handleNameCollision,
@@ -20,15 +19,15 @@ import styles from "/styles/NodeSelector.module.css";
 import { useNodes } from "reactflow";
 import { getLastPositionInSection, getLowestSection } from "@utils/Nodes";
 import { getDefaultVisibility, startingSectionID } from "@utils/Platform";
-import { moodleGradableTypes } from "@utils/Moodle";
+import { MetaDataContext } from "/pages/_app";
 
 export default forwardRef(function NodeSelector(
 	{ showDialog, type, toggleDialog, callback },
 	ref
 ) {
+	const { metaData } = useContext(MetaDataContext);
 	const modalRef = useRef(null);
 	const rfNodes = useNodes();
-	const { platform } = useContext(PlatformContext);
 	const [widthStyle, setWidthStyle] = useState(styles.selectionContainer);
 	function handleClose(actionClicked) {
 		if (callback && actionClicked) {
@@ -63,7 +62,9 @@ export default forwardRef(function NodeSelector(
 	}
 
 	function getFilteredBlockSelection() {
-		const LMS_BLOCKS = NodeTypes.filter((node) => node.lms.includes(platform));
+		const LMS_BLOCKS = NodeTypes.filter((node) =>
+			node.lms.includes(metaData.platform)
+		);
 		const TYPE_BLOCKS = LMS_BLOCKS.filter((node) => node.nodeType == type);
 		const ORDERED_SELECTION = orderByPropertyAlphabetically(
 			TYPE_BLOCKS,
@@ -91,8 +92,8 @@ export default forwardRef(function NodeSelector(
 	function SelectionElement(selectedElement) {
 		const { nodeType, type, name } = selectedElement;
 
-		const TYPE_COLOR = getTypeStaticColor(type, platform);
-		const TYPE_ICON = getTypeIcon(type, platform, 32);
+		const TYPE_COLOR = getTypeStaticColor(type, metaData.platform);
+		const TYPE_ICON = getTypeIcon(type, metaData.platform, 32);
 		const DATA = {};
 		const SECTION = getMaxSectionFromSelection();
 		if (nodeType == "ElementNode") {
@@ -106,12 +107,15 @@ export default forwardRef(function NodeSelector(
 			DATA.children = [];
 			DATA.section =
 				SECTION == undefined || SECTION == Infinity || SECTION == -Infinity
-					? startingSectionID(platform)
+					? startingSectionID(metaData.platform)
 					: SECTION;
 			DATA.order = getLastPositionInSection(SECTION, rfNodes) + 1;
-			DATA.lmsVisibility = getDefaultVisibility(platform);
+			DATA.lmsVisibility = getDefaultVisibility(metaData.platform);
 			DATA.indent = 0;
-			if (platform == "moodle" && getGradableTypes("moodle").includes(type))
+			if (
+				metaData.platform == "moodle" &&
+				getGradableTypes("moodle").includes(type)
+			)
 				DATA.g = {
 					hasConditions: false,
 					hasToBeSeen: false,

@@ -19,15 +19,14 @@ import {
 import { useState, useContext, useEffect, useRef, useId, version } from "react";
 import {
 	ErrorListContext,
-	PlatformContext,
-	NodeInfoContext,
+	EditedNodeContext,
 	ExpandedAsideContext,
 	MapInfoContext,
-	VersionInfoContext,
-	VersionJsonContext,
+	EditedVersionContext,
+	CurrentVersionContext,
 	SettingsContext,
 	MetaDataContext,
-} from "../pages/_app.js";
+} from "pages/_app";
 import {
 	capitalizeFirstLetter,
 	deduplicateById,
@@ -67,14 +66,18 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 	const [showSpinner, setShowSpinner] = useState(false);
 	const [allowResourceSelection, setAllowResourceSelection] = useState(true);
 
-	const { platform, setPlatform } = useContext(PlatformContext);
-	const SHOWN_TYPES = getVisibilityOptions(platform);
-	const { nodeSelected, setNodeSelected } = useContext(NodeInfoContext);
+	const { nodeSelected } = useContext(EditedNodeContext);
 	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
-	const { editVersionSelected, setEditVersionSelected } =
-		useContext(VersionInfoContext);
-	const { settings, setSettings } = useContext(SettingsContext);
-	const { metaData, setMetaData } = useContext(MetaDataContext);
+	const { editVersionSelected } = useContext(EditedVersionContext);
+	const { settings } = useContext(SettingsContext);
+	const { metaData } = useContext(MetaDataContext);
+
+	const [shownTypes, setShownTypes] = useState();
+
+	useEffect(() => {
+		if (metaData != undefined)
+			setShownTypes(getVisibilityOptions(metaData.platform));
+	}, [metaData]);
 
 	const parsedSettings = JSON.parse(settings);
 	let { reducedAnimations, autoHideAside } = parsedSettings;
@@ -103,7 +106,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 	//TODO: Add the rest
 
 	const [resourceOptions, setResourceOptions] = useState([]);
-	const { versionJson, setVersionJson } = useContext(VersionJsonContext);
+	const { versionJson, setVersionJson } = useContext(CurrentVersionContext);
 	const reactFlowInstance = useReactFlow();
 
 	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
@@ -126,10 +129,12 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 				type:
 					selectedOption == "generic" ? "unsupported" : encodedSelectedOption,
 				supportedTypes:
-					selectedOption == "generic" ? getSupportedTypes(platform) : undefined,
+					selectedOption == "generic"
+						? getSupportedTypes(metaData.platform)
+						: undefined,
 			};
 
-			if (selectedOption == "generic" && platform != "moodle") {
+			if (selectedOption == "generic" && metaData.platform != "moodle") {
 				setShowSpinner(false);
 				setAllowResourceSelection(true);
 				return [];
@@ -269,7 +274,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 						"name"
 					);
 					UNIQUE_FILTERED_DATA.forEach((option) => {
-						return hasUnorderedResources(platform)
+						return hasUnorderedResources(metaData.platform)
 							? (option.oname = `${option.name}`)
 							: (option.oname = `${option.name} ${
 									option.section > -1 ? "- Sección: " + option.section : ""
@@ -316,7 +321,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 				const labelCurrent = labelDOM.current;
 				//TODO: Test it even more
 				labelCurrent.value =
-					platform == "moodle"
+					metaData.platform == "moodle"
 						? resourceOptions.find(
 								(resource) => e.target.value == resource.id && resource.id > -1
 						  )?.name ||
@@ -373,7 +378,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 			}
 
 			if (CURRENT_INDENT) {
-				if (platform == "sakai") {
+				if (metaData.platform == "sakai") {
 					CURRENT_INDENT.value = nodeSelected.data.indent + 1;
 				} else {
 					CURRENT_INDENT.value = nodeSelected.data.indent;
@@ -413,7 +418,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 
 				const LIMITED_ORDER = Math.min(
 					Math.max(orderDOM.current.value, 0),
-					platform != "sakai"
+					metaData.platform != "sakai"
 						? getLastPositionInSection(
 								newSection,
 								reactFlowInstance.getNodes()
@@ -432,12 +437,13 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 					lmsResource: lmsResourceDOM.current.value,
 					lmsVisibility: lmsVisibilityDOM?.current?.value
 						? lmsVisibilityDOM?.current?.value
-						: platform == "moodle"
+						: metaData.platform == "moodle"
 						? "hidden"
 						: "hidden_until_access",
 					section: newSection,
 					order: LIMITED_ORDER - 1,
-					indent: platform == "sakai" ? LIMITED_INDENT - 1 : LIMITED_INDENT,
+					indent:
+						metaData.platform == "sakai" ? LIMITED_INDENT - 1 : LIMITED_INDENT,
 				};
 
 				const UPDATED_DATA = {
@@ -497,15 +503,15 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 				if (
 					NODE_WITH_NEW_ORDER_EXISTS ||
 					originalSection != newSection ||
-					(platform == "sakai" && originalIndent != newIndent)
+					(metaData.platform == "sakai" && originalIndent != newIndent)
 				) {
-					if (originalSection == newSection && platform != "sakai") {
+					if (originalSection == newSection && metaData.platform != "sakai") {
 						//Change in order
 						reorderNodes(newSection, originalOrder, LIMITED_ORDER);
 					} else {
 						const virtualNodes = reactFlowInstance.getNodes();
 						const forcedPos =
-							platform == "moodle"
+							metaData.platform == "moodle"
 								? getLastPositionInSection(newSection, virtualNodes) + 1
 								: getLastPositionInSakaiColumn(
 										newSection,
@@ -513,8 +519,10 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 										virtualNodes
 								  ) + 1;
 
-						if (platform == "moodle") UPDATED_DATA.data.order = forcedPos;
-						if (platform == "sakai") UPDATED_DATA.data.order = forcedPos - 1;
+						if (metaData.platform == "moodle")
+							UPDATED_DATA.data.order = forcedPos;
+						if (metaData.platform == "sakai")
+							UPDATED_DATA.data.order = forcedPos - 1;
 						virtualNodes.push(UPDATED_DATA);
 						if (!(LIMITED_ORDER - 1 > forcedPos)) {
 							//If the desired position is inside the section
@@ -713,11 +721,11 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 													overlay={
 														ActionNodes.includes(nodeSelected.type) ? (
 															<Tooltip>{`Listado de acciones que pueda ejecutar ${capitalizeFirstLetter(
-																platform
+																metaData.platform
 															)}.`}</Tooltip>
 														) : (
 															<Tooltip>{`Listado de tipos de recursos compatibles con ${capitalizeFirstLetter(
-																platform
+																metaData.platform
 															)}.`}</Tooltip>
 														)
 													}
@@ -737,7 +745,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 											defaultValue={selectedOption}
 											onChange={handleSelect}
 										>
-											{platform == "moodle"
+											{metaData.platform == "moodle"
 												? MOODLE_RESOURCE_NAMES.map((option) => {
 														if (
 															(ActionNodes.includes(nodeSelected.type) &&
@@ -783,7 +791,9 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 														htmlFor={lmsResourceDOMId}
 														className="mb-1"
 													>
-														{`Recurso en ${capitalizeFirstLetter(platform)}`}
+														{`Recurso en ${capitalizeFirstLetter(
+															metaData.platform
+														)}`}
 													</Form.Label>
 													<div className="ms-2">
 														{!showSpinner && (
@@ -811,9 +821,9 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 														placement="right"
 														overlay={
 															<Tooltip>{`Solo se mostrarán elementos existentes en ${capitalizeFirstLetter(
-																platform
+																metaData.platform
 															)}. Para crear un elemento nuevo en ${capitalizeFirstLetter(
-																platform
+																metaData.platform
 															)}, presione este botón.`}</Tooltip>
 														}
 														trigger={["hover", "focus"]}
@@ -891,7 +901,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 										reducedAnimations && styles.noAnimation,
 									].join(" ")}
 								>
-									{platform == "moodle" && (
+									{metaData.platform == "moodle" && (
 										<Form.Group className="mb-2">
 											<Form.Label htmlFor={lmsVisibilityDOMId}>
 												Visibilidad
@@ -901,7 +911,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 												id={lmsVisibilityDOMId}
 												defaultValue={nodeSelected.data.lmsVisibility}
 											>
-												{orderByPropertyAlphabetically(SHOWN_TYPES, "name").map(
+												{orderByPropertyAlphabetically(shownTypes, "name").map(
 													(option) => (
 														<option key={option.value} value={option.value}>
 															{option.name}
@@ -915,7 +925,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 									)}
 
 									<>
-										{platform == "moodle" && (
+										{metaData.platform == "moodle" && (
 											<Form.Group className="mb-2">
 												<Form.Label htmlFor={sectionDOMId}>Sección</Form.Label>
 												<Form.Select
@@ -931,7 +941,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 																);
 																if (!section.name.match(/^\d/)) {
 																	newSection.name =
-																		platform == "moodle"
+																		metaData.platform == "moodle"
 																			? newSection.position +
 																			  "- " +
 																			  newSection.name
@@ -952,7 +962,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 												</Form.Select>
 											</Form.Group>
 										)}
-										{platform == "sakai" && (
+										{metaData.platform == "sakai" && (
 											<Form.Group className="mb-2">
 												<Form.Label htmlFor={sectionDOMId}>Sección</Form.Label>
 												<Form.Control
@@ -965,7 +975,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 												></Form.Control>
 											</Form.Group>
 										)}
-										{platform == "sakai" && (
+										{metaData.platform == "sakai" && (
 											<Form.Group className="mb-2">
 												<Form.Label htmlFor={indentDOMId}>Columna</Form.Label>
 												<Form.Control
@@ -980,7 +990,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 										)}
 										<Form.Group className="mb-2">
 											<Form.Label htmlFor={orderDOMId}>
-												{platform === "sakai"
+												{metaData.platform === "sakai"
 													? "Posición"
 													: "Posición en la sección"}
 											</Form.Label>
@@ -993,7 +1003,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 												id={orderDOMId}
 											></Form.Control>
 										</Form.Group>
-										{platform == "moodle" && (
+										{metaData.platform == "moodle" && (
 											<Form.Group className="mb-2">
 												<Form.Label htmlFor={indentDOMId}>
 													Identación en la sección

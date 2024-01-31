@@ -2,7 +2,7 @@ import { useNodes } from "reactflow";
 import { getNodeById } from "@utils/Nodes";
 import { useContext } from "react";
 import { getTypeIcon } from "@utils/NodeIcons";
-import { MetaDataContext, PlatformContext, SettingsContext } from "pages/_app";
+import { MetaDataContext, SettingsContext } from "pages/_app";
 import { deduplicateById, parseDate, uniqueId } from "@utils/Utils";
 import {
 	profileOperatorList,
@@ -13,7 +13,6 @@ import { parseBool } from "../../../utils/Utils";
 export default function SimpleConditionsMoodle({ id }) {
 	const { metaData } = useContext(MetaDataContext);
 	const rfNodes = useNodes();
-	const { platform } = useContext(PlatformContext);
 	const CONDITIONS = getNodeById(id, rfNodes)?.data?.c || undefined;
 	const QUALIFICATIONS = getNodeById(id, rfNodes)?.data?.g || undefined;
 	const { settings } = useContext(SettingsContext);
@@ -192,7 +191,10 @@ export default function SimpleConditionsMoodle({ id }) {
 						];
 						finalDOM.push(
 							<p style={prefix}>
-								{getTypeIcon(getNodeById(c.cm, rfNodes).type, platform)}
+								{getTypeIcon(
+									getNodeById(c.cm, rfNodes).type,
+									metaData.platform
+								)}
 								{
 									<span style={{ marginLeft: "4px" }}>
 										<b>
@@ -216,7 +218,7 @@ export default function SimpleConditionsMoodle({ id }) {
 										<p key={node.id}>
 											{getTypeIcon(
 												getNodeById(node.id, rfNodes).type,
-												platform
+												metaData.platform
 											)}
 											<span style={{ marginLeft: "4px" }}>
 												<b>
@@ -301,7 +303,10 @@ export default function SimpleConditionsMoodle({ id }) {
 
 						finalDOM.push(
 							<p style={prefix}>
-								{getTypeIcon(getNodeById(c.cm, rfNodes).type, platform)}
+								{getTypeIcon(
+									getNodeById(c.cm, rfNodes).type,
+									metaData.platform
+								)}
 								{
 									<span style={{ marginLeft: "4px" }}>
 										<b>{getNodeById(c.cm, rfNodes).data.label}</b> {sufix}

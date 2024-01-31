@@ -4,24 +4,21 @@ import { ReactFlowProvider } from "reactflow";
 import { Container } from "react-bootstrap";
 import { useState, useRef, useLayoutEffect, useEffect } from "react";
 import {
-	PlatformContext,
-	NodeInfoContext,
-	MapInfoContext,
-	VersionJsonContext,
+	EditedNodeContext,
+	CurrentVersionContext,
 	ExpandedAsideContext,
-	VersionInfoContext,
 	MainDOMContext,
 	MetaDataContext,
 	HeaderToEmptySelectorContext,
 	UserDataContext,
-} from "../pages/_app.js";
+	EditedVersionContext,
+} from "pages/_app.tsx";
 import { applyBranding } from "@utils/Colors";
 
 export default function Layout({ LTISettings, children }) {
 	const [platform, setPlatform] = useState("moodle"); //default to moodle in testing phase
 	const [metaData, setMetaData] = useState();
 	const [userData, setUserData] = useState();
-	const [sections, setSections] = useState();
 	const [nodeSelected, setNodeSelected] = useState("");
 	const [editVersionSelected, setEditVersionSelected] = useState("");
 
@@ -95,107 +92,102 @@ export default function Layout({ LTISettings, children }) {
 	}
 
 	return (
-		<PlatformContext.Provider value={{ platform, setPlatform }}>
-			<MetaDataContext.Provider value={{ metaData, setMetaData }}>
-				<UserDataContext.Provider value={{ userData, setUserData }}>
-					<NodeInfoContext.Provider value={{ nodeSelected, setNodeSelected }}>
-						<VersionInfoContext.Provider
-							value={{ editVersionSelected, setEditVersionSelected }}
+		<MetaDataContext.Provider value={{ metaData, setMetaData }}>
+			<UserDataContext.Provider value={{ userData, setUserData }}>
+				<EditedNodeContext.Provider value={{ nodeSelected, setNodeSelected }}>
+					<EditedVersionContext.Provider
+						value={{ editVersionSelected, setEditVersionSelected }}
+					>
+						<CurrentVersionContext.Provider
+							value={{ versionJson, setVersionJson }}
 						>
-							<VersionJsonContext.Provider
-								value={{ versionJson, setVersionJson }}
+							<HeaderToEmptySelectorContext.Provider
+								value={{
+									mapCount,
+									setMapCount,
+									mapNames,
+									setMapNames,
+									allowUseStatus,
+									setAllowUseStatus,
+									maps,
+									setMaps,
+									funcCreateMap,
+									setFuncCreateMap,
+									funcImportMap,
+									setFuncImportMap,
+									funcImportMapFromLesson,
+									setFuncImportMapFromLesson,
+									funcMapChange,
+									setFuncMapChange,
+								}}
 							>
-								<HeaderToEmptySelectorContext.Provider
-									value={{
-										mapCount,
-										setMapCount,
-										mapNames,
-										setMapNames,
-										allowUseStatus,
-										setAllowUseStatus,
-										maps,
-										setMaps,
-										funcCreateMap,
-										setFuncCreateMap,
-										funcImportMap,
-										setFuncImportMap,
-										funcImportMapFromLesson,
-										setFuncImportMapFromLesson,
-										funcMapChange,
-										setFuncMapChange,
-									}}
+								<ExpandedAsideContext.Provider
+									value={{ expandedAside, setExpandedAside }}
 								>
-									<ExpandedAsideContext.Provider
-										value={{ expandedAside, setExpandedAside }}
-									>
-										<MainDOMContext.Provider value={{ mainDOM, setMainDOM }}>
-											<ReactFlowProvider>
-												<Container
-													className="g-0"
-													fluid
-													style={{ minHeight: 100 + "vh" }}
-												>
-													<div
-														className="row g-0"
-														style={{ height: 100 + "vh" }}
+									<MainDOMContext.Provider value={{ mainDOM, setMainDOM }}>
+										<ReactFlowProvider>
+											<Container
+												className="g-0"
+												fluid
+												style={{ minHeight: 100 + "vh" }}
+											>
+												<div className="row g-0" style={{ height: 100 + "vh" }}>
+													<Aside
+														LTISettings={LTISettings}
+														className={
+															expandedAside
+																? "col-12 col-sm-4 col-md-3 col-xl-2"
+																: "d-none"
+														}
+													/>
+													<Container
+														fluid
+														className={
+															expandedAside
+																? "col-12 col-sm-8 col-md-9 col-xl-10 g-0"
+																: "g-0"
+														}
+														style={{
+															display: "flex",
+															flexDirection: "column",
+														}}
 													>
-														<Aside
-															LTISettings={LTISettings}
-															className={
-																expandedAside
-																	? "col-12 col-sm-4 col-md-3 col-xl-2"
-																	: "d-none"
-															}
-														/>
 														<Container
+															className="g-0"
 															fluid
-															className={
-																expandedAside
-																	? "col-12 col-sm-8 col-md-9 col-xl-10 g-0"
-																	: "g-0"
-															}
-															style={{
-																display: "flex",
-																flexDirection: "column",
-															}}
+															style={{ flex: "1 0 auto" }}
 														>
-															<Container
-																className="g-0"
-																fluid
-																style={{ flex: "1 0 auto" }}
-															>
-																<Header
-																	LTISettings={LTISettings}
-																	ref={headerDOM}
-																/>
+															<Header
+																LTISettings={LTISettings}
+																ref={headerDOM}
+															/>
 
-																<main
-																	id="main"
-																	ref={mainDOMRef}
-																	style={{
-																		height: fixedMainHeight,
-																		overflow: "overlay",
-																		scrollBehavior: "smooth",
-																		position: "relative",
-																		boxShadow:
-																			"inset 0 0 10px var(--blockflow-inner-box-shadow-color)",
-																	}}
-																>
-																	{children}
-																</main>
-															</Container>
+															<main
+																id="main"
+																ref={mainDOMRef}
+																style={{
+																	height: fixedMainHeight,
+																	overflow: "overlay",
+																	scrollBehavior: "smooth",
+																	position: "relative",
+																	boxShadow:
+																		"inset 0 0 10px var(--blockflow-inner-box-shadow-color)",
+																}}
+															>
+																{children}
+															</main>
 														</Container>
-													</div>
-												</Container>
-											</ReactFlowProvider>
-										</MainDOMContext.Provider>
-									</ExpandedAsideContext.Provider>
-								</HeaderToEmptySelectorContext.Provider>
-							</VersionJsonContext.Provider>
-						</VersionInfoContext.Provider>
-					</NodeInfoContext.Provider>
-				</UserDataContext.Provider>
-			</MetaDataContext.Provider>
-		</PlatformContext.Provider>
+													</Container>
+												</div>
+											</Container>
+										</ReactFlowProvider>
+									</MainDOMContext.Provider>
+								</ExpandedAsideContext.Provider>
+							</HeaderToEmptySelectorContext.Provider>
+						</CurrentVersionContext.Provider>
+					</EditedVersionContext.Provider>
+				</EditedNodeContext.Provider>
+			</UserDataContext.Provider>
+		</MetaDataContext.Provider>
 	);
 }

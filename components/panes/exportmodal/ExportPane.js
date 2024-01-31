@@ -10,7 +10,7 @@ import {
 import { getRootStyle } from "@utils/Colors";
 import { useReactFlow, useNodes } from "reactflow";
 import { NodeTypes } from "@utils/TypeDefinitions";
-import { MapInfoContext, PlatformContext } from "pages/_app";
+import { MapInfoContext } from "pages/_app";
 import { getBackupURL } from "@utils/Platform";
 import { ActionNodes } from "@utils/Nodes";
 import { fetchBackEnd, saveVersion } from "@utils/Utils";
@@ -23,7 +23,6 @@ import {
 import LessonSelector from "@components/forms/components/LessonSelector";
 import { sakaiTypeSwitch } from "@utils/Sakai";
 import { getSectionNodes } from "../../../utils/Nodes";
-
 export default function ExportPanel({
 	errorList,
 	warningList,
@@ -37,7 +36,6 @@ export default function ExportPanel({
 	const reactFlowInstance = useReactFlow();
 	const rfNodes = useNodes();
 
-	const { platform } = useContext(PlatformContext);
 	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
 
 	const [exporting, setExporting] = useState(false);
@@ -71,7 +69,7 @@ export default function ExportPanel({
 		}
 	}
 
-	const BACKUP_URL = getBackupURL(platform, metaData);
+	const BACKUP_URL = getBackupURL(metaData.platform, metaData);
 	const handleSelectionChange = (selectionInfo) => {
 		if (selectionInfo != undefined && selectionInfo.selection != []) {
 			const getSelectedErrorCount = () => {
@@ -120,7 +118,7 @@ export default function ExportPanel({
 		const nodes = reactFlowInstance.getNodes();
 		const emptySections = [];
 		// console.log("metaData.sections", metaData.sections);
-		if (platform == "moodle") {
+		if (metaData.platform == "moodle") {
 			metaData.sections.map((section) => {
 				const sectionNodes = getSectionNodes(section.position, nodes);
 				emptySections.push(sectionNodes.length < 1);
@@ -143,7 +141,7 @@ export default function ExportPanel({
 			JSON.stringify(reactFlowInstance.getNodes()) //Deep clone TODO: DO THIS BETTER
 		);
 
-		if (platform == "sakai") {
+		if (metaData.platform == "sakai") {
 			nodesToExport = nodesToExport.filter((node) => node.type !== "generic");
 		}
 		// console.log("🚀 ~ exportMap ~ nodesToExport  150 :", nodesToExport);
@@ -218,7 +216,7 @@ export default function ExportPanel({
 
 		//Deletting unnecessary info and flattening the nodes
 		nodesToExport = nodesToExport.map((node) => {
-			switch (platform) {
+			switch (metaData.platform) {
 				case "moodle":
 					delete node.data.label;
 					break;
@@ -269,7 +267,7 @@ export default function ExportPanel({
 			delete node.parentNode;
 			delete node.expandParent;
 			const TYPE = node.type;
-			switch (platform) {
+			switch (metaData.platform) {
 				case "moodle":
 					delete node.type;
 					break;
@@ -284,7 +282,7 @@ export default function ExportPanel({
 					...DATA,
 					actionType: TYPE,
 				};
-				if (platform == "moodle") {
+				if (metaData.platform == "moodle") {
 					if (TYPE == "badge") {
 						return parseMoodleBadgeToExport(
 							ACTION_NODE,
@@ -311,14 +309,14 @@ export default function ExportPanel({
 			const REGEX = new RegExp('"' + ORIGINAL_ID + '"', "g");
 			nodesAsString = nodesAsString.replace(
 				REGEX,
-				platform == "moodle"
+				metaData.platform == "moodle"
 					? LMS_RESOURCE
 					: JSON.stringify(String(LMS_RESOURCE))
 			);
 		});
 
 		let nodesReadyToExport = JSON.parse(nodesAsString);
-		if (platform == "moodle") {
+		if (metaData.platform == "moodle") {
 			nodesReadyToExport = nodesReadyToExport.filter((node) => {
 				const SECTION = metaData.sections.find(
 					(section) => section.position == node.section
@@ -348,7 +346,7 @@ export default function ExportPanel({
 		}
 
 		console.log("nodesReadyToExport", nodesReadyToExport);
-		if (platform === "sakai") {
+		if (metaData.platform === "sakai") {
 			console.log("SAKAI");
 			const LESSON_FIND = metaData.lessons.find(
 				(lesson) => lesson.id === Number(selectDOM.current.value)
@@ -675,7 +673,7 @@ export default function ExportPanel({
 				selection: currentSelectionInfo.selection,
 			};
 
-			if (platform == "sakai") {
+			if (metaData.platform == "sakai") {
 				PAYLOAD.lessonId = lesson.id;
 				PAYLOAD.nodes = resultJson;
 				PAYLOAD.nodesToUpdate = resultJsonSecondary;
@@ -696,7 +694,7 @@ export default function ExportPanel({
 					await saveVersion(
 						rfNodes,
 						metaData,
-						platform,
+						metaData.platform,
 						userData,
 						mapSelected,
 						selectedVersion,
@@ -714,7 +712,7 @@ export default function ExportPanel({
 
 					if (RESPONSE.errorType) {
 						const UNABLE_TO_EXPORT = "No se pudo exportar: ";
-						if (platform == "sakai") {
+						if (metaData.platform == "sakai") {
 							switch (RESPONSE.errorType) {
 								case "PAGE_EXPORT_ERROR":
 									console.log(
@@ -811,16 +809,16 @@ export default function ExportPanel({
 	return (
 		<>
 			<SectionSelector
-				allowModularSelection={platform == "moodle"}
+				allowModularSelection={metaData.platform == "moodle"}
 				metaData={metaData}
 				showErrors={true}
 				errorList={errorList}
 				warningList={warningList}
 				handleSelectionChange={handleSelectionChange}
-				mapName={platform == "moodle" ? "" : mapName}
+				mapName={metaData.platform == "moodle" ? "" : mapName}
 			/>
 
-			{platform == "sakai" && (
+			{metaData.platform == "sakai" && (
 				<LessonSelector
 					ref={selectDOM}
 					lessons={metaData.lessons}

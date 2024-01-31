@@ -20,12 +20,12 @@ import {
 	faObjectUngroup,
 } from "@fortawesome/free-solid-svg-icons";
 import {
-	NodeInfoContext,
+	EditedNodeContext,
 	ExpandedAsideContext,
 	MapInfoContext,
 	SettingsContext,
-	VersionInfoContext,
-} from "/pages/_app";
+	EditedVersionContext,
+} from "pages/_app";
 import { getByProperty, getUpdatedArrayById, parseBool } from "@utils/Utils";
 import { getNodeDOMById, getNodeById } from "@utils/Nodes";
 import FocusTrap from "focus-trap-react";
@@ -33,10 +33,10 @@ import FragmentResizer from "/components/dialogs/FragmentResizer";
 import FragmentEditor from "/components/dialogs/FragmentEditor";
 
 function FragmentNode({ id, xPos, yPos, type, data }) {
-	const { nodeSelected, setNodeSelected } = useContext(NodeInfoContext);
+	const { nodeSelected, setNodeSelected } = useContext(EditedNodeContext);
 	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
 	const { editVersionSelected, setEditVersionSelected } =
-		useContext(VersionInfoContext);
+		useContext(EditedVersionContext);
 	const reactFlowInstance = useReactFlow();
 	const { settings, setSettings } = useContext(SettingsContext);
 	const PARSED_SETTINGS = JSON.parse(settings);

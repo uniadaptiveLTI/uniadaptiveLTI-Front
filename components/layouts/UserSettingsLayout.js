@@ -3,8 +3,8 @@ import { orderByPropertyAlphabetically } from "@utils/Utils";
 import { useContext, useEffect, useLayoutEffect, useState } from "react";
 import { Button, Col, Container, Row } from "react-bootstrap";
 import { parseBool } from "../../utils/Utils";
-import { PlatformContext } from "../../pages/_app";
 import Link from "next/link";
+import { MetaDataContext } from "pages/_app";
 
 function ButtonLink({ label, variant, scrollref, className, style }) {
 	return (
@@ -24,11 +24,11 @@ function ButtonLink({ label, variant, scrollref, className, style }) {
 }
 
 export default function UserSettingsLayout({ children, paneRef, LTISettings }) {
+	const { metaData, setMetaData } = useContext(MetaDataContext);
 	const [mainBgColor, setMainBgColor] = useState();
 	const [renderButtons, setRenderButtons] = useState(false);
 	const [currentPane, setCurrentPane] = useState(paneRef.current);
 	const [currentPaneRefs, setCurrentPaneRefs] = useState([]);
-	const { platform, setPlatform } = useContext(PlatformContext);
 
 	useEffect(() => {
 		if (paneRef.current) {
@@ -47,10 +47,10 @@ export default function UserSettingsLayout({ children, paneRef, LTISettings }) {
 	}, []);
 
 	const devPlataformChange = () => {
-		if (platform == "moodle") {
-			setPlatform("sakai");
+		if (metaData.platform == "moodle") {
+			setMetaData({ ...metaData, platform: "sakai" });
 		} else {
-			setPlatform("moodle");
+			setMetaData({ ...metaData, platform: "moodle" });
 		}
 	};
 

@@ -10,18 +10,17 @@ import { Form, InputGroup } from "react-bootstrap";
 import { useReactFlow, useNodes } from "reactflow";
 import { nearestPowerOfTwo } from "@utils/Utils";
 import { getNodeById } from "@utils/Nodes";
-import { PlatformContext } from "/pages/_app";
 import { getTypeIcon } from "/utils/NodeIcons";
 import styles from "/styles/BlockSelector.module.css";
+import { MetaDataContext } from "/pages/_app";
 
 export default forwardRef(function BlockSelector(
 	{ nodeArray, defaultValue, placeholder, autoFocus, onChange, size = 16 },
 	ref
 ) {
-	const reactFlowInstance = useReactFlow();
+	const { metaData } = useContext(MetaDataContext);
 	const rfNodes = useNodes();
 	const DEFAULT_ARRAY = nodeArray ? nodeArray : rfNodes;
-	const { platform } = useContext(PlatformContext);
 	const [selectedType, setSelectedType] = useState(DEFAULT_ARRAY[0]?.type);
 	const STYLE_SIZE = size ? styles["x" + size] : styles.x16;
 	const localRef = useRef(null);
@@ -35,7 +34,11 @@ export default forwardRef(function BlockSelector(
 		<InputGroup className="mb-3">
 			<InputGroup.Text>
 				<div className={STYLE_SIZE}>
-					{getTypeIcon(selectedType, platform, nearestPowerOfTwo(size))}
+					{getTypeIcon(
+						selectedType,
+						metaData.platform,
+						nearestPowerOfTwo(size)
+					)}
 				</div>
 			</InputGroup.Text>
 			<Form.Select

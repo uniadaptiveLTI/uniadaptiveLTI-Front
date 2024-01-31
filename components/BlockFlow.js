@@ -20,14 +20,13 @@ import "reactflow/dist/style.css";
 import ActionNode from "./flow/nodes/ActionNode.js";
 import ElementNode from "./flow/nodes/ElementNode.js";
 import {
-	NodeInfoContext,
+	EditedNodeContext,
 	ErrorListContext,
 	ExpandedAsideContext,
-	PlatformContext,
 	SettingsContext,
 	MetaDataContext,
 	notImplemented,
-} from "/pages/_app.js";
+} from "pages/_app.tsx";
 import FragmentNode from "./flow/nodes/FragmentNode.js";
 import {
 	uniqueId,
@@ -119,7 +118,7 @@ const OverviewFlow = ({ map }, ref) => {
 
 	const { errorList, setErrorList } = useContext(ErrorListContext);
 	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
-	const { setNodeSelected } = useContext(NodeInfoContext);
+	const { setNodeSelected } = useContext(EditedNodeContext);
 	const { settings } = useContext(SettingsContext);
 	const parsedSettings = JSON.parse(settings);
 	const { metaData } = useContext(MetaDataContext);
@@ -218,8 +217,6 @@ const OverviewFlow = ({ map }, ref) => {
 	const draggedNodePosition = useRef(null);
 
 	const reactFlowWrapper = useRef(null);
-
-	const { platform } = useContext(PlatformContext);
 
 	/**
 	 * Logs the ReactFlow instance when it is loaded.
@@ -410,7 +407,7 @@ const OverviewFlow = ({ map }, ref) => {
 
 			if (targetNode) {
 				if (allowLineCreation) {
-					switch (platform) {
+					switch (metaData.platform) {
 						case "moodle":
 							const blockData = getNodeById(
 								sourceNodeId,
@@ -419,7 +416,7 @@ const OverviewFlow = ({ map }, ref) => {
 
 							const currentGradableType = getNodeTypeGradableType(
 								blockData,
-								platform
+								metaData.platform
 							);
 
 							if (
@@ -635,7 +632,7 @@ const OverviewFlow = ({ map }, ref) => {
 
 			// If the target node exists and has a condition, update it based on its type
 			if (blockNodeTarget) {
-				switch (platform) {
+				switch (metaData.platform) {
 					case "moodle":
 						if (blockNodeTarget.data.c) {
 							if (!validTypes.includes(blockNodeTarget.type)) {
@@ -790,7 +787,7 @@ const OverviewFlow = ({ map }, ref) => {
 
 						// Condition to check if the children is already edited
 						if (foundChildrenNode) {
-							switch (platform) {
+							switch (metaData.platform) {
 								case "moodle":
 									if (!validTypes.includes(foundChildrenNode.type)) {
 										// Delete method that updates the conditions of the children node edited
@@ -807,7 +804,7 @@ const OverviewFlow = ({ map }, ref) => {
 									break;
 							}
 						} else {
-							switch (platform) {
+							switch (metaData.platform) {
 								case "moodle":
 									if (!validTypes.includes(childrenNode.type)) {
 										// Delete method that updates the conditions of the children node
@@ -847,7 +844,7 @@ const OverviewFlow = ({ map }, ref) => {
 
 		//Clamp nodes order to avoid gaps
 		const FINAL_NODE_ARRAY = getUpdatedArrayById(
-			clampNodesOrder(updatedNodeArray, platform),
+			clampNodesOrder(updatedNodeArray, metaData.platform),
 			updatedNodeArray
 		);
 
@@ -859,7 +856,7 @@ const OverviewFlow = ({ map }, ref) => {
 
 		//Reordering
 		const finalReorderedNodeArray = getUpdatedArrayById(
-			clampNodesOrder(FINAL_NODE_ARRAY, platform),
+			clampNodesOrder(FINAL_NODE_ARRAY, metaData.platform),
 			FINAL_NODE_ARRAY
 		);
 
@@ -878,7 +875,7 @@ const OverviewFlow = ({ map }, ref) => {
 		};
 		const allNodes = [...nodes, ...getRelatedNodes(nodes)];
 
-		if (force == false && platform === "moodle") {
+		if (force == false && metaData.platform === "moodle") {
 			if (
 				allNodes.filter((node) =>
 					metaData.grades.includes(node.data?.lmsResource)
@@ -980,9 +977,9 @@ const OverviewFlow = ({ map }, ref) => {
 
 	useEffect(() => {
 		const FILTERED_MAP = map.map((node) => {
-			return isSupportedTypeInPlatform(platform, node.type)
+			return isSupportedTypeInPlatform(metaData.platform, node.type)
 				? node
-				: isSupportedTypeInPlatform(platform, "generic")
+				: isSupportedTypeInPlatform(metaData.platform, "generic")
 				? { ...node, type: "generic", data: { ...node.data } }
 				: null;
 		});
@@ -990,7 +987,7 @@ const OverviewFlow = ({ map }, ref) => {
 		setNewInitialNodes(
 			clampNodesOrder(
 				FILTERED_MAP.filter((i) => i != null),
-				platform
+				metaData.platform
 			)
 		);
 
@@ -1945,10 +1942,10 @@ const OverviewFlow = ({ map }, ref) => {
 				setCMBlockData(newCMBlockData);
 			}
 
-			if (platform == "moodle") {
+			if (metaData.platform == "moodle") {
 				if (modal == "conditions") setShowConditionsModal(true);
 				if (modal == "grades") setShowGradeConditionsModal(true);
-			} else if (platform == "sakai") {
+			} else if (metaData.platform == "sakai") {
 				if (modal == "requisites") setShowRequisitesModal(true);
 			}
 
@@ -2098,7 +2095,7 @@ const OverviewFlow = ({ map }, ref) => {
 			>
 				{minimap && (
 					<MiniMap
-						nodeColor={(node) => getTypeStaticColor(node, platform)}
+						nodeColor={(node) => getTypeStaticColor(node, metaData.platform)}
 						style={MINIMAP_STYLE}
 						zoomable
 						pannable
@@ -2134,7 +2131,7 @@ const OverviewFlow = ({ map }, ref) => {
 				/>
 			)}
 			<CustomControls />
-			{showConditionsModal && platform == "moodle" && (
+			{showConditionsModal && metaData.platform == "moodle" && (
 				<>
 					{!validTypes.includes(cMBlockData.type) ? (
 						<ConditionModalMoodle
@@ -2157,7 +2154,7 @@ const OverviewFlow = ({ map }, ref) => {
 					)}
 				</>
 			)}
-			{showGradeConditionsModal && platform == "moodle" && (
+			{showGradeConditionsModal && metaData.platform == "moodle" && (
 				<>
 					{!validTypes.includes(cMBlockData.type) && (
 						<QualificationModal
@@ -2170,7 +2167,7 @@ const OverviewFlow = ({ map }, ref) => {
 				</>
 			)}
 
-			{showRequisitesModal && platform == "sakai" && (
+			{showRequisitesModal && metaData.platform == "sakai" && (
 				<RequisiteModalSakai
 					blockData={cMBlockData}
 					setBlockData={setCMBlockData}
@@ -2202,7 +2199,7 @@ const OverviewFlow = ({ map }, ref) => {
 							<p>
 								<b>La selección actual contiene</b>, como mínimo,{" "}
 								<b>un bloque con calificaciones</b> en{" "}
-								{capitalizeFirstLetter(platform)}.
+								{capitalizeFirstLetter(metaData.platform)}.
 							</p>
 							<p>¿Estás seguro de querer continuar?</p>
 							<p

@@ -1,11 +1,23 @@
-import React from "react";
+import React, { FC, ReactNode } from "react";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 
-const ConfirmationModal = ({
+interface ConfirmationModalProps {
+	show: boolean;
+	handleClose: () => void;
+	backdrop?: boolean | "static";
+	title: string;
+	message: ReactNode | string;
+	cancel?: string;
+	confirm?: string;
+	callbackCancel?: () => void;
+	callbackConfirm?: () => void;
+}
+
+const ConfirmationModal: FC<ConfirmationModalProps> = ({
 	show,
 	handleClose,
-	backdrop,
+	backdrop = "static",
 	title,
 	message,
 	cancel = "Cancelar",
@@ -16,7 +28,7 @@ const ConfirmationModal = ({
 	<Modal
 		show={show}
 		onHide={handleClose}
-		backdrop={backdrop ? "static" : "false"}
+		backdrop={backdrop ? "static" : false}
 	>
 		<Modal.Header closeButton>
 			<Modal.Title>{title}</Modal.Title>

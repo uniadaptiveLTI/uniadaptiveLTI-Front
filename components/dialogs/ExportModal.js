@@ -1,11 +1,10 @@
 import { forwardRef, useContext, useLayoutEffect, useState } from "react";
 import { Modal, Button, Container, Col, Row, Tabs, Tab } from "react-bootstrap";
 import {
-	PlatformContext,
 	ExpandedAsideContext,
-	NodeInfoContext,
-	VersionInfoContext,
-} from "/pages/_app";
+	EditedNodeContext,
+	EditedVersionContext,
+} from "pages/_app";
 import { NodeTypes } from "@utils/TypeDefinitions";
 import {
 	orderByPropertyAlphabetically,
@@ -42,12 +41,10 @@ export default forwardRef(function ExportModal(
 	ref
 ) {
 	const [key, setKey] = useState();
-
-	const { platform } = useContext(PlatformContext);
 	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
-	const { nodeSelected, setNodeSelected } = useContext(NodeInfoContext);
+	const { nodeSelected, setNodeSelected } = useContext(EditedNodeContext);
 	const { editVersionSelected, setEditVersionSelected } =
-		useContext(VersionInfoContext);
+		useContext(EditedVersionContext);
 
 	const reactFlowInstance = useReactFlow();
 
@@ -96,7 +93,8 @@ export default forwardRef(function ExportModal(
 		const NODE_LIS = NODE_LIST.map((node) => (
 			<div key={node.id}>
 				{/*<FontAwesomeIcon icon={faExclamationTriangle}></FontAwesomeIcon>*/}
-				{getTypeIcon(node.type, platform, 16)} {node.data.label}
+				{getTypeIcon(node.type, metaData.metaData.platform, 16)}{" "}
+				{node.data.label}
 			</div>
 		));
 		const NODE_UL = <div>{NODE_LIS}</div>;
@@ -191,7 +189,7 @@ export default forwardRef(function ExportModal(
 		setNodeWarningChildrenList(WARNING_CHILDREN_NOT_FOUND);
 		setNodeWarningParentList(WARNING_PARENT_NOT_FOUND);
 
-		if (platform && platform == "moodle") {
+		if (metaData.platform && metaData.platform == "moodle") {
 			const WARNING_CHILDREN_WITHOUT_RESTRICTION = WARNING_LIST.filter(
 				(entry) =>
 					entry.seriousness === "warning" &&
@@ -232,7 +230,7 @@ export default forwardRef(function ExportModal(
 			) {
 				let childlessNode = false;
 
-				switch (platform) {
+				switch (metaData.platform) {
 					case "sakai":
 						if (node.type !== "exam" && node.type !== "assign") {
 							childlessNode = true;
@@ -288,8 +286,8 @@ export default forwardRef(function ExportModal(
 				}
 
 				if (
-					platform &&
-					platform == "moodle" &&
+					metaData.platform &&
+					metaData.platform == "moodle" &&
 					node?.data?.children?.length <= 0
 				) {
 					const CUSTOM_ENTRY = {
@@ -309,7 +307,7 @@ export default forwardRef(function ExportModal(
 						console.log(node);
 						const CURRENT_NODE_GRADABLE_TYPE = getNodeTypeGradableType(
 							node,
-							platform
+							metaData.platform
 						);
 
 						if (
@@ -408,7 +406,7 @@ export default forwardRef(function ExportModal(
 										return (
 											<div key={entry.id} onClick={() => handleEdit(NODE)}>
 												<a role="button" className={styles.iconError}>
-													{getTypeIcon(NODE.type, platform, 16)}
+													{getTypeIcon(NODE.type, metaData.platform, 16)}
 												</a>{" "}
 												<a role="button" className={styles.nodeError}>
 													{entry.nodeName}
@@ -434,7 +432,7 @@ export default forwardRef(function ExportModal(
 										return (
 											<div key={entry.id} onClick={() => handleEdit(NODE)}>
 												<a role="button" className={styles.iconError}>
-													{getTypeIcon(NODE.type, platform, 16)}
+													{getTypeIcon(NODE.type, metaData.platform, 16)}
 												</a>{" "}
 												<a role="button" className={styles.nodeError}>
 													{entry.nodeName}
@@ -458,7 +456,7 @@ export default forwardRef(function ExportModal(
 										return (
 											<div key={entry.id} onClick={() => handleEdit(NODE)}>
 												<a role="button" className={styles.iconError}>
-													{getTypeIcon(NODE.type, platform, 16)}
+													{getTypeIcon(NODE.type, metaData.platform, 16)}
 												</a>{" "}
 												<a role="button" className={styles.nodeError}>
 													{entry.nodeName}
@@ -505,7 +503,7 @@ export default forwardRef(function ExportModal(
 												return (
 													<div key={entry.id} onClick={() => handleEdit(NODE)}>
 														<a role="button" className={styles.iconWarning}>
-															{getTypeIcon(NODE.type, platform, 16)}
+															{getTypeIcon(NODE.type, metaData.platform, 16)}
 														</a>{" "}
 														<a role="button" className={styles.nodeWarning}>
 															{entry.nodeName}
@@ -517,7 +515,7 @@ export default forwardRef(function ExportModal(
 									)}
 							</div>
 
-							{platform && platform == "moodle" && (
+							{metaData.platform && metaData.platform == "moodle" && (
 								<div>
 									{nodeChildrenWithoutRestriction != undefined &&
 										nodeChildrenWithoutRestriction.length >= 1 && (
@@ -540,7 +538,7 @@ export default forwardRef(function ExportModal(
 															onClick={() => handleEdit(NODE)}
 														>
 															<a role="button" className={styles.iconWarning}>
-																{getTypeIcon(NODE.type, platform, 16)}
+																{getTypeIcon(NODE.type, metaData.platform, 16)}
 															</a>{" "}
 															<a role="button" className={styles.nodeWarning}>
 																{entry.nodeName}
@@ -568,7 +566,7 @@ export default forwardRef(function ExportModal(
 												return (
 													<div key={entry.id} onClick={() => handleEdit(NODE)}>
 														<a role="button" className={styles.iconWarning}>
-															{getTypeIcon(NODE.type, platform, 16)}
+															{getTypeIcon(NODE.type, metaData.platform, 16)}
 														</a>{" "}
 														<a role="button" className={styles.nodeWarning}>
 															{entry.nodeName}

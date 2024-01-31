@@ -2,7 +2,7 @@ import { useNodes, useReactFlow } from "reactflow";
 import { getNodeById } from "@utils/Nodes";
 import { useContext } from "react";
 import { getTypeIcon } from "@utils/NodeIcons";
-import { MetaDataContext, PlatformContext, SettingsContext } from "pages/_app";
+import { MetaDataContext, SettingsContext } from "pages/_app";
 import { deduplicateById, parseDate } from "@utils/Utils";
 import {
 	profileOperatorList,

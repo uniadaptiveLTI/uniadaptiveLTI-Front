@@ -6,32 +6,89 @@ import "styles/BlockFlowMoodle.css";
 import "@fortawesome/fontawesome-svg-core/styles.css"; // import Font Awesome CSS
 import { config } from "@fortawesome/fontawesome-svg-core";
 config.autoAddCss = false; // Tell Font Awesome to skip adding the CSS automatically since it's being imported above
-import React, {
-	createContext,
-	useState,
-	useEffect,
-	useLayoutEffect,
-} from "react";
-import LTIErrorMessage from "/components/messages/LTIErrors";
+import React, { createContext, useState, useEffect, ReactNode } from "react";
 
-export const NodeInfoContext = createContext(); // Contains the node data that is being edited
-export const ErrorListContext = createContext(); // Contains an array with error objects
-export const MapInfoContext = createContext(""); //
-export const VersionInfoContext = createContext(); //
-export const ExpandedAsideContext = createContext(); // True/false if Aside is visible
-export const VersionJsonContext = createContext(); // Contains the current version
-export const BlockJsonContext = createContext(true); //
-export const DeleteEdgeContext = createContext(); //
-export const SettingsContext = createContext(); // Contains user settings
-export const PlatformContext = createContext("moodle"); //Contains the LMS that is connected to (deprecated, use MetaDataContext)
-export const BlocksDataContext = createContext(); //Contains current map version's blocksdata
-export const MainDOMContext = createContext(); //
-export const OnlineContext = createContext(); //Contains true/false if online
-export const ReactFlowInstanceContext = createContext(); //Contains reactFlowInstance (deprecated)
-export const MetaDataContext = createContext(); //Contains metadata information
-export const UserDataContext = createContext(); //Contains userdata information
-export const HeaderToEmptySelectorContext = createContext(); //References functionally from the Header to be able to use it in the empty selector.
-export const LTISettingsContext = createContext(); //Branding
+type MapInfoType = {
+	mapSelected: IMap;
+	setMapSelected: React.Dispatch<React.SetStateAction<IMap>>;
+};
+
+type BlocksDataType = {
+	currentBlocksData: Array<INode>;
+	setCurrentBlocksData: React.Dispatch<React.SetStateAction<Array<INode>>>;
+};
+
+type SettingsType = {
+	settings: string;
+	setSettings: React.Dispatch<React.SetStateAction<string>>;
+};
+
+type OnlineType = {
+	isOnline: boolean;
+	isOffline: boolean;
+};
+
+type ReactFlowInstanceType = {
+	reactFlowInstance: ReactFlowInstance;
+	setReactFlowInstance: React.Dispatch<React.SetStateAction<ReactFlowInstance>>;
+};
+
+type LTISettingsType = {
+	LTISettings: IUserData;
+	setLTISettings: React.Dispatch<React.SetStateAction<IUserData>>;
+};
+
+type ErrorListType = {
+	errorList: Array<INodeError>;
+	setErrorList: React.Dispatch<React.SetStateAction<Array<INodeError>>>;
+};
+
+export const MapInfoContext = createContext<MapInfoType | undefined>(undefined); // Contains the current selected map
+
+export const CurrentVersionContext = createContext<IVersion | undefined>(
+	undefined
+); // Contains the current version
+
+export const EditedVersionContext = createContext<IVersion | undefined>(
+	undefined
+); // Contains the version that is being edited
+
+export const EditedNodeContext = createContext<INode | undefined>(undefined); // Contains the node that is being edited
+
+export const ExpandedAsideContext = createContext<boolean>(false); // True/false if Aside is visible
+
+export const SettingsContext = createContext<SettingsType>(undefined); // Contains user settings
+
+export const BlocksDataContext = createContext<BlocksDataType | undefined>(
+	undefined
+); //Contains current version's blocksdata
+
+export const MainDOMContext = createContext<HTMLElement | null>(null); //Contains the <Main> HTML Element
+
+export const OnlineContext = createContext<OnlineType>({
+	isOnline: true,
+	isOffline: false,
+}); //Contains true/false if online
+
+export const ReactFlowInstanceContext = createContext<
+	ReactFlowInstanceType | undefined
+>(undefined); //Contains the current reactFlowInstance
+
+export const MetaDataContext = createContext<IMetaData | undefined>(undefined); //Contains metadata information
+
+export const UserDataContext = createContext<IUserData | undefined>(undefined); //Contains userdata information
+
+export const HeaderToEmptySelectorContext = createContext<
+	IMetaData | undefined
+>(undefined); //References functionally from the Header to be able to use it in the empty selector.
+
+export const LTISettingsContext = createContext<LTISettingsType | undefined>(
+	undefined
+); //Branding
+
+export const ErrorListContext = createContext<ErrorListType | undefined>(
+	undefined
+); // Contains an array with error objects
 
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
@@ -39,6 +96,13 @@ import { toast } from "react-toastify";
 import { useIsOnline } from "react-use-is-online";
 import { fetchBackEnd, parseBool } from "../utils/Utils";
 import ConfirmationModal from "../components/dialogs/ConfirmationModal";
+import { ReactFlowInstance } from "reactflow";
+import { IVersion } from "@components/interfaces/IVersion";
+import { INodeError } from "@components/interfaces/INodeError";
+import { INode } from "@components/interfaces/INode";
+import { IMetaData } from "@components/interfaces/IMetaData";
+import LTIErrorMessage from "@components/messages/LTIErrors";
+import { IMap } from "@components/interfaces/IMap";
 
 const SESSION_START = Date.now();
 
@@ -57,14 +121,13 @@ export default function App({ Component, pageProps }) {
 	const [reactFlowInstance, setReactFlowInstance] = useState();
 	const [errorList, setErrorList] = useState();
 	const [currentBlocksData, setCurrentBlocksData] = useState();
-	const [activeMap, setActiveMap] = useState("");
-	const [mapSelected, setMapSelected] = useState("");
-	const [LTISettings, setLTISettings] = useState();
+	const [mapSelected, setMapSelected] = useState();
+	const [LTISettings, setLTISettings] = useState(undefined);
 
 	const { isOnline, isOffline } = useIsOnline();
 
 	const [confirmationShow, setConfirmationShow] = useState(false);
-	const [confirmationMessage, setConfirmationMessage] = useState("");
+	const [confirmationMessage, setConfirmationMessage] = useState<ReactNode>();
 	const handleConfirmationClose = () => setConfirmationShow(false);
 	const handleConfirmationShow = () => setConfirmationShow(true);
 
@@ -144,9 +207,7 @@ export default function App({ Component, pageProps }) {
 	}, [isOnline]);
 
 	return (
-		<MapInfoContext.Provider
-			value={{ mapSelected, setMapSelected, activeMap, setActiveMap }}
-		>
+		<MapInfoContext.Provider value={{ mapSelected, setMapSelected }}>
 			<OnlineContext.Provider value={{ isOnline, isOffline }}>
 				<LTISettingsContext.Provider value={{ LTISettings, setLTISettings }}>
 					<SettingsContext.Provider value={{ settings, setSettings }}>

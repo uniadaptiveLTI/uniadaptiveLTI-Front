@@ -26,7 +26,7 @@ import {
 } from "@utils/Utils";
 import CourseGradeForm from "./form-components/CourseGradeForm";
 import { useReactFlow } from "reactflow";
-import { MetaDataContext } from "/pages/_app.js";
+import { MetaDataContext } from "pages/_app.tsx";
 
 function ConditionModalMoodle({
 	blockData,

@@ -1,8 +1,29 @@
-import { useImperativeHandle, forwardRef, useRef, useContext } from "react";
-import { SettingsContext } from "/pages/_app";
+import {
+	useImperativeHandle,
+	forwardRef,
+	useRef,
+	useContext,
+	RefObject,
+} from "react";
+import { SettingsContext } from "pages/_app";
 import { Form } from "react-bootstrap";
 
-function UserSettingsPane({ LTISettings }, ref) {
+export interface UserSettingsPaneRef {
+	accesibility: {
+		name?: string;
+		ref: RefObject<HTMLElement>;
+	};
+	blockFlow: {
+		name?: string;
+		ref: RefObject<HTMLElement>;
+	};
+	interface: {
+		name?: string;
+		ref: RefObject<HTMLElement>;
+	};
+}
+
+const UserSettingsPane = forwardRef<UserSettingsPaneRef>((props, ref) => {
 	const { settings, setSettings } = useContext(SettingsContext);
 	const parsedSettings = JSON.parse(settings);
 	let {
@@ -58,17 +79,31 @@ function UserSettingsPane({ LTISettings }, ref) {
 
 	const accesibilityRef = useRef();
 	const blockFlowRef = useRef();
-	const InterfaceRef = useRef();
-	const peneRef = useRef();
+	const interfaceRef = useRef();
 	useImperativeHandle(ref, () => ({
 		get accesibility() {
-			return { name: accesibilityRef.current.innerText, ref: accesibilityRef };
+			return {
+				name: accesibilityRef.current
+					? (accesibilityRef.current as HTMLElement).innerText
+					: "",
+				ref: accesibilityRef,
+			};
 		},
 		get blockFlow() {
-			return { name: blockFlowRef.current.innerText, ref: blockFlowRef };
+			return {
+				name: blockFlowRef.current
+					? (blockFlowRef.current as HTMLElement).innerText
+					: "",
+				ref: blockFlowRef,
+			};
 		},
-		get Interface() {
-			return { name: InterfaceRef.current.innerText, ref: InterfaceRef };
+		get interface() {
+			return {
+				name: interfaceRef.current
+					? (interfaceRef.current as HTMLElement).innerText
+					: "",
+				ref: interfaceRef,
+			};
 		},
 	}));
 
@@ -137,7 +172,7 @@ function UserSettingsPane({ LTISettings }, ref) {
 					onClick={handleSettingChange}
 				/>
 
-				<h2 ref={InterfaceRef} className="my-4">
+				<h2 ref={interfaceRef} className="my-4">
 					Interfaz
 				</h2>
 				<h4 className="my-3">Inspector</h4>
@@ -152,7 +187,6 @@ function UserSettingsPane({ LTISettings }, ref) {
 			</Form>
 		</>
 	);
-}
+});
 
-UserSettingsPane = forwardRef(UserSettingsPane);
 export default UserSettingsPane;
