@@ -2,9 +2,9 @@ import React from "react";
 import RoleComponent from "./condition-components/RoleComponent";
 import CourseCompletionComponent from "./condition-components/CourseCompletionComponent";
 import BadgeListComponent from "./condition-components/BadgeListComponent";
-import CompletionComponent from "./condition-components/CompletionComponent";
 import SkillsComponent from "./condition-components/SkillsComponent";
 import { parseDate } from "@utils/Utils";
+import CompletionComponent from "./condition-components/CompletionComponent";
 
 function Criteria({
 	condition,

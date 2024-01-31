@@ -313,13 +313,10 @@ function moodleConditionalIDAdder(conditionArray, nodes) {
 							type: "generic",
 							data: newArray[i],
 						};
-						console.log(genericCondition);
 						newArray[i] = genericCondition;
 						break;
 					}
 			}
-
-			console.log(newArray[i]);
 
 			// Add/replace "id" property
 			newArray[i].id = uniqueId();

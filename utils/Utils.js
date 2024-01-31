@@ -1,3 +1,4 @@
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { clampNodesOrderMoodle } from "./Moodle";
 import { clampNodesOrderSakai } from "./Sakai";
 
@@ -753,4 +754,11 @@ export function handleNameCollision(
 	}
 
 	return finalName;
+}
+
+/**
+ * This function creates a fontAwesome component passing an icon
+ */
+export function createFontAwesome(icon) {
+	return <FontAwesomeIcon icon={icon} />;
 }
