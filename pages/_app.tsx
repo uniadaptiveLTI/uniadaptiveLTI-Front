@@ -21,6 +21,7 @@ import LTIErrorMessage from "@components/messages/LTIErrors";
 import { IMap } from "@components/interfaces/IMap";
 import { ILTISettings } from "@components/interfaces/ILTISettings";
 import getConf from "middleware/api/getConf";
+import { INodeError } from "@components/interfaces/INodeError";
 
 type MapInfoType = {
 	mapSelected: IMap;
@@ -107,8 +108,8 @@ type LTISettingsType = {
 };
 
 type ErrorListType = {
-	errorList: Array<string>;
-	setErrorList: React.Dispatch<React.SetStateAction<Array<string>>>;
+	errorList: Array<INodeError>;
+	setErrorList: React.Dispatch<React.SetStateAction<Array<INodeError>>>;
 };
 
 export const MapInfoContext = createContext<MapInfoType | undefined>(undefined); // Contains the current selected map

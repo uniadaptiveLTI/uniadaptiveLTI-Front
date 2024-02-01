@@ -14,7 +14,7 @@ import { MapInfoContext } from "pages/_app";
 import { getBackupURL } from "@utils/Platform";
 import { ActionNodes } from "@utils/Nodes";
 import { saveVersion } from "@utils/Utils";
-import { toast } from "react-toastify";
+import { ToastOptions, toast } from "react-toastify";
 import {
 	parseMoodleBadgeToExport,
 	parseMoodleCalifications,
@@ -24,6 +24,20 @@ import LessonSelector from "@components/forms/components/LessonSelector";
 import { sakaiTypeSwitch } from "@utils/Sakai";
 import { getSectionNodes } from "../../../utils/Nodes";
 import { fetchBackEnd } from "middleware/common";
+import { INodeError } from "@components/interfaces/INodeError";
+import { IMetaData } from "@components/interfaces/IMetaData";
+import { IVersion } from "@components/interfaces/IVersion";
+import exportVersion, { IVersionExport } from "middleware/api/exportVersion";
+
+interface Props {
+	errorList: Array<INodeError>;
+	warningList: Array<INodeError>;
+	changeTab: () => {};
+	metaData: IMetaData;
+	userData: IUserData;
+	mapName: string;
+	selectedVersion: IVersion;
+}
 
 export default function ExportPanel({
 	errorList,
@@ -47,16 +61,16 @@ export default function ExportPanel({
 	});
 
 	const exportButtonRef = useRef(null);
-	const selectDOM = useRef(null);
+	const selectDOM = useRef<HTMLSelectElement>();
 
-	const DEFAULT_TOAST_SUCCESS = {
+	const DEFAULT_TOAST_SUCCESS: ToastOptions = {
 		hideProgressBar: false,
 		autoClose: 2000,
 		type: "success",
 		position: "bottom-center",
 	};
 
-	const DEFAULT_TOAST_ERROR = {
+	const DEFAULT_TOAST_ERROR: ToastOptions = {
 		hideProgressBar: false,
 		autoClose: 2000,
 		type: "error",
@@ -71,8 +85,14 @@ export default function ExportPanel({
 	}
 
 	const BACKUP_URL = getBackupURL(metaData.platform, metaData);
-	const handleSelectionChange = (selectionInfo) => {
-		if (selectionInfo != undefined && selectionInfo.selection != []) {
+
+	interface SelectionChangeOptions {
+		selection: Array<number>;
+		errors: Array<number>;
+		warnings: Array<number>;
+	}
+	const handleSelectionChange = (selectionInfo: SelectionChangeOptions) => {
+		if (selectionInfo != undefined) {
 			const getSelectedErrorCount = () => {
 				const errorCount = selectionInfo.selection
 					.map((selection) => {
@@ -432,7 +452,13 @@ export default function ExportPanel({
 							(condition) => condition.type === "dateException"
 						);
 						dateExceptionFiltered.map((exception) => {
-							const NEW_EXCEPTION = {};
+							interface dateException {
+								openDate?: number;
+								dueDate?: number;
+								closeDate?: number;
+								forEntityRef?: string;
+							}
+							const NEW_EXCEPTION: dateException = {};
 							NEW_EXCEPTION.openDate =
 								Date.parse(exception?.openingDate) / 1000;
 							NEW_EXCEPTION.dueDate = Date.parse(exception?.dueDate) / 1000;
@@ -599,13 +625,13 @@ export default function ExportPanel({
 
 		const nullish = (x) => x === null;
 
-		const clean = (x) =>
+		const clean = (x: any) =>
 			[x]
 				.map((x) => Object.entries(x))
 				.map((x) =>
 					x.map(([k, v]) =>
 						isArray(v)
-							? [k, v.map((vv) => (isObj(vv) ? clean(vv) : vv))]
+							? [k, (v as any[]).map((vv) => (isObj(vv) ? clean(vv) : vv))]
 							: isObj(v)
 							? [k, clean(v)]
 							: [k, v]
@@ -682,21 +708,22 @@ export default function ExportPanel({
 
 	async function sendNodes(
 		nodes,
-		resultJson,
-		resultJsonSecondary,
-		lesson,
-		conditionList
+		resultJson?,
+		resultJsonSecondary?,
+		lesson?,
+		conditionList?
 	) {
 		console.log("🚀 ~ nodes:", nodes);
 
 		try {
-			const PAYLOAD = {
+			const PAYLOAD: IVersionExport = {
 				course: metaData.course_id,
 				instance: metaData.instance_id,
 				userId: userData.user_id,
 				userPerms: userData.userperms,
 				save: true,
 				selection: currentSelectionInfo.selection,
+				nodes: undefined,
 			};
 
 			if (metaData.platform == "sakai") {
@@ -708,12 +735,7 @@ export default function ExportPanel({
 				PAYLOAD.nodes = nodes;
 			}
 
-			const RESPONSE = await fetchBackEnd(
-				sessionStorage.getItem("token"),
-				"api/lti/export_version",
-				"POST",
-				PAYLOAD
-			);
+			const RESPONSE = await exportVersion(PAYLOAD);
 			if (RESPONSE) {
 				const OK = RESPONSE.ok;
 				if (OK) {
@@ -728,23 +750,23 @@ export default function ExportPanel({
 						DEFAULT_TOAST_ERROR,
 						toast,
 						enableExporting,
-						RESPONSE.successType,
+						RESPONSE.data,
 						lesson?.id,
 						true
 					);
 				} else {
 					enableExporting(false);
 
-					if (RESPONSE.errorType) {
+					if (RESPONSE.data) {
 						const UNABLE_TO_EXPORT = "No se pudo exportar: ";
 						if (metaData.platform == "sakai") {
-							switch (RESPONSE.errorType) {
+							switch (RESPONSE.data) {
 								case "PAGE_EXPORT_ERROR":
 									console.log(
 										"%c ❌ Los bloques no comparten el mismo identificador de página (pageId) // Codigo de error: PAGE_EXPORT_ERROR",
 										"background: #FFD7DC; color: black; padding: 4px;"
 									);
-									throw new Error(
+									toast(
 										UNABLE_TO_EXPORT +
 											"Los bloques no comparten el mismo identificador de página (pageId)",
 										DEFAULT_TOAST_ERROR
@@ -754,7 +776,7 @@ export default function ExportPanel({
 										"%c ❌ No se pudo hacer una copia de seguridad de la página de contenidos a exportar // Codigo de error: LESSON_COPY_ERROR",
 										"background: #FFD7DC; color: black; padding: 4px;"
 									);
-									throw new Error(
+									toast(
 										UNABLE_TO_EXPORT +
 											"No se pudo hacer una copia de seguridad de la página de contenidos a exportar",
 										DEFAULT_TOAST_ERROR
@@ -764,7 +786,7 @@ export default function ExportPanel({
 										"%c ❌ No se ha podido reconstruir la página de contenidos // Codigo de error: LESSON_DELETE_ERROR",
 										"background: #FFD7DC; color: black; padding: 4px;"
 									);
-									throw new Error(
+									toast(
 										UNABLE_TO_EXPORT +
 											"No se ha podido reconstruir la página de contenidos",
 										DEFAULT_TOAST_ERROR
@@ -774,7 +796,7 @@ export default function ExportPanel({
 										"%c ❌ No se ha podido reestablecer la copia de seguridad // Codigo de error: FATAL_ERROR",
 										"background: #FFD7DC; color: black; padding: 4px;"
 									);
-									throw new Error(
+									toast(
 										UNABLE_TO_EXPORT +
 											"No se ha podido reestablecer la copia de seguridad",
 										DEFAULT_TOAST_ERROR
@@ -784,7 +806,7 @@ export default function ExportPanel({
 										"%c ❌ Se ha reestablecido la copia de seguridad de la página de contenidos // Codigo de error: LESSON_ITEMS_CREATION_ERROR",
 										"background: #FFD7DC; color: black; padding: 4px;"
 									);
-									throw new Error(
+									toast(
 										UNABLE_TO_EXPORT +
 											"Se ha reestablecido la copia de seguridad de la página de contenidos",
 										DEFAULT_TOAST_ERROR
@@ -794,7 +816,7 @@ export default function ExportPanel({
 										"%c ❌ Se ha reestablecido la copia de seguridad de la página de contenidos pero las condiciones no // Codigo de error: LESSON_ITEMS_WITHOUT_CONDITIONS_CREATION_ERROR",
 										"background: #FFD7DC; color: black; padding: 4px;"
 									);
-									throw new Error(
+									toast(
 										UNABLE_TO_EXPORT +
 											"Se ha reestablecido la copia de seguridad de la página de contenidos pero las condiciones no",
 										DEFAULT_TOAST_ERROR
@@ -804,25 +826,25 @@ export default function ExportPanel({
 										"%c ❌ No se han podido actualizar los bloques // Codigo de error: NODE_UPDATE_ERROR",
 										"background: #FFD7DC; color: black; padding: 4px;"
 									);
-									throw new Error(
+									toast(
 										UNABLE_TO_EXPORT +
 											"No se han podido actualizar los bloques",
 										DEFAULT_TOAST_ERROR
 									);
 							}
 						} else {
-							switch (RESPONSE.errorType) {
+							switch (RESPONSE.data) {
 								case "":
 									break;
 							}
 						}
 					} else {
-						throw new Error("No se pudo exportar", DEFAULT_TOAST_ERROR);
+						toast("No se pudo exportar", DEFAULT_TOAST_ERROR);
 					}
 				}
 			} else {
 				enableExporting(false);
-				throw new Error("No se pudo exportar", DEFAULT_TOAST_ERROR);
+				toast("No se pudo exportar", DEFAULT_TOAST_ERROR);
 			}
 		} catch (e) {
 			toast("No se pudo exportar", DEFAULT_TOAST_ERROR);

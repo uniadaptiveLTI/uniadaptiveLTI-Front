@@ -1,10 +1,15 @@
 import { getRootStyle } from "@utils/Colors";
 import { Col, Container, Row } from "react-bootstrap";
 
+interface Props {
+	currentSelection: number;
+	setSelection: (number) => void;
+}
+
 export default function UISelection({
 	currentSelection = -1,
 	setSelection = () => {},
-}) {
+}: Props) {
 	const SELECTED_STYLE = {
 		background: getRootStyle("--main-third-background-color"),
 		border: "var(--main-borders)",
@@ -90,12 +95,12 @@ export default function UISelection({
 					>
 						<div
 							onClick={(e) => {
-								e.stopPropagation(e);
+								e.stopPropagation();
 								setSelection(3);
 							}}
 							onKeyDown={(e) => {
 								if (e.key == "Enter") {
-									e.stopPropagation(e);
+									e.stopPropagation();
 									setSelection(3);
 								}
 							}}
@@ -113,12 +118,12 @@ export default function UISelection({
 						></div>
 						<div
 							onClick={(e) => {
-								e.stopPropagation(e);
+								e.stopPropagation();
 								setSelection(4);
 							}}
 							onKeyDown={(e) => {
 								if (e.key == "Enter") {
-									e.stopPropagation(e);
+									e.stopPropagation();
 									setSelection(4);
 								}
 							}}

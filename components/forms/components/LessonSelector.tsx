@@ -1,13 +1,22 @@
-import { forwardRef, useId, useRef } from "react";
+import { IMetaData } from "@components/interfaces/IMetaData";
+import { forwardRef, useId } from "react";
 import { Form } from "react-bootstrap";
 
-export default forwardRef(function LessonSelector({ lessons, label }, ref) {
+interface Props {
+	lessons: IMetaData["lessons"];
+	label?: string;
+}
+
+export default forwardRef<HTMLSelectElement, Props>(function LessonSelector(
+	{ lessons, label = "Seleccione un contenido de los siguientes" }: Props,
+	ref
+) {
 	const SELECT_LABEL = useId();
 	return (
 		<Form>
 			<Form.Group className="mb-3">
 				<Form.Label htmlFor={SELECT_LABEL} className="mb-1">
-					{label ? label : "Seleccione un contenido de los siguientes"}
+					{label}
 				</Form.Label>
 				<Form.Select ref={ref} id={SELECT_LABEL} className="w-100">
 					{lessons &&

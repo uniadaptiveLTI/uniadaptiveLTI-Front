@@ -13,7 +13,7 @@ import {
 	MapInfoContext,
 	MetaDataContext,
 } from "./_app";
-import BlockFlow from "/components/BlockFlow";
+import BlockFlow from "../components/BlockFlow";
 import Layout from "../components/Layout";
 import { HeaderToEmptySelectorContext } from "./_app";
 
@@ -202,7 +202,7 @@ export default function Home() {
 								<BlockFlow map={currentBlocksData} />
 							) : (
 								<div className="w-100 h-100 d-flex justify-content-center align-items-center">
-									<Spinner animation="border" role="status" size="xl">
+									<Spinner animation="border" role="status" size="sm">
 										<span className="visually-hidden">Cargando...</span>
 									</Spinner>
 								</div>

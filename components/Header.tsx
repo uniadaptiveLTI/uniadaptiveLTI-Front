@@ -48,7 +48,7 @@ import {
 	ErrorListContext,
 	HeaderToEmptySelectorContext,
 } from "pages/_app";
-import { toast } from "react-toastify";
+import { ToastOptions, toast } from "react-toastify";
 import {
 	base64Decode,
 	base64Encode,
@@ -74,17 +74,18 @@ import { createNewSakaiMap, parseSakaiNode } from "@utils/Sakai";
 import { EditedVersionContext, UserDataContext } from "pages/_app";
 import { parseBool } from "../utils/Utils";
 import ConfirmationModal from "./dialogs/ConfirmationModal";
-import LTIErrorMessage from "/components/messages/LTIErrors";
 import { fetchBackEnd } from "middleware/common";
+import { IVersion } from "./interfaces/IVersion";
+import LTIErrorMessage from "./messages/LTIErrors";
 
-const DEFAULT_TOAST_SUCCESS = {
+const DEFAULT_TOAST_SUCCESS: ToastOptions = {
 	hideProgressBar: false,
 	autoClose: 2000,
 	type: "success",
 	position: "bottom-center",
 };
 
-const DEFAULT_TOAST_ERROR = {
+const DEFAULT_TOAST_ERROR: ToastOptions = {
 	hideProgressBar: false,
 	autoClose: 2000,
 	type: "error",
@@ -119,20 +120,20 @@ function Header({ LTISettings }, ref) {
 	const [lastMapCreated, setLastMapCreated] = useState();
 	const [lastVersionCreated, setLastVersionCreated] = useState();
 
-	const [loadedUserData, setLoadedUserData] = useState();
-	const [loadedMetaData, setLoadedMetaData] = useState();
+	const [loadedUserData, setLoadedUserData] = useState(false);
+	const [loadedMetaData, setLoadedMetaData] = useState(false);
 	const EMPTY_MAP = { id: -1, name: "Seleccionar un mapa" };
 	const [loadedMaps, setLoadedMaps] = useState(false);
 	const { metaData, setMetaData } = useContext(MetaDataContext);
 	const { userData, setUserData } = useContext(UserDataContext);
-	const [selectedVersion, setSelectedVersion] = useState();
+	const [selectedVersion, setSelectedVersion] = useState<IVersion>();
 	const fileImportDOM = useRef(null);
 	const [saveButtonColor, setSaveButtonColor] = useState("light");
-	const [showDropdown, setShowDropdown] = useState("false");
+	const [showDropdown, setShowDropdown] = useState(false);
 
-	const [modalTitle, setModalTitle] = useState();
-	const [modalBody, setModalBody] = useState();
-	const [modalCallback, setModalCallback] = useState();
+	const [modalTitle, setModalTitle] = useState("");
+	const [modalBody, setModalBody] = useState("");
+	const [modalCallback, setModalCallback] = useState(() => {});
 	const toggleDeleteModal = () => setShowDeleteModal(!showDeleteModal);
 	const toggleMapSelectorModal = () =>
 		setShowMapSelectorModal(!showMapSelectorModal);
@@ -193,8 +194,8 @@ function Header({ LTISettings }, ref) {
 	 * Resets the edit state.
 	 */
 	function resetEdit() {
-		setNodeSelected("");
-		setEditVersionSelected("");
+		setNodeSelected(undefined);
+		setEditVersionSelected(undefined);
 	}
 
 	/**
@@ -216,7 +217,7 @@ function Header({ LTISettings }, ref) {
 			setMapSelected(selectedMap);
 
 			if (!parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
-				if (selectedMap.id != -1) {
+				if (selectedMap.id != "-1") {
 					try {
 						const MAP_RESPONSE = await fetchBackEnd(
 							sessionStorage.getItem("token"),
@@ -256,11 +257,11 @@ function Header({ LTISettings }, ref) {
 
 				setSelectedVersion(
 					selectedMap.versions != undefined
-						? selectedMap.versions[0]
+						? (selectedMap.versions[0] as IVersion)
 						: undefined
 				);
 			}
-			if (selectedMap.id == -1) {
+			if (selectedMap.id == "-1") {
 				changeToMapSelection();
 			}
 		}
@@ -272,14 +273,14 @@ function Header({ LTISettings }, ref) {
 	function changeToMapSelection() {
 		resetEdit();
 		setMapSelected(getMapById(-1));
-		setCurrentBlocksData();
+		setCurrentBlocksData(undefined);
 	}
 
 	/**
 	 * Handles the creation of a new map.
 	 */
 	const handleNewMap = async (
-		data,
+		data = undefined,
 		localMetaData = metaData,
 		localUserData = userData,
 		localMaps = maps
@@ -352,7 +353,7 @@ function Header({ LTISettings }, ref) {
 	};
 
 	const handleImportedMap = async (
-		lesson,
+		lesson?,
 		localMetaData = metaData,
 		localUserData = userData,
 		localMaps = maps
@@ -476,7 +477,7 @@ function Header({ LTISettings }, ref) {
 	 * Handles the creation of a new version.
 	 */
 	///AQUI
-	const handleNewVersion = (data) => {
+	const handleNewVersion = (data?) => {
 		const SELECTED_MAP = getMapById(selectMapDOM.current.value);
 
 		handleNewVersionIn(data, SELECTED_MAP.id);
@@ -569,8 +570,8 @@ function Header({ LTISettings }, ref) {
 			setExpandedAside(true);
 		}
 		const mapId = selectMapDOM.current.value;
-		setNodeSelected("");
-		setEditVersionSelected("");
+		setNodeSelected(undefined);
+		setEditVersionSelected(undefined);
 		setMapSelected(getMapById(mapId));
 	};
 
@@ -581,7 +582,7 @@ function Header({ LTISettings }, ref) {
 		if (expandedAside != true) {
 			setExpandedAside(true);
 		}
-		setNodeSelected("");
+		setNodeSelected(undefined);
 		setEditVersionSelected(selectedVersion);
 	};
 
@@ -591,7 +592,7 @@ function Header({ LTISettings }, ref) {
 	const showDeleteMapModal = () => {
 		setModalTitle(`¿Eliminar "${mapSelected.name}"?`);
 		setModalBody(`¿Desea eliminar "${mapSelected.name}"?`);
-		setModalCallback(() => deleteMap);
+		setModalCallback(() => deleteMap());
 		setShowDeleteModal(true);
 	};
 
@@ -770,56 +771,57 @@ function Header({ LTISettings }, ref) {
 		let reader = new FileReader();
 		reader.onload = function (e) {
 			let output = e.target.result;
-			//FIXME: File verification
-			const jsonObject = JSON.parse(base64Decode(output));
-			if (
-				jsonObject.instance_id == metaData.instance_id &&
-				jsonObject.course_id == metaData.course_id &&
-				jsonObject.platform == metaData.platform
-			) {
-				errorListCheck(jsonObject.data, errorList, setErrorList, false);
-				toast("Importado con éxito.", {
-					type: "success",
-					autoClose: 2000,
-					position: "bottom-center",
-				});
-			} else {
-				if (jsonObject.platform == metaData.platform) {
-					toast("Plataforma compatible, importación parcial.", {
-						type: "warning",
+			// Check if output is a string before decoding
+			if (typeof output === "string") {
+				const jsonObject = JSON.parse(base64Decode(output));
+
+				if (
+					jsonObject.instance_id == metaData.instance_id &&
+					jsonObject.course_id == metaData.course_id &&
+					jsonObject.platform == metaData.platform
+				) {
+					errorListCheck(jsonObject.data, errorList, setErrorList, false);
+					toast("Importado con éxito.", {
+						type: "success",
 						autoClose: 2000,
 						position: "bottom-center",
 					});
-					const JSON_CLEANED_BLOCKDATA = jsonObject.data.map((node) => {
-						node.data = {
-							...node.data,
-							children: node.data.children,
-							c: node.data.c,
-							g: node.data.g,
-							lmsResource: undefined,
-							section: 0,
-							order: 0,
-							indent: 0,
-						};
-						return node;
-					});
-					setCurrentBlocksData(JSON_CLEANED_BLOCKDATA);
-					errorListCheck(
-						JSON_CLEANED_BLOCKDATA,
-						errorList,
-						setErrorList,
-						false
-					);
 				} else {
-					toast("No se puede importar, datos incompatibles.", {
-						type: "error",
-						autoClose: 2000,
-						position: "bottom-center",
-					});
+					if (jsonObject.platform == metaData.platform) {
+						toast("Plataforma compatible, importación parcial.", {
+							type: "warning",
+							autoClose: 2000,
+							position: "bottom-center",
+						});
+						const JSON_CLEANED_BLOCKDATA = jsonObject.data.map((node) => {
+							node.data = {
+								...node.data,
+								children: node.data.children,
+								c: node.data.c,
+								g: node.data.g,
+								lmsResource: undefined,
+								section: 0,
+								order: 0,
+								indent: 0,
+							};
+							return node;
+						});
+						setCurrentBlocksData(JSON_CLEANED_BLOCKDATA);
+						errorListCheck(
+							JSON_CLEANED_BLOCKDATA,
+							errorList,
+							setErrorList,
+							false
+						);
+					} else {
+						toast("No se puede importar, datos incompatibles.", {
+							type: "error",
+							autoClose: 2000,
+							position: "bottom-center",
+						});
+					}
 				}
 			}
-
-			//displayContents(output);
 		};
 
 		reader.readAsText(file);
@@ -839,9 +841,9 @@ function Header({ LTISettings }, ref) {
 					})
 					.catch((e) => {
 						const ERROR = new Error(
-							"No se pudieron obtener los datos del curso desde los archivos locales."
+							"No se pudieron obtener los datos del curso desde los archivos locales.",
+							{ cause: e }
 						);
-						ERROR.log = e;
 						throw ERROR;
 					});
 				fetch("resources/devmeta.json")
@@ -855,9 +857,9 @@ function Header({ LTISettings }, ref) {
 					})
 					.catch((e) => {
 						const ERROR = new Error(
-							"No se pudieron obtener los metadatos del curso desde los archivos locales."
+							"No se pudieron obtener los datos del curso desde los archivos locales.",
+							{ cause: e }
 						);
-						ERROR.log = e;
 						throw ERROR;
 					});
 				fetch("resources/devuser.json")
@@ -868,9 +870,9 @@ function Header({ LTISettings }, ref) {
 					})
 					.catch((e) => {
 						const ERROR = new Error(
-							"No se pudieron obtener los datos del usuario desde los archivos locales."
+							"No se pudieron obtener los datos del usuario desde los archivos locales.",
+							{ cause: e }
 						);
-						ERROR.log = e;
 						throw ERROR;
 					});
 			} else {
@@ -974,14 +976,16 @@ function Header({ LTISettings }, ref) {
 	//Gets if the nodes and the loaded version are different
 	useEffect(() => {
 		if (REACTFLOW_INSTANCE && currentBlocksData) {
-			const REACTFLOW_NODES = [...REACTFLOW_INSTANCE?.getNodes()].map((e) => {
+			const REACTFLOW_NODES = JSON.parse(
+				JSON.stringify(REACTFLOW_INSTANCE?.getNodes())
+			).map((e: any) => {
 				delete e.height;
 				delete e.width;
 				delete e.positionAbsolute;
 				delete e.dragging;
 				delete e.selected;
 				delete e["Symbol(internals)"];
-				delete e.x; //FIXME: Find where these symbols are assignated
+				delete e.x;
 				delete e.y;
 				return e;
 			});
@@ -1021,6 +1025,10 @@ function Header({ LTISettings }, ref) {
 		);
 	}
 
+	interface UserToggleProps {
+		children: JSX.Element;
+		onClick: (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => void;
+	}
 	/**
 	 * A React component that renders a user toggle.
 	 * @param {Object} props - The component's props.
@@ -1029,21 +1037,31 @@ function Header({ LTISettings }, ref) {
 	 * @param {Object} ref - A React ref to access the DOM element of the component.
 	 * @returns {JSX.Element} A JSX element representing the user toggle.
 	 */
-	const UserToggle = forwardRef(({ children, onClick }, ref) => (
-		<a
-			href=""
-			role="button"
-			tabIndex={0}
-			ref={ref}
-			onClick={(e) => {
-				e.preventDefault();
-				onClick(e);
-			}}
-		>
-			{children}
-		</a>
-	));
+	const UserToggle = forwardRef<HTMLAnchorElement, UserToggleProps>(
+		({ children, onClick }, ref) => (
+			<a
+				href=""
+				role="button"
+				tabIndex={0}
+				ref={ref}
+				onClick={(e) => {
+					e.preventDefault();
+					onClick(e);
+				}}
+			>
+				{children}
+			</a>
+		)
+	);
+
 	UserToggle.displayName = "UserToggle";
+
+	interface UserMenuProps {
+		children: JSX.Element;
+		style: React.CSSProperties;
+		className: string;
+		"aria-labelledby": string;
+	}
 
 	/**
 	 * A React component that renders a user menu.
@@ -1055,7 +1073,7 @@ function Header({ LTISettings }, ref) {
 	 * @param {Object} ref - A React ref to access the DOM element of the component.
 	 * @returns {JSX.Element} A JSX element representing the user menu.
 	 */
-	const UserMenu = forwardRef(
+	const UserMenu = forwardRef<HTMLDivElement, UserMenuProps>(
 		({ children, style, className, "aria-labelledby": labeledBy }, ref) => {
 			const [value, setValue] = useState("");
 
@@ -1071,9 +1089,10 @@ function Header({ LTISettings }, ref) {
 			);
 		}
 	);
+
 	UserMenu.displayName = "UserMenu";
 
-	const handleToUserSettings = (key) => {
+	const handleToUserSettings = (key = undefined) => {
 		if (key == undefined || key == "Enter" || key == "NumpadEnter") {
 			setShowUserSettingsModal(true);
 		}
@@ -1114,11 +1133,7 @@ function Header({ LTISettings }, ref) {
 	}, []);
 
 	useEffect(() => {
-		setMapNames(
-			maps.map((map) => {
-				return { id: map.id, name: map.name };
-			})
-		);
+		setMapNames(maps.map((map) => map.name));
 	}, [mapCount]);
 
 	useEffect(() => {
@@ -1238,7 +1253,7 @@ function Header({ LTISettings }, ref) {
 											{capitalizeFirstLetter(metaData.platform)}...
 										</Dropdown.Item>
 									)}
-									{mapSelected?.id >= 0 && (
+									{mapSelected?.id != "-1" && (
 										<>
 											<Dropdown.Item onClick={() => handleNewVersion()}>
 												Nueva versión vacía
@@ -1262,7 +1277,7 @@ function Header({ LTISettings }, ref) {
 									)}
 								</Dropdown.Menu>
 							</Dropdown>
-							{mapSelected?.id >= 0 && (
+							{mapSelected?.id != "-1" && (
 								<>
 									<Dropdown className={`btn-light d-flex align-items-center`}>
 										<Dropdown.Toggle
@@ -1348,15 +1363,14 @@ function Header({ LTISettings }, ref) {
 								/>
 							</Button>
 
-							{mapSelected?.id >= 0 && (
+							{mapSelected?.id != "-1" && (
 								<Button
 									variant={
 										errorList && errorList.length >= 1 ? "warning" : "success"
 									}
 									className={`d-flex align-items-center p-2 position-relative ${styles.actionButtonsDynamic}`}
 									onClick={() => {
-										if (mapSelected && mapSelected.id > -1)
-											setShowExportModal(true);
+										setShowExportModal(true);
 									}}
 								>
 									{errorList && errorList.length >= 1 && (
@@ -1439,7 +1453,7 @@ function Header({ LTISettings }, ref) {
 						</Container>
 					</Nav>
 				</Container>
-				{mapSelected?.id > -1 && versions.length > 0 && (
+				{mapSelected?.id != "-1" && versions.length > 0 && (
 					<div
 						className={
 							styles.mapContainer +
@@ -1467,9 +1481,8 @@ function Header({ LTISettings }, ref) {
 							<Button
 								onClick={openModalVersions}
 								variant="light"
-								show={showDropdown}
 								disabled={isOffline || !loadedMaps}
-								onMouseLeave={() => setShowDropdown("false")}
+								onMouseLeave={() => setShowDropdown(false)}
 							>
 								<FontAwesomeIcon icon={faEllipsisVertical} />
 							</Button>
@@ -1604,8 +1617,8 @@ function Header({ LTISettings }, ref) {
 				handleClose={handleConfirmationClose}
 				title="Error"
 				message={<LTIErrorMessage error={"ERROR_INVALID_TOKEN"} />}
-				action="Cerrar"
-				callback={() => window.close()}
+				confirm="Cerrar"
+				callbackConfirm={() => window.close()}
 			/>
 		</header>
 	);

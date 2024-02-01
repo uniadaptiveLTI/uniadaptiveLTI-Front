@@ -66,7 +66,7 @@ export function capitalizeFirstLetter(string) {
  * Generates a unique identifier based on the current date and a random number.
  * @return {string} The generated unique identifier.
  */
-export const uniqueId = () => parseInt(Date.now() * Math.random()).toString();
+export const uniqueId = () => parseInt((Date.now() * Math.random()).toString());
 
 /**
  * Calculates the nearest power of two to a given number.
@@ -404,8 +404,8 @@ export async function saveVersion(
 	toast,
 	enable,
 	responseData,
-	lesson,
-	setAsDefault
+	lesson?,
+	setAsDefault?
 ) {
 	// Helper function to clean the nodes
 	function cleanNodes(nodes) {
@@ -500,7 +500,7 @@ export async function saveVersions(
 	toast,
 	enable,
 	responseData,
-	lesson
+	lesson?
 ) {
 	// Helper function to clean the nodes
 	function cleanNodes(nodes) {

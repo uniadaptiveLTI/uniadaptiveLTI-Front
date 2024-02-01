@@ -385,7 +385,7 @@ export default function BrandingPane({ modifySettings, LTISettings }) {
 				</Form.Label>
 				<Form.Control
 					id="mainFontFamily"
-					onChange={setMainFontFamily}
+					onChange={(e) => setMainFontFamily(e.target.value)}
 					defaultValue={mainFontFamily}
 				></Form.Control>
 			</div>
@@ -410,7 +410,7 @@ export default function BrandingPane({ modifySettings, LTISettings }) {
 				</Form.Label>
 				<Form.Control
 					id="mainFontFamily"
-					onChange={setMainBorderRadius}
+					onChange={(e) => setMainBorderRadius}
 					defaultValue={mainBorderRadius}
 				></Form.Control>
 			</div>
@@ -419,7 +419,7 @@ export default function BrandingPane({ modifySettings, LTISettings }) {
 				<p>Selección de fragmentos de la interfaz:</p>
 				<UISelection
 					currentSelection={uiSelected}
-					setSelection={setUISelected}
+					setSelection={(e) => setUISelected(e.target.value)}
 				></UISelection>
 			</div>
 
@@ -437,7 +437,7 @@ export default function BrandingPane({ modifySettings, LTISettings }) {
 					</Form.Label>
 					<Form.Control
 						id="mainFontFamily"
-						onChange={setAsideFontFamily}
+						onChange={(e) => setAsideFontFamily}
 						defaultValue={asideFontFamily}
 					></Form.Control>
 				</div>
@@ -481,7 +481,7 @@ export default function BrandingPane({ modifySettings, LTISettings }) {
 					</Form.Label>
 					<Form.Control
 						id="headerFontFamily"
-						onChange={setHeaderFontFamily}
+						onChange={(e) => setHeaderFontFamily(e.target.value)}
 						defaultValue={headerFontFamily}
 					></Form.Control>
 				</div>
@@ -497,7 +497,7 @@ export default function BrandingPane({ modifySettings, LTISettings }) {
 					</Form.Label>
 					<Form.Control
 						id="headerUserImageBorderRadius"
-						onChange={setHeaderUserImageBorderRadius}
+						onChange={(e) => setHeaderUserImageBorderRadius(e.target.value)}
 						defaultValue={headerUserImageBorderRadius}
 					></Form.Control>
 				</div>
@@ -507,7 +507,7 @@ export default function BrandingPane({ modifySettings, LTISettings }) {
 					</Form.Label>
 					<Form.Control
 						id="headerUserImageBorderWidth"
-						onChange={setHeaderUserImageBorderWidth}
+						onChange={(e) => setHeaderUserImageBorderWidth(e.target.value)}
 						defaultValue={headerUserImageBorderWidth}
 					></Form.Control>
 				</div>
@@ -528,7 +528,7 @@ export default function BrandingPane({ modifySettings, LTISettings }) {
 					</Form.Label>
 					<Form.Control
 						id="headerActionButtonsBorderRadius"
-						onChange={setHeaderActionButtonsBorderRadius}
+						onChange={(e) => setHeaderActionButtonsBorderRadius(e.target.value)}
 						defaultValue={headerActionButtonsBorderRadius}
 					></Form.Control>
 				</div>
@@ -538,7 +538,7 @@ export default function BrandingPane({ modifySettings, LTISettings }) {
 					</Form.Label>
 					<Form.Control
 						id="headerActionButtonsSvgFilter"
-						onChange={setHeaderActionButtonsSvgFilter}
+						onChange={(e) => setHeaderActionButtonsSvgFilter(e.target.value)}
 						defaultValue={headerActionButtonsSvgFilter}
 					></Form.Control>
 				</div>
@@ -555,7 +555,9 @@ export default function BrandingPane({ modifySettings, LTISettings }) {
 					</Form.Label>
 					<Form.Control
 						id="headerVersionDropdownContainerFontFamily"
-						onChange={setVersionDropdownContainerHeaderFontFamily}
+						onChange={(e) =>
+							setVersionDropdownContainerHeaderFontFamily(e.target.value)
+						}
 						defaultValue={headerVersionDropdownContainerFontFamily}
 					></Form.Control>
 				</div>
@@ -585,7 +587,7 @@ export default function BrandingPane({ modifySettings, LTISettings }) {
 					</Form.Label>
 					<Form.Control
 						id="blockflowFontFamily"
-						onChange={setBlockflowFontFamily}
+						onChange={(e) => setBlockflowFontFamily(e.target.value)}
 						defaultValue={blockflowFontFamily}
 					></Form.Control>
 				</div>
@@ -611,7 +613,7 @@ export default function BrandingPane({ modifySettings, LTISettings }) {
 					</Form.Label>
 					<Form.Control
 						id="blockflowLabelFontFamily"
-						onChange={setBlockflowLabelFontFamily}
+						onChange={(e) => setBlockflowLabelFontFamily(e.target.value)}
 						defaultValue={blockflowLabelFontFamily}
 					></Form.Control>
 				</div>
@@ -633,7 +635,7 @@ export default function BrandingPane({ modifySettings, LTISettings }) {
 					</Form.Label>
 					<Form.Control
 						id="blockflowHoverFontFamily"
-						onChange={setBlockflowHoverFontFamily}
+						onChange={(e) => setBlockflowHoverFontFamily(e.target.value)}
 						defaultValue={blockflowHoverFontFamily}
 					></Form.Control>
 				</div>
@@ -659,7 +661,7 @@ export default function BrandingPane({ modifySettings, LTISettings }) {
 					</Form.Label>
 					<Form.Control
 						id="blockflowEdgeBorderRadius"
-						onChange={setBlockflowEdgeBorderRadius}
+						onChange={(e) => setBlockflowEdgeBorderRadius(e.target.value)}
 						defaultValue={blockflowEdgeBorderRadius}
 					></Form.Control>
 				</div>
@@ -669,7 +671,7 @@ export default function BrandingPane({ modifySettings, LTISettings }) {
 					</Form.Label>
 					<Form.Control
 						id="blockflowEdgeBorderWidth"
-						onChange={setBlockflowEdgeBorderWidth}
+						onChange={(e) => setBlockflowEdgeBorderWidth(e.target.value)}
 						defaultValue={blockflowEdgeBorderWidth}
 					></Form.Control>
 				</div>
@@ -689,7 +691,7 @@ export default function BrandingPane({ modifySettings, LTISettings }) {
 					</Form.Label>
 					<Form.Control
 						id="blockflowControlsBorder"
-						onChange={setBlockflowControlsBorder}
+						onChange={(e) => setBlockflowControlsBorder(e.target.value)}
 						defaultValue={blockflowControlsBorder}
 					></Form.Control>
 				</div>
@@ -709,7 +711,7 @@ export default function BrandingPane({ modifySettings, LTISettings }) {
 					</Form.Label>
 					<Form.Control
 						id="blockflowControlsButtonBorder"
-						onChange={setBlockflowControlsButtonBorder}
+						onChange={(e) => setBlockflowControlsButtonBorder(e.target.value)}
 						defaultValue={blockflowControlsButtonBorder}
 					></Form.Control>
 				</div>
@@ -719,7 +721,9 @@ export default function BrandingPane({ modifySettings, LTISettings }) {
 					</Form.Label>
 					<Form.Control
 						id="blockflowControlsButtonSvgFilter"
-						onChange={setBlockflowControlsButtonSvgFilter}
+						onChange={(e) =>
+							setBlockflowControlsButtonSvgFilter(e.target.value)
+						}
 						defaultValue={blockflowControlsButtonSvgFilter}
 					></Form.Control>
 				</div>
@@ -734,7 +738,7 @@ export default function BrandingPane({ modifySettings, LTISettings }) {
 					</Form.Label>
 					<Form.Control
 						id="blockflowMinimapBorder"
-						onChange={setBlockflowMinimapBorder}
+						onChange={(e) => setBlockflowMinimapBorder(e.target.value)}
 						defaultValue={blockflowMinimapBorder}
 					></Form.Control>
 				</div>

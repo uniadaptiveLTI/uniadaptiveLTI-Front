@@ -1,16 +1,21 @@
 import { HexColorPicker, HexColorInput } from "react-colorful";
-import { useEffect, useId, useState } from "react";
+import { ReactNode, useEffect, useId, useState } from "react";
 import { Form, InputGroup, Button } from "react-bootstrap";
 import { getContrastingColor, getRootStyle } from "@utils/Colors";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPalette } from "@fortawesome/free-solid-svg-icons";
 
+interface Props {
+	color: string;
+	setColor: (e) => void;
+	label: string | ReactNode;
+}
+
 export default function InlineColorSelector({
-	id,
 	color,
 	setColor,
 	label = "",
-}) {
+}: Props) {
 	const [showSelector, setShowSelector] = useState(false);
 	const [iconColor, setIconColor] = useState("#000");
 
@@ -29,14 +34,9 @@ export default function InlineColorSelector({
 			{label && <Form.Label htmlFor={LABEL_ID}>{label}</Form.Label>}
 			<InputGroup>
 				<Form.Control
-					id={id && label.length == 0 ? id : LABEL_ID}
+					id={LABEL_ID}
 					value={color}
 					onChange={(e) => setColor(e.target.value)}
-					styles={{
-						padding: "1em",
-						borderRadius: getRootStyle("--main-border-radius"),
-						border: getRootStyle("--main-borders"),
-					}}
 				/>
 				<Button
 					onClick={() => setShowSelector(true)}

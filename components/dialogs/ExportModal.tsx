@@ -7,7 +7,6 @@ import {
 } from "pages/_app";
 import { NodeTypes } from "@utils/TypeDefinitions";
 import {
-	orderByPropertyAlphabetically,
 	getNodeById,
 	getParentsNode,
 	getNodeTypeGradableType,
@@ -26,6 +25,21 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ExportPane from "@components/panes/exportmodal/ExportPane";
 import { SettingsContext } from "pages/_app";
+import { ILTISettings } from "@components/interfaces/ILTISettings";
+import { IVersion } from "@components/interfaces/IVersion";
+import { IMetaData } from "@components/interfaces/IMetaData";
+import { INodeError } from "@components/interfaces/INodeError";
+
+interface ExportModalProps {
+	showDialog: boolean;
+	toggleDialog: () => void;
+	errorList: Array<INodeError>;
+	metaData: IMetaData;
+	userData: IUserData;
+	mapName: string;
+	LTISettings: ILTISettings;
+	selectedVersion: IVersion;
+}
 
 export default forwardRef(function ExportModal(
 	{
@@ -37,10 +51,10 @@ export default forwardRef(function ExportModal(
 		mapName,
 		LTISettings,
 		selectedVersion,
-	},
+	}: ExportModalProps,
 	ref
 ) {
-	const [key, setKey] = useState();
+	const [key, setKey] = useState<string>();
 	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
 	const { nodeSelected, setNodeSelected } = useContext(EditedNodeContext);
 	const { editVersionSelected, setEditVersionSelected } =
@@ -48,17 +62,22 @@ export default forwardRef(function ExportModal(
 
 	const reactFlowInstance = useReactFlow();
 
-	const [warningList, setWarningList] = useState();
-	const [tabsClassName, setTabsClassName] = useState();
+	const [warningList, setWarningList] = useState<Array<INodeError>>();
+	const [tabsClassName, setTabsClassName] = useState<Array<string>>();
 
-	const [nodeErrorResourceList, setNodeErrorResourceList] = useState();
-	const [nodeErrorSectionList, setNodeErrorSectionList] = useState();
-	const [nodeErrorOrderList, setNodeErrorOrderList] = useState();
+	const [nodeErrorResourceList, setNodeErrorResourceList] =
+		useState<Array<INodeError>>();
+	const [nodeErrorSectionList, setNodeErrorSectionList] =
+		useState<Array<INodeError>>();
+	const [nodeErrorOrderList, setNodeErrorOrderList] =
+		useState<Array<INodeError>>();
 
-	const [nodeWarningChildrenList, setNodeWarningChildrenList] = useState();
+	const [nodeWarningChildrenList, setNodeWarningChildrenList] =
+		useState<Array<INodeError>>();
 	const [nodeChildrenWithoutRestriction, setNodeChildrenWithoutRestriction] =
-		useState();
-	const [nodeWarningParentList, setNodeWarningParentList] = useState();
+		useState<Array<INodeError>>();
+	const [nodeWarningParentList, setNodeWarningParentList] =
+		useState<Array<INodeError>>();
 	const formatErrorList = () => {
 		console.log(JSON.stringify(metaData));
 	};
@@ -84,7 +103,7 @@ export default forwardRef(function ExportModal(
 		}
 	}
 
-	const getErrorList = () => {
+	/*const getErrorList = () => {
 		const NODE_ARRAY = reactFlowInstance.getNodes();
 		const NODE_LIST = errorList.map((error) =>
 			getNodeById(error.nodeId, NODE_ARRAY)
@@ -92,16 +111,15 @@ export default forwardRef(function ExportModal(
 
 		const NODE_LIS = NODE_LIST.map((node) => (
 			<div key={node.id}>
-				{/*<FontAwesomeIcon icon={faExclamationTriangle}></FontAwesomeIcon>*/}
-				{getTypeIcon(node.type, metaData.metaData.platform, 16)}{" "}
-				{node.data.label}
+				{/*<FontAwesomeIcon icon={faExclamationTriangle}></FontAwesomeIcon>*/ /*}
+				{getTypeIcon(node.type, metaData.platform, 16)} {node.data.label}
 			</div>
 		));
 		const NODE_UL = <div>{NODE_LIS}</div>;
 		setNodeErrorList(NODE_UL);
-	};
+	};*/
 
-	function handleClose(actionClicked) {
+	/*function handleClose(actionClicked) {
 		if (callback && actionClicked) {
 			if (callback instanceof Function) {
 				callback();
@@ -110,7 +128,7 @@ export default forwardRef(function ExportModal(
 			}
 		}
 		toggleDialog();
-	}
+	}*/
 
 	useLayoutEffect(() => {
 		if (key) {
@@ -209,7 +227,7 @@ export default forwardRef(function ExportModal(
 		if (expandedAside != true) {
 			setExpandedAside(true);
 		}
-		setEditVersionSelected("");
+		setEditVersionSelected(undefined);
 		setNodeSelected(blockData);
 		centerToNode(blockData);
 	};
@@ -377,7 +395,6 @@ export default forwardRef(function ExportModal(
 							metaData={metaData}
 							userData={userData}
 							mapName={mapName}
-							LTISettings={LTISettings}
 							selectedVersion={selectedVersion}
 						/>
 					</Tab>
@@ -581,7 +598,7 @@ export default forwardRef(function ExportModal(
 					)}
 				</Tabs>
 			</Modal.Body>
-			<Modal.Footer closeButton>
+			<Modal.Footer>
 				<Button variant="secondary" onClick={toggleDialog}>
 					Cerrar
 				</Button>

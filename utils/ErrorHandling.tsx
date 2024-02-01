@@ -1,9 +1,10 @@
+import { INodeError } from "@components/interfaces/INodeError";
 import { uniqueId } from "@utils/Utils";
 
 /**
  * Checks if a data item or an array of data items have errors and updates the error list accordingly.
  * @param {Object|Object[]} data - The data item or array of data items to check.
- * @param {string[]} errorList - The current list of errors.
+ * @param {Array<INodeError>} errorList - The current list of errors.
  * @param {function} setErrorList - The function to set the new error list.
  * @param {boolean} deleteFromList - A flag to indicate if the errors should be deleted from the list or not.
  */
