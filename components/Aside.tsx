@@ -16,7 +16,14 @@ import {
 	Spinner,
 	OverlayTrigger,
 } from "react-bootstrap";
-import { useState, useContext, useEffect, useRef, useId, version } from "react";
+import {
+	useState,
+	useContext,
+	useEffect,
+	useRef,
+	useId,
+	SyntheticEvent,
+} from "react";
 import {
 	ErrorListContext,
 	EditedNodeContext,
@@ -32,7 +39,6 @@ import {
 	deduplicateById,
 	getUpdatedArrayById,
 	orderByPropertyAlphabetically,
-	fetchBackEnd,
 	handleNameCollision,
 } from "@utils/Utils";
 import {
@@ -53,9 +59,11 @@ import {
 	hasUnorderedResources,
 } from "@utils/Platform.js";
 import { getLastPositionInSakaiColumn } from "@utils/Sakai";
-import { parseBool } from "../utils/Utils.js";
+import { parseBool } from "../utils/Utils";
+import getModulesByType from "middleware/api/getModulesByType";
+import { IElementNodeData } from "./interfaces/INode";
 
-export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
+export default function Aside({ LTISettings, className }) {
 	const { errorList, setErrorList } = useContext(ErrorListContext);
 
 	const [expandedContent, setExpandedContent] = useState(true);
@@ -72,11 +80,11 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 	const { settings } = useContext(SettingsContext);
 	const { metaData } = useContext(MetaDataContext);
 
-	const [shownTypes, setShownTypes] = useState();
+	const [shownTypes, setShownTypes] = useState([]);
 
 	useEffect(() => {
 		if (metaData != undefined)
-			setShownTypes(getVisibilityOptions(metaData.platform));
+			setShownTypes(getVisibilityOptions(metaData.platform) as Array<object>);
 	}, [metaData]);
 
 	const parsedSettings = JSON.parse(settings);
@@ -140,23 +148,11 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 				return [];
 			}
 
-			const RESPONSE = await fetchBackEnd(
-				sessionStorage.getItem("token"),
-				"api/lti/get_modules_by_type",
-				"POST",
-				payload
-			);
+			const RESPONSE = await getModulesByType(payload);
 
-			if (
-				!RESPONSE ||
-				!RESPONSE.ok ||
-				(RESPONSE?.ok && RESPONSE?.ok == false)
-			) {
-				/* Old error handler
-				throw new Error("Request failed");
-				*/
-				console.error(`❌ Error: `, RESPONSE.status);
-				toast({
+			if (!RESPONSE.ok) {
+				console.error(`❌ Error: `, RESPONSE.data);
+				toast("No se pudieron obtener los datos del curso desde el LMS", {
 					hideProgressBar: false,
 					autoClose: 2000,
 					type: "error",
@@ -170,11 +166,13 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 			setAllowResourceSelection(true);
 			return DATA;
 		} catch (e) {
-			// const error = new Error(
-			// 	"No se pudieron obtener los datos del curso desde el LMS.\n" + e
-			// );
-			// error.log = e;
-			// throw error;
+			console.error(`❌ Error: `, e);
+			toast("No se pudieron obtener los datos del curso desde el LMS", {
+				hideProgressBar: false,
+				autoClose: 2000,
+				type: "error",
+				position: "bottom-center",
+			});
 		}
 	};
 
@@ -221,18 +219,19 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 
 					//Adds current resource if exists
 					if (nodeSelected && nodeSelected.data) {
-						if (nodeSelected.data.lmsResource != undefined) {
-							if (nodeSelected.data.lmsResource != "") {
-								const LMS_RESOURCE = nodeSelected.data.lmsResource;
-								const STORED_RESOURCE = DATA.find(
-									(resource) => resource.id == LMS_RESOURCE
-								);
+						if ("lmsResource" in nodeSelected.data)
+							if (nodeSelected.data.lmsResource != undefined) {
+								if (nodeSelected.data.lmsResource != "") {
+									const LMS_RESOURCE = nodeSelected.data.lmsResource;
+									const STORED_RESOURCE = DATA.find(
+										(resource) => resource.id == LMS_RESOURCE
+									);
 
-								if (STORED_RESOURCE != undefined) {
-									FILTERED_DATA.push(STORED_RESOURCE);
+									if (STORED_RESOURCE != undefined) {
+										FILTERED_DATA.push(STORED_RESOURCE);
+									}
 								}
 							}
-						}
 					}
 
 					const UNIQUE_FILTERED_DATA = orderByPropertyAlphabetically(
@@ -256,18 +255,19 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 					});
 					//Adds current resource if exists
 					if (nodeSelected && nodeSelected.data) {
-						if (nodeSelected.data.lmsResource) {
-							if (nodeSelected.data.lmsResource != "") {
-								const lmsRes = nodeSelected.data.lmsResource;
-								const storedRes = data.find(
-									(resource) => resource.id == lmsRes
-								);
+						if ("lmsResource" in nodeSelected.data)
+							if (nodeSelected.data.lmsResource) {
+								if (nodeSelected.data.lmsResource != "") {
+									const lmsRes = nodeSelected.data.lmsResource;
+									const storedRes = data.find(
+										(resource) => resource.id == lmsRes
+									);
 
-								if (storedRes != undefined) {
-									FILTERED_DATA.push(storedRes);
+									if (storedRes != undefined) {
+										FILTERED_DATA.push(storedRes);
+									}
 								}
 							}
-						}
 					}
 					const UNIQUE_FILTERED_DATA = orderByPropertyAlphabetically(
 						deduplicateById(FILTERED_DATA),
@@ -297,14 +297,16 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 			if (resourceOptions.length > 0) {
 				const resourceIDs = resourceOptions.map((resource) => resource.id);
 				const lmsResourceCurrent = lmsResourceDOM.current;
-				if (lmsResourceCurrent) {
-					if (resourceIDs.includes(nodeSelected.data.lmsResource)) {
-						lmsResourceCurrent.value = nodeSelected.data.lmsResource;
-					} else {
-						lmsResourceCurrent.value = "-1";
+				if ("lmsResource" in nodeSelected.data) {
+					if (lmsResourceCurrent) {
+						if (resourceIDs.includes(nodeSelected.data.lmsResource)) {
+							lmsResourceCurrent.value = nodeSelected.data.lmsResource;
+						} else {
+							lmsResourceCurrent.value = "-1";
+						}
 					}
+					setLmsResource(nodeSelected.data.lmsResource);
 				}
-				setLmsResource(nodeSelected.data.lmsResource);
 			}
 		}
 	}, [resourceOptions]);
@@ -366,23 +368,27 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 			}
 
 			if (CURRENT_LMS_VISIBILITY) {
-				CURRENT_LMS_VISIBILITY.value = nodeSelected.data.lmsVisibility;
+				if ("lmsVisibility" in nodeSelected.data)
+					CURRENT_LMS_VISIBILITY.value = nodeSelected.data.lmsVisibility;
 			}
 
 			if (CURRENT_SECTION) {
-				CURRENT_SECTION.value = nodeSelected.data.section;
+				if ("section" in nodeSelected.data)
+					CURRENT_SECTION.value = nodeSelected.data.section;
 			}
 
 			if (CURRENT_ORDER) {
-				CURRENT_ORDER.value = nodeSelected.data.order + 1;
+				if ("order" in nodeSelected.data)
+					CURRENT_ORDER.value = nodeSelected.data.order + 1;
 			}
 
 			if (CURRENT_INDENT) {
-				if (metaData.platform == "sakai") {
-					CURRENT_INDENT.value = nodeSelected.data.indent + 1;
-				} else {
-					CURRENT_INDENT.value = nodeSelected.data.indent;
-				}
+				if ("indent" in nodeSelected.data)
+					if (metaData.platform == "sakai") {
+						CURRENT_INDENT.value = nodeSelected.data.indent + 1;
+					} else {
+						CURRENT_INDENT.value = nodeSelected.data.indent;
+					}
 			}
 
 			setSelectedOption(nodeSelected.type);
@@ -401,7 +407,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 	/**
 	 * Updates the selected block with the values from the specified DOM elements.
 	 */
-	const updateBlock = () => {
+	const updateBlock = (e: SyntheticEvent) => {
 		if (nodeSelected.type != "fragment") {
 			const RESOURCE_TYPE = resourceDOM.current.value;
 			let newData;
@@ -414,7 +420,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 					section: originalSection,
 					indent: originalIndent,
 					order: originalOrder,
-				} = nodeSelected.data;
+				} = nodeSelected.data as IElementNodeData;
 
 				const LIMITED_ORDER = Math.min(
 					Math.max(orderDOM.current.value, 0),
@@ -595,7 +601,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 	/**
 	 * Updates the selected map with the value from the specified DOM element.
 	 */
-	const updateMap = () => {
+	const updateMap = (e: SyntheticEvent) => {
 		setMapSelected((prevMap) => ({
 			...prevMap,
 			id: mapSelected.id,
@@ -606,7 +612,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 	/**
 	 * Updates the selected version with the value from the specified DOM element.
 	 */
-	const updateVersion = () => {
+	const updateVersion = (e: SyntheticEvent) => {
 		setVersionJson((prevVersionJson) => ({
 			...prevVersionJson,
 			id: editVersionSelected.id,
@@ -850,12 +856,12 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 											id={lmsResourceDOMId}
 											className="w-100"
 											defaultValue={lmsResource == "" ? lmsResource : "-1"}
-											disabled={!resourceOptions.length > 0}
+											disabled={!resourceOptions.length}
 											onChange={syncLabel}
 										>
 											{allowResourceSelection && (
 												<>
-													<option key="-1" hidden value>
+													<option key="-1" hidden value={-1}>
 														{"Esperando recursos..."}
 													</option>
 													{resourceOptions.map((resource) => (
@@ -901,123 +907,137 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 										reducedAnimations && styles.noAnimation,
 									].join(" ")}
 								>
-									{metaData.platform == "moodle" && (
-										<Form.Group className="mb-2">
-											<Form.Label htmlFor={lmsVisibilityDOMId}>
-												Visibilidad
-											</Form.Label>
-											<Form.Select
-												ref={lmsVisibilityDOM}
-												id={lmsVisibilityDOMId}
-												defaultValue={nodeSelected.data.lmsVisibility}
-											>
-												{orderByPropertyAlphabetically(shownTypes, "name").map(
-													(option) => (
-														<option key={option.value} value={option.value}>
-															{option.name}
-														</option>
-													)
-												)}
-												{/*<option>Ocultar hasta tener acceso</option>
-											<option>Mostrar siempre sin acceso</option>*/}
-											</Form.Select>
-										</Form.Group>
-									)}
-
-									<>
-										{metaData.platform == "moodle" && (
+									{metaData.platform == "moodle" &&
+										"lmsVisibility" in nodeSelected.data && (
 											<Form.Group className="mb-2">
-												<Form.Label htmlFor={sectionDOMId}>Sección</Form.Label>
+												<Form.Label htmlFor={lmsVisibilityDOMId}>
+													Visibilidad
+												</Form.Label>
 												<Form.Select
-													ref={sectionDOM}
-													id={sectionDOMId}
-													defaultValue={nodeSelected.data.section}
+													ref={lmsVisibilityDOM}
+													id={lmsVisibilityDOMId}
+													defaultValue={nodeSelected.data.lmsVisibility}
 												>
-													{metaData.sections &&
+													{shownTypes.length > 0 &&
 														orderByPropertyAlphabetically(
-															[...metaData.sections].map((section) => {
-																const newSection = JSON.parse(
-																	JSON.stringify(section)
-																);
-																if (!section.name.match(/^\d/)) {
-																	newSection.name =
-																		metaData.platform == "moodle"
-																			? newSection.position +
-																			  "- " +
-																			  newSection.name
-																			: newSection.position +
-																			  1 +
-																			  "- " +
-																			  newSection.name;
-																	newSection.value = newSection.position + 1;
-																}
-																return newSection;
-															}),
+															shownTypes,
 															"name"
-														).map((section) => (
-															<option key={section.id} value={section.position}>
-																{section.name}
+														).map((option) => (
+															<option key={option.value} value={option.value}>
+																{option.name}
 															</option>
 														))}
 												</Form.Select>
 											</Form.Group>
 										)}
-										{metaData.platform == "sakai" && (
+
+									<>
+										{metaData.platform == "moodle" &&
+											"section" in nodeSelected.data && (
+												<Form.Group className="mb-2">
+													<Form.Label htmlFor={sectionDOMId}>
+														Sección
+													</Form.Label>
+													<Form.Select
+														ref={sectionDOM}
+														id={sectionDOMId}
+														defaultValue={nodeSelected.data.section}
+													>
+														{metaData.sections &&
+															orderByPropertyAlphabetically(
+																[...metaData.sections].map((section) => {
+																	const newSection = JSON.parse(
+																		JSON.stringify(section)
+																	);
+																	if (!section.name.match(/^\d/)) {
+																		newSection.name =
+																			metaData.platform == "moodle"
+																				? newSection.position +
+																				  "- " +
+																				  newSection.name
+																				: newSection.position +
+																				  1 +
+																				  "- " +
+																				  newSection.name;
+																		newSection.value = newSection.position + 1;
+																	}
+																	return newSection;
+																}),
+																"name"
+															).map((section) => (
+																<option
+																	key={section.id}
+																	value={section.position}
+																>
+																	{section.name}
+																</option>
+															))}
+													</Form.Select>
+												</Form.Group>
+											)}
+										{metaData.platform == "sakai" &&
+											"section" in nodeSelected.data && (
+												<Form.Group className="mb-2">
+													<Form.Label htmlFor={sectionDOMId}>
+														Sección
+													</Form.Label>
+													<Form.Control
+														type="number"
+														min={1}
+														max={999}
+														defaultValue={nodeSelected.data.section}
+														ref={sectionDOM}
+														id={sectionDOMId}
+													></Form.Control>
+												</Form.Group>
+											)}
+										{metaData.platform == "sakai" &&
+											"indent" in nodeSelected.data && (
+												<Form.Group className="mb-2">
+													<Form.Label htmlFor={indentDOMId}>Columna</Form.Label>
+													<Form.Control
+														type="number"
+														min={1}
+														max={16}
+														defaultValue={nodeSelected.data.indent + 1}
+														ref={indentDOM}
+														id={indentDOMId}
+													></Form.Control>
+												</Form.Group>
+											)}
+										{"order" in nodeSelected.data && (
 											<Form.Group className="mb-2">
-												<Form.Label htmlFor={sectionDOMId}>Sección</Form.Label>
+												<Form.Label htmlFor={orderDOMId}>
+													{metaData.platform === "sakai"
+														? "Posición"
+														: "Posición en la sección"}
+												</Form.Label>
 												<Form.Control
 													type="number"
 													min={1}
 													max={999}
-													defaultValue={nodeSelected.data.section}
-													ref={sectionDOM}
-													id={sectionDOMId}
+													defaultValue={nodeSelected.data.order}
+													ref={orderDOM}
+													id={orderDOMId}
 												></Form.Control>
 											</Form.Group>
 										)}
-										{metaData.platform == "sakai" && (
-											<Form.Group className="mb-2">
-												<Form.Label htmlFor={indentDOMId}>Columna</Form.Label>
-												<Form.Control
-													type="number"
-													min={1}
-													max={16}
-													defaultValue={nodeSelected.data.indent + 1}
-													ref={indentDOM}
-													id={indentDOMId}
-												></Form.Control>
-											</Form.Group>
-										)}
-										<Form.Group className="mb-2">
-											<Form.Label htmlFor={orderDOMId}>
-												{metaData.platform === "sakai"
-													? "Posición"
-													: "Posición en la sección"}
-											</Form.Label>
-											<Form.Control
-												type="number"
-												min={1}
-												max={999}
-												defaultValue={nodeSelected.data.order}
-												ref={orderDOM}
-												id={orderDOMId}
-											></Form.Control>
-										</Form.Group>
-										{metaData.platform == "moodle" && (
-											<Form.Group className="mb-2">
-												<Form.Label htmlFor={indentDOMId}>
-													Identación en la sección
-												</Form.Label>
-												<Form.Control
-													type="number"
-													min={0}
-													max={16}
-													defaultValue={nodeSelected.data.indent}
-													ref={indentDOM}
-													id={indentDOMId}
-												></Form.Control>
-											</Form.Group>
-										)}
+										{metaData.platform == "moodle" &&
+											"indent" in nodeSelected.data && (
+												<Form.Group className="mb-2">
+													<Form.Label htmlFor={indentDOMId}>
+														Identación en la sección
+													</Form.Label>
+													<Form.Control
+														type="number"
+														min={0}
+														max={16}
+														defaultValue={nodeSelected.data.indent}
+														ref={indentDOM}
+														id={indentDOMId}
+													></Form.Control>
+												</Form.Group>
+											)}
 									</>
 								</div>
 							</div>
@@ -1064,7 +1084,7 @@ export default function Aside({ LTISettings, className, closeBtn, svgExists }) {
 								styles.uniadaptiveDetails,
 								expandedAside && styles.active,
 								reducedAnimations && styles.noAnimation,
-							]}
+							].join(" ")}
 						>
 							<Form.Group className="mb-3">
 								<Form.Label className="mb-1">Nombre del mapa</Form.Label>

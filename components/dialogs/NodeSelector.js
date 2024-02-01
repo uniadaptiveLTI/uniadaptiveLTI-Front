@@ -13,7 +13,7 @@ import {
 	orderByPropertyAlphabetically,
 	parseBool,
 	uniqueId,
-} from "@utils/Utils.js";
+} from "@utils/Utils";
 import { getTypeIcon, getTypeStaticColor } from "../../utils/NodeIcons";
 import styles from "/styles/NodeSelector.module.css";
 import { useNodes } from "reactflow";

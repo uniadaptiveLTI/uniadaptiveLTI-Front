@@ -2,9 +2,9 @@ import styles from "/styles/ContextualMenu.module.css";
 import { forwardRef, useContext, useState, useLayoutEffect } from "react";
 import { ExpandedAsideContext } from "pages/_app";
 import { useReactFlow } from "reactflow";
-import CMNodeMenu from "./contextualmenu/CMNodeMenu";
-import CMPaneMenu from "./contextualmenu/CMPaneMenu";
-import CMSelectionMenu from "./contextualmenu/CMSelectionMenu";
+import CMNodeMenu from "./CMNodeMenu";
+import CMPaneMenu from "./CMPaneMenu";
+import CMSelectionMenu from "./CMSelectionMenu";
 
 export default forwardRef(function ContextualMenu(
 	{

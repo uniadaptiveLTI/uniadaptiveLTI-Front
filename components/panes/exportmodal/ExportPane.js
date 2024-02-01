@@ -13,7 +13,7 @@ import { NodeTypes } from "@utils/TypeDefinitions";
 import { MapInfoContext } from "pages/_app";
 import { getBackupURL } from "@utils/Platform";
 import { ActionNodes } from "@utils/Nodes";
-import { fetchBackEnd, saveVersion } from "@utils/Utils";
+import { saveVersion } from "@utils/Utils";
 import { toast } from "react-toastify";
 import {
 	parseMoodleBadgeToExport,
@@ -23,6 +23,8 @@ import {
 import LessonSelector from "@components/forms/components/LessonSelector";
 import { sakaiTypeSwitch } from "@utils/Sakai";
 import { getSectionNodes } from "../../../utils/Nodes";
+import { fetchBackEnd } from "middleware/common";
+
 export default function ExportPanel({
 	errorList,
 	warningList,
@@ -30,7 +32,6 @@ export default function ExportPanel({
 	metaData,
 	userData,
 	mapName,
-	LTISettings,
 	selectedVersion,
 }) {
 	const reactFlowInstance = useReactFlow();
@@ -723,7 +724,6 @@ export default function ExportPanel({
 						userData,
 						mapSelected,
 						selectedVersion,
-						LTISettings,
 						DEFAULT_TOAST_SUCCESS,
 						DEFAULT_TOAST_ERROR,
 						toast,

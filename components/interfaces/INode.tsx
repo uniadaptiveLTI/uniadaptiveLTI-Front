@@ -5,7 +5,14 @@ export interface INode extends Node {
 	data: INodeData;
 }
 
-interface ElementNodeData {
+export interface IFragment extends Node {
+	type: "fragment";
+	data: FragmentNodeData;
+}
+
+export type INodeType = INode | IFragment;
+
+export interface IElementNodeData {
 	label: string;
 	children: Array<string>;
 
@@ -17,10 +24,14 @@ interface ElementNodeData {
 	g: IGradableData;
 
 	lmsVisibility: "show_unconditionally" | "hidden_until_access";
+	lmsResource: string;
 }
 
-interface ActionNodeData {
+export interface IActionNodeData {
 	label: string;
+	lmsResource: string;
+
+	c?: any; // TODO: Do the correct condition type
 }
 
 interface FragmentNodeData {
@@ -29,7 +40,7 @@ interface FragmentNodeData {
 	innerNodes: Array<string>;
 }
 
-export type INodeData = ElementNodeData | ActionNodeData | FragmentNodeData;
+export type INodeData = IElementNodeData | IActionNodeData;
 
 interface IGradableData {
 	hasConditions: boolean;

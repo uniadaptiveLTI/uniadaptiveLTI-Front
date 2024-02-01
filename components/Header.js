@@ -55,10 +55,9 @@ import {
 	capitalizeFirstLetter,
 	uniqueId,
 	saveVersion,
-	fetchBackEnd,
 	handleNameCollision,
 	saveVersions,
-} from "@utils/Utils.js";
+} from "@utils/Utils";
 import { isNodeArrayEqual } from "@utils/Nodes";
 import { errorListCheck } from "@utils/ErrorHandling";
 import download from "downloadjs";
@@ -76,6 +75,7 @@ import { EditedVersionContext, UserDataContext } from "pages/_app";
 import { parseBool } from "../utils/Utils";
 import ConfirmationModal from "./dialogs/ConfirmationModal";
 import LTIErrorMessage from "/components/messages/LTIErrors";
+import { fetchBackEnd } from "middleware/common";
 
 const DEFAULT_TOAST_SUCCESS = {
 	hideProgressBar: false,
@@ -322,7 +322,6 @@ function Header({ LTISettings }, ref) {
 					metaData.platform,
 					localUserData,
 					data ? NEW_MAP : EMPTY_NEW_MAP,
-					LTISettings,
 					DEFAULT_TOAST_SUCCESS,
 					DEFAULT_TOAST_ERROR,
 					toast,
@@ -452,7 +451,6 @@ function Header({ LTISettings }, ref) {
 				metaData.platform,
 				localUserData,
 				platformNewMap,
-				LTISettings,
 				DEFAULT_TOAST_SUCCESS,
 				DEFAULT_TOAST_ERROR,
 				toast,
@@ -517,37 +515,48 @@ function Header({ LTISettings }, ref) {
 			  };
 
 		const NEW_MAP_VERSIONS = [...SELECTED_MAP.versions, NEW_VERSION];
-		const response = await fetchBackEnd(
-			sessionStorage.getItem("token"),
-			"api/lti/add_version",
-			"POST",
-			{ version: NEW_VERSION }
-		);
-
-		if (!response.ok) {
-			toast(
-				`Ha ocurrido un error durante la creación del mapa`,
-				DEFAULT_TOAST_ERROR
-			);
-			throw new Error("Request failed");
-		} else {
+		if (!process.env.NEXT_PUBLIC_DEV_FILES) {
 			const response = await fetchBackEnd(
 				sessionStorage.getItem("token"),
-				"api/lti/get_versions",
+				"api/lti/add_version",
 				"POST",
-				{ map_id: SELECTED_MAP.id }
+				{ version: NEW_VERSION }
 			);
 
 			if (!response.ok) {
 				toast(
-					`Ha ocurrido un error durante la carga del mapa`,
+					`Ha ocurrido un error durante la creación del mapa`,
 					DEFAULT_TOAST_ERROR
 				);
 				throw new Error("Request failed");
 			} else {
-				setVersions(response.data);
-				setMapSelected(SELECTED_MAP);
+				const response = await fetchBackEnd(
+					sessionStorage.getItem("token"),
+					"api/lti/get_versions",
+					"POST",
+					{ map_id: SELECTED_MAP.id }
+				);
+
+				if (!response.ok) {
+					toast(
+						`Ha ocurrido un error durante la carga del mapa`,
+						DEFAULT_TOAST_ERROR
+					);
+					throw new Error("Request failed");
+				} else {
+					setVersions(response.data);
+					setSelectedVersion(response.data);
+					setCurrentBlocksData(response.data.blocks_data);
+					setMapSelected(SELECTED_MAP);
+					toast(`Versión: ${finalName} creada`, DEFAULT_TOAST_SUCCESS);
+				}
 			}
+		} else {
+			setVersions([...SELECTED_MAP.versions, NEW_VERSION]);
+			setSelectedVersion(NEW_VERSION);
+			if (NEW_VERSION.blocks_data)
+				setCurrentBlocksData(NEW_VERSION.blocks_data);
+			setMapSelected(SELECTED_MAP);
 			toast(`Versión: ${finalName} creada`, DEFAULT_TOAST_SUCCESS);
 		}
 	};
@@ -934,7 +943,7 @@ function Header({ LTISettings }, ref) {
 
 	useEffect(() => {
 		if (selectedVersion) {
-			if (selectedVersion.id != versionJson.id) {
+			if (selectedVersion.id) {
 				resetEdit();
 				errorListCheck(
 					selectedVersion.blocks_data,
@@ -948,7 +957,7 @@ function Header({ LTISettings }, ref) {
 	}, [selectedVersion]);
 
 	useEffect(() => {
-		if (versions) {
+		if (versions && versionJson) {
 			let newVersion = [...versions];
 			newVersion[versions.findIndex((b) => b.id == versionJson.id)] =
 				versionJson;
@@ -1087,7 +1096,6 @@ function Header({ LTISettings }, ref) {
 				userData,
 				mapSelected,
 				selectedVersion,
-				LTISettings,
 				DEFAULT_TOAST_SUCCESS,
 				DEFAULT_TOAST_ERROR,
 				toast,
@@ -1122,16 +1130,18 @@ function Header({ LTISettings }, ref) {
 	const handleConfirmationShow = () => setConfirmationShow(true);
 
 	async function fetchVersion(id) {
-		try {
-			const VERSION_RESPONSE = await fetchBackEnd(
-				sessionStorage.getItem("token"),
-				"api/lti/get_version",
-				"POST",
-				{ version_id: id }
-			);
-			setCurrentBlocksData(VERSION_RESPONSE.data.blocks_data);
-		} catch (error) {
-			console.error("Error, datos de version inválidos");
+		if (!process.env.NEXT_PUBLIC_DEV_FILES) {
+			try {
+				const VERSION_RESPONSE = await fetchBackEnd(
+					sessionStorage.getItem("token"),
+					"api/lti/get_version",
+					"POST",
+					{ version_id: id }
+				);
+				setCurrentBlocksData(VERSION_RESPONSE.data.blocks_data);
+			} catch (error) {
+				console.error("Error, datos de version inválidos");
+			}
 		}
 	}
 
@@ -1175,7 +1185,6 @@ function Header({ LTISettings }, ref) {
 								value={mapSelected?.id || -1}
 								onChange={handleMapChange}
 								disabled={isOffline || !loadedMaps}
-								defaultValue={-1}
 								className="mb-2 mb-sm-0"
 							>
 								{loadedMaps &&

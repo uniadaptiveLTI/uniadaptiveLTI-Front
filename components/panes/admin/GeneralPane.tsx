@@ -1,29 +1,24 @@
-import { fetchBackEnd } from "@utils/Utils";
 import styles from "/styles/AdminPane.module.css";
 import { useEffect, useState } from "react";
 import { Col, Row } from "react-bootstrap";
 import { parseBool } from "../../../utils/Utils";
+import pingBack from "middleware/api/pingBack";
 
 export default function GeneralPane() {
 	const [backStatus, setBackStatus] = useState("Cargando...");
 	const [isBackOnline, setIsBackOnline] = useState(false);
 
 	useEffect(() => {
-		getBackStatus().then((data) => setBackStatus(data));
+		getBackStatus().then((data) => setBackStatus(data as unknown as string));
 	}, []);
 
 	async function getBackStatus() {
 		if (!parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
-			let pong = false;
+			let pong = "";
 			try {
-				const RESPONSE = await fetchBackEnd(
-					sessionStorage.getItem("token"),
-					"api/lti/ping",
-					"POST",
-					{ ping: "ping" }
-				);
+				const RESPONSE = await pingBack();
 				const RESULT = await RESPONSE;
-				pong = RESULT.pong;
+				pong = RESULT.data as string;
 			} catch (e) {
 				console.error("No se puede conectar con el back end");
 			}

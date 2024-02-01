@@ -7,15 +7,44 @@ import "@fortawesome/fontawesome-svg-core/styles.css"; // import Font Awesome CS
 import { config } from "@fortawesome/fontawesome-svg-core";
 config.autoAddCss = false; // Tell Font Awesome to skip adding the CSS automatically since it's being imported above
 import React, { createContext, useState, useEffect, ReactNode } from "react";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
+import { useIsOnline } from "react-use-is-online";
+import { parseBool } from "../utils/Utils";
+import ConfirmationModal from "../components/dialogs/ConfirmationModal";
+import { ReactFlowInstance } from "reactflow";
+import { IVersion } from "@components/interfaces/IVersion";
+import { INodeType } from "@components/interfaces/INode";
+import { IMetaData } from "@components/interfaces/IMetaData";
+import LTIErrorMessage from "@components/messages/LTIErrors";
+import { IMap } from "@components/interfaces/IMap";
+import { ILTISettings } from "@components/interfaces/ILTISettings";
+import getConf from "middleware/api/getConf";
 
 type MapInfoType = {
 	mapSelected: IMap;
 	setMapSelected: React.Dispatch<React.SetStateAction<IMap>>;
 };
 
+type CurrentVersionType = {
+	versionJson: IVersion;
+	setVersionJson: React.Dispatch<React.SetStateAction<IVersion>>;
+};
+
+type EditedVersionType = {
+	editVersionSelected: IVersion;
+	setEditVersionSelected: React.Dispatch<React.SetStateAction<IVersion>>;
+};
+
+type EditedNodeType = {
+	nodeSelected: INodeType;
+	setNodeSelected: React.Dispatch<React.SetStateAction<INodeType>>;
+};
+
 type BlocksDataType = {
-	currentBlocksData: Array<INode>;
-	setCurrentBlocksData: React.Dispatch<React.SetStateAction<Array<INode>>>;
+	currentBlocksData: Array<INodeType>;
+	setCurrentBlocksData: React.Dispatch<React.SetStateAction<Array<INodeType>>>;
 };
 
 type SettingsType = {
@@ -33,29 +62,73 @@ type ReactFlowInstanceType = {
 	setReactFlowInstance: React.Dispatch<React.SetStateAction<ReactFlowInstance>>;
 };
 
+type MetaDataType = {
+	metaData: IMetaData;
+	setMetaData: React.Dispatch<React.SetStateAction<IMetaData>>;
+};
+
+type UserDataType = {
+	userData: IUserData;
+	setUserData: React.Dispatch<React.SetStateAction<IUserData>>;
+};
+
+type HeaderToEmptySelectorType = {
+	mapCount: number;
+	setMapCount: React.Dispatch<React.SetStateAction<number>>;
+	mapNames: Array<string>;
+	setMapNames: React.Dispatch<React.SetStateAction<Array<string>>>;
+	allowUseStatus: boolean;
+	setAllowUseStatus: React.Dispatch<React.SetStateAction<boolean>>;
+	maps: Array<IMap>;
+	setMaps: React.Dispatch<React.SetStateAction<Array<IMap>>>;
+	funcCreateMap: Function;
+	setFuncCreateMap: React.Dispatch<React.SetStateAction<Function>>;
+	funcImportMap: Function;
+	setFuncImportMap: React.Dispatch<React.SetStateAction<Function>>;
+	funcImportMapFromLesson: Function;
+	setFuncImportMapFromLesson: React.Dispatch<React.SetStateAction<Function>>;
+	funcMapChange: Function;
+	setFuncMapChange: React.Dispatch<React.SetStateAction<Function>>;
+};
+
+type ExpandedAsideType = {
+	expandedAside: boolean;
+	setExpandedAside: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+type MainDOMType = {
+	mainDOM: HTMLElement;
+	setMainDOM: React.Dispatch<React.SetStateAction<HTMLElement>>;
+};
+
 type LTISettingsType = {
-	LTISettings: IUserData;
+	LTISettings: ILTISettings;
 	setLTISettings: React.Dispatch<React.SetStateAction<IUserData>>;
 };
 
 type ErrorListType = {
-	errorList: Array<INodeError>;
-	setErrorList: React.Dispatch<React.SetStateAction<Array<INodeError>>>;
+	errorList: Array<string>;
+	setErrorList: React.Dispatch<React.SetStateAction<Array<string>>>;
 };
 
 export const MapInfoContext = createContext<MapInfoType | undefined>(undefined); // Contains the current selected map
 
-export const CurrentVersionContext = createContext<IVersion | undefined>(
+export const CurrentVersionContext = createContext<
+	CurrentVersionType | undefined
+>(undefined); // Contains the current version
+
+export const EditedVersionContext = createContext<
+	EditedVersionType | undefined
+>(undefined); // Contains the version that is being edited
+
+export const EditedNodeContext = createContext<EditedNodeType | undefined>(
 	undefined
-); // Contains the current version
+); // Contains the node that is being edited
 
-export const EditedVersionContext = createContext<IVersion | undefined>(
-	undefined
-); // Contains the version that is being edited
-
-export const EditedNodeContext = createContext<INode | undefined>(undefined); // Contains the node that is being edited
-
-export const ExpandedAsideContext = createContext<boolean>(false); // True/false if Aside is visible
+export const ExpandedAsideContext = createContext<ExpandedAsideType>({
+	expandedAside: false,
+	setExpandedAside: () => {},
+}); // True/false if Aside is visible
 
 export const SettingsContext = createContext<SettingsType>(undefined); // Contains user settings
 
@@ -63,7 +136,7 @@ export const BlocksDataContext = createContext<BlocksDataType | undefined>(
 	undefined
 ); //Contains current version's blocksdata
 
-export const MainDOMContext = createContext<HTMLElement | null>(null); //Contains the <Main> HTML Element
+export const MainDOMContext = createContext<MainDOMType | null>(null); //Contains the <Main> HTML Element
 
 export const OnlineContext = createContext<OnlineType>({
 	isOnline: true,
@@ -74,12 +147,16 @@ export const ReactFlowInstanceContext = createContext<
 	ReactFlowInstanceType | undefined
 >(undefined); //Contains the current reactFlowInstance
 
-export const MetaDataContext = createContext<IMetaData | undefined>(undefined); //Contains metadata information
+export const MetaDataContext = createContext<MetaDataType | undefined>(
+	undefined
+); //Contains metadata information
 
-export const UserDataContext = createContext<IUserData | undefined>(undefined); //Contains userdata information
+export const UserDataContext = createContext<UserDataType | undefined>(
+	undefined
+); //Contains userdata information
 
 export const HeaderToEmptySelectorContext = createContext<
-	IMetaData | undefined
+	HeaderToEmptySelectorType | undefined
 >(undefined); //References functionally from the Header to be able to use it in the empty selector.
 
 export const LTISettingsContext = createContext<LTISettingsType | undefined>(
@@ -89,20 +166,6 @@ export const LTISettingsContext = createContext<LTISettingsType | undefined>(
 export const ErrorListContext = createContext<ErrorListType | undefined>(
 	undefined
 ); // Contains an array with error objects
-
-import "react-toastify/dist/ReactToastify.css";
-import { ToastContainer } from "react-toastify";
-import { toast } from "react-toastify";
-import { useIsOnline } from "react-use-is-online";
-import { fetchBackEnd, parseBool } from "../utils/Utils";
-import ConfirmationModal from "../components/dialogs/ConfirmationModal";
-import { ReactFlowInstance } from "reactflow";
-import { IVersion } from "@components/interfaces/IVersion";
-import { INodeError } from "@components/interfaces/INodeError";
-import { INode } from "@components/interfaces/INode";
-import { IMetaData } from "@components/interfaces/IMetaData";
-import LTIErrorMessage from "@components/messages/LTIErrors";
-import { IMap } from "@components/interfaces/IMap";
 
 const SESSION_START = Date.now();
 
@@ -166,11 +229,8 @@ export default function App({ Component, pageProps }) {
 	async function getLTISettings() {
 		if (!parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
 			try {
-				const response = await fetchBackEnd(
-					getToken(),
-					"api/lti/get_conf",
-					"POST"
-				);
+				getToken();
+				const response = await getConf();
 				setLTISettings(response);
 			} catch (e) {
 				setConfirmationMessage(

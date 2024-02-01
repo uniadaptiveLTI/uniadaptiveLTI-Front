@@ -1,6 +1,10 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { clampNodesOrderMoodle } from "./Moodle";
 import { clampNodesOrderSakai } from "./Sakai";
+import { fetchBackEnd } from "middleware/common";
+import storeVersion, {
+	VersionStoreSkeleton,
+} from "middleware/api/storeVersion";
 
 /**
  * Returns a new array with updated entries from the original array.
@@ -80,7 +84,7 @@ export function nearestPowerOfTwo(n) {
  * @param {string} [subproperty] - The subproperty to sort by, if the property is an object.
  * @return {Object[]} The array sorted by the property or subproperty indicated.
  */
-export function orderByPropertyAlphabetically(array, property, subproperty) {
+export function orderByPropertyAlphabetically(array, property, subproperty?) {
 	if (subproperty) {
 		return [...array].sort((a, b) =>
 			a[property][subproperty].localeCompare(b[property][subproperty])
@@ -298,39 +302,6 @@ export function getFetchUrl(webservice) {
 }
 
 /**
- * Fetches data from the back-end using the specified token, webservice, and method.
- * @async
- * @function
- * @param {string} token - The token to use for authentication.
- * @param {string} webservice - The webservice to fetch data from.
- * @param {string} [method="GET"] - The HTTP method to use for the request.
- * @param {Object} [load] - The payload to send with the request.
- * @returns {Promise<Object>} A Promise that resolves to the fetched data.
- */
-export async function fetchBackEnd(token, webservice, method = "GET", load) {
-	const FETCH_URL = getFetchUrl(webservice);
-	let fetchResponse;
-
-	if (method === "POST") {
-		const RESPONSE = await fetch(FETCH_URL, {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ ...load, token: token }),
-		});
-		fetchResponse = await RESPONSE.json();
-	} else if (method === "GET") {
-		fetchResponse = (
-			await fetch(
-				FETCH_URL +
-					`?${new URLSearchParams({ ...load, token: token }).toString()}`
-			)
-		).json();
-	}
-
-	return fetchResponse;
-}
-
-/**
  * Gets a section from an array of sections based on its position property value.
  * @param {Array<Object>} sectionArray - An array of sections to search for a section with a matching position property value.
  * @param {number} sectionPosition - The position property value of the section to search for in the section array.
@@ -428,7 +399,6 @@ export async function saveVersion(
 	userData,
 	mapSelected,
 	versionJson,
-	LTISettings,
 	defaultToastSuccess,
 	defaultToastError,
 	toast,
@@ -460,7 +430,7 @@ export async function saveVersion(
 	const SUCCESS_MESSAGE = "Versión guardada con éxito";
 	const ERROR_MESSAGE = "No se pudo guardar";
 	try {
-		const SAVE_DATA = {
+		const SAVE_DATA: VersionStoreSkeleton = {
 			instance_id: metaData.instance_id,
 			course_id: metaData.course_id,
 			platform: platform,
@@ -483,12 +453,7 @@ export async function saveVersion(
 			SAVE_DATA.lesson_id = lesson;
 		}
 
-		const RESPONSE = await fetchBackEnd(
-			sessionStorage.getItem("token"),
-			"api/lti/store_version",
-			"POST",
-			{ saveData: SAVE_DATA }
-		);
+		const RESPONSE = await storeVersion(SAVE_DATA);
 
 		saveVersionErrors(
 			RESPONSE,
@@ -530,7 +495,6 @@ export async function saveVersions(
 	platform,
 	userData,
 	mapSelected,
-	LTISettings,
 	defaultToastSuccess,
 	defaultToastError,
 	toast,
@@ -569,7 +533,7 @@ export async function saveVersions(
 	const SUCCESS_MESSAGE = "Versión guardada con éxito";
 	const ERROR_MESSAGE = "No se pudo guardar";
 	try {
-		const SAVE_DATA = {
+		const SAVE_DATA: VersionStoreSkeleton = {
 			instance_id: metaData.instance_id,
 			course_id: metaData.course_id,
 			platform: platform,

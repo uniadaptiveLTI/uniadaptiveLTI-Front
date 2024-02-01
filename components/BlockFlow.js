@@ -51,7 +51,7 @@ import { errorListCheck } from "@utils/ErrorHandling";
 import { toast } from "react-toastify";
 import { getAutomaticReusableStyles } from "@utils/Colors";
 import { useHotkeys } from "react-hotkeys-hook";
-import ContextualMenu from "@components/flow/ContextualMenu.js";
+import ContextualMenu from "@components/flow/contextualmenu/ContextualMenu.js";
 import ConditionModalMoodle from "@components/flow/conditions/moodle/ConditionModalMoodle.js";
 import RequisiteModalSakai from "@components/flow/conditions/sakai/RequisiteModalSakai";
 import QualificationModal from "@components/flow/conditions/moodle/QualificationModal.js";

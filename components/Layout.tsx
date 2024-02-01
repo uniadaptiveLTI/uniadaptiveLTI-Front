@@ -12,19 +12,19 @@ import {
 	HeaderToEmptySelectorContext,
 	UserDataContext,
 	EditedVersionContext,
-} from "pages/_app.tsx";
+} from "pages/_app";
 import { applyBranding } from "@utils/Colors";
 
 export default function Layout({ LTISettings, children }) {
 	const [platform, setPlatform] = useState("moodle"); //default to moodle in testing phase
 	const [metaData, setMetaData] = useState();
 	const [userData, setUserData] = useState();
-	const [nodeSelected, setNodeSelected] = useState("");
-	const [editVersionSelected, setEditVersionSelected] = useState("");
+	const [nodeSelected, setNodeSelected] = useState();
+	const [editVersionSelected, setEditVersionSelected] = useState();
 
 	const [expandedAside, setExpandedAside] = useState(false);
 
-	const [versionJson, setVersionJson] = useState("");
+	const [versionJson, setVersionJson] = useState();
 
 	const [fixedMainHeight, setFixedMainHeight] = useState("100vh");
 
@@ -34,7 +34,7 @@ export default function Layout({ LTISettings, children }) {
 	const [mapCount, setMapCount] = useState(0);
 	const [mapNames, setMapNames] = useState([]);
 	const [allowUseStatus, setAllowUseStatus] = useState(false);
-	const emptyMap = { id: -1, name: "Seleccionar un mapa" };
+	const emptyMap = { id: "-1", name: "Seleccionar un mapa", versions: [] };
 	const [maps, setMaps] = useState([emptyMap]);
 	const [funcCreateMap, setFuncCreateMap] = useState();
 	const [funcImportMap, setFuncImportMap] = useState();
@@ -84,7 +84,7 @@ export default function Layout({ LTISettings, children }) {
 			if (CURRENT_HEADER) {
 				const CURRENT_HEADER_HEIGHT =
 					CURRENT_HEADER.getBoundingClientRect().height;
-				return window.innerHeight - CURRENT_HEADER_HEIGHT;
+				return window.innerHeight - CURRENT_HEADER_HEIGHT + "px";
 			}
 		} else {
 			return "100vh";

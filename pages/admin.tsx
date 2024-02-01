@@ -3,15 +3,16 @@ import { Button, Container, Col, Row, Form } from "react-bootstrap";
 import { useContext, useId, useLayoutEffect, useRef, useState } from "react";
 import GeneralPane from "@components/panes/admin/GeneralPane";
 import BrandingPane from "@components/panes/admin/BrandingPane";
-import APIPane from "@components/panes/admin/APIPane";
 import { toast } from "react-toastify";
 
 import Head from "next/head";
-import { fetchBackEnd, parseBool } from "../utils/Utils";
+import { parseBool } from "../utils/Utils";
 import { LTISettingsContext } from "./_app";
 import { applyBranding } from "../utils/Colors";
 import Link from "next/link";
 import ConfirmationModal from "../components/dialogs/ConfirmationModal";
+import adminAuth from "middleware/api/auth";
+import setConf from "middleware/api/setConf";
 
 export default function Admin() {
 	const { LTISettings } = useContext(LTISettingsContext);
@@ -20,7 +21,7 @@ export default function Admin() {
 	const [auth, setAuth] = useState(false);
 	const [lastPassword, setLastPassword] = useState("");
 
-	const loginInputDOM = useRef();
+	const loginInputDOM = useRef<HTMLInputElement>();
 	const LOGIN_INPUT_ID = useId();
 
 	useLayoutEffect(() => {
@@ -32,16 +33,13 @@ export default function Admin() {
 	const logIn = async () => {
 		if (!parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
 			try {
-				setLastPassword(loginInputDOM.current.value);
-				const RESPONSE = await fetchBackEnd(
-					sessionStorage.getItem("token"),
-					"api/lti/auth",
-					"POST",
-					{ password: loginInputDOM.current.value }
+				setLastPassword(
+					loginInputDOM.current ? loginInputDOM.current.value : ""
 				);
-				setAuth(RESPONSE.valid);
+				const RESPONSE = await adminAuth(loginInputDOM.current.value);
+				setAuth(RESPONSE.ok);
 
-				if (!RESPONSE.valid) {
+				if (!RESPONSE.ok) {
 					toast("Contraseña incorrecta.", {
 						hideProgressBar: false,
 						autoClose: 4000,
@@ -72,12 +70,7 @@ export default function Admin() {
 	const modifySettings = async (modifiedSettings) => {
 		const NEW_SETTINGS = { ...LTISettings, ...modifiedSettings };
 
-		const RESPONSE = await fetchBackEnd(
-			sessionStorage.getItem("token"),
-			"api/lti/set_conf",
-			"POST",
-			{ password: lastPassword, settings: NEW_SETTINGS }
-		);
+		const RESPONSE = await setConf(lastPassword, NEW_SETTINGS);
 
 		if (RESPONSE.ok) {
 			handleConfirmationShow();
@@ -167,21 +160,13 @@ export default function Admin() {
 											lg="7"
 											xl="10"
 										>
-											{activeTab == 0 && (
-												<GeneralPane LTISettings={LTISettings} />
-											)}
+											{activeTab == 0 && <GeneralPane />}
 											{activeTab == 1 && (
 												<BrandingPane
 													modifySettings={modifySettings}
 													LTISettings={LTISettings}
 												/>
 											)}
-											{/* {activeTab == 2 && (
-												<APIPane
-													modifySettings={modifySettings}
-													LTISettings={LTISettings}
-												/>
-											)} */}
 										</Col>
 									</Row>
 								) : (
@@ -209,7 +194,6 @@ export default function Admin() {
 													></Form.Control>
 													<Button
 														variant="primary"
-														padding="md"
 														style={{ width: "100%", marginTop: "2em" }}
 														onClick={() => logIn()}
 													>
@@ -219,11 +203,7 @@ export default function Admin() {
 														href="/"
 														style={{ width: "100%", marginTop: "1em" }}
 													>
-														<Button
-															variant="danger"
-															padding="md"
-															style={{ width: "100%" }}
-														>
+														<Button variant="danger" style={{ width: "100%" }}>
 															Salir
 														</Button>
 													</Link>

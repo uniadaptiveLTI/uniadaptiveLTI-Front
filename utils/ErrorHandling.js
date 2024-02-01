@@ -7,7 +7,12 @@ import { uniqueId } from "@utils/Utils";
  * @param {function} setErrorList - The function to set the new error list.
  * @param {boolean} deleteFromList - A flag to indicate if the errors should be deleted from the list or not.
  */
-export function errorListCheck(data, errorList, setErrorList, deleteFromList) {
+export function errorListCheck(
+	data,
+	errorList,
+	setErrorList,
+	deleteFromList = false
+) {
 	let errorArray = errorList;
 	if (!errorArray) {
 		errorArray = [];
