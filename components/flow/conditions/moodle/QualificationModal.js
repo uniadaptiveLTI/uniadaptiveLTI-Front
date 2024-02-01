@@ -3,24 +3,24 @@ import { Modal, Button, Form, Row, Col, Container } from "react-bootstrap";
 import { getUpdatedArrayById, uniqueId } from "@utils/Utils";
 import { useReactFlow } from "reactflow";
 import { NodeTypes, getGradable } from "@utils/TypeDefinitions";
-import { PlatformContext } from "pages/_app";
 import { getNodeById, getNodeTypeGradableType } from "@utils/Nodes";
 import QualificationForm from "@components/flow/conditions/moodle/form-components/QualificationForm";
 import { hasConditionsNeedingCompletion } from "@utils/Moodle";
 import { toast } from "react-toastify";
+import { MetaDataContext } from "/pages/_app";
 
 function QualificationModal({
 	blockData,
 	showConditionsModal,
 	setShowConditionsModal,
 }) {
+	const { metaData } = useContext(MetaDataContext);
 	const reactFlowInstance = useReactFlow();
-	const { platform } = useContext(PlatformContext);
 	const qualificationFormResult = useRef();
 
-	const GRADE_CONDITION_TYPE = getGradable(platform)
+	const GRADE_CONDITION_TYPE = getGradable(metaData.platform)
 		.find((declaration) => declaration.type == blockData.type)
-		.gradable.find((gradableDec) => gradableDec.lms == platform).type; //Returns the type of gradable for this node type for this platform
+		.gradable.find((gradableDec) => gradableDec.lms == metaData.platform).type; //Returns the type of gradable for this node type for this platform
 
 	const handleClose = () => {
 		setShowConditionsModal(false);
@@ -97,7 +97,7 @@ function QualificationModal({
 								if (NEEDING_COMPLETION) {
 									const CURRENT_GRADABLE_TYPE = getNodeTypeGradableType(
 										blockData,
-										platform
+										metaData.platform
 									);
 									if (
 										CURRENT_GRADABLE_TYPE &&

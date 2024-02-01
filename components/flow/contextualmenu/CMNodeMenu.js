@@ -13,7 +13,7 @@ import { Button } from "react-bootstrap";
 import { ActionNodes } from "@utils/Nodes";
 import { useRef, forwardRef, useContext } from "react";
 import { getGradableTypes } from "@utils/TypeDefinitions";
-import { PlatformContext } from "pages/_app";
+import { MetaDataContext } from "/pages/_app";
 
 const Menu = (
 	{
@@ -35,14 +35,14 @@ const Menu = (
 	},
 	ref
 ) => {
-	const { platform } = useContext(PlatformContext);
-	const GRADABLE_TYPES = getGradableTypes(platform);
+	const { metaData } = useContext(MetaDataContext);
+	const GRADABLE_TYPES = getGradableTypes(metaData.platform);
 
 	return (
 		<div ref={ref} className={styles.cM + " "}>
 			{["fragment"].includes(blockData.type) == false && (
 				<li>
-					{platform == "moodle" && (
+					{metaData.platform == "moodle" && (
 						<Button
 							variant="light"
 							onClick={() => handleShow("conditions")}
@@ -57,7 +57,7 @@ const Menu = (
 							</div>
 						</Button>
 					)}
-					{platform == "sakai" && (
+					{metaData.platform == "sakai" && (
 						<Button
 							variant="light"
 							onClick={() => handleShow("requisites")}

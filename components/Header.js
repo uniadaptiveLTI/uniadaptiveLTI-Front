@@ -15,50 +15,45 @@ import {
 	Button,
 	Container,
 	Dropdown,
-	SplitButton,
 	Form,
 	Nav,
 	Navbar,
 	Modal,
-	Popover,
-	OverlayTrigger,
 	Spinner,
+	DropdownButton,
+	OverlayTrigger,
+	Tooltip,
 } from "react-bootstrap";
 import { useReactFlow, useNodes } from "reactflow";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-	faBell,
 	faCircleQuestion,
 	faCirclePlus,
 	faPencil,
 	faTrash,
 	faFloppyDisk,
 	faTriangleExclamation,
-	faFileExport,
 	faArrowRightToBracket,
+	faEllipsisVertical,
 } from "@fortawesome/free-solid-svg-icons";
 import {
-	NodeInfoContext,
+	EditedNodeContext,
 	ExpandedAsideContext,
 	MapInfoContext,
-	VersionJsonContext,
-	VersionInfoContext,
-	PlatformContext,
+	CurrentVersionContext,
 	BlocksDataContext,
 	SettingsContext,
 	OnlineContext,
 	MetaDataContext,
 	ErrorListContext,
 	HeaderToEmptySelectorContext,
-} from "/pages/_app";
+} from "pages/_app";
 import { toast } from "react-toastify";
 import {
 	base64Decode,
 	base64Encode,
 	capitalizeFirstLetter,
-	orderByPropertyAlphabetically,
 	uniqueId,
-	getHTTPPrefix,
 	saveVersion,
 	fetchBackEnd,
 	handleNameCollision,
@@ -77,8 +72,10 @@ import {
 	parseMoodleBadges,
 } from "@utils/Moodle";
 import { createNewSakaiMap, parseSakaiNode } from "@utils/Sakai";
-import { UserDataContext } from "../pages/_app";
+import { EditedVersionContext, UserDataContext } from "pages/_app";
 import { parseBool } from "../utils/Utils";
+import ConfirmationModal from "./dialogs/ConfirmationModal";
+import LTIErrorMessage from "/components/messages/LTIErrors";
 
 const DEFAULT_TOAST_SUCCESS = {
 	hideProgressBar: false,
@@ -131,6 +128,7 @@ function Header({ LTISettings }, ref) {
 	const [selectedVersion, setSelectedVersion] = useState();
 	const fileImportDOM = useRef(null);
 	const [saveButtonColor, setSaveButtonColor] = useState("light");
+	const [showDropdown, setShowDropdown] = useState("false");
 
 	const [modalTitle, setModalTitle] = useState();
 	const [modalBody, setModalBody] = useState();
@@ -147,13 +145,12 @@ function Header({ LTISettings }, ref) {
 	const closeModalVersions = () => setShowModalVersions(false);
 	const openModalVersions = () => setShowModalVersions(true);
 
-	const { platform, setPlatform } = useContext(PlatformContext);
-	const { nodeSelected, setNodeSelected } = useContext(NodeInfoContext);
+	const { nodeSelected, setNodeSelected } = useContext(EditedNodeContext);
 	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
 	const { editVersionSelected, setEditVersionSelected } =
-		useContext(VersionInfoContext);
+		useContext(EditedVersionContext);
 
-	const { versionJson, setVersionJson } = useContext(VersionJsonContext);
+	const { versionJson, setVersionJson } = useContext(CurrentVersionContext);
 
 	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
 
@@ -165,6 +162,7 @@ function Header({ LTISettings }, ref) {
 	const ccId = useId();
 
 	const PARSED_SETTINGS = JSON.parse(settings);
+
 	let { reducedAnimations } = PARSED_SETTINGS;
 	/**
 	 * Updates the version of an object in an array of versions.
@@ -239,8 +237,8 @@ function Header({ LTISettings }, ref) {
 							const VERSIONS_DATA = VERSIONS_RESPONSE.data;
 							if (!VERSIONS_DATA.invalid) {
 								setVersions(VERSIONS_DATA);
+
 								setSelectedVersion(VERSIONS_DATA[0]);
-								setCurrentBlocksData(VERSIONS_DATA[0].blocks_data);
 							} else {
 								console.error("Error, datos de versiones inválidos");
 							}
@@ -255,14 +253,10 @@ function Header({ LTISettings }, ref) {
 				}
 			} else {
 				setVersions(selectedMap.versions);
+
 				setSelectedVersion(
 					selectedMap.versions != undefined
 						? selectedMap.versions[0]
-						: undefined
-				);
-				setCurrentBlocksData(
-					selectedMap.versions != undefined
-						? selectedMap.versions[0].blocks_data
 						: undefined
 				);
 			}
@@ -325,7 +319,7 @@ function Header({ LTISettings }, ref) {
 				await saveVersions(
 					data ? NEW_MAP.versions : EMPTY_NEW_MAP.versions,
 					localMetaData,
-					platform,
+					metaData.platform,
 					localUserData,
 					data ? NEW_MAP : EMPTY_NEW_MAP,
 					LTISettings,
@@ -375,6 +369,8 @@ function Header({ LTISettings }, ref) {
 				{ lesson: lesson }
 			);
 
+			console.log("EL DIABLO", response);
+
 			if (!response.ok) {
 				toast(
 					`Ha ocurrido un error durante la importación del mapa`,
@@ -385,7 +381,7 @@ function Header({ LTISettings }, ref) {
 			data = response.data;
 		} else {
 			let endpointJson = null;
-			switch (platform) {
+			switch (metaData.platform) {
 				case "moodle":
 					endpointJson = "devmoodleimport.json";
 					break;
@@ -411,7 +407,7 @@ function Header({ LTISettings }, ref) {
 
 		if (!IS_EMPTY_MAP) {
 			data.map((node) => {
-				switch (platform) {
+				switch (metaData.platform) {
 					case "moodle":
 						NODES.push(parseMoodleNode(node, newX, newY));
 						newX += 125;
@@ -427,7 +423,7 @@ function Header({ LTISettings }, ref) {
 		}
 
 		//Bring badges
-		switch (platform) {
+		switch (metaData.platform) {
 			case "moodle":
 				localMetaData.badges.map((badge) => {
 					NODES.push(parseMoodleBadges(badge, newX, newY, NODES));
@@ -439,7 +435,7 @@ function Header({ LTISettings }, ref) {
 		}
 
 		let platformNewMap;
-		if (platform == "moodle") {
+		if (metaData.platform == "moodle") {
 			platformNewMap = createNewMoodleMap(NODES, localMetaData, localMaps);
 		} else {
 			platformNewMap = createNewSakaiMap(
@@ -453,7 +449,7 @@ function Header({ LTISettings }, ref) {
 			await saveVersions(
 				platformNewMap.versions,
 				localMetaData,
-				platform,
+				metaData.platform,
 				localUserData,
 				platformNewMap,
 				LTISettings,
@@ -549,15 +545,8 @@ function Header({ LTISettings }, ref) {
 				);
 				throw new Error("Request failed");
 			} else {
-				SELECTED_MAP.versions = response.data;
 				setVersions(response.data);
 				setMapSelected(SELECTED_MAP);
-				setSelectedVersion(
-					SELECTED_MAP.versions[SELECTED_MAP.versions.length - 1]
-				);
-				setCurrentBlocksData(
-					SELECTED_MAP.versions[SELECTED_MAP.versions.length - 1].blocks_data
-				);
 			}
 			toast(`Versión: ${finalName} creada`, DEFAULT_TOAST_SUCCESS);
 		}
@@ -711,9 +700,6 @@ function Header({ LTISettings }, ref) {
 							NEW_MAPS[MAP_INDEX] = MODIFIED_MAP;
 							setMaps(NEW_MAPS);
 							setVersions(MODIFIED_MAP.versions);
-							setCurrentBlocksData(
-								FIRST_VERSION?.blocks_data || versions[0]?.blocks_data
-							);
 							toast(`Versión eliminada con éxito.`, DEFAULT_TOAST_SUCCESS);
 						}
 					} else {
@@ -741,9 +727,6 @@ function Header({ LTISettings }, ref) {
 				NEW_MAPS[MAP_INDEX] = MODIFIED_MAP;
 				setMaps(NEW_MAPS);
 				setVersions(MODIFIED_MAP.versions);
-				setCurrentBlocksData(
-					FIRST_VERSION?.blocks_data || versions[0]?.blocks_data
-				);
 				toast(`Versión eliminada con éxito.`, DEFAULT_TOAST_SUCCESS);
 			}
 		} else {
@@ -757,12 +740,12 @@ function Header({ LTISettings }, ref) {
 				JSON.stringify({
 					instance_id: metaData.instance_id,
 					course_id: metaData.course_id,
-					platform: platform,
+					platform: metaData.platform,
 					data: rfNodes,
 				})
 			),
 			`${mapSelected.name}-${selectedVersion.name}-${capitalizeFirstLetter(
-				platform
+				metaData.platform
 			)}-${new Date().toLocaleDateString().replaceAll("/", "-")}.json`,
 			"application/json"
 		);
@@ -783,9 +766,8 @@ function Header({ LTISettings }, ref) {
 			if (
 				jsonObject.instance_id == metaData.instance_id &&
 				jsonObject.course_id == metaData.course_id &&
-				jsonObject.platform == platform
+				jsonObject.platform == metaData.platform
 			) {
-				setCurrentBlocksData(jsonObject.data);
 				errorListCheck(jsonObject.data, errorList, setErrorList, false);
 				toast("Importado con éxito.", {
 					type: "success",
@@ -793,7 +775,7 @@ function Header({ LTISettings }, ref) {
 					position: "bottom-center",
 				});
 			} else {
-				if (jsonObject.platform == platform) {
+				if (jsonObject.platform == metaData.platform) {
 					toast("Plataforma compatible, importación parcial.", {
 						type: "warning",
 						autoClose: 2000,
@@ -856,7 +838,6 @@ function Header({ LTISettings }, ref) {
 				fetch("resources/devmeta.json")
 					.then((response) => response.json())
 					.then((data) => {
-						setPlatform(data.platform);
 						setMetaData({
 							...data,
 							back_url: process.env.NEXT_PUBLIC_BACK_URL,
@@ -900,11 +881,10 @@ function Header({ LTISettings }, ref) {
 							setLoadedUserData(true);
 
 							//Metadata
-							setPlatform(DATA[1].platform);
 							setMetaData({
 								...DATA[1],
 								back_url: process.env.NEXT_PUBLIC_BACK_URL,
-							}); //FIXME: This should be the course website in moodle
+							});
 							setLoadedMetaData(true);
 
 							//Maps
@@ -913,10 +893,7 @@ function Header({ LTISettings }, ref) {
 							setMapCount(MAPS.length);
 							setLoadedMaps(true);
 						} else {
-							alert(
-								`Error: No se puede obtener una sesión válida para el curso con los identificadores actuales. ¿Ha expirado la sesión?. Vuelva a alanzar la herramienta desde el gestor de contenido. Cerrando.`
-							);
-							//window.close(); //TODO: DO THIS BETTER
+							handleConfirmationShow();
 						}
 					} catch (e) {
 						toast("No se puede conectar con el servidor.", {
@@ -1106,7 +1083,7 @@ function Header({ LTISettings }, ref) {
 			await saveVersion(
 				rfNodes,
 				metaData,
-				platform,
+				metaData.platform,
 				userData,
 				mapSelected,
 				selectedVersion,
@@ -1139,6 +1116,31 @@ function Header({ LTISettings }, ref) {
 	useEffect(() => {
 		setAllowUseStatus(!(isOffline || !loadedMaps));
 	}, [isOffline, loadedMaps]);
+
+	const [confirmationShow, setConfirmationShow] = useState(false);
+	const handleConfirmationClose = () => setConfirmationShow(false);
+	const handleConfirmationShow = () => setConfirmationShow(true);
+
+	async function fetchVersion(id) {
+		try {
+			const VERSION_RESPONSE = await fetchBackEnd(
+				sessionStorage.getItem("token"),
+				"api/lti/get_version",
+				"POST",
+				{ version_id: id }
+			);
+			setCurrentBlocksData(VERSION_RESPONSE.data.blocks_data);
+		} catch (error) {
+			console.error("Error, datos de version inválidos");
+		}
+	}
+
+	useEffect(() => {
+		if (selectedVersion != undefined) {
+			fetchVersion(selectedVersion.id);
+		}
+	}, [selectedVersion]);
+
 	return (
 		<header ref={ref} className={styles.header}>
 			<Navbar>
@@ -1170,7 +1172,7 @@ function Header({ LTISettings }, ref) {
 							)}
 							<Form.Select
 								ref={selectMapDOM}
-								value={mapSelected.id}
+								value={mapSelected?.id || -1}
 								onChange={handleMapChange}
 								disabled={isOffline || !loadedMaps}
 								defaultValue={-1}
@@ -1215,17 +1217,19 @@ function Header({ LTISettings }, ref) {
 									<Dropdown.Item onClick={() => handleNewMap()}>
 										Nuevo mapa vacío
 									</Dropdown.Item>
-									{!hasLessons(platform) && (
+									{metaData != undefined && !hasLessons(metaData.platform) && (
 										<Dropdown.Item onClick={() => handleImportedMap()}>
-											Nuevo mapa desde {capitalizeFirstLetter(platform)}
+											Nuevo mapa desde{" "}
+											{capitalizeFirstLetter(metaData.platform)}
 										</Dropdown.Item>
 									)}
-									{hasLessons(platform) && (
+									{metaData != undefined && hasLessons(metaData.platform) && (
 										<Dropdown.Item onClick={handleImportedMapFromLesson}>
-											Nuevo mapa desde {capitalizeFirstLetter(platform)}...
+											Nuevo mapa desde{" "}
+											{capitalizeFirstLetter(metaData.platform)}...
 										</Dropdown.Item>
 									)}
-									{mapSelected.id >= 0 && (
+									{mapSelected?.id >= 0 && (
 										<>
 											<Dropdown.Item onClick={() => handleNewVersion()}>
 												Nueva versión vacía
@@ -1249,7 +1253,7 @@ function Header({ LTISettings }, ref) {
 									)}
 								</Dropdown.Menu>
 							</Dropdown>
-							{mapSelected.id >= 0 && (
+							{mapSelected?.id >= 0 && (
 								<>
 									<Dropdown className={`btn-light d-flex align-items-center`}>
 										<Dropdown.Toggle
@@ -1320,6 +1324,7 @@ function Header({ LTISettings }, ref) {
 							)}
 
 							<Button
+								variant="light"
 								className={`btn-light d-flex align-items-center p-2 ${styles.actionButtons}`}
 								onClick={() =>
 									window.open(
@@ -1334,7 +1339,7 @@ function Header({ LTISettings }, ref) {
 								/>
 							</Button>
 
-							{mapSelected.id >= 0 && (
+							{mapSelected?.id >= 0 && (
 								<Button
 									variant={
 										errorList && errorList.length >= 1 ? "warning" : "success"
@@ -1364,46 +1369,68 @@ function Header({ LTISettings }, ref) {
 								" justify-content-center"
 							}
 						>
-							<div
-								className="d-flex flex-row"
-								role="button"
-								onClick={() => handleToUserSettings()}
-								onKeyUp={(e) => handleToUserSettings(e.code)}
-								tabIndex={0}
+							<OverlayTrigger
+								placement="bottom"
+								overlay={
+									<Tooltip>
+										Podrá manipular sus ajustes de usuario desde el menú
+										interno.
+										{loadedUserData && metaData.platform_name && (
+											<>
+												<hr />
+												{`Plataforma: ${capitalizeFirstLetter(
+													metaData.platform
+												)}`}
+											</>
+										)}
+									</Tooltip>
+								}
+								trigger={["hover", "focus"]}
 							>
-								<Container className="d-flex flex-column">
-									<div>{loadedUserData ? userData.name : "Cargando..."}</div>
-									<div>{loadedMetaData && capitalizeFirstLetter(platform)}</div>
-								</Container>
-								<div className="mx-auto d-flex align-items-center">
-									{loadedUserData && userData.profile_url && (
-										<img
-											alt="Imagen de perfil"
-											src={
-												userData.profile_url == "default"
-													? "/images/default_image.png"
-													: userData.profile_url
-											} //Used if the LMS does not support profile images.
-											className={styles.userProfile}
-											width={48}
-											height={48}
-											style={
-												parseBool(process.env.NEXT_PUBLIC_DEV_MODE)
-													? {
-															background: `var(--dev-background-color)`,
-															padding: "0.30rem",
-															scale: "1.2",
-													  }
-													: null
-											}
-										></img>
-									)}
-								</div>
-							</div>
+								<Button
+									className="d-flex flex-row"
+									variant="light"
+									onClick={() => handleToUserSettings()}
+								>
+									<Container className="d-flex flex-column">
+										<div>{loadedUserData ? userData.name : "Cargando..."}</div>
+										<div>
+											{loadedMetaData &&
+												(metaData.platform_name
+													? capitalizeFirstLetter(metaData.platform_name)
+													: capitalizeFirstLetter(metaData.platform))}
+										</div>
+									</Container>
+									<div className="mx-auto d-flex align-items-center">
+										{loadedUserData && userData.profile_url && (
+											<img
+												alt="Imagen de perfil"
+												src={
+													userData.profile_url == "default"
+														? "/images/default_image.png"
+														: userData.profile_url
+												} //Used if the LMS does not support profile images.
+												className={styles.userProfile}
+												width={48}
+												height={48}
+												style={
+													parseBool(process.env.NEXT_PUBLIC_DEV_MODE)
+														? {
+																background: `var(--dev-background-color)`,
+																padding: "0.30rem",
+																scale: "1.2",
+														  }
+														: null
+												}
+											></img>
+										)}
+									</div>
+								</Button>
+							</OverlayTrigger>
 						</Container>
 					</Nav>
 				</Container>
-				{mapSelected.id > -1 && versions.length > 0 && (
+				{mapSelected?.id > -1 && versions.length > 0 && (
 					<div
 						className={
 							styles.mapContainer +
@@ -1412,12 +1439,10 @@ function Header({ LTISettings }, ref) {
 						}
 					>
 						<div className={styles.mapText}>
-							<SplitButton
+							<DropdownButton
 								ref={selectVersionDOM}
-								value={selectedVersion.id}
+								variant="light"
 								title={selectedVersion.name}
-								onClick={openModalVersions}
-								variant="none"
 								disabled={isOffline || !loadedMaps}
 							>
 								{versions.map((version) => (
@@ -1429,7 +1454,16 @@ function Header({ LTISettings }, ref) {
 										{version.name}
 									</Dropdown.Item>
 								))}
-							</SplitButton>
+							</DropdownButton>
+							<Button
+								onClick={openModalVersions}
+								variant="light"
+								show={showDropdown}
+								disabled={isOffline || !loadedMaps}
+								onMouseLeave={() => setShowDropdown("false")}
+							>
+								<FontAwesomeIcon icon={faEllipsisVertical} />
+							</Button>
 						</div>
 						<div className={styles.mapTriangle}></div>
 					</div>
@@ -1471,7 +1505,7 @@ function Header({ LTISettings }, ref) {
 												{
 													instance_id: metaData.instance_id,
 													course_id: metaData.course_id,
-													platform: platform,
+													platform: metaData.platform,
 													data: rfNodes,
 												},
 												null,
@@ -1556,6 +1590,14 @@ function Header({ LTISettings }, ref) {
 					LTISettings={LTISettings}
 				/>
 			)}
+			<ConfirmationModal
+				show={confirmationShow}
+				handleClose={handleConfirmationClose}
+				title="Error"
+				message={<LTIErrorMessage error={"ERROR_INVALID_TOKEN"} />}
+				action="Cerrar"
+				callback={() => window.close()}
+			/>
 		</header>
 	);
 }

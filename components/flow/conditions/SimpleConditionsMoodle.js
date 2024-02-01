@@ -2,18 +2,18 @@ import { useNodes } from "reactflow";
 import { getNodeById } from "@utils/Nodes";
 import { useContext } from "react";
 import { getTypeIcon } from "@utils/NodeIcons";
-import { MetaDataContext, PlatformContext, SettingsContext } from "pages/_app";
+import { MetaDataContext, SettingsContext } from "pages/_app";
 import { deduplicateById, parseDate, uniqueId } from "@utils/Utils";
 import {
 	profileOperatorList,
 	profileQueryList,
-} from "@components/flow/conditions/moodle/condition-components/ProfileComponent";
+} from "@components/flow/conditions/moodle/Condition.js";
 import { parseBool } from "../../../utils/Utils";
+import { getConditionIcon } from "../../../utils/ConditionIcons";
 
 export default function SimpleConditionsMoodle({ id }) {
 	const { metaData } = useContext(MetaDataContext);
 	const rfNodes = useNodes();
-	const { platform } = useContext(PlatformContext);
 	const CONDITIONS = getNodeById(id, rfNodes)?.data?.c || undefined;
 	const QUALIFICATIONS = getNodeById(id, rfNodes)?.data?.g || undefined;
 	const { settings } = useContext(SettingsContext);
@@ -192,7 +192,10 @@ export default function SimpleConditionsMoodle({ id }) {
 						];
 						finalDOM.push(
 							<p style={prefix}>
-								{getTypeIcon(getNodeById(c.cm, rfNodes).type, platform)}
+								{getTypeIcon(
+									getNodeById(c.cm, rfNodes).type,
+									metaData.platform
+								)}
 								{
 									<span style={{ marginLeft: "4px" }}>
 										<b>
@@ -216,7 +219,7 @@ export default function SimpleConditionsMoodle({ id }) {
 										<p key={node.id}>
 											{getTypeIcon(
 												getNodeById(node.id, rfNodes).type,
-												platform
+												metaData.platform
 											)}
 											<span style={{ marginLeft: "4px" }}>
 												<b>
@@ -301,7 +304,10 @@ export default function SimpleConditionsMoodle({ id }) {
 
 						finalDOM.push(
 							<p style={prefix}>
-								{getTypeIcon(getNodeById(c.cm, rfNodes).type, platform)}
+								{getTypeIcon(
+									getNodeById(c.cm, rfNodes).type,
+									metaData.platform
+								)}
 								{
 									<span style={{ marginLeft: "4px" }}>
 										<b>{getNodeById(c.cm, rfNodes).data.label}</b> {sufix}
@@ -466,6 +472,20 @@ export default function SimpleConditionsMoodle({ id }) {
 								})}
 							</ul>
 						</>
+					);
+					break;
+				case "generic":
+					finalDOM.push(
+						<p style={prefix}>
+							{
+								<>
+									{getConditionIcon("generic")}{" "}
+									{c?.data?.type ? c.data.type : "CODE_NOT_FOUND"}
+									{": "}
+									Condición <b>no soportada </b>
+								</>
+							}
+						</p>
 					);
 					break;
 				default:

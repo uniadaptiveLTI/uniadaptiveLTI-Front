@@ -28,7 +28,7 @@ import DateForm from "@components/flow/conditions/sakai/form-components/DateForm
 import GroupForm from "@components/flow/conditions/sakai/form-components/GroupForm";
 import GradeForm from "@components/flow/conditions/sakai/form-components/GradeForm";
 import styles from "/styles/RequisiteModalSakai.module.css";
-import { MetaDataContext } from "/pages/_app.js";
+import { MetaDataContext } from "pages/_app.tsx";
 import DateComponent from "@components/flow/conditions/sakai/condition-components/DateComponent";
 import { parseDate, uniqueId } from "@utils/Utils";
 import DateExceptionComponent from "@components/flow/conditions/sakai/condition-components/DateExceptionComponent";

@@ -248,7 +248,7 @@ export function createNewMoodleMap(nodes, metadata, maps) {
 				node.data.c = PARSED_CONDITIONS;
 			}
 		}
-
+		console.log("NODE: ", node);
 		return node;
 	});
 
@@ -281,34 +281,41 @@ function moodleConditionalIDAdder(conditionArray, nodes) {
 	let newArray = JSON.parse(JSON.stringify(conditionArray));
 	for (let i = 0; i < newArray.length; i++) {
 		if (typeof newArray[i] === "object" && newArray[i] !== null) {
-			if (conditionArray[i].type === "completion") {
-				newArray[i].cm = LMSResourceToId(newArray[i].cm, nodes);
-				if (!newArray[i].cm) {
-					newArray = newArray.filter((item, index) => index !== i);
-					i--;
+			switch (conditionArray[i].type) {
+				case "completion":
+					newArray[i].cm = LMSResourceToId(newArray[i].cm, nodes);
+					if (!newArray[i].cm) {
+						newArray = newArray.filter((item, index) => index !== i);
+						i--;
+					}
 					break;
-				}
-			}
-
-			if (conditionArray[i].type === "grade") {
-				newArray[i].cm = LMSResourceToId(newArray[i].id, nodes);
-				if (!newArray[i].cm) {
-					newArray = newArray.filter((item, index) => index !== i);
-					i--;
+				case "grade":
+					newArray[i].cm = LMSResourceToId(newArray[i].id, nodes);
+					if (!newArray[i].cm) {
+						newArray = newArray.filter((item, index) => index !== i);
+						i--;
+					}
 					break;
-				}
-			}
-
-			if (conditionArray[i].type === "date") {
-				newArray[i].t = parseDate(newArray[i].t);
-			}
-
-			if (conditionArray[i].type === "group") {
-				newArray[i].groupId = newArray[i].id;
-			}
-
-			if (conditionArray[i].type === "grouping") {
-				newArray[i].groupingId = newArray[i].id;
+				case "date":
+					newArray[i].t = parseDate(newArray[i].t);
+					break;
+				case "group":
+					newArray[i].groupId = newArray[i].id;
+					break;
+				case "grouping":
+					newArray[i].groupingId = newArray[i].id;
+					break;
+				case "profile":
+					break;
+				default:
+					if (!("c" in newArray[i])) {
+						let genericCondition = {
+							type: "generic",
+							data: newArray[i],
+						};
+						newArray[i] = genericCondition;
+						break;
+					}
 			}
 
 			// Add/replace "id" property
@@ -575,31 +582,27 @@ export function parseMoodleBadgeToExport(node, nodeArray, metaData) {
 }
 
 /**
- * Parses the gradables to a correct format depending of the node type.
+ * Parses the gradables to the format used in the front end.
  * @param {Object} node - Reactflow's Node.
  * @returns {Object} The node with the parsed gradables.
  */
 export function parseMoodleCalifications(node) {
 	if (node.g) {
-		if (node.type != "generic") {
-			const og = node.g;
+		const og = node.g;
 
-			let newGrades;
+		let newGrades;
 
-			newGrades = {
-				hasConditions: og.hasConditions || false,
-				hasToBeSeen: og.hasToBeSeen || false,
-				hasToBeQualified: og.hasToBeQualified || false,
-				data: {
-					min: og.data.min || 0,
-					max: og.data.max || 0,
-					hasToSelect: og.data.hasToSelect || false,
-				},
-			};
-			return { ...node, g: newGrades };
-		} else {
-			return { ...node, g: undefined };
-		}
+		newGrades = {
+			hasConditions: og.hasConditions || false,
+			hasToBeSeen: og.hasToBeSeen || false,
+			hasToBeQualified: og.hasToBeQualified || false,
+			data: {
+				min: og.data.min || 0,
+				max: og.data.max || 0,
+				hasToSelect: og.data.hasToSelect || false,
+			},
+		};
+		return { ...node, g: newGrades };
 	} else {
 		return node;
 	}

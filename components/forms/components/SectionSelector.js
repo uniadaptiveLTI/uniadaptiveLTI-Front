@@ -15,7 +15,6 @@ import {
 } from "react";
 import { Form } from "react-bootstrap";
 import { useNodes } from "reactflow";
-import { PlatformContext } from "/pages/_app";
 
 function getDuplicates(array) {
 	let count = {};
@@ -50,8 +49,6 @@ export default forwardRef(function SectionSelector(
 	const innerSelectors = useRef([]);
 	const [errorsPerSection, setErrorsPerSection] = useState([]);
 	const [warningsPerSection, setWarningsPerSection] = useState([]);
-
-	const { platform } = useContext(PlatformContext);
 
 	//Checks if it has to wait for the warnings to generate
 	useLayoutEffect(() => {
@@ -221,7 +218,7 @@ export default forwardRef(function SectionSelector(
 
 	function toggleMainSelector(e) {
 		const TARGET_STATUS = e.target.checked;
-		if (platform == "moodle") {
+		if (metaData.platform == "moodle") {
 			const SECTION_POSITIONS = SECTIONS.map((section) => section.position);
 			setSelectionStatus(TARGET_STATUS ? SECTION_POSITIONS : []);
 		} else {

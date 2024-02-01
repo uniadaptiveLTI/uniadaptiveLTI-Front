@@ -5,6 +5,7 @@
 	"return_url": "https://real-lms.com/course",
 	"course_id": 0,
 	"platform": "moodle",
+	"platform_name": "Dev_Files",
 	"lessons": [
 		{ "id": 0, "name": "Física", "page_id": "2" },
 		{ "id": 1, "name": "Matemática", "page_id": "3" }
@@ -135,11 +136,6 @@
 		{ "id": "3", "name": "Competencia 3" }
 	],
 	"grades": ["1"],
-	"userMembers": [
-		{ "id": 1, "name": "Maria" },
-		{ "id": 2, "name": "Noe" },
-		{ "id": 3, "name": "Pepe" }
-	],
 	"user_members": [
 		{ "id": "1", "name": "Maria" },
 		{ "id": "2", "name": "Noe" },

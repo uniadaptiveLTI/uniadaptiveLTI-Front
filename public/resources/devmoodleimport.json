@@ -27,7 +27,17 @@
 		"order": 2,
 		"section": 0,
 		"indent": 0,
-		"visible": "show_unconditionally"
+		"visible": "show_unconditionally",
+		"availability": {
+			"op": "&",
+			"c": [
+				{
+					"type": "role",
+					"id": 3
+				}
+			],
+			"showc": [true]
+		}
 	},
 	{
 		"name": "Archivo 1",

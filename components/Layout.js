@@ -4,27 +4,22 @@ import { ReactFlowProvider } from "reactflow";
 import { Container } from "react-bootstrap";
 import { useState, useRef, useLayoutEffect, useEffect } from "react";
 import {
-	PlatformContext,
-	NodeInfoContext,
-	MapInfoContext,
-	VersionJsonContext,
+	EditedNodeContext,
+	CurrentVersionContext,
 	ExpandedAsideContext,
-	VersionInfoContext,
 	MainDOMContext,
 	MetaDataContext,
 	HeaderToEmptySelectorContext,
 	UserDataContext,
-} from "../pages/_app.js";
+	EditedVersionContext,
+} from "pages/_app.tsx";
 import { applyBranding } from "@utils/Colors";
 
 export default function Layout({ LTISettings, children }) {
 	const [platform, setPlatform] = useState("moodle"); //default to moodle in testing phase
 	const [metaData, setMetaData] = useState();
 	const [userData, setUserData] = useState();
-	const [sections, setSections] = useState();
 	const [nodeSelected, setNodeSelected] = useState("");
-	const [mapSelected, setMapSelected] = useState("");
-	const [activeMap, setActiveMap] = useState("");
 	const [editVersionSelected, setEditVersionSelected] = useState("");
 
 	const [expandedAside, setExpandedAside] = useState(false);
@@ -97,111 +92,102 @@ export default function Layout({ LTISettings, children }) {
 	}
 
 	return (
-		<PlatformContext.Provider value={{ platform, setPlatform }}>
-			<MetaDataContext.Provider value={{ metaData, setMetaData }}>
-				<UserDataContext.Provider value={{ userData, setUserData }}>
-					<NodeInfoContext.Provider value={{ nodeSelected, setNodeSelected }}>
-						<MapInfoContext.Provider
-							value={{ mapSelected, setMapSelected, activeMap, setActiveMap }}
+		<MetaDataContext.Provider value={{ metaData, setMetaData }}>
+			<UserDataContext.Provider value={{ userData, setUserData }}>
+				<EditedNodeContext.Provider value={{ nodeSelected, setNodeSelected }}>
+					<EditedVersionContext.Provider
+						value={{ editVersionSelected, setEditVersionSelected }}
+					>
+						<CurrentVersionContext.Provider
+							value={{ versionJson, setVersionJson }}
 						>
-							<VersionInfoContext.Provider
-								value={{ editVersionSelected, setEditVersionSelected }}
+							<HeaderToEmptySelectorContext.Provider
+								value={{
+									mapCount,
+									setMapCount,
+									mapNames,
+									setMapNames,
+									allowUseStatus,
+									setAllowUseStatus,
+									maps,
+									setMaps,
+									funcCreateMap,
+									setFuncCreateMap,
+									funcImportMap,
+									setFuncImportMap,
+									funcImportMapFromLesson,
+									setFuncImportMapFromLesson,
+									funcMapChange,
+									setFuncMapChange,
+								}}
 							>
-								<VersionJsonContext.Provider
-									value={{ versionJson, setVersionJson }}
+								<ExpandedAsideContext.Provider
+									value={{ expandedAside, setExpandedAside }}
 								>
-									<HeaderToEmptySelectorContext.Provider
-										value={{
-											mapCount,
-											setMapCount,
-											mapNames,
-											setMapNames,
-											allowUseStatus,
-											setAllowUseStatus,
-											maps,
-											setMaps,
-											funcCreateMap,
-											setFuncCreateMap,
-											funcImportMap,
-											setFuncImportMap,
-											funcImportMapFromLesson,
-											setFuncImportMapFromLesson,
-											funcMapChange,
-											setFuncMapChange,
-										}}
-									>
-										<ExpandedAsideContext.Provider
-											value={{ expandedAside, setExpandedAside }}
-										>
-											<MainDOMContext.Provider value={{ mainDOM, setMainDOM }}>
-												<ReactFlowProvider>
+									<MainDOMContext.Provider value={{ mainDOM, setMainDOM }}>
+										<ReactFlowProvider>
+											<Container
+												className="g-0"
+												fluid
+												style={{ minHeight: 100 + "vh" }}
+											>
+												<div className="row g-0" style={{ height: 100 + "vh" }}>
+													<Aside
+														LTISettings={LTISettings}
+														className={
+															expandedAside
+																? "col-12 col-sm-4 col-md-3 col-xl-2"
+																: "d-none"
+														}
+													/>
 													<Container
-														className="g-0"
 														fluid
-														style={{ minHeight: 100 + "vh" }}
+														className={
+															expandedAside
+																? "col-12 col-sm-8 col-md-9 col-xl-10 g-0"
+																: "g-0"
+														}
+														style={{
+															display: "flex",
+															flexDirection: "column",
+														}}
 													>
-														<div
-															className="row g-0"
-															style={{ height: 100 + "vh" }}
+														<Container
+															className="g-0"
+															fluid
+															style={{ flex: "1 0 auto" }}
 														>
-															<Aside
+															<Header
 																LTISettings={LTISettings}
-																className={
-																	expandedAside
-																		? "col-12 col-sm-4 col-md-3 col-xl-2"
-																		: "d-none"
-																}
+																ref={headerDOM}
 															/>
-															<Container
-																fluid
-																className={
-																	expandedAside
-																		? "col-12 col-sm-8 col-md-9 col-xl-10 g-0"
-																		: "g-0"
-																}
+
+															<main
+																id="main"
+																ref={mainDOMRef}
 																style={{
-																	display: "flex",
-																	flexDirection: "column",
+																	height: fixedMainHeight,
+																	overflow: "overlay",
+																	scrollBehavior: "smooth",
+																	position: "relative",
+																	boxShadow:
+																		"inset 0 0 10px var(--blockflow-inner-box-shadow-color)",
 																}}
 															>
-																<Container
-																	className="g-0"
-																	fluid
-																	style={{ flex: "1 0 auto" }}
-																>
-																	<Header
-																		LTISettings={LTISettings}
-																		ref={headerDOM}
-																	/>
-
-																	<main
-																		id="main"
-																		ref={mainDOMRef}
-																		style={{
-																			height: fixedMainHeight,
-																			overflow: "overlay",
-																			scrollBehavior: "smooth",
-																			position: "relative",
-																			boxShadow:
-																				"inset 0 0 10px var(--blockflow-inner-box-shadow-color)",
-																		}}
-																	>
-																		{children}
-																	</main>
-																</Container>
-															</Container>
-														</div>
+																{children}
+															</main>
+														</Container>
 													</Container>
-												</ReactFlowProvider>
-											</MainDOMContext.Provider>
-										</ExpandedAsideContext.Provider>
-									</HeaderToEmptySelectorContext.Provider>
-								</VersionJsonContext.Provider>
-							</VersionInfoContext.Provider>
-						</MapInfoContext.Provider>
-					</NodeInfoContext.Provider>
-				</UserDataContext.Provider>
-			</MetaDataContext.Provider>
-		</PlatformContext.Provider>
+												</div>
+											</Container>
+										</ReactFlowProvider>
+									</MainDOMContext.Provider>
+								</ExpandedAsideContext.Provider>
+							</HeaderToEmptySelectorContext.Provider>
+						</CurrentVersionContext.Provider>
+					</EditedVersionContext.Provider>
+				</EditedNodeContext.Provider>
+			</UserDataContext.Provider>
+		</MetaDataContext.Provider>
 	);
 }

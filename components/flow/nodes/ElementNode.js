@@ -16,14 +16,13 @@ import {
 	faRightFromBracket,
 } from "@fortawesome/free-solid-svg-icons";
 import {
-	NodeInfoContext,
+	EditedNodeContext,
 	ExpandedAsideContext,
 	MapInfoContext,
 	SettingsContext,
-	VersionInfoContext,
-	PlatformContext,
+	EditedVersionContext,
 	ErrorListContext,
-} from "/pages/_app";
+} from "pages/_app";
 import FocusTrap from "focus-trap-react";
 import { getTypeIcon } from "@utils/NodeIcons";
 import { getUpdatedArrayById, parseBool } from "@utils/Utils";
@@ -39,6 +38,7 @@ import SimpleConditionsMoodle from "@components/flow/conditions/SimpleConditions
 import SimpleConditionsSakai from "@components/flow/conditions/SimpleConditionsSakai";
 import MoodleBadges from "@components/flow/nodes/moodle/MoodleBadges";
 import SakaiBadges from "@components/flow/nodes/sakai/SakaiBadges";
+import { MetaDataContext } from "/pages/_app";
 
 function ElementNode({
 	id,
@@ -53,13 +53,12 @@ function ElementNode({
 	const onChange = useCallback((evt) => {
 		//console.log(evt.target.value);
 	}, []);
-
+	const { metaData } = useContext(MetaDataContext);
 	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
-	const { nodeSelected, setNodeSelected } = useContext(NodeInfoContext);
+	const { nodeSelected, setNodeSelected } = useContext(EditedNodeContext);
 	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
 	const { editVersionSelected, setEditVersionSelected } =
-		useContext(VersionInfoContext);
-	const { platform } = useContext(PlatformContext);
+		useContext(EditedVersionContext);
 	const { errorList } = useContext(ErrorListContext);
 	const { settings, setSettings } = useContext(SettingsContext);
 	const reactFlowInstance = useReactFlow();
@@ -132,7 +131,7 @@ function ElementNode({
 
 	const hasEnd = (type) => {
 		const node = NodeTypes.find((node) => node.type == type);
-		if (node.endHandle.includes(platform)) {
+		if (node.endHandle.includes(metaData.platform)) {
 			return true;
 		} else {
 			return false;
@@ -206,12 +205,12 @@ function ElementNode({
 
 	return (
 		<>
-			{isHovered && selected && !dragging && platform == "moodle" && (
+			{isHovered && selected && !dragging && metaData.platform == "moodle" && (
 				<div className={styles.hovedConditions}>
 					<SimpleConditionsMoodle id={id} />
 				</div>
 			)}
-			{isHovered && selected && !dragging && platform == "sakai" && (
+			{isHovered && selected && !dragging && metaData.platform == "sakai" && (
 				<div className={styles.hovedConditions}>
 					<SimpleConditionsSakai id={id} />
 				</div>
@@ -283,7 +282,7 @@ function ElementNode({
 				<span className={styles.blockInfo + " " + styles.top}>
 					{data.label}
 				</span>
-				<div>{getTypeIcon(type, platform)}</div>
+				<div>{getTypeIcon(type, metaData.platform)}</div>
 				<span className={styles.blockInfo + " " + styles.bottom}>
 					{getHumanDesc(type)}
 				</span>
@@ -359,7 +358,7 @@ function ElementNode({
 					</Badge>
 				)}
 
-				{platform == "moodle" && (
+				{metaData.platform == "moodle" && (
 					<MoodleBadges
 						data={data}
 						hasExtraConditions={hasExtraConditions}
@@ -367,12 +366,12 @@ function ElementNode({
 						highContrast={highContrast}
 						reducedAnimations={reducedAnimations}
 						getParentExpanded={getParentExpanded}
-						platform={platform}
+						platform={metaData.platform}
 						styles={styles}
 					/>
 				)}
 
-				{platform == "sakai" && (
+				{metaData.platform == "sakai" && (
 					<SakaiBadges
 						data={data}
 						type={type}
@@ -381,7 +380,7 @@ function ElementNode({
 						highContrast={highContrast}
 						reducedAnimations={reducedAnimations}
 						getParentExpanded={getParentExpanded}
-						platform={platform}
+						platform={metaData.platform}
 						styles={styles}
 					/>
 				)}

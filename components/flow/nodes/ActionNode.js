@@ -8,13 +8,12 @@ import {
 } from "reactflow";
 import styles from "/styles/BlockContainer.module.css";
 import {
-	NodeInfoContext,
+	EditedNodeContext,
 	ExpandedAsideContext,
 	MapInfoContext,
 	SettingsContext,
-	VersionInfoContext,
-	PlatformContext,
-} from "/pages/_app";
+	EditedVersionContext,
+} from "pages/_app";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
 	faEdit,
@@ -32,6 +31,7 @@ import { NodeTypes } from "@utils/TypeDefinitions";
 import SimpleConditionsMoodle from "@components/flow/conditions/SimpleConditionsMoodle";
 import SimpleConditionsSakai from "@components/flow/conditions/SimpleConditionsSakai";
 import { useEffect } from "react";
+import { MetaDataContext } from "/pages/_app";
 
 const getHumanDesc = (type) => {
 	const NODE = NodeTypes.find((node) => node.type == type);
@@ -68,18 +68,18 @@ function ActionNode({ id, type, data, selected, dragging, isConnectable }) {
 		//console.log(evt.target.value);
 	}, []);
 
+	const { metaData } = useContext(MetaDataContext);
 	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
-	const { nodeSelected, setNodeSelected } = useContext(NodeInfoContext);
+	const { nodeSelected, setNodeSelected } = useContext(EditedNodeContext);
 	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
 	const { editVersionSelected, setEditVersionSelected } =
-		useContext(VersionInfoContext);
+		useContext(EditedVersionContext);
 
 	const reactFlowInstance = useReactFlow();
 	const { settings } = useContext(SettingsContext);
 	const [isHovered, setIsHovered] = useState(false);
 	const PARSED_SETTINGS = JSON.parse(settings);
 	const { highContrast, reducedAnimations } = PARSED_SETTINGS;
-	const { platform } = useContext(PlatformContext);
 	const rfNodes = useNodes();
 
 	const [hasExtraConditions, setHasExtraConditions] = useState(
@@ -135,12 +135,12 @@ function ActionNode({ id, type, data, selected, dragging, isConnectable }) {
 
 	return (
 		<>
-			{isHovered && selected && !dragging && platform == "moodle" && (
+			{isHovered && selected && !dragging && metaData.platform == "moodle" && (
 				<div className={styles.hovedConditions}>
 					<SimpleConditionsMoodle id={id} />
 				</div>
 			)}
-			{isHovered && selected && !dragging && platform == "sakai" && (
+			{isHovered && selected && !dragging && metaData.platform == "sakai" && (
 				<div className={styles.hovedConditions}>
 					<SimpleConditionsSakai id={id} />
 				</div>
@@ -202,7 +202,7 @@ function ActionNode({ id, type, data, selected, dragging, isConnectable }) {
 				<span className={styles.blockInfo + " " + styles.top}>
 					{data.label}
 				</span>
-				<div>{getTypeIcon(type, platform)}</div>
+				<div>{getTypeIcon(type, metaData.platform)}</div>
 				<span className={styles.blockInfo + " " + styles.bottom}>
 					{getHumanDesc(type)}
 				</span>

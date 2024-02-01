@@ -11,6 +11,7 @@ import { fetchBackEnd, parseBool } from "../utils/Utils";
 import { LTISettingsContext } from "./_app";
 import { applyBranding } from "../utils/Colors";
 import Link from "next/link";
+import ConfirmationModal from "../components/dialogs/ConfirmationModal";
 
 export default function Admin() {
 	const { LTISettings } = useContext(LTISettingsContext);
@@ -64,6 +65,10 @@ export default function Admin() {
 		}
 	};
 
+	const [confirmationShow, setConfirmationShow] = useState(false);
+	const handleConfirmationClose = () => setConfirmationShow(false);
+	const handleConfirmationShow = () => setConfirmationShow(true);
+
 	const modifySettings = async (modifiedSettings) => {
 		const NEW_SETTINGS = { ...LTISettings, ...modifiedSettings };
 
@@ -75,16 +80,7 @@ export default function Admin() {
 		);
 
 		if (RESPONSE.ok) {
-			toast(
-				"Se han modificado los ajustes. Reinicia para aplicar los cambios.",
-				{
-					hideProgressBar: false,
-					autoClose: 4000,
-					type: "success",
-					position: "bottom-center",
-					theme: "light",
-				}
-			);
+			handleConfirmationShow();
 		} else {
 			toast("Ha ocurrido un error.", {
 				hideProgressBar: false,
@@ -95,6 +91,7 @@ export default function Admin() {
 			});
 		}
 	};
+
 	return (
 		<>
 			{LTISettings && (
@@ -237,6 +234,13 @@ export default function Admin() {
 								)}
 							</Container>
 						</Container>
+						<ConfirmationModal
+							show={confirmationShow}
+							handleClose={handleConfirmationClose}
+							title="Confirmación"
+							message="Se han modificado los ajustes. Actualiza para aplicar los cambios."
+							cancel="Cerrar"
+						/>
 					</div>
 				</>
 			)}

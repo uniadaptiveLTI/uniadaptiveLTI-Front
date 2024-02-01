@@ -8,16 +8,16 @@ import {
 } from "react";
 import {
 	BlocksDataContext,
-	PlatformContext,
-	MetaDataContext,
 	UserDataContext,
 	LTISettingsContext,
+	MapInfoContext,
+	MetaDataContext,
 } from "./_app";
 import BlockFlow from "/components/BlockFlow";
 import Layout from "../components/Layout";
 import { HeaderToEmptySelectorContext } from "./_app";
 
-import { Button, Col, Container, Row } from "react-bootstrap";
+import { Button, Col, Container, Row, Spinner } from "react-bootstrap";
 import { hasLessons } from "@utils/Platform";
 import { capitalizeFirstLetter } from "@utils/Utils";
 import { getAutomaticReusableStyles } from "@utils/Colors";
@@ -39,7 +39,6 @@ function EmptySelector() {
 		funcImportMapFromLesson,
 		funcMapChange,
 	} = useContext(HeaderToEmptySelectorContext);
-	const { platform } = useContext(PlatformContext);
 	const [buttonStyles, setButtonStyles] = useState({});
 	const { metaData } = useContext(MetaDataContext);
 	const { userData } = useContext(UserDataContext);
@@ -90,7 +89,7 @@ function EmptySelector() {
 								</Button>
 							</Col>
 							<Col>
-								{hasLessons(platform) ? (
+								{hasLessons(metaData.platform) ? (
 									<Button
 										variant="light"
 										onClick={() =>
@@ -106,7 +105,8 @@ function EmptySelector() {
 										<div className="d-flex justify-content-center align-items-center m-1">
 											<FontAwesomeIcon icon={faUpRightFromSquare} />
 											<p className="m-1">
-												Importar desde {capitalizeFirstLetter(platform)}...
+												Importar desde{" "}
+												{capitalizeFirstLetter(metaData.platform)}...
 											</p>
 										</div>
 									</Button>
@@ -126,7 +126,8 @@ function EmptySelector() {
 										<div className="d-flex justify-content-center align-items-center m-1">
 											<FontAwesomeIcon icon={faUpRightFromSquare} />
 											<p className="m-1">
-												Importar desde {capitalizeFirstLetter(platform)}
+												Importar desde{" "}
+												{capitalizeFirstLetter(metaData.platform)}
 											</p>
 										</div>
 									</Button>
@@ -150,6 +151,12 @@ function EmptySelector() {
 export default function Home() {
 	const { currentBlocksData } = useContext(BlocksDataContext);
 	const { LTISettings } = useContext(LTISettingsContext);
+	const { mapSelected } = useContext(MapInfoContext);
+	let [metaDataReady, setMetaDataReady] = useState(false);
+
+	useEffect(() => {
+		if (MetaDataContext) setMetaDataReady(true);
+	}, [MetaDataContext]);
 
 	useEffect(() => {
 		if (parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
@@ -190,8 +197,16 @@ export default function Home() {
 					</Head>
 
 					<Layout LTISettings={LTISettings}>
-						{currentBlocksData !== "" && currentBlocksData !== undefined ? (
-							<BlockFlow map={currentBlocksData}></BlockFlow>
+						{mapSelected !== undefined ? (
+							currentBlocksData !== undefined && metaDataReady ? (
+								<BlockFlow map={currentBlocksData} />
+							) : (
+								<div className="w-100 h-100 d-flex justify-content-center align-items-center">
+									<Spinner animation="border" role="status" size="xl">
+										<span className="visually-hidden">Cargando...</span>
+									</Spinner>
+								</div>
+							)
 						) : (
 							<EmptySelector />
 						)}
