@@ -145,6 +145,7 @@ const OverviewFlow = ({ map }, ref) => {
 	const [prevMap, setPrevMap] = useState();
 	const nodesInitialized = useNodesInitialized();
 	const [ableToFitView, setAbleToFitView] = useState(true);
+	const [conditionEdgeView, setConditionEdgeView] = useState();
 
 	//ContextMenu Ref, States, Constants
 	const contextMenuDOM = useRef(null);
@@ -207,6 +208,48 @@ const OverviewFlow = ({ map }, ref) => {
 			},
 		]);
 	}, []);
+
+	function findConditionById(id, conditions) {
+		if (!conditions) {
+			return null;
+		}
+
+		const FOUND_CONDITION = conditions.find((condition) => condition.cm === id);
+
+		if (FOUND_CONDITION) {
+			return FOUND_CONDITION;
+		} else {
+			const FOUND_ACTION_CONDITION = conditions.find(
+				(condition) => condition.type === "completion"
+			);
+
+			if (FOUND_ACTION_CONDITION) return FOUND_ACTION_CONDITION;
+		}
+
+		for (const CONDITION of conditions) {
+			if (CONDITION.c) {
+				const INNER_CONDITION = findConditionById(id, CONDITION.c);
+				if (INNER_CONDITION) {
+					return INNER_CONDITION;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	function findConditionByParentId(subConditions, blockNodeId) {
+		for (const SUBCONDITION of subConditions) {
+			const FOUND_CONDITION = SUBCONDITION.subConditions?.find((condition) => {
+				return condition.itemId === blockNodeId;
+			});
+			if (FOUND_CONDITION) {
+				return FOUND_CONDITION;
+			}
+		}
+
+		return null;
+	}
 
 	//NodeSelector
 	const [showNodeSelector, setShowNodeSelector] = useState(false);
@@ -941,6 +984,39 @@ const OverviewFlow = ({ map }, ref) => {
 		}
 	}
 
+	function findEdgeConditionBySourceId(conditions, op) {
+		for (let i = 0; i < conditions.length; i++) {
+			const condition = conditions[i];
+			console.log(condition);
+
+			if (condition.cm === op) {
+				return condition;
+			} else if (condition.hasOwnProperty("c") && Array.isArray(condition.c)) {
+				const nestedResult = findEdgeConditionBySourceId(condition.c, op);
+
+				if (nestedResult) {
+					return nestedResult;
+				}
+			}
+		}
+	}
+
+	function findEdgeBadgeConditionBySourceId(conditions, op) {
+		let foundCondition = conditions.find(
+			(condition) =>
+				condition.type === "completion" &&
+				condition.params &&
+				condition.params.length >= 1 &&
+				condition.params.some((node) => node.id === op)
+		);
+
+		if (foundCondition) {
+			return foundCondition;
+		} else {
+			return undefined;
+		}
+	}
+
 	/**
 	 * Handles the loading of the map.
 	 */
@@ -1067,6 +1143,7 @@ const OverviewFlow = ({ map }, ref) => {
 		const currentNodes = reactFlowInstance.getNodes();
 		currentNodes.map((node) => (node.selected ? selectedCount++ : null));
 		if (selectedCount <= 1) {
+			console.log(node);
 			setCMBlockData(node);
 			setContextMenuOrigin("block");
 		} else {
@@ -1927,19 +2004,58 @@ const OverviewFlow = ({ map }, ref) => {
 		}
 	};
 
+	const onEdgeClick = (e, edge) => {
+		if (e.detail === 2) {
+			let updatedBlocksArray = reactFlowInstance.getNodes().slice();
+
+			var SOURCE_NODE = updatedBlocksArray.find(
+				(obj) => obj.id === edge.source
+			);
+			var TARGET_NODE = updatedBlocksArray.find(
+				(obj) => obj.id === edge.target
+			);
+
+			let CONDITION;
+
+			const ACTION_NODES = NodeTypes.map((declaration) => {
+				if (declaration.nodeType == "ActionNode") return declaration.type;
+			});
+
+			setCMBlockData(TARGET_NODE);
+
+			if (platform == "moodle") {
+				const CONDITIONS = TARGET_NODE.data.c;
+
+				if (!ACTION_NODES.includes(TARGET_NODE.type)) {
+					CONDITION = findConditionById(SOURCE_NODE.id, CONDITIONS.c);
+				} else {
+					CONDITION = findConditionById(SOURCE_NODE.id, CONDITIONS.params);
+				}
+
+				handleShow(TARGET_NODE.id, "conditions", CONDITION);
+			} else {
+				CONDITION = findConditionByParentId(
+					TARGET_NODE.data.gradeRequisites.subConditions,
+					SOURCE_NODE.id
+				);
+
+				handleShow(TARGET_NODE.id, "requisites", CONDITION);
+			}
+		}
+	};
+
 	/**
 	 * Handles the showing of a modal.
+	 * @param {String} nodeId
 	 * @param {string} modal - The modal to show.
 	 */
-	const handleShow = (modal) => {
+	const handleShow = (nodeId, modal, condition) => {
+		console.log("CONDITION ", condition);
 		console.info(`❓ Showing modal: `, modal);
 		const SELECTED_NODES = getSelectedNodes();
 
-		let newCMBlockData = undefined;
-		if (SELECTED_NODES.length == 1 && cMBlockData == undefined) {
-			newCMBlockData = SELECTED_NODES[0];
-		}
-
+		let newCMBlockData = getNodeById(nodeId, reactFlowInstance.getNodes());
+		console.log(newCMBlockData);
 		if (newCMBlockData || cMBlockData) {
 			if (SELECTED_NODES.length == 1 && cMBlockData == undefined) {
 				setCMBlockData(newCMBlockData);
@@ -1950,6 +2066,10 @@ const OverviewFlow = ({ map }, ref) => {
 				if (modal == "grades") setShowGradeConditionsModal(true);
 			} else if (platform == "sakai") {
 				if (modal == "requisites") setShowRequisitesModal(true);
+			}
+
+			if (condition) {
+				setConditionEdgeView(condition);
 			}
 
 			setShowContextualMenu(false);
@@ -2030,11 +2150,29 @@ const OverviewFlow = ({ map }, ref) => {
 	});
 	useHotkeys("ctrl+e", (e) => {
 		e.preventDefault();
-		handleShow("conditions");
+		const SELECTED_NODES = getSelectedNodes();
+
+		if (SELECTED_NODES.length > 1) {
+			toast(
+				"No se pueden editar las condiciones de multiples nodos",
+				DEFAULT_TOAST_ERROR
+			);
+		} else {
+			handleShow(SELECTED_NODES[0].id, "conditions");
+		}
 	});
 	useHotkeys("ctrl+alt+e", (e) => {
 		e.preventDefault();
-		handleShow("grades");
+		const SELECTED_NODES = getSelectedNodes();
+
+		if (SELECTED_NODES.length > 1) {
+			toast(
+				"No se pueden editar las condiciones de multiples nodos",
+				DEFAULT_TOAST_ERROR
+			);
+		} else {
+			handleShow(SELECTED_NODES[0].id, "grades");
+		}
 	});
 	useHotkeys(
 		"alt",
@@ -2071,6 +2209,7 @@ const OverviewFlow = ({ map }, ref) => {
 				onNodesDelete={onNodesDelete}
 				onEdgesDelete={onEdgesDelete}
 				onNodeClick={onNodeClick}
+				onEdgeClick={onEdgeClick}
 				onPaneClick={onPaneClick}
 				onConnect={onConnect}
 				onInit={onInit}
@@ -2144,6 +2283,8 @@ const OverviewFlow = ({ map }, ref) => {
 							onEdgesDelete={onEdgesDelete}
 							showConditionsModal={showConditionsModal}
 							setShowConditionsModal={setShowConditionsModal}
+							conditionEdgeView={conditionEdgeView}
+							setConditionEdgeView={setConditionEdgeView}
 						/>
 					) : (
 						<CriteriaModal
@@ -2153,6 +2294,8 @@ const OverviewFlow = ({ map }, ref) => {
 							onEdgesDelete={onEdgesDelete}
 							showConditionsModal={showConditionsModal}
 							setShowConditionsModal={setShowConditionsModal}
+							conditionEdgeView={conditionEdgeView}
+							setConditionEdgeView={setConditionEdgeView}
 						/>
 					)}
 				</>
@@ -2176,6 +2319,8 @@ const OverviewFlow = ({ map }, ref) => {
 					setBlockData={setCMBlockData}
 					blocksData={reactFlowInstance.getNodes()}
 					onEdgesDelete={onEdgesDelete}
+					conditionEdgeView={conditionEdgeView}
+					setConditionEdgeView={setConditionEdgeView}
 					showRequisitesModal={showRequisitesModal}
 					setShowRequisitesModal={setShowRequisitesModal}
 				></RequisiteModalSakai>

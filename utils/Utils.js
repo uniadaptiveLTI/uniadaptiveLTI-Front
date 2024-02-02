@@ -762,3 +762,45 @@ export function handleNameCollision(
 export function createFontAwesome(icon) {
 	return <FontAwesomeIcon icon={icon} />;
 }
+
+export function findConditionById(id, conditions) {
+	if (!conditions) {
+		return null;
+	}
+
+	const FOUND_CONDITION = conditions.find((condition) => condition.cm === id);
+
+	if (FOUND_CONDITION) {
+		return FOUND_CONDITION;
+	} else {
+		const FOUND_ACTION_CONDITION = conditions.find(
+			(condition) => condition.type === "completion"
+		);
+
+		if (FOUND_ACTION_CONDITION) return FOUND_ACTION_CONDITION;
+	}
+
+	for (const CONDITION of conditions) {
+		if (CONDITION.c) {
+			const INNER_CONDITION = findConditionById(id, CONDITION.c);
+			if (INNER_CONDITION) {
+				return INNER_CONDITION;
+			}
+		}
+	}
+
+	return null;
+}
+
+export function findConditionByParentId(subConditions, blockNodeId) {
+	for (const SUBCONDITION of subConditions) {
+		const FOUND_CONDITION = SUBCONDITION.subConditions?.find((condition) => {
+			return condition.itemId === blockNodeId;
+		});
+		if (FOUND_CONDITION) {
+			return FOUND_CONDITION;
+		}
+	}
+
+	return null;
+}
