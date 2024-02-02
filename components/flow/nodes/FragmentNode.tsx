@@ -5,7 +5,13 @@ import {
 	useEffect,
 	useLayoutEffect,
 } from "react";
-import { NodeResizer, NodeToolbar, useReactFlow, useEdges } from "reactflow";
+import {
+	NodeResizer,
+	NodeToolbar,
+	useReactFlow,
+	useEdges,
+	Position,
+} from "reactflow";
 import { Button } from "react-bootstrap";
 import styles from "/styles/BlockContainer.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -29,10 +35,10 @@ import {
 import { getByProperty, getUpdatedArrayById, parseBool } from "@utils/Utils";
 import { getNodeDOMById, getNodeById } from "@utils/Nodes";
 import FocusTrap from "focus-trap-react";
-import FragmentResizer from "/components/dialogs/FragmentResizer";
-import FragmentEditor from "/components/dialogs/FragmentEditor";
+import FragmentResizer from "components/dialogs/FragmentResizer";
+import FragmentEditor from "components/dialogs/FragmentEditor";
 
-function FragmentNode({ id, xPos, yPos, type, data }) {
+function FragmentNode({ id, xPos, yPos, data }) {
 	const { nodeSelected, setNodeSelected } = useContext(EditedNodeContext);
 	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
 	const { editVersionSelected, setEditVersionSelected } =
@@ -51,12 +57,16 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 	const [showRemover, setShowRemover] = useState(false);
 
 	const [expanded, setExpanded] = useState(data.expanded);
-	const [originalExpandedSize, setOriginalExpandedSize] = useState();
+	interface size {
+		width: number;
+		height: number;
+	}
+	const [originalExpandedSize, setOriginalExpandedSize] = useState<size>();
 
 	const handleEdit = () => {
 		const BLOCKDATA = getNodeById(id, reactFlowInstance.getNodes());
 		setExpandedAside(true);
-		setEditVersionSelected("");
+		setEditVersionSelected(undefined);
 		setNodeSelected(BLOCKDATA);
 	};
 
@@ -127,7 +137,10 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 
 				reactFlowInstance.setNodes(
 					getUpdatedArrayById(
-						[...UPDATED_NODES, { ...CURRENT_NODE, style: STYLES }],
+						[
+							...UPDATED_NODES,
+							{ ...CURRENT_NODE, ...STYLES, style: { ...STYLES } },
+						],
 						reactFlowInstance.getNodes()
 					)
 				);
@@ -172,7 +185,10 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 
 				reactFlowInstance.setNodes(
 					getUpdatedArrayById(
-						[...UPDATED_NODES, { ...CURRENT_NODE, style: STYLES }],
+						[
+							...UPDATED_NODES,
+							{ ...CURRENT_NODE, ...STYLES, style: { ...STYLES } },
+						],
 						reactFlowInstance.getNodes()
 					)
 				);
@@ -266,8 +282,8 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 
 			updatedChildrenBlockData.push({
 				id: CHILD_NODE.id,
-				x: RESTRICTED_CHILDREN_ARRAY[INDEX].x,
-				y: RESTRICTED_CHILDREN_ARRAY[INDEX].y,
+				x: RESTRICTED_CHILDREN_ARRAY[INDEX].position.x,
+				y: RESTRICTED_CHILDREN_ARRAY[INDEX].position.y,
 			});
 		}
 
@@ -298,7 +314,7 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 		);
 	};
 
-	const getAriaLabel = () => {
+	const getAriaLabel = (): string => {
 		let end = "";
 		if (data.section && data.order) {
 			end = data.section
@@ -336,7 +352,7 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 					onResizeEnd={handleResizeEnd}
 				/>
 			)}
-			<NodeToolbar position="left" offset={25}>
+			<NodeToolbar position={Position.Left} offset={25}>
 				<FocusTrap
 					focusTrapOptions={{
 						clickOutsideDeactivates: true,
@@ -467,7 +483,7 @@ function FragmentNode({ id, xPos, yPos, type, data }) {
 					if (e.key == "Enter") handleEdit();
 				}}
 				tabIndex={0}
-				aria-label={getAriaLabel} //FIXME: Doesn't work
+				aria-label={getAriaLabel()}
 			>
 				{!expanded && (
 					<span className={styles.blockInfo + " " + styles.top}>

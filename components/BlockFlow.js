@@ -17,8 +17,8 @@ import ReactFlow, {
 	useReactFlow,
 } from "reactflow";
 import "reactflow/dist/style.css";
-import ActionNode from "./flow/nodes/ActionNode.js";
-import ElementNode from "./flow/nodes/ElementNode.js";
+import ActionNode from "./flow/nodes/ActionNode";
+import ElementNode from "./flow/nodes/ElementNode";
 import {
 	EditedNodeContext,
 	ErrorListContext,
@@ -27,7 +27,7 @@ import {
 	MetaDataContext,
 	notImplemented,
 } from "pages/_app.tsx";
-import FragmentNode from "./flow/nodes/FragmentNode.js";
+import FragmentNode from "./flow/nodes/FragmentNode";
 import {
 	uniqueId,
 	getUpdatedArrayById,
@@ -51,19 +51,19 @@ import { errorListCheck } from "@utils/ErrorHandling";
 import { toast } from "react-toastify";
 import { getAutomaticReusableStyles } from "@utils/Colors";
 import { useHotkeys } from "react-hotkeys-hook";
-import ContextualMenu from "@components/flow/contextualmenu/ContextualMenu.js";
-import ConditionModalMoodle from "@components/flow/conditions/moodle/ConditionModalMoodle.js";
+import ContextualMenu from "@components/flow/contextualmenu/ContextualMenu";
+import ConditionModalMoodle from "@components/flow/conditions/moodle/ConditionModalMoodle";
 import RequisiteModalSakai from "@components/flow/conditions/sakai/RequisiteModalSakai";
-import QualificationModal from "@components/flow/conditions/moodle/QualificationModal.js";
+import QualificationModal from "@components/flow/conditions/moodle/QualificationModal";
 import { useKeyPress } from "reactflow";
-import { getTypeStaticColor } from "@utils/NodeIcons.js";
-import NodeSelector from "@components/dialogs/NodeSelector.js";
-import CriteriaModal from "@components/flow/badges/CriteriaModal.js";
+import { getTypeStaticColor } from "@utils/NodeIcons";
+import NodeSelector from "@components/dialogs/NodeSelector";
+import CriteriaModal from "@components/flow/badges/CriteriaModal";
 import ConditionalEdge from "@components/flow/edges/ConditionalEdge";
-import { NodeTypes } from "@utils/TypeDefinitions.js";
-import { isSupportedTypeInPlatform } from "@utils/Platform.js";
-import CustomControls from "./flow/CustomControls.js";
-import SimpleActionDialog from "./dialogs/SimpleActionDialog.js";
+import { NodeTypes } from "@utils/TypeDefinitions";
+import { isSupportedTypeInPlatform } from "@utils/Platform";
+import CustomControls from "./flow/CustomControls";
+import SimpleActionDialog from "./dialogs/SimpleActionDialog";
 
 const MINIMAP_STYLE = {
 	height: 120,
@@ -1472,7 +1472,8 @@ const OverviewFlow = ({ map }, ref) => {
 							id: uniqueId(),
 							position: { x: flowPos.x, y: flowPos.y },
 							type: "fragment",
-							style: { height: 68, width: 68 },
+							height: 68,
+							width: 68,
 							data: {
 								label: "Nuevo fragmento",
 								innerNodes: [],
@@ -1489,7 +1490,7 @@ const OverviewFlow = ({ map }, ref) => {
 								},
 							};
 						} else {
-							newBlockCreated = { ...{ ...blockData } };
+							newBlockCreated = { ...{ ...blockData, height: 68, width: 68 } };
 						}
 					}
 				}
@@ -1637,12 +1638,16 @@ const OverviewFlow = ({ map }, ref) => {
 				}
 
 				const NEW_FRAGMENT_ID = uniqueId();
+				const finalHeight = maxY - minY + 68;
+				const finalWidth = maxX - minX + 68;
 
 				const NEW_FRAGMENT = {
 					id: NEW_FRAGMENT_ID,
 					position: { x: minX, y: minY },
 					type: "fragment",
-					style: { height: maxY - minY + 68, width: maxX - minX + 68 },
+					height: finalHeight,
+					width: finalWidth,
+					style: { height: finalHeight, width: finalWidth },
 					zIndex: -1,
 					data: {
 						label: "Nuevo Fragmento",

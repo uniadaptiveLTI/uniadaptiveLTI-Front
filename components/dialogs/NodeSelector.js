@@ -136,12 +136,24 @@ export default forwardRef(function NodeSelector(
 					role="button"
 					tabIndex={0}
 					onClick={() => {
-						callback({ id: uniqueId(), type: type, data: { ...DATA } });
+						callback({
+							id: uniqueId(),
+							type: type,
+							height: 68,
+							width: 68,
+							data: { ...DATA },
+						});
 						toggleDialog();
 					}}
 					onKeyDown={(e) => {
 						if (e.code == "Enter") {
-							callback({ id: uniqueId(), type: type, data: { ...DATA } });
+							callback({
+								id: uniqueId(),
+								type: type,
+								height: 68,
+								width: 68,
+								data: { ...DATA },
+							});
 							toggleDialog();
 						}
 					}}
