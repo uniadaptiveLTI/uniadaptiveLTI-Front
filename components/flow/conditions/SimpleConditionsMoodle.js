@@ -77,7 +77,7 @@ export default function SimpleConditionsMoodle({ id }) {
 			op: "|",
 			parsed: (
 				<a>
-					Si se cumple <b>UNO:</b>
+					Si se cumple <b>CUALQUIERA:</b>
 				</a>
 			),
 		},
@@ -93,7 +93,7 @@ export default function SimpleConditionsMoodle({ id }) {
 			op: "!|",
 			parsed: (
 				<a>
-					Si NO se cumple <b>UNO:</b>
+					Si NO se cumple <b>CUALQUIERA:</b>
 				</a>
 			),
 		},

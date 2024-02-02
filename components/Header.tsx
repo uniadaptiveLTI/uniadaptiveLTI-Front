@@ -77,6 +77,7 @@ import ConfirmationModal from "./dialogs/ConfirmationModal";
 import { fetchBackEnd } from "middleware/common";
 import { IVersion } from "./interfaces/IVersion";
 import LTIErrorMessage from "./messages/LTIErrors";
+import { IMetaData } from "./interfaces/IMetaData";
 
 const DEFAULT_TOAST_SUCCESS: ToastOptions = {
 	hideProgressBar: false,
@@ -227,7 +228,8 @@ function Header({ LTISettings }, ref) {
 						);
 
 						const MAP_DATA = MAP_RESPONSE.data;
-						if (!MAP_DATA.invalid) {
+
+						if (MAP_RESPONSE.ok) {
 							const VERSIONS_RESPONSE = await fetchBackEnd(
 								sessionStorage.getItem("token"),
 								"api/lti/get_versions",
@@ -236,10 +238,18 @@ function Header({ LTISettings }, ref) {
 							);
 
 							const VERSIONS_DATA = VERSIONS_RESPONSE.data;
-							if (!VERSIONS_DATA.invalid) {
+
+							if (VERSIONS_RESPONSE.ok) {
+								const VERSION_RESPONSE = await fetchBackEnd(
+									sessionStorage.getItem("token"),
+									"api/lti/get_version",
+									"POST",
+									{ version_id: VERSIONS_DATA[0].id }
+								);
+
 								setVersions(VERSIONS_DATA);
 
-								setSelectedVersion(VERSIONS_DATA[0]);
+								setSelectedVersion(VERSION_RESPONSE.data as IVersion);
 							} else {
 								console.error("Error, datos de versiones inválidos");
 							}
@@ -354,7 +364,7 @@ function Header({ LTISettings }, ref) {
 
 	const handleImportedMap = async (
 		lesson?,
-		localMetaData = metaData,
+		localMetaData: IMetaData = metaData,
 		localUserData = userData,
 		localMaps = maps
 	) => {
@@ -368,8 +378,6 @@ function Header({ LTISettings }, ref) {
 				"POST",
 				{ lesson: lesson }
 			);
-
-			console.log("EL DIABLO", response);
 
 			if (!response.ok) {
 				toast(
@@ -407,7 +415,7 @@ function Header({ LTISettings }, ref) {
 
 		if (!IS_EMPTY_MAP) {
 			data.map((node) => {
-				switch (metaData.platform) {
+				switch (localMetaData.platform) {
 					case "moodle":
 						NODES.push(parseMoodleNode(node, newX, newY));
 						newX += 125;
@@ -423,7 +431,7 @@ function Header({ LTISettings }, ref) {
 		}
 
 		//Bring badges
-		switch (metaData.platform) {
+		switch (localMetaData.platform) {
 			case "moodle":
 				localMetaData.badges.map((badge) => {
 					NODES.push(parseMoodleBadges(badge, newX, newY, NODES));
@@ -435,7 +443,7 @@ function Header({ LTISettings }, ref) {
 		}
 
 		let platformNewMap;
-		if (metaData.platform == "moodle") {
+		if (localMetaData.platform == "moodle") {
 			platformNewMap = createNewMoodleMap(NODES, localMetaData, localMaps);
 		} else {
 			platformNewMap = createNewSakaiMap(
@@ -449,7 +457,7 @@ function Header({ LTISettings }, ref) {
 			await saveVersions(
 				platformNewMap.versions,
 				localMetaData,
-				metaData.platform,
+				localMetaData.platform,
 				localUserData,
 				platformNewMap,
 				DEFAULT_TOAST_SUCCESS,
@@ -1145,7 +1153,7 @@ function Header({ LTISettings }, ref) {
 	const handleConfirmationShow = () => setConfirmationShow(true);
 
 	async function fetchVersion(id) {
-		if (!process.env.NEXT_PUBLIC_DEV_FILES) {
+		if (!parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
 			try {
 				const VERSION_RESPONSE = await fetchBackEnd(
 					sessionStorage.getItem("token"),
