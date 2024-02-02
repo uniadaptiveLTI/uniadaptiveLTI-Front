@@ -21,7 +21,7 @@ export default function SimpleConditionsSakai({ id }) {
 	);
 	const GROUP_REQUISITE = REQUISITES?.find((item) => item.type === "group");
 
-	const GRADES = getNodeById(id, rfNodes)?.data?.gradeRequisites || undefined;
+	const GRADES = getNodeById(id, rfNodes)?.data?.g || undefined;
 	const { settings } = useContext(SettingsContext);
 	const PARSED_SETTINGS = JSON.parse(settings);
 	let { hoverConditions } = PARSED_SETTINGS;

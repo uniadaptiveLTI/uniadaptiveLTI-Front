@@ -21,7 +21,7 @@ export interface IElementNodeData {
 	indent: number;
 
 	c: any; // TODO: Do the correct condition type
-	g: IGradableData;
+	g: IGradableDataMoodle | IGradableDataSakai;
 
 	lmsVisibility: "show_unconditionally" | "hidden_until_access";
 	lmsResource: string;
@@ -42,7 +42,7 @@ interface FragmentNodeData {
 
 export type INodeData = IElementNodeData | IActionNodeData;
 
-interface IGradableData {
+interface IGradableDataMoodle {
 	hasConditions: boolean;
 	hasToBeSeen: boolean;
 	hasToBeQualified: boolean;
@@ -51,4 +51,27 @@ interface IGradableData {
 		max: number;
 		hasToSelect: boolean;
 	};
+}
+
+interface IGradableDataSakai {
+	id: string;
+	type:
+		| "AND"
+		| "OR"
+		| "EQUAL_TO"
+		| "GREATER_THAN"
+		| "SMALLER_THAN"
+		| "GREATER_THAN_OR_EQUAL_TO"
+		| "SMALLER_THAN_OR_EQUAL_TO"
+		| "ROOT"
+		| "PARENT"
+		| "SCORE";
+	itemType?: string;
+	operator: string;
+	argument: null | string;
+	siteId: string;
+	toolId: string;
+	itemId: string;
+	subConditions?: Array<IGradableDataSakai>;
+	hasParent?: boolean;
 }

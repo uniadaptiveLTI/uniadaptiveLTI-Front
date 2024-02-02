@@ -1,117 +1,113 @@
 [
-    {
-        "id": "1",
-        "name": "Examen 1",
-        "pageId": 2,
-        "sakaiId": "1",
-        "modname": "exam",
-        "section": 1,
-        "indent": 1,
-        "order": 1,
-		"groups": [
-            "3", "4"
-        ]
-    },
-    {
-        "id": "2",
-        "name": "Tarea 1",
-        "pageId": 2,
-        "sakaiId": "2",
-        "modname": "assign",
-        "section": 1,
-        "indent": 1,
-        "order": 2,
-		"groups": []
-    },
 	{
-        "id": "3",
-        "name": "Foro 1",
-        "pageId": 2,
-        "sakaiId": "3",
-        "modname": "forum",
-        "section": 1,
-        "indent": 1,
-        "order": 3,
+		"id": "1",
+		"name": "Examen 1",
+		"pageId": 2,
+		"sakaiId": "1",
+		"modname": "exam",
+		"section": 1,
+		"indent": 1,
+		"order": 1,
+		"groups": ["3", "4"]
+	},
+	{
+		"id": "2",
+		"name": "Tarea 1",
+		"pageId": 2,
+		"sakaiId": "2",
+		"modname": "assign",
+		"section": 1,
+		"indent": 1,
+		"order": 2,
+		"groups": []
+	},
+	{
+		"id": "3",
+		"name": "Foro 1",
+		"pageId": 2,
+		"sakaiId": "3",
+		"modname": "forum",
+		"section": 1,
+		"indent": 1,
+		"order": 3,
 		"groups": [],
-         "gradeRequisites": {
-            "id": "474259c2-0fe3-44d7-aab6-b05afcee7c0c",
-            "type": "ROOT",
-            "operator": "AND",
-            "argument": null,
-            "siteId": "73c92f2b-99c3-453c-afc5-2d2c570b85cf",
-            "toolId": "sakai.lessonbuildertool",
-            "itemId": "570",
-            "subConditions": [
-                {
-                    "id": "522872421481",
-                    "type": "PARENT",
-                    "operator": "OR",
-                    "argument": null,
-                    "siteId": "73c92f2b-99c3-453c-afc5-2d2c570b85cf",
-                    "toolId": "sakai.conditions",
-                    "itemId": null,
-                    "subConditions": [
-                        {
-                            "id": "995067487367",
-                            "type": "SCORE",
-                            "operator": "GREATER_THAN",
-                            "argument": "6",
-                            "siteId": "73c92f2b-99c3-453c-afc5-2d2c570b85cf",
-                            "itemId": "1",
-                            "toolId": "sakai.lessonbuildertool",
-                            "subConditions": [],
-                            "hasParent": true
-                        }
-                    ],
-                    "hasParent": true
-                }
-            ]
-        }
-    },
-    {
-        "id": "4",
-        "name": "Html 1",
-        "pageId": 2,
-        "sakaiId": "4",
-        "modname": "html",
-        "section": 1,
-        "indent": 2,
-        "order": 1,
-		"groups": [
-            "1", "2"
-        ]
-    },
+		"g": {
+			"id": "474259c2-0fe3-44d7-aab6-b05afcee7c0c",
+			"type": "ROOT",
+			"operator": "AND",
+			"argument": null,
+			"siteId": "73c92f2b-99c3-453c-afc5-2d2c570b85cf",
+			"toolId": "sakai.lessonbuildertool",
+			"itemId": "570",
+			"subConditions": [
+				{
+					"id": "522872421481",
+					"type": "PARENT",
+					"operator": "OR",
+					"argument": null,
+					"siteId": "73c92f2b-99c3-453c-afc5-2d2c570b85cf",
+					"toolId": "sakai.conditions",
+					"itemId": null,
+					"subConditions": [
+						{
+							"id": "995067487367",
+							"type": "SCORE",
+							"operator": "GREATER_THAN",
+							"argument": "6",
+							"siteId": "73c92f2b-99c3-453c-afc5-2d2c570b85cf",
+							"itemId": "1",
+							"toolId": "sakai.lessonbuildertool",
+							"subConditions": [],
+							"hasParent": true
+						}
+					],
+					"hasParent": true
+				}
+			]
+		}
+	},
 	{
-        "id": "5",
-        "name": "Texto 1",
-        "pageId": 2,
-        "sakaiId": "5",
-        "modname": "text",
-        "section": 1,
-        "indent": 2,
-        "order": 2,
-		"groups": []
-    },
+		"id": "4",
+		"name": "Html 1",
+		"pageId": 2,
+		"sakaiId": "4",
+		"modname": "html",
+		"section": 1,
+		"indent": 2,
+		"order": 1,
+		"groups": ["1", "2"]
+	},
 	{
-        "id": "6",
-        "name": "Url 1",
-        "pageId": 2,
-        "sakaiId": "6",
-        "modname": "url",
-        "section": 2,
-        "indent": 1,
-        "order": 1,
+		"id": "5",
+		"name": "Texto 1",
+		"pageId": 2,
+		"sakaiId": "5",
+		"modname": "text",
+		"section": 1,
+		"indent": 2,
+		"order": 2,
 		"groups": []
-    },
+	},
 	{
-        "id": "7",
-        "name": "Fichero 1",
-        "pageId": 2,
-        "sakaiId": "7",
-        "modname": "resource",
-        "section": 2,
-        "indent": 1,
-        "order": 2,
+		"id": "6",
+		"name": "Url 1",
+		"pageId": 2,
+		"sakaiId": "6",
+		"modname": "url",
+		"section": 2,
+		"indent": 1,
+		"order": 1,
 		"groups": []
-    }
+	},
+	{
+		"id": "7",
+		"name": "Fichero 1",
+		"pageId": 2,
+		"sakaiId": "7",
+		"modname": "resource",
+		"section": 2,
+		"indent": 1,
+		"order": 2,
+		"groups": []
+	}
 ]

@@ -2,8 +2,6 @@ import React, {
 	forwardRef,
 	useContext,
 	useEffect,
-	useLayoutEffect,
-	useMemo,
 	useRef,
 	useState,
 } from "react";
@@ -15,6 +13,8 @@ import ReactFlow, {
 	useNodesInitialized,
 	SelectionMode,
 	useReactFlow,
+	OnConnect,
+	Edge,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import ActionNode from "./flow/nodes/ActionNode";
@@ -26,7 +26,7 @@ import {
 	SettingsContext,
 	MetaDataContext,
 	notImplemented,
-} from "pages/_app.tsx";
+} from "pages/_app";
 import FragmentNode from "./flow/nodes/FragmentNode";
 import {
 	uniqueId,
@@ -64,6 +64,7 @@ import { NodeTypes } from "@utils/TypeDefinitions";
 import { isSupportedTypeInPlatform } from "@utils/Platform";
 import CustomControls from "./flow/CustomControls";
 import SimpleActionDialog from "./dialogs/SimpleActionDialog";
+import { IFragment, INode } from "./interfaces/INode";
 
 const MINIMAP_STYLE = {
 	height: 120,
@@ -122,7 +123,6 @@ const OverviewFlow = ({ map }, ref) => {
 	const { settings } = useContext(SettingsContext);
 	const parsedSettings = JSON.parse(settings);
 	const { metaData } = useContext(MetaDataContext);
-	const [clipboard, setClipboard] = useState(localStorage.getItem("clipboard"));
 	const { autoHideAside, snapping, snappingInFragment, reducedAnimations } =
 		parsedSettings;
 
@@ -148,13 +148,13 @@ const OverviewFlow = ({ map }, ref) => {
 	//ContextMenu Ref, States, Constants
 	const contextMenuDOM = useRef(null);
 	const confirmDeletionModalCallbackRef = useRef(null);
-	const [showContextualMenu, setShowContextualMenu] = useState(false);
+	const [showContextualMenu, setShowContextualMenu] = useState<boolean>();
 	const [cMX, setCMX] = useState(0);
 	const [cMY, setCMY] = useState(0);
 	const [contextMenuOrigin, setContextMenuOrigin] = useState("");
 	const [cMContainsReservedNodes, setCMContainsReservedNodes] = useState(false);
-	const [cMBlockData, setCMBlockData] = useState();
-	const [relationStarter, setRelationStarter] = useState();
+	const [cMBlockData, setCMBlockData] = useState<INode | Array<INode>>();
+	const [relationStarter, setRelationStarter] = useState<INode>();
 	const [currentMousePosition, setCurrentMousePosition] = useState({
 		x: 0,
 		y: 0,
@@ -208,8 +208,8 @@ const OverviewFlow = ({ map }, ref) => {
 	}, []);
 
 	//NodeSelector
-	const [showNodeSelector, setShowNodeSelector] = useState(false);
-	const [nodeSelectorType, setNodeSelectorType] = useState(false);
+	const [showNodeSelector, setShowNodeSelector] = useState<boolean>(false);
+	const [nodeSelectorType, setNodeSelectorType] = useState("");
 
 	const [nodes, setNodes, onNodesChange] = useNodesState(newInitialNodes);
 	const [edges, setEdges, onEdgesChange] = useEdgesState(newInitialEdges);
@@ -230,7 +230,9 @@ const OverviewFlow = ({ map }, ref) => {
 		return edgeArray.filter((edge) => edge.selected == true);
 	};
 
-	const getSelectedNodes = (nodeArray = reactFlowInstance.getNodes()) => {
+	const getSelectedNodes = (
+		nodeArray = reactFlowInstance.getNodes() as Array<INode>
+	) => {
 		return nodeArray.filter((node) => node.selected == true);
 	};
 
@@ -376,13 +378,29 @@ const OverviewFlow = ({ map }, ref) => {
 	 * Handles a connect event.
 	 * @param {Event} event - The connect event.
 	 */
-	const onConnect = (event) => {
-		const sourceNodeId = event.source.split("__")[0];
-		const targetNodeId = event.target.split("__")[0];
+	const onConnect: OnConnect = (event) => {
+		const sourceNodeId = event.source;
+		const targetNodeId = event.target;
 
 		let allowLineCreation = true;
 
 		if (sourceNodeId != targetNodeId) {
+			console.log(sourceNodeId + "-" + targetNodeId);
+			console.log(
+				reactFlowInstance
+					.getEdges()
+					.find((node) => node.id === sourceNodeId + "-" + targetNodeId)
+			);
+			console.log("found:", reactFlowInstance.getEdges());
+			console.log(
+				"sourceFound",
+				reactFlowInstance.getNodes().find((nodes) => nodes.id == sourceNodeId)
+			);
+			console.log(
+				"targetFound",
+				reactFlowInstance.getNodes().find((nodes) => nodes.id == targetNodeId)
+			);
+
 			const edgeFound = reactFlowInstance
 				.getEdges()
 				.find((node) => node.id === sourceNodeId + "-" + targetNodeId);
@@ -391,17 +409,15 @@ const OverviewFlow = ({ map }, ref) => {
 
 			const sourceNode = reactFlowInstance
 				.getNodes()
-				.find((nodes) => nodes.id == sourceNodeId);
+				.find((nodes) => nodes.id == sourceNodeId) as INode;
 
 			const targetNode = reactFlowInstance
 				.getNodes()
-				.find((nodes) => nodes.id == targetNodeId);
+				.find((nodes) => nodes.id == targetNodeId) as INode;
 
 			if (sourceNode) {
-				if (Array.isArray(sourceNode.data.children)) {
+				if ("children" in sourceNode.data) {
 					sourceNode.data.children.push(targetNodeId);
-				} else {
-					sourceNode.data.children = [targetNodeId];
 				}
 			}
 
@@ -411,7 +427,7 @@ const OverviewFlow = ({ map }, ref) => {
 						case "moodle":
 							const blockData = getNodeById(
 								sourceNodeId,
-								reactFlowInstance.getNodes()
+								reactFlowInstance.getNodes() as Array<INode>
 							);
 
 							const currentGradableType = getNodeTypeGradableType(
@@ -429,7 +445,7 @@ const OverviewFlow = ({ map }, ref) => {
 							) {
 								if (!validTypes.includes(targetNode.type)) {
 									const newCondition = {
-										id: parseInt(Date.now() * Math.random()).toString(),
+										id: String(Date.now() * Math.random()),
 										type: "completion",
 										cm: sourceNode.id,
 										showc: true,
@@ -439,7 +455,7 @@ const OverviewFlow = ({ map }, ref) => {
 									if (!targetNode.data.c) {
 										targetNode.data.c = {
 											type: "conditionsGroup",
-											id: parseInt(Date.now() * Math.random()).toString(),
+											id: String(Date.now() * Math.random()),
 											op: "&",
 											showc: true,
 											c: [newCondition],
@@ -451,7 +467,7 @@ const OverviewFlow = ({ map }, ref) => {
 									if (!targetNode.data.c) {
 										targetNode.data.c = {
 											type: "conditionsGroup",
-											id: parseInt(Date.now() * Math.random()).toString(),
+											id: String(Date.now() * Math.random()),
 											method: "&",
 											showc: true,
 											criteriatype: 0,
@@ -473,7 +489,7 @@ const OverviewFlow = ({ map }, ref) => {
 											conditionExists.params.push(newConditionAppend);
 										} else {
 											const newCondition = {
-												id: parseInt(Date.now() * Math.random()).toString(),
+												id: String(Date.now() * Math.random()),
 												type: "completion",
 												params: [
 													{
@@ -488,7 +504,7 @@ const OverviewFlow = ({ map }, ref) => {
 										}
 									} else {
 										const newCondition = {
-											id: parseInt(Date.now() * Math.random()).toString(),
+											id: String(Date.now() * Math.random()),
 											type: "completion",
 											criteriatype: 1,
 											params: [
@@ -516,7 +532,11 @@ const OverviewFlow = ({ map }, ref) => {
 								);
 							}
 
-							if (targetNode.type === "badge") {
+							if (
+								targetNode.type === "badge" &&
+								"g" in sourceNode.data &&
+								"hasToBeQualified" in sourceNode.data.g
+							) {
 								if (sourceNode.data.g && !sourceNode.data.g.hasToBeQualified) {
 									sourceNode.data.g.hasToBeQualified = true;
 								}
@@ -524,8 +544,10 @@ const OverviewFlow = ({ map }, ref) => {
 
 							break;
 						case "sakai":
-							if (!targetNode.data.gradeRequisites) {
-								targetNode.data.gradeRequisites = {
+							if ("g" in targetNode.data && !targetNode.data.g) {
+								targetNode.data.g = {
+									id: undefined,
+									argument: undefined,
 									type: "ROOT",
 									siteId: metaData.course_id,
 									itemId: targetNodeId,
@@ -534,6 +556,9 @@ const OverviewFlow = ({ map }, ref) => {
 									operator: "AND",
 									subConditions: [
 										{
+											id: undefined,
+											argument: undefined,
+											itemId: undefined,
 											type: "PARENT",
 											siteId: metaData.course_id,
 											toolId: "sakai.conditions",
@@ -541,6 +566,9 @@ const OverviewFlow = ({ map }, ref) => {
 											subConditions: [],
 										},
 										{
+											id: undefined,
+											argument: undefined,
+											itemId: undefined,
 											type: "PARENT",
 											siteId: metaData.course_id,
 											toolId: "sakai.conditions",
@@ -551,49 +579,52 @@ const OverviewFlow = ({ map }, ref) => {
 								};
 							}
 
-							const gradeRequisites = targetNode.data.gradeRequisites;
+							const gradeRequisites =
+								"g" in targetNode.data ? targetNode.data.g : undefined;
 
-							const subRootAnd = gradeRequisites.subConditions.find(
-								(set) => set.type === "PARENT" && set.operator === "AND"
-							);
+							if (
+								gradeRequisites != undefined &&
+								"subConditions" in gradeRequisites
+							) {
+								const subRootAnd = gradeRequisites.subConditions.find(
+									(set) => set.type === "PARENT" && set.operator === "AND"
+								);
 
-							subRootAnd.subConditions.push({
-								type: "SCORE",
-								siteId: metaData.course_id,
-								itemId: sourceNodeId,
-								itemType: sourceNode.type,
-								toolId: "sakai.lessonbuildertool",
-								argument: 5,
-								operator: "GREATER_THAN",
-							});
+								subRootAnd.subConditions.push({
+									id: undefined,
+									type: "SCORE",
+									siteId: metaData.course_id,
+									itemId: sourceNodeId,
+									itemType: sourceNode.type,
+									toolId: "sakai.lessonbuildertool",
+									argument: "5",
+									operator: "GREATER_THAN",
+								});
+							}
 							break;
 					}
 				}
 			}
 
 			if (allowLineCreation) {
-				setEdges([
-					...edges,
-					{
-						id: sourceNodeId + "-" + targetNodeId,
-						source: sourceNodeId,
-						target: targetNodeId,
-					},
-				]);
-
 				setNodes(
 					getUpdatedArrayById(
 						[sourceNode, targetNode],
 						reactFlowInstance.getNodes()
 					)
 				);
+				reactFlowInstance.addEdges({
+					id: sourceNodeId + "-" + targetNodeId,
+					source: sourceNodeId,
+					target: targetNodeId,
+				} as Edge);
 			}
 		}
 	};
 
 	useEffect(() => {
-		setNodes(newInitialNodes);
-		setEdges(newInitialEdges);
+		reactFlowInstance.setNodes(newInitialNodes);
+		reactFlowInstance.setEdges(newInitialEdges);
 	}, [newInitialNodes, newInitialEdges]);
 
 	//-- DELETION LOGIC --
@@ -601,7 +632,7 @@ const OverviewFlow = ({ map }, ref) => {
 		if (deletePressed) {
 			const selectedNodes = getSelectedNodes();
 			const selectedEdges = getSelectedEdges();
-			deleteElements(selectedNodes, selectedEdges);
+			deleteElements(selectedNodes as unknown as Array<Node>, selectedEdges);
 		}
 	}, [deletePressed]);
 
@@ -609,9 +640,11 @@ const OverviewFlow = ({ map }, ref) => {
 	 * Handles the deletion of edges.
 	 * @param {Edge[]} edges - The edges being deleted.
 	 */
-	const onEdgesDelete = (edges) => {
+	const onEdgesDelete = (edges: Array<Edge>) => {
 		// Get a copy of the current nodes
-		let updatedBlocksArray = reactFlowInstance.getNodes().slice();
+		let updatedBlocksArray = reactFlowInstance
+			.getNodes()
+			.slice() as Array<INode>;
 
 		// Loop through each edge to be deleted
 		edges.map((edge) => {
@@ -624,7 +657,7 @@ const OverviewFlow = ({ map }, ref) => {
 			);
 
 			// If the source node exists and has children, update its children by removing the target node
-			if (blockNodeSource && blockNodeSource.data.children) {
+			if (blockNodeSource && "children" in blockNodeSource.data) {
 				blockNodeSource.data.children = blockNodeSource.data.children.filter(
 					(childId) => !childId.includes(blockNodeTarget.id)
 				);
@@ -648,9 +681,14 @@ const OverviewFlow = ({ map }, ref) => {
 						break;
 
 					case "sakai":
-						const gradeRequisites = blockNodeTarget.data?.gradeRequisites;
+						const gradeRequisites =
+							"g" in blockNodeTarget.data ? blockNodeTarget.data.g : undefined;
 
-						if (gradeRequisites && gradeRequisites?.subConditions.length >= 1) {
+						if (
+							gradeRequisites &&
+							"subConditions" in gradeRequisites &&
+							gradeRequisites?.subConditions.length >= 1
+						) {
 							filterConditionsByParentId(
 								gradeRequisites.subConditions,
 								blockNodeSource.id
@@ -665,13 +703,17 @@ const OverviewFlow = ({ map }, ref) => {
 			);
 
 			// If the node to be deleted exists and has children, update its children and conditions
-			if (NODE_DELETED && NODE_DELETED.children) {
-				NODE_DELETED.children = NODE_DELETED.children.filter(
+			if (
+				NODE_DELETED &&
+				"children" in NODE_DELETED.data &&
+				NODE_DELETED.data.children
+			) {
+				NODE_DELETED.data.children = NODE_DELETED.data.children.filter(
 					(child) => child !== edge.target
 				);
 
-				if (NODE_DELETED.children.length === 0) {
-					NODE_DELETED.children = undefined;
+				if (NODE_DELETED.data.children.length === 0) {
+					NODE_DELETED.data.children = undefined;
 				}
 			}
 		});
@@ -798,7 +840,7 @@ const OverviewFlow = ({ map }, ref) => {
 									break;
 								case "sakai":
 									filterConditionsByParentId(
-										foundChildrenNode.data.gradeRequisites.subConditions,
+										foundChildrenNode.data.g.subConditions,
 										block.id
 									);
 									break;
@@ -815,7 +857,7 @@ const OverviewFlow = ({ map }, ref) => {
 									break;
 								case "sakai":
 									filterConditionsByParentId(
-										childrenNode.data.gradeRequisites.subConditions,
+										childrenNode.data.g.subConditions,
 										block.id
 									);
 									break;
@@ -860,11 +902,15 @@ const OverviewFlow = ({ map }, ref) => {
 			FINAL_NODE_ARRAY
 		);
 
-		setRelationStarter(); //Empties relation memory in case the deleted block was used
+		setRelationStarter(undefined); //Empties relation memory in case the deleted block was used
 		return finalReorderedNodeArray;
 	};
 
-	const deleteElements = (nodes, edges, force = false) => {
+	const deleteElements = (
+		nodes: Array<Node>,
+		edges: Array<Edge>,
+		force: boolean = false
+	) => {
 		let continueDeletion = true;
 
 		const getRelatedNodes = (nodes) => {
@@ -903,7 +949,7 @@ const OverviewFlow = ({ map }, ref) => {
 	 * @param {Node[]} nodes - The nodes being deleted.
 	 */
 	const onNodesDelete = (nodes) => {
-		setNodeSelected();
+		setNodeSelected(undefined);
 		deleteBlocks(nodes);
 	};
 
@@ -1008,11 +1054,6 @@ const OverviewFlow = ({ map }, ref) => {
 		);
 	}, [map]);
 
-	/*const onConnect = useCallback(
-		(params) => setEdges((eds) => addEdge(params, eds)),
-		[]
-	);*/
-
 	// we are using a bit of a shortcut here to adjust the edge type
 	// this could also be done with a custom edge for example
 	const edgesWithUpdatedTypes = edges
@@ -1061,7 +1102,7 @@ const OverviewFlow = ({ map }, ref) => {
 		setCMX(e.clientX - bounds.left);
 		setCMY(e.clientY - bounds.top);
 		let selectedCount = 0;
-		const currentNodes = reactFlowInstance.getNodes();
+		const currentNodes = reactFlowInstance.getNodes() as Array<INode>;
 		currentNodes.map((node) => (node.selected ? selectedCount++ : null));
 		if (selectedCount <= 1) {
 			setCMBlockData(node);
@@ -1070,7 +1111,7 @@ const OverviewFlow = ({ map }, ref) => {
 			const selectedNodes = getSelectedNodes(currentNodes);
 			setContextMenuOrigin("nodesselection");
 			setCMBlockData(selectedNodes);
-			setCMContainsReservedNodes(``);
+			setCMContainsReservedNodes(false);
 		}
 
 		setShowContextualMenu(true);
@@ -1109,7 +1150,7 @@ const OverviewFlow = ({ map }, ref) => {
 
 		console.log(selectedNodes, reactFlowInstance);
 		setCMBlockData(selectedNodes);
-		setCMContainsReservedNodes();
+		setCMContainsReservedNodes(undefined);
 		setShowContextualMenu(true);
 	};
 
@@ -1371,7 +1412,7 @@ const OverviewFlow = ({ map }, ref) => {
 			});
 
 			if (COPIED_BLOCKS.length <= 1) {
-				createBlock(newBlocks[0], newBlocks[0].x, newBlocks[0].y);
+				createBlock(newBlocks[0]);
 			} else {
 				const addToInnerNodes = (blocks) => {
 					//Updates innerNodes with the new IDs
@@ -1402,18 +1443,18 @@ const OverviewFlow = ({ map }, ref) => {
 
 	/**
 	 * Handles the cutting of nodes.
-	 * @param {Node[]} [blockData=[]] - The nodes to cut.
+	 * @param {Array<INode>} [blockData=[]] - The nodes to cut.
 	 */
-	const handleNodeCut = (blockData = []) => {
-		const SELECTED_NODES = reactFlowInstance
-			.getNodes()
-			.filter((n) => n.selected == true);
+	const handleNodeCut = (blockData: Array<INode> = []) => {
+		const SELECTED_NODES = getSelectedNodes(
+			reactFlowInstance.getNodes() as Array<INode>
+		);
 		handleNodeCopy(blockData, true);
 		if (SELECTED_NODES.length > 1) {
-			handleNodeSelectionDeletion(SELECTED_NODES);
+			handleNodeSelectionDeletion();
 		} else {
 			if (SELECTED_NODES.length == 1) {
-				blockData = SELECTED_NODES[0];
+				blockData = [SELECTED_NODES[0]];
 			}
 			handleNodeDeletion(blockData);
 		}
@@ -1421,10 +1462,10 @@ const OverviewFlow = ({ map }, ref) => {
 
 	/**
 	 * Creates a new block.
-	 * @param {Node} [blockData] - The data for the new block.
+	 * @param {INode} [blockData] - The data for the new block.
 	 * @returns {Node[]} The updated array of nodes with the new block added.
 	 */
-	const createBlock = (blockData) => {
+	const createBlock = (blockData: INode) => {
 		//TODO: Block selector
 		const REACTFLOW_BOUNDS = reactFlowWrapper.current?.getBoundingClientRect();
 		const ASIDE_DOM = document.getElementById("aside");
@@ -1502,7 +1543,7 @@ const OverviewFlow = ({ map }, ref) => {
 				};
 			}
 		} else {
-			if (platform == "moodle") {
+			if (metaData.platform == "moodle") {
 				newBlockCreated = {
 					id: uniqueId(),
 					position: { x: flowPos.x, y: flowPos.y },
@@ -1537,8 +1578,8 @@ const OverviewFlow = ({ map }, ref) => {
 			let newcurrentBlocksData = reactFlowInstance.getNodes();
 			newcurrentBlocksData.push(newBlockCreated);
 			reactFlowInstance.setNodes([...newcurrentBlocksData]);
-			if (!Object.keys(newBlockCreated).length > 1) {
-				getNodeDOMById(newBlockCreated.id).focus();
+			if (newBlockCreated != undefined) {
+				//getNodeDOMById(newBlockCreated.id).focus(); FIXME: Stopped working
 			}
 			return newcurrentBlocksData;
 		}
@@ -1548,7 +1589,7 @@ const OverviewFlow = ({ map }, ref) => {
 	 * Creates multiple new blocks.
 	 * @param {Node[]} clipboardData - The data for the new blocks.
 	 */
-	const createBlockBulk = (clipboardData) => {
+	const createBlockBulk = (clipboardData: Array<INode>) => {
 		const REACTFLOW_BOUNDS = reactFlowWrapper.current?.getBoundingClientRect();
 
 		const PREFERRED_POSITION = contextMenuDOM
@@ -1560,6 +1601,7 @@ const OverviewFlow = ({ map }, ref) => {
 			y: PREFERRED_POSITION.y - REACTFLOW_BOUNDS.top,
 		});
 
+		//FIXME: Reeplace asideBounds
 		const ASIDE_OFFSET = expandedAside
 			? Math.floor(asideBounds.width / 125) * 125
 			: 0;
@@ -1568,8 +1610,8 @@ const OverviewFlow = ({ map }, ref) => {
 		const NEW_BLOCKS = clipboardData.map((blockData) => {
 			return {
 				...blockData,
-				x: blockData.x + ASIDE_OFFSET + flowPos.x,
-				y: blockData.y + ASIDE_OFFSET + flowPos.y,
+				x: blockData.position.x + ASIDE_OFFSET + flowPos.x,
+				y: blockData.position.y + ASIDE_OFFSET + flowPos.y,
 				data: { ...blockData.data, order: Infinity },
 			};
 		});
@@ -1577,7 +1619,7 @@ const OverviewFlow = ({ map }, ref) => {
 
 		let newcurrentBlocksData = [...reactFlowInstance.getNodes(), ...NEW_BLOCKS];
 		const FINAL_CURRENT_BLOCKSDATA = getUpdatedArrayById(
-			clampNodesOrder(newcurrentBlocksData, platform),
+			clampNodesOrder(newcurrentBlocksData, metaData.platform),
 			newcurrentBlocksData
 		);
 
@@ -1608,9 +1650,9 @@ const OverviewFlow = ({ map }, ref) => {
 		}
 
 		if (
-			!SELECTED_NODES.filter(
+			SELECTED_NODES.filter(
 				(node) => node.type == "fragment" || node.parentNode != undefined
-			).length > 0
+			).length < 1
 		) {
 			if (SELECTED_NODES.length > 0) {
 				console.log(
@@ -1657,7 +1699,7 @@ const OverviewFlow = ({ map }, ref) => {
 				};
 
 				const PRESENTED_NODES = SELECTED_NODES.map((node) => {
-					node.parentNode = NEW_FRAGMENT_ID;
+					node.parentNode = String(NEW_FRAGMENT_ID);
 					node.expandParent = true;
 					return JSON.parse(JSON.stringify(node));
 				});
@@ -1703,8 +1745,8 @@ const OverviewFlow = ({ map }, ref) => {
 					y: BOUNDS.height / 2,
 				});
 
-				const NEW_FRAGMENT = {
-					id: uniqueId(),
+				const NEW_FRAGMENT: IFragment = {
+					id: String(uniqueId()),
 					position: VIEWPORT_CENTER,
 					type: "fragment",
 					style: { height: 68, width: 68 },
@@ -1741,7 +1783,7 @@ const OverviewFlow = ({ map }, ref) => {
 	 */
 	const handleNodeDeletion = (blockData) => {
 		setShowContextualMenu(false);
-		setNodeSelected();
+		setNodeSelected(undefined);
 		deleteElements([blockData], []);
 	};
 
@@ -1750,8 +1792,8 @@ const OverviewFlow = ({ map }, ref) => {
 	 */
 	const handleNodeSelectionDeletion = () => {
 		setShowContextualMenu(false);
-		const SELECTED_NODES = getSelectedNodes();
-		deleteElements(SELECTED_NODES, []);
+		const SELECTED_NODES = getSelectedNodes() as Array<INode>;
+		deleteElements(SELECTED_NODES as unknown as Array<Node>, []);
 	};
 
 	/**
@@ -1759,7 +1801,7 @@ const OverviewFlow = ({ map }, ref) => {
 	 * @param {Node} origin - The origin node of the relation.
 	 * @param {Node} end - The end node of the relation.
 	 */
-	const handleNewRelation = (origin, end) => {
+	const handleNewRelation = (origin, end?) => {
 		setShowContextualMenu(false);
 
 		if (origin && end) {
@@ -1771,14 +1813,17 @@ const OverviewFlow = ({ map }, ref) => {
 					position: "bottom-center",
 					theme: "light",
 				});
-				setRelationStarter();
+				setRelationStarter(undefined);
 				return;
 			}
-			const CURRENT_GRADABLE_TYPE = getNodeTypeGradableType(origin, platform);
+			const CURRENT_GRADABLE_TYPE = getNodeTypeGradableType(
+				origin,
+				metaData.platform
+			);
 
 			if (
-				platform != "moodle" ||
-				(platform == "moodle" &&
+				metaData.platform != "moodle" ||
+				(metaData.platform == "moodle" &&
 					((CURRENT_GRADABLE_TYPE == "simple" && origin.data.g?.hasToBeSeen) ||
 						(CURRENT_GRADABLE_TYPE != "simple" &&
 							origin.data.g?.hasConditions)))
@@ -1809,11 +1854,11 @@ const OverviewFlow = ({ map }, ref) => {
 				} else {
 					NEW_NODES_DATA[ORIGINAL_INDEX].data.children.push(end.id);
 				}
-				setRelationStarter();
+				setRelationStarter(undefined);
 				reactFlowInstance.setNodes(NEW_NODES_DATA);
 				if (!validTypes.includes(end.type)) {
 					const NEW_CONDITION = {
-						id: parseInt(Date.now() * Math.random()).toString(),
+						id: String(Date.now() * Math.random()),
 						type: "completion",
 						cm: origin.id,
 						e: 1,
@@ -1822,7 +1867,7 @@ const OverviewFlow = ({ map }, ref) => {
 					if (!end.data.c) {
 						end.data.c = {
 							type: "conditionsGroup",
-							id: parseInt(Date.now() * Math.random()).toString(),
+							id: String(Date.now() * Math.random()),
 							op: "&",
 							c: [NEW_CONDITION],
 						};
@@ -1832,7 +1877,7 @@ const OverviewFlow = ({ map }, ref) => {
 				} else {
 					const CONDITIONS = end.data.c?.c;
 
-					let conditionExists = false;
+					let conditionExists = undefined;
 
 					if (CONDITIONS != undefined) {
 						conditionExists = CONDITIONS.find(
@@ -1848,7 +1893,7 @@ const OverviewFlow = ({ map }, ref) => {
 						conditionExists.activityList.push(NEW_CONDITION_TO_APPEND);
 					} else {
 						const NEW_CONDITION = {
-							id: parseInt(Date.now() * Math.random()).toString(),
+							id: String(Date.now() * Math.random()),
 							type: "completion",
 							activityList: [
 								{
@@ -1863,7 +1908,7 @@ const OverviewFlow = ({ map }, ref) => {
 						if (!end.data.c) {
 							end.data.c = {
 								type: "conditionsGroup",
-								id: parseInt(Date.now() * Math.random()).toString(),
+								id: String(Date.now() * Math.random()),
 								op: "&",
 								c: [NEW_CONDITION],
 							};
@@ -1872,14 +1917,11 @@ const OverviewFlow = ({ map }, ref) => {
 						}
 					}
 				}
-				setEdges([
-					...edges,
-					{
-						id: origin.id + "-" + end.id,
-						source: origin.id,
-						target: end.id,
-					},
-				]);
+				reactFlowInstance.addEdges({
+					id: origin.id + "-" + end.id,
+					source: origin.id,
+					target: end.id,
+				} as Edge);
 			} else {
 				toast(
 					"El recurso no puede ser finalizado. Compruebe los ajustes de finalización.",
@@ -1895,7 +1937,7 @@ const OverviewFlow = ({ map }, ref) => {
 		} else {
 			const SELECTED_BLOCKS = reactFlowInstance
 				.getNodes()
-				.filter((block) => block.selected == true);
+				.filter((block) => block.selected == true) as Array<INode>;
 			if (SELECTED_BLOCKS.length == 1) {
 				if (relationStarter == undefined) {
 					setRelationStarter(SELECTED_BLOCKS[0]);
@@ -2112,14 +2154,11 @@ const OverviewFlow = ({ map }, ref) => {
 			{showContextualMenu && (
 				<ContextualMenu
 					ref={contextMenuDOM}
-					showContextualMenu={showContextualMenu}
 					blockData={cMBlockData}
 					containsReservedNodes={cMContainsReservedNodes}
 					relationStarter={relationStarter}
 					setRelationStarter={setRelationStarter}
 					setShowContextualMenu={setShowContextualMenu}
-					setShowConditionsModal={setShowConditionsModal}
-					setShowGradeConditionsModal={setShowGradeConditionsModal}
 					x={cMX}
 					y={cMY}
 					contextMenuOrigin={contextMenuOrigin}
@@ -2135,10 +2174,9 @@ const OverviewFlow = ({ map }, ref) => {
 					handleShow={handleShow}
 				/>
 			)}
-			<CustomControls />
 			{showConditionsModal && metaData.platform == "moodle" && (
 				<>
-					{!validTypes.includes(cMBlockData.type) ? (
+					{"type" in cMBlockData && !validTypes.includes(cMBlockData.type) ? (
 						<ConditionModalMoodle
 							blockData={cMBlockData}
 							setBlockData={setCMBlockData}
@@ -2161,10 +2199,9 @@ const OverviewFlow = ({ map }, ref) => {
 			)}
 			{showGradeConditionsModal && metaData.platform == "moodle" && (
 				<>
-					{!validTypes.includes(cMBlockData.type) && (
+					{"type" in cMBlockData && !validTypes.includes(cMBlockData.type) && (
 						<QualificationModal
 							blockData={cMBlockData}
-							onEdgesDelete={onEdgesDelete}
 							showConditionsModal={showGradeConditionsModal}
 							setShowConditionsModal={setShowGradeConditionsModal}
 						/>

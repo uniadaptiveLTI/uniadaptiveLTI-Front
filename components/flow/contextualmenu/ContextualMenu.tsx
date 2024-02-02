@@ -1,16 +1,43 @@
 import styles from "/styles/ContextualMenu.module.css";
-import { forwardRef, useContext, useState, useLayoutEffect } from "react";
+import {
+	forwardRef,
+	useContext,
+	useState,
+	useLayoutEffect,
+	LegacyRef,
+} from "react";
 import { ExpandedAsideContext } from "pages/_app";
 import { useReactFlow } from "reactflow";
 import CMNodeMenu from "./CMNodeMenu";
 import CMPaneMenu from "./CMPaneMenu";
 import CMSelectionMenu from "./CMSelectionMenu";
+import { INode } from "@components/interfaces/INode";
+
+interface ContextualMenuProps {
+	x: number;
+	y: number;
+	blockData: INode | Array<INode>;
+	relationStarter: INode;
+	setRelationStarter: Function;
+	setShowContextualMenu: Function;
+	contextMenuOrigin: string;
+	containsReservedNodes: boolean;
+	createBlock: Function;
+	handleNodeCopy: Function;
+	handleNodePaste: Function;
+	handleShowNodeSelector: Function;
+	handleFragmentCreation: Function;
+	handleNewRelation: Function;
+	handleNodeCut: Function;
+	handleNodeDeletion: Function;
+	handleNodeSelectionDeletion: Function;
+	handleShow: Function;
+}
 
 export default forwardRef(function ContextualMenu(
 	{
 		x,
 		y,
-		setShowGradeConditionsModal,
 		blockData,
 		relationStarter,
 		setRelationStarter,
@@ -27,10 +54,10 @@ export default forwardRef(function ContextualMenu(
 		handleNodeDeletion,
 		handleNodeSelectionDeletion,
 		handleShow,
-	},
-	ref
+	}: ContextualMenuProps,
+	ref: LegacyRef<HTMLDivElement>
 ) {
-	const { expanded: expandedAside } = useContext(ExpandedAsideContext);
+	const { expandedAside } = useContext(ExpandedAsideContext);
 
 	const ASIDE_BOUNDS = expandedAside
 		? document.getElementsByTagName("aside")[0]?.getBoundingClientRect()

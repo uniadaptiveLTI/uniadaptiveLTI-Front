@@ -83,9 +83,9 @@ const ConditionalEdge = ({
 					}
 				}
 			case "sakai":
-				if (SOURCE_NODE && TARGET_NODE && TARGET_NODE.data.gradeRequisites) {
+				if (SOURCE_NODE && TARGET_NODE && TARGET_NODE.data.g) {
 					const CONDITION = findConditionByParentId(
-						TARGET_NODE.data.gradeRequisites.subConditions,
+						TARGET_NODE.data.g.subConditions,
 						SOURCE_NODE.id
 					);
 

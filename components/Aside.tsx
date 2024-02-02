@@ -656,7 +656,7 @@ export default function Aside({ LTISettings, className }) {
 					</span>
 				</div>
 				<hr />
-				<div id={mapSelected?.id}></div>
+				<div id={String(mapSelected?.id)}></div>
 			</div>
 
 			{nodeSelected &&

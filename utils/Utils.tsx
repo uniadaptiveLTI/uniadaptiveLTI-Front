@@ -5,6 +5,10 @@ import { fetchBackEnd } from "middleware/common";
 import storeVersion, {
 	VersionStoreSkeleton,
 } from "middleware/api/storeVersion";
+import { INode } from "@components/interfaces/INode";
+import { IMetaData } from "@components/interfaces/IMetaData";
+import { IMap } from "@components/interfaces/IMap";
+import { IVersion } from "@components/interfaces/IVersion";
 
 /**
  * Returns a new array with updated entries from the original array.
@@ -47,7 +51,7 @@ export const getByProperty = (property, value, array) => {
  * @param {Element} element - The element to add the event listeners to.
  * @param {Array} events - An array of event objects with the event type and listener function.
  */
-export function addEventListeners(element, events) {
+export function addEventListeners(element: Element, events) {
 	events.forEach(({ type, listener }) => {
 		element.addEventListener(type, listener, false);
 	});
@@ -58,7 +62,7 @@ export function addEventListeners(element, events) {
  * @param {string} string - The string to capitalize.
  * @return {string} The string with the first letter capitalized.
  */
-export function capitalizeFirstLetter(string) {
+export function capitalizeFirstLetter(string: string): string {
 	return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
@@ -393,12 +397,12 @@ export function parseDateToString(date, full = true) {
  * @param {Boolean} setAsDefault - sets the map as default
  */
 export async function saveVersion(
-	rfNodes,
-	metaData,
-	platform,
-	userData,
-	mapSelected,
-	versionJson,
+	rfNodes: Array<INode>,
+	metaData: IMetaData,
+	platform: IMetaData["platform"],
+	userData: IUserData,
+	mapSelected: IMap,
+	versionJson: IVersion,
 	defaultToastSuccess,
 	defaultToastError,
 	toast,

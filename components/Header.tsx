@@ -78,6 +78,7 @@ import { fetchBackEnd } from "middleware/common";
 import { IVersion } from "./interfaces/IVersion";
 import LTIErrorMessage from "./messages/LTIErrors";
 import { IMetaData } from "./interfaces/IMetaData";
+import { INode } from "./interfaces/INode";
 
 const DEFAULT_TOAST_SUCCESS: ToastOptions = {
 	hideProgressBar: false,
@@ -107,7 +108,7 @@ function Header({ LTISettings }, ref) {
 		setFuncImportMapFromLesson,
 		setFuncMapChange,
 	} = useContext(HeaderToEmptySelectorContext);
-	const rfNodes = useNodes();
+	const rfNodes = useNodes() as Array<INode>;
 	const [showModalVersions, setShowModalVersions] = useState(false);
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
 	const [showMapSelectorModal, setShowMapSelectorModal] = useState(false);
@@ -218,7 +219,7 @@ function Header({ LTISettings }, ref) {
 			setMapSelected(selectedMap);
 
 			if (!parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
-				if (selectedMap.id != "-1") {
+				if (selectedMap.id != -1) {
 					try {
 						const MAP_RESPONSE = await fetchBackEnd(
 							sessionStorage.getItem("token"),
@@ -271,7 +272,7 @@ function Header({ LTISettings }, ref) {
 						: undefined
 				);
 			}
-			if (selectedMap.id == "-1") {
+			if (selectedMap.id == -1) {
 				changeToMapSelection();
 			}
 		}
@@ -1212,7 +1213,7 @@ function Header({ LTISettings }, ref) {
 							>
 								{loadedMaps &&
 									maps.map((map) => (
-										<option id={map.id} key={map.id} value={map.id}>
+										<option id={String(map.id)} key={map.id} value={map.id}>
 											{map.name}
 										</option>
 									))}
@@ -1261,7 +1262,7 @@ function Header({ LTISettings }, ref) {
 											{capitalizeFirstLetter(metaData.platform)}...
 										</Dropdown.Item>
 									)}
-									{mapSelected?.id != "-1" && (
+									{mapSelected?.id != -1 && (
 										<>
 											<Dropdown.Item onClick={() => handleNewVersion()}>
 												Nueva versión vacía
@@ -1285,7 +1286,7 @@ function Header({ LTISettings }, ref) {
 									)}
 								</Dropdown.Menu>
 							</Dropdown>
-							{mapSelected?.id != "-1" && (
+							{mapSelected?.id != -1 && (
 								<>
 									<Dropdown className={`btn-light d-flex align-items-center`}>
 										<Dropdown.Toggle
@@ -1371,7 +1372,7 @@ function Header({ LTISettings }, ref) {
 								/>
 							</Button>
 
-							{mapSelected?.id != "-1" && (
+							{mapSelected?.id != -1 && (
 								<Button
 									variant={
 										errorList && errorList.length >= 1 ? "warning" : "success"
@@ -1461,7 +1462,7 @@ function Header({ LTISettings }, ref) {
 						</Container>
 					</Nav>
 				</Container>
-				{mapSelected?.id != "-1" && versions.length > 0 && (
+				{mapSelected?.id != -1 && versions.length > 0 && (
 					<div
 						className={
 							styles.mapContainer +

@@ -19,26 +19,26 @@ import styles from "/styles/NodeSelector.module.css";
 import { useNodes } from "reactflow";
 import { getLastPositionInSection, getLowestSection } from "@utils/Nodes";
 import { getDefaultVisibility, startingSectionID } from "@utils/Platform";
-import { MetaDataContext } from "/pages/_app";
+import { MetaDataContext } from "pages/_app";
+import { INode, INodeData } from "@components/interfaces/INode";
 
-export default forwardRef(function NodeSelector(
-	{ showDialog, type, toggleDialog, callback },
-	ref
-) {
+interface NodeSelectorProps {
+	showDialog: boolean;
+	toggleDialog: () => void;
+	type: string;
+	callback: (prop) => {};
+}
+
+export default function NodeSelector({
+	showDialog,
+	type,
+	toggleDialog,
+	callback,
+}: NodeSelectorProps) {
 	const { metaData } = useContext(MetaDataContext);
 	const modalRef = useRef(null);
-	const rfNodes = useNodes();
+	const rfNodes = useNodes() as Array<INode>;
 	const [widthStyle, setWidthStyle] = useState(styles.selectionContainer);
-	function handleClose(actionClicked) {
-		if (callback && actionClicked) {
-			if (callback instanceof Function) {
-				callback();
-			} else {
-				console.warn("Callback isn't a function");
-			}
-		}
-		toggleDialog();
-	}
 
 	useLayoutEffect(() => {
 		if (modalRef.current) {
@@ -81,10 +81,16 @@ export default forwardRef(function NodeSelector(
 	}
 
 	function getMaxSectionFromSelection() {
-		const SELECTED_NODES = rfNodes.filter((node) => node.selected);
+		const SELECTED_NODES = rfNodes.filter(
+			(node) => node.selected
+		) as Array<INode>;
 		let maxSection = 0;
 		if (SELECTED_NODES.length > 0) {
-			maxSection = Math.max(...SELECTED_NODES.map((node) => node.data.section));
+			maxSection = Math.max(
+				...SELECTED_NODES.map((node) => {
+					if ("section" in node.data) return node.data.section;
+				})
+			);
 		}
 		return maxSection > -1 ? maxSection : getLowestSection(rfNodes); //TODO: Test in sakai
 	}
@@ -94,7 +100,15 @@ export default forwardRef(function NodeSelector(
 
 		const TYPE_COLOR = getTypeStaticColor(type, metaData.platform);
 		const TYPE_ICON = getTypeIcon(type, metaData.platform, 32);
-		const DATA = {};
+		const DATA = {
+			label: "",
+			children: [],
+			section: 0,
+			order: 0,
+			indent: 0,
+			lmsVisibility: "show_unconditionally",
+			g: {},
+		};
 		const SECTION = getMaxSectionFromSelection();
 		if (nodeType == "ElementNode") {
 			DATA.label = handleNameCollision(
@@ -186,4 +200,4 @@ export default forwardRef(function NodeSelector(
 			</Modal.Footer>
 		</Modal>
 	);
-});
+}

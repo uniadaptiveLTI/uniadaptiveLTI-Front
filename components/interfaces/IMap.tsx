@@ -1,7 +1,7 @@
 import { IVersionSkeleton } from "./IVersion";
 
 export interface IMap {
-	id: string;
+	id: number;
 	name: string;
 	versions: Array<IVersionSkeleton>;
 }

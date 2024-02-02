@@ -1,7 +1,7 @@
 import { INode } from "./INode";
 
 export interface IVersionSkeleton {
-	id: string;
+	id: number;
 	name: string;
 	lastUpdate: string;
 }

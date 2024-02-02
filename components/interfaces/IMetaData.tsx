@@ -3,7 +3,7 @@ export interface IMetaData {
 	instance_id: number;
 	lms_url: string;
 	return_url: string;
-	course_id: number;
+	course_id: string;
 	platform: string;
 	platform_name?: string; // Optional name for the platform.
 	lessons?: Array<sakaiLesson>; // Sakai lessons

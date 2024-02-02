@@ -28,6 +28,7 @@ import { INodeError } from "@components/interfaces/INodeError";
 import { IMetaData } from "@components/interfaces/IMetaData";
 import { IVersion } from "@components/interfaces/IVersion";
 import exportVersion, { IVersionExport } from "middleware/api/exportVersion";
+import { INode } from "@components/interfaces/INode";
 
 interface Props {
 	errorList: Array<INodeError>;
@@ -49,7 +50,7 @@ export default function ExportPanel({
 	selectedVersion,
 }) {
 	const reactFlowInstance = useReactFlow();
-	const rfNodes = useNodes();
+	const rfNodes = useNodes() as Array<INode>;
 
 	const { mapSelected, setMapSelected } = useContext(MapInfoContext);
 
@@ -171,11 +172,8 @@ export default function ExportPanel({
 		console.log(nodesToExport);
 
 		nodesToExport.map((node) => {
-			if (
-				node.data.gradeRequisites &&
-				node.data.gradeRequisites.subConditions.length >= 1
-			) {
-				const newCondition = { ...node.data.gradeRequisites };
+			if (node.data.g && node.data.g.subConditions.length >= 1) {
+				const newCondition = { ...node.data.g };
 
 				let blockResource = reactFlowInstance
 					.getNodes()

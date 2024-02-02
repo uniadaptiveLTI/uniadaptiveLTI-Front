@@ -215,15 +215,13 @@ function RequisiteModalSakai({
 		} else {
 			const foundCondition = findConditionById(
 				requisiteId,
-				blockData.data.gradeRequisites.subConditions
+				blockData.data.g.subConditions
 			);
-			UPDATED_BLOCKDATA.data.gradeRequisites?.subConditions?.forEach(
-				(logicalSet) => {
-					logicalSet.subConditions = logicalSet.subConditions?.filter(
-						(cond) => cond.itemId !== requisiteId
-					);
-				}
-			);
+			UPDATED_BLOCKDATA.data.g?.subConditions?.forEach((logicalSet) => {
+				logicalSet.subConditions = logicalSet.subConditions?.filter(
+					(cond) => cond.itemId !== requisiteId
+				);
+			});
 
 			const EDGES = reactFlowInstance.getEdges();
 
@@ -307,20 +305,18 @@ function RequisiteModalSakai({
 				});
 			} else {
 				FORM_DATA.itemId = conditionEdit.itemId;
-				UPDATED_BLOCKDATA.data.gradeRequisites.subConditions.forEach(
-					(logicalSet) => {
-						let conditionIndex = logicalSet.subConditions.findIndex(
-							(cond) => cond.itemId === conditionEdit.itemId
-						);
+				UPDATED_BLOCKDATA.data.g.subConditions.forEach((logicalSet) => {
+					let conditionIndex = logicalSet.subConditions.findIndex(
+						(cond) => cond.itemId === conditionEdit.itemId
+					);
 
-						if (conditionIndex !== -1) {
-							logicalSet.subConditions[conditionIndex] = {
-								...logicalSet.subConditions[conditionIndex],
-								...FORM_DATA,
-							};
-						}
+					if (conditionIndex !== -1) {
+						logicalSet.subConditions[conditionIndex] = {
+							...logicalSet.subConditions[conditionIndex],
+							...FORM_DATA,
+						};
 					}
-				);
+				});
 			}
 		} else {
 			if (!UPDATED_BLOCKDATA.data.requisites) {
@@ -588,16 +584,16 @@ function RequisiteModalSakai({
 									</div>
 								}
 							>
-								{blockData.data.gradeRequisites && (
+								{blockData.data.g && (
 									<GradeComponent
 										blockData={blockData}
 										setBlockData={setBlockData}
-										gradeConditions={blockData.data.gradeRequisites}
+										gradeConditions={blockData.data.g}
 										setConditionEdit={setConditionEdit}
 										deleteRequisite={deleteRequisite}
 									></GradeComponent>
 								)}
-								{!blockData.data.gradeRequisites && (
+								{!blockData.data.g && (
 									<div>
 										Actualmente no existe ninguna condición de calificación
 										asociada a este bloque, para crear una, deberás realizar una

@@ -31,7 +31,7 @@ describe("parseSakaiNode", () => {
 					lmsResource: "sakaiId",
 					children: [],
 					requisites: [],
-					gradeRequisites: undefined,
+					g: undefined,
 				},
 			},
 		]);
