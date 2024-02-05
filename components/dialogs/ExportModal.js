@@ -93,6 +93,7 @@ export default forwardRef(function ExportModal(
 			let result = await generateMissingModuleList(lessonId);
 			console.log("Lesson changed to: " + lessonId);
 			setMissingModuleList(result);
+			setSelectedLesson(lessonId);
 		};
 
 		fetchData();
@@ -221,10 +222,13 @@ export default forwardRef(function ExportModal(
 				}
 
 				let result = await generateMissingModuleList(selectedLessonId);
-
+				console.log("RESULT: ", result);
 				if (!result || (result && result.length <= 0)) {
 					result = [];
 				}
+
+				selectedLessonId(selectedLessonId);
+
 				setMissingModuleList(result);
 			} catch (error) {
 				setMissingModuleList([]);
@@ -457,6 +461,10 @@ export default forwardRef(function ExportModal(
 		setHasWarnings(COUNT > 0);
 	}, [warningList]);
 
+	console.log("Lessons: ", metaData.lessons);
+	console.log("NOT FOUND: ", missingModuleList);
+	console.log("Selected Lesson: ", selectedLesson);
+
 	return (
 		<Modal show={showDialog} onHide={toggleDialog} size="lg" centered>
 			<Modal.Header closeButton>
@@ -515,7 +523,23 @@ export default forwardRef(function ExportModal(
 								eventKey="primary"
 								className="border-primary"
 								title={
-									<div className="text-primary">Módulos no utilizados</div>
+									<div className="text-primary">
+										Módulos no utilizados{" "}
+										{selectedLesson &&
+											(() => {
+												const foundLesson = metaData.lessons.find(
+													(metaDataLesson) =>
+														metaDataLesson.id == selectedLesson
+												);
+
+												if (foundLesson) {
+													const lessonName = foundLesson.name;
+													return <a> en la lección: ({lessonName})</a>;
+												}
+
+												return null;
+											})()}
+									</div>
 								}
 							>
 								<div className="mb-2">
