@@ -1,6 +1,12 @@
-import { useLayoutEffect, useState, useContext, useRef } from "react";
+import {
+	useLayoutEffect,
+	useState,
+	useContext,
+	useRef,
+	useEffect,
+} from "react";
 import styles from "/styles/ExportModal.module.css";
-import { Alert, Button, Spinner } from "react-bootstrap";
+import { Alert, Button, Dropdown, Spinner } from "react-bootstrap";
 import SectionSelector from "@components/forms/components/SectionSelector";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -13,7 +19,7 @@ import { NodeTypes } from "@utils/TypeDefinitions";
 import { MapInfoContext, PlatformContext } from "pages/_app";
 import { getBackupURL } from "@utils/Platform";
 import { ActionNodes } from "@utils/Nodes";
-import { fetchBackEnd, saveVersion } from "@utils/Utils";
+import { fetchBackEnd, saveVersion, parseBool } from "@utils/Utils";
 import { toast } from "react-toastify";
 import {
 	parseMoodleBadgeToExport,
@@ -891,6 +897,7 @@ export default function ExportPanel({
 			)}
 
 			<Button
+				style={{ marginBottom: "1rem" }}
 				ref={exportButtonRef}
 				disabled={
 					selectedErrorCount > 0 ||

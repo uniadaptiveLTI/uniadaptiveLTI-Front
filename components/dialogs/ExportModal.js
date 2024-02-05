@@ -1,5 +1,15 @@
 import { forwardRef, useContext, useLayoutEffect, useState } from "react";
-import { Modal, Button, Container, Col, Row, Tabs, Tab } from "react-bootstrap";
+import {
+	Modal,
+	Button,
+	Container,
+	Col,
+	Row,
+	Tabs,
+	Tab,
+	OverlayTrigger,
+	Tooltip,
+} from "react-bootstrap";
 import {
 	PlatformContext,
 	ExpandedAsideContext,
@@ -13,13 +23,14 @@ import {
 	getParentsNode,
 	getNodeTypeGradableType,
 } from "@utils/Nodes";
-import { uniqueId } from "@utils/Utils";
+import { uniqueId, parseBool, fetchBackEnd } from "@utils/Utils";
 import { getTypeIcon, getTypeStaticColor } from "@utils/NodeIcons";
 import styles from "/styles/ExportModal.module.css";
 import { createItemErrors } from "@utils/ErrorHandling";
 import { useReactFlow } from "reactflow";
 import { useEffect } from "react";
 import {
+	faCircleQuestion,
 	faExclamationCircle,
 	faExclamationTriangle,
 	faFileExport,
@@ -62,6 +73,8 @@ export default forwardRef(function ExportModal(
 	const [nodeChildrenWithoutRestriction, setNodeChildrenWithoutRestriction] =
 		useState();
 	const [nodeWarningParentList, setNodeWarningParentList] = useState();
+	const [missingModuleList, setMissingModuleList] = useState([]);
+
 	const formatErrorList = () => {
 		console.log(JSON.stringify(metaData));
 	};
@@ -70,6 +83,60 @@ export default forwardRef(function ExportModal(
 	const FITVIEW_OPTIONS = {
 		duration: PARSED_SETTINGS.reducedAnimations ? 0 : 800,
 		padding: 0.25,
+	};
+
+	const generateMissingModuleList = async () => {
+		let nodes = reactFlowInstance.getNodes();
+		const idList = nodes.map((item) => item?.data?.lmsResource);
+
+		let data;
+
+		if (!parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
+			const response = await fetchBackEnd(
+				sessionStorage.getItem("token"),
+				"api/lti/get_modules",
+				"POST",
+				{ lesson: lesson }
+			);
+
+			if (!response.ok) {
+				toast(
+					`Ha ocurrido un error durante la busqueda de los bloques`,
+					DEFAULT_TOAST_ERROR
+				);
+				throw new Error("Request failed");
+			}
+			data = response.data;
+		} else {
+			let endpointJson = null;
+			switch (platform) {
+				case "moodle":
+					endpointJson = "devmoodleimport.json";
+					break;
+				case "sakai":
+					endpointJson = "devsakaiimport.json";
+			}
+
+			const RESPONSE = await fetch(`resources/${endpointJson}`);
+
+			if (RESPONSE) {
+				data = await RESPONSE.json();
+			}
+		}
+
+		const moodleModuleList = data.map((module) => ({
+			id: module?.id,
+			type: module?.modname,
+			name: module?.name,
+		}));
+
+		const moduleMissingList = moodleModuleList.filter(
+			(module) => !idList.includes(module?.id)
+		);
+
+		console.log(moduleMissingList);
+
+		return moduleMissingList;
 	};
 
 	function centerToNode(node) {
@@ -120,6 +187,7 @@ export default forwardRef(function ExportModal(
 				error: "errorTabs",
 				warning: "warningTabs",
 				success: "successTabs",
+				primary: "primaryTabs",
 			};
 
 			const NEW_TABS_CLASS_NAME = KEY_TO_CLASS_MAP[key] || "";
@@ -130,6 +198,13 @@ export default forwardRef(function ExportModal(
 	useLayoutEffect(() => {
 		const WARNING_LIST = generateWarningList(reactFlowInstance.getNodes());
 		setWarningList(WARNING_LIST);
+
+		const fetchData = async () => {
+			const result = await generateMissingModuleList();
+			setMissingModuleList(result);
+		};
+
+		fetchData();
 
 		console.log("Error List: ", errorList);
 		console.log("Warning List: ", WARNING_LIST);
@@ -345,7 +420,7 @@ export default forwardRef(function ExportModal(
 	}, [warningList]);
 
 	return (
-		<Modal show={showDialog} onHide={toggleDialog} centered>
+		<Modal show={showDialog} onHide={toggleDialog} size="lg" centered>
 			<Modal.Header closeButton>
 				<Modal.Title>Exportación</Modal.Title>
 			</Modal.Header>
@@ -383,6 +458,39 @@ export default forwardRef(function ExportModal(
 							selectedVersion={selectedVersion}
 						/>
 					</Tab>
+
+					{missingModuleList && missingModuleList.length >= 1 && (
+						<Tab
+							eventKey="primary"
+							className="border-primary"
+							title={<div className="text-primary">Módulos no utilizados</div>}
+						>
+							<div className="mb-2">
+								<div className="mb-2">
+									<OverlayTrigger
+										placement="right"
+										overlay={
+											<Tooltip>{`Los módulos no presentes en el mapa no se actualizarán a la hora de exportar`}</Tooltip>
+										}
+										trigger={["hover", "focus"]}
+									>
+										<FontAwesomeIcon icon={faCircleQuestion} tabIndex={0} />
+									</OverlayTrigger>{" "}
+									<b>Los siguientes módulos no están presentes en el mapa:</b>
+								</div>
+								{missingModuleList.map((module) => (
+									<div key={module?.id}>
+										<a role="button" className={styles.iconPrimary}>
+											{getTypeIcon(module?.type, platform, 16)}
+										</a>{" "}
+										<a role="button" className={styles.nodePrimary}>
+											{module?.name}
+										</a>
+									</div>
+								))}
+							</div>
+						</Tab>
+					)}
 
 					{errorList.length > 0 && (
 						<Tab
