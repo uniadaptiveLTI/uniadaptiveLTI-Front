@@ -13,7 +13,9 @@ export default forwardRef(function LessonSelector(
 					{label ? label : "Seleccione un contenido de los siguientes"}
 				</Form.Label>
 				<Form.Select
-					onChange={(event) => changeSelectedLesson(event.target.value)}
+					onChange={(event) =>
+						changeSelectedLesson && changeSelectedLesson(event.target.value)
+					}
 					ref={ref}
 					id={SELECT_LABEL}
 					className="w-100"

@@ -90,8 +90,9 @@ export default forwardRef(function ExportModal(
 
 	function changeSelectedLesson(lessonId) {
 		const fetchData = async () => {
-			await generateMissingModuleList(lessonId);
+			let result = await generateMissingModuleList(lessonId);
 			console.log("Lesson changed to: " + lessonId);
+			setMissingModuleList(result);
 		};
 
 		fetchData();
@@ -138,7 +139,7 @@ export default forwardRef(function ExportModal(
 		}
 
 		const moodleModuleList = data.map((module) => ({
-			id: module?.id,
+			id: platform == "sakai" ? module?.sakaiId : module?.id,
 			type: module?.modname,
 			name: module?.name,
 		}));
