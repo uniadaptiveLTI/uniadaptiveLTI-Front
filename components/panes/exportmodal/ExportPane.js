@@ -39,6 +39,7 @@ export default function ExportPanel({
 	mapName,
 	LTISettings,
 	selectedVersion,
+	changeSelectedLesson,
 }) {
 	const reactFlowInstance = useReactFlow();
 	const rfNodes = useNodes();
@@ -855,6 +856,7 @@ export default function ExportPanel({
 				<LessonSelector
 					ref={selectDOM}
 					lessons={metaData.lessons}
+					changeSelectedLesson={changeSelectedLesson}
 					label={"Seleccione la lección donde el contenido será exportado"}
 				></LessonSelector>
 			)}
