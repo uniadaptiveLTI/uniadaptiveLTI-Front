@@ -227,7 +227,7 @@ export default forwardRef(function ExportModal(
 					result = [];
 				}
 
-				selectedLessonId(selectedLessonId);
+				setSelectedLesson(selectedLessonId);
 
 				setMissingModuleList(result);
 			} catch (error) {
@@ -460,10 +460,6 @@ export default forwardRef(function ExportModal(
 		setWarningCount(COUNT);
 		setHasWarnings(COUNT > 0);
 	}, [warningList]);
-
-	console.log("Lessons: ", metaData.lessons);
-	console.log("NOT FOUND: ", missingModuleList);
-	console.log("Selected Lesson: ", selectedLesson);
 
 	return (
 		<Modal show={showDialog} onHide={toggleDialog} size="lg" centered>
