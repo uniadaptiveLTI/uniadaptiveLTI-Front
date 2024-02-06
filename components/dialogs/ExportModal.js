@@ -24,7 +24,12 @@ import {
 	getParentsNode,
 	getNodeTypeGradableType,
 } from "@utils/Nodes";
-import { uniqueId, parseBool, fetchBackEnd } from "@utils/Utils";
+import {
+	uniqueId,
+	parseBool,
+	fetchBackEnd,
+	createFontAwesome,
+} from "@utils/Utils";
 import { getTypeIcon, getTypeStaticColor } from "@utils/NodeIcons";
 import styles from "/styles/ExportModal.module.css";
 import { createItemErrors } from "@utils/ErrorHandling";
@@ -35,6 +40,7 @@ import {
 	faExclamationCircle,
 	faExclamationTriangle,
 	faFileExport,
+	faQuestion,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ExportPane from "@components/panes/exportmodal/ExportPane";
@@ -496,8 +502,7 @@ export default forwardRef(function ExportModal(
 							className="border-success"
 							title={
 								<div className="text-success border-success">
-									<FontAwesomeIcon icon={faFileExport}></FontAwesomeIcon>{" "}
-									<a>Exportación</a>
+									{createFontAwesome(faFileExport)} <a>Exportación</a>
 								</div>
 							}
 						>
@@ -520,7 +525,7 @@ export default forwardRef(function ExportModal(
 								className="border-primary"
 								title={
 									<div className="text-primary">
-										Módulos no utilizados{" "}
+										{createFontAwesome(faQuestion)} Módulos no utilizados{" "}
 										{selectedLesson &&
 											(() => {
 												const foundLesson = metaData.lessons.find(
@@ -574,10 +579,7 @@ export default forwardRef(function ExportModal(
 								className="border-danger"
 								title={
 									<div className="text-danger border-danger">
-										<FontAwesomeIcon
-											icon={faExclamationCircle}
-										></FontAwesomeIcon>{" "}
-										<a>Errores</a>
+										{createFontAwesome(faExclamationCircle)} <a>Errores</a>
 									</div>
 								}
 							>
@@ -668,9 +670,7 @@ export default forwardRef(function ExportModal(
 								className="border-warning"
 								title={
 									<div className="text-warning border-warning">
-										<FontAwesomeIcon
-											icon={faExclamationTriangle}
-										></FontAwesomeIcon>{" "}
+										{createFontAwesome(faExclamationTriangle)}{" "}
 										<a>Advertencias</a>
 									</div>
 								}
