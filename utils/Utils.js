@@ -759,8 +759,8 @@ export function handleNameCollision(
 /**
  * This function creates a fontAwesome component passing an icon
  */
-export function createFontAwesome(icon) {
-	return <FontAwesomeIcon icon={icon} />;
+export function createFontAwesome(icon, size = "", color = "") {
+	return <FontAwesomeIcon icon={icon} color={color} size={size} />;
 }
 
 export function findConditionById(id, conditions) {
