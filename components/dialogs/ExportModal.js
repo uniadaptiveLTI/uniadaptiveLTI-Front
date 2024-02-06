@@ -543,13 +543,16 @@ export default forwardRef(function ExportModal(
 										<OverlayTrigger
 											placement="right"
 											overlay={
-												<Tooltip>{`Los módulos no presentes en el mapa no se actualizarán a la hora de exportar`}</Tooltip>
+												<Tooltip>{`Los módulos no presentes en el mapa no se modificarán a la hora de exportar`}</Tooltip>
 											}
 											trigger={["hover", "focus"]}
 										>
 											<FontAwesomeIcon icon={faCircleQuestion} tabIndex={0} />
 										</OverlayTrigger>{" "}
-										<b>Los siguientes módulos no están presentes en el mapa:</b>
+										<b>
+											Los siguientes módulos no están presentes en el mapa y si
+											en el curso:
+										</b>
 									</div>
 									{missingModuleList.map((module) => (
 										<div key={module?.id}>
