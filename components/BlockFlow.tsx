@@ -942,6 +942,17 @@ const OverviewFlow = ({ map }, ref) => {
 				deleteBlocks(nodes);
 			}
 		}
+
+		toast(
+			"Se han eliminado los bloques seleccionados en el mapa (no se modificarán los módulos originales del curso)",
+			{
+				hideProgressBar: false,
+				autoClose: 2000,
+				type: "success",
+				position: "bottom-center",
+				theme: "light",
+			}
+		);
 	};
 
 	/**
