@@ -774,7 +774,7 @@ function ConditionModalMoodle({
 
 	const CONDITIONS_GROUP_OPERATOR_LIST = [
 		{ value: "&", name: "Deben cumplirse todas" },
-		{ value: "|", name: "Solo debe cumplirse una" },
+		{ value: "|", name: "Debe cumplirse alguna" },
 		{ value: "!&", name: "No se deben cumplir todas" },
 		{ value: "!|", name: "No debe cumplirse alguna" },
 	];
