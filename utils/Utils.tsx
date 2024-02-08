@@ -70,7 +70,7 @@ export function capitalizeFirstLetter(string: string): string {
  * Generates a unique identifier based on the current date and a random number.
  * @return {string} The generated unique identifier.
  */
-export const uniqueId = () => parseInt((Date.now() * Math.random()).toString());
+export const uniqueId = () => String(parseInt((Date.now() * Math.random()).toString()));
 
 /**
  * Calculates the nearest power of two to a given number.
