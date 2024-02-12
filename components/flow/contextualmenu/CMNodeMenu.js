@@ -46,7 +46,7 @@ const Menu = (
 					{metaData.platform == Platforms.Moodle && (
 						<Button
 							variant="light"
-							onClick={() => handleShow("conditions")}
+							onClick={() => handleShow(blockData.id, "conditions")}
 							disabled={!EnableEditPreconditions}
 						>
 							<div>
@@ -61,7 +61,7 @@ const Menu = (
 					{metaData.platform == Platforms.Sakai && (
 						<Button
 							variant="light"
-							onClick={() => handleShow("requisites")}
+							onClick={() => handleShow(blockData.id, "requisites")}
 							disabled={!EnableEditPreconditions}
 						>
 							<div>
@@ -80,7 +80,7 @@ const Menu = (
 					<li>
 						<Button
 							variant="light"
-							onClick={() => handleShow("grades")}
+							onClick={() => handleShow(blockData.id, "grades")}
 							disabled={!EnableGradeConditions}
 						>
 							<div>

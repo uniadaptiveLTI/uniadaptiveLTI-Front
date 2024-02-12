@@ -30,6 +30,8 @@ function ConditionModalMoodle({
 	onEdgesDelete,
 	showConditionsModal,
 	setShowConditionsModal,
+	conditionEdgeView,
+	setConditionEdgeView,
 }) {
 	const reactFlowInstance = useReactFlow();
 	const { metaData, setMetaData } = useContext(MetaDataContext);
@@ -755,6 +757,13 @@ function ConditionModalMoodle({
 			}
 		}
 	};
+
+	useEffect(() => {
+		if (conditionEdgeView) {
+			setConditionEdit(conditionEdgeView);
+			setConditionEdgeView(undefined);
+		}
+	}, [conditionEdgeView]);
 
 	useEffect(() => {
 		if (conditionEdit) {

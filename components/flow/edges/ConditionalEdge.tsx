@@ -40,6 +40,13 @@ const ConditionalEdge = ({
 	const [lineType, setLineType] = useState("and");
 	const [animatedLine, setAnimatedLine] = useState(false);
 
+	useEffect(() => {
+		const SHOULD_ANIMATE = lineType == "or" ? true : false;
+		setAnimatedLine(lineType == "or" ? true : false);
+		animated = SHOULD_ANIMATE;
+		rfEdges.find((edge) => edge.id == id).animated = SHOULD_ANIMATE;
+	}, [lineType]);
+
 	function findConditionByParentId(subConditions, blockNodeId) {
 		for (const SUBCONDITION of subConditions) {
 			const FOUND_CONDITION = SUBCONDITION.subConditions?.find((condition) => {
@@ -53,12 +60,34 @@ const ConditionalEdge = ({
 		return null;
 	}
 
-	useEffect(() => {
-		const SHOULD_ANIMATE = lineType == "or" ? true : false;
-		setAnimatedLine(lineType == "or" ? true : false);
-		animated = SHOULD_ANIMATE;
-		rfEdges.find((edge) => edge.id == id).animated = SHOULD_ANIMATE;
-	}, [lineType]);
+	function findConditionById(id, conditions) {
+		if (!conditions) {
+			return null;
+		}
+
+		const FOUND_CONDITION = conditions.find((condition) => condition.cm === id);
+
+		if (FOUND_CONDITION) {
+			return FOUND_CONDITION;
+		} else {
+			const FOUND_ACTION_CONDITION = conditions.find(
+				(condition) => condition.type === "completion"
+			);
+
+			if (FOUND_ACTION_CONDITION) return FOUND_ACTION_CONDITION;
+		}
+
+		for (const CONDITION of conditions) {
+			if (CONDITION.c) {
+				const INNER_CONDITION = findConditionById(id, CONDITION.c);
+				if (INNER_CONDITION) {
+					return INNER_CONDITION;
+				}
+			}
+		}
+
+		return null;
+	}
 
 	// FIXME: GET ALL CHILDREN AND SHOW ONLY 2 CONDITIONS MAX
 	const getSelfCondition = () => {
@@ -166,35 +195,6 @@ const ConditionalEdge = ({
 				}
 		}
 	};
-
-	function findConditionById(id, conditions) {
-		if (!conditions) {
-			return null;
-		}
-
-		const FOUND_CONDITION = conditions.find((condition) => condition.cm === id);
-		//console.log(conditions);
-		if (FOUND_CONDITION) {
-			return FOUND_CONDITION;
-		} else {
-			const FOUND_ACTION_CONDITION = conditions.find(
-				(condition) => condition.type === "completion"
-			);
-
-			if (FOUND_ACTION_CONDITION) return FOUND_ACTION_CONDITION;
-		}
-
-		for (const CONDITION of conditions) {
-			if (CONDITION.c) {
-				const INNER_CONDITION = findConditionById(id, CONDITION.c);
-				if (INNER_CONDITION) {
-					return INNER_CONDITION;
-				}
-			}
-		}
-
-		return null;
-	}
 
 	function findParent(jsonObj, id) {
 		if (jsonObj.id === id) {

@@ -135,6 +135,7 @@ const ConditionUtilsColumn = ({
 								message="¿ Desea eliminar la condición ? Esta no se podrá volver a crear debido a que es una condición no soportada"
 								confirm="Confirmar"
 								callbackConfirm={() => deleteCondition(condition.id)}
+								icon="danger"
 							/>
 						)}
 					</>
