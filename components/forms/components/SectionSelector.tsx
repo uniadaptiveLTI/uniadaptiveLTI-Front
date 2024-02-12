@@ -8,6 +8,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { getAutomaticReusableStyles, getRootStyle } from "@utils/Colors";
 import { getNodeById } from "@utils/Nodes";
+import { Platforms } from "@utils/Platform";
 import { orderByPropertyAlphabetically } from "@utils/Utils";
 import {
 	forwardRef,
@@ -60,7 +61,7 @@ const SectionSelector = forwardRef(
 	) => {
 		const rfNodes = useNodes();
 		const SECTIONS =
-			metaData.platform == "moodle"
+			metaData.platform == Platforms.Moodle
 				? metaData.sections
 				: [
 						...new Set(
@@ -254,7 +255,7 @@ const SectionSelector = forwardRef(
 
 		function toggleMainSelector(e) {
 			const TARGET_STATUS = e.target.checked;
-			if (metaData.platform == "moodle") {
+			if (metaData.platform == Platforms.Moodle) {
 				const SECTION_POSITIONS = SECTIONS.map((section) => section.position);
 				setSelectionStatus(TARGET_STATUS ? SECTION_POSITIONS : []);
 			} else {

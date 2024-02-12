@@ -1,5 +1,9 @@
 import { IMap } from "@components/interfaces/IMap";
-import { ICommonResponse, fetchBackEnd } from "middleware/common";
+import {
+	ICommonResponse,
+	fetchBackEnd,
+	getLocalToken,
+} from "middleware/common";
 
 export interface VersionStoreSkeleton {
 	instance_id: any;
@@ -15,17 +19,13 @@ export interface VersionStoreSkeleton {
 }
 
 /**
- * Stores a singular version
+ * Stores a singular version (Using the DB id)
  * @param versionToStore Version to store surrounded by Map Data.
- * @returns {ICommonResponse}
  */
 export default async function storeVersion(
 	versionToStore: VersionStoreSkeleton
-) {
-	return fetchBackEnd(
-		sessionStorage.getItem("token"),
-		"api/lti/store_version",
-		"POST",
-		{ saveData: versionToStore }
-	);
+): Promise<ICommonResponse> {
+	return fetchBackEnd(getLocalToken(), "api/lti/store_version", "POST", {
+		saveData: versionToStore,
+	});
 }

@@ -1,5 +1,7 @@
 import { getNodeById } from "@utils/Nodes";
+import { Platforms } from "@utils/Platform";
 import { getByProperty, parseDate } from "@utils/Utils";
+import { MetaDataContext } from "pages/_app";
 import React, { useEffect, useState } from "react";
 import { useContext } from "react";
 import {
@@ -9,7 +11,6 @@ import {
 	useNodes,
 	useEdges,
 } from "reactflow";
-import { MetaDataContext } from "/pages/_app";
 
 const ConditionalEdge = ({
 	id,
@@ -66,7 +67,7 @@ const ConditionalEdge = ({
 		//console.log(targetNode, sourceNode);
 
 		switch (metaData.platform) {
-			case "moodle":
+			case Platforms.Moodle:
 				if (TARGET_NODE && TARGET_NODE.data && TARGET_NODE.data.c) {
 					const CONDITIONS = TARGET_NODE.data.c;
 					let condition = undefined;
@@ -82,22 +83,24 @@ const ConditionalEdge = ({
 						}
 					}
 				}
-			case "sakai":
+				break;
+			case Platforms.Sakai:
 				if (SOURCE_NODE && TARGET_NODE && TARGET_NODE.data.g) {
 					const CONDITION = findConditionByParentId(
 						TARGET_NODE.data.g.subConditions,
 						SOURCE_NODE.id
 					);
 
-					return getReadableCondition(CONDITION);
+					return getReadableCondition(CONDITION, source);
 				}
+				break;
 		}
 	};
 	const getReadableCondition = (condition, source) => {
 		switch (condition?.type) {
 			case "grade":
 				switch (metaData.platform) {
-					case "moodle":
+					case Platforms.Moodle:
 						if (condition.min && condition.max) {
 							return `>= ${condition.min} y < ${condition.max} `;
 						} else {
@@ -135,13 +138,8 @@ const ConditionalEdge = ({
 						}
 
 						if (MATCHING_CONDITION?.date) {
-							return (
-								<>
-									Completado antes del <br></br>{" "}
-									{parseDate(MATCHING_CONDITION.date)}
-									<br />
-								</>
-							);
+							return `Completado antes del
+							${parseDate(MATCHING_CONDITION.date)}`;
 						} else {
 							return `Completado`;
 						}
@@ -153,7 +151,7 @@ const ConditionalEdge = ({
 				}
 				break;
 			case "SCORE":
-			case "sakai":
+			case Platforms.Sakai:
 				switch (condition.operator) {
 					case "SMALLER_THAN":
 						return `< ${condition.argument}`;
@@ -248,8 +246,8 @@ const ConditionalEdge = ({
 		}
 	};
 
-	const [label, setLabel] = useState();
-	const [width, setWidth] = useState();
+	const [label, setLabel] = useState<string>();
+	const [width, setWidth] = useState<string>();
 
 	useEffect(() => {
 		setLabel(getSelfCondition());
@@ -259,18 +257,9 @@ const ConditionalEdge = ({
 		setWidth(getSelfWidth);
 	}, [getNodeById(source, rfNodes), getNodeById(target, rfNodes)]);
 
-	const onEdgeClick = (evt, id) => {
-		evt.stopPropagation();
-		console.log(`Clicked edge ${id}`);
-	};
-
 	return (
 		<>
-			<BaseEdge
-				path={edgePath}
-				style={style}
-				onClick={(event) => onEdgeClick(event, id)}
-			/>
+			<BaseEdge path={edgePath} style={style} />
 			{label && (
 				<EdgeLabelRenderer>
 					<div

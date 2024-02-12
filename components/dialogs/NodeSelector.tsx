@@ -7,7 +7,7 @@ import {
 	useState,
 } from "react";
 import { Modal, Button, Container, Col, Row } from "react-bootstrap";
-import { NodeTypes, getGradableTypes } from "@utils/TypeDefinitions";
+import { NodeDeclarations, getGradableTypes } from "@utils/TypeDefinitions";
 import {
 	handleNameCollision,
 	orderByPropertyAlphabetically,
@@ -18,7 +18,11 @@ import { getTypeIcon, getTypeStaticColor } from "../../utils/NodeIcons";
 import styles from "/styles/NodeSelector.module.css";
 import { useNodes } from "reactflow";
 import { getLastPositionInSection, getLowestSection } from "@utils/Nodes";
-import { getDefaultVisibility, startingSectionID } from "@utils/Platform";
+import {
+	Platforms,
+	getDefaultVisibility,
+	startingSectionID,
+} from "@utils/Platform";
 import { MetaDataContext } from "pages/_app";
 import { INode, INodeData } from "@components/interfaces/INode";
 
@@ -62,7 +66,7 @@ export default function NodeSelector({
 	}
 
 	function getFilteredBlockSelection() {
-		const LMS_BLOCKS = NodeTypes.filter((node) =>
+		const LMS_BLOCKS = NodeDeclarations.filter((node) =>
 			node.lms.includes(metaData.platform)
 		);
 		const TYPE_BLOCKS = LMS_BLOCKS.filter((node) => node.nodeType == type);
@@ -108,11 +112,12 @@ export default function NodeSelector({
 			indent: 0,
 			lmsVisibility: "show_unconditionally",
 			g: {},
+			c: [],
 		};
 		const SECTION = getMaxSectionFromSelection();
 		if (nodeType == "ElementNode") {
 			DATA.label = handleNameCollision(
-				NodeTypes.find((ntype) => type == ntype.type).emptyName,
+				NodeDeclarations.find((ntype) => type == ntype.type).emptyName,
 				rfNodes.map((node) => node?.data?.label),
 				false,
 				"("
@@ -127,8 +132,8 @@ export default function NodeSelector({
 			DATA.lmsVisibility = getDefaultVisibility(metaData.platform);
 			DATA.indent = 0;
 			if (
-				metaData.platform == "moodle" &&
-				getGradableTypes("moodle").includes(type)
+				metaData.platform == Platforms.Moodle &&
+				getGradableTypes(Platforms.Moodle).includes(type)
 			)
 				DATA.g = {
 					hasConditions: false,

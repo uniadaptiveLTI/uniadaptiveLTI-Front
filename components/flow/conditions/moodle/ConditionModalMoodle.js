@@ -18,11 +18,7 @@ import DateForm from "@components/flow//conditions/moodle/form-components/DateFo
 import ConditionsGroupForm from "@components/flow//conditions/moodle/form-components/ConditionsGroupForm";
 import GroupForm from "@components/flow//conditions/moodle/form-components/GroupForm";
 import GroupingForm from "@components/flow//conditions/moodle/form-components/GroupingForm";
-import {
-	uniqueId,
-	searchConditionForTypes,
-	findCompletionAndGrade,
-} from "@utils/Utils";
+import { uniqueId, findCompletionAndGrade } from "@utils/Utils";
 import CourseGradeForm from "./form-components/CourseGradeForm";
 import { useReactFlow } from "reactflow";
 import { MetaDataContext } from "pages/_app.tsx";
@@ -457,8 +453,6 @@ function ConditionModalMoodle({
 			);
 
 			onEdgesDelete(FILTERED_CHILDREN);
-
-			searchConditionForTypes(CONDITION_COPY, TARGET_TYPES, MATCHING_OBJECTS);
 
 			const FILTERED_EDGES = EDGES.filter(
 				(edge) =>

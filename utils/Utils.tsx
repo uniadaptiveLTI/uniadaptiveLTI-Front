@@ -5,19 +5,27 @@ import { fetchBackEnd } from "middleware/common";
 import storeVersion, {
 	VersionStoreSkeleton,
 } from "middleware/api/storeVersion";
-import { INode } from "@components/interfaces/INode";
-import { IMetaData } from "@components/interfaces/IMetaData";
+import { IActionNode, INode } from "@components/interfaces/INode";
+import { IMetaData, ISection } from "@components/interfaces/IMetaData";
 import { IMap } from "@components/interfaces/IMap";
 import { IVersion } from "@components/interfaces/IVersion";
+import { Platforms } from "./Platform";
+import { ToastProps } from "react-toastify/dist/types";
+interface IdentificableObject {
+	id: string | number;
+}
 
 /**
  * Returns a new array with updated entries from the original array.
- * @param {Object|Object[]} updatedEntry - The entry or entries to be updated in the original array. Each entry must have an id property.
- * @param {Object[]} originalArray - The original array of entries. Each entry must have an id property.
- * @returns {Object[]} A new array with the updated entries. If an entry in the original array does not have a matching id in the updatedEntry, it is returned unchanged.
+ * @param updatedEntry The entry or entries to be updated in the original array. Each entry must have an id property.
+ * @param originalArray The original array of entries. Each entry must have an id property.
+ * @returns A new array with the updated entries. If an entry in the original array does not have a matching id in the updatedEntry, it is returned unchanged.
  */
-export const getUpdatedArrayById = (updatedEntry, originalArray) => {
-	const NEW_ENTRIES = Array.isArray(updatedEntry)
+export const getUpdatedArrayById = (
+	updatedEntry: IdentificableObject | Array<IdentificableObject>,
+	originalArray: Array<IdentificableObject>
+) => {
+	const NEW_ENTRIES: Array<IdentificableObject> = Array.isArray(updatedEntry)
 		? updatedEntry
 		: [updatedEntry];
 
@@ -33,23 +41,23 @@ export const getUpdatedArrayById = (updatedEntry, originalArray) => {
 
 /**
  * Filters an array by the value of a specific property
- * @param {String} property - The property to filter
- * @param {any} value - The wanted value
- * @param {Object[]} array - The array
- * @returns {Object[]|undefined} - Returns the array filtered, or undefined was not one.
+ * @param  property The property to filter
+ * @param value The wanted value
+ * @param array The array
+ * @returns Returns the array filtered.
  */
-export const getByProperty = (property, value, array) => {
-	if (Array.isArray(array)) {
-		return array.filter((item) => item[property] === value);
-	} else {
-		return undefined;
-	}
+export const getByProperty = (
+	property: string,
+	value: any,
+	array: Array<Object>
+) => {
+	return array.filter((item) => item[property] === value);
 };
 
 /**
  * Adds multiple event listeners to an element.
- * @param {Element} element - The element to add the event listeners to.
- * @param {Array} events - An array of event objects with the event type and listener function.
+ * @param element The element to add the event listeners to.
+ * @param events An array of event objects with the event type and listener function.
  */
 export function addEventListeners(element: Element, events) {
 	events.forEach(({ type, listener }) => {
@@ -59,8 +67,8 @@ export function addEventListeners(element: Element, events) {
 
 /**
  * Capitalizes the first letter of a string.
- * @param {string} string - The string to capitalize.
- * @return {string} The string with the first letter capitalized.
+ * @param string The string to capitalize.
+ * @return The string with the first letter capitalized.
  */
 export function capitalizeFirstLetter(string: string): string {
 	return string.charAt(0).toUpperCase() + string.slice(1);
@@ -68,27 +76,32 @@ export function capitalizeFirstLetter(string: string): string {
 
 /**
  * Generates a unique identifier based on the current date and a random number.
- * @return {string} The generated unique identifier.
+ * @return The generated unique identifier.
  */
-export const uniqueId = () => parseInt((Date.now() * Math.random()).toString());
+export const uniqueId = (): string =>
+	String(parseInt((Date.now() * Math.random()).toString()));
 
 /**
  * Calculates the nearest power of two to a given number.
- * @param {number} n - The number to approximate.
- * @return {number} The nearest power of two to n.
+ * @param n The number to approximate.
+ * @return The nearest power of two to n.
  */
-export function nearestPowerOfTwo(n) {
+export function nearestPowerOfTwo(n: number): number {
 	return Math.pow(2, Math.round(Math.log(n) / Math.log(2)));
 }
 
 /**
  * Sorts an array of objects by a property alphabetically.
- * @param {Object[]} array - The array to sort.
- * @param {string} property - The property to sort by.
- * @param {string} [subproperty] - The subproperty to sort by, if the property is an object.
- * @return {Object[]} The array sorted by the property or subproperty indicated.
+ * @param array The array to sort.
+ * @param property The property to sort by.
+ * @param subproperty The subproperty to sort by, if the property is an object.
+ * @return The array sorted by the property or subproperty indicated.
  */
-export function orderByPropertyAlphabetically(array, property, subproperty?) {
+export function orderByPropertyAlphabetically(
+	array: Array<Object>,
+	property: string,
+	subproperty?: string
+): Array<Object> {
 	if (subproperty) {
 		return [...array].sort((a, b) =>
 			a[property][subproperty].localeCompare(b[property][subproperty])
@@ -100,25 +113,38 @@ export function orderByPropertyAlphabetically(array, property, subproperty?) {
 
 /**
  * Checks if an object is in an array by its id property.
- * @param {Object} obj - The object to search for.
- * @param {Object[]} arr - The array to search in.
- * @return {boolean} True if the object is in the array, false otherwise.
+ * @param obj The object to search for.
+ * @param arr The array to search in.
+ * @return True if the object is in the array, false otherwise.
  */
-export function inArrayById(obj, arr) {
+export function inArrayById(
+	obj: IdentificableObject,
+	arr: Array<IdentificableObject>
+): boolean {
 	return arr.some((x) => x.id === obj.id);
 }
 
 /**
  * Checks if all the objects in an array are in another array by their id property.
- * @param {Object[]} arr1 - The first array of objects.
- * @param {Object[]} arr2 - The second array of objects.
- * @return {boolean} True if all the objects in the first array are in the second, false otherwise.
+ * @param arr1 The first array of objects.
+ * @param arr2 The second array of objects.
+ * @return True if all the objects in the first array are in the second, false otherwise.
  */
-export function arrayInsideArrayById(arr1, arr2) {
+export function arrayInsideArrayById(
+	arr1: Array<IdentificableObject>,
+	arr2: Array<IdentificableObject>
+): boolean {
 	return arr1.map((obj) => inArrayById(obj, arr2)).every(Boolean);
 }
 
-export function deduplicateById(arr) {
+/**
+ * Returns an array with objects with unique IDs from other without unique IDs. (Deletes duplicated entries)
+ * @param arr array with objects with IDs
+ * @returns Array with objects with unique IDs
+ */
+export function deduplicateById(
+	arr: Array<IdentificableObject>
+): Array<IdentificableObject> {
 	return arr.reduce((accumulator, current) => {
 		if (!accumulator.some((item) => item.id === current.id)) {
 			accumulator.push(current);
@@ -129,8 +155,8 @@ export function deduplicateById(arr) {
 
 /**
  * Parses a string and returns a boolean value.
- * @param {string} str - The string to parse.
- * @returns {boolean} True if the string is "true" (case-insensitive), false otherwise.
+ * @param str - The string to parse.
+ * @returns True if the string is "true" (case-insensitive), false otherwise.
  */
 export function parseBool(str) {
 	if (str) {
@@ -141,11 +167,11 @@ export function parseBool(str) {
 
 /**
  * Returns true if the value is unique in the array, false otherwise.
- * @param {*} value - The value to check for uniqueness.
- * @param {Array} array - The array itself.
- * @returns {boolean} - Whether the value is unique or not.
+ * @param value The value to check for uniqueness.
+ * @param array The array itself.
+ * @returns Whether the value is unique or not.
  */
-export function isUnique(value, array) {
+export function isUnique(value: any, array: Array<any>): boolean {
 	let isUnique = false;
 	let findings = 0;
 	array.forEach((el) => {
@@ -159,10 +185,10 @@ export function isUnique(value, array) {
 
 /**
  * Encodes a given string to base64.
- * @param {string} [string=""] - The string to encode to base64. Defaults to an empty string.
- * @returns {string} The base64 encoded version of the given string.
+ * @param string The string to encode to base64. Defaults to an empty string.
+ * @returns The base64 encoded version of the given string.
  */
-export function base64Encode(string = "") {
+export function base64Encode(string: string): string {
 	const BUFFER = Buffer.from(string, "utf-8");
 	const BASE64 = BUFFER.toString("base64");
 	return BASE64;
@@ -170,10 +196,10 @@ export function base64Encode(string = "") {
 
 /**
  * Decodes a given base64 string to a regular string.
- * @param {string} [base64=""] - The base64 string to decode. Defaults to an empty string.
- * @returns {string} The decoded version of the given base64 string.
+ * @param base64 The base64 string to decode. Defaults to an empty string.
+ * @returns The decoded version of the given base64 string.
  */
-export function base64Decode(base64 = "") {
+export function base64Decode(base64 = ""): string {
 	const BUFFER = Buffer.from(base64, "base64");
 	const BASE64 = BUFFER.toString("utf-8");
 	return BASE64;
@@ -181,12 +207,16 @@ export function base64Decode(base64 = "") {
 
 /**
  * Moves an element in an array from one index to another.
- * @param {number} from - The index of the element to move.
- * @param {number} to - The index to move the element to.
- * @param {Array} array - The array to move the element in.
- * @returns {Array} A new array with the element moved from the specified index to the specified index.
+ * @param from - The index of the element to move.
+ * @param to - The index to move the element to.
+ * @param array - The array to move the element in.
+ * @returns A new array with the element moved from the specified index to the specified index.
  */
-export function arrayMoveByIndex(from, to, array) {
+export function arrayMoveByIndex(
+	from: number,
+	to: number,
+	array: Array<any>
+): Array<any> {
 	const NEW_ARRAY = [...array];
 	NEW_ARRAY.splice(to, 0, NEW_ARRAY.splice(from, 1)[0]);
 	return NEW_ARRAY;
@@ -194,12 +224,16 @@ export function arrayMoveByIndex(from, to, array) {
 
 /**
  * Moves an element in an array with objects that have an "id" property from one ID to another.
- * @param {number|string} from - The ID of the element to move.
- * @param {number|string} to - The ID of the element to move the element after.
- * @param {Array<Object>} array - The array to move the element in.
- * @returns {Array<Object>} A new array with the element moved from the specified ID to after the specified ID.
+ * @param from - The ID of the element to move.
+ * @param to - The ID of the element to move the element after.
+ * @param array - The array to move the element in.
+ * @returns A new array with the element moved from the specified ID to after the specified ID.
  */
-export function arrayMoveById(from, to, array) {
+export function arrayMoveById(
+	from: IdentificableObject["id"],
+	to: IdentificableObject["id"],
+	array: Array<IdentificableObject>
+): Array<IdentificableObject> {
 	const NEW_ARRAY = [...array];
 	const FORM_INDEX = NEW_ARRAY.findIndex((item) => item.id == from);
 	const TO_INDEX = NEW_ARRAY.findIndex((item) => item.id == to);
@@ -208,29 +242,14 @@ export function arrayMoveById(from, to, array) {
 }
 
 /**
- * Searches a JSON data object for conditions with types that match a given array of target types, and adds them to a results array.
- * @param {Object} jsonData - The JSON data object to search for conditions with types that match the target types.
- * @param {Array<string>} targetTypes - An array of target types to search for in the JSON data object's conditions.
- * @param {Array<Object>} results - An array to add any found conditions with types that match the target types to.
+ * Finds completion and qualification conditions in a given condition and returns them in an array.
+ * @param obj - The object to search for completion and qualification conditions in.
+ * @returns An array containing any found completion and qualification conditions in the given object.
  */
-export function searchConditionForTypes(jsonData, targetTypes, results) {
-	if (targetTypes.includes(jsonData.type)) {
-		results.push(jsonData);
-	}
-
-	if (jsonData.c && Array.isArray(jsonData.c)) {
-		for (const CONDITION of jsonData.c) {
-			searchConditionForTypes(CONDITION, targetTypes, results);
-		}
-	}
-}
-
-/**
- * Finds completion and qualification conditions in a given object and returns them in an array.
- * @param {Object} obj - The object to search for completion and qualification conditions in.
- * @returns {Array<Object>} An array containing any found completion and qualification conditions in the given object.
- */
-export function findCompletionAndGrade(obj) {
+export function findCompletionAndGrade(obj: {
+	type: string;
+	c?: Array<Object>;
+}): Array<Object> {
 	let results = [];
 
 	function search(obj) {
@@ -251,55 +270,60 @@ export function findCompletionAndGrade(obj) {
 }
 
 /**
- * Updates badge conditions for a given block node target and block node source.
- * @param {Object} blockNodeTarget - The block node target to update badge conditions for.
- * @param {Object} blockNodeSource - The block node source used when updating badge conditions for the block node target.
+ * Updates badge conditions for a given node target and node source.
+ * @param nodeTarget - The node target to update badge conditions for.
+ * @param nodeSource - The node source used when updating badge conditions for the node target.
  */
-export function updateBadgeConditions(blockNodeTarget, blockNodeSource) {
-	// Variable to store the conditions of the target node
-	let conditions = blockNodeTarget.data.c.params;
+export function updateBadgeConditions(
+	nodeTarget: IActionNode,
+	nodeSource: INode
+) {
+	if ("c" in nodeTarget.data && "params" in nodeTarget.data.c) {
+		// Variable to store the conditions of the target node
+		let conditions = nodeTarget.data.c.params;
 
-	// Find method to get the condition of type completion
-	const CONDITION_EXISTS = conditions.find(
-		(condition) => condition.type === "completion"
-	);
+		// Find method to get the condition of type completion
+		const CONDITION_EXISTS = conditions.find(
+			(condition) => condition.type === "completion"
+		);
 
-	// Condition to know if the condition exists
-	if (CONDITION_EXISTS) {
-		// Condition to check if the activity list has more than one entry
-		if (CONDITION_EXISTS.params.length > 1) {
-			// Filter method to delete the specific node from the activity list
-			CONDITION_EXISTS.params = CONDITION_EXISTS.params.filter(
-				(node) => node.id !== blockNodeSource.id
-			);
+		// Condition to know if the condition exists
+		if (CONDITION_EXISTS) {
+			// Condition to check if the activity list has more than one entry
+			if (CONDITION_EXISTS.params.length > 1) {
+				// Filter method to delete the specific node from the activity list
+				CONDITION_EXISTS.params = CONDITION_EXISTS.params.filter(
+					(node) => node.id !== nodeSource.id
+				);
+			} else {
+				// Filter method to delete the condition type completion
+				nodeTarget.data.c.params = conditions.filter(
+					(node) => node.type !== "completion"
+				);
+			}
 		} else {
 			// Filter method to delete the condition type completion
-			blockNodeTarget.data.c.params = conditions.filter(
-				(node) => node.type !== "completion"
+			nodeTarget.data.c.params = conditions.filter(
+				(condition) => condition.type !== "completion"
 			);
 		}
-	} else {
-		// Filter method to delete the condition type completion
-		blockNodeTarget.data.c.params = conditions.filter(
-			(condition) => condition.type !== "completion"
-		);
 	}
 }
 
 /**
  * Gets the HTTP prefix based on whether or not SSL is enabled in environment variables.
- * @returns {string} The HTTP prefix, either "http" or "https".
+ * @returns The HTTP prefix, either "http" or "https".
  */
-export function getHTTPPrefix() {
+export function getHTTPPrefix(): string {
 	return window.location.protocol;
 }
 
 /**
  * Constructs a URL for fetching data from the server.
- * @param {string} [webservice] - An optional string to be appended to the URL.
- * @returns {string} The constructed URL for fetching data from the server.
+ * @param webservice An optional string to be appended to the URL.
+ * @returns The constructed URL for fetching data from the server.
  */
-export function getFetchUrl(webservice) {
+export function getFetchUrl(webservice: string): string {
 	return webservice == undefined
 		? `${getHTTPPrefix()}//${process.env.NEXT_PUBLIC_BACK_URL}`
 		: `${getHTTPPrefix()}//${process.env.NEXT_PUBLIC_BACK_URL}/${webservice}`;
@@ -307,31 +331,37 @@ export function getFetchUrl(webservice) {
 
 /**
  * Gets a section from an array of sections based on its position property value.
- * @param {Array<Object>} sectionArray - An array of sections to search for a section with a matching position property value.
- * @param {number} sectionPosition - The position property value of the section to search for in the section array.
- * @returns {Object|undefined} The section with a matching position property value, or undefined if not found.
+ * @param sectionArray - An array of sections to search for a section with a matching position property value.
+ * @param sectionPosition - The position property value of the section to search for in the section array.
+ * @returns The section with a matching position property value, or undefined if not found.
  */
-export function getSectionFromPosition(sectionArray, sectionPosition) {
+export function getSectionFromPosition(
+	sectionArray: Array<ISection>,
+	sectionPosition: number
+): ISection | undefined {
 	return sectionArray.find((section) => section.position == sectionPosition);
 }
 
 /**
  * Gets a section ID from an array of sections based on its position property value.
- * @param {Array<Object>} sectionArray - An array of sections to search for a section with a matching position property value and get its ID property value from.
- * @param {number} sectionPosition - The position property value of the section whose ID property value should be returned from the section array.
- * @returns {*} The ID property value of the section with a matching position property value, or undefined if not found.
+ * @param sectionArray An array of sections to search for a section with a matching position property value and get its ID property value from.
+ * @param sectionPosition The position property value of the section whose ID property value should be returned from the section array.
+ * @returns The ID property value of the section with a matching position property value, or undefined if not found.
  */
-export function getSectionIDFromPosition(sectionArray, sectionPosition) {
+export function getSectionIDFromPosition(
+	sectionArray: Array<ISection>,
+	sectionPosition: number
+): ISection["id"] | undefined {
 	return getSectionFromPosition(sectionArray, sectionPosition)?.id;
 }
 
 /**
  * Method to parse the given date using day, month and year, in case dateComplete param true then add hour and minute
- * @param {String} date - Date string, or UNIX Date
- * @param {boolean} dateComplete - Boolean to define if the date must be parsed with hour and minute
- * @returns {*} Returns formatted date string
+ * @param date Date string, or UNIX Date
+ * @param dateComplete Boolean to define if the date must be parsed with hour and minute
+ * @returns Returns formatted date string
  */
-export function parseDate(date, dateComplete) {
+export function parseDate(date: Date, dateComplete: boolean = false): string {
 	let d = date;
 
 	if (typeof d === "number") {
@@ -363,11 +393,11 @@ export function parseDate(date, dateComplete) {
 
 /**
  * Method to parse the given date using day, month and year, in case dateComplete param true then add hour and minute
- * @param {String} date - Date string, or UNIX Date
- * @param {boolean} full - (Default: true) Boolean to define change if full date or partial date
- * @returns {String} Returns formatted date string
+ * @param date Date object
+ * @param full to define change if full date or partial date (Default: true)
+ * @returns Returns formatted date string
  */
-export function parseDateToString(date, full = true) {
+export function parseDateToString(date: Date, full: boolean = true) {
 	const YEAR = date.getFullYear();
 	const MONTH = String(date.getMonth() + 1).padStart(2, "0");
 	const DAY = String(date.getDate()).padStart(2, "0");
@@ -382,34 +412,34 @@ export function parseDateToString(date, full = true) {
 
 /**
  * Method to used to save the node version
- * @param {Node} rfNodes - Node Array
- * @param {Object} metaData - metaData object
- * @param {String} platform - Platform string
- * @param {Object} userData - userData object
- * @param {Object} mapSelected - current map object
- * @param {Object} versionJson - current version object
- * @param {Object} LTISettings - LTISettings object
- * @param {defaultToastSuccess} defaultToastSuccess - Toast Success Settings Object
- * @param {defaultToastError} defaultToastSuccess - Toast Error Settings Object
- * @param {Function} toast - Toast function
- * @param {Boolean} enable - Date string, or UNIX Date
- * @param {Object} responseData - responseData object
- * @param {Boolean} setAsDefault - sets the map as default
+ * @param rfNodes Node Array
+ * @param metaData metaData object
+ * @param platform Platform string
+ * @param userData userData object
+ * @param mapSelected current map object
+ * @param versionJson current version object
+ * @param defaultToastSuccess Toast Success Settings Object
+ * @param defaultToastSuccess Toast Error Settings Object
+ * @param toast Toast function
+ * @param enable
+ * @param {Object} responseData responseData object
+ * @param lessonId
+ * @param setAsDefault sets the map as default
  */
 export async function saveVersion(
 	rfNodes: Array<INode>,
 	metaData: IMetaData,
-	platform: IMetaData["platform"],
+	platform: Platforms,
 	userData: IUserData,
 	mapSelected: IMap,
 	versionJson: IVersion,
-	defaultToastSuccess,
-	defaultToastError,
-	toast,
-	enable,
-	responseData,
-	lesson?,
-	setAsDefault?
+	defaultToastSuccess: ToastProps,
+	defaultToastError: ToastProps,
+	toast: Function,
+	enable: Function,
+	responseData: Object,
+	lessonId?: string,
+	setAsDefault?: boolean
 ) {
 	// Helper function to clean the nodes
 	function cleanNodes(nodes) {
@@ -453,8 +483,8 @@ export async function saveVersion(
 			},
 		};
 
-		if (platform == "sakai") {
-			SAVE_DATA.lesson_id = lesson;
+		if (platform == Platforms.Sakai) {
+			SAVE_DATA.lesson_id = lessonId;
 		}
 
 		const RESPONSE = await storeVersion(SAVE_DATA);
@@ -481,30 +511,31 @@ export async function saveVersion(
 
 /**
  * Method to used to save map
- * @param {Node} versions - Version array
- * @param {Object} metaData - metaData object
- * @param {String} platform - Platform string
- * @param {Object} userData - userData object
- * @param {Object} mapSelected - current map object
- * @param {Object} LTISettings - LTISettings object
- * @param {defaultToastSuccess} defaultToastSuccess - Toast Success Settings Object
- * @param {defaultToastError} defaultToastSuccess - Toast Error Settings Object
- * @param {Function} toast - Toast function
- * @param {Boolean} enable - Date string, or UNIX Date
- * @param {Object} responseData - responseData object
+ * @param metaData metaData object
+ * @param platform Platform string
+ * @param userData userData object
+ * @param mapSelected current map object
+ * @param versionJson current version object
+ * @param LTISettings LTISettings object
+ * @param defaultToastSuccess Toast Success Settings Object
+ * @param defaultToastSuccess Toast Error Settings Object
+ * @param toast Toast function
+ * @param enable
+ * @param responseData responseData object
+ * @param lessonId
  */
 export async function saveVersions(
-	versions,
-	metaData,
-	platform,
-	userData,
-	mapSelected,
-	defaultToastSuccess,
-	defaultToastError,
-	toast,
-	enable,
-	responseData,
-	lesson?
+	versions: Array<IVersion>,
+	metaData: IMetaData,
+	platform: Platforms,
+	userData: IUserData,
+	mapSelected: IMap,
+	defaultToastSuccess: ToastProps,
+	defaultToastError: ToastProps,
+	toast: Function,
+	enable: Function,
+	responseData: Object,
+	lessonId?: string
 ) {
 	// Helper function to clean the nodes
 	function cleanNodes(nodes) {
@@ -550,8 +581,8 @@ export async function saveVersions(
 				},
 			},
 		};
-		if (platform == "sakai") {
-			SAVE_DATA.lesson_id = lesson;
+		if (platform == Platforms.Sakai) {
+			SAVE_DATA.lesson_id = lessonId;
 		}
 
 		const RESPONSE = await fetchBackEnd(
@@ -663,9 +694,9 @@ function saveVersionErrors(
  */
 export function clampNodesOrder(nodeArray, platform) {
 	switch (platform) {
-		case "moodle":
+		case Platforms.Moodle:
 			return clampNodesOrderMoodle(nodeArray);
-		case "sakai":
+		case Platforms.Sakai:
 			return clampNodesOrderSakai(nodeArray);
 		case "default":
 			return nodeArray;

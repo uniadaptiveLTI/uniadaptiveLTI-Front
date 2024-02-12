@@ -9,9 +9,13 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { getRootStyle } from "@utils/Colors";
 import { useReactFlow, useNodes } from "reactflow";
-import { NodeTypes } from "@utils/TypeDefinitions";
-import { MapInfoContext } from "pages/_app";
-import { getBackupURL } from "@utils/Platform";
+import { NodeDeclarations } from "@utils/TypeDefinitions";
+import {
+	DEFAULT_TOAST_ERROR,
+	DEFAULT_TOAST_SUCCESS,
+	MapInfoContext,
+} from "pages/_app";
+import { Platforms, getBackupURL } from "@utils/Platform";
 import { ActionNodes } from "@utils/Nodes";
 import { saveVersion } from "@utils/Utils";
 import { ToastOptions, toast } from "react-toastify";
@@ -23,7 +27,6 @@ import {
 import LessonSelector from "@components/forms/components/LessonSelector";
 import { sakaiTypeSwitch } from "@utils/Sakai";
 import { getSectionNodes } from "../../../utils/Nodes";
-import { fetchBackEnd } from "middleware/common";
 import { INodeError } from "@components/interfaces/INodeError";
 import { IMetaData } from "@components/interfaces/IMetaData";
 import { IVersion } from "@components/interfaces/IVersion";
@@ -63,20 +66,6 @@ export default function ExportPanel({
 
 	const exportButtonRef = useRef(null);
 	const selectDOM = useRef<HTMLSelectElement>();
-
-	const DEFAULT_TOAST_SUCCESS: ToastOptions = {
-		hideProgressBar: false,
-		autoClose: 2000,
-		type: "success",
-		position: "bottom-center",
-	};
-
-	const DEFAULT_TOAST_ERROR: ToastOptions = {
-		hideProgressBar: false,
-		autoClose: 2000,
-		type: "error",
-		position: "bottom-center",
-	};
 
 	function enableExporting(boolean) {
 		setExporting(boolean);
@@ -133,14 +122,14 @@ export default function ExportPanel({
 
 	/**
 	 * Searches for any section or all the sections for nodes.
-	 * @param {String} level "section" or "map".
-	 * @returns {Boolean} returns true if its empty.
+	 * @param level "section" or "map".
+	 * @returns returns true if its empty.
 	 */
-	const seekEmpty = (level = "section") => {
+	const seekEmpty = (level: "section" | "map" = "section"): boolean => {
 		const nodes = reactFlowInstance.getNodes();
 		const emptySections = [];
 		// console.log("metaData.sections", metaData.sections);
-		if (metaData.platform == "moodle") {
+		if (metaData.platform == Platforms.Moodle) {
 			metaData.sections.map((section) => {
 				const sectionNodes = getSectionNodes(section.position, nodes);
 				emptySections.push(sectionNodes.length < 1);
@@ -163,7 +152,7 @@ export default function ExportPanel({
 			JSON.stringify(reactFlowInstance.getNodes()) //Deep clone TODO: DO THIS BETTER
 		);
 
-		if (metaData.platform == "sakai") {
+		if (metaData.platform == Platforms.Sakai) {
 			nodesToExport = nodesToExport.filter((node) => node.type !== "generic");
 		}
 		// console.log("🚀 ~ exportMap ~ nodesToExport  150 :", nodesToExport);
@@ -214,9 +203,9 @@ export default function ExportPanel({
 		});
 
 		nodesToExport = nodesToExport.filter((node) =>
-			NodeTypes.find((declaration) => {
+			NodeDeclarations.find((declaration) => {
 				if (node.type == declaration.type) {
-					if (!declaration.lms.includes("lti")) {
+					if (!declaration.lms.includes(Platforms.LTI)) {
 						return true;
 					} else {
 						return false;
@@ -230,10 +219,10 @@ export default function ExportPanel({
 		//Deletting unnecessary info and flattening the nodes
 		nodesToExport = nodesToExport.map((node) => {
 			switch (metaData.platform) {
-				case "moodle":
+				case Platforms.Moodle:
 					delete node.data.label;
 					break;
-				case "sakai":
+				case Platforms.Moodle:
 					break;
 			}
 			delete node.data.lmsResource;
@@ -287,10 +276,10 @@ export default function ExportPanel({
 			delete node.expandParent;
 			const TYPE = node.type;
 			switch (metaData.platform) {
-				case "moodle":
+				case Platforms.Moodle:
 					delete node.type;
 					break;
-				case "sakai":
+				case Platforms.Sakai:
 					node.c = DATA.requisites;
 					node.pageId = Number(selectDOM.current.value);
 					break;
@@ -301,7 +290,7 @@ export default function ExportPanel({
 					...DATA,
 					actionType: TYPE,
 				};
-				if (metaData.platform == "moodle") {
+				if (metaData.platform == Platforms.Moodle) {
 					if (TYPE == "badge") {
 						return parseMoodleBadgeToExport(
 							ACTION_NODE,
@@ -328,14 +317,14 @@ export default function ExportPanel({
 			const REGEX = new RegExp('"' + ORIGINAL_ID + '"', "g");
 			nodesAsString = nodesAsString.replace(
 				REGEX,
-				metaData.platform == "moodle"
+				metaData.platform == Platforms.Moodle
 					? LMS_RESOURCE
 					: JSON.stringify(String(LMS_RESOURCE))
 			);
 		});
 
 		let nodesReadyToExport = JSON.parse(nodesAsString);
-		if (metaData.platform == "moodle") {
+		if (metaData.platform == Platforms.Moodle) {
 			nodesReadyToExport = nodesReadyToExport.filter((node) => {
 				const SECTION = metaData.sections.find(
 					(section) => section.position == node.section
@@ -365,8 +354,8 @@ export default function ExportPanel({
 		}
 
 		console.log("nodesReadyToExport", nodesReadyToExport);
-		if (metaData.platform === "sakai") {
-			console.log("SAKAI");
+		if (metaData.platform === Platforms.Sakai) {
+			console.log(Platforms.Sakai);
 			const LESSON_FIND = metaData.lessons.find(
 				(lesson) => lesson.id === Number(selectDOM.current.value)
 			);
@@ -724,7 +713,7 @@ export default function ExportPanel({
 				nodes: undefined,
 			};
 
-			if (metaData.platform == "sakai") {
+			if (metaData.platform == Platforms.Sakai) {
 				PAYLOAD.lessonId = lesson.id;
 				PAYLOAD.nodes = resultJson;
 				PAYLOAD.nodesToUpdate = resultJsonSecondary;
@@ -757,7 +746,7 @@ export default function ExportPanel({
 
 					if (RESPONSE.data) {
 						const UNABLE_TO_EXPORT = "No se pudo exportar: ";
-						if (metaData.platform == "sakai") {
+						if (metaData.platform == Platforms.Sakai) {
 							switch (RESPONSE.data) {
 								case "PAGE_EXPORT_ERROR":
 									console.log(
@@ -854,16 +843,16 @@ export default function ExportPanel({
 	return (
 		<>
 			<SectionSelector
-				allowModularSelection={metaData.platform == "moodle"}
+				allowModularSelection={metaData.platform == Platforms.Moodle}
 				metaData={metaData}
 				showErrors={true}
 				errorList={errorList}
 				warningList={warningList}
 				handleSelectionChange={handleSelectionChange}
-				mapName={metaData.platform == "moodle" ? "" : mapName}
+				mapName={metaData.platform == Platforms.Moodle ? "" : mapName}
 			/>
 
-			{metaData.platform == "sakai" && (
+			{metaData.platform == Platforms.Sakai && (
 				<LessonSelector
 					ref={selectDOM}
 					lessons={metaData.lessons}

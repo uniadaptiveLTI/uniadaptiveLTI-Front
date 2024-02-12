@@ -49,15 +49,16 @@ import {
 } from "@utils/Nodes";
 import { errorListCheck } from "@utils/ErrorHandling";
 import {
-	NodeTypes,
+	NodeDeclarations,
 	getMoodleTypes,
 	getSakaiTypes,
-} from "@utils/TypeDefinitions.js";
+} from "@utils/TypeDefinitions";
 import {
+	Platforms,
 	getSupportedTypes,
 	getVisibilityOptions,
 	hasUnorderedResources,
-} from "@utils/Platform.js";
+} from "@utils/Platform";
 import { getLastPositionInSakaiColumn } from "@utils/Sakai";
 import { parseBool } from "../utils/Utils";
 import getModulesByType from "middleware/api/getModulesByType";
@@ -142,7 +143,10 @@ export default function Aside({ LTISettings, className }) {
 						: undefined,
 			};
 
-			if (selectedOption == "generic" && metaData.platform != "moodle") {
+			if (
+				selectedOption == "generic" &&
+				metaData.platform != Platforms.Moodle
+			) {
 				setShowSpinner(false);
 				setAllowResourceSelection(true);
 				return [];
@@ -188,25 +192,33 @@ export default function Aside({ LTISettings, className }) {
 						{
 							id: "0",
 							name: `${capitalizeFirstLetter(
-								NodeTypes.filter((node) => node.type == selectedOption)[0].name
+								NodeDeclarations.filter(
+									(node) => node.type == selectedOption
+								)[0].name
 							)} A`,
 						},
 						{
 							id: "1",
 							name: `${capitalizeFirstLetter(
-								NodeTypes.filter((node) => node.type == selectedOption)[0].name
+								NodeDeclarations.filter(
+									(node) => node.type == selectedOption
+								)[0].name
 							)} B`,
 						},
 						{
 							id: "2",
 							name: `${capitalizeFirstLetter(
-								NodeTypes.filter((node) => node.type == selectedOption)[0].name
+								NodeDeclarations.filter(
+									(node) => node.type == selectedOption
+								)[0].name
 							)} C`,
 						},
 						{
 							id: "3",
 							name: `${capitalizeFirstLetter(
-								NodeTypes.filter((node) => node.type == selectedOption)[0].name
+								NodeDeclarations.filter(
+									(node) => node.type == selectedOption
+								)[0].name
 							)} D`,
 						},
 					];
@@ -240,8 +252,9 @@ export default function Aside({ LTISettings, className }) {
 					);
 					UNIQUE_FILTERED_DATA.unshift({
 						id: -1,
-						name: NodeTypes.filter((node) => node.type == selectedOption)[0]
-							.emptyName,
+						name: NodeDeclarations.filter(
+							(node) => node.type == selectedOption
+						)[0].emptyName,
 					});
 					setResourceOptions(UNIQUE_FILTERED_DATA);
 				}, 1000);
@@ -282,8 +295,9 @@ export default function Aside({ LTISettings, className }) {
 					});
 					UNIQUE_FILTERED_DATA.unshift({
 						id: -1,
-						name: NodeTypes.filter((node) => node.type == selectedOption)[0]
-							.emptyName,
+						name: NodeDeclarations.filter(
+							(node) => node.type == selectedOption
+						)[0].emptyName,
 					});
 
 					setResourceOptions(UNIQUE_FILTERED_DATA);
@@ -323,21 +337,23 @@ export default function Aside({ LTISettings, className }) {
 				const labelCurrent = labelDOM.current;
 				//TODO: Test it even more
 				labelCurrent.value =
-					metaData.platform == "moodle"
+					metaData.platform == Platforms.Moodle
 						? resourceOptions.find(
 								(resource) => e.target.value == resource.id && resource.id > -1
 						  )?.name ||
 						  handleNameCollision(
-								NodeTypes.find((ntype) => nodeSelected.type == ntype.type)
-									.emptyName,
+								NodeDeclarations.find(
+									(ntype) => nodeSelected.type == ntype.type
+								).emptyName,
 								reactFlowInstance.getNodes().map((node) => node?.data?.label),
 								false,
 								"("
 						  )
 						: e.target.options[e.target.selectedIndex].text ||
 						  handleNameCollision(
-								NodeTypes.find((ntype) => nodeSelected.type == ntype.type)
-									.emptyName,
+								NodeDeclarations.find(
+									(ntype) => nodeSelected.type == ntype.type
+								).emptyName,
 								reactFlowInstance.getNodes().map((node) => node?.data?.label),
 								false,
 								"("
@@ -384,7 +400,7 @@ export default function Aside({ LTISettings, className }) {
 
 			if (CURRENT_INDENT) {
 				if ("indent" in nodeSelected.data)
-					if (metaData.platform == "sakai") {
+					if (metaData.platform == Platforms.Sakai) {
 						CURRENT_INDENT.value = nodeSelected.data.indent + 1;
 					} else {
 						CURRENT_INDENT.value = nodeSelected.data.indent;
@@ -424,7 +440,7 @@ export default function Aside({ LTISettings, className }) {
 
 				const LIMITED_ORDER = Math.min(
 					Math.max(orderDOM.current.value, 0),
-					metaData.platform != "sakai"
+					metaData.platform != Platforms.Sakai
 						? getLastPositionInSection(
 								newSection,
 								reactFlowInstance.getNodes()
@@ -443,13 +459,15 @@ export default function Aside({ LTISettings, className }) {
 					lmsResource: lmsResourceDOM.current.value,
 					lmsVisibility: lmsVisibilityDOM?.current?.value
 						? lmsVisibilityDOM?.current?.value
-						: metaData.platform == "moodle"
+						: metaData.platform == Platforms.Moodle
 						? "hidden"
 						: "hidden_until_access",
 					section: newSection,
 					order: LIMITED_ORDER - 1,
 					indent:
-						metaData.platform == "sakai" ? LIMITED_INDENT - 1 : LIMITED_INDENT,
+						metaData.platform == Platforms.Sakai
+							? LIMITED_INDENT - 1
+							: LIMITED_INDENT,
 				};
 
 				const UPDATED_DATA = {
@@ -509,15 +527,18 @@ export default function Aside({ LTISettings, className }) {
 				if (
 					NODE_WITH_NEW_ORDER_EXISTS ||
 					originalSection != newSection ||
-					(metaData.platform == "sakai" && originalIndent != newIndent)
+					(metaData.platform == Platforms.Sakai && originalIndent != newIndent)
 				) {
-					if (originalSection == newSection && metaData.platform != "sakai") {
+					if (
+						originalSection == newSection &&
+						metaData.platform != Platforms.Sakai
+					) {
 						//Change in order
 						reorderNodes(newSection, originalOrder, LIMITED_ORDER);
 					} else {
 						const virtualNodes = reactFlowInstance.getNodes();
 						const forcedPos =
-							metaData.platform == "moodle"
+							metaData.platform == Platforms.Moodle
 								? getLastPositionInSection(newSection, virtualNodes) + 1
 								: getLastPositionInSakaiColumn(
 										newSection,
@@ -525,9 +546,9 @@ export default function Aside({ LTISettings, className }) {
 										virtualNodes
 								  ) + 1;
 
-						if (metaData.platform == "moodle")
+						if (metaData.platform == Platforms.Moodle)
 							UPDATED_DATA.data.order = forcedPos;
-						if (metaData.platform == "sakai")
+						if (metaData.platform == Platforms.Sakai)
 							UPDATED_DATA.data.order = forcedPos - 1;
 						virtualNodes.push(UPDATED_DATA);
 						if (!(LIMITED_ORDER - 1 > forcedPos)) {
@@ -751,7 +772,7 @@ export default function Aside({ LTISettings, className }) {
 											defaultValue={selectedOption}
 											onChange={handleSelect}
 										>
-											{metaData.platform == "moodle"
+											{metaData.platform == Platforms.Moodle
 												? MOODLE_RESOURCE_NAMES.map((option) => {
 														if (
 															(ActionNodes.includes(nodeSelected.type) &&
@@ -907,7 +928,7 @@ export default function Aside({ LTISettings, className }) {
 										reducedAnimations && styles.noAnimation,
 									].join(" ")}
 								>
-									{metaData.platform == "moodle" &&
+									{metaData.platform == Platforms.Moodle &&
 										"lmsVisibility" in nodeSelected.data && (
 											<Form.Group className="mb-2">
 												<Form.Label htmlFor={lmsVisibilityDOMId}>
@@ -932,7 +953,7 @@ export default function Aside({ LTISettings, className }) {
 										)}
 
 									<>
-										{metaData.platform == "moodle" &&
+										{metaData.platform == Platforms.Moodle &&
 											"section" in nodeSelected.data && (
 												<Form.Group className="mb-2">
 													<Form.Label htmlFor={sectionDOMId}>
@@ -951,7 +972,7 @@ export default function Aside({ LTISettings, className }) {
 																	);
 																	if (!section.name.match(/^\d/)) {
 																		newSection.name =
-																			metaData.platform == "moodle"
+																			metaData.platform == Platforms.Moodle
 																				? newSection.position +
 																				  "- " +
 																				  newSection.name
@@ -975,7 +996,7 @@ export default function Aside({ LTISettings, className }) {
 													</Form.Select>
 												</Form.Group>
 											)}
-										{metaData.platform == "sakai" &&
+										{metaData.platform == Platforms.Sakai &&
 											"section" in nodeSelected.data && (
 												<Form.Group className="mb-2">
 													<Form.Label htmlFor={sectionDOMId}>
@@ -991,7 +1012,7 @@ export default function Aside({ LTISettings, className }) {
 													></Form.Control>
 												</Form.Group>
 											)}
-										{metaData.platform == "sakai" &&
+										{metaData.platform == Platforms.Sakai &&
 											"indent" in nodeSelected.data && (
 												<Form.Group className="mb-2">
 													<Form.Label htmlFor={indentDOMId}>Columna</Form.Label>
@@ -1008,7 +1029,7 @@ export default function Aside({ LTISettings, className }) {
 										{"order" in nodeSelected.data && (
 											<Form.Group className="mb-2">
 												<Form.Label htmlFor={orderDOMId}>
-													{metaData.platform === "sakai"
+													{metaData.platform === Platforms.Sakai
 														? "Posición"
 														: "Posición en la sección"}
 												</Form.Label>
@@ -1022,7 +1043,7 @@ export default function Aside({ LTISettings, className }) {
 												></Form.Control>
 											</Form.Group>
 										)}
-										{metaData.platform == "moodle" &&
+										{metaData.platform == Platforms.Moodle &&
 											"indent" in nodeSelected.data && (
 												<Form.Group className="mb-2">
 													<Form.Label htmlFor={indentDOMId}>

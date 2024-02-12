@@ -1,11 +1,18 @@
-import { ICommonResponse, fetchBackEnd } from "middleware/common";
+import {
+	ICommonInvalidResponse,
+	ICommonValidResponse,
+	fetchBackEnd,
+	getLocalToken,
+} from "middleware/common";
 
-interface PingBackResponse extends ICommonResponse {
+interface PingBackResponse extends ICommonValidResponse {
 	data: "pong";
 }
 
-export default async function pingBack(): Promise<PingBackResponse> {
-	return fetchBackEnd(sessionStorage.getItem("token"), "api/lti/ping", "POST", {
+export default async function pingBack(): Promise<
+	PingBackResponse | ICommonInvalidResponse
+> {
+	return fetchBackEnd(getLocalToken(), "api/lti/ping", "POST", {
 		ping: "ping",
-	}) as Promise<PingBackResponse>;
+	}) as Promise<PingBackResponse | ICommonInvalidResponse>;
 }

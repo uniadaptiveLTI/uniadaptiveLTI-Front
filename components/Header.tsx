@@ -47,6 +47,8 @@ import {
 	MetaDataContext,
 	ErrorListContext,
 	HeaderToEmptySelectorContext,
+	DEFAULT_TOAST_ERROR,
+	DEFAULT_TOAST_SUCCESS,
 } from "pages/_app";
 import { ToastOptions, toast } from "react-toastify";
 import {
@@ -61,10 +63,10 @@ import {
 import { isNodeArrayEqual } from "@utils/Nodes";
 import { errorListCheck } from "@utils/ErrorHandling";
 import download from "downloadjs";
-import { NodeTypes } from "@utils/TypeDefinitions";
+import { NodeDeclarations } from "@utils/TypeDefinitions";
 import ExportModal from "@components/dialogs/ExportModal";
 import UserSettingsModal from "./dialogs/UserSettingsModal";
-import { hasLessons } from "@utils/Platform";
+import { Platforms, hasLessons } from "@utils/Platform";
 import {
 	createNewMoodleMap,
 	parseMoodleNode,
@@ -74,25 +76,19 @@ import { createNewSakaiMap, parseSakaiNode } from "@utils/Sakai";
 import { EditedVersionContext, UserDataContext } from "pages/_app";
 import { parseBool } from "../utils/Utils";
 import ConfirmationModal from "./dialogs/ConfirmationModal";
-import { fetchBackEnd } from "middleware/common";
 import { IVersion } from "./interfaces/IVersion";
 import LTIErrorMessage from "./messages/LTIErrors";
 import { IMetaData } from "./interfaces/IMetaData";
 import { INode } from "./interfaces/INode";
-
-const DEFAULT_TOAST_SUCCESS: ToastOptions = {
-	hideProgressBar: false,
-	autoClose: 2000,
-	type: "success",
-	position: "bottom-center",
-};
-
-const DEFAULT_TOAST_ERROR: ToastOptions = {
-	hideProgressBar: false,
-	autoClose: 2000,
-	type: "error",
-	position: "bottom-center",
-};
+import getMap from "middleware/api/getMap";
+import getVersions from "middleware/api/getVersions";
+import getVersion from "middleware/api/getVersion";
+import getModules from "middleware/api/getModules";
+import { IMap } from "./interfaces/IMap";
+import addVersion from "middleware/api/addVersion";
+import deleteMapById from "middleware/api/deleteMapById";
+import getSession from "middleware/api/getSession";
+import deleteVersionById from "middleware/api/deleteVersionById";
 
 function Header({ LTISettings }, ref) {
 	const { errorList, setErrorList } = useContext(ErrorListContext);
@@ -124,7 +120,7 @@ function Header({ LTISettings }, ref) {
 
 	const [loadedUserData, setLoadedUserData] = useState(false);
 	const [loadedMetaData, setLoadedMetaData] = useState(false);
-	const EMPTY_MAP = { id: -1, name: "Seleccionar un mapa" };
+	const EMPTY_MAP = { id: -1, name: "Seleccionar un mapa", versions: [] };
 	const [loadedMaps, setLoadedMaps] = useState(false);
 	const { metaData, setMetaData } = useContext(MetaDataContext);
 	const { userData, setUserData } = useContext(UserDataContext);
@@ -221,36 +217,19 @@ function Header({ LTISettings }, ref) {
 			if (!parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
 				if (selectedMap.id != -1) {
 					try {
-						const MAP_RESPONSE = await fetchBackEnd(
-							sessionStorage.getItem("token"),
-							"api/lti/get_map",
-							"POST",
-							{ map_id: selectedMap.id }
-						);
-
-						const MAP_DATA = MAP_RESPONSE.data;
-
-						if (MAP_RESPONSE.ok) {
-							const VERSIONS_RESPONSE = await fetchBackEnd(
-								sessionStorage.getItem("token"),
-								"api/lti/get_versions",
-								"POST",
-								{ map_id: MAP_DATA.created_id }
-							);
-
-							const VERSIONS_DATA = VERSIONS_RESPONSE.data;
-
+						const MAP_RESPONSE = await getMap(selectedMap.id);
+						if (MAP_RESPONSE.ok == true) {
+							const MAP_DATA = MAP_RESPONSE.data;
+							const VERSIONS_RESPONSE = await getVersions(MAP_DATA.created_id);
 							if (VERSIONS_RESPONSE.ok) {
-								const VERSION_RESPONSE = await fetchBackEnd(
-									sessionStorage.getItem("token"),
-									"api/lti/get_version",
-									"POST",
-									{ version_id: VERSIONS_DATA[0].id }
-								);
-
+								const VERSIONS_DATA = VERSIONS_RESPONSE.data;
+								const VERSION_RESPONSE = await getVersion(VERSIONS_DATA[0].id);
 								setVersions(VERSIONS_DATA);
-
-								setSelectedVersion(VERSION_RESPONSE.data as IVersion);
+								if (VERSION_RESPONSE.ok) {
+									setSelectedVersion(VERSION_RESPONSE.data as IVersion);
+								} else {
+									console.error("Error, datos de version inválido");
+								}
 							} else {
 								console.error("Error, datos de versiones inválidos");
 							}
@@ -364,7 +343,7 @@ function Header({ LTISettings }, ref) {
 	};
 
 	const handleImportedMap = async (
-		lesson?,
+		lesson?: number | undefined,
 		localMetaData: IMetaData = metaData,
 		localUserData = userData,
 		localMaps = maps
@@ -373,12 +352,7 @@ function Header({ LTISettings }, ref) {
 
 		let data;
 		if (!parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
-			const response = await fetchBackEnd(
-				sessionStorage.getItem("token"),
-				"api/lti/get_modules",
-				"POST",
-				{ lesson: lesson }
-			);
+			const response = await getModules(lesson);
 
 			if (!response.ok) {
 				toast(
@@ -391,10 +365,10 @@ function Header({ LTISettings }, ref) {
 		} else {
 			let endpointJson = null;
 			switch (metaData.platform) {
-				case "moodle":
+				case Platforms.Moodle:
 					endpointJson = "devmoodleimport.json";
 					break;
-				case "sakai":
+				case Platforms.Sakai:
 					endpointJson = "devsakaiimport.json";
 			}
 
@@ -409,7 +383,7 @@ function Header({ LTISettings }, ref) {
 		let newX = 125;
 		let newY = 0;
 		const VALID_TYPES = [];
-		NodeTypes.map((node) => VALID_TYPES.push(node.type));
+		NodeDeclarations.map((node) => VALID_TYPES.push(node.type));
 		const NODES = [];
 
 		const IS_EMPTY_MAP = data.length < 1;
@@ -417,11 +391,11 @@ function Header({ LTISettings }, ref) {
 		if (!IS_EMPTY_MAP) {
 			data.map((node) => {
 				switch (localMetaData.platform) {
-					case "moodle":
+					case Platforms.Moodle:
 						NODES.push(parseMoodleNode(node, newX, newY));
 						newX += 125;
 						break;
-					case "sakai":
+					case Platforms.Sakai:
 						parseSakaiNode(NODES, node, newX, newY, VALID_TYPES);
 						newX += 125;
 						break;
@@ -433,18 +407,18 @@ function Header({ LTISettings }, ref) {
 
 		//Bring badges
 		switch (localMetaData.platform) {
-			case "moodle":
+			case Platforms.Moodle:
 				localMetaData.badges.map((badge) => {
 					NODES.push(parseMoodleBadges(badge, newX, newY, NODES));
 					newX += 125;
 				});
 				break;
-			case "sakai":
+			case Platforms.Sakai:
 				break;
 		}
 
 		let platformNewMap;
-		if (localMetaData.platform == "moodle") {
+		if (localMetaData.platform == Platforms.Moodle) {
 			platformNewMap = createNewMoodleMap(NODES, localMetaData, localMaps);
 		} else {
 			platformNewMap = createNewSakaiMap(
@@ -494,10 +468,10 @@ function Header({ LTISettings }, ref) {
 
 	/**
 	 * Adds a new version to a map with the given the version data and a map id.
-	 * @param {Object} data - The data for the new version of the map.
-	 * @param {string} mapId - The id of the map to create a new version for.
+	 * @param data - The data for the new version of the map.
+	 * @param mapId - The id of the map to create a new version for.
 	 */
-	const handleNewVersionIn = async (data, mapId) => {
+	const handleNewVersionIn = async (data: IVersion, mapId: IMap["id"]) => {
 		const SELECTED_MAP = getMapById(mapId);
 		let finalName = handleNameCollision(
 			"Nueva Versión",
@@ -509,54 +483,58 @@ function Header({ LTISettings }, ref) {
 		const NEW_VERSION = data
 			? {
 					...data,
-					id: uniqueId(),
-					map_id: SELECTED_MAP.id,
+					id: Number(uniqueId()),
 					lastUpdate: new Date().toLocaleDateString(),
 					name: finalName,
 					default: false,
 			  }
 			: {
 					blocks_data: [],
-					id: uniqueId(),
-					map_id: SELECTED_MAP.id,
+					id: Number(uniqueId()),
 					lastUpdate: new Date().toLocaleDateString(),
 					name: finalName,
 					default: false,
 			  };
 
-		const NEW_MAP_VERSIONS = [...SELECTED_MAP.versions, NEW_VERSION];
 		if (!process.env.NEXT_PUBLIC_DEV_FILES) {
-			const response = await fetchBackEnd(
-				sessionStorage.getItem("token"),
-				"api/lti/add_version",
-				"POST",
-				{ version: NEW_VERSION }
+			const ADDVERSION_RESPONSE = await addVersion(
+				SELECTED_MAP.id,
+				NEW_VERSION
 			);
 
-			if (!response.ok) {
+			if (!ADDVERSION_RESPONSE.ok) {
 				toast(
 					`Ha ocurrido un error durante la creación del mapa`,
 					DEFAULT_TOAST_ERROR
 				);
 				throw new Error("Request failed");
 			} else {
-				const response = await fetchBackEnd(
-					sessionStorage.getItem("token"),
-					"api/lti/get_versions",
-					"POST",
-					{ map_id: SELECTED_MAP.id }
-				);
+				const VERSIONS_RESPONSE = await getVersions(SELECTED_MAP.id);
 
-				if (!response.ok) {
+				if (!VERSIONS_RESPONSE.ok) {
 					toast(
 						`Ha ocurrido un error durante la carga del mapa`,
 						DEFAULT_TOAST_ERROR
 					);
 					throw new Error("Request failed");
 				} else {
-					setVersions(response.data);
-					setSelectedVersion(response.data);
-					setCurrentBlocksData(response.data.blocks_data);
+					setVersions(VERSIONS_RESPONSE.data);
+
+					const VERSION_RESPONSE = await getVersion(
+						VERSIONS_RESPONSE.data[0].id
+					);
+
+					if (!VERSION_RESPONSE.ok) {
+						toast(
+							`Ha ocurrido un error durante la carga del mapa`,
+							DEFAULT_TOAST_ERROR
+						);
+						throw new Error("Request failed");
+					} else {
+						setSelectedVersion(VERSION_RESPONSE.data);
+						setCurrentBlocksData(VERSION_RESPONSE.data.blocks_data);
+					}
+
 					setMapSelected(SELECTED_MAP);
 					toast(`Versión: ${finalName} creada`, DEFAULT_TOAST_SUCCESS);
 				}
@@ -613,12 +591,7 @@ function Header({ LTISettings }, ref) {
 		if (MAP_ID != -1) {
 			if (!parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
 				try {
-					const RESPONSE = await fetchBackEnd(
-						sessionStorage.getItem("token"),
-						"api/lti/delete_map_by_id",
-						"POST",
-						{ id: Number(MAP_ID) }
-					);
+					const RESPONSE = await deleteMapById(MAP_ID);
 
 					if (RESPONSE) {
 						if (!RESPONSE.ok) {
@@ -626,11 +599,7 @@ function Header({ LTISettings }, ref) {
 						} else {
 							//FIXME: Load map "shell"
 							setLoadedMaps(false);
-							const RESPONSE = await fetchBackEnd(
-								sessionStorage.getItem("token"),
-								"api/lti/get_session",
-								"POST"
-							);
+							const RESPONSE = await getSession();
 							const DATA = RESPONSE.data;
 							const MAPS = [EMPTY_MAP, ...DATA[2].maps];
 							setMaps(MAPS);
@@ -676,14 +645,10 @@ function Header({ LTISettings }, ref) {
 		if (VERSION_COUNT > 1) {
 			if (!parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
 				try {
-					const response = await fetchBackEnd(
-						sessionStorage.getItem("token"),
-						"api/lti/delete_version_by_id",
-						"POST",
-						{ id: Number(VERSION_ID) }
-					);
-					if (response) {
-						if (!response.ok) {
+					const RESPONSE = await deleteVersionById(VERSION_ID);
+
+					if (RESPONSE) {
+						if (!RESPONSE.ok) {
 							throw `Ha ocurrido un error.`;
 						} else {
 							//FIXME: Load map "shell"
@@ -885,18 +850,14 @@ function Header({ LTISettings }, ref) {
 						throw ERROR;
 					});
 			} else {
-				const loadResources = async (token) => {
+				const loadResources = async () => {
 					try {
-						const RESPONSE = await fetchBackEnd(
-							token,
-							"api/lti/get_session",
-							"POST"
-						);
+						const RESPONSE = await getSession();
 						if (RESPONSE && RESPONSE.ok) {
 							const DATA = RESPONSE.data;
 
 							console.log("LMS DATA: ", DATA);
-							// Usuario
+							// Userdata
 							setUserData(DATA[0]);
 							setLoadedUserData(true);
 
@@ -908,7 +869,7 @@ function Header({ LTISettings }, ref) {
 							setLoadedMetaData(true);
 
 							//Maps
-							const MAPS = [EMPTY_MAP, ...DATA[2].maps];
+							const MAPS: Array<IMap> = [EMPTY_MAP, ...DATA[2]];
 							setMaps(MAPS);
 							setMapCount(MAPS.length);
 							setLoadedMaps(true);
@@ -926,7 +887,7 @@ function Header({ LTISettings }, ref) {
 					}
 				};
 
-				loadResources(sessionStorage.getItem("token"));
+				loadResources();
 			}
 		} catch (e) {
 			toast(e, DEFAULT_TOAST_ERROR);
@@ -1156,13 +1117,12 @@ function Header({ LTISettings }, ref) {
 	async function fetchVersion(id) {
 		if (!parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
 			try {
-				const VERSION_RESPONSE = await fetchBackEnd(
-					sessionStorage.getItem("token"),
-					"api/lti/get_version",
-					"POST",
-					{ version_id: id }
-				);
-				setCurrentBlocksData(VERSION_RESPONSE.data.blocks_data);
+				const VERSION_RESPONSE = await getVersion(id);
+				if (VERSION_RESPONSE.ok) {
+					setCurrentBlocksData(VERSION_RESPONSE.data.blocks_data);
+				} else {
+					console.error("Error, datos de version inválidos");
+				}
 			} catch (error) {
 				console.error("Error, datos de version inválidos");
 			}

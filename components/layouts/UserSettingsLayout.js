@@ -5,6 +5,7 @@ import { Button, Col, Container, Row } from "react-bootstrap";
 import { parseBool } from "../../utils/Utils";
 import Link from "next/link";
 import { MetaDataContext } from "pages/_app";
+import { Platforms } from "@utils/Platform";
 
 function ButtonLink({ label, variant, scrollref, className, style }) {
 	return (
@@ -47,10 +48,10 @@ export default function UserSettingsLayout({ children, paneRef, LTISettings }) {
 	}, []);
 
 	const devPlataformChange = () => {
-		if (metaData.platform == "moodle") {
-			setMetaData({ ...metaData, platform: "sakai" });
+		if (metaData.platform == Platforms.Moodle) {
+			setMetaData({ ...metaData, platform: Platforms.Sakai });
 		} else {
-			setMetaData({ ...metaData, platform: "moodle" });
+			setMetaData({ ...metaData, platform: Platforms.Moodle });
 		}
 	};
 

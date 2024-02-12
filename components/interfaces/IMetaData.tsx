@@ -1,13 +1,16 @@
+import { Platforms } from "@utils/Platform";
+
 export interface IMetaData {
 	name: string;
 	instance_id: number;
 	lms_url: string;
 	return_url: string;
 	course_id: string;
-	platform: string;
+	platform: Platforms.Moodle | Platforms.Sakai;
 	platform_name?: string; // Optional name for the platform.
 	lessons?: Array<sakaiLesson>; // Sakai lessons
-	sections: Array<section>;
+	back_url?: string; //Added by the front end in runtime
+	sections: Array<ISection>;
 	badges?: Array<moodleBadge>;
 	grades?: Array<string>; // Moodle Qualifications
 	user_members?: Array<sakaiUserMember>; // Sakai user_members
@@ -23,7 +26,7 @@ interface sakaiLesson {
 	page_id: string;
 }
 
-interface section {
+export interface ISection {
 	id: number;
 	position: number;
 	name: string;

@@ -1,5 +1,16 @@
-interface MoodleConditions {}
+import {
+	IMoodleBadgeConditionsGroup,
+	IMoodleConditionsGroup,
+	MoodleElementConditions,
+} from "./INodeConditionsMoodle";
+import { SakaiElementConditions } from "./INodeConditionsSakai";
 
-interface SakaiConditions {}
+export type AllValidRootElementNodeConditions =
+	| IMoodleConditionsGroup
+	| SakaiElementConditions;
 
-export type INodeConditions = MoodleConditions | SakaiConditions;
+export type AllValidRootActionNodeConditions = IMoodleBadgeConditionsGroup;
+
+export type AllElementNodeConditions =
+	| MoodleElementConditions
+	| SakaiElementConditions;

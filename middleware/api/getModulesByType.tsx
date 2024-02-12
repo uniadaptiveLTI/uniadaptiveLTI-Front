@@ -5,6 +5,6 @@ interface Payload {
 	supportedTypes?: Array<string>;
 }
 
-export default async function getModulesByType(payload) {
+export default async function getModulesByType(payload: Payload) {
 	return fetchBackEnd(getLocalToken(), "api/lti/auth", "POST", payload);
 }

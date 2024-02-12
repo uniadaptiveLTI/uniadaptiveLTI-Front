@@ -1,5 +1,6 @@
 import React, {
 	forwardRef,
+	useCallback,
 	useContext,
 	useEffect,
 	useRef,
@@ -15,19 +16,10 @@ import ReactFlow, {
 	useReactFlow,
 	OnConnect,
 	Edge,
+	addEdge,
+	OnNodesChange,
 } from "reactflow";
 import "reactflow/dist/style.css";
-import ActionNode from "./flow/nodes/ActionNode";
-import ElementNode from "./flow/nodes/ElementNode";
-import {
-	EditedNodeContext,
-	ErrorListContext,
-	ExpandedAsideContext,
-	SettingsContext,
-	MetaDataContext,
-	notImplemented,
-} from "pages/_app";
-import FragmentNode from "./flow/nodes/FragmentNode";
 import {
 	uniqueId,
 	getUpdatedArrayById,
@@ -47,6 +39,18 @@ import {
 	getParentsNode,
 	getNodeTypeGradableType,
 } from "@utils/Nodes";
+import {
+	EditedNodeContext,
+	ErrorListContext,
+	ExpandedAsideContext,
+	SettingsContext,
+	MetaDataContext,
+	notImplemented,
+	DEFAULT_TOAST_ERROR,
+	LONG_TOAST_ERROR,
+	DEFAULT_TOAST_INFO,
+	EXTENDED_TOAST_ERROR,
+} from "pages/_app";
 import { errorListCheck } from "@utils/ErrorHandling";
 import { toast } from "react-toastify";
 import { getAutomaticReusableStyles } from "@utils/Colors";
@@ -59,12 +63,17 @@ import { useKeyPress } from "reactflow";
 import { getTypeStaticColor } from "@utils/NodeIcons";
 import NodeSelector from "@components/dialogs/NodeSelector";
 import CriteriaModal from "@components/flow/badges/CriteriaModal";
-import ConditionalEdge from "@components/flow/edges/ConditionalEdge";
-import { NodeTypes } from "@utils/TypeDefinitions";
-import { isSupportedTypeInPlatform } from "@utils/Platform";
+import {
+	NodeDeclarations,
+	RF_EDGE_TYPES,
+	RF_NODE_TYPES,
+	getElementNodeTypes,
+} from "@utils/TypeDefinitions";
+import { Platforms, isSupportedTypeInPlatform } from "@utils/Platform";
 import CustomControls from "./flow/CustomControls";
 import SimpleActionDialog from "./dialogs/SimpleActionDialog";
-import { IFragment, INode } from "./interfaces/INode";
+import { IActionNode, IFragmentNode, INode } from "./interfaces/INode";
+import { IMoodleCompletionCondition } from "./interfaces/INodeConditionsMoodle";
 
 const MINIMAP_STYLE = {
 	height: 120,
@@ -72,51 +81,7 @@ const MINIMAP_STYLE = {
 
 const DELETE_KEY_CODES = ["Backspace", "Delete"];
 
-const NODE_TYPES = {
-	addgroup: ActionNode,
-	assign: ElementNode,
-	folder: ElementNode,
-	forum: ElementNode,
-	mail: ActionNode,
-	quiz: ElementNode,
-	remgroup: ActionNode,
-	resource: ElementNode,
-	url: ElementNode,
-	wiki: ElementNode,
-	// Moodle
-	badge: ActionNode,
-	book: ElementNode,
-	// chat: ElementNode,
-	choice: ElementNode,
-	// data: ElementNode,
-	// feedback: ElementNode,
-	generic: ElementNode,
-	glossary: ElementNode,
-	// h5pactivity: ElementNode,
-	// imscp: ElementNode,
-	label: ElementNode,
-	lesson: ElementNode,
-	// lti: ElementNode,
-	page: ElementNode,
-	// scorm: ElementNode,
-	// survey: ElementNode,
-	workshop: ElementNode,
-	// Sakai
-	exam: ElementNode,
-	html: ElementNode,
-	reflist: ElementNode,
-	text: ElementNode,
-	//LTI
-	fragment: FragmentNode,
-};
-
-const EDGE_TYPES = {
-	conditionalEdge: ConditionalEdge,
-};
-
 const OverviewFlow = ({ map }, ref) => {
-	const validTypes = ["badge", "mail", "addgroup", "remgroup"];
-
 	const { errorList, setErrorList } = useContext(ErrorListContext);
 	const { expandedAside, setExpandedAside } = useContext(ExpandedAsideContext);
 	const { setNodeSelected } = useContext(EditedNodeContext);
@@ -211,10 +176,12 @@ const OverviewFlow = ({ map }, ref) => {
 	const [showNodeSelector, setShowNodeSelector] = useState<boolean>(false);
 	const [nodeSelectorType, setNodeSelectorType] = useState("");
 
-	const [nodes, setNodes, onNodesChange] = useNodesState(newInitialNodes);
+	const [nodes, setNodes, onNodesChange] = useNodesState(newInitialNodes) as [
+		Array<INode>,
+		Function,
+		OnNodesChange
+	];
 	const [edges, setEdges, onEdgesChange] = useEdgesState(newInitialEdges);
-
-	const draggedNodePosition = useRef(null);
 
 	const reactFlowWrapper = useRef(null);
 
@@ -384,13 +351,11 @@ const OverviewFlow = ({ map }, ref) => {
 
 		let allowLineCreation = true;
 
+		console.log("onConnect");
+
 		if (sourceNodeId != targetNodeId) {
 			console.log(sourceNodeId + "-" + targetNodeId);
-			console.log(
-				reactFlowInstance
-					.getEdges()
-					.find((node) => node.id === sourceNodeId + "-" + targetNodeId)
-			);
+
 			console.log("found:", reactFlowInstance.getEdges());
 			console.log(
 				"sourceFound",
@@ -424,7 +389,7 @@ const OverviewFlow = ({ map }, ref) => {
 			if (targetNode) {
 				if (allowLineCreation) {
 					switch (metaData.platform) {
-						case "moodle":
+						case Platforms.Moodle:
 							const blockData = getNodeById(
 								sourceNodeId,
 								reactFlowInstance.getNodes() as Array<INode>
@@ -443,92 +408,101 @@ const OverviewFlow = ({ map }, ref) => {
 									(blockData.data.g.hasToBeSeen &&
 										currentGradableType == "simple"))
 							) {
-								if (!validTypes.includes(targetNode.type)) {
-									const newCondition = {
-										id: String(Date.now() * Math.random()),
+								if (
+									getElementNodeTypes().some(
+										(node) => node.type === targetNode.type
+									)
+								) {
+									// Just Element Nodes
+									const newCondition: IMoodleCompletionCondition = {
+										id: uniqueId(),
 										type: "completion",
 										cm: sourceNode.id,
 										showc: true,
 										e: 1,
 									};
 
-									if (!targetNode.data.c) {
+									if (
+										"c" in targetNode.data &&
+										!(
+											"type" in targetNode.data.c &&
+											targetNode.data.c.type != "conditionsGroup"
+										)
+									) {
 										targetNode.data.c = {
 											type: "conditionsGroup",
-											id: String(Date.now() * Math.random()),
+											id: uniqueId(),
 											op: "&",
 											showc: true,
 											c: [newCondition],
 										};
 									} else {
-										targetNode.data.c.c.push(newCondition);
+										if ("c" in targetNode.data.c) {
+											targetNode.data.c.c.push(newCondition);
+										} else if ("params" in targetNode.data.c) {
+											targetNode.data.c.params.push(newCondition);
+										}
 									}
 								} else {
-									if (!targetNode.data.c) {
+									// Just Action Nodes
+									if (
+										"c" in targetNode.data &&
+										Array.isArray(targetNode.data.c)
+									) {
+										//If C is an empty array, add the conditions group
 										targetNode.data.c = {
 											type: "conditionsGroup",
-											id: String(Date.now() * Math.random()),
+											id: uniqueId(),
 											method: "&",
 											showc: true,
 											criteriatype: 0,
+											params: [],
 										};
 									}
 
-									const conditions = targetNode.data.c?.params;
+									if ("c" in targetNode.data) {
+										const existingConditions =
+											(targetNode as IActionNode).data.c?.params || [];
 
-									if (conditions) {
-										const conditionExists = conditions.find(
-											(condition) => condition.type === "completion"
-										);
+										const newConditions: IActionNode["data"]["c"]["params"] =
+											existingConditions;
 
-										if (conditionExists) {
-											const newConditionAppend = {
-												id: sourceNode.id,
-											};
+										if (newConditions) {
+											const conditionExists = newConditions.find(
+												(condition) => condition.type === "completion"
+											);
 
-											conditionExists.params.push(newConditionAppend);
-										} else {
-											const newCondition = {
-												id: String(Date.now() * Math.random()),
-												type: "completion",
-												params: [
-													{
-														id: sourceNode.id,
-													},
-												],
-												method: "&",
-												criteriatype: 1,
-											};
-
-											targetNode.data.c.params.push(newCondition);
-										}
-									} else {
-										const newCondition = {
-											id: String(Date.now() * Math.random()),
-											type: "completion",
-											criteriatype: 1,
-											params: [
-												{
+											if (conditionExists) {
+												const newConditionAppend = {
 													id: sourceNode.id,
-												},
-											],
-											method: "&",
-										};
+												};
 
-										targetNode.data.c.params = [newCondition];
+												conditionExists.params.push(newConditionAppend);
+											} else {
+												const newCondition = {
+													id: uniqueId(),
+													type: "completion",
+													params: [
+														{
+															id: sourceNode.id,
+														},
+													],
+													method: "&",
+													criteriatype: 1,
+												};
+
+												(targetNode as IActionNode).data.c.params.push(
+													newCondition
+												);
+											}
+										}
 									}
 								}
 							} else {
 								allowLineCreation = false;
 								toast(
 									"El recurso no puede ser finalizado. Compruebe los ajustes de finalización.",
-									{
-										hideProgressBar: false,
-										autoClose: 6000,
-										type: "error",
-										position: "bottom-center",
-										theme: "light",
-									}
+									LONG_TOAST_ERROR
 								);
 							}
 
@@ -543,7 +517,7 @@ const OverviewFlow = ({ map }, ref) => {
 							}
 
 							break;
-						case "sakai":
+						case Platforms.Sakai:
 							if ("g" in targetNode.data && !targetNode.data.g) {
 								targetNode.data.g = {
 									id: undefined,
@@ -607,24 +581,37 @@ const OverviewFlow = ({ map }, ref) => {
 			}
 
 			if (allowLineCreation) {
+				if ("children" in sourceNode.data)
+					sourceNode.data.children.push(targetNode.id);
+
 				setNodes(
 					getUpdatedArrayById(
 						[sourceNode, targetNode],
 						reactFlowInstance.getNodes()
 					)
 				);
-				reactFlowInstance.addEdges({
+
+				setEdges([
+					...reactFlowInstance.getEdges(),
+					{
+						id: sourceNodeId + "-" + targetNodeId,
+						source: sourceNodeId,
+						target: targetNodeId,
+					},
+				]);
+
+				/*reactFlowInstance.addEdges({
 					id: sourceNodeId + "-" + targetNodeId,
 					source: sourceNodeId,
 					target: targetNodeId,
-				} as Edge);
+				} as Edge);*/
 			}
 		}
 	};
 
 	useEffect(() => {
-		reactFlowInstance.setNodes(newInitialNodes);
-		reactFlowInstance.setEdges(newInitialEdges);
+		setNodes(newInitialNodes);
+		setEdges(newInitialEdges);
 	}, [newInitialNodes, newInitialEdges]);
 
 	//-- DELETION LOGIC --
@@ -638,16 +625,16 @@ const OverviewFlow = ({ map }, ref) => {
 
 	/**
 	 * Handles the deletion of edges.
-	 * @param {Edge[]} edges - The edges being deleted.
+	 * @param {Edge[]} edgesToDelete - The edges being deleted.
 	 */
-	const onEdgesDelete = (edges: Array<Edge>) => {
+	const onEdgesDelete = (edgesToDelete: Array<Edge>) => {
 		// Get a copy of the current nodes
 		let updatedBlocksArray = reactFlowInstance
 			.getNodes()
 			.slice() as Array<INode>;
 
 		// Loop through each edge to be deleted
-		edges.map((edge) => {
+		edgesToDelete.map((edge) => {
 			// Find the source and target nodes for the current edge
 			var blockNodeSource = updatedBlocksArray.find(
 				(obj) => obj.id === edge.source
@@ -666,21 +653,30 @@ const OverviewFlow = ({ map }, ref) => {
 			// If the target node exists and has a condition, update it based on its type
 			if (blockNodeTarget) {
 				switch (metaData.platform) {
-					case "moodle":
-						if (blockNodeTarget.data.c) {
-							if (!validTypes.includes(blockNodeTarget.type)) {
+					case Platforms.Moodle:
+						if ("c" in blockNodeTarget.data && blockNodeTarget.data.c) {
+							if (
+								getElementNodeTypes().some(
+									(node) => node.type === blockNodeTarget.type
+								)
+							) {
 								if (blockNodeSource?.id)
-									deleteConditionById(
-										blockNodeTarget.data.c.c,
-										blockNodeSource.id
-									);
+									if ("c" in blockNodeTarget.data.c) {
+										deleteConditionById(
+											blockNodeTarget.data.c.c,
+											blockNodeSource.id
+										);
+									}
 							} else {
-								updateBadgeConditions(blockNodeTarget, blockNodeSource);
+								updateBadgeConditions(
+									blockNodeTarget as IActionNode,
+									blockNodeSource
+								);
 							}
 						}
 						break;
 
-					case "sakai":
+					case Platforms.Sakai:
 						const gradeRequisites =
 							"g" in blockNodeTarget.data ? blockNodeTarget.data.g : undefined;
 
@@ -713,17 +709,15 @@ const OverviewFlow = ({ map }, ref) => {
 				);
 
 				if (NODE_DELETED.data.children.length === 0) {
-					NODE_DELETED.data.children = undefined;
+					NODE_DELETED.data.children = [];
 				}
 			}
 		});
 
 		// Update the nodes and edges in the reactFlowInstance
-		reactFlowInstance.setNodes(updatedBlocksArray);
-		reactFlowInstance.setEdges(
-			reactFlowInstance
-				.getEdges()
-				.filter((edge) => !edges.map((e) => e.id).includes(edge.id))
+		setNodes(updatedBlocksArray);
+		setEdges(
+			edges.filter((edge) => !edgesToDelete.map((e) => e.id).includes(edge.id))
 		);
 	};
 
@@ -753,9 +747,7 @@ const OverviewFlow = ({ map }, ref) => {
 			if (block.type == "fragment") {
 				const innerNodes = block.data.innerNodes;
 				innerNodes.forEach((node) => {
-					const rfNode = reactFlowInstance
-						.getNodes()
-						.find((onode) => onode.id == node.id);
+					const rfNode = nodes.find((onode) => onode.id == node.id);
 					if (rfNode) {
 						blocks.push(rfNode);
 					}
@@ -766,10 +758,7 @@ const OverviewFlow = ({ map }, ref) => {
 		// Iteration of the blocks to delete
 		blocks.map((block) => {
 			// Get method to retreive the parents nodes from a block
-			const PARENTS_NODE = getParentsNode(
-				reactFlowInstance.getNodes(),
-				block.id
-			);
+			const PARENTS_NODE = getParentsNode(nodes, block.id);
 
 			// Iteration of the parents nodes
 			PARENTS_NODE.map((parentNode) => {
@@ -811,13 +800,13 @@ const OverviewFlow = ({ map }, ref) => {
 				}
 			});
 
-			let nodeArray = reactFlowInstance.getNodes();
+			let nodeArray = nodes;
 
 			// Filter method to retrieve only the nodes that are the children of a block
 			if (block.data) {
 				if (block.data.children != undefined) {
 					const CHILDREN_NODES = nodeArray.filter((node) =>
-						block.data.children.includes(node.id.toString())
+						block.data.children.includes(node.id)
 					);
 
 					// Iteration of the children nodes
@@ -830,15 +819,19 @@ const OverviewFlow = ({ map }, ref) => {
 						// Condition to check if the children is already edited
 						if (foundChildrenNode) {
 							switch (metaData.platform) {
-								case "moodle":
-									if (!validTypes.includes(foundChildrenNode.type)) {
+								case Platforms.Moodle:
+									if (
+										getElementNodeTypes().some(
+											(node) => node.type === foundChildrenNode.type
+										)
+									) {
 										// Delete method that updates the conditions of the children node edited
 										deleteConditionById(foundChildrenNode.data?.c?.c, block.id);
 									} else {
 										updateBadgeConditions(foundChildrenNode, block);
 									}
 									break;
-								case "sakai":
+								case Platforms.Sakai:
 									filterConditionsByParentId(
 										foundChildrenNode.data.g.subConditions,
 										block.id
@@ -847,19 +840,29 @@ const OverviewFlow = ({ map }, ref) => {
 							}
 						} else {
 							switch (metaData.platform) {
-								case "moodle":
-									if (!validTypes.includes(childrenNode.type)) {
+								case Platforms.Moodle:
+									if (
+										"c" in childrenNode.data &&
+										getElementNodeTypes().some(
+											(node) => node.type === childrenNode.type
+										)
+									) {
 										// Delete method that updates the conditions of the children node
-										deleteConditionById(childrenNode.data?.c?.c, block.id);
+										if ("c" in childrenNode.data.c)
+											deleteConditionById(childrenNode.data.c?.c, block.id);
 									} else {
-										updateBadgeConditions(childrenNode, block);
+										updateBadgeConditions(childrenNode as IActionNode, block);
 									}
 									break;
-								case "sakai":
-									filterConditionsByParentId(
-										childrenNode.data.g.subConditions,
-										block.id
-									);
+								case Platforms.Sakai:
+									if (
+										"g" in childrenNode.data &&
+										"subConditions" in childrenNode.data.g
+									)
+										filterConditionsByParentId(
+											childrenNode.data.g.subConditions,
+											block.id
+										);
 									break;
 							}
 
@@ -872,10 +875,7 @@ const OverviewFlow = ({ map }, ref) => {
 		});
 
 		// Update method to update the full array of nodes with the updated nodes
-		let updatedNodeArray = getUpdatedArrayById(
-			updatedNodes,
-			reactFlowInstance.getNodes()
-		);
+		let updatedNodeArray = getUpdatedArrayById(updatedNodes, nodes);
 
 		// Iteration to delete the nodes from the full array of nodes
 		blocks.map((block) => {
@@ -891,7 +891,7 @@ const OverviewFlow = ({ map }, ref) => {
 		);
 
 		// Set method to update the full array of nodes
-		reactFlowInstance.setNodes(FINAL_NODE_ARRAY);
+		setNodes(FINAL_NODE_ARRAY);
 
 		// Check method for errors
 		errorListCheck(blocks, errorList, setErrorList, true);
@@ -913,15 +913,15 @@ const OverviewFlow = ({ map }, ref) => {
 	) => {
 		let continueDeletion = true;
 
-		const getRelatedNodes = (nodes) => {
-			const childrenNodes = nodes.flatMap((node) =>
-				getByProperty("parentNode", node.id, reactFlowInstance.getNodes())
+		const getRelatedNodes = (relatedNodes) => {
+			const childrenNodes = relatedNodes.flatMap((node) =>
+				getByProperty("parentNode", node.id, nodes)
 			);
 			return childrenNodes;
 		};
 		const allNodes = [...nodes, ...getRelatedNodes(nodes)];
 
-		if (force == false && metaData.platform === "moodle") {
+		if (force == false && metaData.platform === Platforms.Moodle) {
 			if (
 				allNodes.filter((node) =>
 					metaData.grades.includes(node.data?.lmsResource)
@@ -1000,10 +1000,7 @@ const OverviewFlow = ({ map }, ref) => {
 		if (nodesInitialized) {
 			for (const node of map) {
 				if (node.parentNode) {
-					const parentFragment = getNodeById(
-						node.parentNode,
-						reactFlowInstance.getNodes()
-					);
+					const parentFragment = getNodeById(node.parentNode, nodes);
 					if (!parentFragment?.data?.expanded) {
 						const fragment = getNodeDOMById(node.id);
 						if (fragment) fragment.style.visibility = "hidden";
@@ -1062,11 +1059,8 @@ const OverviewFlow = ({ map }, ref) => {
 					edge.type = "conditionalEdge";
 
 					if (edge.target) {
-						const TARGET_NODE = getNodeById(
-							edge.target,
-							reactFlowInstance.getNodes()
-						);
-						const ACTION_NODES = NodeTypes.map((declaration) => {
+						const TARGET_NODE = getNodeById(edge.target, nodes);
+						const ACTION_NODES = NodeDeclarations.map((declaration) => {
 							if (declaration.nodeType == "ActionNode") return declaration.type;
 						});
 						if (TARGET_NODE)
@@ -1102,7 +1096,7 @@ const OverviewFlow = ({ map }, ref) => {
 		setCMX(e.clientX - bounds.left);
 		setCMY(e.clientY - bounds.top);
 		let selectedCount = 0;
-		const currentNodes = reactFlowInstance.getNodes() as Array<INode>;
+		const currentNodes = nodes as Array<INode>;
 		currentNodes.map((node) => (node.selected ? selectedCount++ : null));
 		if (selectedCount <= 1) {
 			setCMBlockData(node);
@@ -1221,9 +1215,9 @@ const OverviewFlow = ({ map }, ref) => {
 	 */
 	const addFragmentChildrenFromFragment = (fragment, arr) => {
 		const PARENT_NODE = fragment.id;
-		const FRAGMENT_CHILDREN = reactFlowInstance
-			.getNodes()
-			.filter((node) => node.parentNode == PARENT_NODE);
+		const FRAGMENT_CHILDREN = nodes.filter(
+			(node) => node.parentNode == PARENT_NODE
+		);
 		const FILTERED_CHILDREN_ARRAY = arr.filter((oNode) =>
 			FRAGMENT_CHILDREN.map((cNode) => cNode.id).includes(oNode.id)
 		);
@@ -1234,11 +1228,10 @@ const OverviewFlow = ({ map }, ref) => {
 	useEffect(() => {
 		if (cMBlockData && reactFlowInstance)
 			if (!Array.isArray(cMBlockData)) {
-				let newcurrentBlocksData = [...reactFlowInstance.getNodes()];
-				newcurrentBlocksData[
-					reactFlowInstance.getNodes().findIndex((b) => b.id == cMBlockData.id)
-				] = cMBlockData;
-				reactFlowInstance.setNodes(newcurrentBlocksData);
+				let newcurrentBlocksData = [...nodes];
+				newcurrentBlocksData[nodes.findIndex((b) => b.id == cMBlockData.id)] =
+					cMBlockData;
+				setNodes(newcurrentBlocksData);
 			} else {
 				const newcurrentBlocksData = reactFlowInstance
 					.getNodes()
@@ -1246,7 +1239,7 @@ const OverviewFlow = ({ map }, ref) => {
 						const newBlock = cMBlockData.find((b) => b.id === block.id);
 						return newBlock ? { ...block, ...newBlock } : block;
 					});
-				reactFlowInstance.setNodes(newcurrentBlocksData);
+				setNodes(newcurrentBlocksData);
 			}
 	}, [cMBlockData]);
 
@@ -1264,16 +1257,16 @@ const OverviewFlow = ({ map }, ref) => {
 			blockDataSet.push(...blockData);
 		}
 
-		const SELECTED = deduplicateById([...blockDataSet, ...selectedNodes]);
+		const SELECTED = deduplicateById([
+			...blockDataSet,
+			...selectedNodes,
+		]) as Array<INode>;
 
 		const CHILDREN_ARRAY = [];
 		SELECTED.forEach((node) => {
 			if (node.type == "fragment") {
 				const fragmentID = node.id;
-				const children = getChildrenNodesFromFragmentID(
-					fragmentID,
-					reactFlowInstance.getNodes()
-				);
+				const children = getChildrenNodesFromFragmentID(fragmentID, nodes);
 				CHILDREN_ARRAY.push(...children);
 			}
 		});
@@ -1283,17 +1276,18 @@ const OverviewFlow = ({ map }, ref) => {
 			...SELECTED,
 		]);
 
-		const CLEANED_SELECTION = COMPLETE_SELECTION.map((node) => {
+		const CLEANED_SELECTION = COMPLETE_SELECTION.map((node: INode) => {
 			delete node.dragging;
 			delete node.width;
 			delete node.height;
 			delete node.positionAbsolute;
 			delete node.selected;
-			if (!lmsResource && node.data) {
-				if (node.datalmsResource < 0) {
-					delete node.lmsResource;
+			//TODO: CHECK IF NEEDED
+			/*if (!lmsResource && node.data) {
+				if (Number(node.data.lmsResource) < 1 || node.data.lmsResource == "") {
+					delete node.data.lmsResource;
 				}
-			}
+			}*/
 			return node;
 		});
 
@@ -1312,13 +1306,7 @@ const OverviewFlow = ({ map }, ref) => {
 		if (CLEANED_SELECTION.length > 0) {
 			toast(
 				"Se han copiado " + CLEANED_SELECTION.length + " bloque(s) abstractos",
-				{
-					hideProgressBar: false,
-					autoClose: 2000,
-					type: "info",
-					position: "bottom-center",
-					theme: "light",
-				}
+				DEFAULT_TOAST_INFO
 			);
 		}
 	};
@@ -1382,9 +1370,9 @@ const OverviewFlow = ({ map }, ref) => {
 					newLmsResource = undefined;
 				} else {
 					if (
-						reactFlowInstance
-							.getNodes()
-							.some((node) => node.data.lmsResource == block.data.lmsResource)
+						(nodes as Array<INode>).some(
+							(node) => node.data.lmsResource == block.data.lmsResource
+						)
 					) {
 						newLmsResource = undefined;
 					} else {
@@ -1400,7 +1388,7 @@ const OverviewFlow = ({ map }, ref) => {
 						...block.data,
 						label: handleNameCollision(
 							block.data.label,
-							reactFlowInstance.getNodes().map((node) => node?.data?.label),
+							(nodes as Array<INode>).map((node) => node?.data?.label),
 							false,
 							"("
 						),
@@ -1446,9 +1434,7 @@ const OverviewFlow = ({ map }, ref) => {
 	 * @param {Array<INode>} [blockData=[]] - The nodes to cut.
 	 */
 	const handleNodeCut = (blockData: Array<INode> = []) => {
-		const SELECTED_NODES = getSelectedNodes(
-			reactFlowInstance.getNodes() as Array<INode>
-		);
+		const SELECTED_NODES = getSelectedNodes(nodes as Array<INode>);
 		handleNodeCopy(blockData, true);
 		if (SELECTED_NODES.length > 1) {
 			handleNodeSelectionDeletion();
@@ -1543,7 +1529,7 @@ const OverviewFlow = ({ map }, ref) => {
 				};
 			}
 		} else {
-			if (metaData.platform == "moodle") {
+			if (metaData.platform == Platforms.Moodle) {
 				newBlockCreated = {
 					id: uniqueId(),
 					position: { x: flowPos.x, y: flowPos.y },
@@ -1575,11 +1561,11 @@ const OverviewFlow = ({ map }, ref) => {
 		setShowContextualMenu(false);
 
 		if (Object.keys(newBlockCreated).length !== 0) {
-			let newcurrentBlocksData = reactFlowInstance.getNodes();
+			let newcurrentBlocksData = nodes;
 			newcurrentBlocksData.push(newBlockCreated);
-			reactFlowInstance.setNodes([...newcurrentBlocksData]);
+			setNodes([...newcurrentBlocksData]);
 			if (newBlockCreated != undefined) {
-				//getNodeDOMById(newBlockCreated.id).focus(); FIXME: Stopped working
+				//getNodeDOMById(newBlockCreated.id).focus(); FIXME: Stopped working, accesibility issue ?
 			}
 			return newcurrentBlocksData;
 		}
@@ -1601,7 +1587,7 @@ const OverviewFlow = ({ map }, ref) => {
 			y: PREFERRED_POSITION.y - REACTFLOW_BOUNDS.top,
 		});
 
-		//FIXME: Reeplace asideBounds
+		//FIXME: Replace asideBounds using reactflow project
 		const ASIDE_OFFSET = expandedAside
 			? Math.floor(asideBounds.width / 125) * 125
 			: 0;
@@ -1617,7 +1603,7 @@ const OverviewFlow = ({ map }, ref) => {
 		});
 		setShowContextualMenu(false);
 
-		let newcurrentBlocksData = [...reactFlowInstance.getNodes(), ...NEW_BLOCKS];
+		let newcurrentBlocksData = [...nodes, ...NEW_BLOCKS];
 		const FINAL_CURRENT_BLOCKSDATA = getUpdatedArrayById(
 			clampNodesOrder(newcurrentBlocksData, metaData.platform),
 			newcurrentBlocksData
@@ -1625,7 +1611,7 @@ const OverviewFlow = ({ map }, ref) => {
 
 		errorListCheck(FINAL_CURRENT_BLOCKSDATA, errorList, setErrorList, false);
 
-		reactFlowInstance.setNodes(FINAL_CURRENT_BLOCKSDATA);
+		setNodes(FINAL_CURRENT_BLOCKSDATA);
 	};
 
 	/**
@@ -1655,11 +1641,7 @@ const OverviewFlow = ({ map }, ref) => {
 			).length < 1
 		) {
 			if (SELECTED_NODES.length > 0) {
-				console.log(
-					SELECTED_NODES.map((node) =>
-						getNodeById(node.id, reactFlowInstance.getNodes())
-					)
-				);
+				console.log(SELECTED_NODES.map((node) => getNodeById(node.id, nodes)));
 
 				let minX = Infinity;
 				let minY = Infinity;
@@ -1709,26 +1691,29 @@ const OverviewFlow = ({ map }, ref) => {
 					JSON.stringify(
 						getExternalChildren(
 							PRESENTED_NODES,
-							reactFlowInstance
-								.getNodes()
-								.filter(
-									(oNode) =>
-										!SELECTED_NODES.map((pNode) => pNode.id).includes(oNode.id)
-								)
+							nodes.filter(
+								(oNode) =>
+									!SELECTED_NODES.map((pNode) => pNode.id).includes(oNode.id)
+							)
 						)
 					)
 				);
 
 				//Delete the original nodes to put them after the fragment, so appear after the fragment and extendParent takes effect
 				const FILTERED_NODES = deleteBlocks(
-					reactFlowInstance
-						.getNodes()
-						.filter((oNode) =>
-							SELECTED_NODES.map((pNode) => pNode.id).includes(oNode.id)
-						)
+					nodes.filter((oNode) =>
+						SELECTED_NODES.map((pNode) => pNode.id).includes(oNode.id)
+					)
 				);
 
-				reactFlowInstance.setNodes([
+				console.log(
+					...FILTERED_NODES,
+					...EXTERNAL_CHILDREN_NODES,
+					NEW_FRAGMENT,
+					...PRESENTED_NODES
+				);
+
+				setNodes([
 					...FILTERED_NODES,
 					...EXTERNAL_CHILDREN_NODES,
 					NEW_FRAGMENT,
@@ -1745,7 +1730,7 @@ const OverviewFlow = ({ map }, ref) => {
 					y: BOUNDS.height / 2,
 				});
 
-				const NEW_FRAGMENT: IFragment = {
+				const NEW_FRAGMENT: IFragmentNode = {
 					id: String(uniqueId()),
 					position: VIEWPORT_CENTER,
 					type: "fragment",
@@ -1758,21 +1743,12 @@ const OverviewFlow = ({ map }, ref) => {
 					},
 				};
 
-				reactFlowInstance.setNodes([
-					NEW_FRAGMENT,
-					...reactFlowInstance.getNodes(),
-				]);
+				setNodes([NEW_FRAGMENT, ...nodes]);
 			}
 		} else {
 			toast(
 				"No se pueden crear fragmentos con fragmentos en su interior, o con bloques que formen parte de otro",
-				{
-					hideProgressBar: false,
-					autoClose: 2000,
-					type: "error",
-					position: "bottom-center",
-					theme: "light",
-				}
+				DEFAULT_TOAST_ERROR
 			);
 		}
 	};
@@ -1806,13 +1782,7 @@ const OverviewFlow = ({ map }, ref) => {
 
 		if (origin && end) {
 			if (origin.id == end.id) {
-				toast("Relación cancelada", {
-					hideProgressBar: false,
-					autoClose: 2000,
-					type: "info",
-					position: "bottom-center",
-					theme: "light",
-				});
+				toast("Relación cancelada", DEFAULT_TOAST_INFO);
 				setRelationStarter(undefined);
 				return;
 			}
@@ -1822,26 +1792,23 @@ const OverviewFlow = ({ map }, ref) => {
 			);
 
 			if (
-				metaData.platform != "moodle" ||
-				(metaData.platform == "moodle" &&
+				metaData.platform != Platforms.Moodle ||
+				(metaData.platform == Platforms.Moodle &&
 					((CURRENT_GRADABLE_TYPE == "simple" && origin.data.g?.hasToBeSeen) ||
 						(CURRENT_GRADABLE_TYPE != "simple" &&
 							origin.data.g?.hasConditions)))
 			) {
-				const NEW_NODES_DATA = reactFlowInstance.getNodes();
+				const NEW_NODES_DATA = nodes;
 				const ORIGINAL_INDEX = NEW_NODES_DATA.findIndex(
 					(node) => node.id == origin.id
 				);
-				if (NEW_NODES_DATA[ORIGINAL_INDEX].data.children) {
-					const IS_ALREADY_A_CHILDREN = NEW_NODES_DATA[
-						ORIGINAL_INDEX
-					].data.children.includes(end.id);
+				const ORIGINAL_NODE = NEW_NODES_DATA[ORIGINAL_INDEX];
+				if ("children" in ORIGINAL_NODE.data && ORIGINAL_NODE.data.children) {
+					const IS_ALREADY_A_CHILDREN = ORIGINAL_NODE.data.children.includes(
+						end.id
+					);
 					if (!IS_ALREADY_A_CHILDREN) {
-						if (NEW_NODES_DATA[ORIGINAL_INDEX].data.children) {
-							NEW_NODES_DATA[ORIGINAL_INDEX].data.children.push(end.id);
-						} else {
-							NEW_NODES_DATA[ORIGINAL_INDEX].data.children.push(end.id);
-						}
+						ORIGINAL_NODE.data.children.push(end.id);
 					} else {
 						toast("La relación ya existe, no se ha creado.", {
 							hideProgressBar: false,
@@ -1851,12 +1818,13 @@ const OverviewFlow = ({ map }, ref) => {
 							theme: "light",
 						});
 					}
-				} else {
-					NEW_NODES_DATA[ORIGINAL_INDEX].data.children.push(end.id);
+				} else if ("children" in ORIGINAL_NODE.data) {
+					ORIGINAL_NODE.data.children = [end.id];
 				}
+
 				setRelationStarter(undefined);
-				reactFlowInstance.setNodes(NEW_NODES_DATA);
-				if (!validTypes.includes(end.type)) {
+				setNodes(NEW_NODES_DATA);
+				if (getElementNodeTypes().some((node) => node.type === end.type)) {
 					const NEW_CONDITION = {
 						id: String(Date.now() * Math.random()),
 						type: "completion",
@@ -1917,11 +1885,14 @@ const OverviewFlow = ({ map }, ref) => {
 						}
 					}
 				}
-				reactFlowInstance.addEdges({
-					id: origin.id + "-" + end.id,
-					source: origin.id,
-					target: end.id,
-				} as Edge);
+				addEdge(
+					{
+						id: origin.id + "-" + end.id,
+						source: origin.id,
+						target: end.id,
+					} as Edge,
+					edges
+				);
 			} else {
 				toast(
 					"El recurso no puede ser finalizado. Compruebe los ajustes de finalización.",
@@ -1935,38 +1906,20 @@ const OverviewFlow = ({ map }, ref) => {
 				);
 			}
 		} else {
-			const SELECTED_BLOCKS = reactFlowInstance
-				.getNodes()
-				.filter((block) => block.selected == true) as Array<INode>;
+			const SELECTED_BLOCKS = nodes.filter(
+				(block) => block.selected == true
+			) as Array<INode>;
 			if (SELECTED_BLOCKS.length == 1) {
 				if (relationStarter == undefined) {
 					setRelationStarter(SELECTED_BLOCKS[0]);
 
-					toast("Iniciando relación...", {
-						hideProgressBar: false,
-						autoClose: 2000,
-						type: "info",
-						position: "bottom-center",
-						theme: "light",
-					});
+					toast("Iniciando relación...", DEFAULT_TOAST_INFO);
 				} else {
-					toast("Finalizando relación...", {
-						hideProgressBar: false,
-						autoClose: 2000,
-						type: "info",
-						position: "bottom-center",
-						theme: "light",
-					});
+					toast("Finalizando relación...", DEFAULT_TOAST_INFO);
 					handleNewRelation(relationStarter, SELECTED_BLOCKS[0]);
 				}
 			} else {
-				toast("Selección inválida", {
-					hideProgressBar: false,
-					autoClose: 2000,
-					type: "error",
-					position: "bottom-center",
-					theme: "light",
-				});
+				toast("Selección inválida", DEFAULT_TOAST_ERROR);
 			}
 		}
 	};
@@ -1989,22 +1942,19 @@ const OverviewFlow = ({ map }, ref) => {
 				setCMBlockData(newCMBlockData);
 			}
 
-			if (metaData.platform == "moodle") {
+			if (metaData.platform == Platforms.Moodle) {
 				if (modal == "conditions") setShowConditionsModal(true);
 				if (modal == "grades") setShowGradeConditionsModal(true);
-			} else if (metaData.platform == "sakai") {
+			} else if (metaData.platform == Platforms.Sakai) {
 				if (modal == "requisites") setShowRequisitesModal(true);
 			}
 
 			setShowContextualMenu(false);
 		} else {
-			toast("No se pueden editar las precondiciones de la selección actual", {
-				hideProgressBar: false,
-				autoClose: 4000,
-				type: "error",
-				position: "bottom-center",
-				theme: "light",
-			});
+			toast(
+				"No se pueden editar las precondiciones de la selección actual",
+				EXTENDED_TOAST_ERROR
+			);
 		}
 	};
 
@@ -2019,11 +1969,9 @@ const OverviewFlow = ({ map }, ref) => {
 	};
 
 	useEffect(() => {
-		const FRAGMENT_NODES = getByProperty(
-			"type",
-			"fragment",
-			reactFlowInstance.getNodes()
-		).filter((fragment) => fragment.data.expanded == true);
+		const FRAGMENT_NODES = getByProperty("type", "fragment", nodes).filter(
+			(fragment: IFragmentNode) => fragment.data.expanded == true
+		) as Array<IFragmentNode>;
 		const FRAGMENT_DOM_ARRAY = [];
 		FRAGMENT_NODES.map((fragment) =>
 			FRAGMENT_DOM_ARRAY.push(getNodeDOMById(fragment.id))
@@ -2125,8 +2073,8 @@ const OverviewFlow = ({ map }, ref) => {
 				onSelectionContextMenu={onSelectionContextMenu}
 				fitView
 				proOptions={{ hideAttribution: true }}
-				nodeTypes={NODE_TYPES}
-				edgeTypes={EDGE_TYPES}
+				nodeTypes={RF_NODE_TYPES}
+				edgeTypes={RF_EDGE_TYPES}
 				snapGrid={[125, 275]}
 				snapToGrid={snapToGrid}
 				deleteKeyCode={[]}
@@ -2174,13 +2122,16 @@ const OverviewFlow = ({ map }, ref) => {
 					handleShow={handleShow}
 				/>
 			)}
-			{showConditionsModal && metaData.platform == "moodle" && (
+			{showConditionsModal && metaData.platform == Platforms.Moodle && (
 				<>
-					{"type" in cMBlockData && !validTypes.includes(cMBlockData.type) ? (
+					{"type" in cMBlockData &&
+					getElementNodeTypes().some(
+						(node) => node.type === cMBlockData.type
+					) ? (
 						<ConditionModalMoodle
 							blockData={cMBlockData}
 							setBlockData={setCMBlockData}
-							blocksData={reactFlowInstance.getNodes()}
+							blocksData={nodes}
 							onEdgesDelete={onEdgesDelete}
 							showConditionsModal={showConditionsModal}
 							setShowConditionsModal={setShowConditionsModal}
@@ -2189,7 +2140,7 @@ const OverviewFlow = ({ map }, ref) => {
 						<CriteriaModal
 							blockData={cMBlockData}
 							setBlockData={setCMBlockData}
-							blocksData={reactFlowInstance.getNodes()}
+							blocksData={nodes}
 							onEdgesDelete={onEdgesDelete}
 							showConditionsModal={showConditionsModal}
 							setShowConditionsModal={setShowConditionsModal}
@@ -2197,23 +2148,27 @@ const OverviewFlow = ({ map }, ref) => {
 					)}
 				</>
 			)}
-			{showGradeConditionsModal && metaData.platform == "moodle" && (
+			{showGradeConditionsModal && metaData.platform == Platforms.Moodle && (
 				<>
-					{"type" in cMBlockData && !validTypes.includes(cMBlockData.type) && (
-						<QualificationModal
-							blockData={cMBlockData}
-							showConditionsModal={showGradeConditionsModal}
-							setShowConditionsModal={setShowGradeConditionsModal}
-						/>
-					)}
+					{cMBlockData &&
+						"type" in cMBlockData &&
+						getElementNodeTypes().some(
+							(node) => node.type === cMBlockData.type
+						) && (
+							<QualificationModal
+								blockData={cMBlockData}
+								showConditionsModal={showGradeConditionsModal}
+								setShowConditionsModal={setShowGradeConditionsModal}
+							/>
+						)}
 				</>
 			)}
 
-			{showRequisitesModal && metaData.platform == "sakai" && (
+			{showRequisitesModal && metaData.platform == Platforms.Sakai && (
 				<RequisiteModalSakai
 					blockData={cMBlockData}
 					setBlockData={setCMBlockData}
-					blocksData={reactFlowInstance.getNodes()}
+					blocksData={nodes}
 					onEdgesDelete={onEdgesDelete}
 					showRequisitesModal={showRequisitesModal}
 					setShowRequisitesModal={setShowRequisitesModal}
@@ -2270,6 +2225,7 @@ const OverviewFlow = ({ map }, ref) => {
 		</div>
 	);
 };
+
 const OverviewFlowWithRef = forwardRef(OverviewFlow);
 OverviewFlowWithRef.displayName = "OverviewFlow";
 export default OverviewFlowWithRef;

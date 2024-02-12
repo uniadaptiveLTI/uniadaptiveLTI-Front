@@ -1,4 +1,10 @@
-import { NodeTypes } from "./TypeDefinitions";
+import { NodeDeclarations } from "./TypeDefinitions";
+
+export enum Platforms {
+	Moodle = "moodle",
+	Sakai = "sakai",
+	LTI = "lti", //itself
+}
 
 /**
  * Gets the visibility options for a given platform.
@@ -7,12 +13,12 @@ import { NodeTypes } from "./TypeDefinitions";
  */
 export function getVisibilityOptions(platform) {
 	switch (platform) {
-		case "moodle":
+		case Platforms.Moodle:
 			return [
 				{ name: "Ocultar a estudiantes", value: "hidden" },
 				{ name: "Mostrar a estudiantes", value: "show_unconditionally" },
 			];
-		case "sakai":
+		case Platforms.Sakai:
 			return [
 				{ name: "Ocultar hasta tener acceso", value: "hidden_until_access" },
 				{ name: "Mostrar siempre sin acceso", value: "show_unconditionally" },
@@ -32,9 +38,9 @@ export function getVisibilityOptions(platform) {
  */
 export function getDefaultVisibility(platform) {
 	switch (platform) {
-		case "moodle":
+		case Platforms.Moodle:
 			return "show_unconditionally";
-		case "sakai":
+		case Platforms.Sakai:
 			return "show_unconditionally";
 		default:
 			return "hidden_until_access";
@@ -48,9 +54,9 @@ export function getDefaultVisibility(platform) {
  */
 export function hasLessons(platform) {
 	switch (platform) {
-		case "moodle":
+		case Platforms.Moodle:
 			return false;
-		case "sakai":
+		case Platforms.Sakai:
 			return true;
 		default:
 			return false;
@@ -64,9 +70,9 @@ export function hasLessons(platform) {
  */
 export function hasUnorderedResources(platform) {
 	switch (platform) {
-		case "moodle":
+		case Platforms.Moodle:
 			return false;
-		case "sakai":
+		case Platforms.Sakai:
 			return true;
 		default:
 			return false;
@@ -80,9 +86,9 @@ export function hasUnorderedResources(platform) {
  */
 export function startingSectionID(platform) {
 	switch (platform) {
-		case "moodle":
+		case Platforms.Moodle:
 			return 0;
-		case "sakai":
+		case Platforms.Sakai:
 			return 0;
 		default:
 			return 1;
@@ -96,9 +102,9 @@ export function startingSectionID(platform) {
  */
 export function allowsPartialExport(platform) {
 	switch (platform) {
-		case "moodle":
+		case Platforms.Moodle:
 			return true;
-		case "sakai":
+		case Platforms.Sakai:
 			return true;
 		default:
 			return false;
@@ -113,7 +119,7 @@ export function allowsPartialExport(platform) {
  */
 export function getBackupURL(platform, metaData) {
 	switch (platform) {
-		case "moodle":
+		case Platforms.Moodle:
 			return `${metaData.lms_url}/backup/backup.php?id=${metaData.course_id}`;
 		default:
 			return null;
@@ -129,17 +135,18 @@ export function getBackupURL(platform, metaData) {
  */
 export function isSupportedTypeInPlatform(platform, type, excludeLTI = false) {
 	if (excludeLTI) {
-		return NodeTypes.find(
+		return NodeDeclarations.find(
 			(definition) =>
 				definition.type == type && definition.lms.includes(platform)
 		)
 			? true
 			: false;
 	} else {
-		return NodeTypes.find(
+		return NodeDeclarations.find(
 			(definition) =>
 				definition.type == type &&
-				(definition.lms.includes(platform) || definition.lms.includes("lti"))
+				(definition.lms.includes(platform) ||
+					definition.lms.includes(Platforms.LTI))
 		)
 			? true
 			: false;
@@ -152,7 +159,7 @@ export function isSupportedTypeInPlatform(platform, type, excludeLTI = false) {
  * @returns {Array<string>} An array of supported types for the given platform.
  */
 export function getSupportedTypes(platform) {
-	return NodeTypes.filter((declaration) => {
+	return NodeDeclarations.filter((declaration) => {
 		if (declaration.lms.includes(platform)) return declaration.type;
 	}).map((validDeclaration) => validDeclaration.type);
 }

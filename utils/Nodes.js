@@ -3,7 +3,7 @@ import {
 	getUpdatedArrayById,
 	orderByPropertyAlphabetically,
 } from "@utils/Utils";
-import { NodeTypes } from "@utils/TypeDefinitions";
+import { NodeDeclarations } from "@utils/TypeDefinitions";
 
 /**
  * An array of node types that are reserved and cannot be modified or deleted.
@@ -15,7 +15,7 @@ export const ReservedNodeTypes = []; //Deprecated
  * An array of node types that are actions and can be executed.
  * @const {string[]}
  */
-export const ActionNodes = NodeTypes.map((node) => {
+export const ActionNodes = NodeDeclarations.map((node) => {
 	if (node.nodeType == "ActionNode") return node.type;
 });
 
@@ -490,7 +490,7 @@ export function nodeArrayContainsGrades(nodeArray, metaData) {
  */
 export function getNodeTypeGradableType(node, platform) {
 	return (
-		NodeTypes.find((nt) => nt.type == node.type)?.gradable.find(
+		NodeDeclarations.find((nt) => nt.type == node.type)?.gradable.find(
 			(gradable) => gradable.lms == platform
 		)?.type || ""
 	);

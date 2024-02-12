@@ -14,9 +14,9 @@ import {
 	EditedVersionContext,
 } from "pages/_app";
 import { applyBranding } from "@utils/Colors";
+import { IMap } from "./interfaces/IMap";
 
 export default function Layout({ LTISettings, children }) {
-	const [platform, setPlatform] = useState("moodle"); //default to moodle in testing phase
 	const [metaData, setMetaData] = useState();
 	const [userData, setUserData] = useState();
 	const [nodeSelected, setNodeSelected] = useState();
@@ -34,7 +34,11 @@ export default function Layout({ LTISettings, children }) {
 	const [mapCount, setMapCount] = useState(0);
 	const [mapNames, setMapNames] = useState([]);
 	const [allowUseStatus, setAllowUseStatus] = useState(false);
-	const emptyMap = { id: "-1", name: "Seleccionar un mapa", versions: [] };
+	const emptyMap: IMap = {
+		id: -1,
+		name: "Seleccionar un mapa",
+		versions: [],
+	};
 	const [maps, setMaps] = useState([emptyMap]);
 	const [funcCreateMap, setFuncCreateMap] = useState();
 	const [funcImportMap, setFuncImportMap] = useState();

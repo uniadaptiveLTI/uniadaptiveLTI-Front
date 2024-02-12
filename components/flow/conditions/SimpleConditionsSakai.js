@@ -265,11 +265,11 @@ export default function SimpleConditionsSakai({ id }) {
 					<b>{getNodeById(id, rfNodes).data.label}</b>
 				</p>
 				<hr />
-				<dev>
+				<div>
 					{parseBool(process.env.NEXT_PUBLIC_DEV_MODE)
 						? [DEV_STRING, ...finalString]
 						: finalString}
-				</dev>
+				</div>
 			</div>
 		);
 	} else {
@@ -280,11 +280,11 @@ export default function SimpleConditionsSakai({ id }) {
 					<b>{getNodeById(id, rfNodes).data.label}</b>
 				</p>
 				<hr />
-				<dev>
+				<div>
 					{parseBool(process.env.NEXT_PUBLIC_DEV_MODE)
 						? [DEV_STRING, ...finalString]
 						: finalString}
-				</dev>
+				</div>
 			</div>
 		);
 	}

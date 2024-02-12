@@ -1,9 +1,20 @@
 import { getFetchUrl } from "@utils/Utils";
 
-export interface ICommonResponse {
-	ok: boolean;
+export interface ICommonValidResponse {
+	ok: true;
 	data?: any;
 }
+
+export interface ICommonInvalidResponse {
+	ok: false;
+	data: {
+		error: string;
+		error_code?: string;
+		message?: string;
+	};
+}
+
+export type ICommonResponse = ICommonValidResponse | ICommonInvalidResponse;
 
 /**
  * Fetches data from the back-end using the specified token, webservice, and method.

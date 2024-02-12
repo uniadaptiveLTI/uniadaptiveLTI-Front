@@ -1,16 +1,28 @@
 import { Node } from "reactflow";
+import {
+	AllValidRootActionNodeConditions,
+	AllValidRootElementNodeConditions,
+} from "./INodeConditions";
 
 export interface INode extends Node {
 	type: string;
 	data: INodeData;
 }
 
-export interface IFragment extends Node {
-	type: "fragment";
-	data: FragmentNodeData;
+export interface IElementNode extends INode {
+	data: IElementNodeData;
 }
 
-export type INodeType = INode | IFragment;
+export interface IActionNode extends INode {
+	data: IActionNodeData;
+}
+
+export interface IFragmentNode extends Node {
+	type: "fragment";
+	data: IFragmentNodeData;
+}
+
+export type INodeType = INode | IFragmentNode;
 
 export interface IElementNodeData {
 	label: string;
@@ -20,7 +32,7 @@ export interface IElementNodeData {
 	order: number;
 	indent: number;
 
-	c: any; // TODO: Do the correct condition type
+	c: AllValidRootElementNodeConditions; // TODO: Do the correct condition type
 	g: IGradableDataMoodle | IGradableDataSakai;
 
 	lmsVisibility: "show_unconditionally" | "hidden_until_access";
@@ -30,11 +42,10 @@ export interface IElementNodeData {
 export interface IActionNodeData {
 	label: string;
 	lmsResource: string;
-
-	c?: any; // TODO: Do the correct condition type
+	c: AllValidRootActionNodeConditions;
 }
 
-interface FragmentNodeData {
+export interface IFragmentNodeData {
 	label: string;
 	expanded: boolean;
 	innerNodes: Array<string>;

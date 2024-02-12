@@ -22,6 +22,7 @@ import {
 	SettingsContext,
 	EditedVersionContext,
 	ErrorListContext,
+	MetaDataContext,
 } from "pages/_app";
 import FocusTrap from "focus-trap-react";
 import { getTypeIcon } from "@utils/NodeIcons";
@@ -32,13 +33,14 @@ import {
 	getPrimaryConditionType,
 } from "@utils/Nodes";
 import { useState } from "react";
-import { NodeTypes } from "@utils/TypeDefinitions";
+import { NodeDeclarations } from "@utils/TypeDefinitions";
 import { getConditionIcon } from "@utils/ConditionIcons";
 import SimpleConditionsMoodle from "@components/flow/conditions/SimpleConditionsMoodle";
 import SimpleConditionsSakai from "@components/flow/conditions/SimpleConditionsSakai";
 import MoodleBadges from "@components/flow/nodes/moodle/MoodleBadges";
 import SakaiBadges from "@components/flow/nodes/sakai/SakaiBadges";
-import { MetaDataContext } from "/pages/_app";
+import { Platforms } from "@utils/Platform";
+import { INode } from "@components/interfaces/INode";
 
 function ElementNode({
 	id,
@@ -100,9 +102,9 @@ function ElementNode({
 					selected: false,
 				},
 				CURRENT_NODES
-			)
+			) as Array<INode>
 		);
-		setEditVersionSelected("");
+		setEditVersionSelected(undefined);
 		setNodeSelected(BLOCKDATA);
 	};
 
@@ -130,7 +132,7 @@ function ElementNode({
 	};
 
 	const hasEnd = (type) => {
-		const node = NodeTypes.find((node) => node.type == type);
+		const node = NodeDeclarations.find((node) => node.type == type);
 		if (node.endHandle.includes(metaData.platform)) {
 			return true;
 		} else {
@@ -138,8 +140,8 @@ function ElementNode({
 		}
 	};
 
-	const getHumanDesc = (type) => {
-		const node = NodeTypes.find((node) => node.type == type);
+	const getHumanDesc = () => {
+		const node = NodeDeclarations.find((node) => node.type == type);
 		let humanType = "";
 		if (node) {
 			humanType = node.name;
@@ -170,7 +172,7 @@ function ElementNode({
 					.getNodes()
 					.filter((node) => CHILD_TO_REMOVE.id != node.id),
 				CHILD_TO_REMOVE,
-			])
+			]) as Array<INode>
 		);
 	};
 
@@ -205,32 +207,40 @@ function ElementNode({
 
 	return (
 		<>
-			{isHovered && selected && !dragging && metaData.platform == "moodle" && (
-				<div className={styles.hovedConditions}>
-					<SimpleConditionsMoodle id={id} />
-				</div>
-			)}
-			{isHovered && selected && !dragging && metaData.platform == "sakai" && (
-				<div className={styles.hovedConditions}>
-					<SimpleConditionsSakai id={id} />
-				</div>
-			)}
+			{isHovered &&
+				selected &&
+				!dragging &&
+				metaData.platform == Platforms.Moodle && (
+					<div className={styles.hovedConditions}>
+						<SimpleConditionsMoodle id={id} />
+					</div>
+				)}
+			{isHovered &&
+				selected &&
+				!dragging &&
+				metaData.platform == Platforms.Sakai && (
+					<div className={styles.hovedConditions}>
+						<SimpleConditionsSakai id={id} />
+					</div>
+				)}
 			<Handle
 				type="target"
 				position={Position.Left}
 				isConnectable={isConnectable}
-				isConnectableStart="false"
+				//isConnectableStart={false}
+				onClick={() => console.log("TEST")}
 			/>
 			{hasEnd(type) && (
 				<Handle
 					type="source"
 					position={Position.Right}
 					isConnectable={isConnectable}
-					isConnectableEnd="false"
+					//isConnectableEnd={false}
+					onClick={() => console.log("TEST")}
 				/>
 			)}
 
-			<NodeToolbar position="left" offset={25}>
+			<NodeToolbar position={Position.Left} offset={25}>
 				<FocusTrap
 					focusTrapOptions={{
 						clickOutsideDeactivates: true,
@@ -266,7 +276,7 @@ function ElementNode({
 					" " +
 					(shouldApplyAnimation && containerClassName)
 				}
-				aria-label={getAriaLabel} //FIXME: Doesn't work
+				aria-label={getAriaLabel()} //FIXME: Doesn't work
 				onClick={(e) => {
 					if (e.detail === 2) {
 						handleEdit();
@@ -284,7 +294,7 @@ function ElementNode({
 				</span>
 				<div>{getTypeIcon(type, metaData.platform)}</div>
 				<span className={styles.blockInfo + " " + styles.bottom}>
-					{getHumanDesc(type)}
+					{getHumanDesc()}
 				</span>
 				{hasExtraConditions && (
 					<Badge
@@ -358,29 +368,25 @@ function ElementNode({
 					</Badge>
 				)}
 
-				{metaData.platform == "moodle" && (
+				{metaData.platform == Platforms.Moodle && (
 					<MoodleBadges
 						data={data}
-						hasExtraConditions={hasExtraConditions}
 						showDetails={showDetails}
 						highContrast={highContrast}
 						reducedAnimations={reducedAnimations}
 						getParentExpanded={getParentExpanded}
-						platform={metaData.platform}
 						styles={styles}
 					/>
 				)}
 
-				{metaData.platform == "sakai" && (
+				{metaData.platform == Platforms.Sakai && (
 					<SakaiBadges
 						data={data}
 						type={type}
-						hasExtraConditions={hasExtraConditions}
 						showDetails={showDetails}
 						highContrast={highContrast}
 						reducedAnimations={reducedAnimations}
 						getParentExpanded={getParentExpanded}
-						platform={metaData.platform}
 						styles={styles}
 					/>
 				)}

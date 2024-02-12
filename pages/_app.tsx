@@ -8,7 +8,7 @@ import { config } from "@fortawesome/fontawesome-svg-core";
 config.autoAddCss = false; // Tell Font Awesome to skip adding the CSS automatically since it's being imported above
 import React, { createContext, useState, useEffect, ReactNode } from "react";
 import "react-toastify/dist/ReactToastify.css";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, ToastOptions } from "react-toastify";
 import { toast } from "react-toastify";
 import { useIsOnline } from "react-use-is-online";
 import { parseBool } from "../utils/Utils";
@@ -22,6 +22,7 @@ import { IMap } from "@components/interfaces/IMap";
 import { ILTISettings } from "@components/interfaces/ILTISettings";
 import getConf from "middleware/api/getConf";
 import { INodeError } from "@components/interfaces/INodeError";
+import { ToastProps } from "react-toastify/dist/types";
 
 type MapInfoType = {
 	mapSelected: IMap;
@@ -169,6 +170,76 @@ export const ErrorListContext = createContext<ErrorListType | undefined>(
 ); // Contains an array with error objects
 
 const SESSION_START = Date.now();
+
+export const DEFAULT_TOAST_SUCCESS: ToastProps = {
+	hideProgressBar: false,
+	autoClose: 2000,
+	type: "success",
+	position: "bottom-center",
+	isIn: false,
+	toastId: "",
+	key: "",
+	transition: undefined,
+	closeToast: () => {},
+	draggablePercent: 0,
+	deleteToast: () => {},
+	theme: "light",
+};
+
+export const DEFAULT_TOAST_ERROR: ToastProps = {
+	...DEFAULT_TOAST_SUCCESS,
+	type: "error",
+};
+
+export const DEFAULT_TOAST_INFO: ToastProps = {
+	...DEFAULT_TOAST_SUCCESS,
+	type: "info",
+};
+
+export const DEFAULT_TOAST_WARNING: ToastProps = {
+	...DEFAULT_TOAST_SUCCESS,
+	type: "warning",
+};
+
+export const EXTENDED_TOAST_SUCCESS = {
+	...DEFAULT_TOAST_SUCCESS,
+	autoClose: 4000,
+};
+
+export const EXTENDED_TOAST_ERROR = {
+	...DEFAULT_TOAST_ERROR,
+	autoClose: 4000,
+};
+
+export const EXTENDED_TOAST_INFO = {
+	...DEFAULT_TOAST_INFO,
+	autoClose: 4000,
+};
+
+export const EXTENDED_TOAST_WARNING = {
+	...DEFAULT_TOAST_WARNING,
+	autoClose: 4000,
+};
+
+export const LONG_TOAST_SUCCESS = {
+	...DEFAULT_TOAST_SUCCESS,
+	autoClose: 6000,
+};
+
+export const LONG_TOAST_ERROR = {
+	...DEFAULT_TOAST_ERROR,
+	autoClose: 6000,
+};
+
+export const LONG_TOAST_INFO = {
+	...DEFAULT_TOAST_INFO,
+	autoClose: 6000,
+};
+
+export const LONG_TOAST_WARNING = {
+	...DEFAULT_TOAST_WARNING,
+	autoClose: 6000,
+};
 
 export default function App({ Component, pageProps }) {
 	const [settings, setSettings] = useState(

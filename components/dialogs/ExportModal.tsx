@@ -5,7 +5,7 @@ import {
 	EditedNodeContext,
 	EditedVersionContext,
 } from "pages/_app";
-import { NodeTypes } from "@utils/TypeDefinitions";
+import { NodeDeclarations } from "@utils/TypeDefinitions";
 import {
 	getNodeById,
 	getParentsNode,
@@ -29,6 +29,7 @@ import { ILTISettings } from "@components/interfaces/ILTISettings";
 import { IVersion } from "@components/interfaces/IVersion";
 import { IMetaData } from "@components/interfaces/IMetaData";
 import { INodeError } from "@components/interfaces/INodeError";
+import { Platforms } from "@utils/Platform";
 
 interface ExportModalProps {
 	showDialog: boolean;
@@ -207,7 +208,7 @@ export default forwardRef(function ExportModal(
 		setNodeWarningChildrenList(WARNING_CHILDREN_NOT_FOUND);
 		setNodeWarningParentList(WARNING_PARENT_NOT_FOUND);
 
-		if (metaData.platform && metaData.platform == "moodle") {
+		if (metaData.platform && metaData.platform == Platforms.Moodle) {
 			const WARNING_CHILDREN_WITHOUT_RESTRICTION = WARNING_LIST.filter(
 				(entry) =>
 					entry.seriousness === "warning" &&
@@ -249,12 +250,12 @@ export default forwardRef(function ExportModal(
 				let childlessNode = false;
 
 				switch (metaData.platform) {
-					case "sakai":
+					case Platforms.Sakai:
 						if (node.type !== "exam" && node.type !== "assign") {
 							childlessNode = true;
 						}
 						break;
-					case "moodle":
+					case Platforms.Moodle:
 						if (node.type == "badge") {
 							childlessNode = true;
 						}
@@ -305,7 +306,7 @@ export default forwardRef(function ExportModal(
 
 				if (
 					metaData.platform &&
-					metaData.platform == "moodle" &&
+					metaData.platform == Platforms.Moodle &&
 					node?.data?.children?.length <= 0
 				) {
 					const CUSTOM_ENTRY = {
@@ -532,7 +533,7 @@ export default forwardRef(function ExportModal(
 									)}
 							</div>
 
-							{metaData.platform && metaData.platform == "moodle" && (
+							{metaData.platform && metaData.platform == Platforms.Moodle && (
 								<div>
 									{nodeChildrenWithoutRestriction != undefined &&
 										nodeChildrenWithoutRestriction.length >= 1 && (

@@ -13,6 +13,7 @@ import {
 	MapInfoContext,
 	SettingsContext,
 	EditedVersionContext,
+	MetaDataContext,
 } from "pages/_app";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -27,14 +28,15 @@ import { getTypeIcon } from "@utils/NodeIcons";
 import { getUpdatedArrayById, parseBool } from "@utils/Utils";
 import { getNodeById, getNumberOfIndependentConditions } from "@utils/Nodes";
 
-import { NodeTypes } from "@utils/TypeDefinitions";
+import { NodeDeclarations } from "@utils/TypeDefinitions";
 import SimpleConditionsMoodle from "@components/flow/conditions/SimpleConditionsMoodle";
 import SimpleConditionsSakai from "@components/flow/conditions/SimpleConditionsSakai";
 import { useEffect } from "react";
-import { MetaDataContext } from "/pages/_app";
+import { Platforms } from "@utils/Platform";
+import { INode } from "@components/interfaces/INode";
 
 const getHumanDesc = (type) => {
-	const NODE = NodeTypes.find((node) => node.type == type);
+	const NODE = NodeDeclarations.find((node) => node.type == type);
 	let humanType = "";
 	if (NODE) {
 		humanType = NODE.name;
@@ -44,7 +46,7 @@ const getHumanDesc = (type) => {
 	return humanType;
 };
 
-const getAriaLabel = () => {
+const getAriaLabel = (type, blockData) => {
 	/*
 	let end = blockData.section
 		? ", forma parte de la sección " +
@@ -52,7 +54,7 @@ const getAriaLabel = () => {
 		  ", calculado desde su identación."
 		: ".";*/
 	return (
-		getHumanDesc() +
+		getHumanDesc(type) +
 		", " +
 		blockData.label +
 		", posición en el eje X: " +
@@ -91,14 +93,14 @@ function ActionNode({ id, type, data, selected, dragging, isConnectable }) {
 		if (expandedAside != true) {
 			setExpandedAside(true);
 		}
-		setEditVersionSelected("");
+		setEditVersionSelected(undefined);
 		setNodeSelected(BLOCKDATA);
 	};
 
 	const extractSelf = () => {
 		const FRAGMENT = getNodeById(
 			getNodeById(id, reactFlowInstance.getNodes()).parentNode,
-			reactFlowInstance
+			reactFlowInstance.getNodes()
 		);
 		const CHILD_TO_REMOVE = getNodeById(id, reactFlowInstance.getNodes());
 
@@ -116,7 +118,7 @@ function ActionNode({ id, type, data, selected, dragging, isConnectable }) {
 					.getNodes()
 					.filter((node) => CHILD_TO_REMOVE.id != node.id),
 				CHILD_TO_REMOVE,
-			])
+			]) as Array<INode>
 		);
 	};
 
@@ -135,23 +137,29 @@ function ActionNode({ id, type, data, selected, dragging, isConnectable }) {
 
 	return (
 		<>
-			{isHovered && selected && !dragging && metaData.platform == "moodle" && (
-				<div className={styles.hovedConditions}>
-					<SimpleConditionsMoodle id={id} />
-				</div>
-			)}
-			{isHovered && selected && !dragging && metaData.platform == "sakai" && (
-				<div className={styles.hovedConditions}>
-					<SimpleConditionsSakai id={id} />
-				</div>
-			)}
+			{isHovered &&
+				selected &&
+				!dragging &&
+				metaData.platform == Platforms.Moodle && (
+					<div className={styles.hovedConditions}>
+						<SimpleConditionsMoodle id={id} />
+					</div>
+				)}
+			{isHovered &&
+				selected &&
+				!dragging &&
+				metaData.platform == Platforms.Sakai && (
+					<div className={styles.hovedConditions}>
+						<SimpleConditionsSakai id={id} />
+					</div>
+				)}
 			<Handle
 				type="target"
 				position={Position.Left}
 				isConnectable={isConnectable}
 				isConnectableStart="false"
 			/>
-			<NodeToolbar position="left" offset={25}>
+			<NodeToolbar position={Position.Left} offset={25}>
 				<FocusTrap
 					focusTrapOptions={{
 						clickOutsideDeactivates: true,
@@ -186,7 +194,7 @@ function ActionNode({ id, type, data, selected, dragging, isConnectable }) {
 					" " +
 					(shouldApplyAnimation && containerClassName)
 				}
-				aria-label={getAriaLabel} //FIXME: Doesn't work
+				aria-label={getAriaLabel(type, data)} //FIXME: Doesn't work
 				onMouseEnter={() => setIsHovered(true)}
 				onMouseLeave={() => setIsHovered(false)}
 				onClick={(e) => {

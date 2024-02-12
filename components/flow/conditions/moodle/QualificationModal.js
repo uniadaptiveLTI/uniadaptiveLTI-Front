@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { Modal, Button, Form, Row, Col, Container } from "react-bootstrap";
 import { getUpdatedArrayById, uniqueId } from "@utils/Utils";
 import { useReactFlow } from "reactflow";
-import { NodeTypes, getGradable } from "@utils/TypeDefinitions";
+import { NodeDeclarations, getGradable } from "@utils/TypeDefinitions";
 import { getNodeById, getNodeTypeGradableType } from "@utils/Nodes";
 import QualificationForm from "@components/flow/conditions/moodle/form-components/QualificationForm";
 import { hasConditionsNeedingCompletion } from "@utils/Moodle";

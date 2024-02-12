@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import styles from "/styles/ConditionModalMoodle.module.css";
 //import { Editor } from "@tinymce/tinymce-react";
-import { uniqueId, searchConditionForTypes } from "@utils/Utils";
+import { uniqueId } from "@utils/Utils";
 import {
 	Modal,
 	Button,
