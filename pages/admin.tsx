@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 
 import Head from "next/head";
 import { parseBool } from "../utils/Utils";
-import { LTISettingsContext } from "./_app";
+import { DEFAULT_TOAST_ERROR, LTISettingsContext } from "./_app";
 import { applyBranding } from "../utils/Colors";
 import Link from "next/link";
 import ConfirmationModal from "../components/dialogs/ConfirmationModal";
@@ -50,13 +50,7 @@ export default function Admin() {
 				}
 			} catch (e) {
 				setAuth(false);
-				toast("No se puede conectar con el servidor.", {
-					hideProgressBar: false,
-					autoClose: 4000,
-					type: "error",
-					position: "bottom-center",
-					theme: "light",
-				});
+				toast("No se puede conectar con el servidor.", DEFAULT_TOAST_ERROR);
 			}
 		} else {
 			setAuth(true);

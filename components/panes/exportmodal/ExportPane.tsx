@@ -148,7 +148,7 @@ export default function ExportPanel({
 	const EMPTY_MAP = seekEmpty("map");
 
 	const exportMap = async () => {
-		let nodesToExport = JSON.parse(
+		let nodesToExport: Array<INode> = JSON.parse(
 			JSON.stringify(reactFlowInstance.getNodes()) //Deep clone TODO: DO THIS BETTER
 		);
 
@@ -161,7 +161,12 @@ export default function ExportPanel({
 		console.log(nodesToExport);
 
 		nodesToExport.map((node) => {
-			if (node.data.g && node.data.g.subConditions.length >= 1) {
+			if (
+				"g" in node.data &&
+				node.data.g &&
+				"subConditions" in node.data.g &&
+				node.data.g.subConditions.length >= 1
+			) {
 				const newCondition = { ...node.data.g };
 
 				let blockResource = reactFlowInstance
@@ -172,8 +177,6 @@ export default function ExportPanel({
 					id: blockResource,
 					type: newCondition.itemType,
 				}).contentRef;
-
-				// console.log("🚀 ~ nodesToExport.map ~ itemId:", newCondition.itemId);
 
 				delete newCondition?.itemType;
 
@@ -196,9 +199,7 @@ export default function ExportPanel({
 						});
 					}
 				});
-				// console.log(5);
 				CONDITION_LIST.push(newCondition);
-				// console.log(6);
 			}
 		});
 
@@ -222,14 +223,14 @@ export default function ExportPanel({
 				case Platforms.Moodle:
 					delete node.data.label;
 					break;
-				case Platforms.Moodle:
+				case Platforms.Sakai:
 					break;
 			}
 			delete node.data.lmsResource;
 			const DATA = node.data;
 			if (DATA.c) {
 				const FINAL_SHOWC = [];
-				if (DATA.c.op == "&" || DATA.c.op == "!|") {
+				if ("op" in DATA.c && (DATA.c.op == "&" || DATA.c.op == "!|")) {
 					delete DATA.c.showc;
 					if (DATA.c.c)
 						if (Array.isArray(DATA.c.c)) {
@@ -240,15 +241,17 @@ export default function ExportPanel({
 						}
 					DATA.c.showc = FINAL_SHOWC;
 				} else {
-					if (DATA.c.c)
+					if ("c" in DATA.c && DATA.c.c)
 						if (Array.isArray(DATA.c.c)) {
 							DATA.c.c.forEach((innerCondition) => {
 								deleteRecursiveShowC(innerCondition);
 							});
 						}
-					DATA.c.show = DATA.c.showc;
-					delete DATA.c.id;
-					delete DATA.c.showc;
+					if ("showc" && "id" in DATA.c) {
+						DATA.c.show = DATA.c.showc; //FIXME: DYNAMIZE DATA
+						delete DATA.c.id;
+						delete DATA.c.showc;
+					}
 				}
 
 				specifyRecursiveConditionType(DATA.c);
@@ -262,8 +265,7 @@ export default function ExportPanel({
 				DATA.c = deleteEmptyC(DATA.c);
 			}
 
-			delete node.x;
-			delete node.y;
+			delete node.position;
 			delete node.data;
 			delete node.height;
 			delete node.width;
@@ -280,7 +282,7 @@ export default function ExportPanel({
 					delete node.type;
 					break;
 				case Platforms.Sakai:
-					node.c = DATA.requisites;
+					node.c = DATA.requisites; //FIXME
 					node.pageId = Number(selectDOM.current.value);
 					break;
 			}

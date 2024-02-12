@@ -1,4 +1,4 @@
-import { IMetaData } from "@components/interfaces/IMetaData";
+import { IMetaData, ISection } from "@components/interfaces/IMetaData";
 import { IElementNodeData, INode } from "@components/interfaces/INode";
 import { INodeError } from "@components/interfaces/INodeError";
 import {
@@ -106,54 +106,58 @@ const SectionSelector = forwardRef(
 				if (allowModularSelection) {
 					setSelectionStatus([]);
 
-					const ORDERED_SELECTORS = orderByPropertyAlphabetically(
-						SECTIONS.map((section, idx) => {
-							return {
-								position: String(section.position), //ToString to be sorted
-								html: (
-									<div
-										style={{ display: "flex", alignItems: "center" }}
-										className="my-2 ms-4"
-									>
-										<Form.Check
-											key={section.position}
-											ref={(el) => (innerSelectors.current[idx] = el)}
-											onClick={() => setUpdateSelectors(true)}
-											type="switch"
-											label={section.position + "- " + section.name}
-											data-id={section.position}
-										/>
-										{showErrors && (
-											<div className="d-flex ms-2" style={{ gap: "10px" }}>
-												{errorsPerSection[section.position] > 0 && (
-													<FontAwesomeIcon
-														icon={faExclamationCircle}
-														style={{
-															color: getRootStyle("--error-background-color"),
-														}}
-														title={`${
-															errorsPerSection[section.position]
-														} error(es)`}
-													/>
-												)}
-												{warningsPerSection[section.position] > 0 && (
-													<FontAwesomeIcon
-														icon={faExclamationTriangle}
-														style={{
-															color: getRootStyle("--warning-background-color"),
-														}}
-														title={`${
-															warningsPerSection[section.position]
-														} advertencia(s)`}
-													/>
-												)}
-											</div>
-										)}
-									</div>
-								),
-							};
-						}),
-						"position"
+					const ORDERED_SELECTORS = (
+						orderByPropertyAlphabetically(
+							SECTIONS.map((section, idx) => {
+								return {
+									position: String(section.position), //ToString to be sorted
+									html: (
+										<div
+											style={{ display: "flex", alignItems: "center" }}
+											className="my-2 ms-4"
+										>
+											<Form.Check
+												key={section.position}
+												ref={(el) => (innerSelectors.current[idx] = el)}
+												onClick={() => setUpdateSelectors(true)}
+												type="switch"
+												label={section.position + "- " + section.name}
+												data-id={section.position}
+											/>
+											{showErrors && (
+												<div className="d-flex ms-2" style={{ gap: "10px" }}>
+													{errorsPerSection[section.position] > 0 && (
+														<FontAwesomeIcon
+															icon={faExclamationCircle}
+															style={{
+																color: getRootStyle("--error-background-color"),
+															}}
+															title={`${
+																errorsPerSection[section.position]
+															} error(es)`}
+														/>
+													)}
+													{warningsPerSection[section.position] > 0 && (
+														<FontAwesomeIcon
+															icon={faExclamationTriangle}
+															style={{
+																color: getRootStyle(
+																	"--warning-background-color"
+																),
+															}}
+															title={`${
+																warningsPerSection[section.position]
+															} advertencia(s)`}
+														/>
+													)}
+												</div>
+											)}
+										</div>
+									),
+								};
+							}),
+							"position"
+						) as Array<{ position: string; html: ReactNode }>
 					).map((orderedSection) => orderedSection.html);
 					ORDERED_SELECTORS.unshift(
 						<div

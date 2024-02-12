@@ -16,5 +16,10 @@ export interface IVersionExport {
 }
 
 export default async function exportVersion(versionToExport: IVersionExport) {
-	return fetchBackEnd(getLocalToken(), "api/lti/auth", "POST", versionToExport);
+	return fetchBackEnd(
+		getLocalToken(),
+		"api/lti/export_version",
+		"POST",
+		versionToExport
+	);
 }

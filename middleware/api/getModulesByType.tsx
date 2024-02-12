@@ -6,5 +6,10 @@ interface Payload {
 }
 
 export default async function getModulesByType(payload: Payload) {
-	return fetchBackEnd(getLocalToken(), "api/lti/auth", "POST", payload);
+	return fetchBackEnd(
+		getLocalToken(),
+		"api/lti/get_modules_by_type",
+		"POST",
+		payload
+	);
 }

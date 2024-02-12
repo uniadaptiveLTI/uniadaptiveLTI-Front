@@ -5,7 +5,7 @@ export default async function setConf(
 	adminPassword: string,
 	LTISettings: ILTISettings
 ) {
-	return fetchBackEnd(getLocalToken(), "api/lti/auth", "POST", {
+	return fetchBackEnd(getLocalToken(), "api/lti/set_conf", "POST", {
 		password: adminPassword,
 		settings: LTISettings,
 	});

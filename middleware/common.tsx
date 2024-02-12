@@ -54,6 +54,6 @@ export async function fetchBackEnd(
 	return fetchResponse;
 }
 
-export async function getLocalToken() {
+export function getLocalToken() {
 	return sessionStorage.getItem("token");
 }

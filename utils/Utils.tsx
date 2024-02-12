@@ -11,6 +11,7 @@ import { IMap } from "@components/interfaces/IMap";
 import { IVersion } from "@components/interfaces/IVersion";
 import { Platforms } from "./Platform";
 import { ToastProps } from "react-toastify/dist/types";
+import { SizeProp } from "@fortawesome/fontawesome-svg-core";
 interface IdentificableObject {
 	id: string | number;
 }
@@ -758,7 +759,7 @@ export function handleNameCollision(
 /**
  * This function creates a fontAwesome component passing an icon
  */
-export function createFontAwesome(icon, size = "", color = "") {
+export function createFontAwesome(icon, size: SizeProp = "1x", color = "") {
 	return <FontAwesomeIcon icon={icon} color={color} size={size} />;
 }
 

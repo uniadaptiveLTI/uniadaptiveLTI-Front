@@ -2,6 +2,7 @@ export interface IBasicMoodleConditionStructure {
 	params: any;
 	id: string;
 	type: string;
+	showc: boolean | Array<boolean>;
 }
 
 /// Types
@@ -27,8 +28,7 @@ export type IMoodleConditionsGroup =
 export interface IMoodleElementConditionsGroup
 	extends IBasicMoodleConditionStructure {
 	type: "conditionsGroup";
-	op: "&" | "|";
-	showc: boolean | Array<boolean>;
+	op: "&" | "|" | "!&" | "!|";
 	c: Array<MoodleElementConditions>;
 }
 
@@ -36,7 +36,6 @@ export interface IMoodleBadgeConditionsGroup
 	extends IBasicMoodleConditionStructure {
 	type: "conditionsGroup";
 	method: "&" | "|";
-	showc: boolean | Array<boolean>;
 	params: Array<IBasicMoodleConditionStructure>; //FIXME: Set AllBadgeNodeConditions
 }
 

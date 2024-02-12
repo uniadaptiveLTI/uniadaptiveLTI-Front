@@ -877,13 +877,7 @@ function Header({ LTISettings }, ref) {
 							handleConfirmationShow();
 						}
 					} catch (e) {
-						toast("No se puede conectar con el servidor.", {
-							hideProgressBar: false,
-							autoClose: 4000,
-							type: "error",
-							position: "bottom-center",
-							theme: "light",
-						});
+						toast("No se puede conectar con el servidor.", DEFAULT_TOAST_ERROR);
 					}
 				};
 
