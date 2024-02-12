@@ -35,6 +35,8 @@ export interface IElementNodeData {
 	c: AllValidRootElementNodeConditions; // TODO: Do the correct condition type
 	g: IGradableDataMoodle | IGradableDataSakai;
 
+	gradeRequisites: any; // TODO: Do correct type
+
 	lmsVisibility: "show_unconditionally" | "hidden_until_access";
 	lmsResource: string;
 }

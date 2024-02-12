@@ -1,12 +1,12 @@
 import {
 	IMoodleBadgeConditionsGroup,
-	IMoodleConditionsGroup,
+	IMoodleElementConditionsGroup,
 	MoodleElementConditions,
 } from "./INodeConditionsMoodle";
 import { SakaiElementConditions } from "./INodeConditionsSakai";
 
 export type AllValidRootElementNodeConditions =
-	| IMoodleConditionsGroup
+	| IMoodleElementConditionsGroup
 	| SakaiElementConditions;
 
 export type AllValidRootActionNodeConditions = IMoodleBadgeConditionsGroup;

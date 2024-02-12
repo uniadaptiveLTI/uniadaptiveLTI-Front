@@ -72,7 +72,12 @@ import {
 import { Platforms, isSupportedTypeInPlatform } from "@utils/Platform";
 import CustomControls from "./flow/CustomControls";
 import SimpleActionDialog from "./dialogs/SimpleActionDialog";
-import { IActionNode, IFragmentNode, INode } from "./interfaces/INode";
+import {
+	IActionNode,
+	IElementNode,
+	IFragmentNode,
+	INode,
+} from "./interfaces/INode";
 import { IMoodleCompletionCondition } from "./interfaces/INodeConditionsMoodle";
 
 const MINIMAP_STYLE = {
@@ -319,7 +324,7 @@ const OverviewFlow = ({ map }, ref) => {
 	const onNodeDragStop = (event, node) => {
 		node.dragging = false;
 		reactFlowInstance.setNodes(
-			getUpdatedArrayById(node, reactFlowInstance.getNodes())
+			getUpdatedArrayById(node, reactFlowInstance.getNodes()) as Array<INode>
 		);
 
 		if (node.parentNode) {
@@ -355,7 +360,7 @@ const OverviewFlow = ({ map }, ref) => {
 							.getNodes()
 							.filter((nodes) => nodes.id != node.id),
 						node,
-					])
+					]) as Array<INode>
 				);
 			}
 		}
@@ -463,6 +468,7 @@ const OverviewFlow = ({ map }, ref) => {
 										cm: sourceNode.id,
 										showc: true,
 										e: 1,
+										params: [],
 									};
 
 									if (
@@ -2012,36 +2018,40 @@ const OverviewFlow = ({ map }, ref) => {
 
 			var SOURCE_NODE = updatedBlocksArray.find(
 				(obj) => obj.id === edge.source
-			);
+			) as INode;
 			var TARGET_NODE = updatedBlocksArray.find(
 				(obj) => obj.id === edge.target
-			);
+			) as INode;
 
 			let CONDITION;
 
-			const ACTION_NODES = NodeTypes.map((declaration) => {
+			const ACTION_NODES = NodeDeclarations.map((declaration) => {
 				if (declaration.nodeType == "ActionNode") return declaration.type;
-			});
+			}) as Array<IActionNode["type"]>;
 
 			setCMBlockData(TARGET_NODE);
 
-			if (platform == "moodle") {
-				const CONDITIONS = TARGET_NODE.data.c;
-
+			if (metaData.platform == Platforms.Moodle) {
 				if (!ACTION_NODES.includes(TARGET_NODE.type)) {
-					CONDITION = findConditionById(SOURCE_NODE.id, CONDITIONS.c);
+					const CONDITIONS = TARGET_NODE.data.c as IElementNode["data"]["c"];
+					if ("c" in CONDITIONS) {
+						CONDITION = findConditionById(SOURCE_NODE.id, CONDITIONS.c);
+					}
 				} else {
+					const CONDITIONS = TARGET_NODE.data.c as IActionNode["data"]["c"];
 					CONDITION = findConditionById(SOURCE_NODE.id, CONDITIONS.params);
 				}
 
 				handleShow(TARGET_NODE.id, "conditions", CONDITION);
 			} else {
-				CONDITION = findConditionByParentId(
-					TARGET_NODE.data.gradeRequisites.subConditions,
-					SOURCE_NODE.id
-				);
+				if ("gradeRequisites" in TARGET_NODE.data) {
+					CONDITION = findConditionByParentId(
+						TARGET_NODE.data.gradeRequisites.subConditions,
+						SOURCE_NODE.id
+					);
 
-				handleShow(TARGET_NODE.id, "requisites", CONDITION);
+					handleShow(TARGET_NODE.id, "requisites", CONDITION);
+				}
 			}
 		}
 	};
