@@ -37,6 +37,7 @@ import { getNodeDOMById, getNodeById } from "@utils/Nodes";
 import FocusTrap from "focus-trap-react";
 import FragmentResizer from "components/dialogs/FragmentResizer";
 import FragmentEditor from "components/dialogs/FragmentEditor";
+import { INode } from "@components/interfaces/INode";
 
 function FragmentNode({ id, xPos, yPos, data }) {
 	const { nodeSelected, setNodeSelected } = useContext(EditedNodeContext);
@@ -71,7 +72,11 @@ function FragmentNode({ id, xPos, yPos, data }) {
 	};
 
 	const getInnerNodes = () => {
-		return getByProperty("parentNode", id, reactFlowInstance.getNodes());
+		return getByProperty(
+			"parentNode",
+			id,
+			reactFlowInstance.getNodes()
+		) as Array<INode>;
 	};
 
 	useLayoutEffect(() => {
@@ -88,7 +93,10 @@ function FragmentNode({ id, xPos, yPos, data }) {
 		});
 
 		reactFlowInstance.setNodes(
-			getUpdatedArrayById(CHANGES_ARRAY, reactFlowInstance.getNodes())
+			getUpdatedArrayById(
+				CHANGES_ARRAY,
+				reactFlowInstance.getNodes()
+			) as Array<INode>
 		);
 	}, []);
 
@@ -142,7 +150,7 @@ function FragmentNode({ id, xPos, yPos, data }) {
 							{ ...CURRENT_NODE, ...STYLES, style: { ...STYLES } },
 						],
 						reactFlowInstance.getNodes()
-					)
+					) as Array<INode>
 				);
 			} else {
 				//Moves the position of the visible blocks to its stored positions
@@ -190,7 +198,7 @@ function FragmentNode({ id, xPos, yPos, data }) {
 							{ ...CURRENT_NODE, ...STYLES, style: { ...STYLES } },
 						],
 						reactFlowInstance.getNodes()
-					)
+					) as Array<INode>
 				);
 			}
 		}
@@ -258,7 +266,7 @@ function FragmentNode({ id, xPos, yPos, data }) {
 			getUpdatedArrayById(
 				[UPDATED_INFO, ...RESTRICTED_CHILDREN_ARRAY],
 				reactFlowInstance.getNodes()
-			)
+			) as Array<INode>
 		);
 	};
 
@@ -291,7 +299,7 @@ function FragmentNode({ id, xPos, yPos, data }) {
 			getUpdatedArrayById(
 				[CURRENT_NODE, ...updatedChildrenBlockData],
 				reactFlowInstance.getNodes()
-			)
+			) as Array<INode>
 		);
 	};
 
@@ -310,7 +318,7 @@ function FragmentNode({ id, xPos, yPos, data }) {
 			getUpdatedArrayById(
 				UPDATED_INNER_NODES,
 				reactFlowInstance.getNodes().filter((node) => node.id != id)
-			)
+			) as Array<INode>
 		);
 	};
 

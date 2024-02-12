@@ -61,7 +61,7 @@ const getAriaLabel = (type, blockData) => {
 		blockData.x +
 		", posición en el eje Y: " +
 		blockData.y +
-		end
+		//end
 	);
 };
 
@@ -157,7 +157,7 @@ function ActionNode({ id, type, data, selected, dragging, isConnectable }) {
 				type="target"
 				position={Position.Left}
 				isConnectable={isConnectable}
-				isConnectableStart="false"
+				isConnectableStart={false}
 			/>
 			<NodeToolbar position={Position.Left} offset={25}>
 				<FocusTrap

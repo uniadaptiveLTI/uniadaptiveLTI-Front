@@ -227,7 +227,7 @@ function ElementNode({
 				type="target"
 				position={Position.Left}
 				isConnectable={isConnectable}
-				//isConnectableStart={false}
+				isConnectableStart={false}
 				onClick={() => console.log("TEST")}
 			/>
 			{hasEnd(type) && (
@@ -235,7 +235,7 @@ function ElementNode({
 					type="source"
 					position={Position.Right}
 					isConnectable={isConnectable}
-					//isConnectableEnd={false}
+					isConnectableEnd={false}
 					onClick={() => console.log("TEST")}
 				/>
 			)}
