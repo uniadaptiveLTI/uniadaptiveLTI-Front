@@ -7,7 +7,6 @@ import {
 	getLocalToken,
 } from "middleware/common";
 
-//TODO: DEFINE
 interface GetSessionResponse extends ICommonValidResponse {
 	data: [IUserData, IMetaData, Array<IMap>];
 }

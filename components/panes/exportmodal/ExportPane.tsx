@@ -1,4 +1,4 @@
-import { useLayoutEffect, useState, useContext, useRef } from "react";
+import { useState, useContext, useRef, Dispatch, SetStateAction } from "react";
 import styles from "/styles/ExportModal.module.css";
 import { Alert, Button, Spinner } from "react-bootstrap";
 import SectionSelector from "@components/forms/components/SectionSelector";
@@ -18,7 +18,7 @@ import {
 import { Platforms, getBackupURL } from "@utils/Platform";
 import { ActionNodes } from "@utils/Nodes";
 import { saveVersion } from "@utils/Utils";
-import { ToastOptions, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import {
 	parseMoodleBadgeToExport,
 	parseMoodleCalifications,
@@ -36,7 +36,7 @@ import { INode } from "@components/interfaces/INode";
 interface Props {
 	errorList: Array<INodeError>;
 	warningList: Array<INodeError>;
-	changeTab: () => {};
+	changeTab: Dispatch<SetStateAction<string>>;
 	metaData: IMetaData;
 	userData: IUserData;
 	mapName: string;
@@ -51,7 +51,7 @@ export default function ExportPanel({
 	userData,
 	mapName,
 	selectedVersion,
-}) {
+}: Props) {
 	const reactFlowInstance = useReactFlow();
 	const rfNodes = useNodes() as Array<INode>;
 

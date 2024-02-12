@@ -32,7 +32,6 @@ import {
 	handleNameCollision,
 } from "@utils/Utils";
 import {
-	getNodeByNodeDOM,
 	getNodeDOMById,
 	getNodeById,
 	getChildrenNodesFromFragmentID,

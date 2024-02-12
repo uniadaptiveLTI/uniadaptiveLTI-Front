@@ -25,7 +25,7 @@ import {
 import FocusTrap from "focus-trap-react";
 import { Button, Badge } from "react-bootstrap";
 import { getTypeIcon } from "@utils/NodeIcons";
-import { getUpdatedArrayById, parseBool } from "@utils/Utils";
+import { getUpdatedArrayById } from "@utils/Utils";
 import { getNodeById, getNumberOfIndependentConditions } from "@utils/Nodes";
 
 import { NodeDeclarations } from "@utils/TypeDefinitions";

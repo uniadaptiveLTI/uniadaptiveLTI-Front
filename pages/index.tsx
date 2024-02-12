@@ -1,11 +1,5 @@
 import Head from "next/head";
-import {
-	createContext,
-	useContext,
-	useEffect,
-	useLayoutEffect,
-	useState,
-} from "react";
+import { useContext, useEffect, useLayoutEffect, useState } from "react";
 import {
 	BlocksDataContext,
 	UserDataContext,

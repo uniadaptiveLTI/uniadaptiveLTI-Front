@@ -8,7 +8,7 @@ import { config } from "@fortawesome/fontawesome-svg-core";
 config.autoAddCss = false; // Tell Font Awesome to skip adding the CSS automatically since it's being imported above
 import React, { createContext, useState, useEffect, ReactNode } from "react";
 import "react-toastify/dist/ReactToastify.css";
-import { ToastContainer, ToastOptions } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import { toast } from "react-toastify";
 import { useIsOnline } from "react-use-is-online";
 import { parseBool } from "../utils/Utils";

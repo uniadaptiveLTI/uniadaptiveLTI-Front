@@ -1,4 +1,3 @@
-import { IMap } from "@components/interfaces/IMap";
 import {
 	ICommonResponse,
 	fetchBackEnd,

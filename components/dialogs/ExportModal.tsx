@@ -5,18 +5,15 @@ import {
 	EditedNodeContext,
 	EditedVersionContext,
 } from "pages/_app";
-import { NodeDeclarations } from "@utils/TypeDefinitions";
 import {
 	getNodeById,
 	getParentsNode,
 	getNodeTypeGradableType,
 } from "@utils/Nodes";
 import { uniqueId } from "@utils/Utils";
-import { getTypeIcon, getTypeStaticColor } from "@utils/NodeIcons";
+import { getTypeIcon } from "@utils/NodeIcons";
 import styles from "/styles/ExportModal.module.css";
-import { createItemErrors } from "@utils/ErrorHandling";
 import { useReactFlow } from "reactflow";
-import { useEffect } from "react";
 import {
 	faExclamationCircle,
 	faExclamationTriangle,
