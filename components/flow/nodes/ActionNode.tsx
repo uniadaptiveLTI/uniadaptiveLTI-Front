@@ -60,8 +60,7 @@ const getAriaLabel = (type, blockData) => {
 		", posición en el eje X: " +
 		blockData.x +
 		", posición en el eje Y: " +
-		blockData.y +
-		//end
+		blockData.y //+ end
 	);
 };
 
