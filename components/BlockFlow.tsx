@@ -50,6 +50,7 @@ import {
 	LONG_TOAST_ERROR,
 	DEFAULT_TOAST_INFO,
 	EXTENDED_TOAST_ERROR,
+	DEFAULT_TOAST_SUCCESS,
 } from "pages/_app";
 import { errorListCheck } from "@utils/ErrorHandling";
 import { toast } from "react-toastify";
@@ -942,6 +943,11 @@ const OverviewFlow = ({ map }, ref) => {
 				deleteBlocks(nodes);
 			}
 		}
+
+		toast(
+			"Se han eliminado los bloques seleccionados en el mapa (no se modificarán los módulos originales del curso)",
+			DEFAULT_TOAST_SUCCESS
+		);
 	};
 
 	/**
