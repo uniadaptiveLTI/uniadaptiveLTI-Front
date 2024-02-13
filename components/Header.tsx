@@ -115,7 +115,7 @@ function Header({ LTISettings }, ref) {
 	const selectVersionDOM = useRef(null);
 	const saveButtonRef = useRef(null);
 	const [versions, setVersions] = useState([]);
-	const [lastMapCreated, setLastMapCreated] = useState();
+	const [lastMapCreated, setLastMapCreated] = useState<number>();
 	const [lastVersionCreated, setLastVersionCreated] = useState();
 
 	const [loadedUserData, setLoadedUserData] = useState(false);
@@ -275,8 +275,8 @@ function Header({ LTISettings }, ref) {
 		localUserData = userData,
 		localMaps = maps
 	) => {
-		const EMPTY_NEW_MAP = {
-			id: uniqueId(),
+		const EMPTY_NEW_MAP: IMap = {
+			id: Number(uniqueId()),
 			name: handleNameCollision(
 				"Nuevo Mapa",
 				localMaps.map((map) => map.name),
@@ -285,7 +285,7 @@ function Header({ LTISettings }, ref) {
 			),
 			versions: [
 				{
-					id: uniqueId(),
+					id: Number(uniqueId()),
 					name: "Primera versión",
 					lastUpdate: new Date().toLocaleDateString(),
 					default: false,
@@ -294,9 +294,9 @@ function Header({ LTISettings }, ref) {
 			],
 		};
 
-		const NEW_MAP = {
+		const NEW_MAP: IMap = {
 			...data,
-			id: uniqueId(),
+			id: Number(uniqueId()),
 			name: handleNameCollision(
 				"Nuevo Mapa",
 				localMaps.map((map) => map.name),
@@ -308,7 +308,9 @@ function Header({ LTISettings }, ref) {
 		try {
 			if (!parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
 				await saveVersions(
-					data ? NEW_MAP.versions : EMPTY_NEW_MAP.versions,
+					data
+						? (NEW_MAP.versions as Array<IVersion>)
+						: (EMPTY_NEW_MAP.versions as Array<IVersion>),
 					localMetaData,
 					localMetaData.platform,
 					localUserData,
@@ -459,8 +461,7 @@ function Header({ LTISettings }, ref) {
 	/**
 	 * Handles the creation of a new version.
 	 */
-	///AQUI
-	const handleNewVersion = (data?) => {
+	const handleNewVersion = (data: IVersion) => {
 		const SELECTED_MAP = getMapById(selectMapDOM.current.value);
 
 		handleNewVersionIn(data, SELECTED_MAP.id);
@@ -480,7 +481,7 @@ function Header({ LTISettings }, ref) {
 			"("
 		);
 
-		const NEW_VERSION = data
+		const NEW_VERSION: IVersion = data
 			? {
 					...data,
 					id: Number(uniqueId()),
@@ -651,18 +652,6 @@ function Header({ LTISettings }, ref) {
 						if (!RESPONSE.ok) {
 							throw `Ha ocurrido un error.`;
 						} else {
-							//FIXME: Load map "shell"
-							// setLoadedMaps(false);
-							// fetch(
-							//	`${getHTTPPrefix()}//${process.env.NEXT_PUBLIC_BACK_URL}/lti/get_session`
-							//)
-							// 	.then((response) => response.json())
-							// 	.then((data) => {
-							// 		const maps = [emptyMap, ...data[2].maps];
-							// 		setMaps(maps);
-							// 		setMapCount(maps.length);
-							// 		setLoadedMaps(true);
-							// 	});
 							setVersions((versions) =>
 								versions.filter((version) => version.id != VERSION_ID)
 							);
@@ -1218,14 +1207,17 @@ function Header({ LTISettings }, ref) {
 									)}
 									{mapSelected?.id != -1 && (
 										<>
-											<Dropdown.Item onClick={() => handleNewVersion()}>
+											<Dropdown.Item
+												onClick={() => handleNewVersion(undefined)}
+											>
 												Nueva versión vacía
 											</Dropdown.Item>
 											<Dropdown.Item
 												onClick={() =>
 													handleNewVersion({
 														...selectedVersion,
-														blocks_data: REACTFLOW_INSTANCE.getNodes(),
+														blocks_data:
+															REACTFLOW_INSTANCE.getNodes() as Array<INode>,
 													})
 												}
 											>
