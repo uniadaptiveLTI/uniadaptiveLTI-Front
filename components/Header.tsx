@@ -223,9 +223,7 @@ function Header({ LTISettings }, ref) {
 							const VERSIONS_RESPONSE = await getVersions(MAP_DATA.created_id);
 							if (VERSIONS_RESPONSE.ok) {
 								const VERSIONS_DATA = VERSIONS_RESPONSE.data;
-								const VERSION_RESPONSE = await getVersion({
-									version_id: VERSIONS_DATA[0].id,
-								});
+								const VERSION_RESPONSE = await getVersion(VERSIONS_DATA[0].id);
 								setVersions(VERSIONS_DATA);
 								if (VERSION_RESPONSE.ok) {
 									setSelectedVersion(VERSION_RESPONSE.data as IVersion);
@@ -522,9 +520,9 @@ function Header({ LTISettings }, ref) {
 				} else {
 					setVersions(VERSIONS_RESPONSE.data);
 
-					const VERSION_RESPONSE = await getVersion({
-						version_id: VERSIONS_RESPONSE.data[0].id,
-					});
+					const VERSION_RESPONSE = await getVersion(
+						VERSIONS_RESPONSE.data[0].id
+					);
 
 					if (!VERSION_RESPONSE.ok) {
 						toast(
@@ -1113,7 +1111,7 @@ function Header({ LTISettings }, ref) {
 	async function fetchVersion(versionId) {
 		if (!parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
 			try {
-				const VERSION_RESPONSE = await getVersion({ created_id: versionId });
+				const VERSION_RESPONSE = await getVersion(versionId);
 				if (VERSION_RESPONSE.ok) {
 					setCurrentBlocksData(VERSION_RESPONSE.data.blocks_data);
 				} else {
