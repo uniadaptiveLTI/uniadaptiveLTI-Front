@@ -310,7 +310,7 @@ function Header({ LTISettings }, ref) {
 				await saveVersions(
 					data ? NEW_MAP.versions : EMPTY_NEW_MAP.versions,
 					localMetaData,
-					metaData.platform,
+					localMetaData.platform,
 					localUserData,
 					data ? NEW_MAP : EMPTY_NEW_MAP,
 					DEFAULT_TOAST_SUCCESS,

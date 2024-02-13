@@ -479,10 +479,9 @@ export default function SimpleConditionsMoodle({ id }) {
 						<p style={prefix}>
 							{
 								<>
-									{getConditionIcon("generic")}{" "}
-									{c?.data?.type ? c.data.type : "CODE_NOT_FOUND"}
-									{": "}
-									Condición <b>no soportada </b>
+									Condición no soportada:{" "}
+									<b>{c?.data?.type ? c.data.type : "CODE_NOT_FOUND"}</b>{" "}
+									{getConditionIcon("generic")}
 								</>
 							}
 						</p>

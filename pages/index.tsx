@@ -191,7 +191,7 @@ export default function Home() {
 					</Head>
 
 					<Layout LTISettings={LTISettings}>
-						{mapSelected !== undefined ? (
+						{mapSelected !== undefined && mapSelected.id != -1 ? (
 							currentBlocksData !== undefined && metaDataReady ? (
 								<BlockFlow map={currentBlocksData} />
 							) : (
