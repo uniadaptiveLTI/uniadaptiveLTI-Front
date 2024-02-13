@@ -1,6 +1,13 @@
-import { useState, useContext, useRef, Dispatch, SetStateAction } from "react";
+import {
+	useState,
+	useContext,
+	useRef,
+	Dispatch,
+	SetStateAction,
+	useEffect,
+} from "react";
 import styles from "/styles/ExportModal.module.css";
-import { Alert, Button, Spinner } from "react-bootstrap";
+import { Alert, Button, Spinner, Dropdown } from "react-bootstrap";
 import SectionSelector from "@components/forms/components/SectionSelector";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -17,7 +24,7 @@ import {
 } from "pages/_app";
 import { Platforms, getBackupURL } from "@utils/Platform";
 import { ActionNodes } from "@utils/Nodes";
-import { saveVersion } from "@utils/Utils";
+import { saveVersion, parseBool } from "@utils/Utils";
 import { toast } from "react-toastify";
 import {
 	parseMoodleBadgeToExport,
@@ -41,6 +48,7 @@ interface Props {
 	userData: IUserData;
 	mapName: string;
 	selectedVersion: IVersion;
+	changeSelectedLesson: Function;
 }
 
 export default function ExportPanel({
@@ -51,6 +59,7 @@ export default function ExportPanel({
 	userData,
 	mapName,
 	selectedVersion,
+	changeSelectedLesson,
 }: Props) {
 	const reactFlowInstance = useReactFlow();
 	const rfNodes = useNodes() as Array<INode>;
@@ -859,6 +868,7 @@ export default function ExportPanel({
 					ref={selectDOM}
 					lessons={metaData.lessons}
 					label={"Seleccione la lección donde el contenido será exportado"}
+					changeSelectedLesson={changeSelectedLesson}
 				></LessonSelector>
 			)}
 
@@ -900,6 +910,7 @@ export default function ExportPanel({
 			)}
 
 			<Button
+				style={{ marginBottom: "1rem" }}
 				ref={exportButtonRef}
 				disabled={
 					selectedErrorCount > 0 ||
