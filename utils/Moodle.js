@@ -576,6 +576,7 @@ export function parseMoodleBadgeToExport(node, nodeArray, metaData) {
 
 		delete newNode.c;
 		newNode.conditions = newConditions;
+		newNode.actionType = newNode.type;
 	}
 
 	return newNode;

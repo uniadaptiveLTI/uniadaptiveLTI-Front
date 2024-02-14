@@ -6,6 +6,7 @@ import {
 import { SakaiElementConditions } from "./INodeConditionsSakai";
 
 export type AllValidRootElementNodeConditions =
+	| undefined
 	| IMoodleElementConditionsGroup
 	| SakaiElementConditions;
 

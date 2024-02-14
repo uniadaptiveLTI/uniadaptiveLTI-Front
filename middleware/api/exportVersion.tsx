@@ -9,10 +9,10 @@ export interface IVersionExport {
 	userPerms: IUserData["userperms"];
 	save: boolean;
 	selection: Array<number>;
-	lessonId?: string; //Sakai
-	nodesToUpdate?: Array<INode>; //Sakai
+	lessonId?: number; //Sakai
+	nodesToUpdate?: Array<Object>; //Sakai
 	conditionList?: Array<Object>; //Sakai //TODO: DEFINE
-	nodes: Array<INode>;
+	nodes: Array<Object>;
 }
 
 export default async function exportVersion(versionToExport: IVersionExport) {

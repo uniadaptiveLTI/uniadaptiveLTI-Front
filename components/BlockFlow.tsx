@@ -468,14 +468,13 @@ const OverviewFlow = ({ map }, ref) => {
 										cm: sourceNode.id,
 										showc: true,
 										e: 1,
-										params: [],
 									};
 
 									if (
 										"c" in targetNode.data &&
 										!(
 											"type" in targetNode.data.c &&
-											targetNode.data.c.type != "conditionsGroup"
+											targetNode.data.c.type == "conditionsGroup"
 										)
 									) {
 										targetNode.data.c = {

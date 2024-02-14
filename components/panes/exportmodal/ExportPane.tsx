@@ -39,6 +39,8 @@ import { IMetaData } from "@components/interfaces/IMetaData";
 import { IVersion } from "@components/interfaces/IVersion";
 import exportVersion, { IVersionExport } from "middleware/api/exportVersion";
 import { INode } from "@components/interfaces/INode";
+import moodleExport from "./utils/moodleExport";
+import sakaiExport from "./utils/sakaiExport";
 
 interface Props {
 	errorList: Array<INodeError>;
@@ -49,6 +51,14 @@ interface Props {
 	mapName: string;
 	selectedVersion: IVersion;
 	changeSelectedLesson: Function;
+}
+
+export interface ISendNodesPayload {
+	resources: Array<Object>;
+	resultJson?: Array<Object>;
+	resultJsonSecondary?: Array<Object>;
+	lesson?: Object;
+	conditionList?: Array<Object>;
 }
 
 export default function ExportPanel({
@@ -157,17 +167,99 @@ export default function ExportPanel({
 	const EMPTY_MAP = seekEmpty("map");
 
 	const exportMap = async () => {
-		let nodesToExport: Array<INode> = JSON.parse(
-			JSON.stringify(reactFlowInstance.getNodes()) //Deep clone TODO: DO THIS BETTER
+		const CLEANED_NODES: Array<INode> = cleanReactFlow();
+		let EXPORT: ISendNodesPayload = undefined;
+
+		switch (metaData.platform) {
+			case Platforms.Moodle:
+				EXPORT = moodleExport(CLEANED_NODES, metaData);
+				break;
+			case Platforms.Sakai:
+				EXPORT = sakaiExport(CLEANED_NODES, metaData);
+				break;
+		}
+
+		//sendNodes(EXPORT);
+	};
+
+	function cleanReactFlow() {
+		//Deep cloning the nodes
+		const clonedNodes: Array<INode> = JSON.parse(
+			JSON.stringify(reactFlowInstance.getNodes())
 		);
 
-		if (metaData.platform == Platforms.Sakai) {
-			nodesToExport = nodesToExport.filter((node) => node.type !== "generic");
-		}
-		// console.log("🚀 ~ exportMap ~ nodesToExport  150 :", nodesToExport);
+		// Remove LTI-specific nodes (Like Fragments)
+		const nodesWithoutLTIElements = clonedNodes.filter((node) =>
+			NodeDeclarations.find((declaration) => {
+				if (node.type == declaration.type) {
+					if (!declaration.lms.includes(Platforms.LTI)) {
+						return true;
+					} else {
+						return false;
+					}
+				}
+			})
+		);
 
-		const CONDITION_LIST = [];
-		console.log(nodesToExport);
+		// Remove non-selected
+		const nodesSelected = nodesWithoutLTIElements.filter((node) => {
+			if ("section" in node.data) {
+				const SECTION = metaData.sections.find((section) => {
+					if ("section" in node.data) section.position == node.data.section;
+				});
+
+				//Change section position for section id
+				if (SECTION != undefined) {
+					node.data.section = SECTION.id;
+				}
+				if (
+					SECTION &&
+					currentSelectionInfo.selection.includes(SECTION.position)
+				)
+					return true;
+				if (!SECTION) {
+					return true;
+				}
+			}
+		});
+
+		// Remove unnecesary ReactFlow attributes
+		const nodesWithoutRF = nodesSelected.map((node) => {
+			let newNode = { ...node };
+			delete newNode.position;
+			delete newNode.height;
+			delete newNode.width;
+			delete newNode.position;
+			delete newNode.positionAbsolute;
+			delete newNode.dragging;
+			delete newNode.draggable;
+			delete newNode.selected;
+			delete newNode.parentNode;
+			delete newNode.expandParent;
+			return newNode;
+		});
+
+		//Replacing node IDs by the resource IDs globally
+		let nodesAsString = JSON.stringify(nodesWithoutRF);
+		console.log(nodesAsString);
+		nodesWithoutRF.forEach((node) => {
+			const ORIGINAL_ID = node.id;
+			const LMS_RESOURCE =
+				node.data.lmsResource == undefined ? "-1" : node.data.lmsResource;
+			const REGEX = new RegExp('"' + ORIGINAL_ID + '"', "g");
+
+			nodesAsString = nodesAsString.replace(
+				REGEX,
+				JSON.stringify(String(LMS_RESOURCE))
+			);
+		});
+		console.log(nodesAsString);
+
+		const nodesWithResourceIDs = JSON.parse(nodesAsString);
+
+		return nodesWithResourceIDs;
+
+		/*const CONDITION_LIST = [];
 
 		nodesToExport.map((node) => {
 			if (
@@ -211,18 +303,6 @@ export default function ExportPanel({
 				CONDITION_LIST.push(newCondition);
 			}
 		});
-
-		nodesToExport = nodesToExport.filter((node) =>
-			NodeDeclarations.find((declaration) => {
-				if (node.type == declaration.type) {
-					if (!declaration.lms.includes(Platforms.LTI)) {
-						return true;
-					} else {
-						return false;
-					}
-				}
-			})
-		);
 
 		const FULL_NODES = JSON.parse(JSON.stringify(nodesToExport));
 
@@ -274,17 +354,6 @@ export default function ExportPanel({
 				DATA.c = deleteEmptyC(DATA.c);
 			}
 
-			delete node.position;
-			delete node.data;
-			delete node.height;
-			delete node.width;
-			delete node.position;
-			delete node.positionAbsolute;
-			delete node.dragging;
-			delete node.draggable;
-			delete node.selected;
-			delete node.parentNode;
-			delete node.expandParent;
 			const TYPE = node.type;
 			switch (metaData.platform) {
 				case Platforms.Moodle:
@@ -317,22 +386,7 @@ export default function ExportPanel({
 			}
 		});
 
-		let nodesAsString = JSON.stringify(nodesToExport);
-		//Replacing block Ids by the resource ids
-		FULL_NODES.forEach((fullNode) => {
-			const ORIGINAL_ID = fullNode.id;
-			const LMS_RESOURCE =
-				fullNode.data.lmsResource == undefined
-					? "-1"
-					: fullNode.data.lmsResource;
-			const REGEX = new RegExp('"' + ORIGINAL_ID + '"', "g");
-			nodesAsString = nodesAsString.replace(
-				REGEX,
-				metaData.platform == Platforms.Moodle
-					? LMS_RESOURCE
-					: JSON.stringify(String(LMS_RESOURCE))
-			);
-		});
+		//let nodesAsString = JSON.stringify(nodesToExport);
 
 		let nodesReadyToExport = JSON.parse(nodesAsString);
 		if (metaData.platform == Platforms.Moodle) {
@@ -578,8 +632,8 @@ export default function ExportPanel({
 				return newNode;
 			});
 			sendNodes(MOODLE_NODES);
-		}
-	};
+		}*/
+	}
 
 	function sakaiExportTypeSwitch(id) {
 		switch (id) {
@@ -608,15 +662,6 @@ export default function ExportPanel({
 		return obj;
 	}
 
-	function deleteRecursiveShowC(obj) {
-		if (obj.hasOwnProperty("showc")) {
-			delete obj.showc;
-		}
-		if (obj.hasOwnProperty("c") && Array.isArray(obj.c)) {
-			obj.c.forEach(deleteRecursiveShowC);
-		}
-	}
-
 	function deleteRecursiveNull(obj) {
 		const isObj = (x) => x !== null && typeof x === "object";
 		const isArray = (x) => Array.isArray(x);
@@ -642,77 +687,13 @@ export default function ExportPanel({
 		return clean(obj);
 	}
 
-	function replaceGenericConditions(condition) {
-		// Recorrer el array de condiciones
-		for (let i = 0; i < condition.c.length; i++) {
-			// Obtener el elemento actual
-			let element = condition.c[i];
-			console.log(element);
-			// Comprobar si el tipo es "generic"
-			if (element.type === "generic") {
-				console.log("PRE", condition.c[i]);
-				// Reemplazar el elemento con su propiedad "data"
-				condition.c[i] = element.data;
-				console.log("POST", condition.c[i]);
-			}
-
-			// Comprobar si el elemento tiene una propiedad "c" que es un array de JSON
-			if (element.hasOwnProperty("c") && Array.isArray(element.c)) {
-				// Llamar a la función recursiva con ese elemento
-				replaceGenericConditions(element);
-			}
-		}
-		console.log(condition);
-
-		return condition;
-	}
-
-	function specifyRecursiveConditionType(condition) {
-		let type = "";
-		if (condition.hasOwnProperty("type")) {
-			type = condition.type;
-		}
-
-		switch (type) {
-			case "grade":
-				condition.id = condition.cm;
-				if (condition.min) delete condition.cm;
-				break;
-			case "courseGrade":
-				condition.id = condition.courseId;
-				delete condition.courseId;
-				break;
-			case "group":
-				if (condition.groupId) {
-					condition.id = condition.groupId;
-				} else {
-					delete condition.id;
-				}
-				delete condition.groupId;
-				break;
-			case "grouping":
-				condition.id = condition.groupingId;
-				delete condition.groupingId;
-				break;
-			default:
-				delete condition.id;
-				break;
-		}
-
-		if (condition.hasOwnProperty("c") && Array.isArray(condition.c)) {
-			condition.c.forEach(specifyRecursiveConditionType);
-		}
-	}
-
-	async function sendNodes(
-		nodes,
-		resultJson?,
-		resultJsonSecondary?,
-		lesson?,
-		conditionList?
-	) {
-		console.log("🚀 ~ nodes:", nodes);
-
+	async function sendNodes({
+		resources,
+		resultJson,
+		resultJsonSecondary,
+		lesson,
+		conditionList,
+	}: ISendNodesPayload) {
 		try {
 			const PAYLOAD: IVersionExport = {
 				course: metaData.course_id,
@@ -730,7 +711,7 @@ export default function ExportPanel({
 				PAYLOAD.nodesToUpdate = resultJsonSecondary;
 				PAYLOAD.conditionList = conditionList;
 			} else {
-				PAYLOAD.nodes = nodes;
+				PAYLOAD.nodes = resources;
 			}
 
 			const RESPONSE = await exportVersion(PAYLOAD);

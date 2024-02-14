@@ -1,8 +1,13 @@
-export interface IBasicMoodleConditionStructure {
+export interface IBasicMoodleElementConditionStructure {
+	id: string;
+	type: string;
+	showc: boolean;
+}
+
+export interface IBasicMoodleActionConditionStructure {
 	params: any;
 	id: string;
 	type: string;
-	showc: boolean | Array<boolean>;
 }
 
 /// Types
@@ -25,30 +30,33 @@ export type IMoodleConditionsGroup =
 
 // Condition Groups
 
-export interface IMoodleElementConditionsGroup
-	extends IBasicMoodleConditionStructure {
+export interface IMoodleElementConditionsGroup {
+	id: string;
 	type: "conditionsGroup";
 	op: "&" | "|" | "!&" | "!|";
 	c: Array<MoodleElementConditions>;
+	showc: boolean | Array<boolean>;
+	show?: boolean; //Only used in export
 }
 
 export interface IMoodleBadgeConditionsGroup
-	extends IBasicMoodleConditionStructure {
+	extends IBasicMoodleActionConditionStructure {
 	type: "conditionsGroup";
 	method: "&" | "|";
-	params: Array<IBasicMoodleConditionStructure>; //FIXME: Set AllBadgeNodeConditions
+	params: Array<IBasicMoodleActionConditionStructure>; //FIXME: Set AllBadgeNodeConditions
 }
 
 // Element conditions
 
-export interface IMoodleGradeCondition extends IBasicMoodleConditionStructure {
+export interface IMoodleGradeCondition
+	extends IBasicMoodleElementConditionStructure {
 	type: "grade";
 	min?: number;
 	max?: number;
 }
 
 export interface IMoodleCompletionCondition
-	extends IBasicMoodleConditionStructure {
+	extends IBasicMoodleElementConditionStructure {
 	type: "completion";
 	cm: string;
 	showc: boolean;
@@ -59,15 +67,8 @@ export interface IMoodleCompletionCondition
 
 // Badge conditions
 
-export interface IBasicMoodleBadgeConditionStructure {
-	//TEMP
-	id: string;
-	type: string;
-	params: Object; //FIXME: Define params
-}
-
 export interface IMoodleBadgeCompletionCondition
-	extends IBasicMoodleConditionStructure {
+	extends IBasicMoodleActionConditionStructure {
 	type: "completion";
 	op: "|" | "&";
 }
