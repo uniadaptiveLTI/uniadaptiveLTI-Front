@@ -632,7 +632,7 @@ function ConditionModalMoodle({
 	}
 
 	const addConditionToMain = () => {
-		if (blockData.data.c) {
+		if (blockData.data?.c?.length >= 1) {
 			addCondition(blockData.data.c.id);
 		} else {
 			const FIRST_CONDITION_GROUP = {
