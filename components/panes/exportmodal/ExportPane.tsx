@@ -201,23 +201,34 @@ export default function ExportPanel({
 			})
 		);
 
-		// Remove non-selected
-		const nodesSelected = nodesWithoutLTIElements.filter((node) => {
+		// Replace section position by metaData's IDs
+		const nodesReordered = nodesWithoutLTIElements.map((node) => {
+			const newNode = { ...node };
 			if ("section" in node.data) {
 				const SECTION = metaData.sections.find((section) => {
 					if ("section" in node.data) section.position == node.data.section;
 				});
 
 				//Change section position for section id
-				if (SECTION != undefined) {
-					node.data.section = SECTION.id;
+				if (SECTION != undefined && "section" in newNode.data) {
+					newNode.data.section = SECTION.id;
 				}
+			}
+			return newNode;
+		});
+		// Remove non-selected
+		const nodesSelected = nodesReordered.filter((node) => {
+			if ("section" in node.data) {
+				const SECTION = metaData.sections.find((section) => {
+					if ("section" in node.data) section.position == node.data.section;
+				});
+
 				if (
 					SECTION &&
 					currentSelectionInfo.selection.includes(SECTION.position)
 				)
 					return true;
-				if (!SECTION) {
+				if (SECTION == undefined) {
 					return true;
 				}
 			}

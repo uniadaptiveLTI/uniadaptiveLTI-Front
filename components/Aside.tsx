@@ -164,7 +164,7 @@ export default function Aside({ LTISettings, className }) {
 				});
 			}
 
-			const DATA = RESPONSE.data.items;
+			const DATA = RESPONSE.data;
 
 			setShowSpinner(false);
 			setAllowResourceSelection(true);
