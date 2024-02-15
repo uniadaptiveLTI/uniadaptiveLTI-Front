@@ -95,15 +95,7 @@ function ElementNode({
 		if (expandedAside != true) {
 			setExpandedAside(true);
 		}
-		reactFlowInstance.setNodes(
-			getUpdatedArrayById(
-				{
-					...getNodeById(id, CURRENT_NODES),
-					selected: false,
-				},
-				CURRENT_NODES
-			) as Array<INode>
-		);
+
 		setEditVersionSelected(undefined);
 		setNodeSelected(BLOCKDATA);
 	};
@@ -277,11 +269,6 @@ function ElementNode({
 					(shouldApplyAnimation && containerClassName)
 				}
 				aria-label={getAriaLabel()} //FIXME: Doesn't work
-				onClick={(e) => {
-					if (e.detail === 2) {
-						handleEdit();
-					}
-				}}
 				onKeyDown={(e) => {
 					if (e.key == "Enter") handleEdit();
 				}}

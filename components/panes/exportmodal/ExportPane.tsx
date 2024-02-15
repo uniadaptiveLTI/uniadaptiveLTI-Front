@@ -179,7 +179,7 @@ export default function ExportPanel({
 				break;
 		}
 
-		//sendNodes(EXPORT);
+		sendNodes(EXPORT);
 	};
 
 	function cleanReactFlow() {
@@ -201,23 +201,44 @@ export default function ExportPanel({
 			})
 		);
 
-		// Remove non-selected
-		const nodesSelected = nodesWithoutLTIElements.filter((node) => {
+		// Replace section position by metaData's IDs
+		const nodesReordered = nodesWithoutLTIElements.map((node) => {
+			const newNode = { ...node };
 			if ("section" in node.data) {
 				const SECTION = metaData.sections.find((section) => {
-					if ("section" in node.data) section.position == node.data.section;
+					if ("section" in node.data) {
+						return section.position == node.data.section;
+					}
+				});
+				console.log("🚀 ~ SECTION ~ SECTION:", SECTION);
+				//Change section position for section id
+				if (SECTION != undefined && "section" in newNode.data) {
+					newNode.data.section = SECTION.id;
+					console.log(
+						"🚀 ~ nodesReordered ~ newNode.data.section:",
+						newNode.data.section
+					);
+				}
+			}
+			console.log("🚀 ~ nodesReordered ~ newNode:", newNode);
+			return newNode;
+		});
+
+		// Remove non-selected
+		const nodesSelected = nodesReordered.filter((node) => {
+			if ("section" in node.data) {
+				const SECTION = metaData.sections.find((section) => {
+					if ("section" in node.data) {
+						return section.id == node.data.section;
+					}
 				});
 
-				//Change section position for section id
-				if (SECTION != undefined) {
-					node.data.section = SECTION.id;
-				}
 				if (
 					SECTION &&
 					currentSelectionInfo.selection.includes(SECTION.position)
 				)
 					return true;
-				if (!SECTION) {
+				if (SECTION == undefined) {
 					return true;
 				}
 			}

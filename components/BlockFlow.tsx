@@ -2054,13 +2054,13 @@ const OverviewFlow = ({ map }, ref) => {
 			}
 		}
 	};
-
 	/**
 	 * Handles the showing of a modal.
 	 * @param {String} nodeId
 	 * @param {string} modal - The modal to show.
+	 * @param {string} condition - The condition. FIXME:
 	 */
-	const handleShow = (nodeId, modal, condition) => {
+	const handleShow = (nodeId, modal, condition?) => {
 		console.log("CONDITION ", condition);
 		console.info(`❓ Showing modal: `, modal);
 		const SELECTED_NODES = getSelectedNodes();
@@ -2215,6 +2215,12 @@ const OverviewFlow = ({ map }, ref) => {
 				onNodesDelete={onNodesDelete}
 				onEdgesDelete={onEdgesDelete}
 				onNodeClick={onNodeClick}
+				onNodeDoubleClick={(e, node) => {
+					if (node.type != "fragment") {
+						setNodeSelected(node as INode);
+						setExpandedAside(true);
+					}
+				}}
 				onEdgeClick={onEdgeClick}
 				onPaneClick={onPaneClick}
 				onConnect={onConnect}

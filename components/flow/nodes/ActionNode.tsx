@@ -88,10 +88,12 @@ function ActionNode({ id, type, data, selected, dragging, isConnectable }) {
 	);
 
 	const handleEdit = () => {
-		const BLOCKDATA = getNodeById(id, reactFlowInstance.getNodes());
+		const CURRENT_NODES = reactFlowInstance.getNodes();
+		const BLOCKDATA = getNodeById(id, CURRENT_NODES);
 		if (expandedAside != true) {
 			setExpandedAside(true);
 		}
+
 		setEditVersionSelected(undefined);
 		setNodeSelected(BLOCKDATA);
 	};
@@ -196,11 +198,6 @@ function ActionNode({ id, type, data, selected, dragging, isConnectable }) {
 				aria-label={getAriaLabel(type, data)} //FIXME: Doesn't work
 				onMouseEnter={() => setIsHovered(true)}
 				onMouseLeave={() => setIsHovered(false)}
-				onClick={(e) => {
-					if (e.detail === 2) {
-						handleEdit();
-					}
-				}}
 				onKeyDown={(e) => {
 					if (e.key == "Enter") handleEdit();
 				}}

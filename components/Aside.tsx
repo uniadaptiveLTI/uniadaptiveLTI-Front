@@ -71,6 +71,7 @@ export default function Aside({ LTISettings, className }) {
 	const [expandedInteract, setExpandedInteract] = useState(true);
 
 	const [selectedOption, setSelectedOption] = useState("");
+	const [nodeChange, setNodeChange] = useState(0);
 	const [lmsResource, setLmsResource] = useState("");
 	const [showSpinner, setShowSpinner] = useState(false);
 	const [allowResourceSelection, setAllowResourceSelection] = useState(true);
@@ -131,44 +132,47 @@ export default function Aside({ LTISettings, className }) {
 
 	const fetchResources = async (selectedOption) => {
 		try {
-			const encodedSelectedOption = encodeURIComponent(selectedOption);
-			setShowSpinner(true);
-			setAllowResourceSelection(false);
-			const payload = {
-				type:
-					selectedOption == "generic" ? "unsupported" : encodedSelectedOption,
-				supportedTypes:
-					selectedOption == "generic"
-						? getSupportedTypes(metaData.platform)
-						: undefined,
-			};
+			if (selectedOption != "fragment") {
+				const encodedSelectedOption = encodeURIComponent(selectedOption);
+				setShowSpinner(true);
+				setAllowResourceSelection(false);
+				const payload = {
+					type:
+						selectedOption == "generic" ? "unsupported" : encodedSelectedOption,
+					supportedTypes:
+						selectedOption == "generic"
+							? getSupportedTypes(metaData.platform)
+							: undefined,
+				};
 
-			if (
-				selectedOption == "generic" &&
-				metaData.platform != Platforms.Moodle
-			) {
+				if (
+					selectedOption == "generic" &&
+					metaData.platform != Platforms.Moodle
+				) {
+					setShowSpinner(false);
+					setAllowResourceSelection(true);
+					return [];
+				}
+
+				const RESPONSE = await getModulesByType(payload);
+
+				if (!RESPONSE.ok) {
+					console.error(`❌ Error: `, RESPONSE.data);
+					toast("No se pudieron obtener los datos del curso desde el LMS", {
+						hideProgressBar: false,
+						autoClose: 2000,
+						type: "error",
+						position: "bottom-center",
+					});
+				}
+
+				const DATA = RESPONSE.data;
 				setShowSpinner(false);
 				setAllowResourceSelection(true);
-				return [];
+				return DATA;
 			}
-
-			const RESPONSE = await getModulesByType(payload);
-
-			if (!RESPONSE.ok) {
-				console.error(`❌ Error: `, RESPONSE.data);
-				toast("No se pudieron obtener los datos del curso desde el LMS", {
-					hideProgressBar: false,
-					autoClose: 2000,
-					type: "error",
-					position: "bottom-center",
-				});
-			}
-
-			const DATA = RESPONSE.data.items;
-
 			setShowSpinner(false);
 			setAllowResourceSelection(true);
-			return DATA;
 		} catch (e) {
 			console.error(`❌ Error: `, e);
 			toast("No se pudieron obtener los datos del curso desde el LMS", {
@@ -259,52 +263,54 @@ export default function Aside({ LTISettings, className }) {
 					setResourceOptions(UNIQUE_FILTERED_DATA);
 				}, 1000);
 			} else {
-				fetchResources(selectedOption).then((data) => {
-					const FILTERED_DATA = [];
-					data.forEach((resource) => {
-						if (!getUsedResources().includes(resource.id)) {
-							FILTERED_DATA.push(resource);
-						}
-					});
-					//Adds current resource if exists
-					if (nodeSelected && nodeSelected.data) {
-						if ("lmsResource" in nodeSelected.data)
-							if (nodeSelected.data.lmsResource) {
-								if (nodeSelected.data.lmsResource != "") {
-									const lmsRes = nodeSelected.data.lmsResource;
-									const storedRes = data.find(
-										(resource) => resource.id == lmsRes
-									);
+				fetchResources(nodeSelected.type).then((data) => {
+					if (data) {
+						const FILTERED_DATA = [];
+						data.forEach((resource) => {
+							if (!getUsedResources().includes(resource.id)) {
+								FILTERED_DATA.push(resource);
+							}
+						});
+						//Adds current resource if exists
+						if (nodeSelected && nodeSelected.data) {
+							if ("lmsResource" in nodeSelected.data)
+								if (nodeSelected.data.lmsResource) {
+									if (nodeSelected.data.lmsResource != "") {
+										const lmsRes = nodeSelected.data.lmsResource;
+										const storedRes = data.find(
+											(resource) => resource.id == lmsRes
+										);
 
-									if (storedRes != undefined) {
-										FILTERED_DATA.push(storedRes);
+										if (storedRes != undefined) {
+											FILTERED_DATA.push(storedRes);
+										}
 									}
 								}
-							}
-					}
-					const UNIQUE_FILTERED_DATA = orderByPropertyAlphabetically(
-						deduplicateById(FILTERED_DATA),
-						"name"
-					);
-					UNIQUE_FILTERED_DATA.forEach((option) => {
-						return hasUnorderedResources(metaData.platform)
-							? (option.oname = `${option.name}`)
-							: (option.oname = `${option.name} ${
-									option.section > -1 ? "- Sección: " + option.section : ""
-							  }`);
-					});
-					UNIQUE_FILTERED_DATA.unshift({
-						id: -1,
-						name: NodeDeclarations.filter(
-							(node) => node.type == selectedOption
-						)[0].emptyName,
-					});
+						}
+						const UNIQUE_FILTERED_DATA = orderByPropertyAlphabetically(
+							deduplicateById(FILTERED_DATA),
+							"name"
+						);
+						UNIQUE_FILTERED_DATA.forEach((option) => {
+							return hasUnorderedResources(metaData.platform)
+								? (option.oname = `${option.name}`)
+								: (option.oname = `${option.name} ${
+										option.section > -1 ? "- Sección: " + option.section : ""
+								  }`);
+						});
+						UNIQUE_FILTERED_DATA.unshift({
+							id: -1,
+							name: NodeDeclarations.filter(
+								(node) => node.type == nodeSelected.type
+							)[0].emptyName,
+						});
 
-					setResourceOptions(UNIQUE_FILTERED_DATA);
+						setResourceOptions(UNIQUE_FILTERED_DATA);
+					}
 				});
 			}
 		}
-	}, [selectedOption, nodeSelected]);
+	}, [nodeSelected]);
 
 	useEffect(() => {
 		if (nodeSelected) {
