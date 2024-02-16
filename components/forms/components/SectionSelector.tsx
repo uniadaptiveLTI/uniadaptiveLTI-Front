@@ -263,16 +263,18 @@ const SectionSelector = forwardRef(
 				setSelectionStatus(TARGET_STATUS ? SECTION_POSITIONS : []);
 			} else {
 				console.log("🚀 ~ toggleMainSelector ~ SECTIONS:", SECTIONS);
+				console.log("🚀 ~ toggleMainSelector ~ TARGET_STATUS:", TARGET_STATUS);
 				setSelectionStatus(
 					TARGET_STATUS
 						? [
 								...new Set(
 									rfNodes.map((node: INode) => {
 										if ("section" in node.data)
-											SECTIONS.find(
+											return SECTIONS.find(
 												(section) =>
-													(node.data as IElementNodeData).section == section.id
-											);
+													(node.data as IElementNodeData).section ==
+													section.position
+											).position;
 									})
 								),
 						  ]

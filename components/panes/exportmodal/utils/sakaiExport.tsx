@@ -133,7 +133,7 @@ function fixLessonsAndConditions(
 		}
 	}
 
-	const LESSON_FIND = metaData.lessons.find((lesson) => lesson.id === lessonID);
+	const LESSON_FIND = metaData.lessons.find((lesson) => lesson.id == lessonID);
 	let resultJson = [];
 	let nodesToUpdateRequest = [];
 
@@ -164,6 +164,7 @@ function fixLessonsAndConditions(
 
 	nodeArray.map((node) => {
 		const NEW_NODE = { ...node };
+
 		if (NEW_NODE.c && NEW_NODE.c.length >= 1) {
 			const DATE_CONDITION = NEW_NODE.c.find(
 				(condition) => condition.type === "date"
@@ -232,7 +233,8 @@ function fixLessonsAndConditions(
 			}
 
 			NEW_NODE.type = sakaiExportTypeSwitch(NEW_NODE.type);
-
+			if ("data" in NEW_NODE) delete NEW_NODE.data;
+			if ("c" in NEW_NODE) delete NEW_NODE.c;
 			nodesToUpdateRequest.push(NEW_NODE);
 
 			const SECTION_PROCESSED = {};
@@ -281,6 +283,7 @@ function fixLessonsAndConditions(
 								node.indent === sortedNode.indent
 						)
 						.sort((a, b) => a.order - b.order);
+
 					FILTERED_ARRAY.map((node) => {
 						const NODE_TYPE_PARSED = sakaiTypeSwitch(node);
 						resultJson.push({
@@ -329,22 +332,28 @@ export default function sakaiExport(
 	metaData: IMetaData,
 	lessonID: ISakaiLesson["id"]
 ): ISendNodesPayload {
+	console.log("cleaned_nodes", CLEANED_NODES);
 	//Filter out generic blocks
 	const nodesWithoutGenerics = CLEANED_NODES.filter(
 		(node) => node.type !== "generic"
 	);
+	console.log("nodesWithoutGenerics", nodesWithoutGenerics);
 	// Gets the fixed conditions (Sakai Gradables)
 	const CONDITION_LIST = fixGradables(nodesWithoutGenerics);
+	console.log("CONDITION_LIST", CONDITION_LIST);
 
 	const nodesWithRequisites = fixRequisites(nodesWithoutGenerics, lessonID);
+	console.log("nodesWithRequisites", nodesWithRequisites);
 
 	const extraParams = fixLessonsAndConditions(
 		nodesWithRequisites,
 		metaData,
 		lessonID
 	);
+	console.log("extraParams", extraParams);
 
 	const nodesCleaned = finalClean(nodesWithRequisites);
+	console.log("nodesCleaned", nodesCleaned);
 	return {
 		resources: nodesCleaned,
 		resultJson: extraParams.resultJson,

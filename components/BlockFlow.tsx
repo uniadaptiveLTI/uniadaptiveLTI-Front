@@ -462,33 +462,35 @@ const OverviewFlow = ({ map }, ref) => {
 									)
 								) {
 									// Just Element Nodes
-									const newCondition: IMoodleCompletionCondition = {
-										id: uniqueId(),
-										type: "completion",
-										cm: sourceNode.id,
-										showc: true,
-										e: 1,
-									};
-
-									if (
-										"c" in targetNode.data &&
-										!(
-											"type" in targetNode.data.c &&
-											targetNode.data.c.type == "conditionsGroup"
-										)
-									) {
-										targetNode.data.c = {
-											type: "conditionsGroup",
+									if (Platforms.Moodle) {
+										const newCondition: IMoodleCompletionCondition = {
 											id: uniqueId(),
-											op: "&",
+											type: "completion",
+											cm: sourceNode.id,
 											showc: true,
-											c: [newCondition],
+											e: 1,
 										};
-									} else {
-										if ("c" in targetNode.data.c) {
-											targetNode.data.c.c.push(newCondition);
-										} else if ("params" in targetNode.data.c) {
-											targetNode.data.c.params.push(newCondition);
+
+										if (
+											"c" in targetNode.data &&
+											!(
+												"type" in targetNode.data.c &&
+												targetNode.data.c.type == "conditionsGroup"
+											)
+										) {
+											targetNode.data.c = {
+												type: "conditionsGroup",
+												id: uniqueId(),
+												op: "&",
+												showc: true,
+												c: [newCondition],
+											};
+										} else {
+											if ("c" in targetNode.data.c) {
+												targetNode.data.c.c.push(newCondition);
+											} else if ("params" in targetNode.data.c) {
+												targetNode.data.c.params.push(newCondition);
+											}
 										}
 									}
 								} else {
@@ -566,10 +568,11 @@ const OverviewFlow = ({ map }, ref) => {
 
 							break;
 						case Platforms.Sakai:
-							if ("g" in targetNode.data && !targetNode.data.g) {
-								targetNode.data.g = {
-									id: undefined,
-									argument: undefined,
+							if (
+								"section" in targetNode.data &&
+								!targetNode.data.gradeRequisites
+							) {
+								targetNode.data.gradeRequisites = {
 									type: "ROOT",
 									siteId: metaData.course_id,
 									itemId: targetNodeId,
@@ -578,9 +581,6 @@ const OverviewFlow = ({ map }, ref) => {
 									operator: "AND",
 									subConditions: [
 										{
-											id: undefined,
-											argument: undefined,
-											itemId: undefined,
 											type: "PARENT",
 											siteId: metaData.course_id,
 											toolId: "sakai.conditions",
@@ -588,9 +588,6 @@ const OverviewFlow = ({ map }, ref) => {
 											subConditions: [],
 										},
 										{
-											id: undefined,
-											argument: undefined,
-											itemId: undefined,
 											type: "PARENT",
 											siteId: metaData.course_id,
 											toolId: "sakai.conditions",
@@ -600,29 +597,24 @@ const OverviewFlow = ({ map }, ref) => {
 									],
 								};
 							}
+							if ("section" in targetNode.data) {
+								const gradeRequisites = targetNode.data.gradeRequisites;
 
-							const gradeRequisites =
-								"g" in targetNode.data ? targetNode.data.g : undefined;
-
-							if (
-								gradeRequisites != undefined &&
-								"subConditions" in gradeRequisites
-							) {
 								const subRootAnd = gradeRequisites.subConditions.find(
 									(set) => set.type === "PARENT" && set.operator === "AND"
 								);
 
 								subRootAnd.subConditions.push({
-									id: undefined,
 									type: "SCORE",
 									siteId: metaData.course_id,
 									itemId: sourceNodeId,
 									itemType: sourceNode.type,
 									toolId: "sakai.lessonbuildertool",
-									argument: "5",
+									argument: 5,
 									operator: "GREATER_THAN",
 								});
 							}
+
 							break;
 					}
 				}
@@ -726,7 +718,9 @@ const OverviewFlow = ({ map }, ref) => {
 
 					case Platforms.Sakai:
 						const gradeRequisites =
-							"g" in blockNodeTarget.data ? blockNodeTarget.data.g : undefined;
+							"section" in blockNodeTarget.data
+								? blockNodeTarget.data.gradeRequisites
+								: undefined;
 
 						if (
 							gradeRequisites &&
@@ -940,6 +934,10 @@ const OverviewFlow = ({ map }, ref) => {
 
 		// Set method to update the full array of nodes
 		setNodes(FINAL_NODE_ARRAY);
+		toast(
+			"Se han eliminado los bloques seleccionados en el mapa (no se modificarán los módulos originales del curso)",
+			DEFAULT_TOAST_SUCCESS
+		);
 
 		// Check method for errors
 		errorListCheck(blocks, errorList, setErrorList, true);
@@ -990,11 +988,6 @@ const OverviewFlow = ({ map }, ref) => {
 				deleteBlocks(nodes);
 			}
 		}
-
-		toast(
-			"Se han eliminado los bloques seleccionados en el mapa (no se modificarán los módulos originales del curso)",
-			DEFAULT_TOAST_SUCCESS
-		);
 	};
 
 	/**
