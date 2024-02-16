@@ -111,7 +111,6 @@ export default function NodeSelector({
 			order: 0,
 			indent: 0,
 			lmsVisibility: "show_unconditionally",
-			g: {},
 		};
 		const SECTION = getMaxSectionFromSelection();
 		if (nodeType == "ElementNode") {

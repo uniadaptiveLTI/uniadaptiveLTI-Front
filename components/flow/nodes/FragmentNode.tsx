@@ -65,8 +65,12 @@ function FragmentNode({ id, xPos, yPos, data }) {
 	const [originalExpandedSize, setOriginalExpandedSize] = useState<size>();
 
 	const handleEdit = () => {
-		const BLOCKDATA = getNodeById(id, reactFlowInstance.getNodes());
-		setExpandedAside(true);
+		const CURRENT_NODES = reactFlowInstance.getNodes();
+		const BLOCKDATA = getNodeById(id, CURRENT_NODES);
+		if (expandedAside != true) {
+			setExpandedAside(true);
+		}
+
 		setEditVersionSelected(undefined);
 		setNodeSelected(BLOCKDATA);
 	};
@@ -478,9 +482,6 @@ function FragmentNode({ id, xPos, yPos, data }) {
 					if (e.detail === 2) {
 						data.expanded = !data.expanded;
 						setExpanded(!expanded);
-					}
-					if (e.detail === 3) {
-						handleEdit();
 					}
 				}}
 				onKeyDown={(e) => {

@@ -175,11 +175,12 @@ export default function ExportPanel({
 				EXPORT = moodleExport(CLEANED_NODES, metaData);
 				break;
 			case Platforms.Sakai:
-				EXPORT = sakaiExport(CLEANED_NODES, metaData);
+				const lessonID = selectDOM.current.value;
+				EXPORT = sakaiExport(CLEANED_NODES, metaData, lessonID);
 				break;
 		}
 
-		//sendNodes(EXPORT);
+		sendNodes(EXPORT);
 	};
 
 	function cleanReactFlow() {
@@ -206,23 +207,31 @@ export default function ExportPanel({
 			const newNode = { ...node };
 			if ("section" in node.data) {
 				const SECTION = metaData.sections.find((section) => {
-					if ("section" in node.data) section.position == node.data.section;
+					if ("section" in node.data) {
+						return section.position == node.data.section;
+					}
 				});
-
+				console.log(":cohete: ~ SECTION ~ SECTION:", SECTION);
 				//Change section position for section id
 				if (SECTION != undefined && "section" in newNode.data) {
 					newNode.data.section = SECTION.id;
+					console.log(
+						":cohete: ~ nodesReordered ~ newNode.data.section:",
+						newNode.data.section
+					);
 				}
 			}
+			console.log(":cohete: ~ nodesReordered ~ newNode:", newNode);
 			return newNode;
 		});
 		// Remove non-selected
 		const nodesSelected = nodesReordered.filter((node) => {
 			if ("section" in node.data) {
 				const SECTION = metaData.sections.find((section) => {
-					if ("section" in node.data) section.position == node.data.section;
+					if ("section" in node.data) {
+						return section.id == node.data.section;
+					}
 				});
-
 				if (
 					SECTION &&
 					currentSelectionInfo.selection.includes(SECTION.position)
@@ -270,51 +279,7 @@ export default function ExportPanel({
 
 		return nodesWithResourceIDs;
 
-		/*const CONDITION_LIST = [];
-
-		nodesToExport.map((node) => {
-			if (
-				"g" in node.data &&
-				node.data.g &&
-				"subConditions" in node.data.g &&
-				node.data.g.subConditions.length >= 1
-			) {
-				const newCondition = { ...node.data.g };
-
-				let blockResource = reactFlowInstance
-					.getNodes()
-					.find((node) => node.id == newCondition.itemId).data.lmsResource;
-
-				newCondition.itemId = sakaiTypeSwitch({
-					id: blockResource,
-					type: newCondition.itemType,
-				}).contentRef;
-
-				delete newCondition?.itemType;
-
-				newCondition?.subConditions.map((subCondition) => {
-					if (
-						subCondition.subConditions &&
-						subCondition.subConditions.length >= 1
-					) {
-						subCondition.subConditions.map((childCondition) => {
-							let childResource = reactFlowInstance
-								.getNodes()
-								.find((node) => node.id == childCondition.itemId)
-								.data.lmsResource;
-
-							childCondition.itemId = sakaiTypeSwitch({
-								id: childResource,
-								type: childCondition.itemType,
-							}).contentRef;
-							delete childCondition?.itemType;
-						});
-					}
-				});
-				CONDITION_LIST.push(newCondition);
-			}
-		});
-
+		/*
 		const FULL_NODES = JSON.parse(JSON.stringify(nodesToExport));
 
 		//Deletting unnecessary info and flattening the nodes
@@ -644,24 +609,6 @@ export default function ExportPanel({
 			});
 			sendNodes(MOODLE_NODES);
 		}*/
-	}
-
-	function sakaiExportTypeSwitch(id) {
-		switch (id) {
-			case "resource":
-			case "html":
-			case "text":
-			case "url":
-				return "RESOURCE";
-			/* IS NOT SUPPORTED case "folder":
-				return { type: 20, contentRef: "" };*/
-			case "exam":
-				return "ASSESSMENT";
-			case "assign":
-				return "ASSIGNMENT";
-			case "forum":
-				return "FORUM";
-		}
 	}
 
 	function deleteEmptyC(obj) {

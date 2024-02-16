@@ -151,7 +151,7 @@ function manageConditions(nodeArray: Array<INode>) {
 	}
 
 	const newNodeArray = nodeArray.map((node) => {
-		if ("c" in node.data.c) {
+		if ("c" in node.data && "c" in node.data.c) {
 			const newConditions = node.data.c.c;
 			newConditions.map((condition) =>
 				specifyRecursiveConditionType(condition)
@@ -174,6 +174,8 @@ function manageConditions(nodeArray: Array<INode>) {
 
 function finalClean(nodeArray: Array<any>) {
 	return nodeArray.map((node) => {
+		console.log("🚀 ~ returnnodeArray.map ~ node:", node);
+
 		interface moodleNode {
 			id: number;
 			c: INode["data"]["c"];
@@ -190,7 +192,7 @@ function finalClean(nodeArray: Array<any>) {
 			id: node.id == "" ? -1 : Number(node.id),
 		};
 		delete newNode.type;
-		if ("id" in newNode.c) delete newNode.c.id;
+		if ("c" in newNode && "id" in newNode.c) delete newNode.c.id;
 		delete newNode.data;
 		delete newNode.children;
 		delete newNode.label;
@@ -209,7 +211,6 @@ export default function moodleExport(
 	console.log("badges", nodesWithBadgesFixed);
 	const nodesWithConditionsFixed = manageConditions(nodesWithBadgesFixed);
 	console.log("conditionsfixed", nodesWithConditionsFixed);
-	//...
 	const nodesCleaned = finalClean(nodesWithConditionsFixed);
 	console.log("nodesCleaned", nodesCleaned);
 	return { resources: nodesCleaned };

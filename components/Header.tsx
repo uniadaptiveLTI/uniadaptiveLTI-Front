@@ -474,6 +474,14 @@ function Header({ LTISettings }, ref) {
 	 */
 	const handleNewVersionIn = async (data: IVersion, mapId: IMap["id"]) => {
 		const SELECTED_MAP = getMapById(mapId);
+
+		if (!parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
+			const response = await getVersions(mapId);
+			console.log("🚀 ~ getVersions ~ response:", response);
+			if (response.ok) {
+				SELECTED_MAP.versions = response.data;
+			}
+		}
 		let finalName = handleNameCollision(
 			"Nueva Versión",
 			SELECTED_MAP.versions.map((version) => version.name),
@@ -497,9 +505,9 @@ function Header({ LTISettings }, ref) {
 					default: false,
 			  };
 
-		if (!process.env.NEXT_PUBLIC_DEV_FILES) {
+		if (!parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
 			const ADDVERSION_RESPONSE = await addVersion(
-				SELECTED_MAP.id,
+				Number(SELECTED_MAP.id),
 				NEW_VERSION
 			);
 
@@ -532,8 +540,6 @@ function Header({ LTISettings }, ref) {
 						);
 						throw new Error("Request failed");
 					} else {
-						setSelectedVersion(VERSION_RESPONSE.data);
-						setCurrentBlocksData(VERSION_RESPONSE.data.blocks_data);
 					}
 
 					setMapSelected(SELECTED_MAP);
@@ -1232,7 +1238,7 @@ function Header({ LTISettings }, ref) {
 									)}
 								</Dropdown.Menu>
 							</Dropdown>
-							{mapSelected?.id != -1 && (
+							{mapSelected?.id != -1 && mapSelected != undefined && (
 								<>
 									<Dropdown className={`btn-light d-flex align-items-center`}>
 										<Dropdown.Toggle
@@ -1318,7 +1324,7 @@ function Header({ LTISettings }, ref) {
 								/>
 							</Button>
 
-							{mapSelected?.id != -1 && (
+							{mapSelected?.id != -1 && mapSelected != undefined && (
 								<Button
 									variant={
 										errorList && errorList.length >= 1 ? "warning" : "success"

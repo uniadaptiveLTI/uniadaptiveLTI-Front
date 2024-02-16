@@ -8,7 +8,7 @@ export interface IMetaData {
 	course_id: string;
 	platform: Platforms.Moodle | Platforms.Sakai;
 	platform_name?: string; // Optional name for the platform.
-	lessons?: Array<sakaiLesson>; // Sakai lessons
+	lessons?: Array<ISakaiLesson>; // Sakai lessons
 	back_url?: string; //Added by the front end in runtime
 	sections: Array<ISection>;
 	badges?: Array<moodleBadge>;
@@ -20,8 +20,8 @@ export interface IMetaData {
 	role_list?: Array<moodleRole>; // Moodle
 }
 
-interface sakaiLesson {
-	id: number;
+export interface ISakaiLesson {
+	id: string;
 	name: string;
 	page_id: string;
 }
