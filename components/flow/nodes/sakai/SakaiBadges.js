@@ -78,7 +78,7 @@ const SakaiBadges = ({
 						}
 						title="Columna"
 					>
-						{data.indent}
+						{data.indent + 1}
 					</Badge>
 				)}
 
