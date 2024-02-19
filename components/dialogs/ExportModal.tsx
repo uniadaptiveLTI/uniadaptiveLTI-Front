@@ -134,10 +134,10 @@ export default forwardRef(function ExportModal(
 		} else {
 			let endpointJson = null;
 			switch (metaData.platform) {
-				case "moodle":
+				case Platforms.Moodle:
 					endpointJson = "devmoodleimport.json";
 					break;
-				case "sakai":
+				case Platforms.Sakai:
 					endpointJson = "devsakaiimport.json";
 			}
 

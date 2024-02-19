@@ -778,7 +778,7 @@ const OverviewFlow = ({ map }, ref) => {
 	 * @param {Node[]} blocks - The blocks to delete.
 	 * @returns {Node[]} - The array with the blocks removed.
 	 */
-	const deleteBlocks = (blocks) => {
+	const deleteBlocks = (blocks, showMessage = false) => {
 		//Close Aside
 		setExpandedAside(false);
 		// Array of blocks that its children or conditions are being updated
@@ -934,10 +934,11 @@ const OverviewFlow = ({ map }, ref) => {
 
 		// Set method to update the full array of nodes
 		setNodes(FINAL_NODE_ARRAY);
-		toast(
-			"Se han eliminado los bloques seleccionados en el mapa (no se modificarán los módulos originales del curso)",
-			DEFAULT_TOAST_SUCCESS
-		);
+		if (showMessage)
+			toast(
+				"Se han eliminado los bloques seleccionados en el mapa (no se modificarán los módulos originales del curso)",
+				DEFAULT_TOAST_SUCCESS
+			);
 
 		// Check method for errors
 		errorListCheck(blocks, errorList, setErrorList, true);
@@ -985,7 +986,7 @@ const OverviewFlow = ({ map }, ref) => {
 				onEdgesDelete(edges);
 			}
 			if (nodes.length > 0) {
-				deleteBlocks(nodes);
+				deleteBlocks(nodes, true);
 			}
 		}
 	};
@@ -996,7 +997,7 @@ const OverviewFlow = ({ map }, ref) => {
 	 */
 	const onNodesDelete = (nodes) => {
 		setNodeSelected(undefined);
-		deleteBlocks(nodes);
+		deleteBlocks(nodes, true);
 	};
 
 	/**
@@ -1783,7 +1784,8 @@ const OverviewFlow = ({ map }, ref) => {
 				const FILTERED_NODES = deleteBlocks(
 					nodes.filter((oNode) =>
 						SELECTED_NODES.map((pNode) => pNode.id).includes(oNode.id)
-					)
+					),
+					false
 				);
 
 				console.log(
