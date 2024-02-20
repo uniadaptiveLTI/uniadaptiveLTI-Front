@@ -32,6 +32,7 @@ For creating a development server image:
 ```bash
 docker build --no-cache -f Dockerfile -t uniadaptivelti/frontdev:0.2.0 . --build-arg NEXT_MODE=dev
 ```
+
 You can add additional arguments as you see fit.
 
 ## Learn More
@@ -43,3 +44,10 @@ To learn more about Next.js, React, Bootstrap 5 and React-Bootstrap, take a look
 - [React Documentation](https://reactjs.org/docs/getting-started.html) - learn about React features and API.
 - [Bootstrap 5 Documentation](https://getbootstrap.com/docs/5.0/getting-started/introduction/) - learn about Bootstrap 5 features and usage.
 - [React-Bootstrap Documentation](https://react-bootstrap.github.io/getting-started/introduction/) - learn about using Bootstrap with React.
+
+## Sponsor
+
+![Fundado por la Unión Europea](public/images/ue/foundedbyeu.png)
+![Plan de Recuperación Transformación y Resilencia](public/images/ue/prtr.png)
+
+Financiado por la Unión Europea - NextGenerationEU
