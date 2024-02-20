@@ -452,7 +452,7 @@ export function clampNodesOrderMoodle(nodeArray) {
  * @returns {Object} The node with the correct condition format.
  */
 export function parseMoodleBadgeToExport(node, nodeArray, metaData) {
-	let newNode = node;
+	let newNode = { ...node };
 	let newConditions = [];
 
 	const extractCondition = (condition) => {
@@ -461,7 +461,7 @@ export function parseMoodleBadgeToExport(node, nodeArray, metaData) {
 		};
 
 		const CRITERIA_TYPE = condition.criteriatype;
-		const NEW_METHOD = condition.op == "&" ? 1 : 2;
+		const NEW_METHOD = condition.method == "&" ? 1 : 2;
 		if (condition.c) delete condition.c;
 		switch (condition.type) {
 			case "conditionsGroup": {
@@ -567,8 +567,8 @@ export function parseMoodleBadgeToExport(node, nodeArray, metaData) {
 		return condition;
 	};
 
-	if (node.c) {
-		const FLAT_CONDITIONS = [node.c, ...node.c.params];
+	if (node.data.c) {
+		const FLAT_CONDITIONS = [node.data.c, ...node.data.c.params];
 
 		FLAT_CONDITIONS.map((condition) => {
 			newConditions.push(extractCondition(condition));

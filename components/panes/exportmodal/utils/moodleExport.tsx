@@ -78,7 +78,6 @@ function manageShowC(nodeArray: Array<INode>): Array<INode> {
 
 function manageBadges(nodeArray: Array<INode>, metaData: IMetaData) {
 	return nodeArray.map((node) => {
-		console.log(node);
 		if (node.type == "badge") {
 			return parseMoodleBadgeToExport(node, nodeArray, metaData);
 		} else {
@@ -172,27 +171,29 @@ function manageConditions(nodeArray: Array<INode>) {
 	return newNodeArray;
 }
 
+interface moodleNode {
+	id: number;
+	c: INode["data"]["c"];
+	type: INode["type"];
+	data: INode["data"];
+	children: any;
+	label: string;
+	lmsResource: any;
+	actionType?: INode["type"];
+	conditions?: INode["data"]["c"];
+}
+
 function finalClean(nodeArray: Array<any>) {
 	return nodeArray.map((node) => {
-		console.log("🚀 ~ returnnodeArray.map ~ node:", node);
-
-		interface moodleNode {
-			id: number;
-			c: INode["data"]["c"];
-			type: INode["type"];
-			data: INode["data"];
-			children: any;
-			label: string;
-			lmsResource: any;
-			actionType?: INode["type"];
-		}
-
 		const newNode: moodleNode = {
 			...node,
 			...node.data,
 			id: node.id == "" ? -1 : Number(node.id),
 		};
-		if (newNode.type == "badge") newNode.actionType = newNode.type;
+		if (newNode.type == "badge") {
+			newNode.actionType = newNode.type;
+			delete newNode.c;
+		}
 		delete newNode.type;
 		if ("c" in newNode && "id" in newNode.c) delete newNode.c.id;
 		delete newNode.data;
@@ -203,17 +204,22 @@ function finalClean(nodeArray: Array<any>) {
 	});
 }
 
+export function finalBadgeAdaptation(node: moodleNode) {
+	const newNode = { ...node };
+	newNode.conditions = { ...newNode.conditions, criteriaType: 0 };
+}
+
 export default function moodleExport(
 	CLEANED_NODES: Array<INode>,
 	metaData: IMetaData
 ): ISendNodesPayload {
 	const nodesWithFixedShowC = manageShowC(CLEANED_NODES);
 	console.log("fixedC", nodesWithFixedShowC);
-	const nodesWithBadgesFixed = manageBadges(nodesWithFixedShowC, metaData);
-	console.log("badges", nodesWithBadgesFixed);
-	const nodesWithConditionsFixed = manageConditions(nodesWithBadgesFixed);
+	const nodesWithConditionsFixed = manageConditions(nodesWithFixedShowC);
 	console.log("conditionsfixed", nodesWithConditionsFixed);
-	const nodesCleaned = finalClean(nodesWithConditionsFixed);
+	const nodesWithBadgesFixed = manageBadges(nodesWithConditionsFixed, metaData);
+	console.log("badges", nodesWithBadgesFixed);
+	const nodesCleaned = finalClean(nodesWithBadgesFixed);
 	console.log("nodesCleaned", nodesCleaned);
 	return { resources: nodesCleaned };
 }
