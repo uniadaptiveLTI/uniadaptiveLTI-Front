@@ -43,3 +43,5 @@ To learn more about Next.js, React, Bootstrap 5 and React-Bootstrap, take a look
 - [React Documentation](https://reactjs.org/docs/getting-started.html) - learn about React features and API.
 - [Bootstrap 5 Documentation](https://getbootstrap.com/docs/5.0/getting-started/introduction/) - learn about Bootstrap 5 features and usage.
 - [React-Bootstrap Documentation](https://react-bootstrap.github.io/getting-started/introduction/) - learn about using Bootstrap with React.
+
+![EN-Funded by the EU-BLACK Outline](https://github.com/uniadaptiveLTI/uniadaptiveLTI-Front/assets/91719773/93567f8d-d0c4-4fac-9e2a-8fe34cf4a1f6)
