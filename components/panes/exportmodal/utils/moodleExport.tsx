@@ -62,13 +62,17 @@ function manageShowC(nodeArray: Array<INode>): Array<INode> {
 	return nodeArray.map((node) => {
 		if (
 			node.data.c != undefined &&
-			"type" in node.data.c &&
-			node.data.c.type == "conditionsGroup" &&
-			"op" in node.data.c
+			Array.isArray(node.data.c) &&
+			node.data.c.every(
+				(item) => item.type == "conditionsGroup" && "op" in item
+			)
 		) {
 			return {
 				...node,
-				data: { ...node.data, c: setFixShowCMode(node.data.c) },
+				data: {
+					...node.data,
+					c: node.data.c.map(setFixShowCMode),
+				},
 			};
 		} else {
 			return node;
