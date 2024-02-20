@@ -155,6 +155,15 @@ export default function Aside({ LTISettings, className }) {
 					return [];
 				}
 
+				if (
+					selectedOption == "badge" &&
+					metaData.platform == Platforms.Moodle
+				) {
+					setShowSpinner(false);
+					setAllowResourceSelection(true);
+					return metaData.badges;
+				}
+
 				const RESPONSE = await getModulesByType(payload);
 
 				if (!RESPONSE.ok) {
@@ -265,51 +274,53 @@ export default function Aside({ LTISettings, className }) {
 					setResourceOptions(UNIQUE_FILTERED_DATA);
 				}, 1000);
 			} else {
-				fetchResources(nodeSelected.type).then((data) => {
-					if (data) {
-						const FILTERED_DATA = [];
-						data.forEach((resource) => {
-							if (!getUsedResources().includes(resource.id)) {
-								FILTERED_DATA.push(resource);
-							}
-						});
-						//Adds current resource if exists
-						if (nodeSelected && nodeSelected.data) {
-							if ("lmsResource" in nodeSelected.data)
-								if (nodeSelected.data.lmsResource) {
-									if (nodeSelected.data.lmsResource != "") {
-										const lmsRes = nodeSelected.data.lmsResource;
-										const storedRes = data.find(
-											(resource) => resource.id == lmsRes
-										);
+				if (nodeSelected !== undefined) {
+					fetchResources(nodeSelected.type).then((data) => {
+						if (data) {
+							const FILTERED_DATA = [];
+							data.forEach((resource) => {
+								if (!getUsedResources().includes(resource.id)) {
+									FILTERED_DATA.push(resource);
+								}
+							});
+							//Adds current resource if exists
+							if (nodeSelected && nodeSelected.data) {
+								if ("lmsResource" in nodeSelected.data)
+									if (nodeSelected.data.lmsResource) {
+										if (nodeSelected.data.lmsResource != "") {
+											const lmsRes = nodeSelected.data.lmsResource;
+											const storedRes = data.find(
+												(resource) => resource.id == lmsRes
+											);
 
-										if (storedRes != undefined) {
-											FILTERED_DATA.push(storedRes);
+											if (storedRes != undefined) {
+												FILTERED_DATA.push(storedRes);
+											}
 										}
 									}
-								}
-						}
-						const UNIQUE_FILTERED_DATA = orderByPropertyAlphabetically(
-							deduplicateById(FILTERED_DATA),
-							"name"
-						);
-						UNIQUE_FILTERED_DATA.forEach((option) => {
-							return hasUnorderedResources(metaData.platform)
-								? (option.oname = `${option.name}`)
-								: (option.oname = `${option.name} ${
-										option.section > -1 ? "- Sección: " + option.section : ""
-								  }`);
-						});
-						UNIQUE_FILTERED_DATA.unshift({
-							id: -1,
-							name: NodeDeclarations.filter(
-								(node) => node.type == nodeSelected.type
-							)[0].emptyName,
-						});
+							}
+							const UNIQUE_FILTERED_DATA = orderByPropertyAlphabetically(
+								deduplicateById(FILTERED_DATA),
+								"name"
+							);
+							UNIQUE_FILTERED_DATA.forEach((option) => {
+								return hasUnorderedResources(metaData.platform)
+									? (option.oname = `${option.name}`)
+									: (option.oname = `${option.name} ${
+											option.section > -1 ? "- Sección: " + option.section : ""
+									  }`);
+							});
+							UNIQUE_FILTERED_DATA.unshift({
+								id: -1,
+								name: NodeDeclarations.filter(
+									(node) => node.type == nodeSelected.type
+								)[0].emptyName,
+							});
 
-						setResourceOptions(UNIQUE_FILTERED_DATA);
-					}
-				});
+							setResourceOptions(UNIQUE_FILTERED_DATA);
+						}
+					});
+				}
 			}
 		}
 	}, [nodeSelected]);

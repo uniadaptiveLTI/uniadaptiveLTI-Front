@@ -147,20 +147,23 @@ export default forwardRef(function ExportModal(
 				data = await RESPONSE.json();
 			}
 		}
+		if (data && data.length >= 1) {
+			const moodleModuleList = data.map((module) => ({
+				id: metaData.platform == Platforms.Sakai ? module?.sakaiId : module?.id,
+				type: module?.modname,
+				name: module?.name,
+			}));
 
-		const moodleModuleList = data.map((module) => ({
-			id: metaData.platform == Platforms.Sakai ? module?.sakaiId : module?.id,
-			type: module?.modname,
-			name: module?.name,
-		}));
+			const moduleMissingList = moodleModuleList.filter(
+				(module) => !idList.includes(module?.id)
+			);
 
-		const moduleMissingList = moodleModuleList.filter(
-			(module) => !idList.includes(module?.id)
-		);
+			console.log(moduleMissingList);
 
-		console.log(moduleMissingList);
-
-		return moduleMissingList;
+			return moduleMissingList;
+		} else {
+			return [];
+		}
 	};
 
 	function centerToNode(node) {

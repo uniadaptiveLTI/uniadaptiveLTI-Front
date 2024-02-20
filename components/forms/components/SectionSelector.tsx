@@ -66,13 +66,7 @@ const SectionSelector = forwardRef(
 						...new Set(
 							rfNodes
 								.map((node: INode) =>
-									"section" in node.data
-										? metaData.sections.find(
-												(section) =>
-													section.position ==
-													(node.data as IElementNodeData).section
-										  )
-										: undefined
+									"section" in node.data ? node.data.section : undefined
 								)
 								.filter(Boolean)
 						),
@@ -258,6 +252,7 @@ const SectionSelector = forwardRef(
 
 		function toggleMainSelector(e) {
 			const TARGET_STATUS = e.target.checked;
+
 			if (metaData.platform == Platforms.Moodle) {
 				const SECTION_POSITIONS = SECTIONS.map((section) => section.position);
 				setSelectionStatus(TARGET_STATUS ? SECTION_POSITIONS : []);
@@ -272,9 +267,8 @@ const SectionSelector = forwardRef(
 										if ("section" in node.data)
 											return SECTIONS.find(
 												(section) =>
-													(node.data as IElementNodeData).section ==
-													section.position
-											).position;
+													(node.data as IElementNodeData).section == section
+											);
 									})
 								),
 						  ]

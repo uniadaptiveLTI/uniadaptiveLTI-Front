@@ -64,6 +64,22 @@ export function hasLessons(platform) {
 }
 
 /**
+ * Determines if a given platform has sections.
+ * @param {string} platform - The platform to check if it has sections.
+ * @returns {boolean} True if the given platform has sections, false otherwise.
+ */
+export function hasSections(platform) {
+	switch (platform) {
+		case Platforms.Moodle:
+			return true;
+		case Platforms.Sakai:
+			return false;
+		default:
+			return false;
+	}
+}
+
+/**
  * Determines if a given platform has unordered resources.
  * @param {string} platform - The platform to check if it has unordered resources.
  * @returns {boolean} True if the given platform has unordered resources, false otherwise.

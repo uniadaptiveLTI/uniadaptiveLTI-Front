@@ -22,7 +22,7 @@ import {
 	DEFAULT_TOAST_SUCCESS,
 	MapInfoContext,
 } from "pages/_app";
-import { Platforms, getBackupURL } from "@utils/Platform";
+import { Platforms, getBackupURL, hasSections } from "@utils/Platform";
 import { ActionNodes } from "@utils/Nodes";
 import { saveVersion, parseBool } from "@utils/Utils";
 import { toast } from "react-toastify";
@@ -169,6 +169,8 @@ export default function ExportPanel({
 
 	const exportMap = async () => {
 		const CLEANED_NODES: Array<INode> = cleanReactFlow();
+		console.log("🚀 ~ exportMap ~ CLEANED_NODES:", CLEANED_NODES);
+
 		let EXPORT: ISendNodesPayload = undefined;
 
 		switch (metaData.platform) {
@@ -208,7 +210,7 @@ export default function ExportPanel({
 		// Replace section position by metaData's IDs
 		const nodesReordered = nodesWithoutLTIElements.map((node) => {
 			const newNode = { ...node };
-			if ("section" in node.data) {
+			if (hasSections(metaData.platform) && "section" in node.data) {
 				const SECTION = metaData.sections.find((section) => {
 					if ("section" in node.data) {
 						return section.position == node.data.section;
@@ -231,7 +233,7 @@ export default function ExportPanel({
 		console.log("nodesReordered", nodesReordered);
 		// Remove non-selected
 		const nodesSelected = nodesReordered.filter((node) => {
-			if ("section" in node.data) {
+			if (hasSections(metaData.platform) && "section" in node.data) {
 				const SECTION = metaData.sections.find((section) => {
 					if ("section" in node.data) {
 						return section.id == node.data.section;
@@ -247,6 +249,7 @@ export default function ExportPanel({
 					return true;
 				}
 			}
+			return true;
 		});
 		console.log("nodesSelected", nodesSelected);
 

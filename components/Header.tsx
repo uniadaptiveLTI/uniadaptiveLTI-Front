@@ -477,7 +477,7 @@ function Header({ LTISettings }, ref) {
 
 		if (!parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
 			const response = await getVersions(mapId);
-			console.log("🚀 ~ getVersions ~ response:", response);
+
 			if (response.ok) {
 				SELECTED_MAP.versions = response.data;
 			}
@@ -488,10 +488,12 @@ function Header({ LTISettings }, ref) {
 			true,
 			"("
 		);
+		console.log("DATA PRRO: ", data);
 
 		const NEW_VERSION: IVersion = data
 			? {
 					...data,
+					blocks_data: REACTFLOW_INSTANCE.getNodes(),
 					id: Number(uniqueId()),
 					lastUpdate: new Date().toLocaleDateString(),
 					name: finalName,
@@ -504,6 +506,8 @@ function Header({ LTISettings }, ref) {
 					name: finalName,
 					default: false,
 			  };
+
+		console.log("NEW_VERSION", NEW_VERSION);
 
 		if (!parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
 			const ADDVERSION_RESPONSE = await addVersion(
@@ -540,10 +544,12 @@ function Header({ LTISettings }, ref) {
 						);
 						throw new Error("Request failed");
 					} else {
+						setMapSelected(SELECTED_MAP);
+						setSelectedVersion(NEW_VERSION);
+						if (NEW_VERSION.blocks_data)
+							setCurrentBlocksData(NEW_VERSION.blocks_data);
+						toast(`Versión: ${finalName} creada`, DEFAULT_TOAST_SUCCESS);
 					}
-
-					setMapSelected(SELECTED_MAP);
-					toast(`Versión: ${finalName} creada`, DEFAULT_TOAST_SUCCESS);
 				}
 			}
 		} else {
@@ -586,7 +592,7 @@ function Header({ LTISettings }, ref) {
 	const showDeleteMapModal = () => {
 		setModalTitle(`¿Eliminar "${mapSelected.name}"?`);
 		setModalBody(`¿Desea eliminar "${mapSelected.name}"?`);
-		setModalCallback(() => deleteMap());
+		setModalCallback(() => deleteMap);
 		setShowDeleteModal(true);
 	};
 
@@ -608,7 +614,7 @@ function Header({ LTISettings }, ref) {
 							setLoadedMaps(false);
 							const RESPONSE = await getSession();
 							const DATA = RESPONSE.data;
-							const MAPS = [EMPTY_MAP, ...DATA[2].maps];
+							const MAPS = [EMPTY_MAP, ...DATA[2]];
 							setMaps(MAPS);
 							setMapCount(MAPS.length);
 							setLoadedMaps(true);
@@ -619,6 +625,8 @@ function Header({ LTISettings }, ref) {
 						throw `Ha ocurrido un error.`;
 					}
 				} catch (e) {
+					console.log("🚀 ~ deleteMap ~ e:", e);
+
 					toast(`Ha ocurrido un error.`, DEFAULT_TOAST_ERROR);
 				}
 			} else {
@@ -648,68 +656,84 @@ function Header({ LTISettings }, ref) {
 	const deleteVersion = async () => {
 		const VERSION_ID = selectedVersion.id;
 		const MAP_ID = selectMapDOM.current.value;
-		const VERSION_COUNT = maps.find((map) => map.id == MAP_ID).versions.length;
-		if (VERSION_COUNT > 1) {
-			if (!parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
-				try {
-					const RESPONSE = await deleteVersionById(VERSION_ID);
+		let versionCount = 0;
 
-					if (RESPONSE) {
-						if (!RESPONSE.ok) {
-							throw `Ha ocurrido un error.`;
+		const response = await getVersions(MAP_ID);
+		if (response.ok) {
+			versionCount = response.data.length;
+			if (versionCount > 1) {
+				if (!parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
+					try {
+						const RESPONSE = await deleteVersionById(VERSION_ID);
+
+						if (RESPONSE) {
+							if (!RESPONSE.ok) {
+								throw `Ha ocurrido un error.`;
+							} else {
+								setVersions((versions) =>
+									versions.filter((version) => version.id != VERSION_ID)
+								);
+
+								const FIRST_VERSION = versions.find(
+									(version) => version.id != VERSION_ID
+								);
+								setSelectedVersion(FIRST_VERSION || versions[0] || null);
+								const response = await getVersions(mapSelected.id);
+								if (response.ok) {
+									mapSelected.versions = response.data;
+									const NEW_MAP_VERSIONS = mapSelected.versions.filter(
+										(version) => version.id != VERSION_ID
+									);
+									const MODIFIED_MAP = {
+										...mapSelected,
+										versions: NEW_MAP_VERSIONS,
+									};
+									const MAP_INDEX = maps.findIndex(
+										(m) => m.id === mapSelected.id
+									);
+									const NEW_MAPS = [...maps];
+									NEW_MAPS[MAP_INDEX] = MODIFIED_MAP;
+									setMaps(NEW_MAPS);
+									setVersions(MODIFIED_MAP.versions);
+									toast(`Versión eliminada con éxito.`, DEFAULT_TOAST_SUCCESS);
+								} else {
+									toast(`Ha ocurrido un error.`, DEFAULT_TOAST_ERROR);
+								}
+							}
 						} else {
-							setVersions((versions) =>
-								versions.filter((version) => version.id != VERSION_ID)
-							);
-
-							const FIRST_VERSION = versions.find(
-								(version) => version.id != VERSION_ID
-							);
-							setSelectedVersion(FIRST_VERSION || versions[0] || null);
-
-							const NEW_MAP_VERSIONS = mapSelected.versions.filter(
-								(version) => version.id != VERSION_ID
-							);
-							const MODIFIED_MAP = {
-								...mapSelected,
-								versions: NEW_MAP_VERSIONS,
-							};
-							const MAP_INDEX = maps.findIndex((m) => m.id === mapSelected.id);
-							const NEW_MAPS = [...maps];
-							NEW_MAPS[MAP_INDEX] = MODIFIED_MAP;
-							setMaps(NEW_MAPS);
-							setVersions(MODIFIED_MAP.versions);
-							toast(`Versión eliminada con éxito.`, DEFAULT_TOAST_SUCCESS);
+							throw `Ha ocurrido un error.`;
 						}
-					} else {
-						throw `Ha ocurrido un error.`;
+					} catch (e) {
+						console.log("🚀 ~ deleteVersion ~ e:", e);
+
+						toast(`Ha ocurrido un error.`, DEFAULT_TOAST_ERROR);
 					}
-				} catch (e) {
-					toast(`Ha ocurrido un error.`, DEFAULT_TOAST_ERROR);
+				} else {
+					setVersions((versions) =>
+						versions.filter((version) => version.id != VERSION_ID)
+					);
+
+					const FIRST_VERSION = versions.find(
+						(version) => version.id != VERSION_ID
+					);
+					setSelectedVersion(FIRST_VERSION || versions[0] || null);
+
+					const NEW_MAP_VERSIONS = mapSelected.versions.filter(
+						(version) => version.id != VERSION_ID
+					);
+					const MODIFIED_MAP = { ...mapSelected, versions: NEW_MAP_VERSIONS };
+					const MAP_INDEX = maps.findIndex((m) => m.id === mapSelected.id);
+					const NEW_MAPS = [...maps];
+					NEW_MAPS[MAP_INDEX] = MODIFIED_MAP;
+					setMaps(NEW_MAPS);
+					setVersions(MODIFIED_MAP.versions);
+					toast(`Versión eliminada con éxito.`, DEFAULT_TOAST_SUCCESS);
 				}
 			} else {
-				setVersions((versions) =>
-					versions.filter((version) => version.id != VERSION_ID)
-				);
-
-				const FIRST_VERSION = versions.find(
-					(version) => version.id != VERSION_ID
-				);
-				setSelectedVersion(FIRST_VERSION || versions[0] || null);
-
-				const NEW_MAP_VERSIONS = mapSelected.versions.filter(
-					(version) => version.id != VERSION_ID
-				);
-				const MODIFIED_MAP = { ...mapSelected, versions: NEW_MAP_VERSIONS };
-				const MAP_INDEX = maps.findIndex((m) => m.id === mapSelected.id);
-				const NEW_MAPS = [...maps];
-				NEW_MAPS[MAP_INDEX] = MODIFIED_MAP;
-				setMaps(NEW_MAPS);
-				setVersions(MODIFIED_MAP.versions);
-				toast(`Versión eliminada con éxito.`, DEFAULT_TOAST_SUCCESS);
+				toast(`No puedes eliminar esta versión.`, DEFAULT_TOAST_ERROR);
 			}
 		} else {
-			toast(`No puedes eliminar esta versión.`, DEFAULT_TOAST_ERROR);
+			toast(`Ha ocurrido un error.`, DEFAULT_TOAST_ERROR);
 		}
 	};
 

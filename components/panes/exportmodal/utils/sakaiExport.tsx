@@ -33,12 +33,12 @@ function fixGradables(nodeArray: Array<INode>) {
 
 	nodeArray.map((node) => {
 		if (
-			"g" in node.data &&
-			node.data.g &&
-			"subConditions" in node.data.g &&
-			node.data.g.subConditions.length >= 1
+			"gradeRequisites" in node.data &&
+			node.data.gradeRequisites &&
+			"subConditions" in node.data.gradeRequisites &&
+			node.data.gradeRequisites.subConditions.length >= 1
 		) {
-			const newCondition = { ...node.data.g };
+			const newCondition = { ...node.data.gradeRequisites };
 
 			let blockResource = nodeArray.find(
 				(node) => node.id == newCondition.itemId
@@ -236,75 +236,76 @@ function fixLessonsAndConditions(
 			if ("data" in NEW_NODE) delete NEW_NODE.data;
 			if ("c" in NEW_NODE) delete NEW_NODE.c;
 			nodesToUpdateRequest.push(NEW_NODE);
+		}
+	});
 
-			const SECTION_PROCESSED = {};
+	const SECTION_PROCESSED = {};
 
-			SORTED_SECTION_COLUMN_PAIRS.map((sortedNode) => {
-				if (!SECTION_PROCESSED[sortedNode.section]) {
-					// Process the section if it hasn't been processed yet
-					resultJson.push({
-						pageId: Number(LESSON_FIND.page_id),
-						type: 14,
-						title: "",
-						format: "section",
-					});
-
-					const FILTERED_ARRAY = nodeArray
-						.filter(
-							(node) =>
-								node.section === sortedNode.section &&
-								node.indent === sortedNode.indent
-						)
-						.sort((a, b) => a.order - b.order);
-
-					FILTERED_ARRAY.map((node) => {
-						const NODE_TYPE_PARSED = sakaiTypeSwitch(node);
-						resultJson.push({
-							pageId: Number(LESSON_FIND.page_id),
-							type: NODE_TYPE_PARSED.type,
-							title: node.label,
-							contentRef: NODE_TYPE_PARSED.contentRef,
-						});
-					});
-
-					SECTION_PROCESSED[sortedNode.section] = true; // Mark the section as processed
-				} else {
-					resultJson.push({
-						pageId: Number(LESSON_FIND.page_id),
-						type: 14,
-						title: "",
-						format: "column",
-					});
-
-					const FILTERED_ARRAY = nodeArray
-						.filter(
-							(node) =>
-								node.section === sortedNode.section &&
-								node.indent === sortedNode.indent
-						)
-						.sort((a, b) => a.order - b.order);
-
-					FILTERED_ARRAY.map((node) => {
-						const NODE_TYPE_PARSED = sakaiTypeSwitch(node);
-						resultJson.push({
-							pageId: Number(LESSON_FIND.page_id),
-							type: NODE_TYPE_PARSED.type,
-							title: node.label,
-							contentRef: NODE_TYPE_PARSED.contentRef,
-						});
-					});
-				}
+	console.log(SORTED_SECTION_COLUMN_PAIRS);
+	SORTED_SECTION_COLUMN_PAIRS.map((sortedNode) => {
+		if (!SECTION_PROCESSED[sortedNode.section]) {
+			// Process the section if it hasn't been processed yet
+			resultJson.push({
+				pageId: Number(LESSON_FIND.page_id),
+				type: 14,
+				title: "",
+				format: "section",
 			});
 
-			SORTED_SECTION_COLUMN_PAIRS.sort((a, b) => {
-				// Compare by "section" first
-				if (a.section < b.section) return -1;
-				if (a.section > b.section) return 1;
+			const FILTERED_ARRAY = nodeArray
+				.filter(
+					(node) =>
+						node.section === sortedNode.section &&
+						node.indent === sortedNode.indent
+				)
+				.sort((a, b) => a.order - b.order);
 
-				// If "section" values are the same, compare by "indent" (column)
-				return a.indent - b.indent;
+			FILTERED_ARRAY.map((node) => {
+				const NODE_TYPE_PARSED = sakaiTypeSwitch(node);
+				resultJson.push({
+					pageId: Number(LESSON_FIND.page_id),
+					type: NODE_TYPE_PARSED.type,
+					title: node.label,
+					contentRef: NODE_TYPE_PARSED.contentRef,
+				});
+			});
+
+			SECTION_PROCESSED[sortedNode.section] = true; // Mark the section as processed
+		} else {
+			resultJson.push({
+				pageId: Number(LESSON_FIND.page_id),
+				type: 14,
+				title: "",
+				format: "column",
+			});
+
+			const FILTERED_ARRAY = nodeArray
+				.filter(
+					(node) =>
+						node.section === sortedNode.section &&
+						node.indent === sortedNode.indent
+				)
+				.sort((a, b) => a.order - b.order);
+
+			FILTERED_ARRAY.map((node) => {
+				const NODE_TYPE_PARSED = sakaiTypeSwitch(node);
+				resultJson.push({
+					pageId: Number(LESSON_FIND.page_id),
+					type: NODE_TYPE_PARSED.type,
+					title: node.label,
+					contentRef: NODE_TYPE_PARSED.contentRef,
+				});
 			});
 		}
+	});
+
+	SORTED_SECTION_COLUMN_PAIRS.sort((a, b) => {
+		// Compare by "section" first
+		if (a.section < b.section) return -1;
+		if (a.section > b.section) return 1;
+
+		// If "section" values are the same, compare by "indent" (column)
+		return a.indent - b.indent;
 	});
 
 	return { LESSON_FIND, resultJson, nodesToUpdateRequest };
@@ -354,6 +355,7 @@ export default function sakaiExport(
 
 	const nodesCleaned = finalClean(nodesWithRequisites);
 	console.log("nodesCleaned", nodesCleaned);
+
 	return {
 		resources: nodesCleaned,
 		resultJson: extraParams.resultJson,

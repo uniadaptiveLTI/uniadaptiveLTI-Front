@@ -444,8 +444,9 @@ export default function SimpleConditionsMoodle({ id }) {
 									const BADGE_FOUND = METADATA_BADGE_LIST.find(
 										(metaBadge) => metaBadge.id.toString() === badge
 									);
-
-									return <li key={BADGE_FOUND.id}>{BADGE_FOUND.name}</li>;
+									if (BADGE_FOUND) {
+										return <li key={BADGE_FOUND.id}>{BADGE_FOUND.name}</li>;
+									}
 								})}
 							</ul>
 						</>

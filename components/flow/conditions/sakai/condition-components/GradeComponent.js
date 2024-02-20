@@ -62,7 +62,7 @@ function GradeComponent({
 
 		let updatedBlockData = { ...blockData };
 
-		updatedBlockData.data.g.subConditions = NEW_SUBCONDITIONS;
+		updatedBlockData.data.gradeRequisites.subConditions = NEW_SUBCONDITIONS;
 
 		setBlockData(updatedBlockData);
 	}
