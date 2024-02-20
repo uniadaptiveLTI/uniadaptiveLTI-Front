@@ -604,7 +604,10 @@ function ConditionModalMoodle({
 						...UPDATED_BLOCKDATA,
 						data: {
 							...UPDATED_BLOCKDATA.data,
-							c: UPDATED_CONDITION,
+							c: {
+								...UPDATED_BLOCKDATA.data.c,
+								c: [...UPDATED_BLOCKDATA.data.c.c, ...UPDATED_CONDITION.c],
+							},
 						},
 					};
 					setBlockData(UPDATED_JSON_OBJECT);

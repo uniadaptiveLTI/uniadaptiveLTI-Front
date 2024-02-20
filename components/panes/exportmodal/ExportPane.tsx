@@ -214,17 +214,17 @@ export default function ExportPanel({
 						return section.position == node.data.section;
 					}
 				});
-				console.log(":cohete: ~ SECTION ~ SECTION:", SECTION);
+				console.log("🚀 ~ SECTION ~ SECTION:", SECTION);
 				//Change section position for section id
 				if (SECTION != undefined && "section" in newNode.data) {
 					newNode.data.section = SECTION.id;
 					console.log(
-						":cohete: ~ nodesReordered ~ newNode.data.section:",
+						"🚀 ~ nodesReordered ~ newNode.data.section:",
 						newNode.data.section
 					);
 				}
 			}
-			console.log(":cohete: ~ nodesReordered ~ newNode:", newNode);
+			console.log("🚀 ~ nodesReordered ~ newNode:", newNode);
 			return newNode;
 		});
 

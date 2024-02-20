@@ -129,13 +129,10 @@ function manageConditions(nodeArray: Array<INode>) {
 		for (let i = 0; i < conditionArray.length; i++) {
 			// Obtener el elemento actual
 			let element = conditionArray[i];
-			console.log(element);
 			// Comprobar si el tipo es "generic"
 			if (element.type === "generic") {
-				console.log("PRE", conditionArray[i]);
 				// Reemplazar el elemento con su propiedad "data"
 				conditionArray.c[i] = element.data;
-				console.log("POST", conditionArray[i]);
 			}
 
 			// Comprobar si el elemento tiene una propiedad "c" que es un array de JSON
@@ -144,7 +141,6 @@ function manageConditions(nodeArray: Array<INode>) {
 				replaceGenericConditions(element);
 			}
 		}
-		console.log(conditionArray);
 
 		return conditionArray;
 	}
