@@ -62,7 +62,7 @@ import {
 import { getLastPositionInSakaiColumn } from "@utils/Sakai";
 import { parseBool } from "../utils/Utils";
 import getModulesByType from "middleware/api/getModulesByType";
-import { IElementNodeData } from "./interfaces/INode";
+import { IElementNodeData, INode } from "./interfaces/INode";
 
 export default function Aside({ LTISettings, className }) {
 	const { errorList, setErrorList } = useContext(ErrorListContext);
@@ -131,6 +131,7 @@ export default function Aside({ LTISettings, className }) {
 	);
 
 	const fetchResources = async (selectedOption) => {
+		console.log(selectedOption);
 		try {
 			if (selectedOption != "fragment") {
 				const encodedSelectedOption = encodeURIComponent(selectedOption);
@@ -186,9 +187,10 @@ export default function Aside({ LTISettings, className }) {
 
 	useEffect(() => {
 		//FIXME: No sucede
-		if (!selectedOption) {
+		if (nodeSelected && !nodeSelected.type) {
+			if (nodeSelected) console.log(nodeSelected.type);
 			setResourceOptions([]);
-		} else {
+		} else if (nodeSelected) {
 			if (parseBool(process.env.NEXT_PUBLIC_DEV_FILES)) {
 				setResourceOptions([]);
 				setTimeout(() => {
@@ -197,7 +199,7 @@ export default function Aside({ LTISettings, className }) {
 							id: "0",
 							name: `${capitalizeFirstLetter(
 								NodeDeclarations.filter(
-									(node) => node.type == selectedOption
+									(node) => node.type == nodeSelected.type
 								)[0].name
 							)} A`,
 						},
@@ -205,7 +207,7 @@ export default function Aside({ LTISettings, className }) {
 							id: "1",
 							name: `${capitalizeFirstLetter(
 								NodeDeclarations.filter(
-									(node) => node.type == selectedOption
+									(node) => node.type == nodeSelected.type
 								)[0].name
 							)} B`,
 						},
@@ -213,7 +215,7 @@ export default function Aside({ LTISettings, className }) {
 							id: "2",
 							name: `${capitalizeFirstLetter(
 								NodeDeclarations.filter(
-									(node) => node.type == selectedOption
+									(node) => node.type == nodeSelected.type
 								)[0].name
 							)} C`,
 						},
@@ -221,7 +223,7 @@ export default function Aside({ LTISettings, className }) {
 							id: "3",
 							name: `${capitalizeFirstLetter(
 								NodeDeclarations.filter(
-									(node) => node.type == selectedOption
+									(node) => node.type == nodeSelected.type
 								)[0].name
 							)} D`,
 						},
@@ -257,7 +259,7 @@ export default function Aside({ LTISettings, className }) {
 					UNIQUE_FILTERED_DATA.unshift({
 						id: -1,
 						name: NodeDeclarations.filter(
-							(node) => node.type == selectedOption
+							(node) => node.type == nodeSelected.type
 						)[0].emptyName,
 					});
 					setResourceOptions(UNIQUE_FILTERED_DATA);
@@ -368,10 +370,6 @@ export default function Aside({ LTISettings, className }) {
 		}
 	};
 
-	const handleSelect = (event) => {
-		setSelectedOption(event.target.value);
-	};
-
 	useEffect(() => {
 		if (nodeSelected) {
 			const CURRENT_LABEL = labelDOM.current;
@@ -412,8 +410,6 @@ export default function Aside({ LTISettings, className }) {
 						CURRENT_INDENT.value = nodeSelected.data.indent;
 					}
 			}
-
-			setSelectedOption(nodeSelected.type);
 		}
 	}, [nodeSelected]);
 
@@ -526,7 +522,10 @@ export default function Aside({ LTISettings, className }) {
 
 				const updateNodes = (updatedData) => {
 					reactFlowInstance.setNodes(
-						getUpdatedArrayById(updatedData, reactFlowInstance.getNodes())
+						getUpdatedArrayById(
+							updatedData,
+							reactFlowInstance.getNodes()
+						) as Array<INode>
 					);
 				};
 
@@ -597,7 +596,10 @@ export default function Aside({ LTISettings, className }) {
 				errorListCheck(UPDATED_DATA, errorList, setErrorList);
 
 				reactFlowInstance.setNodes(
-					getUpdatedArrayById(UPDATED_DATA, reactFlowInstance.getNodes())
+					getUpdatedArrayById(
+						UPDATED_DATA,
+						reactFlowInstance.getNodes()
+					) as Array<INode>
 				);
 
 				errorListCheck(UPDATED_DATA, errorList, setErrorList);
@@ -619,7 +621,10 @@ export default function Aside({ LTISettings, className }) {
 			};
 
 			reactFlowInstance.setNodes(
-				getUpdatedArrayById(UPDATED_DATA, reactFlowInstance.getNodes())
+				getUpdatedArrayById(
+					UPDATED_DATA,
+					reactFlowInstance.getNodes()
+				) as Array<INode>
 			);
 		}
 		console.log(nodeSelected);
@@ -775,8 +780,8 @@ export default function Aside({ LTISettings, className }) {
 											ref={resourceDOM}
 											id={typeDOMId}
 											className="w-100"
-											defaultValue={selectedOption}
-											onChange={handleSelect}
+											defaultValue={nodeSelected ? "" : nodeSelected.type}
+											//onChange={handleSelect}
 										>
 											{metaData.platform == Platforms.Moodle
 												? MOODLE_RESOURCE_NAMES.map((option) => {
@@ -814,7 +819,7 @@ export default function Aside({ LTISettings, className }) {
 								{!(
 									nodeSelected.type == "fragment" ||
 									nodeSelected.type == "mail" ||
-									selectedOption == "mail"
+									nodeSelected.type == "mail"
 								) && (
 									<div className="mb-3">
 										<div className="d-flex gap-2">

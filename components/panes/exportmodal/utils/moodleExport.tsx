@@ -184,6 +184,7 @@ function finalClean(nodeArray: Array<any>) {
 			children: any;
 			label: string;
 			lmsResource: any;
+			actionType?: INode["type"];
 		}
 
 		const newNode: moodleNode = {
@@ -191,6 +192,7 @@ function finalClean(nodeArray: Array<any>) {
 			...node.data,
 			id: node.id == "" ? -1 : Number(node.id),
 		};
+		if (newNode.type == "badge") newNode.actionType = newNode.type;
 		delete newNode.type;
 		if ("c" in newNode && "id" in newNode.c) delete newNode.c.id;
 		delete newNode.data;
