@@ -12,15 +12,15 @@ function manageShowC(nodeArray: Array<INode>): Array<INode> {
 		conditionArray: Array<MoodleAllConditionTypes>
 	) {
 		conditionArray.forEach((condition) => {
-			if ("showc" in condition && condition.hasOwnProperty("showc")) {
-				delete condition.showc;
-			}
 			if (
 				"c" in condition &&
 				condition.hasOwnProperty("c") &&
 				Array.isArray(condition.c)
 			) {
-				condition.c.forEach(deleteRecursiveShowC);
+				deleteRecursiveShowC(condition.c);
+			}
+			if ("showc" in condition && condition.hasOwnProperty("showc")) {
+				delete condition.showc;
 			}
 		});
 	}
@@ -46,14 +46,20 @@ function manageShowC(nodeArray: Array<INode>): Array<INode> {
 				const getFirstLevelShowC = ConditionsGroup.c.map(
 					(condition) => condition.showc
 				);
-				deleteRecursiveShowC(newConditionsGroup.c);
 				newConditionsGroup.showc = getFirstLevelShowC;
 				break;
 			case ReplaceModes.FirstLevel:
 				newConditionsGroup.show = Boolean(newConditionsGroup.showc);
-				deleteRecursiveShowC(newConditionsGroup.c);
 				delete newConditionsGroup.showc;
 				break;
+		}
+
+		if (
+			"c" in newConditionsGroup &&
+			newConditionsGroup.hasOwnProperty("c") &&
+			Array.isArray(newConditionsGroup.c)
+		) {
+			deleteRecursiveShowC(newConditionsGroup.c);
 		}
 
 		return newConditionsGroup;
@@ -62,17 +68,13 @@ function manageShowC(nodeArray: Array<INode>): Array<INode> {
 	return nodeArray.map((node) => {
 		if (
 			node.data.c != undefined &&
-			Array.isArray(node.data.c) &&
-			node.data.c.every(
-				(item) => item.type == "conditionsGroup" && "op" in item
-			)
+			"type" in node.data.c &&
+			node.data.c.type == "conditionsGroup" &&
+			"op" in node.data.c
 		) {
 			return {
 				...node,
-				data: {
-					...node.data,
-					c: node.data.c.map(setFixShowCMode),
-				},
+				data: { ...node.data, c: setFixShowCMode(node.data.c) },
 			};
 		} else {
 			return node;
