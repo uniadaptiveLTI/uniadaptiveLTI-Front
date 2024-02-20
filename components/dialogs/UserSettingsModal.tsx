@@ -4,6 +4,7 @@ import UserSettingsLayout from "@components/layouts/UserSettingsLayout";
 import UserSettingsPane, {
 	UserSettingsPaneRef,
 } from "@components/panes/usersettings/UserSettingsPane";
+import Sponsor from "@components/Sponsor";
 
 interface UserSettingsModalProps {
 	showDialog: boolean;
@@ -29,6 +30,7 @@ const UserSettingsModal: React.FC<UserSettingsModalProps> = ({
 				<UserSettingsLayout LTISettings={LTISettings} paneRef={paneRef}>
 					<UserSettingsPane ref={paneRef}></UserSettingsPane>
 				</UserSettingsLayout>
+				<Sponsor />
 			</Modal.Body>
 		</Modal>
 	);
