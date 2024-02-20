@@ -14,6 +14,7 @@ import { ActionNodes } from "@utils/Nodes";
 import { useRef, forwardRef, useContext } from "react";
 import { getGradableTypes } from "@utils/TypeDefinitions";
 import { MetaDataContext } from "/pages/_app";
+import { Platforms } from "@utils/Platform";
 
 const Menu = (
 	{
@@ -42,10 +43,10 @@ const Menu = (
 		<div ref={ref} className={styles.cM + " "}>
 			{["fragment"].includes(blockData.type) == false && (
 				<li>
-					{metaData.platform == "moodle" && (
+					{metaData.platform == Platforms.Moodle && (
 						<Button
 							variant="light"
-							onClick={() => handleShow("conditions")}
+							onClick={() => handleShow(blockData.id, "conditions")}
 							disabled={!EnableEditPreconditions}
 						>
 							<div>
@@ -57,10 +58,10 @@ const Menu = (
 							</div>
 						</Button>
 					)}
-					{metaData.platform == "sakai" && (
+					{metaData.platform == Platforms.Sakai && (
 						<Button
 							variant="light"
-							onClick={() => handleShow("requisites")}
+							onClick={() => handleShow(blockData.id, "requisites")}
 							disabled={!EnableEditPreconditions}
 						>
 							<div>
@@ -79,7 +80,7 @@ const Menu = (
 					<li>
 						<Button
 							variant="light"
-							onClick={() => handleShow("grades")}
+							onClick={() => handleShow(blockData.id, "grades")}
 							disabled={!EnableGradeConditions}
 						>
 							<div>

@@ -77,7 +77,7 @@ export default function SimpleConditionsMoodle({ id }) {
 			op: "|",
 			parsed: (
 				<a>
-					Si se cumple <b>UNO:</b>
+					Si se cumple <b>CUALQUIERA:</b>
 				</a>
 			),
 		},
@@ -93,7 +93,7 @@ export default function SimpleConditionsMoodle({ id }) {
 			op: "!|",
 			parsed: (
 				<a>
-					Si NO se cumple <b>UNO:</b>
+					Si NO se cumple <b>CUALQUIERA:</b>
 				</a>
 			),
 		},
@@ -444,8 +444,9 @@ export default function SimpleConditionsMoodle({ id }) {
 									const BADGE_FOUND = METADATA_BADGE_LIST.find(
 										(metaBadge) => metaBadge.id.toString() === badge
 									);
-
-									return <li key={BADGE_FOUND.id}>{BADGE_FOUND.name}</li>;
+									if (BADGE_FOUND) {
+										return <li key={BADGE_FOUND.id}>{BADGE_FOUND.name}</li>;
+									}
 								})}
 							</ul>
 						</>
@@ -479,10 +480,9 @@ export default function SimpleConditionsMoodle({ id }) {
 						<p style={prefix}>
 							{
 								<>
-									{getConditionIcon("generic")}{" "}
-									{c?.data?.type ? c.data.type : "CODE_NOT_FOUND"}
-									{": "}
-									Condición <b>no soportada </b>
+									Condición no soportada:{" "}
+									<b>{c?.data?.type ? c.data.type : "CODE_NOT_FOUND"}</b>{" "}
+									{getConditionIcon("generic")}
 								</>
 							}
 						</p>

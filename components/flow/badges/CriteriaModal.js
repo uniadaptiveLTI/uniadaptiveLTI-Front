@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import styles from "/styles/ConditionModalMoodle.module.css";
 //import { Editor } from "@tinymce/tinymce-react";
-import { uniqueId, searchConditionForTypes } from "@utils/Utils";
+import { uniqueId } from "@utils/Utils";
 import {
 	Modal,
 	Button,
@@ -29,6 +29,8 @@ function CriteriaModal({
 	onEdgesDelete,
 	showConditionsModal,
 	setShowConditionsModal,
+	conditionEdgeView,
+	setConditionEdgeView,
 }) {
 	const reactFlowInstance = useReactFlow();
 
@@ -53,6 +55,13 @@ function CriteriaModal({
 	const SKILL_LIST = metaData.skills;
 
 	const [lmsResourceList, setLmsResourceList] = useState([]);
+
+	useEffect(() => {
+		if (conditionEdgeView) {
+			setConditionEdit(conditionEdgeView);
+			setConditionEdgeView(undefined);
+		}
+	}, [conditionEdgeView]);
 
 	const addCondition = (conditionId) => {
 		if (blockData.data.c.id != conditionId) {

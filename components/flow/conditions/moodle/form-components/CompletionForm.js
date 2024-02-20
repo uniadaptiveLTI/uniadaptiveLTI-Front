@@ -2,6 +2,7 @@ import React, { useId } from "react";
 import { Form } from "react-bootstrap";
 import { getGradableTypes } from "@utils/TypeDefinitions";
 import { getNodeById } from "@utils/Nodes";
+import { Platforms } from "@utils/Platform";
 
 function CompletionForm({
 	parentsNodeArray,
@@ -52,7 +53,7 @@ function CompletionForm({
 					{/* The value is in that order refering to Moodle DB table schem */}
 					<option value="1">debe estar completa</option>
 					<option value="0">no debe estar completa</option>
-					{getGradableTypes("moodle").includes(SOURCE_NODE?.type) &&
+					{getGradableTypes(Platforms.Moodle).includes(SOURCE_NODE?.type) &&
 						SOURCE_NODE?.data?.g?.hasToBeQualified && (
 							<>
 								<option value="2">debe estar completa y aprobada</option>

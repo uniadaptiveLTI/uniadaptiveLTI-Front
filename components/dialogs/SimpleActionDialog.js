@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Modal, Button } from "react-bootstrap";
 
 export default function SimpleActionDialog({
@@ -8,7 +7,7 @@ export default function SimpleActionDialog({
 	title,
 	body,
 	action,
-	cancel,
+	cancel = undefined,
 	callback,
 }) {
 	function handleClose(actionClicked) {

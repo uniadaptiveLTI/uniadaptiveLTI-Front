@@ -18,11 +18,7 @@ import DateForm from "@components/flow//conditions/moodle/form-components/DateFo
 import ConditionsGroupForm from "@components/flow//conditions/moodle/form-components/ConditionsGroupForm";
 import GroupForm from "@components/flow//conditions/moodle/form-components/GroupForm";
 import GroupingForm from "@components/flow//conditions/moodle/form-components/GroupingForm";
-import {
-	uniqueId,
-	searchConditionForTypes,
-	findCompletionAndGrade,
-} from "@utils/Utils";
+import { uniqueId, findCompletionAndGrade } from "@utils/Utils";
 import CourseGradeForm from "./form-components/CourseGradeForm";
 import { useReactFlow } from "reactflow";
 import { MetaDataContext } from "pages/_app.tsx";
@@ -34,6 +30,8 @@ function ConditionModalMoodle({
 	onEdgesDelete,
 	showConditionsModal,
 	setShowConditionsModal,
+	conditionEdgeView,
+	setConditionEdgeView,
 }) {
 	const reactFlowInstance = useReactFlow();
 	const { metaData, setMetaData } = useContext(MetaDataContext);
@@ -458,8 +456,6 @@ function ConditionModalMoodle({
 
 			onEdgesDelete(FILTERED_CHILDREN);
 
-			searchConditionForTypes(CONDITION_COPY, TARGET_TYPES, MATCHING_OBJECTS);
-
 			const FILTERED_EDGES = EDGES.filter(
 				(edge) =>
 					!MATCHING_OBJECTS.some(
@@ -608,7 +604,10 @@ function ConditionModalMoodle({
 						...UPDATED_BLOCKDATA,
 						data: {
 							...UPDATED_BLOCKDATA.data,
-							c: UPDATED_CONDITION,
+							c: {
+								...UPDATED_BLOCKDATA.data.c,
+								c: [...UPDATED_BLOCKDATA.data.c.c, ...UPDATED_CONDITION.c],
+							},
 						},
 					};
 					setBlockData(UPDATED_JSON_OBJECT);
@@ -636,7 +635,7 @@ function ConditionModalMoodle({
 	}
 
 	const addConditionToMain = () => {
-		if (blockData.data.c) {
+		if (blockData.data?.c?.length >= 1) {
 			addCondition(blockData.data.c.id);
 		} else {
 			const FIRST_CONDITION_GROUP = {
@@ -763,6 +762,13 @@ function ConditionModalMoodle({
 	};
 
 	useEffect(() => {
+		if (conditionEdgeView) {
+			setConditionEdit(conditionEdgeView);
+			setConditionEdgeView(undefined);
+		}
+	}, [conditionEdgeView]);
+
+	useEffect(() => {
 		if (conditionEdit) {
 			if (conditionEdit.type !== "profile") {
 				setProfileObjective(true);
@@ -774,7 +780,7 @@ function ConditionModalMoodle({
 
 	const CONDITIONS_GROUP_OPERATOR_LIST = [
 		{ value: "&", name: "Deben cumplirse todas" },
-		{ value: "|", name: "Solo debe cumplirse una" },
+		{ value: "|", name: "Debe cumplirse alguna" },
 		{ value: "!&", name: "No se deben cumplir todas" },
 		{ value: "!|", name: "No debe cumplirse alguna" },
 	];

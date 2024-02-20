@@ -42,6 +42,8 @@ function RequisiteModalSakai({
 	setBlockData,
 	blocksData,
 	onEdgesDelete,
+	conditionEdgeView,
+	setConditionEdgeView,
 	showRequisitesModal,
 	setShowRequisitesModal,
 }) {
@@ -53,6 +55,13 @@ function RequisiteModalSakai({
 	const [editing, setEditing] = useState(undefined);
 	const [conditionEdit, setConditionEdit] = useState(undefined);
 	const [exceptionSelected, setExceptionSelected] = useState("user");
+
+	useEffect(() => {
+		if (conditionEdgeView) {
+			setConditionEdit(conditionEdgeView);
+			setConditionEdgeView(undefined);
+		}
+	}, [conditionEdgeView]);
 
 	useEffect(() => {
 		if (conditionEdit) {

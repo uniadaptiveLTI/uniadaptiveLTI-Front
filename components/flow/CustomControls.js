@@ -38,7 +38,6 @@ export default function CustomControls({
 	};
 	const zoomOut = () => {
 		reactFlowInstance.zoomOut();
-		console.log(reactFlowInstance);
 	};
 
 	useLayoutEffect(() => {

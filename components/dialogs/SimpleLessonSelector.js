@@ -5,7 +5,7 @@ import LessonSelector from "@components/forms/components/LessonSelector";
 export default function SimpleLessonSelector({
 	showDialog,
 	setShowDialog,
-	title,
+	title = "Selección de Contenido",
 	action,
 	callback,
 	lessons,
@@ -29,7 +29,7 @@ export default function SimpleLessonSelector({
 	return (
 		<Modal show={showDialog} onHide={() => setShowDialog(false)}>
 			<Modal.Header closeButton>
-				<Modal.Title>{title ? title : "Selección de Contenido"}</Modal.Title>
+				<Modal.Title>{title}</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
 				<LessonSelector lessons={lessons} ref={selectDOM}></LessonSelector>

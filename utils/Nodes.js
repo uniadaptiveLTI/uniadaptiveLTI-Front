@@ -3,7 +3,7 @@ import {
 	getUpdatedArrayById,
 	orderByPropertyAlphabetically,
 } from "@utils/Utils";
-import { NodeTypes } from "@utils/TypeDefinitions";
+import { NodeDeclarations } from "@utils/TypeDefinitions";
 
 /**
  * An array of node types that are reserved and cannot be modified or deleted.
@@ -15,7 +15,7 @@ export const ReservedNodeTypes = []; //Deprecated
  * An array of node types that are actions and can be executed.
  * @const {string[]}
  */
-export const ActionNodes = NodeTypes.map((node) => {
+export const ActionNodes = NodeDeclarations.map((node) => {
 	if (node.nodeType == "ActionNode") return node.type;
 });
 
@@ -163,7 +163,7 @@ export const getNodesByNodesDOM = (nodesDOM, nodeArray) => {
 /**
  * Returns the DOM element of a node with a given id in a React Flow graph.
  * @param {string} id - The id of the node to find.
- * @returns {Element|null} The DOM element of the node or null if not found.
+ * @returns {HTMLElement|null} The DOM element of the node or null if not found.
  */
 export const getNodeDOMById = (id) => {
 	return [...document.getElementsByClassName("react-flow__node")].find(
@@ -490,7 +490,7 @@ export function nodeArrayContainsGrades(nodeArray, metaData) {
  */
 export function getNodeTypeGradableType(node, platform) {
 	return (
-		NodeTypes.find((nt) => nt.type == node.type)?.gradable.find(
+		NodeDeclarations.find((nt) => nt.type == node.type)?.gradable.find(
 			(gradable) => gradable.lms == platform
 		)?.type || ""
 	);

@@ -1,4 +1,5 @@
-import { getHTTPPrefix, getFetchUrl, fetchBackEnd } from "@utils/Utils";
+import { getHTTPPrefix, getFetchUrl } from "@utils/Utils";
+import { fetchBackEnd } from "middleware/common";
 
 describe("getHTTPPrefix", () => {
 	test("should return the window location protocol", () => {

@@ -1,17 +1,7 @@
 import React, { useContext } from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { MetaDataContext } from "pages/_app.tsx";
 import LogicalSetComponent from "@components/flow/conditions/sakai/condition-components/LogicalSetComponent";
-import {
-	faArrowDown,
-	faArrowUp,
-	faEdit,
-	faEye,
-	faEyeSlash,
-	faTrashCan,
-} from "@fortawesome/free-solid-svg-icons";
-import { uniqueId } from "@utils/Utils";
 
 function GradeComponent({
 	blockData,

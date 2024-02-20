@@ -11,6 +11,7 @@ import styles from "/styles/ContextualMenu.module.css";
 import { Button } from "react-bootstrap";
 import { useRef, forwardRef, useContext } from "react";
 import { MetaDataContext } from "pages/_app";
+import { Platforms } from "@utils/Platform";
 const Menu = (
 	{
 		handleShowNodeSelector,
@@ -39,7 +40,7 @@ const Menu = (
 					</div>
 				</Button>
 			</li>
-			{metaData.platform != "sakai" && (
+			{metaData.platform != Platforms.Sakai && (
 				<li>
 					<Button
 						variant="light"

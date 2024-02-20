@@ -93,11 +93,11 @@ export function createNewSakaiMap(nodes, lesson, metadata, maps) {
 	const IS_EMPTY = nodes.length < 1;
 	if (!IS_EMPTY) {
 		nodes.forEach((node) => {
-			if (node.data.gradeRequisites) {
+			if (node.data.g) {
 				const PARENT_NODES = [];
 
-				let rootParent = node.data.gradeRequisites
-					? { ...node.data.gradeRequisites, id: uniqueId() }
+				let rootParent = node.data.g
+					? { ...node.data.g, id: uniqueId() }
 					: undefined;
 				delete rootParent?.argument;
 				delete rootParent?.siteId;
@@ -124,7 +124,7 @@ export function createNewSakaiMap(nodes, lesson, metadata, maps) {
 				});
 
 				delete node?.data?.sakaiImportId;
-				node.data.gradeRequisites = PARSED_REQUISITES;
+				node.data.g = PARSED_REQUISITES;
 			}
 		});
 	} else {
@@ -186,7 +186,7 @@ export function parseSakaiNode(nodes, node, newX, newY, validTypes) {
 			lmsResource: String(node.sakaiId),
 			children: [],
 			requisites: [],
-			gradeRequisites: !node.gradeRequisites ? undefined : node.gradeRequisites,
+			g: !node.g ? undefined : node.g,
 		};
 
 		if (NEW_NODE.type == "exam" || NEW_NODE.type == "assign") {

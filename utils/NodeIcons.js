@@ -57,6 +57,7 @@ import {
 	faRectangleList,
 	faBook,
 } from "@fortawesome/free-solid-svg-icons";
+import { Platforms } from "./Platform";
 
 /**
  * Returns an icon based on the type, platform, and desired size.
@@ -69,63 +70,63 @@ export function getTypeIcon(type, platform, desiredSize = 32) {
 	switch (type) {
 		//Moodle + Sakai
 		case "addgroup":
-			return platform == "moodle" ? (
+			return platform == Platforms.Moodle ? (
 				<FontAwesomeIcon icon={faUserPlus} className={"moodleIcon"} />
 			) : (
 				<FontAwesomeIcon icon={faUserPlus} />
 			);
 		case "assign":
-			return platform == "moodle" ? (
+			return platform == Platforms.Moodle ? (
 				<FontAwesomeIcon icon={miAssign} className={"moodleIcon"} />
 			) : (
 				<FontAwesomeIcon icon={faPenToSquare} />
 			);
 		case "folder":
-			return platform == "moodle" ? (
+			return platform == Platforms.Moodle ? (
 				<FontAwesomeIcon icon={miFolder} className={"moodleIcon"} />
 			) : (
 				<FontAwesomeIcon icon={faFolderOpen} />
 			);
 		case "forum":
-			return platform == "moodle" ? (
+			return platform == Platforms.Moodle ? (
 				<FontAwesomeIcon icon={miForum} className={"moodleIcon"} />
 			) : (
 				<FontAwesomeIcon icon={faComments} />
 			);
 		case "mail":
-			return platform == "moodle" ? (
+			return platform == Platforms.Moodle ? (
 				<FontAwesomeIcon icon={faEnvelope} className={"moodleIcon"} />
 			) : (
 				<FontAwesomeIcon icon={faEnvelope} />
 			);
 		case "quiz":
-			return platform == "moodle" ? (
+			return platform == Platforms.Moodle ? (
 				<FontAwesomeIcon icon={miQuiz} className={"moodleIcon"} />
 			) : (
 				<FontAwesomeIcon icon={faClipboardQuestion} />
 			);
 		case "remgroup":
-			return platform == "moodle" ? (
+			return platform == Platforms.Moodle ? (
 				<FontAwesomeIcon icon={faUserMinus} className={"moodleIcon"} />
 			) : (
 				<FontAwesomeIcon icon={faUserMinus} />
 			);
 
 		case "resource":
-			return platform == "moodle" ? (
+			return platform == Platforms.Moodle ? (
 				<FontAwesomeIcon icon={miFile} className={"moodleIcon"} />
 			) : (
 				<FontAwesomeIcon icon={faFile} />
 			);
 
 		case "url":
-			return platform == "moodle" ? (
+			return platform == Platforms.Moodle ? (
 				<FontAwesomeIcon icon={miUrl} className={"moodleIcon"} />
 			) : (
 				<FontAwesomeIcon icon={faLink} />
 			);
 		case "wiki":
-			return platform == "moodle" ? (
+			return platform == Platforms.Moodle ? (
 				<FontAwesomeIcon icon={miWiki} className={"moodleIcon"} />
 			) : (
 				<FontAwesomeIcon icon={faGraduationCap} />
@@ -133,103 +134,103 @@ export function getTypeIcon(type, platform, desiredSize = 32) {
 
 		//Moodle
 		case "badge":
-			return platform == "moodle" ? (
+			return platform == Platforms.Moodle ? (
 				<FontAwesomeIcon icon={faAward} className={"moodleIcon"} />
 			) : (
 				<FontAwesomeIcon icon={faAward} />
 			);
 		case "book":
-			return platform == "moodle" ? (
+			return platform == Platforms.Moodle ? (
 				<FontAwesomeIcon icon={miBook} className={"moodleIcon"} />
 			) : (
 				<FontAwesomeIcon icon={faBookOpen} />
 			);
 		case "chat":
-			return platform == "moodle" ? (
+			return platform == Platforms.Moodle ? (
 				<FontAwesomeIcon icon={miChat} className={"moodleIcon"} />
 			) : (
 				<FontAwesomeIcon icon={faCommentDots} />
 			);
 		case "choice":
-			return platform == "moodle" ? (
+			return platform == Platforms.Moodle ? (
 				<FontAwesomeIcon icon={miChoice} className={"moodleIcon"} />
 			) : (
 				<FontAwesomeIcon icon={faQuestion} />
 			);
 		case "data":
-			return platform == "moodle" ? (
+			return platform == Platforms.Moodle ? (
 				<FontAwesomeIcon icon={miDatabase} className={"moodleIcon"} />
 			) : (
 				<FontAwesomeIcon icon={faDatabase} />
 			);
 		case "feedback":
-			return platform == "moodle" ? (
+			return platform == Platforms.Moodle ? (
 				<FontAwesomeIcon icon={miFeedback} className={"moodleIcon"} />
 			) : (
 				<FontAwesomeIcon icon={faBullhorn} />
 			);
 		case "generic":
-			return platform == "moodle" ? (
+			return platform == Platforms.Moodle ? (
 				<FontAwesomeIcon icon={faQuestion} className={"moodleIcon"} />
 			) : (
 				<FontAwesomeIcon icon={faQuestion} />
 			);
 		case "glossary":
-			return platform == "moodle" ? (
+			return platform == Platforms.Moodle ? (
 				<FontAwesomeIcon icon={miGlossary} className={"moodleIcon"} />
 			) : (
 				<FontAwesomeIcon icon={faBook} />
 			);
 		case "h5pactivity":
-			return platform == "moodle" ? (
+			return platform == Platforms.Moodle ? (
 				<FontAwesomeIcon icon={miH5P} className={"moodleIcon"} />
 			) : (
 				<FontAwesomeIcon icon={faH} />
 			);
 		case "imscp":
-			return platform == "moodle" ? (
+			return platform == Platforms.Moodle ? (
 				<FontAwesomeIcon icon={miIMS} className={"moodleIcon"} />
 			) : (
 				<FontAwesomeIcon icon={faBoxes} />
 			);
 		case "label":
-			return platform == "moodle" ? (
+			return platform == Platforms.Moodle ? (
 				<FontAwesomeIcon icon={miLabel} className={"moodleIcon"} />
 			) : (
 				<FontAwesomeIcon icon={faTag} />
 			);
 		case "lesson":
-			return platform == "moodle" ? (
+			return platform == Platforms.Moodle ? (
 				<FontAwesomeIcon icon={miLesson} className={"moodleIcon"} />
 			) : (
 				<FontAwesomeIcon icon={faPersonChalkboard} />
 			);
 		case "lti":
-			return platform == "moodle" ? (
+			return platform == Platforms.Moodle ? (
 				<FontAwesomeIcon icon={miExternal} className={"moodleIcon"} />
 			) : (
 				<FontAwesomeIcon icon={faPuzzlePiece} />
 			);
 		case "page":
-			return platform == "moodle" ? (
+			return platform == Platforms.Moodle ? (
 				<FontAwesomeIcon icon={miPage} className={"moodleIcon"} />
 			) : (
 				<FontAwesomeIcon icon={faFileText} />
 			);
 		case "scorm":
-			return platform == "moodle" ? (
+			return platform == Platforms.Moodle ? (
 				<FontAwesomeIcon icon={miScorm} className={"moodleIcon"} />
 			) : (
 				<FontAwesomeIcon icon={faBox} />
 			);
 		case "survey":
-			return platform == "moodle" ? (
+			return platform == Platforms.Moodle ? (
 				<FontAwesomeIcon icon={miSurvey} className={"moodleIcon"} />
 			) : (
 				<FontAwesomeIcon icon={faChartSimple} />
 			);
 		case "workshop":
-			return platform == "moodle" ? (
+			return platform == Platforms.Moodle ? (
 				<FontAwesomeIcon icon={miWorkshop} className={"moodleIcon"} />
 			) : (
 				<FontAwesomeIcon icon={faHandshakeAngle} />
@@ -268,7 +269,7 @@ export const getTypeStaticColor = (type, platform) => {
 		type = type.type;
 	//TODO: Add the rest
 	switch (platform) {
-		case "moodle":
+		case Platforms.Moodle:
 			switch (type) {
 				case "addgroup":
 					return "#11A676";
