@@ -6,7 +6,7 @@ export default function Sponsor() {
 			<div className="flex flex-row justify-content-center">
 				<Image
 					src={"/images/ue/foundedbyeu.png"}
-					alt="Fundado por la Unión Europea"
+					alt="Financiado por la Unión Europea - NextGenerationEU"
 					width={300}
 					height={70}
 				></Image>
