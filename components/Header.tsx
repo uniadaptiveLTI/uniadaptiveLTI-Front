@@ -767,6 +767,10 @@ function Header({ LTISettings }, ref) {
 			// Check if output is a string before decoding
 			if (typeof output === "string") {
 				const jsonObject = JSON.parse(base64Decode(output));
+				console.log(jsonObject);
+				console.log(jsonObject.instance_id, metaData.instance_id);
+				console.log(jsonObject.course_id, metaData.course_id);
+				console.log(jsonObject.platform, metaData.platform);
 
 				if (
 					jsonObject.instance_id == metaData.instance_id &&
@@ -774,11 +778,13 @@ function Header({ LTISettings }, ref) {
 					jsonObject.platform == metaData.platform
 				) {
 					errorListCheck(jsonObject.data, errorList, setErrorList, false);
+					setCurrentBlocksData(jsonObject.data);
 					toast("Importado con éxito.", {
 						type: "success",
 						autoClose: 2000,
 						position: "bottom-center",
 					});
+					setShowModalVersions(false);
 				} else {
 					if (jsonObject.platform == metaData.platform) {
 						toast("Plataforma compatible, importación parcial.", {
@@ -800,6 +806,7 @@ function Header({ LTISettings }, ref) {
 							return node;
 						});
 						setCurrentBlocksData(JSON_CLEANED_BLOCKDATA);
+						setShowModalVersions(false);
 						errorListCheck(
 							JSON_CLEANED_BLOCKDATA,
 							errorList,
