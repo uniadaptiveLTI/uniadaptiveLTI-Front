@@ -472,11 +472,7 @@ const OverviewFlow = ({ map }, ref) => {
 										};
 
 										if (
-											"c" in targetNode.data &&
-											!(
-												"type" in targetNode.data.c &&
-												targetNode.data.c.type == "conditionsGroup"
-											)
+											!("c" in targetNode.data)
 										) {
 											targetNode.data.c = {
 												type: "conditionsGroup",
@@ -496,8 +492,8 @@ const OverviewFlow = ({ map }, ref) => {
 								} else {
 									// Just Action Nodes
 									if (
-										"c" in targetNode.data &&
-										Array.isArray(targetNode.data.c)
+										!("c" in targetNode.data) ||
+										(Array.isArray(targetNode.data.c) && targetNode.data.c.length <= 0)
 									) {
 										//If C is an empty array, add the conditions group
 										targetNode.data.c = {
@@ -1512,17 +1508,15 @@ const OverviewFlow = ({ map }, ref) => {
 
 	/**
 	 * Handles the cutting of nodes.
-	 * @param {Array<INode>} [blockData=[]] - The nodes to cut.
+	 * @param {Array<INode>} [blocksData=[]] - The nodes to cut.
 	 */
-	const handleNodeCut = (blockData: Array<INode> = []) => {
+	const handleNodeCut = (blocksData: Array<INode> = []) => {
 		const SELECTED_NODES = getSelectedNodes(nodes as Array<INode>);
-		handleNodeCopy(blockData, true);
+		handleNodeCopy(blocksData, true);
 		if (SELECTED_NODES.length > 1) {
 			handleNodeSelectionDeletion();
 		} else {
-			if (SELECTED_NODES.length == 1) {
-				blockData = [SELECTED_NODES[0]];
-			}
+			let blockData = blocksData[0];
 			handleNodeDeletion(blockData);
 		}
 	};
