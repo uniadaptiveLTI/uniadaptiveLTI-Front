@@ -1508,17 +1508,15 @@ const OverviewFlow = ({ map }, ref) => {
 
 	/**
 	 * Handles the cutting of nodes.
-	 * @param {Array<INode>} [blockData=[]] - The nodes to cut.
+	 * @param {Array<INode>} [blocksData=[]] - The nodes to cut.
 	 */
-	const handleNodeCut = (blockData: Array<INode> = []) => {
+	const handleNodeCut = (blocksData: Array<INode> = []) => {
 		const SELECTED_NODES = getSelectedNodes(nodes as Array<INode>);
-		handleNodeCopy(blockData, true);
+		handleNodeCopy(blocksData, true);
 		if (SELECTED_NODES.length > 1) {
 			handleNodeSelectionDeletion();
 		} else {
-			if (SELECTED_NODES.length == 1) {
-				blockData = [SELECTED_NODES[0]];
-			}
+			let blockData = blocksData[0];
 			handleNodeDeletion(blockData);
 		}
 	};
