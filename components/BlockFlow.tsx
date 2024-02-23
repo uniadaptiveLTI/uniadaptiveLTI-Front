@@ -472,11 +472,7 @@ const OverviewFlow = ({ map }, ref) => {
 										};
 
 										if (
-											"c" in targetNode.data &&
-											!(
-												"type" in targetNode.data.c &&
-												targetNode.data.c.type == "conditionsGroup"
-											)
+											!("c" in targetNode.data)
 										) {
 											targetNode.data.c = {
 												type: "conditionsGroup",
@@ -496,8 +492,8 @@ const OverviewFlow = ({ map }, ref) => {
 								} else {
 									// Just Action Nodes
 									if (
-										"c" in targetNode.data &&
-										Array.isArray(targetNode.data.c)
+										!("c" in targetNode.data) ||
+										(Array.isArray(targetNode.data.c) && targetNode.data.c.length <= 0)
 									) {
 										//If C is an empty array, add the conditions group
 										targetNode.data.c = {
