@@ -2126,7 +2126,7 @@ const OverviewFlow = ({ map }, ref) => {
 		setShowNodeSelector(true);
 	});
 	useHotkeys("ctrl+v", () => handleNodePaste());
-	useHotkeys("ctrl+x", () => handleNodeCut());
+	useHotkeys("ctrl+x", () => handleNodeCut(getSelectedNodes()));
 	/*useHotkeys("ctrl+z", () => {
 		notImplemented("deshacer/rehacer");
 		console.log("UNDO");
