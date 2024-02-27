@@ -30,6 +30,8 @@ import {
 	capitalizeFirstLetter,
 	clampNodesOrder,
 	handleNameCollision,
+	regexReplacer,
+	deleteNotFoundConditions
 } from "@utils/Utils";
 import {
 	getNodeDOMById,
@@ -37,6 +39,7 @@ import {
 	getChildrenNodesFromFragmentID,
 	getParentsNode,
 	getNodeTypeGradableType,
+	ActionNodes
 } from "@utils/Nodes";
 import {
 	EditedNodeContext,
@@ -428,12 +431,6 @@ const OverviewFlow = ({ map }, ref) => {
 				.getNodes()
 				.find((nodes) => nodes.id == targetNodeId) as INode;
 
-			if (sourceNode) {
-				if ("children" in sourceNode.data) {
-					sourceNode.data.children.push(targetNodeId);
-				}
-			}
-
 			if (targetNode) {
 				if (allowLineCreation) {
 					switch (metaData.platform) {
@@ -616,7 +613,7 @@ const OverviewFlow = ({ map }, ref) => {
 				}
 			}
 
-			if (allowLineCreation) {
+			if (allowLineCreation && sourceNode) {
 				if ("children" in sourceNode.data)
 					sourceNode.data.children.push(targetNode.id);
 
@@ -1418,6 +1415,8 @@ const OverviewFlow = ({ map }, ref) => {
 				metaData.course_id == CLIPBOARD_DATA.course_id &&
 				metaData.platform == CLIPBOARD_DATA.platform
 			);
+
+			console.log(NEW_BLOCKS_TO_PASTE);
 			const newBlocks = NEW_BLOCKS_TO_PASTE.map((block, index) => {
 				let newID;
 				let originalID;
@@ -1440,6 +1439,7 @@ const OverviewFlow = ({ map }, ref) => {
 
 				let newLmsResource;
 
+
 				if (
 					CLIPBOARD_DATA.type == "copy" ||
 					(CLIPBOARD_DATA.type == "cut" && SHOULD_EMPTY_RESOURCE)
@@ -1460,6 +1460,7 @@ const OverviewFlow = ({ map }, ref) => {
 				return {
 					...block,
 					id: NEW_ID_ARRAY[index],
+					oldId: block?.id,
 					position: { x: NEW_X_ARRAY[index], y: NEY_Y_ARRAY[index] },
 					data: {
 						...block.data,
@@ -1470,14 +1471,42 @@ const OverviewFlow = ({ map }, ref) => {
 							"("
 						),
 						children: !filteredChildren ? [] : filteredChildren,
-						c: undefined,
+						c: ActionNodes.includes(block.type) ? undefined : block.data.c,
 						lmsResource: newLmsResource,
 					},
 				};
 			});
 
+			console.log("OLD BLOCKS", newBlocks);
+
+			let nodesAsString = JSON.stringify(newBlocks);
+
+			newBlocks.forEach((node) => {
+				const NEW_ID = node.id;
+				const OLD_ID =
+					node.oldId == undefined ? "-1" : node.oldId;
+
+				nodesAsString = regexReplacer(NEW_ID, OLD_ID, nodesAsString);
+			});
+
+			let nodesIdModified = JSON.parse(nodesAsString);
+
+			console.log(nodesIdModified);
+
+			nodesIdModified.forEach(node => {
+				delete node.oldId;
+				console.log(node);
+				if(node.data?.c && node.data?.c?.c){
+					deleteNotFoundConditions(node.data.c.c, nodesIdModified);
+				}
+				console.log(node);
+			});
+
+			console.log(nodesIdModified);
+
+
 			if (COPIED_BLOCKS.length <= 1) {
-				createBlock(newBlocks[0]);
+				createBlock(nodesIdModified[0]);
 			} else {
 				const addToInnerNodes = (blocks) => {
 					//Updates innerNodes with the new IDs
@@ -1501,7 +1530,8 @@ const OverviewFlow = ({ map }, ref) => {
 
 					return [...OUTER_NODES, ...INNER_NODES]; //This order is needed for it to render correctly
 				};
-				createBlockBulk(addToInnerNodes(newBlocks));
+
+				createBlockBulk(addToInnerNodes(nodesIdModified));
 			}
 		}
 	};
@@ -1512,6 +1542,7 @@ const OverviewFlow = ({ map }, ref) => {
 	 */
 	const handleNodeCut = (blocksData: Array<INode> = []) => {
 		const SELECTED_NODES = getSelectedNodes(nodes as Array<INode>);
+		console.log(SELECTED_NODES);
 		handleNodeCopy(blocksData, true);
 		if (SELECTED_NODES.length > 1) {
 			handleNodeSelectionDeletion();

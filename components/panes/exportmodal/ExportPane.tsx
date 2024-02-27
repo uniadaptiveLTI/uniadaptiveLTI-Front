@@ -24,7 +24,7 @@ import {
 } from "pages/_app";
 import { Platforms, getBackupURL, hasSections } from "@utils/Platform";
 import { ActionNodes } from "@utils/Nodes";
-import { saveVersion, parseBool } from "@utils/Utils";
+import { saveVersion, regexReplacer } from "@utils/Utils";
 import { toast } from "react-toastify";
 import {
 	parseMoodleBadgeToExport,
@@ -272,22 +272,18 @@ export default function ExportPanel({
 		console.log("nodesWithoutRF", nodesWithoutRF);
 
 		//Replacing node IDs by the resource IDs globally
-		let nodesAsString = JSON.stringify(nodesWithoutRF);
-		console.log("nodesAsString", nodesAsString);
+		let nodesIdModified = JSON.stringify(nodesWithoutRF);
+		console.log("nodesAsString", nodesIdModified);
 		nodesWithoutRF.forEach((node) => {
 			const ORIGINAL_ID = node.id;
 			const LMS_RESOURCE =
 				node.data.lmsResource == undefined ? "-1" : node.data.lmsResource;
-			const REGEX = new RegExp('"' + ORIGINAL_ID + '"', "g");
 
-			nodesAsString = nodesAsString.replace(
-				REGEX,
-				JSON.stringify(String(LMS_RESOURCE))
-			);
+			nodesIdModified = regexReplacer(ORIGINAL_ID, LMS_RESOURCE, nodesIdModified);
 		});
 
-		const nodesWithResourceIDs = JSON.parse(nodesAsString);
-		console.log("nodesAsStringnodesWithResourceIDs", nodesWithResourceIDs);
+		const nodesWithResourceIDs = JSON.parse(nodesIdModified);
+		console.log("nodesAsStringnodesWithResourceIDs", nodesIdModified);
 
 		return nodesWithResourceIDs;
 	}

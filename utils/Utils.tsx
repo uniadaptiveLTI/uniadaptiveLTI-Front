@@ -811,3 +811,33 @@ export function findConditionByParentId(subConditions, blockNodeId) {
 
 	return null;
 }
+
+export function regexReplacer(OLD_VALUE:string, NEW_VALUE:string, OBJECT_STRING:any){
+	const REGEX = new RegExp('"' + OLD_VALUE + '"', "g");
+
+	OBJECT_STRING = OBJECT_STRING.replace(
+		REGEX,
+		JSON.stringify(String(NEW_VALUE))
+	);
+
+	return OBJECT_STRING;
+}
+
+export function deleteNotFoundConditions(conditions, blocks){
+    if (Array.isArray(conditions)) {
+      for (let i = conditions.length - 1; i >= 0; i--) {
+        const condition = conditions[i];
+
+        if (condition.type === 'grade' || condition.type === 'completion') {
+			const matchingBlock = blocks.find((block) => block.id === condition.cm);
+			if(!matchingBlock){
+				conditions.splice(i, 1);
+			}
+        }
+
+        if (condition.c && Array.isArray(condition.c)) {
+          deleteNotFoundConditions(condition.c, blocks);
+        }
+      }
+    }
+  };
