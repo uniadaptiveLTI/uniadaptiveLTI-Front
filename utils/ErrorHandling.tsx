@@ -24,6 +24,7 @@ export function errorListCheck(
 			data = data[0];
 		}
 		if (data && data.type !== "fragment") {
+			console.log("INITIAL ERROR ARRAY", errorArray);
 			let NODE_ERROR_LIST = errorArray.filter(
 				(error) => error.nodeId == data.id
 			);
@@ -40,7 +41,7 @@ export function errorListCheck(
 							data.data?.lmsResource != undefined &&
 							data.data?.lmsResource != "-1"
 						) {
-							NODE_ERROR_LIST = NODE_ERROR_LIST.filter(
+							errorArray = errorArray.filter(
 								(errorFounded) => error.id !== errorFounded.id
 							);
 						}
@@ -53,7 +54,7 @@ export function errorListCheck(
 							data.data.section > 0 &&
 							data.type !== "badge"
 						) {
-							NODE_ERROR_LIST = NODE_ERROR_LIST.filter(
+							errorArray = errorArray.filter(
 								(errorFounded) => error.id !== errorFounded.id
 							);
 						}
@@ -65,7 +66,7 @@ export function errorListCheck(
 							data.data.order !== -Infinity &&
 							data.type !== "badge"
 						) {
-							NODE_ERROR_LIST = NODE_ERROR_LIST.filter(
+							errorArray = errorArray.filter(
 								(errorFounded) => error.id !== errorFounded.id
 							);
 						}
@@ -77,18 +78,20 @@ export function errorListCheck(
 			});
 
 			if (!resourceErrorFounded) {
-				createErrorByType(data, NODE_ERROR_LIST, "resource");
+				createErrorByType(data, errorArray, "resource");
 			}
 
 			if (!sectionErrorFounded) {
-				createErrorByType(data, NODE_ERROR_LIST, "section");
+				createErrorByType(data, errorArray, "section");
 			}
 
 			if (!orderErrorFounded) {
-				createErrorByType(data, NODE_ERROR_LIST, "order");
+				createErrorByType(data, errorArray, "order");
 			}
 
-			setErrorList(NODE_ERROR_LIST);
+			console.log("FINAL ERROR ARRAY", errorArray);
+
+			setErrorList(errorArray);
 		}
 	} else {
 		if (deleteFromList) {

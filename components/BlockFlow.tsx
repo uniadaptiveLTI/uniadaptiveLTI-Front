@@ -16,8 +16,9 @@ import ReactFlow, {
 	useReactFlow,
 	OnConnect,
 	Edge,
-	addEdge,
 	OnNodesChange,
+	Node,
+	Connection,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import {
@@ -30,6 +31,8 @@ import {
 	capitalizeFirstLetter,
 	clampNodesOrder,
 	handleNameCollision,
+	regexReplacer,
+	deleteNotFoundConditions,
 } from "@utils/Utils";
 import {
 	getNodeDOMById,
@@ -37,6 +40,7 @@ import {
 	getChildrenNodesFromFragmentID,
 	getParentsNode,
 	getNodeTypeGradableType,
+	ActionNodes,
 } from "@utils/Nodes";
 import {
 	EditedNodeContext,
@@ -428,12 +432,6 @@ const OverviewFlow = ({ map }, ref) => {
 				.getNodes()
 				.find((nodes) => nodes.id == targetNodeId) as INode;
 
-			if (sourceNode) {
-				if ("children" in sourceNode.data) {
-					sourceNode.data.children.push(targetNodeId);
-				}
-			}
-
 			if (targetNode) {
 				if (allowLineCreation) {
 					switch (metaData.platform) {
@@ -471,9 +469,11 @@ const OverviewFlow = ({ map }, ref) => {
 											e: 1,
 										};
 
-										if (
-											!("c" in targetNode.data)
-										) {
+										console.log(
+											"ESTA INDEFINIDO",
+											targetNode.data.c == undefined
+										);
+										if (targetNode.data.c == undefined) {
 											targetNode.data.c = {
 												type: "conditionsGroup",
 												id: uniqueId(),
@@ -482,7 +482,7 @@ const OverviewFlow = ({ map }, ref) => {
 												c: [newCondition],
 											};
 										} else {
-											if ("c" in targetNode.data.c) {
+											if ("c" in targetNode.data.c && targetNode.data.c.c) {
 												targetNode.data.c.c.push(newCondition);
 											} else if ("params" in targetNode.data.c) {
 												targetNode.data.c.params.push(newCondition);
@@ -493,7 +493,8 @@ const OverviewFlow = ({ map }, ref) => {
 									// Just Action Nodes
 									if (
 										!("c" in targetNode.data) ||
-										(Array.isArray(targetNode.data.c) && targetNode.data.c.length <= 0)
+										(Array.isArray(targetNode.data.c) &&
+											targetNode.data.c.length <= 0)
 									) {
 										//If C is an empty array, add the conditions group
 										targetNode.data.c = {
@@ -616,7 +617,7 @@ const OverviewFlow = ({ map }, ref) => {
 				}
 			}
 
-			if (allowLineCreation) {
+			if (allowLineCreation && sourceNode) {
 				if ("children" in sourceNode.data)
 					sourceNode.data.children.push(targetNode.id);
 
@@ -635,12 +636,6 @@ const OverviewFlow = ({ map }, ref) => {
 						target: targetNodeId,
 					},
 				]);
-
-				/*reactFlowInstance.addEdges({
-					id: sourceNodeId + "-" + targetNodeId,
-					source: sourceNodeId,
-					target: targetNodeId,
-				} as Edge);*/
 			}
 		}
 	};
@@ -1418,6 +1413,8 @@ const OverviewFlow = ({ map }, ref) => {
 				metaData.course_id == CLIPBOARD_DATA.course_id &&
 				metaData.platform == CLIPBOARD_DATA.platform
 			);
+
+			console.log(NEW_BLOCKS_TO_PASTE);
 			const newBlocks = NEW_BLOCKS_TO_PASTE.map((block, index) => {
 				let newID;
 				let originalID;
@@ -1460,6 +1457,7 @@ const OverviewFlow = ({ map }, ref) => {
 				return {
 					...block,
 					id: NEW_ID_ARRAY[index],
+					oldId: block?.id,
 					position: { x: NEW_X_ARRAY[index], y: NEY_Y_ARRAY[index] },
 					data: {
 						...block.data,
@@ -1470,14 +1468,47 @@ const OverviewFlow = ({ map }, ref) => {
 							"("
 						),
 						children: !filteredChildren ? [] : filteredChildren,
-						c: undefined,
+						c: ActionNodes.includes(block.type) ? undefined : block.data.c,
 						lmsResource: newLmsResource,
 					},
 				};
 			});
 
+			console.log("OLD BLOCKS", newBlocks);
+
+			let nodesIdModified;
+
+			if(CLIPBOARD_DATA.type == "cut"){
+				let nodesAsString = JSON.stringify(newBlocks);
+
+				newBlocks.forEach((node) => {
+					const NEW_ID = node.id;
+					const OLD_ID =
+						node.oldId == undefined ? "-1" : node.oldId;
+
+					nodesAsString = regexReplacer(NEW_ID, OLD_ID, nodesAsString);
+				});
+
+				nodesIdModified = JSON.parse(nodesAsString);
+
+				console.log(nodesIdModified);
+
+				nodesIdModified.forEach(node => {
+					delete node.oldId;
+					console.log(node);
+					if(node.data?.c && node.data?.c?.c){
+						deleteNotFoundConditions(node.data.c.c, nodesIdModified);
+					}
+					console.log(node);
+				});
+			} else {
+				nodesIdModified = newBlocks;
+			}
+
+			console.log(nodesIdModified);
+
 			if (COPIED_BLOCKS.length <= 1) {
-				createBlock(newBlocks[0]);
+				createBlock(nodesIdModified[0]);
 			} else {
 				const addToInnerNodes = (blocks) => {
 					//Updates innerNodes with the new IDs
@@ -1501,7 +1532,8 @@ const OverviewFlow = ({ map }, ref) => {
 
 					return [...OUTER_NODES, ...INNER_NODES]; //This order is needed for it to render correctly
 				};
-				createBlockBulk(addToInnerNodes(newBlocks));
+
+				createBlockBulk(addToInnerNodes(nodesIdModified));
 			}
 		}
 	};
@@ -1512,6 +1544,7 @@ const OverviewFlow = ({ map }, ref) => {
 	 */
 	const handleNodeCut = (blocksData: Array<INode> = []) => {
 		const SELECTED_NODES = getSelectedNodes(nodes as Array<INode>);
+		console.log(SELECTED_NODES);
 		handleNodeCopy(blocksData, true);
 		if (SELECTED_NODES.length > 1) {
 			handleNodeSelectionDeletion();
@@ -1527,73 +1560,51 @@ const OverviewFlow = ({ map }, ref) => {
 	 * @returns {Node[]} The updated array of nodes with the new block added.
 	 */
 	const createBlock = (blockData: INode) => {
-		//TODO: Block selector
-		const REACTFLOW_BOUNDS = reactFlowWrapper.current?.getBoundingClientRect();
-		const ASIDE_DOM = document.getElementById("aside");
-		const ASIDE_BOUNDS = ASIDE_DOM
-			? ASIDE_DOM?.getBoundingClientRect()
-			: { width: 0 };
+		const PREFERRED_POSITION = {
+			x: currentMousePosition.x,
+			y: currentMousePosition.y,
+		};
 
-		const PREFERRED_POSSITION = contextMenuDOM
-			? { x: cMX, y: cMY }
-			: { x: currentMousePosition.x, y: currentMousePosition.y };
-
-		let flowPos = reactFlowInstance.project({
-			x: PREFERRED_POSSITION.x - REACTFLOW_BOUNDS.left,
-			y: PREFERRED_POSSITION.y - REACTFLOW_BOUNDS.top,
+		const flowPos = reactFlowInstance.screenToFlowPosition({
+			x: PREFERRED_POSITION.x,
+			y: PREFERRED_POSITION.y,
 		});
-
-		const ASIDE_OFFSET = expandedAside
-			? Math.floor(ASIDE_BOUNDS.width / 125) * 125
-			: 0;
-
-		flowPos.x += ASIDE_OFFSET;
 
 		let newBlockCreated;
 
 		if (blockData) {
 			if (blockData.data == undefined) {
-				//If data isn't defined (Alternative blocks)
-				if (blockData.type == "ActionNode") {
-					//Doesn't check plataform as both Moodle and Sakai have this common action
+				if (blockData.type == "emptyfragment") {
 					newBlockCreated = {
 						id: uniqueId(),
 						position: { x: flowPos.x, y: flowPos.y },
-						type: "mail",
+						type: "fragment",
+						height: 68,
+						width: 68,
 						data: {
-							label: "Nuevo bloque de acción",
-							children: undefined,
-							order: 100,
-							section: 1,
+							label: "Nuevo fragmento",
+							innerNodes: [],
+							expanded: false,
 						},
 					};
 				} else {
-					//TODO: Check if ID already exists
-					if (blockData.type == "emptyfragment") {
+					if (blockData.type != "fragment") {
 						newBlockCreated = {
-							id: uniqueId(),
-							position: { x: flowPos.x, y: flowPos.y },
-							type: "fragment",
-							height: 68,
-							width: 68,
-							data: {
-								label: "Nuevo fragmento",
-								innerNodes: [],
-								expanded: false,
+							...blockData,
+							position: {
+								x: flowPos.x,
+								y: flowPos.y,
 							},
 						};
 					} else {
-						if (blockData.type != "fragment") {
-							newBlockCreated = {
+						newBlockCreated = {
+							...{
 								...blockData,
-								position: {
-									x: blockData.position.x + ASIDE_OFFSET + flowPos.x,
-									y: blockData.position.y + ASIDE_OFFSET + flowPos.y,
-								},
-							};
-						} else {
-							newBlockCreated = { ...{ ...blockData, height: 68, width: 68 } };
-						}
+								height: 68,
+								width: 68,
+								position: { x: flowPos.x, y: flowPos.y },
+							},
+						};
 					}
 				}
 			} else {
@@ -1651,28 +1662,23 @@ const OverviewFlow = ({ map }, ref) => {
 	 * @param {Node[]} clipboardData - The data for the new blocks.
 	 */
 	const createBlockBulk = (clipboardData: Array<INode>) => {
-		const REACTFLOW_BOUNDS = reactFlowWrapper.current?.getBoundingClientRect();
+		const PREFERRED_POSITION = {
+			x: currentMousePosition.x,
+			y: currentMousePosition.y,
+		};
 
-		const PREFERRED_POSITION = contextMenuDOM
-			? { x: currentMousePosition.x, y: currentMousePosition.y }
-			: { x: cMX, y: cMY };
-
-		let flowPos = reactFlowInstance.project({
-			x: PREFERRED_POSITION.x - REACTFLOW_BOUNDS.left,
-			y: PREFERRED_POSITION.y - REACTFLOW_BOUNDS.top,
+		const flowPos = reactFlowInstance.screenToFlowPosition({
+			x: PREFERRED_POSITION.x,
+			y: PREFERRED_POSITION.y,
 		});
 
-		//FIXME: Replace asideBounds using reactflow project
-		const ASIDE_OFFSET = expandedAside
-			? Math.floor(asideBounds.width / 125) * 125
-			: 0;
-
-		flowPos.x += ASIDE_OFFSET;
 		const NEW_BLOCKS = clipboardData.map((blockData) => {
 			return {
 				...blockData,
-				x: blockData.position.x + ASIDE_OFFSET + flowPos.x,
-				y: blockData.position.y + ASIDE_OFFSET + flowPos.y,
+				position: {
+					x: blockData.position.x + flowPos.x,
+					y: blockData.position.y + flowPos.y,
+				},
 				data: { ...blockData.data, order: Infinity },
 			};
 		});
@@ -1848,154 +1854,40 @@ const OverviewFlow = ({ map }, ref) => {
 		deleteElements(SELECTED_NODES as unknown as Array<Node>, []);
 	};
 
-	/**
-	 * Handles the creation of a new relation between two nodes.
-	 * @param {Node} origin - The origin node of the relation.
-	 * @param {Node} end - The end node of the relation.
-	 */
-	const handleNewRelation = (origin, end?) => {
+	const handleNewRelation = (origin: Node, end: Node) => {
 		setShowContextualMenu(false);
-
-		if (origin && end) {
-			if (origin.id == end.id) {
-				toast("Relación cancelada", DEFAULT_TOAST_INFO);
-				setRelationStarter(undefined);
-				return;
-			}
-			const CURRENT_GRADABLE_TYPE = getNodeTypeGradableType(
-				origin,
-				metaData.platform
-			);
-
-			if (
-				metaData.platform != Platforms.Moodle ||
-				(metaData.platform == Platforms.Moodle &&
-					((CURRENT_GRADABLE_TYPE == "simple" && origin.data.g?.hasToBeSeen) ||
-						(CURRENT_GRADABLE_TYPE != "simple" &&
-							origin.data.g?.hasConditions)))
-			) {
-				const NEW_NODES_DATA = nodes;
-				const ORIGINAL_INDEX = NEW_NODES_DATA.findIndex(
-					(node) => node.id == origin.id
-				);
-				const ORIGINAL_NODE = NEW_NODES_DATA[ORIGINAL_INDEX];
-				if ("children" in ORIGINAL_NODE.data && ORIGINAL_NODE.data.children) {
-					const IS_ALREADY_A_CHILDREN = ORIGINAL_NODE.data.children.includes(
-						end.id
-					);
-					if (!IS_ALREADY_A_CHILDREN) {
-						ORIGINAL_NODE.data.children.push(end.id);
-					} else {
-						toast("La relación ya existe, no se ha creado.", {
-							hideProgressBar: false,
-							autoClose: 2000,
-							type: "warning",
-							position: "bottom-center",
-							theme: "light",
-						});
-					}
-				} else if ("children" in ORIGINAL_NODE.data) {
-					ORIGINAL_NODE.data.children = [end.id];
-				}
-
-				setRelationStarter(undefined);
-				setNodes(NEW_NODES_DATA);
-				if (getElementNodeTypes().some((node) => node.type === end.type)) {
-					const NEW_CONDITION = {
-						id: String(Date.now() * Math.random()),
-						type: "completion",
-						cm: origin.id,
-						e: 1,
-					};
-
-					if (!end.data.c) {
-						end.data.c = {
-							type: "conditionsGroup",
-							id: String(Date.now() * Math.random()),
-							op: "&",
-							c: [NEW_CONDITION],
-						};
-					} else {
-						end.data.c.c.push(NEW_CONDITION);
-					}
-				} else {
-					const CONDITIONS = end.data.c?.c;
-
-					let conditionExists = undefined;
-
-					if (CONDITIONS != undefined) {
-						conditionExists = CONDITIONS.find(
-							(condition) => condition.type === "completion"
-						);
-					}
-
-					if (conditionExists) {
-						const NEW_CONDITION_TO_APPEND = {
-							id: origin.id,
-							name: origin.data.label,
-						};
-						conditionExists.activityList.push(NEW_CONDITION_TO_APPEND);
-					} else {
-						const NEW_CONDITION = {
-							id: String(Date.now() * Math.random()),
-							type: "completion",
-							activityList: [
-								{
-									id: origin.id,
-									name: origin.data.label,
-								},
-							],
-							op: "&",
-							query: "completed",
-						};
-
-						if (!end.data.c) {
-							end.data.c = {
-								type: "conditionsGroup",
-								id: String(Date.now() * Math.random()),
-								op: "&",
-								c: [NEW_CONDITION],
-							};
-						} else {
-							end.data.c.c.push(NEW_CONDITION);
-						}
-					}
-				}
-				addEdge(
-					{
-						id: origin.id + "-" + end.id,
-						source: origin.id,
-						target: end.id,
-					} as Edge,
-					edges
-				);
-			} else {
-				toast(
-					"El recurso no puede ser finalizado. Compruebe los ajustes de finalización.",
-					{
-						hideProgressBar: false,
-						autoClose: 6000,
-						type: "error",
-						position: "bottom-center",
-						theme: "light",
-					}
-				);
-			}
+		if (end != undefined) {
+			console.log(end);
+			onConnect({
+				source: origin.id,
+				target: end.id,
+			} as unknown as Connection);
+			setRelationStarter(undefined);
 		} else {
-			const SELECTED_BLOCKS = nodes.filter(
+			//Using keyboard
+			const SELECTED_NODES = nodes.filter(
 				(block) => block.selected == true
 			) as Array<INode>;
-			if (SELECTED_BLOCKS.length == 1) {
+			if (SELECTED_NODES.length == 1) {
+				console.log("relationStarter", relationStarter);
 				if (relationStarter == undefined) {
-					setRelationStarter(SELECTED_BLOCKS[0]);
-
+					setRelationStarter(SELECTED_NODES[0]);
 					toast("Iniciando relación...", DEFAULT_TOAST_INFO);
+					console.log(SELECTED_NODES[0]);
 				} else {
-					toast("Finalizando relación...", DEFAULT_TOAST_INFO);
-					handleNewRelation(relationStarter, SELECTED_BLOCKS[0]);
+					//If is the selected node is the same as the origin one
+					if (relationStarter == SELECTED_NODES[0]) {
+						toast("Reiniciando relación...", DEFAULT_TOAST_INFO);
+						setRelationStarter(undefined);
+					} else {
+						toast("Finalizando relación...", DEFAULT_TOAST_INFO);
+						handleNewRelation(relationStarter, SELECTED_NODES[0]);
+					}
 				}
 			} else {
-				toast("Selección inválida", DEFAULT_TOAST_ERROR);
+				//When empty or multiple nodes
+				toast("Selección inválida, selección reiniciada.", DEFAULT_TOAST_ERROR);
+				setRelationStarter(undefined);
 			}
 		}
 	};
@@ -2137,7 +2029,7 @@ const OverviewFlow = ({ map }, ref) => {
 	});*/
 	useHotkeys("ctrl+r", (e) => {
 		e.preventDefault();
-		handleNewRelation(relationStarter);
+		handleNewRelation(relationStarter, undefined);
 	});
 	useHotkeys("ctrl+f", (e) => {
 		e.preventDefault();
