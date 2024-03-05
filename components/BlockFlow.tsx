@@ -1476,27 +1476,34 @@ const OverviewFlow = ({ map }, ref) => {
 
 			console.log("OLD BLOCKS", newBlocks);
 
-			let nodesAsString = JSON.stringify(newBlocks);
+			let nodesIdModified;
 
-			newBlocks.forEach((node) => {
-				const NEW_ID = node.id;
-				const OLD_ID = node.oldId == undefined ? "-1" : node.oldId;
+			if(CLIPBOARD_DATA.type == "cut"){
+				let nodesAsString = JSON.stringify(newBlocks);
 
-				nodesAsString = regexReplacer(NEW_ID, OLD_ID, nodesAsString);
-			});
+				newBlocks.forEach((node) => {
+					const NEW_ID = node.id;
+					const OLD_ID =
+						node.oldId == undefined ? "-1" : node.oldId;
 
-			let nodesIdModified = JSON.parse(nodesAsString);
+					nodesAsString = regexReplacer(NEW_ID, OLD_ID, nodesAsString);
+				});
 
-			console.log(nodesIdModified);
+				nodesIdModified = JSON.parse(nodesAsString);
 
-			nodesIdModified.forEach((node) => {
-				delete node.oldId;
-				console.log(node);
-				if (node.data?.c && node.data?.c?.c) {
-					deleteNotFoundConditions(node.data.c.c, nodesIdModified);
-				}
-				console.log(node);
-			});
+				console.log(nodesIdModified);
+
+				nodesIdModified.forEach(node => {
+					delete node.oldId;
+					console.log(node);
+					if(node.data?.c && node.data?.c?.c){
+						deleteNotFoundConditions(node.data.c.c, nodesIdModified);
+					}
+					console.log(node);
+				});
+			} else {
+				nodesIdModified = newBlocks;
+			}
 
 			console.log(nodesIdModified);
 
