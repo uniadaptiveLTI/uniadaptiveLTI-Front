@@ -15,7 +15,7 @@ A clear and concise description of what the bug is.
 
 **Deployment used**
 - Docker / Local
-* Aditional notes *
+- Aditional notes
 
 **Is connected to the Backend?**
 - Yes/no
