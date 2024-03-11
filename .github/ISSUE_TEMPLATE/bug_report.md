@@ -17,11 +17,11 @@ A clear and concise description of what the bug is.
 - Docker / Local
 - Aditional notes
 
-**Is connected to the Backend?**
+**Is connected to the Backend? (Frontend only)**
 - Yes/no
 
 **Is connected to a compatible LMS?**
-- Yes/no
+- Yes/no (Platform and Version)
 
 **To Reproduce**
 Steps to reproduce the behavior:
