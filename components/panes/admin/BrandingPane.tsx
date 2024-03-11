@@ -419,7 +419,7 @@ export default function BrandingPane({ modifySettings, LTISettings }) {
 				<p>Selección de fragmentos de la interfaz:</p>
 				<UISelection
 					currentSelection={uiSelected}
-					setSelection={(e) => setUISelected(e.target.value)}
+					setSelection={(e) => setUISelected(e)}
 				></UISelection>
 			</div>
 
