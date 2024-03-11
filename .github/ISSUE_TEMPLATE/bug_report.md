@@ -13,6 +13,16 @@ A clear and concise description of what the bug is.
 **Version**
 - Updated main branch / X.X release
 
+**Deployment used**
+- Docker / Local
+* Aditional notes *
+
+**Is connected to the Backend?**
+- Yes/no
+
+**Is connected to a compatible LMS?**
+- Yes/no
+
 **To Reproduce**
 Steps to reproduce the behavior:
 1. Go to '...'
