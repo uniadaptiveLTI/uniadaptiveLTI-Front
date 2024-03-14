@@ -94,6 +94,7 @@ function manageBadges(nodeArray: Array<INode>, metaData: IMetaData) {
 
 function manageConditions(nodeArray: Array<INode>) {
 	function specifyRecursiveConditionType(condition) {
+		let newCondition = JSON.parse(JSON.stringify(condition));
 		let type = "";
 		if (condition.hasOwnProperty("type")) {
 			type = condition.type;
@@ -101,54 +102,65 @@ function manageConditions(nodeArray: Array<INode>) {
 
 		switch (type) {
 			case "grade":
-				condition.id = condition.cm;
-				if (condition.min) delete condition.cm;
+				newCondition.id = condition.cm;
+				if (newCondition.min) delete newCondition.cm;
 				break;
 			case "courseGrade":
-				condition.id = condition.courseId;
-				delete condition.courseId;
+				newCondition.id = condition.courseId;
+				delete newCondition.courseId;
 				break;
 			case "group":
 				if (condition.groupId) {
-					condition.id = condition.groupId;
+					newCondition.id = condition.groupId;
 				} else {
-					delete condition.id;
+					delete newCondition.id;
 				}
-				delete condition.groupId;
+				delete newCondition.groupId;
 				break;
 			case "grouping":
-				condition.id = condition.groupingId;
-				delete condition.groupingId;
+				newCondition.id = condition.groupingId;
+				delete newCondition.groupingId;
 				break;
 			default:
-				delete condition.id;
+				delete newCondition.id;
 				break;
 		}
 
-		if (condition.hasOwnProperty("c") && Array.isArray(condition.c)) {
-			condition.c.forEach(specifyRecursiveConditionType);
+		if (
+			newCondition.hasOwnProperty("c") &&
+			newCondition.c != undefined &&
+			Array.isArray(newCondition.c)
+		) {
+			newCondition.c.forEach(specifyRecursiveConditionType);
 		}
 	}
 
-	function replaceGenericConditions(conditionArray) {
-		// Recorrer el array de condiciones
-		for (let i = 0; i < conditionArray.length; i++) {
+	function replaceGenericConditions(conditionArray: Array<any>) {
+		const newConditionArray = conditionArray.map((condition, index) => {
 			// Obtener el elemento actual
-			let element = conditionArray[i];
+			condition = conditionArray[index];
 			// Comprobar si el tipo es "generic"
-			if (element.type === "generic") {
+			if (condition.type === "generic") {
 				// Reemplazar el elemento con su propiedad "data"
-				conditionArray.c[i] = element.data;
+				if (condition.data) {
+					if (condition.data.type && typeof condition.data.type == "string") {
+						return condition.data;
+					}
+				}
 			}
 
 			// Comprobar si el elemento tiene una propiedad "c" que es un array de JSON
-			if (element.hasOwnProperty("c") && Array.isArray(element)) {
+			if (
+				condition.hasOwnProperty("c") &&
+				condition.c != undefined &&
+				Array.isArray(condition.c)
+			) {
 				// Llamar a la función recursiva con ese elemento
-				replaceGenericConditions(element);
+				return { ...condition, c: replaceGenericConditions(condition.c) };
 			}
-		}
-
-		return conditionArray;
+			return condition;
+		});
+		return newConditionArray;
 	}
 
 	const newNodeArray = nodeArray.map((node) => {
