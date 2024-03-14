@@ -253,8 +253,8 @@ export const NodeDeclarations: Array<NodeDeclaration> = [
 
 /**
  * Reorders the IDs of an array of objects.
- * @param {Array<Object>} array - The array of objects to reorder the IDs of.
- * @returns {Array<Object>} A new array with the IDs of the objects reordered.
+ * @param array - The array of objects to reorder the IDs of.
+ * @returns  A new array with the IDs of the objects reordered.
  */
 const reorderIds = (
 	array: Array<{ id: number; [key: string]: any }>
@@ -266,7 +266,7 @@ const reorderIds = (
 
 /**
  * Gets an object representing the block flow types.
- * @returns {NodeTypes} An object representing block flow types.
+ * @returns An object representing block flow types.
  */
 export const getBlockFlowTypes = (): NodeTypes => {
 	let blockFlowTypes = {};
@@ -294,7 +294,7 @@ export const RF_NODE_TYPES = getBlockFlowTypes();
 
 /**
  * Gets an array of Moodle types, with their IDs reordered.
- * @returns {Array<NodeDeclaration>} An array of Moodle types, with their IDs reordered.
+ * @returns An array of Moodle types, with their IDs reordered.
  */
 export const getMoodleTypes = (): Array<NodeDeclaration> => {
 	return reorderIds(
@@ -304,7 +304,7 @@ export const getMoodleTypes = (): Array<NodeDeclaration> => {
 
 /**
  * Gets an array of Sakai types, with their IDs reordered.
- * @returns {Array<NodeDeclaration>} An array of Sakai types, with their IDs reordered.
+ * @returns An array of Sakai types, with their IDs reordered.
  */
 export const getSakaiTypes = (): Array<NodeDeclaration> => {
 	return reorderIds(
@@ -314,7 +314,7 @@ export const getSakaiTypes = (): Array<NodeDeclaration> => {
 
 /**
  * Gets an array of LTI types, with their IDs reordered.
- * @returns {Array<NodeDeclaration>} An array of LTI types, with their IDs reordered.
+ * @returns An array of LTI types, with their IDs reordered.
  */
 export const getLTITypes = (): Array<NodeDeclaration> => {
 	return reorderIds(
@@ -324,7 +324,7 @@ export const getLTITypes = (): Array<NodeDeclaration> => {
 
 /**
  * Gets an array of LTI types, with their IDs reordered.
- * @returns {Array<Object>} An array of ActionNodes types, with their IDs reordered.
+ * @returns An array of ActionNodes types, with their IDs reordered.
  */
 export const getActionNodeTypes = (): Array<NodeDeclaration> => {
 	return reorderIds(
@@ -336,7 +336,7 @@ export const getActionNodeTypes = (): Array<NodeDeclaration> => {
 
 /**
  * Gets an array of LTI types, with their IDs reordered.
- * @returns {Array<Object>} An array of ElementNodes types, with their IDs reordered.
+ * @returns An array of ElementNodes types, with their IDs reordered.
  */
 export const getElementNodeTypes = (): Array<NodeDeclaration> => {
 	return reorderIds(
@@ -348,8 +348,8 @@ export const getElementNodeTypes = (): Array<NodeDeclaration> => {
 
 /**
  * Gets an array of gradable objects for a given platform.
- * @param {Platforms} platform - The platform to get an array of gradable objects for.
- * @returns {Array<NodeDeclaration>} An array of gradable objects for the given platform.
+ * @param platform The platform to get an array of gradable objects for.
+ * @returns An array of gradable objects for the given platform.
  */
 export const getGradable = (platform: Platforms): Array<NodeDeclaration> => {
 	return NodeDeclarations.filter((declaration) => {
@@ -365,8 +365,8 @@ export const getGradable = (platform: Platforms): Array<NodeDeclaration> => {
 
 /**
  * Gets an array of gradable types for a given platform.
- * @param {Platforms} platform - The platform to get an array of gradable types for.
- * @returns {Array<string>} An array of gradable types for the given platform.
+ * @param platform The platform to get an array of gradable types for.
+ * @returns An array of gradable types for the given platform.
  */
 export const getGradableTypes = (platform: Platforms) => {
 	return getGradable(platform).map((declaration) => declaration.type);

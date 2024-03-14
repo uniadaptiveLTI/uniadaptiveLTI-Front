@@ -919,7 +919,7 @@ const OverviewFlow = ({ map }, ref) => {
 
 		//Clamp nodes order to avoid gaps
 		const FINAL_NODE_ARRAY = getUpdatedArrayById(
-			clampNodesOrder(updatedNodeArray, metaData.platform),
+			clampNodesOrder(updatedNodeArray as INode[], metaData.platform),
 			updatedNodeArray
 		);
 
@@ -936,7 +936,7 @@ const OverviewFlow = ({ map }, ref) => {
 
 		//Reordering
 		const finalReorderedNodeArray = getUpdatedArrayById(
-			clampNodesOrder(FINAL_NODE_ARRAY, metaData.platform),
+			clampNodesOrder(FINAL_NODE_ARRAY as INode[], metaData.platform),
 			FINAL_NODE_ARRAY
 		);
 
@@ -1478,13 +1478,12 @@ const OverviewFlow = ({ map }, ref) => {
 
 			let nodesIdModified;
 
-			if(CLIPBOARD_DATA.type == "cut"){
+			if (CLIPBOARD_DATA.type == "cut") {
 				let nodesAsString = JSON.stringify(newBlocks);
 
 				newBlocks.forEach((node) => {
 					const NEW_ID = node.id;
-					const OLD_ID =
-						node.oldId == undefined ? "-1" : node.oldId;
+					const OLD_ID = node.oldId == undefined ? "-1" : node.oldId;
 
 					nodesAsString = regexReplacer(NEW_ID, OLD_ID, nodesAsString);
 				});
@@ -1493,10 +1492,10 @@ const OverviewFlow = ({ map }, ref) => {
 
 				console.log(nodesIdModified);
 
-				nodesIdModified.forEach(node => {
+				nodesIdModified.forEach((node) => {
 					delete node.oldId;
 					console.log(node);
-					if(node.data?.c && node.data?.c?.c){
+					if (node.data?.c && node.data?.c?.c) {
 						deleteNotFoundConditions(node.data.c.c, nodesIdModified);
 					}
 					console.log(node);
@@ -1690,7 +1689,12 @@ const OverviewFlow = ({ map }, ref) => {
 			newcurrentBlocksData
 		);
 
-		errorListCheck(FINAL_CURRENT_BLOCKSDATA, errorList, setErrorList, false);
+		errorListCheck(
+			FINAL_CURRENT_BLOCKSDATA as INode[],
+			errorList,
+			setErrorList,
+			false
+		);
 
 		setNodes(FINAL_CURRENT_BLOCKSDATA);
 	};

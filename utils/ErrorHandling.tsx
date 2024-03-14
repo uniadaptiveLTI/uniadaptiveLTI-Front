@@ -1,18 +1,19 @@
+import { INode } from "@components/interfaces/INode";
 import { INodeError } from "@components/interfaces/INodeError";
 import { uniqueId } from "@utils/Utils";
 
 /**
  * Checks if a data item or an array of data items have errors and updates the error list accordingly.
- * @param {Object|Object[]} data - The data item or array of data items to check.
- * @param {Array<INodeError>} errorList - The current list of errors.
- * @param {function} setErrorList - The function to set the new error list.
- * @param {boolean} deleteFromList - A flag to indicate if the errors should be deleted from the list or not.
+ * @param data - The data item or array of data items to check.
+ * @param errorList - The current list of errors.
+ * @param setErrorList - The function to set the new error list.
+ * @param deleteFromList - A flag to indicate if the errors should be deleted from the list or not.
  */
 export function errorListCheck(
-	data,
-	errorList,
-	setErrorList,
-	deleteFromList = false
+	data: INode | INode[],
+	errorList: Array<INodeError>,
+	setErrorList: Function,
+	deleteFromList: boolean = false
 ) {
 	let errorArray = errorList;
 	if (!errorArray) {
@@ -20,13 +21,15 @@ export function errorListCheck(
 	}
 
 	if (!Array.isArray(data) || data.length <= 1) {
+		let node: INode;
 		if (Array.isArray(data)) {
 			data = data[0];
 		}
+		node = data;
 		if (data && data.type !== "fragment") {
 			console.log("INITIAL ERROR ARRAY", errorArray);
 			let NODE_ERROR_LIST = errorArray.filter(
-				(error) => error.nodeId == data.id
+				(error) => error.nodeId == node.id
 			);
 
 			let resourceErrorFounded = false;
@@ -38,8 +41,8 @@ export function errorListCheck(
 					case "resourceNotFound":
 						console.log(data);
 						if (
-							data.data?.lmsResource != undefined &&
-							data.data?.lmsResource != "-1"
+							node.data?.lmsResource != undefined &&
+							node.data?.lmsResource != "-1"
 						) {
 							errorArray = errorArray.filter(
 								(errorFounded) => error.id !== errorFounded.id
@@ -49,10 +52,11 @@ export function errorListCheck(
 						break;
 					case "sectionNotFound":
 						if (
-							data.data.section !== null &&
-							data.data.section !== undefined &&
-							data.data.section > 0 &&
-							data.type !== "badge"
+							"section" in node.data &&
+							node.data.section !== null &&
+							node.data.section !== undefined &&
+							node.data.section > 0 &&
+							node.type !== "badge"
 						) {
 							errorArray = errorArray.filter(
 								(errorFounded) => error.id !== errorFounded.id
@@ -62,9 +66,10 @@ export function errorListCheck(
 						break;
 					case "orderNotFound":
 						if (
-							data.data.order !== undefined &&
-							data.data.order !== -Infinity &&
-							data.type !== "badge"
+							"order" in node.data &&
+							node.data.order !== undefined &&
+							node.data.order !== -Infinity &&
+							node.type !== "badge"
 						) {
 							errorArray = errorArray.filter(
 								(errorFounded) => error.id !== errorFounded.id

@@ -219,7 +219,10 @@ export default function moodleExport(
 	console.log("fixedC", nodesWithFixedShowC);
 	const nodesWithConditionsFixed = manageConditions(nodesWithFixedShowC);
 	console.log("conditionsfixed", nodesWithConditionsFixed);
-	const nodesWithBadgesFixed = manageBadges(nodesWithConditionsFixed, metaData);
+	const nodesWithBadgesFixed = manageBadges(
+		nodesWithConditionsFixed as INode[],
+		metaData
+	);
 	console.log("badges", nodesWithBadgesFixed);
 	const nodesCleaned = finalClean(nodesWithBadgesFixed);
 	console.log("nodesCleaned", nodesCleaned);

@@ -574,16 +574,18 @@ export default forwardRef(function ExportModal(
 												entry.nodeId,
 												reactFlowInstance.getNodes()
 											);
-											return (
-												<div key={entry.id} onClick={() => handleEdit(NODE)}>
-													<a role="button" className={styles.iconError}>
-														{getTypeIcon(NODE.type, metaData.platform, 16)}
-													</a>{" "}
-													<a role="button" className={styles.nodeError}>
-														{entry.nodeName}
-													</a>
-												</div>
-											);
+											if (NODE != undefined) {
+												return (
+													<div key={entry.id} onClick={() => handleEdit(NODE)}>
+														<a role="button" className={styles.iconError}>
+															{getTypeIcon(NODE.type, metaData.platform, 16)}
+														</a>{" "}
+														<a role="button" className={styles.nodeError}>
+															{entry.nodeName}
+														</a>
+													</div>
+												);
+											}
 										})}
 									</div>
 								)}

@@ -315,9 +315,6 @@ function Header({ LTISettings }, ref) {
 					localMetaData.platform,
 					localUserData,
 					data ? NEW_MAP : EMPTY_NEW_MAP,
-					DEFAULT_TOAST_SUCCESS,
-					DEFAULT_TOAST_ERROR,
-					toast,
 					enableSaving,
 					undefined
 				);
@@ -437,9 +434,6 @@ function Header({ LTISettings }, ref) {
 				localMetaData.platform,
 				localUserData,
 				platformNewMap,
-				DEFAULT_TOAST_SUCCESS,
-				DEFAULT_TOAST_ERROR,
-				toast,
 				enableSaving,
 				undefined
 			);
@@ -493,7 +487,7 @@ function Header({ LTISettings }, ref) {
 		const NEW_VERSION: IVersion = data
 			? {
 					...data,
-					blocks_data: REACTFLOW_INSTANCE.getNodes(),
+					blocks_data: REACTFLOW_INSTANCE.getNodes() as INode[],
 					id: Number(uniqueId()),
 					lastUpdate: new Date().toLocaleDateString(),
 					name: finalName,
@@ -1105,9 +1099,6 @@ function Header({ LTISettings }, ref) {
 				userData,
 				mapSelected,
 				selectedVersion,
-				DEFAULT_TOAST_SUCCESS,
-				DEFAULT_TOAST_ERROR,
-				toast,
 				enableSaving,
 				undefined
 			);

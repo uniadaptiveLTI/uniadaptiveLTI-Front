@@ -279,7 +279,11 @@ export default function ExportPanel({
 			const LMS_RESOURCE =
 				node.data.lmsResource == undefined ? "-1" : node.data.lmsResource;
 
-			nodesIdModified = regexReplacer(ORIGINAL_ID, LMS_RESOURCE, nodesIdModified);
+			nodesIdModified = regexReplacer(
+				ORIGINAL_ID,
+				LMS_RESOURCE,
+				nodesIdModified
+			);
 		});
 
 		const nodesWithResourceIDs = JSON.parse(nodesIdModified);
@@ -360,9 +364,6 @@ export default function ExportPanel({
 						userData,
 						mapSelected,
 						selectedVersion,
-						DEFAULT_TOAST_SUCCESS,
-						DEFAULT_TOAST_ERROR,
-						toast,
 						enableExporting,
 						RESPONSE.data,
 						lesson?.id,
