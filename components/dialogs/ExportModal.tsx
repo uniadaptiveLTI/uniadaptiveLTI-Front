@@ -31,7 +31,7 @@ import {
 	faQuestion,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import ExportPane from "@components/panes/exportmodal/ExportPane";
+import ExportPane from "@components/panes/exportpane/ExportPane";
 import { SettingsContext } from "pages/_app";
 import { ILTISettings } from "@components/interfaces/ILTISettings";
 import { IVersion } from "@components/interfaces/IVersion";
