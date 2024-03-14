@@ -15,6 +15,8 @@ import { IVersion } from "@components/interfaces/IVersion";
 import { Platforms } from "./Platform";
 import { ToastProps } from "react-toastify/dist/types";
 import { SizeProp } from "@fortawesome/fontawesome-svg-core";
+import { toast } from "react-toastify";
+import { DEFAULT_TOAST_ERROR, DEFAULT_TOAST_SUCCESS } from "pages/_app";
 interface IdentificableObject {
 	id: string | number;
 }
@@ -319,7 +321,8 @@ export function updateBadgeConditions(
  * @returns The HTTP prefix, either "http" or "https".
  */
 export function getHTTPPrefix(): string {
-	return window.location.protocol;
+	const forceSSL = parseBool(process.env.NEXT_PUBLIC_FORCE_SSL);
+	return forceSSL ? "https:" : window.location.protocol;
 }
 
 /**
@@ -422,11 +425,8 @@ export function parseDateToString(date: Date, full: boolean = true) {
  * @param userData userData object
  * @param mapSelected current map object
  * @param versionJson current version object
- * @param defaultToastSuccess Toast Success Settings Object
- * @param defaultToastSuccess Toast Error Settings Object
- * @param toast Toast function
  * @param enable
- * @param {Object} responseData responseData object
+ * @param responseData responseData object
  * @param lessonId
  * @param setAsDefault sets the map as default
  */
@@ -437,9 +437,6 @@ export async function saveVersion(
 	userData: IUserData,
 	mapSelected: IMap,
 	versionJson: IVersion,
-	defaultToastSuccess: ToastProps,
-	defaultToastError: ToastProps,
-	toast: Function,
 	enable: Function,
 	responseData: Object,
 	lessonId?: string,
@@ -493,20 +490,12 @@ export async function saveVersion(
 
 		const RESPONSE = await storeVersion(SAVE_DATA);
 
-		saveVersionErrors(
-			RESPONSE,
-			responseData,
-			toast,
-			SUCCESS_MESSAGE,
-			defaultToastSuccess,
-			ERROR_MESSAGE,
-			defaultToastError
-		);
+		saveVersionErrors(RESPONSE, responseData, SUCCESS_MESSAGE, ERROR_MESSAGE);
 		return true;
 	} catch (e) {
 		// If an error occurs when making the request, show the error message and log the error in the console
 		console.error(e);
-		toast(ERROR_MESSAGE, defaultToastError);
+		toast(ERROR_MESSAGE, DEFAULT_TOAST_ERROR);
 		return false;
 	} finally {
 		enable(false);
@@ -521,9 +510,6 @@ export async function saveVersion(
  * @param mapSelected current map object
  * @param versionJson current version object
  * @param LTISettings LTISettings object
- * @param defaultToastSuccess Toast Success Settings Object
- * @param defaultToastSuccess Toast Error Settings Object
- * @param toast Toast function
  * @param enable
  * @param responseData responseData object
  * @param lessonId
@@ -534,9 +520,6 @@ export async function saveVersions(
 	platform: Platforms,
 	userData: IUserData,
 	mapSelected: IMap,
-	defaultToastSuccess: ToastProps,
-	defaultToastError: ToastProps,
-	toast: Function,
 	enable: Function,
 	responseData: Object,
 	lessonId?: string
@@ -596,32 +579,28 @@ export async function saveVersions(
 			{ saveData: SAVE_DATA }
 		);
 
-		saveVersionErrors(
-			RESPONSE,
-			responseData,
-			toast,
-			SUCCESS_MESSAGE,
-			defaultToastSuccess,
-			ERROR_MESSAGE,
-			defaultToastError
-		);
+		saveVersionErrors(RESPONSE, responseData, SUCCESS_MESSAGE, ERROR_MESSAGE);
 	} catch (e) {
 		// If an error occurs when making the request, show the error message and log the error in the console
 		console.error(e);
-		toast(ERROR_MESSAGE, defaultToastError);
+		toast(ERROR_MESSAGE, DEFAULT_TOAST_ERROR);
 	} finally {
 		enable(false);
 	}
 }
 
+/**
+ * Shows the correct error. Follow up to saveVersions.
+ * @param response
+ * @param responseData
+ * @param SUCCESS_MESSAGE
+ * @param ERROR_MESSAGE
+ */
 function saveVersionErrors(
 	response,
 	responseData,
-	toast,
 	SUCCESS_MESSAGE,
-	defaultToastSuccess,
-	ERROR_MESSAGE,
-	defaultToastError
+	ERROR_MESSAGE
 ) {
 	if (response && response.ok) {
 		if (responseData) {
@@ -633,7 +612,7 @@ function saveVersionErrors(
 					);
 					toast(
 						"La exportación y el guardado de la página de contenidos se han completado con éxito.",
-						defaultToastSuccess
+						DEFAULT_TOAST_SUCCESS
 					);
 					break;
 				case "SUCCESSFUL_EXPORT_WITHOUT_CONDITIONS":
@@ -643,7 +622,7 @@ function saveVersionErrors(
 					);
 					toast(
 						"La exportación (sin condiciones) y el guardado de la página de contenidos se han completado con éxito.",
-						defaultToastSuccess
+						DEFAULT_TOAST_SUCCESS
 					);
 					break;
 			}
@@ -653,7 +632,7 @@ function saveVersionErrors(
 				"%c ✔ Versión guardada con éxito",
 				"background: #D7FFD7; color: black; padding: 4px;"
 			);
-			toast(SUCCESS_MESSAGE, defaultToastSuccess);
+			toast(SUCCESS_MESSAGE, DEFAULT_TOAST_SUCCESS);
 		}
 	} else {
 		if (responseData) {
@@ -665,7 +644,7 @@ function saveVersionErrors(
 					);
 					toast(
 						"La exportación se ha completado con éxito, el guardado ha fallado",
-						defaultToastError
+						DEFAULT_TOAST_ERROR
 					);
 					break;
 				case "SUCCESSFUL_EXPORT_WITHOUT_CONDITIONS":
@@ -675,7 +654,7 @@ function saveVersionErrors(
 					);
 					toast(
 						"La exportación (sin condiciones) se ha completado con éxito, el guardado ha fallado",
-						defaultToastError
+						DEFAULT_TOAST_ERROR
 					);
 					break;
 			}
@@ -685,52 +664,52 @@ function saveVersionErrors(
 				"background: #FFD7DC; color: black; padding: 4px;"
 			);
 			// If the response is not successful, show the error message
-			toast(ERROR_MESSAGE, defaultToastError);
+			toast(ERROR_MESSAGE, DEFAULT_TOAST_ERROR);
 		}
 	}
 }
 
 /**
  * Redirects to the correct clampNodesOrder given the platform
- * @param {Array} nodeArray - ReactFlow's node array.
- * @param {String} platform - The platform name as a string
- * @returns {Array} The reordered node array.
+ * @param nodeArray ReactFlow's node array.
+ * @param platform The platform name as a string
+ * @returns The reordered node array.
  */
-export function clampNodesOrder(nodeArray, platform) {
+export function clampNodesOrder(nodeArray: INode[], platform: Platforms) {
 	switch (platform) {
 		case Platforms.Moodle:
 			return clampNodesOrderMoodle(nodeArray);
 		case Platforms.Sakai:
 			return clampNodesOrderSakai(nodeArray);
-		case "default":
+		default:
 			return nodeArray;
 	}
 }
 
 /**
  * Gets the ID of a node given its lmsResource ID
- * @param {String} resourceId - Id on string.
- * @param {Array} nodes - Node array.
- * @returns {String} The ID of the node.
+ * @param resourceId - Id on string.
+ * @param nodes - Node array.
+ * @returns The ID of the node.
  */
-export function LMSResourceToId(resourceId, nodes) {
+export function LMSResourceToId(resourceId: string, nodes: INode[]) {
 	const NODE = nodes.find((node) => node.data.lmsResource == resourceId);
 	return NODE ? NODE.id : undefined;
 }
 
 /**
  * This function handles name collisions by appending a count and separator to the name if it already exists in the array.
- * @param {string} name - The name to check for collisions.
- * @param {string[]} [array=[]] - The array of existing names.
- * @param {boolean} [forceCount=false] - Whether to force appending a count to the name.
- * @param {string} [separatorType=""] - The type of separator to use when appending the count.
- * @returns {string} - The final name after handling collisions.
+ * @param name The name to check for collisions.
+ * @param array The array of existing names.
+ * @param forceCount Whether to force appending a count to the name.
+ * @param separatorType The type of separator to use when appending the count.
+ * @returns The final name after handling collisions.
  */
 export function handleNameCollision(
-	name,
-	array = [],
-	forceCount = false,
-	separatorType = ""
+	name: string,
+	array: string[] = [],
+	forceCount: boolean = false,
+	separatorType: string = ""
 ) {
 	const PREFIX_SUFFIX_MAP = {
 		"[": "]",
@@ -761,6 +740,10 @@ export function handleNameCollision(
 
 /**
  * This function returns a fontAwesome component passing an icon
+ * @param icon FA's icon
+ * @param size  FA's size
+ * @param color  FA's color
+ * @returns FA icon
  */
 export function createFontAwesome(
 	icon: FontAwesomeIconProps["icon"],
@@ -770,7 +753,13 @@ export function createFontAwesome(
 	return <FontAwesomeIcon icon={icon} color={color} size={size} />;
 }
 
-export function findConditionById(id, conditions) {
+/**
+ *
+ * @param id id of the condition.
+ * @param conditions list of conditions.
+ * @returns the condition found.
+ */
+export function findConditionById(id: string, conditions: any[]) {
 	if (!conditions) {
 		return null;
 	}
@@ -799,7 +788,16 @@ export function findConditionById(id, conditions) {
 	return null;
 }
 
-export function findConditionByParentId(subConditions, blockNodeId) {
+/**
+ *
+ * @param subConditions Array of conditions
+ * @param blockNodeId ID of the node
+ * @returns
+ */
+export function findConditionByParentId(
+	subConditions: any[],
+	blockNodeId: string
+) {
 	for (const SUBCONDITION of subConditions) {
 		const FOUND_CONDITION = SUBCONDITION.subConditions?.find((condition) => {
 			return condition.itemId === blockNodeId;
@@ -812,32 +810,45 @@ export function findConditionByParentId(subConditions, blockNodeId) {
 	return null;
 }
 
-export function regexReplacer(OLD_VALUE:string, NEW_VALUE:string, OBJECT_STRING:any){
+/**
+ *
+ * @param OLD_VALUE Value to replace
+ * @param NEW_VALUE Value to replace into
+ * @param STRING The string to replace in
+ * @returns The string with the values replaced
+ */
+export function regexReplacer(
+	OLD_VALUE: string,
+	NEW_VALUE: string,
+	STRING: string
+) {
 	const REGEX = new RegExp('"' + OLD_VALUE + '"', "g");
 
-	OBJECT_STRING = OBJECT_STRING.replace(
-		REGEX,
-		JSON.stringify(String(NEW_VALUE))
-	);
+	STRING = STRING.replace(REGEX, JSON.stringify(String(NEW_VALUE)));
 
-	return OBJECT_STRING;
+	return STRING;
 }
 
-export function deleteNotFoundConditions(conditions, blocks){
-    if (Array.isArray(conditions)) {
-      for (let i = conditions.length - 1; i >= 0; i--) {
-        const condition = conditions[i];
+/**
+ * Deletes conditions depending if the node.id is included
+ * @param conditions list of conditions
+ * @param nodes nodes
+ */
+export function deleteNotFoundConditions(conditions: any[], nodes: INode[]) {
+	if (Array.isArray(conditions)) {
+		for (let i = conditions.length - 1; i >= 0; i--) {
+			const condition = conditions[i];
 
-        if (condition.type === 'grade' || condition.type === 'completion') {
-			const matchingBlock = blocks.find((block) => block.id === condition.cm);
-			if(!matchingBlock){
-				conditions.splice(i, 1);
+			if (condition.type === "grade" || condition.type === "completion") {
+				const matchingBlock = nodes.find((node) => node.id === condition.cm);
+				if (!matchingBlock) {
+					conditions.splice(i, 1);
+				}
 			}
-        }
 
-        if (condition.c && Array.isArray(condition.c)) {
-          deleteNotFoundConditions(condition.c, blocks);
-        }
-      }
-    }
-  };
+			if (condition.c && Array.isArray(condition.c)) {
+				deleteNotFoundConditions(condition.c, nodes);
+			}
+		}
+	}
+}

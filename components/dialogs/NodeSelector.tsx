@@ -7,7 +7,11 @@ import {
 	useState,
 } from "react";
 import { Modal, Button, Container, Col, Row } from "react-bootstrap";
-import { NodeDeclarations, getGradableTypes } from "@utils/TypeDefinitions";
+import {
+	MoodleGradableTypes,
+	NodeDeclarations,
+	getGradableTypes,
+} from "@utils/TypeDefinitions";
 import {
 	handleNameCollision,
 	orderByPropertyAlphabetically,
@@ -24,7 +28,11 @@ import {
 	startingSectionID,
 } from "@utils/Platform";
 import { MetaDataContext } from "pages/_app";
-import { INode, INodeData } from "@components/interfaces/INode";
+import {
+	IElementNodeData,
+	INode,
+	INodeData,
+} from "@components/interfaces/INode";
 
 interface NodeSelectorProps {
 	showDialog: boolean;
@@ -104,7 +112,16 @@ export default function NodeSelector({
 
 		const TYPE_COLOR = getTypeStaticColor(type, metaData.platform);
 		const TYPE_ICON = getTypeIcon(type, metaData.platform, 32);
-		const DATA = {
+		interface newNodeData {
+			label: IElementNodeData["label"];
+			children: IElementNodeData["children"];
+			section: IElementNodeData["section"];
+			order: IElementNodeData["order"];
+			indent: IElementNodeData["indent"];
+			lmsVisibility: IElementNodeData["lmsVisibility"];
+			g?: IElementNodeData["g"];
+		}
+		const DATA: newNodeData = {
 			label: "",
 			children: [],
 			section: 0,

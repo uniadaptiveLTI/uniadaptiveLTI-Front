@@ -22,10 +22,14 @@ const config = {
 		"/node_modules/",
 		"^.+\\.module\\.(css|sass|scss)$",
 	],
-	testMatch: ["<rootDir>/**/*.test.js", "<rootDir>/__tests__/**/*.test.js"],
+	testMatch: ["<rootDir>/**/*.test.ts"],
 	moduleNameMapper: {
 		"^@/components/(.*)$": "<rootDir>/$1",
 	},
+	presets: [
+		["@babel/preset-env", { targets: { node: "current" } }],
+		"@babel/preset-typescript",
+	],
 };
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async
