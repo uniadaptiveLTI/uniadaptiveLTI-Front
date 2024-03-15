@@ -109,18 +109,6 @@ function manageConditions(nodeArray: Array<INode>) {
 				newCondition.id = condition.courseId;
 				delete newCondition.courseId;
 				break;
-			case "group":
-				if (condition.groupId) {
-					newCondition.id = condition.groupId;
-				} else {
-					delete newCondition.id;
-				}
-				delete newCondition.groupId;
-				break;
-			case "grouping":
-				newCondition.id = condition.groupingId;
-				delete newCondition.groupingId;
-				break;
 			default:
 				delete newCondition.id;
 				break;
@@ -133,6 +121,7 @@ function manageConditions(nodeArray: Array<INode>) {
 		) {
 			newCondition.c.forEach(specifyRecursiveConditionType);
 		}
+		return newCondition;
 	}
 
 	function replaceGenericConditions(conditionArray: Array<any>) {
@@ -166,10 +155,10 @@ function manageConditions(nodeArray: Array<INode>) {
 	const newNodeArray = nodeArray.map((node) => {
 		if ("c" in node.data && "c" in node.data.c) {
 			const newConditions = node.data.c.c;
-			newConditions.map((condition) =>
+			const specifiedConditions = newConditions.map((condition) =>
 				specifyRecursiveConditionType(condition)
 			);
-			const fixedConditions = replaceGenericConditions(newConditions);
+			const fixedConditions = replaceGenericConditions(specifiedConditions);
 			const newNode = {
 				...node,
 				data: {
