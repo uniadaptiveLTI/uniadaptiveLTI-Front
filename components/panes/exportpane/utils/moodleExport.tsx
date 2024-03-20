@@ -109,6 +109,18 @@ function manageConditions(nodeArray: Array<INode>) {
 				newCondition.id = condition.courseId;
 				delete newCondition.courseId;
 				break;
+			case "group":
+				if (condition.groupId) {
+					newCondition.id = condition.groupId;
+				} else {
+					delete newCondition.id;
+				}
+				delete newCondition.groupId;
+				break;
+			case "grouping":
+				newCondition.id = condition.groupingId;
+				delete newCondition.groupingId;
+				break;
 			default:
 				delete newCondition.id;
 				break;
