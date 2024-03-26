@@ -73,6 +73,7 @@ export default function Aside({ LTISettings, className }) {
 	const [selectedOption, setSelectedOption] = useState("");
 	const [nodeChange, setNodeChange] = useState(0);
 	const [lmsResource, setLmsResource] = useState("");
+	const [nodeLMSType, setNodeLMSType] = useState("");
 	const [showSpinner, setShowSpinner] = useState(false);
 	const [allowResourceSelection, setAllowResourceSelection] = useState(true);
 
@@ -207,33 +208,29 @@ export default function Aside({ LTISettings, className }) {
 						{
 							id: "0",
 							name: `${capitalizeFirstLetter(
-								NodeDeclarations.filter(
-									(node) => node.type == nodeSelected.type
-								)[0].name
+								NodeDeclarations.filter((node) => node.type == nodeLMSType)[0]
+									.name
 							)} A`,
 						},
 						{
 							id: "1",
 							name: `${capitalizeFirstLetter(
-								NodeDeclarations.filter(
-									(node) => node.type == nodeSelected.type
-								)[0].name
+								NodeDeclarations.filter((node) => node.type == nodeLMSType)[0]
+									.name
 							)} B`,
 						},
 						{
 							id: "2",
 							name: `${capitalizeFirstLetter(
-								NodeDeclarations.filter(
-									(node) => node.type == nodeSelected.type
-								)[0].name
+								NodeDeclarations.filter((node) => node.type == nodeLMSType)[0]
+									.name
 							)} C`,
 						},
 						{
 							id: "3",
 							name: `${capitalizeFirstLetter(
-								NodeDeclarations.filter(
-									(node) => node.type == nodeSelected.type
-								)[0].name
+								NodeDeclarations.filter((node) => node.type == nodeLMSType)[0]
+									.name
 							)} D`,
 						},
 					];
@@ -244,8 +241,12 @@ export default function Aside({ LTISettings, className }) {
 						}
 					});
 
-					//Adds current resource if exists
-					if (nodeSelected && nodeSelected.data) {
+					//Adds current resource if exists and the type didn't change
+					if (
+						nodeSelected &&
+						nodeSelected.data &&
+						nodeSelected.type == nodeLMSType
+					) {
 						if ("lmsResource" in nodeSelected.data)
 							if (nodeSelected.data.lmsResource != undefined) {
 								if (nodeSelected.data.lmsResource != "") {
@@ -267,15 +268,14 @@ export default function Aside({ LTISettings, className }) {
 					);
 					UNIQUE_FILTERED_DATA.unshift({
 						id: -1,
-						name: NodeDeclarations.filter(
-							(node) => node.type == nodeSelected.type
-						)[0].emptyName,
+						name: NodeDeclarations.filter((node) => node.type == nodeLMSType)[0]
+							.emptyName,
 					});
 					setResourceOptions(UNIQUE_FILTERED_DATA);
 				}, 1000);
 			} else {
 				if (nodeSelected !== undefined) {
-					fetchResources(nodeSelected.type).then((data) => {
+					fetchResources(nodeLMSType).then((data) => {
 						if (data) {
 							const FILTERED_DATA = [];
 							data.forEach((resource) => {
@@ -283,8 +283,12 @@ export default function Aside({ LTISettings, className }) {
 									FILTERED_DATA.push(resource);
 								}
 							});
-							//Adds current resource if exists
-							if (nodeSelected && nodeSelected.data) {
+							//Adds current resource if exists if the type didn't change
+							if (
+								nodeSelected &&
+								nodeSelected.data &&
+								nodeSelected.type == nodeLMSType
+							) {
 								if ("lmsResource" in nodeSelected.data)
 									if (nodeSelected.data.lmsResource) {
 										if (nodeSelected.data.lmsResource != "") {
@@ -310,12 +314,12 @@ export default function Aside({ LTISettings, className }) {
 											option.section > -1 ? "- Sección: " + option.section : ""
 									  }`);
 							});
-							UNIQUE_FILTERED_DATA.unshift({
+							/*UNIQUE_FILTERED_DATA.unshift({
 								id: -1,
 								name: NodeDeclarations.filter(
 									(node) => node.type == nodeSelected.type
 								)[0].emptyName,
-							});
+							});*/
 
 							setResourceOptions(UNIQUE_FILTERED_DATA);
 						}
@@ -323,7 +327,7 @@ export default function Aside({ LTISettings, className }) {
 				}
 			}
 		}
-	}, [nodeSelected]);
+	}, [nodeLMSType]);
 
 	useEffect(() => {
 		if (nodeSelected) {
@@ -792,6 +796,10 @@ export default function Aside({ LTISettings, className }) {
 											id={typeDOMId}
 											className="w-100"
 											defaultValue={nodeSelected ? "" : nodeSelected.type}
+											onChange={(e) => {
+												setNodeLMSType(e.target.value);
+												setResourceOptions([]);
+											}}
 											//onChange={handleSelect}
 										>
 											{metaData.platform == Platforms.Moodle
@@ -905,7 +913,7 @@ export default function Aside({ LTISettings, className }) {
 											{allowResourceSelection && (
 												<>
 													<option key="-1" hidden value={-1}>
-														{"Esperando recursos..."}
+														{"Recurso vacío"}
 													</option>
 													{resourceOptions.map((resource) => (
 														<option key={resource.id} value={resource.id}>
