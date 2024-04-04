@@ -1335,7 +1335,7 @@ function Header({ LTISettings }, ref) {
 								className={`btn-light d-flex align-items-center p-2 ${styles.actionButtons}`}
 								onClick={() =>
 									window.open(
-										"https://docs.google.com/document/d/1mbLlx_1A9a-6aNAb8n_amQxxwZocZeawbat_Bs152Sw",
+										"https://drive.google.com/file/d/1HD0b3pioUKnOT5DAuOkyu9jnUy-Jg2OX/view?usp=sharing",
 										"_blank"
 									)
 								}

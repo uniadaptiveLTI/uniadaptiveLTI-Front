@@ -208,29 +208,33 @@ export default function Aside({ LTISettings, className }) {
 						{
 							id: "0",
 							name: `${capitalizeFirstLetter(
-								NodeDeclarations.filter((node) => node.type == nodeLMSType)[0]
-									.name
+								NodeDeclarations.filter(
+									(node) => node.type == nodeLMSType || nodeSelected.type
+								)[0].name
 							)} A`,
 						},
 						{
 							id: "1",
 							name: `${capitalizeFirstLetter(
-								NodeDeclarations.filter((node) => node.type == nodeLMSType)[0]
-									.name
+								NodeDeclarations.filter(
+									(node) => node.type == nodeLMSType || nodeSelected.type
+								)[0].name
 							)} B`,
 						},
 						{
 							id: "2",
 							name: `${capitalizeFirstLetter(
-								NodeDeclarations.filter((node) => node.type == nodeLMSType)[0]
-									.name
+								NodeDeclarations.filter(
+									(node) => node.type == nodeLMSType || nodeSelected.type
+								)[0].name
 							)} C`,
 						},
 						{
 							id: "3",
 							name: `${capitalizeFirstLetter(
-								NodeDeclarations.filter((node) => node.type == nodeLMSType)[0]
-									.name
+								NodeDeclarations.filter(
+									(node) => node.type == nodeLMSType || nodeSelected.type
+								)[0].name
 							)} D`,
 						},
 					];
@@ -268,14 +272,15 @@ export default function Aside({ LTISettings, className }) {
 					);
 					UNIQUE_FILTERED_DATA.unshift({
 						id: -1,
-						name: NodeDeclarations.filter((node) => node.type == nodeLMSType)[0]
-							.emptyName,
+						name: NodeDeclarations.filter(
+							(node) => node.type == nodeLMSType || nodeSelected.type
+						)[0].emptyName,
 					});
 					setResourceOptions(UNIQUE_FILTERED_DATA);
 				}, 1000);
 			} else {
 				if (nodeSelected !== undefined) {
-					fetchResources(nodeLMSType).then((data) => {
+					fetchResources(nodeLMSType || nodeSelected.type).then((data) => {
 						if (data) {
 							const FILTERED_DATA = [];
 							data.forEach((resource) => {
@@ -327,7 +332,7 @@ export default function Aside({ LTISettings, className }) {
 				}
 			}
 		}
-	}, [nodeLMSType]);
+	}, [nodeLMSType, nodeSelected]);
 
 	useEffect(() => {
 		if (nodeSelected) {
